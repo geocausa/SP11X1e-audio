@@ -1,10 +1,12 @@
 # Windows KDNET structural-gap capture
 
-This is a read-only capture for the two facts that the saved 2026-06-18 KDNET
+This is a read-only capture for the three facts that the saved 2026-06-18 KDNET
 sessions missed:
 
 1. the six 32-bit ACDB selector values passed to query `0xacdb0017`; and
-2. the mapped out-of-band request bodies used to construct large GPR commands,
+2. every client SET_CFG payload, including the two 64-byte graph-manager
+   requests adjacent to each captured music GRAPH_OPEN; and
+3. the mapped out-of-band request bodies used to construct large GPR commands,
    including GRAPH_OPEN.
 
 Do not use this runbook with a different `qcadcm8380.sys`. The RVAs are tied to:
@@ -40,6 +42,12 @@ For the saved `0xb18` request the values are `0xac8`, `0xb18`, and `0x50`;
 `0xac8 + 0x50 == 0xb18`. The old log recorded the mapping base and the
 `base+0xac8` segment boundary but never displayed bytes at the base.
 
+The matching driver's `gsl_set_custom_config` entry is
+`qcadcm8380+0x60b78`. ARM64 arguments `x1` and `w2` are the original payload
+pointer and total size. This is before its 256-byte in-band/OOB split, so one
+read-only breakpoint captures both paths and, unlike the GRAPH_OPEN-specific
+breakpoint, does not exclude the decisive 64-byte requests.
+
 ## Capture procedure
 
 1. Connect the USB EEM/KDNET debugger and stop at the first kernel boot break,
@@ -53,9 +61,11 @@ For the saved `0xb18` request the values are `0xac8`, `0xb18`, and `0x50`;
 
 The selector breakpoint records every valid six-word query, up to 64 matches,
 because repeated or changed vectors are needed to reconstruct selection order.
-The OOB breakpoint records only requests from `0x500` through `0x4000` bytes
-whose two segment sizes sum to the total, and disables itself after 32 matches.
-Neither breakpoint modifies target memory or driver state.
+The SET_CFG breakpoint records valid payloads up to `0x4000` bytes and disables
+itself after 256 matches. The GRAPH_OPEN OOB breakpoint records only requests
+from `0x500` through `0x4000` bytes whose two segment sizes sum to the total,
+and disables itself after 32 matches. No breakpoint modifies target memory or
+driver state.
 
 Expected log markers:
 
@@ -64,6 +74,10 @@ Expected log markers:
 ...
 ===== CODEX_ACDB_SELECTOR_6X32_END =====
 
+===== CODEX_QCADCM_SET_CFG_BEGIN =====
+...
+===== CODEX_QCADCM_SET_CFG_END =====
+
 ===== CODEX_QCADCM_OOB_BEGIN =====
 ...
 ===== CODEX_QCADCM_OOB_END =====
@@ -71,4 +85,6 @@ Expected log markers:
 
 Retain the complete log rather than copying only the apparent GRAPH_OPEN hit.
 Ordering is needed to bind all co-selected GKV schemas and their cross-bundle
-edges to the same Windows session.
+edges to the same Windows session. In particular, do not omit 64-byte SET_CFG
+blocks: their count and timing currently match the two SCLU bridges but their
+uncaptured contents are the evidence needed to accept or reject that mapping.
