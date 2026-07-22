@@ -80,8 +80,30 @@ while preserving raw words for object forms whose semantics are still unknown:
 
 ```sh
 ./tools/acdb_sclu_inventory.py 00ea12_SCLU.bin \
-  --scdo 00f4f2_SCDO.bin --pool 01e842_POOL.bin \
+  --scde 00f4be_SCDE.bin --scdo 00f4f2_SCDO.bin \
+  --pool 01e842_POOL.bin \
   --json windows-sclu.json
+```
+
+Compose one decoded GKV/POOL bundle with only the SCLU relationships that are
+explicitly typed as `APM_PARAM_ID_MODULE_CONN`:
+
+```sh
+./tools/windows_graph_closure.py windows-bundle.json windows-sclu.json \
+  --json windows-closure.json
+```
+
+Generate the current evidence-backed Linux structural baseline from a decoded
+installed topology. This removes the invalid main-lane MSIIR and the complete
+disconnected `stream6` graft, reconnects EQ directly to volume control, and
+does not install the result:
+
+```sh
+alsatplg -d /lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-tplg.bin \
+  -o installed.conf
+./tools/make_structural_baseline.py installed.conf structural-baseline.conf
+alsatplg -c structural-baseline.conf -o structural-baseline.tplg
+./tools/ar_topology_lint.py structural-baseline.tplg
 ```
 
 Recover the in-band subgraph activation lists from a decoded QGPR capture and

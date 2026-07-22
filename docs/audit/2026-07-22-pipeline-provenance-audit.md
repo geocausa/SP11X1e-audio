@@ -35,6 +35,7 @@ itself canonical, verified, or solved.
 | Lenovo T14s topology | `37f84465d843043a0ffb8c33423b1d350669c5688306328056e334d0c67a20f8` | A | Proves the original Surface file was a literal rename |
 | Windows `SGIT` | `e7bf6eeaf5f2a0f2b18093b8ce30fbc788305447aa3fd0ab932b0444a0afa4a9` | B | Subgraph module membership |
 | Windows `SCLU` | `b9849331d767591bde479f00f1826d6904e68832ba1c58e7ecc31d041c3a0190` | B | Cross-subgraph lookup keys and SCDO offsets |
+| Windows `SCDE` | `484e3d8b5176f339a8c35e5858155579f9cc957ec4fdc0202a27496b6eebae06` | B | Parameter descriptor sets selected by SCLU |
 | Windows `SCDO` | `46de7cd4654e3ce6da69daf62229e128fb5f84f21dec6e1032480253817c3431` | B | Resolves SCLU records to one or more POOL objects |
 | Windows `POOL` | `35073b935392fa6981f514d14871b003442e47d8a96b24a34b845e1b3f0ae759` | B | Containers, module lists, port declarations, and directed edges |
 | Windows `GKVT` | `7178285fc655efd7b8b521b5c7f1338ce5a7e58cfda5f314835e9c77c7707800` | B | GKV schema and value-table offsets |
@@ -45,6 +46,7 @@ itself canonical, verified, or solved.
 | Raw KDNET playback log | `e5eaeabfece9ec8b4fb44d5b98ed4dcb62ebca6302545bfd2a84c038ea13a872` | C | Additional live GRAPH_OPEN wrapper observations |
 | Windows `qcadcm8380.sys` | `37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429` | A | ARM64 control flow and exact live-capture offsets |
 | Instrumented Linux graph-open log | `9959718ced3ee5a3a0e6dce2b9f89b9149e04ab9f32d0d89d85e7fb0938770a2` | A | Exact graph 105 serialization, dynamic link, packet size, and DSP response |
+| Deployed `snd_q6apm` source match | module/source `srcversion 49EF3A2C86989B79E7C28CC`, vermagic `7.1.3-sp11-baseline1+`; `topology.c` SHA `abbf6699e78b77fa22754ee77d641ea29be1abdb7113c577f9238529038036f6` | A | Exact route loading and GRAPH_OPEN connection serialization behavior |
 | WSA884x codec source with local skip | `9e2d96f67e0daf9a914580a640120b89d1456a6ca316c6148d1cf1247a97fb6f` | A | Codec port directions, masks, controls, and current workaround |
 | Qualcomm SoundWire master source | `6dea347565244472ff25c641672ac30c13cb47258cd7f272ada2b6b5b9f754d9` | A | Slave-to-master port allocation behavior |
 | SP11 source DT | `f289b854e3687b04279629f3eef18f9d8d3778c76b19fa67d3f462f4fbef521a` | A | WSA8845 slave-to-master port mapping |
@@ -147,15 +149,21 @@ not a claim that every Windows endpoint mode selects the same family.
 
 The raw Windows `00ea12_SCLU.bin` is a count-prefixed table of 170 fixed-size
 records. Each record contains a source subgraph ID, a destination subgraph ID,
-and two additional 32-bit words. The fourth word is now verified as an offset
-into `SCDO`: the referenced SCDO item supplies a count and one or more POOL
-offsets. Compact POOL objects then decode as a connection count followed by
-`source IID, source port, destination IID, destination port`. The third SCLU
-word remains `raw_word_2`; its complete semantics are not established and it
-is not simply the POOL object's payload size.
+an SCDE offset, and an SCDO offset. The SCDE object is a count followed by
+`raw selector, parameter ID` descriptors. The SCDO object supplies a count and
+one or more POOL offsets. Compact POOL objects then decode as a connection
+count followed by `source IID, source port, destination IID, destination port`.
 
-`tools/acdb_sclu_inventory.py` performs this SCLU → SCDO → POOL resolution
-directly and preserves raw words for non-compact object forms.
+All 170 records use one of three SCDE descriptor sets:
+
+| SCLU word 2 / SCDE offset | Selected parameter descriptors |
+|---:|---|
+| `0x00` | `0x08001004` and `0x08001061` |
+| `0x14` | `0x08001004` (`APM_PARAM_ID_MODULE_CONN`) |
+| `0x20` | `0x08001061` (semantic name still unresolved) |
+
+`tools/acdb_sclu_inventory.py` performs the SCDE and SCDO → POOL resolutions
+directly and preserves raw words for non-compact `0x08001061` object forms.
 
 The raw lookup chain supplies both the subgraph ordering and exact module-port
 bridges for every three-subgraph set seen in the saved GRAPH_START packets:
@@ -167,10 +175,11 @@ bridges for every three-subgraph set seen in the saved GRAPH_START packets:
 | `01`, `83`, `82` | `82 → 83 → 01` | `4137:1 → 47ed:2`; `46b8:1 → 4001:18` | 115, 116 |
 | `44`, `40`, `41` | `41 → 40 → 44` | `40c7:7 → 40bf:2`; `40c4:1 → 40db:2` | 73, 72 |
 
-For the recorded music set, both records have `raw_word_2 = 0x14`; their
-SCDO offsets are `0x32c` and `0x334`. Those SCDO items point to POOL offsets
-`0x4a6fc` and `0x39d0`, whose compact connection objects contain the two
-module-port tuples shown above.
+For the recorded music set, both records select SCDE offset `0x14`, so both
+are explicitly typed as `APM_PARAM_ID_MODULE_CONN`. Their SCDO offsets are
+`0x32c` and `0x334`. Those SCDO items point to POOL offsets `0x4a6fc` and
+`0x39d0`, whose compact connection objects contain the two module-port tuples
+shown above.
 
 ```mermaid
 flowchart LR
@@ -265,10 +274,51 @@ The protection-family bundles follow the same scheme:
 | SG77 `0x45fd:3` | SG45 SAL `0x4144:8` |
 | SG79 `0x461c:3` | SG45 SAL `0x4144:10` |
 
+The recorded music bundle adds the corresponding SG26 source at SAL input 26:
+
+| Source | Destination | Destination GKV row / `POOL` |
+|---|---|---|
+| SG26 `0x413b:3` | SG45 SAL `0x4144:26` | `[1,3,1,1,3,1]` / `0x46c78` |
+
+That SG45/SG46 bundle has 11 modules and 22 ordinary connections. Its SCLU
+record 74 adds `0x40e0:1 → 0x40e1:2`, producing one connected 11-module graph
+with the selected external source included. The branch beginning at the music
+bundle is therefore structurally complete in static ACDB:
+
+```mermaid
+flowchart LR
+    A["SG26 UNKNOWN_0x32<br/>413b"] -->|"3→26"| B["SG45 SAL<br/>4144"]
+    B --> C["DATA_LOGGING<br/>402d"] --> D["UNKNOWN<br/>40df"] --> E["SAL_V2/VOL_CTRL<br/>40e0"]
+    E ==>|"SCLU 1→2"| F["SG46 MFC<br/>40e1"]
+    F --> G["SOFT_PAUSE<br/>40e2"] --> H["SWR_SINK<br/>40e8"] --> I["SAL_V2/VOL_CTRL<br/>40e6"]
+    I --> J["PCM_CNV<br/>40e3"] --> K["DATA_LOGGING<br/>40e4"] --> L["UNKNOWN<br/>40e5"]
+```
+
+The three root-splitter peers also become internally connected only after
+their SCLU module-connection records are composed with their ordinary POOL
+records:
+
+| Peer `POOL` | Subgraphs | Modules | Ordinary + SCLU connections | Weak components after composition |
+|---:|---|---:|---:|---:|
+| `0x127c` | `06`, `8c`, `8d` | 24 | 23 + 2 | 1 |
+| `0x1a4cc` | `99`, `9a`, `9b` | 17 | 16 + 2 | 1 |
+| `0x1b10` | `06`, `8a`, `8b` | 25 | 24 + 2 | 1 |
+| `0x46c78` | `45`, `46` | 11 | 22 + 1 | 1 |
+
+`tools/windows_graph_closure.py` calculates these compositions from decoded
+JSON rather than assuming that a POOL bundle's ordinary connection list is a
+complete graph.
+
 `tools/acdb_gkv_inventory.py` now derives this candidate cross-bundle edge
 index automatically. It cannot by itself prove that the peer GKV rows were
 co-selected in a particular runtime session; that still requires the missing
-selector and OOB body capture.
+selector and OOB body capture. None of SG45/46, SG8a/8b, SG8c/8d, or
+SG99/9a/9b occurs in a saved GRAPH_START list. The extended QGPR capture does
+show two 64-byte graph-manager OOB SET_CFG requests in each music-open
+lifecycle (sequences 9746/9747 and 9796/9797), matching the count of the two
+local SCLU bridges, but their bodies were not captured. Count and timing are
+corroboration only; they do not identify those requests or prove peer-row
+co-selection.
 
 ### Render-family example: subgraph `0xb0000086`
 
@@ -428,11 +478,42 @@ companion/root subgraphs. This is direct evidence that graph 105 contains two
 amputated fragments, not merely an alternate arrangement of complete Windows
 families.
 
+The apparent DAPM branch does not repair this at runtime. The installed
+topology contains `stream6.sp_vi0, , stream0.vol_ctrl0`, but the exact source
+matching the deployed `snd_q6apm` module shows that `audioreach_route_load()`
+does nothing when both ends of a DAPM route are real AudioReach modules.
+`audioreach_alloc_graph_pkt()` serializes only each module's token-defined
+destinations plus the single FE-to-BE mixer connection stored in graph info.
+The DAPM line can power widgets; it cannot materialize `6004 → 4024` in the
+DSP graph.
+
 The `no-extra-msiir` candidate removes only `stream0.msiir0`,
 `stream6.cg85_msiir0`, and `stream6.cg87_msiir0`; it reconnects EQ directly to
 the second `0x0700101b` module and each companion SAL directly to its logger.
 That matches the corresponding Windows ACDB bodies with respect to these three
 MSIIR placements, but it does not repair the larger assembly.
+
+### Generated structural baseline candidate
+
+`tools/make_structural_baseline.py` now applies the smallest cleanup supported
+by the closed structural findings, without installing anything:
+
+1. remove main-lane `stream0.msiir0` and change both its DSP token edge and
+   DAPM route to `stream0.eq0 → stream0.vol_ctrl0`;
+2. remove the complete `stream6` graft: SP_VI/SPv5, both amputated companion
+   fragments, their payloads, subgraphs/containers, and the ineffective DAPM
+   branch; and
+3. preserve the working device105 backend `6050 → 6051 → 6052` and every
+   unrelated render/capture graph.
+
+Applied to a fresh decode of the installed topology, the candidate has 72
+widgets and 68 decoded AudioReach modules, no duplicate IID, no modules in
+subgraphs `0x4040`/`0x4041`/`0x4042`, and device105 reduced to its one connected
+three-module backend. The compiled candidate SHA-256 is
+`4e00057b8e316c217347bcdee0af0c6d4ff40e8e0f1870d7efeaddc2669ff54e`.
+This is a build result for review, not an approved deployment or a claim of
+Windows parity. The Windows replacement graph remains gated on the selector
+and OOB-body capture.
 
 ## WSA884x transport audit
 
@@ -501,6 +582,8 @@ fix is proposed.
 | P-015 | Saved GRAPH_START packets uniquely bind live triples to GKV rows; the music-window `0xa40` opens select root+SG27+SG26, and no saved start selects SG85/86/87 | Confirmed B/C | The current Linux SG85+SG87 graft is not the Windows family observed in that playback window |
 | P-016 | SCLU → SCDO → POOL resolves exact cross-subgraph module-port bridges for every captured triple; the music set is `413b:1 → 47ff:2` and `4802:1 → 4001:4` | Confirmed B | The Windows graph is now connected without inferred edges; Linux parity must account for these explicit bridges |
 | P-017 | Linux graph 105 omits both exact SCLU entry/exit bridges for its copied SG85 and SG87 fragments, including all three peer IIDs | Confirmed A/B | The two fragments are structurally amputated and cannot reproduce either source Windows family |
+| P-018 | The live music bundle statically references four peer-schema destinations, but none of their subgraphs occurs in a saved GRAPH_START and the relevant OOB SET_CFG bodies are absent | Confirmed B/C; runtime co-selection open | Do not copy the peer chains into Linux merely because their ACDB wiring resolves; capture the selector/OOB bodies first |
+| P-019 | The topology's DAPM `stream0.vol_ctrl0 → stream6.sp_vi0` route cannot create a DSP module edge: the deployed `snd_q6apm` route loader ignores real-module-to-real-module routes, while GRAPH_OPEN serializes token edges plus one mixer link | Confirmed A/source | The protection graft is powered-looking but signal-disconnected; removing it is the correct clean-baseline operation |
 
 ## Runtime evidence boundary
 

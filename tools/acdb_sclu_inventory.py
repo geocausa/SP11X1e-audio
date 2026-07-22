@@ -67,7 +67,34 @@ def parse_pool_reference(scdo: bytes, pool: bytes, offset: int) -> dict:
     }
 
 
-def parse_sclu(data: bytes, scdo: bytes | None = None, pool: bytes | None = None) -> list[dict]:
+def parse_parameter_descriptors(scde: bytes, offset: int) -> dict:
+    if offset + 4 > len(scde):
+        raise ValueError(f"SCLU SCDE offset {hx(offset)} is outside SCDE")
+    count = struct.unpack_from("<I", scde, offset)[0]
+    descriptors_end = offset + 4 + count * 8
+    if descriptors_end > len(scde):
+        raise ValueError(
+            f"SCDE item at {hx(offset)} has {count} truncated descriptors"
+        )
+    descriptors = []
+    for index in range(count):
+        raw_selector, param_id = struct.unpack_from("<II", scde, offset + 4 + index * 8)
+        descriptors.append(
+            {"raw_selector": hx(raw_selector), "parameter_id": hx(param_id)}
+        )
+    return {
+        "scde_offset": hx(offset),
+        "descriptor_count": count,
+        "descriptors": descriptors,
+    }
+
+
+def parse_sclu(
+    data: bytes,
+    scdo: bytes | None = None,
+    pool: bytes | None = None,
+    scde: bytes | None = None,
+) -> list[dict]:
     if (scdo is None) != (pool is None):
         raise ValueError("SCDO and POOL must be supplied together")
     if len(data) < 4:
@@ -93,15 +120,25 @@ def parse_sclu(data: bytes, scdo: bytes | None = None, pool: bytes | None = None
             relationship["resolved_reference"] = parse_pool_reference(
                 scdo, pool, raw_word_3
             )
+        if scde is not None:
+            relationship["resolved_parameters"] = parse_parameter_descriptors(
+                scde, raw_word_2
+            )
         relationships.append(relationship)
     return relationships
 
 
-def build_inventory(source: Path, scdo_source: Path | None, pool_source: Path | None) -> dict:
+def build_inventory(
+    source: Path,
+    scdo_source: Path | None,
+    pool_source: Path | None,
+    scde_source: Path | None,
+) -> dict:
     data = source.read_bytes()
     scdo = scdo_source.read_bytes() if scdo_source else None
     pool = pool_source.read_bytes() if pool_source else None
-    relationships = parse_sclu(data, scdo, pool)
+    scde = scde_source.read_bytes() if scde_source else None
+    relationships = parse_sclu(data, scdo, pool, scde)
     inventory = {
         "source": str(source),
         "source_sha256": hashlib.sha256(data).hexdigest(),
@@ -118,6 +155,13 @@ def build_inventory(source: Path, scdo_source: Path | None, pool_source: Path | 
                 "pool_sha256": hashlib.sha256(pool).hexdigest(),
             }
         )
+    if scde_source and scde is not None:
+        inventory.update(
+            {
+                "scde_source": str(scde_source),
+                "scde_sha256": hashlib.sha256(scde).hexdigest(),
+            }
+        )
     return inventory
 
 
@@ -125,6 +169,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("sclu", type=Path)
     parser.add_argument("--scdo", type=Path)
+    parser.add_argument("--scde", type=Path)
     parser.add_argument("--pool", type=Path)
     parser.add_argument("--json", type=Path)
     args = parser.parse_args()
@@ -133,7 +178,9 @@ def main() -> None:
         parser.error("--scdo and --pool must be supplied together")
 
     output = json.dumps(
-        build_inventory(args.sclu, args.scdo, args.pool), indent=2, sort_keys=True
+        build_inventory(args.sclu, args.scdo, args.pool, args.scde),
+        indent=2,
+        sort_keys=True,
     ) + "\n"
     if args.json:
         args.json.write_text(output)

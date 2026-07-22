@@ -62,6 +62,21 @@ class AcdbScluTests(unittest.TestCase):
             "0x00000030",
         )
 
+    def test_scde_offset_resolves_parameter_descriptor_set(self):
+        sclu = struct.pack("<IIIII", 1, 1, 2, 0x14, 0)
+        scde = bytes(0x14) + struct.pack("<III", 1, 1, 0x08001004)
+        parameters = parse_sclu(sclu, scde=scde)[0]["resolved_parameters"]
+        self.assertEqual(parameters["scde_offset"], "0x00000014")
+        self.assertEqual(
+            parameters["descriptors"],
+            [
+                {
+                    "raw_selector": "0x00000001",
+                    "parameter_id": "0x08001004",
+                }
+            ],
+        )
+
     def test_scdo_and_pool_are_an_atomic_input_pair(self):
         with self.assertRaisesRegex(ValueError, "supplied together"):
             parse_sclu(struct.pack("<I", 0), b"", None)
