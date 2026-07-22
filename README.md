@@ -75,6 +75,15 @@ Decode raw GKV schemas and bind their rows to `POOL` bundles:
 ./tools/acdb_gkv_inventory.py GKVT.bin GKVL.bin --pool 01e842_POOL.bin --json windows-gkv.json
 ```
 
+Decode the ACDB cross-subgraph lookup and resolve its SCDO/POOL bridge objects,
+while preserving raw words for object forms whose semantics are still unknown:
+
+```sh
+./tools/acdb_sclu_inventory.py 00ea12_SCLU.bin \
+  --scdo 00f4f2_SCDO.bin --pool 01e842_POOL.bin \
+  --json windows-sclu.json
+```
+
 Recover the in-band subgraph activation lists from a decoded QGPR capture and
 resolve each list against that GKV inventory:
 
