@@ -1,0 +1,5 @@
+# Generated live-state captures and decoded/compiled topology files.
+artifacts/live/
+build/
+*.pyc
+__pycache__/

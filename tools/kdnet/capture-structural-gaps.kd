@@ -1,0 +1,15 @@
+.echo SP11_STRUCTURAL_GAP_CAPTURE_ARMING
+.echo Requires qcadcm8380.sys SHA-256 37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429
+.echo Run at the first kernel break before Windows audio initializes.
+.echo Keep the WinDbg log enabled; selector bytes and every qualifying OOB body are emitted there.
+r @$t0 = 0
+r @$t1 = 0
+r @$t2 = 0
+r @$t3 = 0
+r @$t4 = 0
+r @$t5 = 0
+bu qcadcm8380+0x307a8 ".if ((@x0 == 0xacdb0017) & (@x1 > 0xffff000000000000)) { .if ((dwo(@x1) == 6) & (poi(@x1+8) > 0xffff000000000000)) { r @$t0=@$t0+1; r @$t2=poi(@x1+8); .echo ===== CODEX_ACDB_SELECTOR_6X32_BEGIN =====; ? @$t0; ? @$t2; dd @$t2 L6; .echo ===== CODEX_ACDB_SELECTOR_6X32_END =====; .if (@$t0 >= 64) { .echo CODEX_ACDB_SELECTOR_HIT_LIMIT_REACHED; bd @$bpnum; gc } .else { gc } } .else { gc } } .else { gc }"
+bu qcadcm8380+0x5aa34 "r @$t2=poi(@sp+0xd0); r @$t3=dwo(@sp+0x24); r @$t4=dwo(@sp+0x20); r @$t5=dwo(@sp+0x28); .if ((@$t3 >= 0x500) & (@$t3 <= 0x4000) & ((@$t4+@$t5) == @$t3) & (@$t2 > 0xffff000000000000)) { r @$t1=@$t1+1; .echo ===== CODEX_QCADCM_OOB_BEGIN =====; ? @$t1; ? @$t2; ? @$t3; ? @$t4; ? @$t5; db @$t2 L?@$t3; .echo ===== CODEX_QCADCM_OOB_END =====; .if (@$t1 >= 32) { .echo CODEX_QCADCM_OOB_HIT_LIMIT_REACHED; bd @$bpnum; gc } .else { gc } } .else { gc }"
+.echo SP11_STRUCTURAL_GAP_CAPTURE_ARMED
+bl
+g
