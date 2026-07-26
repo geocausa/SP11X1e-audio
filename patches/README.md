@@ -61,3 +61,28 @@ alone does not establish whether the duplicate programming is harmful.
 The patch only uses `dev_dbg()`. It does not change allocation, stream setup,
 register programming or mixer state, and remains silent unless dynamic debug
 is explicitly enabled during an instrumented kernel boot.
+
+## `0003-audioreach-add-topology-control-links.patch`
+
+Adds the missing generic Linux representation for AudioReach module control
+links. The existing topology driver emits `APM_PARAM_ID_MODULE_CONN` data
+edges but cannot emit `APM_PARAM_ID_MODULE_CTRL_LINK_CFG`, so the exact
+Windows SP/SP_VI, CPS/SP, timer-drift and EQ/headroom links cannot currently
+be expressed.
+
+The new private topology byte-array type carries standard AudioReach
+control-link objects and properties. The loader validates every variable
+length object before retaining it, and the graph builder aggregates the
+validated links into `GRAPH_OPEN`. Topologies without this data keep their
+existing graph packet shape.
+
+Validation against the preserved 7.1.5 source:
+
+- patch dry-run: pass;
+- strict kernel style check: pass with zero findings;
+- ARM64 `audioreach.o` and `topology.o` build with `W=1`: pass;
+- exact recovered Windows control payload reconstruction: both original
+  payload sizes and SHA-256 hashes match.
+
+This is an offline candidate. It has not been installed, and it does not
+enable speaker protection, VI feedback, amplifiers or any mixer.

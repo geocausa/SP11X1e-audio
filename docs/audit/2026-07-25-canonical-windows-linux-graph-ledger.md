@@ -55,6 +55,7 @@ prove graph lifetime overlap or acoustic purpose.
 | full QGPR CFG trace | `3a2b03868033cff3a147e4e120f05809b957da276217d963e457683b1fae2ca0` | Live root-protection command order and bodies |
 | reviewed root-protection CFG inventory | `e0eb0a8cdace2d9be5cce4cdf8ab122bb7f77a233baec8b910541c118b0d1716` | Strict decode of live SP/SP_VI configuration, including the two-speaker R0/T0 body |
 | reviewed protection startup sequence | `2db4337a95ad1a568155bc71d45e0e852c7bafc1031b4cd53cc01e6c6b3330bc` | Seven live protection initializations including graph, SP, and SP_VI OOB calibration positions |
+| reviewed DEFAULT control-link topology data | `b22c326ea8b8581105c871a04d40c45303cec6ad7eafcf36786537f9409eb311` | Byte-exact reconstruction of the two captured Windows control-link payloads plus the Linux aggregate form |
 | QCADCM INF | `4d9443dad9b25979d523b736e18a6676f568f1410a91cf6da1543f4dacbfcd0b` | Installed 8 kHz/32-bit SP_VI endpoint policy |
 | reviewed Windows INF format inventory | `5db9cd4c5999941ab0bf41449ae954c99f2f7040ef7c65302e0280bdbff4d76d` | Strict inventory of speaker host/offload/loopback formats and VI registry values |
 | Surface AUCD extension INF | `eae4bc6c98288f7e5a4ca793655d1072b16cf8b97cb352606b63b778d65c2402` | MSHW0486 has one enabled WSA/SoundWire macro instance and only the SWR_WSA interrupt |
@@ -662,8 +663,8 @@ render family feeding a shared protection root.
 | SP_VI module | `070010e3`, 1/1 | absent | Required |
 | VI transport | `4026` is WSA interface 1, 8 kHz, 32-bit, 2 channels/mask `3`; SP_VI expects `[SP1 V,I, SP2 V,I]`; MSHW0486 has one WSA macro | One WSA master/two amps are correct; WSA TX0/VI DAI link absent; VISENSE and VI mixers off | Add one `WSA_CODEC_DMA_TX_0 -> lpass_wsamacro DAI 2` link and validate ports 10/11 with amps muted |
 | SP/SP_VI data edge | none in live `MODULE_CONN` | none | Do not invent one |
-| SP/SP_VI control link | exact `INTENT_ID_SP` control link | no decoded equivalent | Implement as a control link, not an audio edge |
-| Other control links | CPS, timer-drift, and EQ/headroom links are exact | no decoded equivalents | Preserve exact peer ports and intents |
+| SP/SP_VI control link | exact `INTENT_ID_SP` control link | topology driver has no control-link model or serializer; offline candidate `0003` adds one | Implement as a control link, not an audio edge |
+| Other control links | CPS, timer-drift, and EQ/headroom links are exact | same driver capability gap; both captured payload hashes are now reproduced exactly | Preserve exact peer ports and intents |
 | Root external edges | splitter feeds MFC IIDs `47c9`, `4747`, `4730` in capture SPEECH/COMMUNICATIONS SGs `9a`, `8c`, `8a`; none occurs in 13 recovered starts | absent | Exclude from speaker-only baseline; preserve exact identities for later capture parity |
 | Render loopback edge | SPR port 3 feeds speaker-loopback SAL `4144`; SGs `45/46` terminate at `SH_MEM_PUSH_MODE 40e5` | absent | Optional for initial playback; preserve a disabled output-3 route until loopback is implemented |
 | Backend model | root contains CODEC_DMA sink and sources; sink uses WSA interface 1, fixed-point, 48 kHz, 16-bit, 2 channels/mask `3` | separate donor device105 logger/MFC/DMA chain; DMA tokens already select WSA interface 1 and fixed-point | Reuse the proven DMA interface tokens, but replace donor graph assumptions |
@@ -744,6 +745,11 @@ stack:
 2. use the build-validated single-WSA-VI candidate and observation-only
    SoundWire instrumentation to close the final P0 transport fact before
    protection is enabled.
+
+The first required driver primitive for item 1 now exists as offline candidate
+`patches/0003-audioreach-add-topology-control-links.patch`. The next topology
+step is gated by the unsafe existing SP/SP_VI auto-enable path, not by any
+remaining ambiguity in the four Windows control links.
 
 The next physical action is not needed until the widened KD script has been
 preflighted and the remaining recovered evidence has been exhausted.

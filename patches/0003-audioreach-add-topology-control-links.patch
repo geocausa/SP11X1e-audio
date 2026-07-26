@@ -1,0 +1,398 @@
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Sun, 26 Jul 2026 18:00:00 +0100
+Subject: [PATCH] ASoC: qcom: audioreach: add topology control links
+
+AudioReach GRAPH_OPEN supports module control links through
+APM_PARAM_ID_MODULE_CTRL_LINK_CFG, but the Linux topology loader only
+serializes data-port connections.  This makes graphs which use IMCL control
+ports, including those in Qualcomm speaker protection graphs, impossible to
+describe.
+
+Add a private topology byte-array type which carries a validated
+APM_PARAM_ID_MODULE_CTRL_LINK_CFG payload.  Associate the payload with a
+module widget.  Aggregate all such payloads into one GRAPH_OPEN parameter.
+The byte-array payload starts with num_ctrl_link_cfg.  It contains standard
+variable-length control-link objects and properties; the surrounding
+audioreach_module_priv_data header is not sent to the DSP.
+
+Keep topologies without control-link data byte-for-byte unchanged.  Also
+propagate module-widget load errors which were previously discarded, so an
+invalid private payload cannot leave a partially initialized module behind.
+
+Signed-off-by: SP11 audio reconstruction <sp11-audio@localhost>
+---
+ include/uapi/sound/snd_ar_tokens.h     |   6 ++
+ sound/soc/qcom/qdsp6/audioreach.c      |  59 +++++++++++++++-
+ sound/soc/qcom/qdsp6/audioreach.h      |   3 +
+ sound/soc/qcom/qdsp6/topology.c        | 110 ++++++++++++++++++++++++---------
+ 4 files changed, 178 insertions(+), 20 deletions(-)
+
+diff --git a/include/uapi/sound/snd_ar_tokens.h b/include/uapi/sound/snd_ar_tokens.h
+index 67fe10bbd0ad..a8ce44c01f23 100644
+--- a/include/uapi/sound/snd_ar_tokens.h
++++ b/include/uapi/sound/snd_ar_tokens.h
+@@ -235,6 +235,12 @@
+ #define AR_TKN_U32_MODULE_LOG_MODE		261
+ 
+ #define SND_SOC_AR_TPLG_MODULE_CFG_TYPE 0x01001006
++/*
++ * Private byte-array payload for APM_PARAM_ID_MODULE_CTRL_LINK_CFG.
++ * The data begins with num_ctrl_link_cfg and is copied into GRAPH_OPEN.
++ */
++#define SND_SOC_AR_TPLG_CTRL_LINK_CFG_TYPE	0x08001061
++
+ struct audioreach_module_priv_data {
+ 	__le32 size;	/* size in bytes of the array, including all elements */
+ 	__le32 type;	/* SND_SOC_AR_TPLG_MODULE_CFG_TYPE */
+diff --git a/sound/soc/qcom/qdsp6/audioreach.h b/sound/soc/qcom/qdsp6/audioreach.h
+index e7eb6e44fd87..b29a05dcba02 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.h
++++ b/sound/soc/qcom/qdsp6/audioreach.h
+@@ -121,6 +121,8 @@ struct apm_module_conn_obj {
+ 	uint32_t dst_mod_ip_port_id;
+ } __packed;
+ 
++#define APM_PARAM_ID_MODULE_CTRL_LINK_CFG	0x08001061
++
+ #define APM_PARAM_ID_GAIN			0x08001006
+ 
+ struct param_id_gain_cfg {
+@@ -802,6 +802,7 @@ struct audioreach_module {
+ 	struct audioreach_container *container;
+ 	struct snd_soc_dapm_widget *widget;
+ 	struct audioreach_module_priv_data *data;
++	struct audioreach_module_priv_data *ctrl_link_data;
+ };
+ 
+ struct audioreach_module_config {
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+index a90853e9b8d9..99629111fc77 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -3,6 +3,7 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
++#include <linux/unaligned.h>
+ #include <linux/soc/qcom/apr.h>
+ #include <sound/soc.h>
+ #include <sound/soc-dai.h>
+@@ -109,6 +110,15 @@ struct apm_mod_conn_list_params {
+ 
+ #define APM_MOD_CONN_PSIZE(p, n) ALIGN(struct_size(p, conn_obj, n), 8)
+ 
++struct apm_mod_ctrl_link_list_params {
++	struct apm_module_param_data param_data;
++	u32 num_ctrl_links;
++	u8 ctrl_link_cfg[];
++} __packed;
++
++#define APM_MOD_CTRL_LINK_PSIZE(p, n) \
++	ALIGN(struct_size(p, ctrl_link_cfg, n), 8)
++
+ struct apm_graph_open_params {
+ 	struct apm_cmd_header *cmd_header;
+ 	struct apm_sub_graph_params *sg_data;
+@@ -116,6 +126,7 @@ struct apm_graph_open_params {
+ 	struct apm_module_list_params *mod_list_data;
+ 	struct apm_prop_list_params *mod_prop_data;
+ 	struct apm_mod_conn_list_params *mod_conn_list_data;
++	struct apm_mod_ctrl_link_list_params *mod_ctrl_link_data;
+ } __packed;
+ 
+ struct apm_pcm_module_media_fmt_cmd {
+@@ -398,6 +409,8 @@ static void audioreach_populate_graph(struct q6apm *apm,
+ {
+ 	struct apm_mod_conn_list_params *mc_data = open->mod_conn_list_data;
+ 	struct apm_module_list_params *ml_data = open->mod_list_data;
++	struct apm_mod_ctrl_link_list_params *cl_data = open->mod_ctrl_link_data;
++	u8 *ctrl_link_cfg = cl_data ? cl_data->ctrl_link_cfg : NULL;
+ 	struct apm_prop_list_params *mp_data = open->mod_prop_data;
+ 	struct apm_container_params *c_data = open->cont_data;
+ 	struct apm_sub_graph_params *sg_data = open->sg_data;
+@@ -445,6 +458,21 @@ static void audioreach_populate_graph(struct q6apm *apm,
+ 						nconn++;
+ 					}
+ 				}
++
++				if (module->ctrl_link_data) {
++					u32 size = le32_to_cpu(module->ctrl_link_data->size);
++
++					/*
++					 * GRAPH_OPEN has one aggregate count, so omit each
++					 * topology block's leading num_ctrl_link_cfg.
++					 */
++					if (size > sizeof(u32)) {
++						memcpy(ctrl_link_cfg,
++						       (u8 *)module->ctrl_link_data->data + 4,
++						       size - sizeof(u32));
++						ctrl_link_cfg += size - sizeof(u32);
++					}
++				}
+ 			}
+ 			mlobj = (void *) mlobj + APM_MOD_LIST_OBJ_PSIZE(mlobj,
+ 									container->num_modules);
+@@ -466,6 +489,6 @@ void *audioreach_alloc_graph_pkt(struct q6apm *apm,
+ 				 const struct audioreach_graph_info *info)
+ {
+-	int payload_size, sg_sz, cont_sz, ml_sz, mp_sz, mc_sz;
++	int payload_size, sg_sz, cont_sz, ml_sz, mp_sz, mc_sz, cl_sz = 0;
+ 	struct apm_module_param_data  *param_data;
+ 	struct apm_container_params *cont_params;
+ 	struct audioreach_container *container;
+@@ -474,6 +497,7 @@ void *audioreach_alloc_graph_pkt(struct q6apm *apm,
+ 	struct apm_mod_conn_list_params *mcon;
+ 	struct apm_graph_open_params params;
+ 	struct apm_prop_list_params *mprop;
++	struct apm_mod_ctrl_link_list_params *mctrl;
+ 	struct audioreach_module *module;
+ 	struct audioreach_sub_graph *sgs;
+ 	struct apm_mod_list_obj *mlobj;
+@@ -481,6 +505,8 @@ void *audioreach_alloc_graph_pkt(struct q6apm *apm,
+ 	int num_connections = 0;
+ 	int num_containers = 0;
+ 	int num_sub_graphs = 0;
++	int num_ctrl_links = 0;
++	int ctrl_link_cfg_size = 0;
+ 	int num_modules = 0;
+ 	int num_modules_list;
+ 	struct gpr_pkt *pkt;
+@@ -508,6 +534,13 @@ void *audioreach_alloc_graph_pkt(struct q6apm *apm,
+ 
+ 			list_for_each_entry(module, &container->modules_list, node) {
+ 				num_connections += module->num_connections;
++				if (module->ctrl_link_data) {
++					u32 size = le32_to_cpu(module->ctrl_link_data->size);
++
++					num_ctrl_links +=
++						get_unaligned_le32(module->ctrl_link_data->data);
++					ctrl_link_cfg_size += size - sizeof(u32);
++				}
+ 			}
+ 		}
+ 	}
+@@ -517,8 +550,10 @@ void *audioreach_alloc_graph_pkt(struct q6apm *apm,
+ 
+ 	mp_sz = APM_MOD_PROP_PSIZE(mprop, num_modules);
+ 	mc_sz =	APM_MOD_CONN_PSIZE(mcon, num_connections);
++	if (num_ctrl_links)
++		cl_sz = APM_MOD_CTRL_LINK_PSIZE(mctrl, ctrl_link_cfg_size);
+ 
+-	payload_size = sg_sz + cont_sz + ml_sz + mp_sz + mc_sz;
++	payload_size = sg_sz + cont_sz + ml_sz + mp_sz + mc_sz + cl_sz;
+ 	pkt = audioreach_alloc_apm_cmd_pkt(payload_size, APM_CMD_GRAPH_OPEN, 0);
+ 	if (IS_ERR(pkt))
+ 		return pkt;
+@@ -570,6 +607,23 @@ void *audioreach_alloc_graph_pkt(struct q6apm *apm,
+ 	params.mod_conn_list_data->num_connections = num_connections;
+ 	p += mc_sz;
+ 
++	/* Module Control Links */
++	if (num_ctrl_links) {
++		params.mod_ctrl_link_data = p;
++		param_data = &params.mod_ctrl_link_data->param_data;
++		param_data->module_instance_id = APM_MODULE_INSTANCE_ID;
++		param_data->param_id = APM_PARAM_ID_MODULE_CTRL_LINK_CFG;
++		/*
++		 * Keep alignment bytes outside param_size.  The DSP payload is
++		 * the exact aggregate count followed by the topology bodies.
++		 */
++		param_data->param_size = sizeof(u32) + ctrl_link_cfg_size;
++		params.mod_ctrl_link_data->num_ctrl_links = num_ctrl_links;
++		p += cl_sz;
++	} else {
++		params.mod_ctrl_link_data = NULL;
++	}
++
+ 	audioreach_populate_graph(apm, info, &params, sg_list, num_sub_graphs);
+ 
+ 	return pkt;
+diff --git a/sound/soc/qcom/qdsp6/topology.c b/sound/soc/qcom/qdsp6/topology.c
+index f7e7fe49ea76..bbd7bf923b80 100644
+--- a/sound/soc/qcom/qdsp6/topology.c
++++ b/sound/soc/qcom/qdsp6/topology.c
+@@ -3,5 +3,6 @@
+ 
+ #include <linux/cleanup.h>
++#include <linux/unaligned.h>
+ #include <sound/soc.h>
+ #include <sound/soc-dapm.h>
+ #include <sound/pcm.h>
+@@ -306,34 +307,96 @@ static const struct snd_soc_tplg_vendor_array *
+ 	return NULL;
+ }
+ 
++static bool audioreach_is_raw_private_type(u32 type)
++{
++	return type == SND_SOC_AR_TPLG_MODULE_CFG_TYPE ||
++	       type == SND_SOC_AR_TPLG_CTRL_LINK_CFG_TYPE;
++}
++
+ static struct audioreach_module_priv_data *
+-audioreach_get_module_priv_data(const struct snd_soc_tplg_private *private)
++audioreach_get_module_priv_data(const struct snd_soc_tplg_private *private,
++				u32 requested_type)
+ {
+-	int sz;
++	size_t private_size = le32_to_cpu(private->size);
++	size_t sz;
+ 
+-	for (sz = 0; sz < le32_to_cpu(private->size); ) {
++	for (sz = 0; sz < private_size; ) {
+ 		const struct snd_soc_tplg_vendor_array *mod_array;
++		size_t array_size, remaining = private_size - sz;
++		u32 type;
+ 
+ 		mod_array = (struct snd_soc_tplg_vendor_array *)((u8 *)private->array + sz);
+-		if (le32_to_cpu(mod_array->type) == SND_SOC_AR_TPLG_MODULE_CFG_TYPE) {
++		if (remaining < sizeof(*mod_array))
++			return ERR_PTR(-EINVAL);
++
++		array_size = le32_to_cpu(mod_array->size);
++		type = le32_to_cpu(mod_array->type);
++		if (audioreach_is_raw_private_type(type)) {
+ 			struct audioreach_module_priv_data *pdata;
++			size_t block_size;
++
++			if (check_add_overflow(sizeof(*pdata), array_size, &block_size) ||
++			    block_size > remaining)
++				return ERR_PTR(-EINVAL);
++
++			if (type != requested_type) {
++				sz += block_size;
++				continue;
++			}
+ 
+ 			pdata = kzalloc_flex(*pdata, data,
+-					     le32_to_cpu(mod_array->size));
++					     array_size);
+ 			if (!pdata)
+ 				return ERR_PTR(-ENOMEM);
+ 
+-			memcpy(pdata, ((u8 *)private->data + sz), struct_size(pdata, data,
+-						le32_to_cpu(mod_array->size)));
++			memcpy(pdata, (u8 *)private->data + sz, block_size);
+ 			return pdata;
+ 		}
+ 
+-		sz = sz + le32_to_cpu(mod_array->size);
++		if (array_size < sizeof(*mod_array) || array_size > remaining)
++			return ERR_PTR(-EINVAL);
++		sz += array_size;
+ 	}
+ 
+ 	return NULL;
+ }
+ 
++static int audioreach_validate_ctrl_links(const struct audioreach_module_priv_data *pdata)
++{
++	size_t size = le32_to_cpu(pdata->size);
++	const u8 *cursor = (const u8 *)pdata->data;
++	const u8 *end = cursor + size;
++	u32 links, link, property;
++
++	if (size < sizeof(u32))
++		return -EINVAL;
++
++	links = get_unaligned_le32(cursor);
++	cursor += sizeof(u32);
++	for (link = 0; link < links; link++) {
++		u32 properties;
++
++		if (end - cursor < 5 * sizeof(u32))
++			return -EINVAL;
++		properties = get_unaligned_le32(cursor + 4 * sizeof(u32));
++		cursor += 5 * sizeof(u32);
++
++		for (property = 0; property < properties; property++) {
++			u32 property_size;
++
++			if (end - cursor < 2 * sizeof(u32))
++				return -EINVAL;
++			property_size = get_unaligned_le32(cursor + sizeof(u32));
++			cursor += 2 * sizeof(u32);
++			if (property_size > (size_t)(end - cursor))
++				return -EINVAL;
++			cursor += property_size;
++		}
++	}
++
++	return cursor == end ? 0 : -EINVAL;
++}
++
+ static struct audioreach_sub_graph *audioreach_parse_sg_tokens(struct q6apm *apm,
+ 							       const struct snd_soc_tplg_private *private)
+ {
+@@ -610,8 +667,38 @@ static int audioreach_widget_load_module_common(struct snd_soc_component *compo
+ 		return mod ? PTR_ERR(mod) : -ENODEV;
+ 
+-	mod->data = audioreach_get_module_priv_data(&tplg_w->priv);
+-
+-	dobj = &w->dobj;
+-	dobj->private = mod;
++	dobj = &w->dobj;
++	dobj->private = mod;
++
++	mod->data = audioreach_get_module_priv_data(&tplg_w->priv,
++						    SND_SOC_AR_TPLG_MODULE_CFG_TYPE);
++	if (IS_ERR(mod->data)) {
++		int ret = PTR_ERR(mod->data);
++
++		mod->data = NULL;
++		return ret;
++	}
++
++	mod->ctrl_link_data =
++		audioreach_get_module_priv_data(&tplg_w->priv,
++						SND_SOC_AR_TPLG_CTRL_LINK_CFG_TYPE);
++	if (IS_ERR(mod->ctrl_link_data)) {
++		int ret = PTR_ERR(mod->ctrl_link_data);
++
++		kfree(mod->data);
++		mod->data = NULL;
++		mod->ctrl_link_data = NULL;
++		return ret;
++	}
++	if (mod->ctrl_link_data) {
++		int ret = audioreach_validate_ctrl_links(mod->ctrl_link_data);
++
++		if (ret) {
++			kfree(mod->ctrl_link_data);
++			mod->ctrl_link_data = NULL;
++			kfree(mod->data);
++			mod->data = NULL;
++			return ret;
++		}
++	}
+ 
+ 	return 0;
+@@ -907,16 +979,13 @@ static int audioreach_widget_ready(struct snd_soc_component *component,
+ 	switch (w->id) {
+ 	case snd_soc_dapm_aif_in:
+ 	case snd_soc_dapm_aif_out:
+-		audioreach_widget_load_buffer(component, index, w, tplg_w);
+-		break;
++		return audioreach_widget_load_buffer(component, index, w, tplg_w);
+ 	case snd_soc_dapm_decoder:
+ 	case snd_soc_dapm_encoder:
+ 	case snd_soc_dapm_src:
+-		audioreach_widget_load_enc_dec_cnv(component, index, w, tplg_w);
+-		break;
++		return audioreach_widget_load_enc_dec_cnv(component, index, w, tplg_w);
+ 	case snd_soc_dapm_buffer:
+-		audioreach_widget_load_buffer(component, index, w, tplg_w);
+-		break;
++		return audioreach_widget_load_buffer(component, index, w, tplg_w);
+ 	case snd_soc_dapm_mixer:
+ 		return audioreach_widget_load_mixer(component, index, w, tplg_w);
+ 	case snd_soc_dapm_pga:
+@@ -969,6 +1039,7 @@ static int audioreach_widget_unload(struct snd_soc_component *scomp,
+ 
+ 	list_del(&mod->node);
+ 	kfree(mod->data);
++	kfree(mod->ctrl_link_data);
+ 	kfree(mod);
+ 	/* Graph Info has N sub-graphs, sub-graph has N containers, Container has N Modules */
+ 	if (list_empty(&cont->modules_list)) { /* if no modules in the container then remove it */
+-- 
+2.51.0
