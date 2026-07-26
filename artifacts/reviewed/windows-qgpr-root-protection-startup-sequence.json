@@ -1,0 +1,626 @@
+{
+  "complete_post_start_telemetry_count": 6,
+  "cycle_count": 7,
+  "cycles": [
+    {
+      "cycle_index": 0,
+      "graph_calibration": {
+        "address_lsw": "0x00000c00",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 10464,
+        "sequence": 7
+      },
+      "graph_open_sequence": 3,
+      "graph_start_sequence": 31,
+      "post_start_telemetry": {
+        "iid": "0x00004027",
+        "opcode": "APM_CMD_GET_CFG",
+        "param_id": "0x080011f2",
+        "parameter_size": 68,
+        "sequence": 35
+      },
+      "protection_operations": [
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011e9",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 15
+        },
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011e8",
+          "parameter_size": 68,
+          "sequence": 17
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011f6",
+          "parameter_size": 44,
+          "sequence": 18
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f5",
+          "parameter_size": 24,
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "sequence": 19
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f4",
+          "parameter_size": 24,
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "sequence": 20
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011ff",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 21
+        }
+      ],
+      "sp_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1888,
+        "sequence": 16
+      },
+      "spvi_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1328,
+        "sequence": 22
+      }
+    },
+    {
+      "cycle_index": 1,
+      "graph_calibration": {
+        "address_lsw": "0x00000c00",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 10464,
+        "sequence": 56
+      },
+      "graph_open_sequence": 52,
+      "graph_start_sequence": 80,
+      "post_start_telemetry": {
+        "iid": "0x00004027",
+        "opcode": "APM_CMD_GET_CFG",
+        "param_id": "0x080011f2",
+        "parameter_size": 68,
+        "sequence": 84
+      },
+      "protection_operations": [
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011e9",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 64
+        },
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011e8",
+          "parameter_size": 68,
+          "sequence": 66
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011f6",
+          "parameter_size": 44,
+          "sequence": 67
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f5",
+          "parameter_size": 24,
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "sequence": 68
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f4",
+          "parameter_size": 24,
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "sequence": 70
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011ff",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 71
+        }
+      ],
+      "sp_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1888,
+        "sequence": 65
+      },
+      "spvi_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1328,
+        "sequence": 72
+      }
+    },
+    {
+      "cycle_index": 2,
+      "graph_calibration": {
+        "address_lsw": "0x00000c00",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 10464,
+        "sequence": 5719
+      },
+      "graph_open_sequence": 5717,
+      "graph_start_sequence": 5769,
+      "post_start_telemetry": {
+        "iid": "0x00004027",
+        "opcode": "APM_CMD_GET_CFG",
+        "param_id": "0x080011f2",
+        "parameter_size": 68,
+        "sequence": 9715
+      },
+      "protection_operations": [
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011e9",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 5727
+        },
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011e8",
+          "parameter_size": 68,
+          "sequence": 5729
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011f6",
+          "parameter_size": 44,
+          "sequence": 5731
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f5",
+          "parameter_size": 24,
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "sequence": 5732
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f4",
+          "parameter_size": 24,
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "sequence": 5733
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011ff",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 5734
+        }
+      ],
+      "sp_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1888,
+        "sequence": 5728
+      },
+      "spvi_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1328,
+        "sequence": 5735
+      }
+    },
+    {
+      "cycle_index": 3,
+      "graph_calibration": {
+        "address_lsw": "0x00000c00",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 9872,
+        "sequence": 9730
+      },
+      "graph_open_sequence": 9727,
+      "graph_start_sequence": 9757,
+      "post_start_telemetry": {
+        "iid": "0x00004027",
+        "opcode": "APM_CMD_GET_CFG",
+        "param_id": "0x080011f2",
+        "parameter_size": 68,
+        "sequence": 9765
+      },
+      "protection_operations": [
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011e9",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 9738
+        },
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011e8",
+          "parameter_size": 68,
+          "sequence": 9740
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011f6",
+          "parameter_size": 44,
+          "sequence": 9741
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f5",
+          "parameter_size": 24,
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "sequence": 9742
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f4",
+          "parameter_size": 24,
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "sequence": 9743
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011ff",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 9744
+        }
+      ],
+      "sp_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1888,
+        "sequence": 9739
+      },
+      "spvi_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1328,
+        "sequence": 9745
+      }
+    },
+    {
+      "cycle_index": 4,
+      "graph_calibration": {
+        "address_lsw": "0x00000c00",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 9872,
+        "sequence": 9780
+      },
+      "graph_open_sequence": 9777,
+      "graph_start_sequence": 9807,
+      "post_start_telemetry": {
+        "iid": "0x00004027",
+        "opcode": "APM_CMD_GET_CFG",
+        "param_id": "0x080011f2",
+        "parameter_size": 68,
+        "sequence": 10309
+      },
+      "protection_operations": [
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011e9",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 9788
+        },
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011e8",
+          "parameter_size": 68,
+          "sequence": 9790
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011f6",
+          "parameter_size": 44,
+          "sequence": 9791
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f5",
+          "parameter_size": 24,
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "sequence": 9792
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f4",
+          "parameter_size": 24,
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "sequence": 9793
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011ff",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 9794
+        }
+      ],
+      "sp_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1888,
+        "sequence": 9789
+      },
+      "spvi_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1328,
+        "sequence": 9795
+      }
+    },
+    {
+      "cycle_index": 5,
+      "graph_calibration": {
+        "address_lsw": "0x00000c00",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 10464,
+        "sequence": 10324
+      },
+      "graph_open_sequence": 10321,
+      "graph_start_sequence": null,
+      "post_start_telemetry": {
+        "iid": "0x00004027",
+        "opcode": "APM_CMD_GET_CFG",
+        "param_id": "0x080011f2",
+        "parameter_size": 68,
+        "sequence": 10352
+      },
+      "protection_operations": [
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011e9",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 10332
+        },
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011e8",
+          "parameter_size": 68,
+          "sequence": 10334
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011f6",
+          "parameter_size": 44,
+          "sequence": 10335
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f5",
+          "parameter_size": 24,
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "sequence": 10336
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f4",
+          "parameter_size": 24,
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "sequence": 10337
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011ff",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 10338
+        }
+      ],
+      "sp_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1888,
+        "sequence": 10333
+      },
+      "spvi_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1328,
+        "sequence": 10339
+      }
+    },
+    {
+      "cycle_index": 6,
+      "graph_calibration": {
+        "address_lsw": "0x00000c00",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 10464,
+        "sequence": 10369
+      },
+      "graph_open_sequence": 10365,
+      "graph_start_sequence": 10399,
+      "post_start_telemetry": null,
+      "protection_operations": [
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011e9",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 10377
+        },
+        {
+          "iid": "0x00004027",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011e8",
+          "parameter_size": 68,
+          "sequence": 10379
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_GET_CFG",
+          "param_id": "0x080011f6",
+          "parameter_size": 44,
+          "sequence": 10380
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f5",
+          "parameter_size": 24,
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "sequence": 10381
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011f4",
+          "parameter_size": 24,
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "sequence": 10382
+        },
+        {
+          "iid": "0x00004024",
+          "opcode": "APM_CMD_SET_CFG",
+          "param_id": "0x080011ff",
+          "parameter_size": 8,
+          "payload_hex": "0000000000000000",
+          "sequence": 10383
+        }
+      ],
+      "sp_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1888,
+        "sequence": 10378
+      },
+      "spvi_calibration": {
+        "address_lsw": "0x00000000",
+        "address_msw": "0x00000001",
+        "delivery": "out_of_band",
+        "destination_port": "0x00000001",
+        "mem_map_handle": "0xb0891608",
+        "payload_size": 1328,
+        "sequence": 10384
+      }
+    }
+  ],
+  "evidence_class": "C: live Windows QGPR order and OOB descriptors; OOB payload bytes are not present in the captured GPR packets",
+  "format": "SP11 Windows root protection startup sequence",
+  "format_version": 1,
+  "payload_size_occurrences": {
+    "graph_calibration": {
+      "10464": 5,
+      "9872": 2
+    },
+    "sp_calibration": {
+      "1888": 7
+    },
+    "spvi_calibration": {
+      "1328": 7
+    }
+  },
+  "source": "/home/geoca/Documents/SP11-PROJECT/00-RE-archive/recovered-adata/ubi/Documents/SP11/AUDIO/Research_Hub_Audio/tools/QcadcmGprTableProbe/captures/qgpr_records_domain2_boot_init_after_music_toggle_volume_FULL_20260612_015043.decoded.csv",
+  "source_sha256": "3a2b03868033cff3a147e4e120f05809b957da276217d963e457683b1fae2ca0"
+}

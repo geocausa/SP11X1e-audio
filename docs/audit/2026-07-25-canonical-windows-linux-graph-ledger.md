@@ -54,6 +54,7 @@ prove graph lifetime overlap or acoustic purpose.
 | REV_0D ACDB | `a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde` | Original Windows static calibration database |
 | full QGPR CFG trace | `3a2b03868033cff3a147e4e120f05809b957da276217d963e457683b1fae2ca0` | Live root-protection command order and bodies |
 | reviewed root-protection CFG inventory | `e0eb0a8cdace2d9be5cce4cdf8ab122bb7f77a233baec8b910541c118b0d1716` | Strict decode of live SP/SP_VI configuration, including the two-speaker R0/T0 body |
+| reviewed protection startup sequence | `2db4337a95ad1a568155bc71d45e0e852c7bafc1031b4cd53cc01e6c6b3330bc` | Seven live protection initializations including graph, SP, and SP_VI OOB calibration positions |
 | QCADCM INF | `4d9443dad9b25979d523b736e18a6676f568f1410a91cf6da1543f4dacbfcd0b` | Installed 8 kHz/32-bit SP_VI endpoint policy |
 | reviewed Windows INF format inventory | `5db9cd4c5999941ab0bf41449ae954c99f2f7040ef7c65302e0280bdbff4d76d` | Strict inventory of speaker host/offload/loopback formats and VI registry values |
 | Surface AUCD extension INF | `eae4bc6c98288f7e5a4ca793655d1072b16cf8b97cb352606b63b778d65c2402` | MSHW0486 has one enabled WSA/SoundWire macro instance and only the SWR_WSA interrupt |
@@ -555,11 +556,11 @@ first POOL offset; the new inventory deliberately preserves variants. For
 these four targets, the selected REV_0D decode happens to contain one payload
 variant per `(IID,param)`, but that result is now checked rather than assumed.
 
-### Live in-band command sequence
+### Live complete command sequence
 
 `[QGPR]` A surviving full trace contains 48 root-protection CFG events:
 28 `SET_CFG` commands and 20 `GET_CFG` requests. Seven repeated cycles contain
-this exact set sequence:
+the in-band sequence below:
 
 ```text
 SP    4027  SET 080011e9  size 8   payload 0000000000000000
@@ -578,14 +579,41 @@ implementation evidence labels `080011f4` as SP_VI operating-mode config,
 `080011f5` as R0/T0 config, and `080011ff` as SP_VI excursion-mode config;
 the exact Windows IDs, sizes, and bodies above remain the canonical facts.
 
-The GET payloads are zeroed request buffers, not DSP responses. The trace
-therefore proves request order and SET bodies, not the returned R0/T0/static
-values. It also does not show the large static ACDB bodies being sent. Those
-may use an out-of-band path outside this probe's retained bytes or a different
-initialization boundary.
+The original decoder intentionally omitted out-of-band commands. Re-decoding
+the same trace around each protection anchor proves all seven initializations
+also contain:
+
+```text
+GRAPH_OPEN
+  -> graph/subgraph calibration OOB SET_CFG (10464 bytes x5, 9872 bytes x2)
+  -> SP 080011e9 mode
+  -> SP-tag calibration OOB SET_CFG (1888 bytes x7)
+  -> SP/SP_VI GETs and the three dynamic SP_VI SETs above
+  -> SP_VI-tag calibration OOB SET_CFG (1328 bytes x7)
+  -> VI endpoint/hardware configuration
+  -> GRAPH_START when that graph is started in the retained interval
+  -> SP 080011f2 telemetry GET (six complete; final trace tail truncated)
+```
+
+`[DRV]` QCADCM calls `GSL_CMD_ADD_GRAPH`, which opens the selected subgraphs
+and immediately calls `gsl_graph_set_sg_cal`. That path queries ACDB for
+non-persistent, persistent, and global-persistent calibration and sends it
+through `SET_CFG`. The live OOB command immediately after each `GRAPH_OPEN`
+is therefore the graph/subgraph calibration boundary. CDLU binds the exact
+root IIDs to the reviewed ordered root group; SP_VI occupies rows 9..17 and
+SP rows 25..42.
+
+The GET packets still contain request buffers rather than responses, but the
+topology-critical result is now closed. QCADCM extracts the SP and SP_VI
+speaker counts, requires equality, and constructs the next captured R0/T0
+body with two channels. Both returned counts are therefore exactly two.
+`080011f2` is the post-start `GetSpkrProtTMaxXMaxParameters` telemetry query,
+not a graph-construction input. Full returned telemetry bytes remain useful
+for bring-up safety but do not block construction of a disabled topology.
 
 Reviewed command evidence is in
-`artifacts/reviewed/windows-qgpr-root-protection-cfg.json`.
+`artifacts/reviewed/windows-qgpr-root-protection-cfg.json` and
+`artifacts/reviewed/windows-qgpr-root-protection-startup-sequence.json`.
 
 ## Current Linux MM1 comparison point
 
@@ -699,23 +727,23 @@ of these are true:
 
 | Priority | Missing fact | How to close it |
 |---|---|---|
-| P0 | Runtime selection/order of the 27 static SP/SP_VI ACDB mappings | Capture all out-of-band `SET_CFG` bodies and correlate them with the reviewed POOL hashes |
-| P0 | Returned values for SP/SP_VI `GET_CFG` requests | Capture response packets, not only request buffers |
 | P0 | Linux WSA playback+VI SoundWire transport behavior | Instrument a reproducible kernel with amplifiers muted |
 | P1 | Final physical binding after proven single WSA interface | Linux maps left/right amp addresses 0/1 to master DAC 1/4 and VISENSE 10/11; obtain the missing physical Windows left/right listening observation before calling Windows speaker 1/2 labels exact |
 | P1 | Dynamic gain-update ordering relative to audio | Timestamp complete GPR commands and Windows volume events |
+| P2 | Full Windows response copies for SP/SP_VI GET telemetry | Capture DSP-to-host responses if byte-for-byte telemetry comparison becomes necessary |
 
 ## Next decision
 
 Offline work can now proceed on two fronts without touching the running audio
 stack:
 
-1. close SP/SP_VI calibration provenance and returned-state gaps from
-   recovered ACDB, ETW, dumps, and Ghidra;
-2. design a clean Linux DEFAULT-mode topology skeleton whose graph and port
+1. design a clean Linux DEFAULT-mode topology skeleton whose graph and port
    model can represent this ledger, while keeping SP, VI, amplifier output,
    and Dolby processing disabled and reserving NOTIFICATION as an alternate
    selector.
+2. use the build-validated single-WSA-VI candidate and observation-only
+   SoundWire instrumentation to close the final P0 transport fact before
+   protection is enabled.
 
 The next physical action is not needed until the widened KD script has been
 preflighted and the remaining recovered evidence has been exhausted.
