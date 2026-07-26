@@ -50,6 +50,7 @@ prove graph lifetime overlap or acoustic purpose.
 | QGPR activation inventory | `81c4f213f7c13e7f346aa39c2b163ba2fcfd50877495078931ca49fa76e660b1` | Earlier live `GRAPH_START` lists |
 | static GKV inventory | `eaaee9502eb355755406b9ed1b7b347e7446589d9e43d59069628a8c78c18d9a` | Static graph selectors and POOL bodies |
 | static SCLU inventory | `dfb379a903de4053cd4407b023a89d786a54d0bdd01bdca0eb0f33b0c79871f6` | Static cross-subgraph relationships |
+| reviewed root-splitter peers | `e5c7673367056cb6a98109bc80de6e4fadf00483c0395e706b65c1630c275a4c` | Classifies ports 5/9/11 as optional capture SPEECH/COMMUNICATIONS branches |
 | REV_0D ACDB | `a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde` | Original Windows static calibration database |
 | full QGPR CFG trace | `3a2b03868033cff3a147e4e120f05809b957da276217d963e457683b1fae2ca0` | Live root-protection command order and bodies |
 | reviewed root-protection CFG inventory | `e0eb0a8cdace2d9be5cce4cdf8ab122bb7f77a233baec8b910541c118b0d1716` | Strict decode of live SP/SP_VI configuration, including the two-speaker R0/T0 body |
@@ -203,6 +204,17 @@ The splitter also has exact external destinations:
 4002:5  -> 4747:2
 4002:11 -> 4730:2
 ```
+
+`[ACDB][DRV][QGPR]` These three destinations are capture-side branches, not
+additional physical speaker outputs. Their owning rows use the capture GKV
+schema: `4747` and `47c9` select SPEECH processing, while `4730` selects
+COMMUNICATIONS processing. All three destinations are `MFC` inputs. None of
+their subgraphs (`8c`, `9a`, `8a`) occurs in any of the 13 recovered
+`GRAPH_START` lists or the corresponding stop lists. A speaker-only baseline
+must preserve their documented identities but must not instantiate them;
+they belong to later microphone/capture parity work. Exact selectors and
+source hashes are in
+`artifacts/reviewed/windows-root-splitter-capture-peers.json`.
 
 There is no `[KD]` data-port `MODULE_CONN` from `SP_VI 4024` to
 `SPEAKER_PROTECTION 4027`. There is, however, an exact
@@ -624,7 +636,7 @@ render family feeding a shared protection root.
 | SP/SP_VI data edge | none in live `MODULE_CONN` | none | Do not invent one |
 | SP/SP_VI control link | exact `INTENT_ID_SP` control link | no decoded equivalent | Implement as a control link, not an audio edge |
 | Other control links | CPS, timer-drift, and EQ/headroom links are exact | no decoded equivalents | Preserve exact peer ports and intents |
-| Root external edges | splitter feeds MFC IIDs `47c9`, `4747`, `4730` in static SGs `9a`, `8c`, `8a` | absent | Close lifecycle/co-selection before deciding which peer graphs belong in baseline |
+| Root external edges | splitter feeds MFC IIDs `47c9`, `4747`, `4730` in capture SPEECH/COMMUNICATIONS SGs `9a`, `8c`, `8a`; none occurs in 13 recovered starts | absent | Exclude from speaker-only baseline; preserve exact identities for later capture parity |
 | Render loopback edge | SPR port 3 feeds speaker-loopback SAL `4144`; SGs `45/46` terminate at `SH_MEM_PUSH_MODE 40e5` | absent | Optional for initial playback; preserve a disabled output-3 route until loopback is implemented |
 | Backend model | root contains CODEC_DMA sink and sources; sink uses WSA interface 1, fixed-point, 48 kHz, 16-bit, 2 channels/mask `3` | separate donor device105 logger/MFC/DMA chain; DMA tokens already select WSA interface 1 and fixed-point | Reuse the proven DMA interface tokens, but replace donor graph assumptions |
 | Dormant backend | no conclusion from Windows bodies | DAPM set 106 names RX1 while module token uses graph 107 and kernel DAI 106 is TX0 | Remove from new baseline |
@@ -668,7 +680,7 @@ of these are true:
 8. Loopback peers `4144` and `40df` remain confined to the speaker-loopback
    graph; they cannot be used as hardware speaker destinations.
 9. External peers `47c9`, `4747`, and `4730` retain their statically resolved
-   identities while their runtime selection remains explicit and unresolved.
+   capture-side identities and are omitted from the speaker-only baseline.
 10. The WSA VI transport exists before protection is enabled.
 11. The protection baseline uses exactly two speaker channels and SP_VI map
     `[1,2,3,4]`; the unused four-speaker ACDB alternative is not instantiated.
@@ -687,7 +699,6 @@ of these are true:
 
 | Priority | Missing fact | How to close it |
 |---|---|---|
-| P0 | Runtime selection of peer SGs containing MFC IIDs `47c9`, `4747`, `4730` | Correlate full graph sets with same-run lifecycle packets |
 | P0 | Runtime selection/order of the 27 static SP/SP_VI ACDB mappings | Capture all out-of-band `SET_CFG` bodies and correlate them with the reviewed POOL hashes |
 | P0 | Returned values for SP/SP_VI `GET_CFG` requests | Capture response packets, not only request buffers |
 | P0 | Linux WSA playback+VI SoundWire transport behavior | Instrument a reproducible kernel with amplifiers muted |
@@ -699,9 +710,8 @@ of these are true:
 Offline work can now proceed on two fronts without touching the running audio
 stack:
 
-1. close the remaining root-splitter peer graphs, post-`4157` multi-speaker
-   SoundWire routing, and SP/SP_VI calibration provenance from recovered ACDB,
-   ETW, dumps, and Ghidra;
+1. close SP/SP_VI calibration provenance and returned-state gaps from
+   recovered ACDB, ETW, dumps, and Ghidra;
 2. design a clean Linux DEFAULT-mode topology skeleton whose graph and port
    model can represent this ledger, while keeping SP, VI, amplifier output,
    and Dolby processing disabled and reserving NOTIFICATION as an alternate

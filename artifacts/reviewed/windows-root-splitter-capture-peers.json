@@ -1,0 +1,97 @@
+{
+  "format": "SP11 Windows root-splitter peer inventory",
+  "format_version": 1,
+  "evidence_class": "Reviewed static ACDB GKV/SCLU closure plus complete recovered QGPR lifecycle lists",
+  "sources": {
+    "windows_gkv_inventory": {
+      "path": "artifacts/live/windows-gkv-inventory.json",
+      "sha256": "eaaee9502eb355755406b9ed1b7b347e7446589d9e43d59069628a8c78c18d9a"
+    },
+    "windows_render_mode_mapping": {
+      "path": "artifacts/reviewed/windows-render-mode-gkv-mapping.json",
+      "sha256": "9c4ab3c0ce8f914020da433afc2923cb27af56ee7a662ff732dd89fcb5156298"
+    },
+    "windows_qgpr_lifecycle_summary": {
+      "path": "artifacts/reviewed/windows-qgpr-lifecycle-summary.json",
+      "sha256": "81454093ddd7e1712f0e5290726f087f0af09f73ee2af3d2206c8065bc4ac2a9"
+    },
+    "decoder": {
+      "path": "tools/windows_root_splitter_peer_inventory.py",
+      "sha256": "966f0bc67d1d381b20ed9af3347ecc85ca71931c7c6e3bbd28cdb5b25573b006"
+    }
+  },
+  "source_module": {
+    "instance_id": "0x00004002",
+    "module_id": "0x07001011",
+    "module_name": "SPLITTER"
+  },
+  "peer_count": 3,
+  "peers": [
+    {
+      "source_port": 5,
+      "destination_iid": "0x00004747",
+      "destination_port": 2,
+      "destination_module_id": "0x07001015",
+      "destination_module_name": "MFC",
+      "destination_subgraph_id": "0xb000008c",
+      "pool_offset": "0x0000127c",
+      "parsed_bundle_sha256": "1006b0b558cc000201cd136bf0120b09dc4187bf751969580434da8df0ec5c82",
+      "capture_selector": {
+        "stream_type": "0x00000002",
+        "stream_processing_mode": "SPEECH",
+        "stream_instance": "0x00000001",
+        "mix_type": "0x00000002",
+        "mix_processing_mode": "SPEECH",
+        "endpoint": "0x00000002"
+      },
+      "listed_in_recovered_lifecycle": false
+    },
+    {
+      "source_port": 9,
+      "destination_iid": "0x000047c9",
+      "destination_port": 2,
+      "destination_module_id": "0x07001015",
+      "destination_module_name": "MFC",
+      "destination_subgraph_id": "0xb000009a",
+      "pool_offset": "0x0001a4cc",
+      "parsed_bundle_sha256": "2b9b1d48155266b7fac1ba3a7e23b066a198d6d9560179cc045b12d7e998cf7a",
+      "capture_selector": {
+        "stream_type": "0x00000002",
+        "stream_processing_mode": "SPEECH",
+        "mix_type": "0x00000005",
+        "mix_processing_mode": "SPEECH",
+        "endpoint": "0x00000007"
+      },
+      "listed_in_recovered_lifecycle": false
+    },
+    {
+      "source_port": 11,
+      "destination_iid": "0x00004730",
+      "destination_port": 2,
+      "destination_module_id": "0x07001015",
+      "destination_module_name": "MFC",
+      "destination_subgraph_id": "0xb000008a",
+      "pool_offset": "0x00001b10",
+      "parsed_bundle_sha256": "4891d8a9d3d527dbb048e1005bca71c57a419b4e4ca2b66e89a0b8b096f2e764",
+      "capture_selector": {
+        "stream_type": "0x00000002",
+        "stream_processing_mode": "COMMUNICATIONS",
+        "stream_instance": "0x00000001",
+        "mix_type": "0x00000002",
+        "mix_processing_mode": "COMMUNICATIONS",
+        "endpoint": "0x00000002"
+      },
+      "listed_in_recovered_lifecycle": false
+    }
+  ],
+  "lifecycle_coverage": {
+    "graph_start_count": 13,
+    "source_trace_count": 4,
+    "peer_subgraph_occurrences": 0
+  },
+  "assessment": {
+    "exact": "All three root-splitter peers are MFC inputs owned by capture-key GKV rows in SPEECH or COMMUNICATIONS modes. None of their subgraphs occurs in any recovered GRAPH_START/STOP list.",
+    "implementation": "Do not instantiate these branches in the speaker-only Linux baseline. Preserve their exact port and IID identities for later microphone/capture parity.",
+    "inference": "Their direction and capture-mode ownership are consistent with playback-reference inputs for capture processing, but their precise algorithmic use is not proven by the selector alone."
+  }
+}
