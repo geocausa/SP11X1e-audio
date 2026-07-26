@@ -52,9 +52,10 @@ prove graph lifetime overlap or acoustic purpose.
 | static SCLU inventory | `dfb379a903de4053cd4407b023a89d786a54d0bdd01bdca0eb0f33b0c79871f6` | Static cross-subgraph relationships |
 | REV_0D ACDB | `a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde` | Original Windows static calibration database |
 | full QGPR CFG trace | `3a2b03868033cff3a147e4e120f05809b957da276217d963e457683b1fae2ca0` | Live root-protection command order and bodies |
+| reviewed root-protection CFG inventory | `e0eb0a8cdace2d9be5cce4cdf8ab122bb7f77a233baec8b910541c118b0d1716` | Strict decode of live SP/SP_VI configuration, including the two-speaker R0/T0 body |
 | reviewed QGPR lifecycle summary | `81454093ddd7e1712f0e5290726f087f0af09f73ee2af3d2206c8065bc4ac2a9` | Corrected live OPEN/START/STOP/CLOSE inventory from four recovered traces |
 | Windows ADSP firmware | `921870a839ee2aba647b04598d62ed96f3d2d5dfbb2499fc842f9a6ff0e0da13` | Static module registration and executable CAPI behavior |
-| QCADCM Windows driver | `37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429` | Six-key render selector and enum-to-GKV translation |
+| QCADCM Windows driver | `37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429` | Render selector, enum-to-GKV translation, and SP/SP_VI R0/T0 payload construction |
 | QCAUD miniport Windows driver | `79b26804d05332304c736c4e03e942db6a07ea886a2b07f3a4ff5947d1d05531` | Windows mode-GUID to QCADCM processing-enum translation |
 | Surface audio miniport extension INF | `5acd5091f45da4232945046eeedc913bff75c57adc6e17954391264d7cec8134` | Advertised processing modes and canonical GUID values |
 | reviewed render-mode/loopback mapping | `9c4ab3c0ce8f914020da433afc2923cb27af56ee7a662ff732dd89fcb5156298` | Bound DEFAULT/NOTIFICATION selectors and speaker-loopback role |
@@ -243,8 +244,11 @@ lpaif_type=2 (LPAIF_WSA), interface_index=1
 ```
 
 The rows are fixed-point PCM at 48 kHz: 16- or 24-bit, with either two
-channels/mask `00000003` or four channels/mask `0000000f`. The exact runtime
-row remains uncaptured, but WSA interface 1 is invariant across every row.
+channels/mask `00000003` or four channels/mask `0000000f`. Live QGPR parameter
+`080011f5`, decoded against the QCADCM construction path, proves that this
+machine selected two protected speaker channels. The playback selection is
+therefore two channels/mask `00000003`; only its 16-versus-24-bit choice
+remains uncaptured. WSA interface 1 is invariant across both bit-width rows.
 The complete MTKT → MTKL/MTLU → MTDE/MTDO → POOL closure is retained in
 `artifacts/reviewed/windows-root-codec-dma-hwif.json`.
 
@@ -254,14 +258,22 @@ interface index `1`, interface type `2` (`LPAIF_WSA`), and fixed-point format
 count. This narrow backend boundary matches Windows; it does not validate the
 donor graph before it or the physical SoundWire/amp mapping after it.
 
+`[QGPR][DRV]` Seven byte-identical live `SET_CFG` packets to `SP_VI 4024`,
+parameter `080011f5`, begin with channel count `2` and carry two eight-byte
+R0-Q24/T0-Q6 calibration records. QCADCM function `0x140085270` verifies equal
+SP/SP_VI speaker counts, reads one R0/T0 pair per channel, constructs exactly
+this count-plus-records layout, and submits it. The reviewed body and decoded
+values are in `artifacts/reviewed/windows-qgpr-root-protection-cfg.json`.
+
 `[ACDB][HDR]` Root tag key `04010005` independently configures the VI
 `CODEC_DMA_SOURCE 4026` as WSA interface 1, fixed-point, 32-bit, with 2/4
 channels and a matching `00000003`/`0000000f` mask at either 8 or 48 kHz.
-SP_VI tag key `0401000b` maps the 2-channel alternative to four ordered
-Vsens/Isens values for speakers 1/2, and the 4-channel alternative to eight
-values for speakers 1..4. Windows therefore has a concrete WSA feedback
-endpoint; the current Linux sound card's missing `WSA_CODEC_DMA_TX_0` link is
-an exact structural gap.
+The live count selects the 2-channel/mask `00000003` alternative. SP_VI tag
+key `0401000b` consequently selects four ordered values: speaker 1
+Vsens/Isens, followed by speaker 2 Vsens/Isens. The runtime VI sample rate
+(8 or 48 kHz) remains unresolved. Windows nevertheless has a concrete WSA
+feedback endpoint; the current Linux sound card's missing
+`WSA_CODEC_DMA_TX_0` link is an exact structural gap.
 
 ## DEFAULT render family A — `0xb000007e` + `0xb000007f`
 
@@ -587,13 +599,13 @@ render family feeding a shared protection root.
 | Root render path | `SAL -> CHMIXER -> SP -> SPLITTER -> LOGGER -> DMA` | `SAL` is inside donor stream; no CHMIXER/SP/SPLITTER | Implement exact shared root |
 | SP module | `070010e2`, 1/1 | absent | Required |
 | SP_VI module | `070010e3`, 1/1 | absent | Required |
-| VI transport | `4026` is WSA interface 1, 32-bit, 2/4 channels; SP_VI expects paired Vsens/Isens maps | WSA TX/VI DAI link absent; VI mixers off | Add `WSA_CODEC_DMA_TX_0` sound-card and topology transport with the selected exact channel count/map |
+| VI transport | `4026` is WSA interface 1, 32-bit, 2 channels/mask `3`; SP_VI expects `[SP1 V,I, SP2 V,I]`; rate is 8 or 48 kHz | WSA TX/VI DAI link absent; VI mixers off | Add `WSA_CODEC_DMA_TX_0` sound-card and topology transport with the exact two-speaker map after resolving the rate and SoundWire ports |
 | SP/SP_VI data edge | none in live `MODULE_CONN` | none | Do not invent one |
 | SP/SP_VI control link | exact `INTENT_ID_SP` control link | no decoded equivalent | Implement as a control link, not an audio edge |
 | Other control links | CPS, timer-drift, and EQ/headroom links are exact | no decoded equivalents | Preserve exact peer ports and intents |
 | Root external edges | splitter feeds MFC IIDs `47c9`, `4747`, `4730` in static SGs `9a`, `8c`, `8a` | absent | Close lifecycle/co-selection before deciding which peer graphs belong in baseline |
 | Render loopback edge | SPR port 3 feeds speaker-loopback SAL `4144`; SGs `45/46` terminate at `SH_MEM_PUSH_MODE 40e5` | absent | Optional for initial playback; preserve a disabled output-3 route until loopback is implemented |
-| Backend model | root contains CODEC_DMA sink and sources; sink uses WSA interface 1, fixed-point, 48 kHz, 2/4 channels | separate donor device105 logger/MFC/DMA chain; DMA tokens already select WSA interface 1 and fixed-point | Reuse the proven DMA interface tokens, but replace donor graph assumptions |
+| Backend model | root contains CODEC_DMA sink and sources; sink uses WSA interface 1, fixed-point, 48 kHz, 2 channels/mask `3`; bit width is 16 or 24 | separate donor device105 logger/MFC/DMA chain; DMA tokens already select WSA interface 1 and fixed-point | Reuse the proven DMA interface tokens, but replace donor graph assumptions |
 | Dormant backend | no conclusion from Windows bodies | DAPM set 106 names RX1 while module token uses graph 107 and kernel DAI 106 is TX0 | Remove from new baseline |
 | Dynamic gain | exact per-channel Q28 `VOL_CTRL` updates observed | topology names hide module identity; runtime parity unproven | Capture and compare update ordering before diagnosing spikes |
 | Dolby | no Dolby AudioReach module in these bodies | active PipeWire EQ changes samples | Keep a userspace identity/bypass insertion point; disable EQ for parity tests |
@@ -637,15 +649,17 @@ of these are true:
 9. External peers `47c9`, `4747`, and `4730` retain their statically resolved
    identities while their runtime selection remains explicit and unresolved.
 10. The WSA VI transport exists before protection is enabled.
-11. Only calibration blocks with an exact source, target IID/module policy,
+11. The protection baseline uses exactly two speaker channels and SP_VI map
+    `[1,2,3,4]`; the unused four-speaker ACDB alternative is not instantiated.
+12. Only calibration blocks with an exact source, target IID/module policy,
    size, hash, and ordering rule are admitted.
-12. Dolby remains a bypassed userspace insertion point and cannot conceal a
+13. Dolby remains a bypassed userspace insertion point and cannot conceal a
     missing hardware stage.
-13. The PipeWire EQ is bypassed during every structural or Windows-reference
+14. The PipeWire EQ is bypassed during every structural or Windows-reference
     comparison.
-14. DEFAULT family A and NOTIFICATION family B remain selector alternatives;
+15. DEFAULT family A and NOTIFICATION family B remain selector alternatives;
     they are never joined as physical left/right paths.
-15. Bring-up begins muted and does not drive the speakers before VI telemetry
+16. Bring-up begins muted and does not drive the speakers before VI telemetry
     and rollback behavior are proven.
 
 ## Open facts blocking safe deployment
@@ -656,7 +670,8 @@ of these are true:
 | P0 | Runtime selection/order of the 27 static SP/SP_VI ACDB mappings | Capture all out-of-band `SET_CFG` bodies and correlate them with the reviewed POOL hashes |
 | P0 | Returned values for SP/SP_VI `GET_CFG` requests | Capture response packets, not only request buffers |
 | P0 | Linux WSA playback+VI SoundWire transport behavior | Instrument a reproducible kernel with amplifiers muted |
-| P1 | Physical mapping after proven WSA interface 1 | Resolve WSA channel 0..3 to macro slots, SoundWire master/slave ports, and amplifier instances; do not infer labels from the channel mask |
+| P1 | Physical mapping after proven WSA interface 1 | Bind selected channels 0/1 and Dolby-corroborated output routes 0/1 to exact WSA macro slots, SoundWire master/slave ports, and left/right amplifier instances |
+| P1 | Selected hardware formats | Recover playback bit width (16/24) and VI rate (8/48 kHz) from a live endpoint body or equivalent exact state |
 | P1 | Dynamic gain-update ordering relative to audio | Timestamp complete GPR commands and Windows volume events |
 
 ## Next decision

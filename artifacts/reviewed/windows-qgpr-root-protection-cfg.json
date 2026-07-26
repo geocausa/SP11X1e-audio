@@ -1,0 +1,1037 @@
+{
+  "event_count": 48,
+  "events": [
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e9",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 15,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e8",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 17,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f6",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0",
+          "payload_size": 44
+        }
+      ],
+      "sequence": 18,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "decoded": {
+            "channels": [
+              {
+                "channel_index": 0,
+                "r0_ohms": 4.95584774017334,
+                "r0_q24": "0x04f4b270",
+                "reserved": 0,
+                "t0_celsius": 38.65625,
+                "t0_q6": 2474
+              },
+              {
+                "channel_index": 1,
+                "r0_ohms": 5.370454668998718,
+                "r0_q24": "0x055ed61e",
+                "reserved": 0,
+                "t0_celsius": 37.0,
+                "t0_q6": 2368
+              }
+            ],
+            "name": "SP_VI_R0T0_CFG",
+            "num_channels": 2
+          },
+          "iid": "0x00004024",
+          "param_id": "0x080011f5",
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "payload_sha256": "faa8f1d932eaad245b110c9bb04092709ab4ea49f07bee28c556ccd4ea7c0daf",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 19,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f4",
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "payload_sha256": "2d806c3c07145b3d72fd9285c44618c26e9ee3b5b3a8affad1b57e7850599999",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 20,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011ff",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 21,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011f2",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 35,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e9",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 64,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e8",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 66,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f6",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0",
+          "payload_size": 44
+        }
+      ],
+      "sequence": 67,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "decoded": {
+            "channels": [
+              {
+                "channel_index": 0,
+                "r0_ohms": 4.95584774017334,
+                "r0_q24": "0x04f4b270",
+                "reserved": 0,
+                "t0_celsius": 38.65625,
+                "t0_q6": 2474
+              },
+              {
+                "channel_index": 1,
+                "r0_ohms": 5.370454668998718,
+                "r0_q24": "0x055ed61e",
+                "reserved": 0,
+                "t0_celsius": 37.0,
+                "t0_q6": 2368
+              }
+            ],
+            "name": "SP_VI_R0T0_CFG",
+            "num_channels": 2
+          },
+          "iid": "0x00004024",
+          "param_id": "0x080011f5",
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "payload_sha256": "faa8f1d932eaad245b110c9bb04092709ab4ea49f07bee28c556ccd4ea7c0daf",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 68,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f4",
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "payload_sha256": "2d806c3c07145b3d72fd9285c44618c26e9ee3b5b3a8affad1b57e7850599999",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 70,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011ff",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 71,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011f2",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 84,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e9",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 5727,
+      "source_port": "0x00002011",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e8",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 5729,
+      "source_port": "0x00002011",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f6",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0",
+          "payload_size": 44
+        }
+      ],
+      "sequence": 5731,
+      "source_port": "0x00002011",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "decoded": {
+            "channels": [
+              {
+                "channel_index": 0,
+                "r0_ohms": 4.95584774017334,
+                "r0_q24": "0x04f4b270",
+                "reserved": 0,
+                "t0_celsius": 38.65625,
+                "t0_q6": 2474
+              },
+              {
+                "channel_index": 1,
+                "r0_ohms": 5.370454668998718,
+                "r0_q24": "0x055ed61e",
+                "reserved": 0,
+                "t0_celsius": 37.0,
+                "t0_q6": 2368
+              }
+            ],
+            "name": "SP_VI_R0T0_CFG",
+            "num_channels": 2
+          },
+          "iid": "0x00004024",
+          "param_id": "0x080011f5",
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "payload_sha256": "faa8f1d932eaad245b110c9bb04092709ab4ea49f07bee28c556ccd4ea7c0daf",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 5732,
+      "source_port": "0x00002011",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f4",
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "payload_sha256": "2d806c3c07145b3d72fd9285c44618c26e9ee3b5b3a8affad1b57e7850599999",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 5733,
+      "source_port": "0x00002011",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011ff",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 5734,
+      "source_port": "0x00002011",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011f2",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 9715,
+      "source_port": "0x00002011",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e9",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 9738,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e8",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 9740,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f6",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0",
+          "payload_size": 44
+        }
+      ],
+      "sequence": 9741,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "decoded": {
+            "channels": [
+              {
+                "channel_index": 0,
+                "r0_ohms": 4.95584774017334,
+                "r0_q24": "0x04f4b270",
+                "reserved": 0,
+                "t0_celsius": 38.65625,
+                "t0_q6": 2474
+              },
+              {
+                "channel_index": 1,
+                "r0_ohms": 5.370454668998718,
+                "r0_q24": "0x055ed61e",
+                "reserved": 0,
+                "t0_celsius": 37.0,
+                "t0_q6": 2368
+              }
+            ],
+            "name": "SP_VI_R0T0_CFG",
+            "num_channels": 2
+          },
+          "iid": "0x00004024",
+          "param_id": "0x080011f5",
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "payload_sha256": "faa8f1d932eaad245b110c9bb04092709ab4ea49f07bee28c556ccd4ea7c0daf",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 9742,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f4",
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "payload_sha256": "2d806c3c07145b3d72fd9285c44618c26e9ee3b5b3a8affad1b57e7850599999",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 9743,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011ff",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 9744,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011f2",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 9765,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e9",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 9788,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e8",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 9790,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f6",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0",
+          "payload_size": 44
+        }
+      ],
+      "sequence": 9791,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "decoded": {
+            "channels": [
+              {
+                "channel_index": 0,
+                "r0_ohms": 4.95584774017334,
+                "r0_q24": "0x04f4b270",
+                "reserved": 0,
+                "t0_celsius": 38.65625,
+                "t0_q6": 2474
+              },
+              {
+                "channel_index": 1,
+                "r0_ohms": 5.370454668998718,
+                "r0_q24": "0x055ed61e",
+                "reserved": 0,
+                "t0_celsius": 37.0,
+                "t0_q6": 2368
+              }
+            ],
+            "name": "SP_VI_R0T0_CFG",
+            "num_channels": 2
+          },
+          "iid": "0x00004024",
+          "param_id": "0x080011f5",
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "payload_sha256": "faa8f1d932eaad245b110c9bb04092709ab4ea49f07bee28c556ccd4ea7c0daf",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 9792,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f4",
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "payload_sha256": "2d806c3c07145b3d72fd9285c44618c26e9ee3b5b3a8affad1b57e7850599999",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 9793,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011ff",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 9794,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011f2",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 10309,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e9",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 10332,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e8",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 10334,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f6",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0",
+          "payload_size": 44
+        }
+      ],
+      "sequence": 10335,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "decoded": {
+            "channels": [
+              {
+                "channel_index": 0,
+                "r0_ohms": 4.95584774017334,
+                "r0_q24": "0x04f4b270",
+                "reserved": 0,
+                "t0_celsius": 38.65625,
+                "t0_q6": 2474
+              },
+              {
+                "channel_index": 1,
+                "r0_ohms": 5.370454668998718,
+                "r0_q24": "0x055ed61e",
+                "reserved": 0,
+                "t0_celsius": 37.0,
+                "t0_q6": 2368
+              }
+            ],
+            "name": "SP_VI_R0T0_CFG",
+            "num_channels": 2
+          },
+          "iid": "0x00004024",
+          "param_id": "0x080011f5",
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "payload_sha256": "faa8f1d932eaad245b110c9bb04092709ab4ea49f07bee28c556ccd4ea7c0daf",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 10336,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f4",
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "payload_sha256": "2d806c3c07145b3d72fd9285c44618c26e9ee3b5b3a8affad1b57e7850599999",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 10337,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011ff",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 10338,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011f2",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 10352,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e9",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 10377,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004027",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004027",
+          "param_id": "0x080011e8",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "1751ac12e70e15b4f76c16775cd329ae55973b612521dab2de828a5cdb6c8ab3",
+          "payload_size": 68
+        }
+      ],
+      "sequence": 10379,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f6",
+          "payload_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload_sha256": "85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0",
+          "payload_size": 44
+        }
+      ],
+      "sequence": 10380,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "decoded": {
+            "channels": [
+              {
+                "channel_index": 0,
+                "r0_ohms": 4.95584774017334,
+                "r0_q24": "0x04f4b270",
+                "reserved": 0,
+                "t0_celsius": 38.65625,
+                "t0_q6": 2474
+              },
+              {
+                "channel_index": 1,
+                "r0_ohms": 5.370454668998718,
+                "r0_q24": "0x055ed61e",
+                "reserved": 0,
+                "t0_celsius": 37.0,
+                "t0_q6": 2368
+              }
+            ],
+            "name": "SP_VI_R0T0_CFG",
+            "num_channels": 2
+          },
+          "iid": "0x00004024",
+          "param_id": "0x080011f5",
+          "payload_hex": "0200000070b2f404aa0900001ed65e054009000000000000",
+          "payload_sha256": "faa8f1d932eaad245b110c9bb04092709ab4ea49f07bee28c556ccd4ea7c0daf",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 10381,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011f4",
+          "payload_hex": "020000000000000000000000000000000000000000000000",
+          "payload_sha256": "2d806c3c07145b3d72fd9285c44618c26e9ee3b5b3a8affad1b57e7850599999",
+          "payload_size": 24
+        }
+      ],
+      "sequence": 10382,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    },
+    {
+      "destination_port": "0x00004024",
+      "opcode": "0x01001006",
+      "opcode_name": "APM_CMD_SET_CFG",
+      "parameters": [
+        {
+          "iid": "0x00004024",
+          "param_id": "0x080011ff",
+          "payload_hex": "0000000000000000",
+          "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "payload_size": 8
+        }
+      ],
+      "sequence": 10383,
+      "source_port": "0x00002010",
+      "token": "0x00000000"
+    }
+  ],
+  "evidence_class": "C: complete in-band commands from live Windows QGPR trace",
+  "format": "AudioReach QGPR CFG command inventory",
+  "format_version": 1,
+  "getcfg_request_count": 20,
+  "setcfg_event_count": 28,
+  "source": "/home/geoca/Documents/SP11-PROJECT/00-RE-archive/recovered-adata/ubi/Documents/SP11/AUDIO/Research_Hub_Audio/tools/QcadcmGprTableProbe/captures/qgpr_records_domain2_boot_init_after_music_toggle_volume_FULL_20260612_015043.decoded.csv",
+  "source_sha256": "3a2b03868033cff3a147e4e120f05809b957da276217d963e457683b1fae2ca0",
+  "target_iids": [
+    "0x00004024",
+    "0x00004027",
+    "0x00004028",
+    "0x00004157"
+  ],
+  "unique_setcfg_bodies": [
+    {
+      "iid": "0x00004024",
+      "occurrence_count": 7,
+      "param_id": "0x080011f4",
+      "payload_sha256": "2d806c3c07145b3d72fd9285c44618c26e9ee3b5b3a8affad1b57e7850599999"
+    },
+    {
+      "decoded": {
+        "channels": [
+          {
+            "channel_index": 0,
+            "r0_ohms": 4.95584774017334,
+            "r0_q24": "0x04f4b270",
+            "reserved": 0,
+            "t0_celsius": 38.65625,
+            "t0_q6": 2474
+          },
+          {
+            "channel_index": 1,
+            "r0_ohms": 5.370454668998718,
+            "r0_q24": "0x055ed61e",
+            "reserved": 0,
+            "t0_celsius": 37.0,
+            "t0_q6": 2368
+          }
+        ],
+        "name": "SP_VI_R0T0_CFG",
+        "num_channels": 2
+      },
+      "iid": "0x00004024",
+      "occurrence_count": 7,
+      "param_id": "0x080011f5",
+      "payload_sha256": "faa8f1d932eaad245b110c9bb04092709ab4ea49f07bee28c556ccd4ea7c0daf"
+    },
+    {
+      "iid": "0x00004024",
+      "occurrence_count": 7,
+      "param_id": "0x080011ff",
+      "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+    },
+    {
+      "iid": "0x00004027",
+      "occurrence_count": 7,
+      "param_id": "0x080011e9",
+      "payload_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+    }
+  ],
+  "warning": "GET_CFG payloads are request buffers, not returned DSP values."
+}
