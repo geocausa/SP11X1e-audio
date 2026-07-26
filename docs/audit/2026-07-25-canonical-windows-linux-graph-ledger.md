@@ -1,0 +1,645 @@
+# SP11 canonical Windows/Linux graph ledger — 2026-07-25
+
+## Status
+
+This is the implementation baseline for the SP11 speaker path. It supersedes
+diagrams assembled from donor topology names, partial `stream6` grafts, or
+unbounded binary scans.
+
+The recovered evidence proves two mirrored Windows render-mode families:
+
+- DEFAULT family A: subgraphs `0xb000007e` and `0xb000007f`;
+- NOTIFICATION family B: subgraphs `0xb0000082` and `0xb0000083`;
+- shared root/protection subgraph: `0xb0000001`.
+
+Older project notes incorrectly call these left and right. Static GKV rows and
+the exact Windows miniport/QCADCM translation prove that both use endpoint key
+value `1`; only the stream and mix processing-mode keys differ. Family A is
+DEFAULT (`2`) and family B is NOTIFICATION (`7`). They are mutually selected
+mode alternatives, not the physical speaker halves.
+
+The current Linux MM1 graph is not a reduced version of this structure. It is
+a donor-shaped serial chain with no shared Windows root, no speaker-protection
+modules, no VI graph, and no equivalent per-family split.
+
+## Evidence notation
+
+| Tag | Meaning |
+|---|---|
+| `[KD]` | Exact bytes from a live Windows KDNET `GRAPH_OPEN` or `SET_CFG` out-of-band body |
+| `[QGPR]` | Exact live AudioReach packet decoded from an older QGPR capture |
+| `[ACDB]` | Static Windows REV_0D ACDB table or SCLU relationship |
+| `[HDR]` | Module or parameter identity from recovered AudioReach API headers |
+| `[FW]` | Exact registration record or executable behavior in the recovered Windows DSP firmware |
+| `[DRV]` | Exact executable behavior in a hash-bound recovered Windows driver |
+| `[INF]` | Exact configuration value in a hash-bound recovered Windows INF |
+| `[LINUX]` | Exact decode or snapshot of the installed Linux stack |
+| `[HYP]` | Hypothesis; forbidden as an implementation input until promoted by evidence |
+
+“Live” proves that Windows submitted the recorded body. It does not, by itself,
+prove graph lifetime overlap or acoustic purpose.
+
+## Canonical sources
+
+| Source | SHA-256 | Role |
+|---|---|---|
+| KD capture log | `386aabc5cc7a98c67031748826c98386badf41d23e67e4cbaa23ca6690e919aa` | Ordered debugger evidence |
+| family A full body | `001e8f78c2aed10e74faad7c2f70095f307a52d4590ec0d00e785e57f44a006e` | Root + `7e` + `7f`; captured four times byte-identically |
+| family B full body | `a0d4b5a0fa9102a428402ecd9ad19967e73e74b302fb4e67378d76dc49725a46` | Root + `82` + `83`; captured once |
+| family B render-only body | `d4b009f53961de29ca81226bd5f0cbe5f37e94c9f7b5224aee4fa3ffc65d1c4c` | `82` + `83`; captured twice byte-identically |
+| QGPR activation inventory | `81c4f213f7c13e7f346aa39c2b163ba2fcfd50877495078931ca49fa76e660b1` | Earlier live `GRAPH_START` lists |
+| static GKV inventory | `eaaee9502eb355755406b9ed1b7b347e7446589d9e43d59069628a8c78c18d9a` | Static graph selectors and POOL bodies |
+| static SCLU inventory | `dfb379a903de4053cd4407b023a89d786a54d0bdd01bdca0eb0f33b0c79871f6` | Static cross-subgraph relationships |
+| REV_0D ACDB | `a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde` | Original Windows static calibration database |
+| full QGPR CFG trace | `3a2b03868033cff3a147e4e120f05809b957da276217d963e457683b1fae2ca0` | Live root-protection command order and bodies |
+| reviewed QGPR lifecycle summary | `81454093ddd7e1712f0e5290726f087f0af09f73ee2af3d2206c8065bc4ac2a9` | Corrected live OPEN/START/STOP/CLOSE inventory from four recovered traces |
+| Windows ADSP firmware | `921870a839ee2aba647b04598d62ed96f3d2d5dfbb2499fc842f9a6ff0e0da13` | Static module registration and executable CAPI behavior |
+| QCADCM Windows driver | `37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429` | Six-key render selector and enum-to-GKV translation |
+| QCAUD miniport Windows driver | `79b26804d05332304c736c4e03e942db6a07ea886a2b07f3a4ff5947d1d05531` | Windows mode-GUID to QCADCM processing-enum translation |
+| Surface audio miniport extension INF | `5acd5091f45da4232945046eeedc913bff75c57adc6e17954391264d7cec8134` | Advertised processing modes and canonical GUID values |
+| reviewed render-mode/loopback mapping | `9c4ab3c0ce8f914020da433afc2923cb27af56ee7a662ff732dd89fcb5156298` | Bound DEFAULT/NOTIFICATION selectors and speaker-loopback role |
+| installed Linux topology decode | `066182f47d74f4a8be6d878d1cae226d02dcab2fc858bd1f684931fa5d135485` | Current Linux comparison point |
+
+Reviewed machine-readable outputs are in
+`artifacts/reviewed/windows-kdnet-20260723/`. The manifest binds every
+generated JSON file to the original capture name and SHA-256.
+
+## Runtime submission facts
+
+`[KD]` The fresh capture contains seven graph bodies but only three unique
+byte sequences:
+
+| Submitted set | Captures | Bytes | Parameters | Modules | Data connections | Control links |
+|---|---:|---:|---:|---:|---:|---:|
+| root + `7e` + `7f` | 4 | `0xb18` | 19 | 29 | 30 | 4 |
+| root + `82` + `83` | 1 | `0xb18` | 19 | 29 | 30 | 4 |
+| `82` + `83` only | 2 | `0x5e0` | 13 | 16 | 17 | 1 |
+
+For each full body, the 30 connections resolve as:
+
+- 24 internal to one subgraph;
+- 2 cross-subgraph bridges;
+- 4 destinations outside the submitted set.
+
+`[QGPR]` Earlier captures prove these exact `GRAPH_START` lists:
+
+| Start sequence | Subgraphs |
+|---:|---|
+| 31 | `01 + 7f + 7e` |
+| 80 | `01 + 83 + 82` |
+| 5769 | `01 + 7f + 7e` |
+| 10399 | `01 + 7f + 7e` |
+
+Other captured starts (`44 + 40 + 41` and `01 + 27 + 26`) exist but are not
+part of this speaker-render baseline.
+
+`[QGPR][HDR]` Re-auditing four recovered full QGPR CSVs closes part of the
+lifecycle gap. They contain 52 graph-lifecycle commands:
+
+| Command | Correct opcode | Captures |
+|---|---:|---:|
+| GRAPH_OPEN | `01001000` | 14 |
+| GRAPH_START | `01001002` | 13 |
+| GRAPH_STOP | `01001003` | 12 |
+| GRAPH_CLOSE | `01001004` | 13 |
+| GRAPH_PREPARE | `01001001` | 0 |
+| GRAPH_FLUSH | `01001005` | 0 |
+
+The recovered CSV decoder incorrectly named opcode `01001004`
+`APM_CMD_GRAPH_FLUSH`. Both the recovered AudioReach `apm_api.h` and Linux
+7.1.5 `audioreach.h` define it as `APM_CMD_GRAPH_CLOSE`; actual GRAPH_FLUSH is
+`01001005`.
+
+The full trace proves these ordered examples on source port `2010`:
+
+| Set | OPEN | START | STOP | CLOSE |
+|---|---:|---:|---:|---:|
+| root + `7f` + `7e` | 3 | 31 | 36 | 40 |
+| root + `83` + `82` | 52 | 80 | 85 | 89 |
+| `44` + `40` + `41` | 101 | 168 | 9557 | 9561 |
+| root + `27` + `26` | 9727 | 9757 | 9766 | 9770 |
+
+OPEN and CLOSE are 40-byte out-of-band descriptors in these CSVs. The exact
+START and STOP subgraph lists are present in-band. The OPEN bodies are bound
+separately by the activation inventory; the CLOSE bodies were not retained.
+
+The same trace proves overlapping active intervals between `44 + 40 + 41`
+(`START 168`, `STOP 9557`, source `2010`) and family A
+(`START 5769`, `STOP 9716`, source `2011`).
+
+`[DRV][ACDB]` The sequential family A/family B lifetimes are consistent with
+their now-proven roles as DEFAULT and NOTIFICATION mode alternatives.
+Simultaneous A/B lifetime is not a Linux parity requirement. The fresh
+2026-07-23 run itself has no lifecycle commands.
+
+## Shared root/protection graph `0xb0000001`
+
+### Exact module inventory
+
+| Container | IID | Module ID | Canonical name | Ports in/out |
+|---|---|---|---|---:|
+| `e0000001` | `4001` | `07001010` | SAL | 10/1 |
+| `e0000001` | `4002` | `07001011` | SPLITTER | 1/7 |
+| `e0000001` | `4003` | `0700101a` | DATA_LOGGING | 1/1 |
+| `e0000001` | `4157` | `07001023` | CODEC_DMA_SINK | 1/0 |
+| `e0000001` | `4027` | `070010e2` | SPEAKER_PROTECTION | 1/1 |
+| `e0000001` | `402c` | `07001013` | CHMIXER | 1/1 |
+| `e0000007` | `4024` | `070010e3` | SPEAKER_PROTECTION_VI | 1/1 |
+| `e0000007` | `4025` | `0700101a` | DATA_LOGGING | 1/1 |
+| `e0000007` | `4026` | `07001024` | CODEC_DMA_SOURCE | 0/1 |
+| `e0000006` | `4028` | `070010e4` | CPS_DATA_ROUTER_V5 | 1/0 |
+| `e0000006` | `4029` | `07001098` | MUX_DEMUX | 2/1 |
+| `e0000005` | `402a` | `0700101a` | DATA_LOGGING | 1/1 |
+| `e0000005` | `402b` | `07001024` | CODEC_DMA_SOURCE | 0/1 |
+
+### Exact connected components
+
+```mermaid
+flowchart LR
+    IN["family render -> SAL 4001<br/>ports 12 or 18"] --> CM["CHMIXER 402c"]
+    CM --> SP["SPEAKER_PROTECTION 4027"]
+    SP --> SPLIT["SPLITTER 4002"]
+    SPLIT --> LOG["LOGGER 4003"]
+    LOG --> RX["CODEC_DMA_SINK 4157"]
+
+    VI["CODEC_DMA_SOURCE 4026"] --> VLOG["LOGGER 4025"]
+    VLOG --> SPVI["SPEAKER_PROTECTION_VI 4024"]
+    SPVI -. "control: INTENT_ID_SP" .-> SP
+
+    AUX["CODEC_DMA_SOURCE 402b"] --> ALOG["LOGGER 402a"]
+    ALOG --> MUX["MUX_DEMUX 4029"]
+    MUX --> CPS["CPS_DATA_ROUTER_V5 4028"]
+    CPS -. "control: INTENT_ID_CPS" .-> SP
+
+    RX -. "control: TIMER_DRIFT_INFO" .-> RAT["speaker-loopback RAT 40df"]
+```
+
+The ordinary render path is:
+
+```text
+4001:1 -> 402c:2 -> 4027:2 -> 4002:2 -> 4003:2 -> 4157:2
+```
+
+The VI component is:
+
+```text
+4026:1 -> 4025:2 -> 4024:2
+```
+
+The auxiliary capture component is:
+
+```text
+402b:1 -> 402a:2 -> 4029:2 -> 4028:2
+```
+
+The splitter also has exact external destinations:
+
+```text
+4002:9  -> 47c9:2
+4002:5  -> 4747:2
+4002:11 -> 4730:2
+```
+
+There is no `[KD]` data-port `MODULE_CONN` from `SP_VI 4024` to
+`SPEAKER_PROTECTION 4027`. There is, however, an exact
+`APM_PARAM_ID_MODULE_CTRL_LINK_CFG` relationship:
+
+```text
+4024:80000000 <-> 4027:80000000  INTENT_ID_SP (08001204)
+4028:80000000 <-> 4027:80000001  INTENT_ID_CPS (08001537)
+4157:80000007 <-> 40df:c0000001  INTENT_ID_TIMER_DRIFT_INFO (080010c2)
+```
+
+`[ACDB][HDR]` IID `40df` is `MODULE_ID_RATE_ADAPTED_TIMER` (`07001041`) in
+subgraph `b0000045`. The SP_VI/SP relationship is therefore a control link,
+not a data edge. An implementation must preserve that distinction.
+
+`[ACDB][DRV][INF][HDR]` Subgraphs `b0000045 + b0000046` are the speaker
+loopback graph. The Surface INF binds `WaveSpeaker\FormatsAndModes3` as type
+`loopback`; the miniport maps that type to streaming enum `3`; and the exact
+ACDB row selects capture stream/mix GKV `3` plus speaker render endpoint `1`.
+Its terminal module `07001007`, IID `40e5`, is
+`MODULE_ID_SH_MEM_PUSH_MODE`. The timer-drift link therefore synchronizes a
+host loopback capture with the hardware render clock.
+
+`[FW][HDR][KD]` Module `070010e4` is the Speaker Protection v5 CPS Data
+Router. Its exact Windows ADSP firmware registration record points to a CAPI
+implementation whose set-parameter handler accepts
+`PARAM_ID_CPS_CHANNEL_MAP_V5` (`080013cb`),
+`PARAM_ID_MODULE_ENABLE` (`08001026`), and IMCL port operations, and whose
+control-port setup uses `INTENT_ID_CPS` (`08001537`). This independently
+matches the recovered CPS router API and the live module's 1/0 port shape.
+The full evidence chain is recorded in
+`docs/findings/2026-07-26-qcadsp-e4-cps-data-router.md`.
+
+## DEFAULT render family A — `0xb000007e` + `0xb000007f`
+
+`[DRV][ACDB]` The complete six-key selector for this family is:
+
+```text
+01000001=2  render stream type
+01000002=2  render stream processing mode = DEFAULT
+01000003=1  render stream instance
+01000004=2  render mix type
+01000005=2  render mix processing mode = DEFAULT
+01000006=1  render endpoint
+```
+
+The miniport maps the DEFAULT GUID to QCADCM processing enum `2`; QCADCM maps
+that enum to GKV value `2`.
+
+`[KD]` The complete path, including supplemental cross-subgraph connections,
+is:
+
+```mermaid
+flowchart LR
+    PULL["SH_MEM_PULL 4660"] --> L1["LOGGER 465c"]
+    L1 --> CNV["PCM_CNV 465f"]
+    CNV --> V1["VOL_CTRL 4663"]
+    V1 --> SWR1["SWR_SINK 4662"]
+    SWR1 --> EQ["POPLESS_EQ 4664"]
+    EQ -. "control: P_EQ_VOL_HEADROOM" .-> V1
+    EQ --> V2["VOL_CTRL 4669"]
+    V2 --> MFC["MFC 466a"]
+    MFC --> PAUSE["SOFT_PAUSE 466b"]
+    PAUSE --> SPR["SPR 412b<br/>1 input / 2 outputs"]
+    SPR --> L2["LOGGER 47e9"]
+    L2 --> V3["VOL_CTRL 4a63"]
+    V3 --> SWR2["SWR_SINK 4675"]
+    SWR2 --> IIR1["MSIIR 489e"]
+    IIR1 --> IIR2["MSIIR 48a1"]
+    IIR2 --> L3["LOGGER 467a"]
+    L3 --> ROOT["root SAL 4001:12"]
+    SPR -. "loopback tap, port 3" .-> EXT["loopback SAL 4144:16"]
+```
+
+The two connections that join the subgraph records are directly present as
+supplemental `MODULE_CONN` parameters in the live body:
+
+```text
+412b:1 -> 47e9:2
+467a:1 -> 4001:12
+```
+
+This independently matches the earlier `[ACDB]` SCLU bridge decode.
+
+The live body also carries this internal control link:
+
+```text
+4664:80000000 <-> 4663:80000000
+INTENT_ID_P_EQ_VOL_HEADROOM (08001118)
+```
+
+Exact module grouping:
+
+| Subgraph/container | IID | Module ID | Name | Ports in/out |
+|---|---|---|---|---:|
+| `7e/e000004c` | `4660` | `07001006` | SH_MEM_PULL_MODE | 0/1 |
+| `7e/e000004c` | `465c` | `0700101a` | DATA_LOGGING | 1/1 |
+| `7e/e000004c` | `465f` | `07001003` | PCM_CNV | 1/1 |
+| `7e/e000004c` | `4663` | `0700101b` | VOL_CTRL | 1/1 |
+| `7e/e000004c` | `4662` | `07001097` | SWR_SINK | 1/1 |
+| `7e/e000004c` | `4664` | `07001045` | POPLESS_EQUALIZER | 1/1 |
+| `7e/e000004c` | `4669` | `0700101b` | VOL_CTRL | 1/1 |
+| `7e/e000004c` | `466a` | `07001015` | MFC | 1/1 |
+| `7e/e000004c` | `466b` | `07001019` | SOFT_PAUSE | 1/1 |
+| `7e/e0000066` | `412b` | `07001032` | SPR | 1/2 |
+| `7f/e0000114` | `47e9` | `0700101a` | DATA_LOGGING | 1/1 |
+| `7f/e0000114` | `4a63` | `0700101b` | VOL_CTRL | 1/1 |
+| `7f/e0000114` | `4675` | `07001097` | SWR_SINK | 1/1 |
+| `7f/e0000114` | `489e` | `07001014` | MSIIR | 1/1 |
+| `7f/e0000114` | `48a1` | `07001014` | MSIIR | 1/1 |
+| `7f/e0000114` | `467a` | `0700101a` | DATA_LOGGING | 1/1 |
+
+## NOTIFICATION render family B — `0xb0000082` + `0xb0000083`
+
+`[DRV][INF][ACDB]` The complete six-key selector for this family is:
+
+```text
+01000001=2  render stream type
+01000002=7  render stream processing mode = NOTIFICATION
+01000003=1  render stream instance
+01000004=2  render mix type
+01000005=7  render mix processing mode = NOTIFICATION
+01000006=1  render endpoint
+```
+
+The Surface INF defines the NOTIFICATION GUID as
+`9CF2A70B-F377-403B-BD6B-360863E0355C`. The miniport maps it to QCADCM
+processing enum `7`; QCADCM maps that enum to GKV value `7`.
+
+`[KD]` Family B is structurally isomorphic to family A:
+
+```text
+469e SH_MEM_PULL
+ -> 469a LOGGER
+ -> 469d PCM_CNV
+ -> 46a1 VOL_CTRL
+ -> 46a0 SWR_SINK
+ -> 46a2 POPLESS_EQ
+ -> 46a7 VOL_CTRL
+ -> 46a8 MFC
+ -> 46a9 SOFT_PAUSE
+ -> 4137 SPR
+ -> 47ed LOGGER
+ -> 4a5f VOL_CTRL
+ -> 46b3 SWR_SINK
+ -> 48a8 MSIIR
+ -> 48a9 MSIIR
+ -> 46b8 LOGGER
+ -> root SAL 4001:18
+```
+
+Exact supplemental bridges:
+
+```text
+4137:1 -> 47ed:2
+46b8:1 -> 4001:18
+```
+
+Exact speaker-loopback branch:
+
+```text
+4137:3 -> 4144:24
+```
+
+Exact internal control link:
+
+```text
+46a2:80000000 <-> 46a1:80000000
+INTENT_ID_P_EQ_VOL_HEADROOM (08001118)
+```
+
+The family contains 16 modules: ten in `82`, six in `83`. Module IDs and
+port counts match family A position-for-position; only IIDs, containers, root
+SAL input port, and the final external destination port differ.
+
+## Corrected module identities
+
+Four old project labels are now resolved by `[HDR][FW]` evidence:
+
+| Module ID | Canonical API identity | Consequence |
+|---|---|---|
+| `07001006` | `MODULE_ID_SH_MEM_PULL_MODE` — Shared Memory Pull Mode Endpoint | It is the Windows render source in these bodies, not an unknown codec stage |
+| `0700101b` | `MODULE_ID_VOL_CTRL` | “SAL_V2” is an incorrect semantic name for this ID |
+| `07001032` | `MODULE_ID_SPR` — Splitter Renderer | The Linux `UNKNOWN_0x32` label hides a required fan-out stage |
+| `070010e4` | Speaker Protection v5 CPS Data Router | It carries the v5 CPS channel map and opens the CPS intent to the SPv5 module |
+
+`SPR` is declared as 1 input / 2 outputs in both live Windows families.
+The current Linux instances declare 1 input / 1 output. That is not a naming
+issue; it structurally amputates the second Windows output.
+
+`[FW][HDR]` Module `070010e4` is registered in the recovered Windows ADSP
+firmware with init function `0xb03ed820`. Its set-parameter handler accepts
+`PARAM_ID_CPS_CHANNEL_MAP_V5 (080013cb)`, module enable, and IMCL port
+operation, then opens `INTENT_ID_CPS (08001537)`. The live graph's one-input,
+zero-output ports match the recovered Speaker Protection v5 CPS Data Router
+API. It is not a Dolby or equalizer stage.
+
+The other exact live control-link intents resolve from AudioReach headers as:
+
+| Intent ID | API identity | Live peers |
+|---|---|---|
+| `08001204` | `INTENT_ID_SP` | SP_VI `4024` ↔ SP `4027` |
+| `08001537` | `INTENT_ID_CPS` | CPS_DATA_ROUTER_V5 `4028` ↔ SP `4027` |
+| `080010c2` | `INTENT_ID_TIMER_DRIFT_INFO` | DMA sink `4157` ↔ rate-adapted timer `40df` |
+| `08001118` | `INTENT_ID_P_EQ_VOL_HEADROOM` | popless EQ ↔ first VOL_CTRL in each render family |
+
+## Live dynamic volume-control evidence
+
+`[KD][HDR]` All fourteen captured `SET_CFG` bodies target `VOL_CTRL`, not
+“SAL_V2”:
+
+- target IID `4a63` or `4a5f`;
+- `PARAM_ID_VOL_CTRL_MULTICHANNEL_GAIN` (`08001038`) or
+  `PARAM_ID_VOL_CTRL_MULTICHANNEL_MUTE` (`08001039`);
+- eight declared channel-map entries in a `0x68`-byte payload;
+- channel masks `0x2` and `0x4` carry the observed non-zero gain values;
+- mute values observed are zero.
+
+The observed Q28 gain values decode to:
+
+| Q28 value | Linear gain | Approximate dB |
+|---|---:|---:|
+| `0013615a` | `0.0047315136` | `-46.50 dB` |
+| `007dda19` | `0.0307255723` | `-30.25 dB` |
+
+One body is transitional: mask `0x2` has `007dda19` while mask `0x4` still has
+`0013615a`. Later bodies carry the new value on both. The differing per-channel
+values are direct evidence; the interpretation that this is a staged gain
+update is `[HYP]` until the commands are tied to timestamped Windows volume
+events. It is a concrete candidate mechanism to compare against the historical
+“volume knob” symptom, but it does not prove the Linux spike cause.
+
+The capture was filtered and does not inventory every Windows `SET_CFG`.
+Absence of SP/SP_VI parameters in these fourteen small bodies is not evidence
+that Windows sends none.
+
+## Root-protection configuration evidence
+
+The recovered corpus contains two different configuration layers. They must
+not be flattened into one “Windows calibration” blob.
+
+### Static REV_0D mappings
+
+`[ACDB]` A strict CDLU → CDDE/CDDO → POOL decode finds 32 unique static
+mappings across the four root targets:
+
+| Target | Module | Mappings | Payload bytes |
+|---|---|---:|---:|
+| `4024` | SP_VI | 9 | 1,256 |
+| `4027` | SP | 18 | 5,522 |
+| `4028` | CPS_DATA_ROUTER_V5 | 1 | 4 |
+| `4157` | CODEC_DMA_SINK | 4 | 16 |
+
+The largest SP_VI block is 1,044 bytes (`08001384`). The largest SP blocks are
+1,520 bytes (`08001258`), 2,188 bytes (`0800134a`), 612 bytes (`0800150e`),
+and 988 bytes (`08001532`). Every mapping retains its CDLU position, CDDE/CDDO
+group offsets, POOL offset, size, payload bytes, and SHA-256 in
+`artifacts/reviewed/windows-acdb-rev0d-root-protection-setcfg.json`.
+
+The following identities are directly resolved by `[HDR]`:
+
+| Target | Param ID | API identity |
+|---|---|---|
+| SP/SP_VI | `08001026` | `PARAM_ID_MODULE_ENABLE` |
+| SP/SP_VI | `080010a6` | `PARAM_ID_RTM_LOGGING_ENABLE` |
+| SP_VI | `080011c2` | `PARAM_ID_VI_OUTPUT_SPLIT_ENABLE` |
+| SP_VI | `080011f6` | `PARAM_ID_SP_VI_STATIC_CFG` |
+| SP_VI | `08001203` | `PARAM_ID_SP_VI_CHANNEL_MAP_CFG` |
+| SP_VI | `08001364` | `PARAM_ID_SP_VI_CFSMOOTHING_CFG_PARAM` |
+| SP_VI | `08001510` | `PARAM_ID_MAX_RATED_TEMP` |
+
+Several large OEM parameter IDs are not present in the recovered public API
+headers. Their bytes are preserved but their semantics remain unresolved.
+
+Static ACDB presence proves neither runtime selection nor send order. Earlier
+project tooling discarded duplicate `(IID,param)` mappings by keeping the
+first POOL offset; the new inventory deliberately preserves variants. For
+these four targets, the selected REV_0D decode happens to contain one payload
+variant per `(IID,param)`, but that result is now checked rather than assumed.
+
+### Live in-band command sequence
+
+`[QGPR]` A surviving full trace contains 48 root-protection CFG events:
+28 `SET_CFG` commands and 20 `GET_CFG` requests. Seven repeated cycles contain
+this exact set sequence:
+
+```text
+SP    4027  SET 080011e9  size 8   payload 0000000000000000
+SP    4027  GET 080011e8  request size 68
+SP_VI 4024  GET 080011f6  request size 44
+SP_VI 4024  SET 080011f5  size 24
+              0200000070b2f404aa0900001ed65e054009000000000000
+SP_VI 4024  SET 080011f4  size 24
+              020000000000000000000000000000000000000000000000
+SP_VI 4024  SET 080011ff  size 8   payload 0000000000000000
+SP    4027  GET 080011f2  request size 68
+```
+
+The trace identifies `080011e9` as `PARAM_ID_SP_OP_MODE_V5`. Recovered
+implementation evidence labels `080011f4` as SP_VI operating-mode config,
+`080011f5` as R0/T0 config, and `080011ff` as SP_VI excursion-mode config;
+the exact Windows IDs, sizes, and bodies above remain the canonical facts.
+
+The GET payloads are zeroed request buffers, not DSP responses. The trace
+therefore proves request order and SET bodies, not the returned R0/T0/static
+values. It also does not show the large static ACDB bodies being sent. Those
+may use an out-of-band path outside this probe's retained bytes or a different
+initialization boundary.
+
+Reviewed command evidence is in
+`artifacts/reviewed/windows-qgpr-root-protection-cfg.json`.
+
+## Current Linux MM1 comparison point
+
+`[LINUX]` Installed topology SHA-256:
+
+```text
+4e00057b8e316c217347bcdee0af0c6d4ff40e8e0f1870d7efeaddc2669ff54e
+```
+
+Its MM1 serial path is:
+
+```text
+6001 WR_SHARED_MEM_EP
+ -> 6002 PCM_DEC
+ -> 6003 PCM_CNV
+ -> 6008 SWR_SINK
+ -> 600c VOL_CTRL (misnamed SAL_V2)
+ -> 6009 POPLESS_EQ
+ -> 6004 VOL_CTRL (misnamed SAL_V2)
+ -> 6007 SAL
+ -> 6005 MFC
+ -> 600a SOFT_PAUSE
+ -> 600b SPR (misnamed UNKNOWN_0x32, declared 1/1)
+ -> 6006 DATA_LOGGING
+ -> 6050 DATA_LOGGING
+ -> 6051 MFC
+ -> 6052 CODEC_DMA_SINK
+```
+
+Four similar donor stream chains exist. MM1 selects `stream0` and joins the
+single WSA backend at DAPM graph set 105. This is not the Windows model of a
+render family feeding a shared protection root.
+
+### Structural difference ledger
+
+| Area | Windows fact | Current Linux | Required disposition |
+|---|---|---|---|
+| Source endpoint | `SH_MEM_PULL_MODE` in each observed render family | `WR_SHARED_MEM_EP -> PCM_DEC` | Determine the correct Linux FE model; do not copy endpoint type blindly across OS transports |
+| Family structure | DEFAULT and NOTIFICATION are mirrored 16-module alternatives | One selected donor serial chain into a common backend | Rebuild DEFAULT from explicit subgraphs and bridges; reserve NOTIFICATION as an alternate selector |
+| Early stage order | `PCM_CNV -> VOL -> SWR -> EQ -> VOL` | `PCM_CNV -> SWR -> VOL -> EQ -> VOL` | Correct order from selected Windows family |
+| Post-pause fan-out | `SPR` is 1/2; output 1 continues toward hardware, output 3 is a speaker-loopback tap to `4144` | `SPR` is 1/1 with one serial output | Restore the port declaration; keep loopback disabled or implement it separately, never route it to hardware |
+| Downstream render stages | second `VOL -> SWR -> MSIIR -> MSIIR -> LOGGER` | absent | Add only from exact family record |
+| Shared root ingress | family logger feeds SAL input 12 or 18 | no equivalent root SAL fan-in | Implement exact root ingress/ports |
+| Root render path | `SAL -> CHMIXER -> SP -> SPLITTER -> LOGGER -> DMA` | `SAL` is inside donor stream; no CHMIXER/SP/SPLITTER | Implement exact shared root |
+| SP module | `070010e2`, 1/1 | absent | Required |
+| SP_VI module | `070010e3`, 1/1 | absent | Required |
+| VI transport | two CODEC_DMA_SOURCE branches exist in root | WSA TX/VI DAI link absent; VI mixers off | Add kernel/DT/topology transport only after offline graph completion |
+| SP/SP_VI data edge | none in live `MODULE_CONN` | none | Do not invent one |
+| SP/SP_VI control link | exact `INTENT_ID_SP` control link | no decoded equivalent | Implement as a control link, not an audio edge |
+| Other control links | CPS, timer-drift, and EQ/headroom links are exact | no decoded equivalents | Preserve exact peer ports and intents |
+| Root external edges | splitter feeds MFC IIDs `47c9`, `4747`, `4730` in static SGs `9a`, `8c`, `8a` | absent | Close lifecycle/co-selection before deciding which peer graphs belong in baseline |
+| Render loopback edge | SPR port 3 feeds speaker-loopback SAL `4144`; SGs `45/46` terminate at `SH_MEM_PUSH_MODE 40e5` | absent | Optional for initial playback; preserve a disabled output-3 route until loopback is implemented |
+| Backend model | root contains CODEC_DMA sink and sources | separate donor device105 logger/MFC/DMA chain | Replace donor backend assumptions |
+| Dormant backend | no conclusion from Windows bodies | DAPM set 106 names RX1 while module token uses graph 107 and kernel DAI 106 is TX0 | Remove from new baseline |
+| Dynamic gain | exact per-channel Q28 `VOL_CTRL` updates observed | topology names hide module identity; runtime parity unproven | Capture and compare update ordering before diagnosing spikes |
+| Dolby | no Dolby AudioReach module in these bodies | active PipeWire EQ changes samples | Keep a userspace identity/bypass insertion point; disable EQ for parity tests |
+
+## Dolby boundary
+
+The hardware ledger ends at the userspace/hardware handoff:
+
+```text
+application
+  -> userspace Dolby insertion point (identity/bypass for this project)
+  -> AudioReach hardware graph
+  -> WSA macro / SoundWire
+  -> WSA884x amplifiers
+```
+
+No Dolby-specific DSP module appears in any of the three unique live graph
+bodies. A Linux Dolby placeholder must therefore be a userspace identity node,
+not a fabricated AudioReach module. The currently active PipeWire speaker EQ
+is not that placeholder because it modifies samples.
+
+## Implementation invariants
+
+The next topology may not be called a Windows structural baseline unless all
+of these are true:
+
+1. Every module ID, IID policy, port count, and data edge has a row in this
+   ledger or a newer reviewed capture.
+2. `VOL_CTRL`, `SPR`, and `SH_MEM_PULL_MODE` use their canonical identities;
+   legacy `SAL_V2` and `UNKNOWN_0x32` names are not used as semantics.
+3. The selected render family contains both subgraphs and both supplemental
+   bridges.
+4. `SPR` has both proven outputs; no serial 1/1 substitute is accepted.
+5. The shared root contains SP and SP_VI exactly as recorded.
+6. No direct SP_VI-to-SP data edge is invented; the exact SP control link is
+   represented instead.
+7. All four live control links preserve peer IIDs, control-port IDs, intent
+   IDs, and heap property.
+8. Loopback peers `4144` and `40df` remain confined to the speaker-loopback
+   graph; they cannot be used as hardware speaker destinations.
+9. External peers `47c9`, `4747`, and `4730` retain their statically resolved
+   identities while their runtime selection remains explicit and unresolved.
+10. The WSA VI transport exists before protection is enabled.
+11. Only calibration blocks with an exact source, target IID/module policy,
+   size, hash, and ordering rule are admitted.
+12. Dolby remains a bypassed userspace insertion point and cannot conceal a
+    missing hardware stage.
+13. The PipeWire EQ is bypassed during every structural or Windows-reference
+    comparison.
+14. DEFAULT family A and NOTIFICATION family B remain selector alternatives;
+    they are never joined as physical left/right paths.
+15. Bring-up begins muted and does not drive the speakers before VI telemetry
+    and rollback behavior are proven.
+
+## Open facts blocking safe deployment
+
+| Priority | Missing fact | How to close it |
+|---|---|---|
+| P0 | Runtime selection of peer SGs containing MFC IIDs `47c9`, `4747`, `4730` | Correlate full graph sets with same-run lifecycle packets |
+| P0 | Runtime selection/order of the 27 static SP/SP_VI ACDB mappings | Capture all out-of-band `SET_CFG` bodies and correlate them with the reviewed POOL hashes |
+| P0 | Returned values for SP/SP_VI `GET_CFG` requests | Capture response packets, not only request buffers |
+| P0 | Linux WSA playback+VI SoundWire transport behavior | Instrument a reproducible kernel with amplifiers muted |
+| P1 | Exact multi-speaker hardware routing after root `CODEC_DMA_SINK 4157` | Resolve codec-DMA, WSA macro, SoundWire port/channel, and amplifier maps; do not infer it from A/B or the loopback tap |
+| P1 | Dynamic gain-update ordering relative to audio | Timestamp complete GPR commands and Windows volume events |
+
+## Next decision
+
+Offline work can now proceed on two fronts without touching the running audio
+stack:
+
+1. close the remaining root-splitter peer graphs, post-`4157` multi-speaker
+   SoundWire routing, and SP/SP_VI calibration provenance from recovered ACDB,
+   ETW, dumps, and Ghidra;
+2. design a clean Linux DEFAULT-mode topology skeleton whose graph and port
+   model can represent this ledger, while keeping SP, VI, amplifier output,
+   and Dolby processing disabled and reserving NOTIFICATION as an alternate
+   selector.
+
+The next physical action is not needed until the widened KD script has been
+preflighted and the remaining recovered evidence has been exhausted.

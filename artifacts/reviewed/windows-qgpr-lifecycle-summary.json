@@ -1,0 +1,170 @@
+{
+  "format": "SP11 recovered Windows QGPR lifecycle summary",
+  "format_version": 1,
+  "evidence_class": "C: decoded from complete GPR headers in live Windows QGPR traces",
+  "decoder": "tools/qgpr_lifecycle_inventory.py",
+  "sources": [
+    {
+      "name": "qgpr_records_domain2_audiosrv_restart_FULL_20260612_012958.decoded.csv",
+      "sha256": "1bb093a01977b1c99e057ca9a14ba1600fab97ada5e9d057a691a8d99df50357"
+    },
+    {
+      "name": "qgpr_records_domain2_boot_init_after_music_toggle_volume_FULL_20260612_015043.decoded.csv",
+      "sha256": "3a2b03868033cff3a147e4e120f05809b957da276217d963e457683b1fae2ca0"
+    },
+    {
+      "name": "qgpr_records_domain2_boot_init_before_music_FULL_20260612_014903.decoded.csv",
+      "sha256": "85379015c2e7795c0ca5597f7d1a6162cc2c521f89d9b210e3acec545f9f2ee9"
+    },
+    {
+      "name": "qgpr_records_domain2_music_spatial_toggle_FULL_20260612_013652.decoded.csv",
+      "sha256": "c2161bc8ba2fb861acb8484b5ccab94dc4350948cecc396fdcc86836931168ad"
+    }
+  ],
+  "event_count": 52,
+  "opcode_counts": {
+    "APM_CMD_GRAPH_OPEN": 14,
+    "APM_CMD_GRAPH_START": 13,
+    "APM_CMD_GRAPH_STOP": 12,
+    "APM_CMD_GRAPH_CLOSE": 13,
+    "APM_CMD_GRAPH_PREPARE": 0,
+    "APM_CMD_GRAPH_FLUSH": 0
+  },
+  "corrected_opcode_identity": {
+    "opcode": "0x01001004",
+    "authoritative_name": "APM_CMD_GRAPH_CLOSE",
+    "incorrect_recovered_csv_name": "APM_CMD_GRAPH_FLUSH",
+    "actual_flush_opcode": "0x01001005",
+    "authority": [
+      "Recovered AudioReach apm_api.h",
+      "Linux 7.1.5 sound/soc/qcom/qdsp6/audioreach.h"
+    ]
+  },
+  "proven_lifecycle_sets": [
+    {
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb000007f",
+        "0xb000007e"
+      ],
+      "canonical_family": "render_family_A_with_shared_root",
+      "start_count": 6,
+      "stop_count": 5,
+      "complete_start_stop_close_example": {
+        "source": "qgpr_records_domain2_boot_init_after_music_toggle_volume_FULL_20260612_015043.decoded.csv",
+        "source_port": "0x00002010",
+        "open_sequence": 3,
+        "start_sequence": 31,
+        "stop_sequence": 36,
+        "close_sequence": 40,
+        "open_oob_size": 2840,
+        "close_oob_size": 112
+      }
+    },
+    {
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb0000083",
+        "0xb0000082"
+      ],
+      "canonical_family": "render_family_B_with_shared_root",
+      "start_count": 3,
+      "stop_count": 3,
+      "complete_start_stop_close_example": {
+        "source": "qgpr_records_domain2_boot_init_after_music_toggle_volume_FULL_20260612_015043.decoded.csv",
+        "source_port": "0x00002010",
+        "open_sequence": 52,
+        "start_sequence": 80,
+        "stop_sequence": 85,
+        "close_sequence": 89,
+        "open_oob_size": 2840,
+        "close_oob_size": 112
+      }
+    },
+    {
+      "subgraph_ids": [
+        "0xb0000044",
+        "0xb0000040",
+        "0xb0000041"
+      ],
+      "canonical_family": "non_speaker_render_set_44_40_41",
+      "start_count": 2,
+      "stop_count": 1,
+      "complete_start_stop_close_example": {
+        "source": "qgpr_records_domain2_boot_init_after_music_toggle_volume_FULL_20260612_015043.decoded.csv",
+        "source_port": "0x00002010",
+        "open_sequence": 101,
+        "start_sequence": 168,
+        "stop_sequence": 9557,
+        "close_sequence": 9561,
+        "open_oob_size": 1496,
+        "close_oob_size": 112
+      }
+    },
+    {
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb0000027",
+        "0xb0000026"
+      ],
+      "canonical_family": "set_27_26_with_shared_root",
+      "start_count": 2,
+      "stop_count": 2,
+      "complete_start_stop_close_example": {
+        "source": "qgpr_records_domain2_boot_init_after_music_toggle_volume_FULL_20260612_015043.decoded.csv",
+        "source_port": "0x00002010",
+        "open_sequence": 9727,
+        "start_sequence": 9757,
+        "stop_sequence": 9766,
+        "close_sequence": 9770,
+        "open_oob_size": 2624,
+        "close_oob_size": 112
+      }
+    }
+  ],
+  "overlap_facts": [
+    {
+      "outer_lifetime": {
+        "subgraph_ids": [
+          "0xb0000044",
+          "0xb0000040",
+          "0xb0000041"
+        ],
+        "start_sequence": 168,
+        "stop_sequence": 9557,
+        "source_port": "0x00002010"
+      },
+      "nested_lifetime": {
+        "subgraph_ids": [
+          "0xb0000001",
+          "0xb000007f",
+          "0xb000007e"
+        ],
+        "start_sequence": 5769,
+        "stop_sequence": 9716,
+        "source_port": "0x00002011"
+      },
+      "assessment": "The trace proves overlapping active intervals between set 44/40/41 and render family A. It does not prove simultaneous overlap between render families A and B."
+    }
+  ],
+  "partial_lifecycle_events": [
+    {
+      "opcode_name": "APM_CMD_GRAPH_STOP",
+      "source": "qgpr_records_domain2_audiosrv_restart_FULL_20260612_012958.decoded.csv",
+      "sequence": 35,
+      "source_port": "0x00002010",
+      "subgraph_ids": [
+        "0xb000007f",
+        "0xb000007e"
+      ],
+      "assessment": "Render-family-A-only stop without the shared root; followed by a close wrapper at sequence 39."
+    }
+  ],
+  "limitations": [
+    "The 40-byte GRAPH_OPEN and GRAPH_CLOSE records contain out-of-band descriptors; only OPEN bodies were recovered elsewhere.",
+    "No GRAPH_PREPARE or GRAPH_FLUSH opcode appears in these four traces.",
+    "The family-A final START at sequence 10399 is right-censored by the end of the trace.",
+    "A/B simultaneous lifetime overlap is not established.",
+    "Sequence numbers establish order within a trace but are not wall-clock timestamps."
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "evidence_class": "reviewed-static-windows-driver-and-acdb",
+  "finding": "The two recovered SP11 speaker render graph families are processing-mode alternatives, not physical left/right halves.",
+  "sources": {
+    "qcadcm8380.sys": {
+      "path": "00-RE-archive/sp11-driverdump/qcadcm8380.inf_arm64_f5fba49e0720d715/qcadcm8380.sys",
+      "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429"
+    },
+    "qcaudminiport8380.sys": {
+      "path": "00-RE-archive/sp11-driverdump/qcaudminiport_base8380.inf_arm64_738ad101f903ae9b/qcaudminiport8380.sys",
+      "sha256": "79b26804d05332304c736c4e03e942db6a07ea886a2b07f3a4ff5947d1d05531"
+    },
+    "surface_audiominiext8380.inf": {
+      "path": "00-RE-archive/sp11-driverdump/surface_audiominiext8380.inf_arm64_5f9fc16bb2caf005/surface_audiominiext8380.inf",
+      "sha256": "5acd5091f45da4232945046eeedc913bff75c57adc6e17954391264d7cec8134"
+    },
+    "windows-gkv-inventory.json": {
+      "path": "01-audio/artifacts/live/windows-gkv-inventory.json",
+      "sha256": "eaaee9502eb355755406b9ed1b7b347e7446589d9e43d59069628a8c78c18d9a"
+    }
+  },
+  "driver_functions": {
+    "qcaudminiport_mode_guid_and_endpoint_lookup": "0x1400448d0",
+    "qcaudminiport_mode_flag_to_qcadcm_processing_enum": "0x140094080",
+    "qcadcm_processing_enum_to_graph_key_value": "0x1400938e0",
+    "qcadcm_render_capture_gkv_builder": "0x140093c60",
+    "qcadcm_audio_dsp_graph_open": "0x140085270"
+  },
+  "render_key_schema": [
+    {
+      "key_id": "0x01000001",
+      "meaning": "render stream streaming type"
+    },
+    {
+      "key_id": "0x01000002",
+      "meaning": "render stream processing mode"
+    },
+    {
+      "key_id": "0x01000003",
+      "meaning": "render stream instance"
+    },
+    {
+      "key_id": "0x01000004",
+      "meaning": "render mix streaming type"
+    },
+    {
+      "key_id": "0x01000005",
+      "meaning": "render mix processing mode"
+    },
+    {
+      "key_id": "0x01000006",
+      "meaning": "render endpoint"
+    }
+  ],
+  "processing_mode_translation": [
+    {
+      "mode": "DEFAULT",
+      "guid": "C18E2F7E-933D-4965-B7D1-1EEF228D2AF3",
+      "miniport_flag": 1,
+      "qcadcm_processing_enum": 2,
+      "graph_key_value": 2
+    },
+    {
+      "mode": "RAW",
+      "guid": "9E90EA20-B493-4FD1-A1A8-7E1361A956CF",
+      "miniport_flag": 2,
+      "qcadcm_processing_enum": 1,
+      "graph_key_value": 1
+    },
+    {
+      "mode": "COMMUNICATIONS",
+      "guid": "98951333-B9CD-48B1-A0A3-FF40682D73F7",
+      "miniport_flag": 4,
+      "qcadcm_processing_enum": 4,
+      "graph_key_value": 6
+    },
+    {
+      "mode": "SPEECH",
+      "guid": "FC1CFC9B-B9D6-4CFA-B5E0-4BB2166878B2",
+      "miniport_flag": 8,
+      "qcadcm_processing_enum": 3,
+      "graph_key_value": 5
+    },
+    {
+      "mode": "NOTIFICATION",
+      "guid": "9CF2A70B-F377-403B-BD6B-360863E0355C",
+      "miniport_flag": 10,
+      "qcadcm_processing_enum": 7,
+      "graph_key_value": 7
+    },
+    {
+      "mode": "MEDIA",
+      "guid": "4780004E-7133-41D8-8C74-660DADD2C0EE",
+      "miniport_flag": 20,
+      "qcadcm_processing_enum": 6,
+      "graph_key_value": 4
+    },
+    {
+      "mode": "MOVIE",
+      "guid": "B26FEB0D-EC94-477C-9494-D1AB8E753F6E",
+      "miniport_flag": 40,
+      "qcadcm_processing_enum": 5,
+      "graph_key_value": 3
+    }
+  ],
+  "speaker_families": [
+    {
+      "family": "A",
+      "mode": "DEFAULT",
+      "pool_offset": "0x0003d164",
+      "parsed_bundle_sha256": "fc8de152cbc23e90cfed40cb6107d0d1799b848e4344960cfabc332b30e6652f",
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb000007e",
+        "0xb000007f"
+      ],
+      "key_vector": {
+        "0x01000001": "0x00000002",
+        "0x01000002": "0x00000002",
+        "0x01000003": "0x00000001",
+        "0x01000004": "0x00000002",
+        "0x01000005": "0x00000002",
+        "0x01000006": "0x00000001"
+      }
+    },
+    {
+      "family": "B",
+      "mode": "NOTIFICATION",
+      "pool_offset": "0x00042668",
+      "parsed_bundle_sha256": "1f7ba15ff4ff45de8e188c61ea536b84f6360bea63b77ca67102271137a643de",
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb0000082",
+        "0xb0000083"
+      ],
+      "key_vector": {
+        "0x01000001": "0x00000002",
+        "0x01000002": "0x00000007",
+        "0x01000003": "0x00000001",
+        "0x01000004": "0x00000002",
+        "0x01000005": "0x00000007",
+        "0x01000006": "0x00000001"
+      }
+    }
+  ],
+  "speaker_loopback": {
+    "surface_inf_binding": "QCAUD\\WaveSpeaker\\FormatsAndModes3 type=loopback",
+    "miniport_type_string": "loopback",
+    "miniport_type_decoder": "0x140089fc8",
+    "miniport_streaming_type_enum": 3,
+    "qcadcm_graph_key_value": 3,
+    "pool_offset": "0x00046c78",
+    "parsed_bundle_sha256": "39c0c1766561570e30c12162725211395983a83736d9e2eaa53490729d8f8a8c",
+    "closure_artifact": {
+      "path": "01-audio/artifacts/live/windows-closure-0x46c78.json",
+      "sha256": "d2d835f094624dde4952886d297fc3b7aef10192867fac61316dbcd01668fced"
+    },
+    "subgraph_ids": [
+      "0xb0000045",
+      "0xb0000046"
+    ],
+    "key_vector": {
+      "0x01000006": "0x00000001",
+      "0x01000008": "0x00000003",
+      "0x01000009": "0x00000001",
+      "0x0100000a": "0x00000001",
+      "0x0100000b": "0x00000003",
+      "0x0100000c": "0x00000001"
+    },
+    "terminal_module": {
+      "instance_id": "0x000040e5",
+      "module_id": "0x07001007",
+      "module_name": "MODULE_ID_SH_MEM_PUSH_MODE"
+    },
+    "family_taps": [
+      {
+        "source": "family A SPR 0x0000412b port 3",
+        "destination": "loopback SAL 0x00004144 port 16"
+      },
+      {
+        "source": "family B SPR 0x00004137 port 3",
+        "destination": "loopback SAL 0x00004144 port 24"
+      }
+    ],
+    "conclusion": "The secondary SPR output is a speaker-loopback tap, not a physical-side or amplifier-output branch."
+  },
+  "conclusion": {
+    "shared_endpoint_key_value": "0x00000001",
+    "only_selector_difference": [
+      "0x01000002",
+      "0x01000005"
+    ],
+    "family_a_role": "DEFAULT render processing mode",
+    "family_b_role": "NOTIFICATION render processing mode",
+    "retired_hypothesis": "family A and family B are physical left/right speaker halves"
+  }
+}
