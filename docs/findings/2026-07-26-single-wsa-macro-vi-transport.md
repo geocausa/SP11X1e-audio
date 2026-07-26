@@ -200,4 +200,13 @@ The next offline candidate should contain exactly:
 5. amplifier mute and conservative gain until graph start, VI telemetry and
    port programming all succeed.
 
-No live files or boot configuration were changed for this finding.
+The transport-only portion is now implemented as the offline candidate
+`patches/0001-sp11-add-single-wsa-vi-backend.patch`. It applies cleanly to the
+7.1.5 source, its ARM64 `x1e80100.o` builds successfully, and the actual SP11
+parent target `x1e80100-microsoft-denali-oled.dtb` compiles successfully. A
+DTB round trip confirms that the compiled link selects WSA macro DAI 2 and the
+single `WSA_CODEC_DMA_TX_0` CPU DAI.
+
+The UCM activation, protection graph and temporary SoundWire instrumentation
+remain separate work because they can alter live amplifier state. No live
+files or boot configuration were changed for this finding.

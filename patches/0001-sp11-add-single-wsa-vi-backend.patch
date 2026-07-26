@@ -1,0 +1,123 @@
+From: SP11 audio reverse-engineering project
+Date: 2026-07-26
+Subject: [CANDIDATE PATCH] ASoC: qcom: add SP11 WSA VI backend
+
+Windows evidence identifies one two-channel WSA speaker-protection
+feedback interface at 8 kHz with 32-bit samples.  The SP11 has one WSA
+macro and two WSA8845 amplifiers on the same SoundWire master, so expose
+one matching backend:
+
+  WSA_CODEC_DMA_TX_0 -> lpass_wsamacro AIF_VI -> q6apm
+
+Program the AudioReach TX channel map as front-left/front-right and keep
+WSA feedback backends out of the unrelated headset-jack setup path.
+
+This is an offline candidate, not a deployment patch.  Enabling the
+WSA VI mixer inputs and speaker-protection graph is intentionally left
+for a separate, instrumented test stage.
+
+---
+ arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi | 16 ++++++++++++++++
+ sound/soc/qcom/x1e80100.c                         | 25 +++++++++++++++++++++++++
+ 2 files changed, 41 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi b/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
+index 7559557610ed..c5accca43e84 100644
+--- a/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
++++ b/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
+@@ -330,6 +330,22 @@ sound {
+ 				sound-dai = <&q6apm>;
+ 			};
+ 		};
++
++		wsa-vi-dai-link {
++			link-name = "WSA VI Capture";
++
++			codec {
++				sound-dai = <&lpass_wsamacro 2>;
++			};
++
++			cpu {
++				sound-dai = <&q6apmbedai WSA_CODEC_DMA_TX_0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
+ 
+ 		va-dai-link {
+ 			link-name = "VA Capture";
+diff --git a/sound/soc/qcom/x1e80100.c b/sound/soc/qcom/x1e80100.c
+index c81df41ace88..6efefbc6ca64 100644
+--- a/sound/soc/qcom/x1e80100.c
++++ b/sound/soc/qcom/x1e80100.c
+@@ -4,6 +4,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/soundwire/sdw.h>
+ #include <sound/pcm.h>
++#include <sound/pcm_params.h>
+ #include <sound/jack.h>
+ #include <sound/soc.h>
+ #include <sound/soc-dapm.h>
+@@ -50,6 +51,8 @@ static int x1e80100_snd_init(struct snd_soc_pcm_runtime *rtd)
+ 		snd_soc_limit_volume(card, "WooferRight PA Volume", 6);
+ 		snd_soc_limit_volume(card, "TweeterRight PA Volume", 6);
+ 		break;
++	case WSA_CODEC_DMA_TX_0:
++		return 0;
+ 	case DISPLAY_PORT_RX_0:
+ 		dp_pcm_id = 0;
+ 		dp_jack = &data->dp_jack[dp_pcm_id];
+@@ -76,6 +79,8 @@ static int x1e80100_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
+ 						      SNDRV_PCM_HW_PARAM_RATE);
+ 	struct snd_interval *channels = hw_param_interval(params,
+ 							  SNDRV_PCM_HW_PARAM_CHANNELS);
++	struct snd_mask *format = hw_param_mask(params,
++					       SNDRV_PCM_HW_PARAM_FORMAT);
+ 
+ 	rate->min = rate->max = 48000;
+ 	switch (cpu_dai->id) {
+@@ -85,6 +90,14 @@ static int x1e80100_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
+ 	case TX_CODEC_DMA_TX_3:
+ 		channels->min = 1;
+ 		break;
++	case WSA_CODEC_DMA_TX_0:
++		rate->min = 8000;
++		rate->max = 8000;
++		channels->min = 2;
++		channels->max = 2;
++		snd_mask_none(format);
++		snd_mask_set_format(format, SNDRV_PCM_FORMAT_S32_LE);
++		break;
+ 	default:
+ 		break;
+ 	}
+@@ -127,6 +140,7 @@ static int x1e80100_snd_prepare(struct snd_pcm_substream *substream)
+ 	struct x1e80100_snd_data *data = snd_soc_card_get_drvdata(rtd->card);
+ 	unsigned int channels = substream->runtime->channels;
+ 	unsigned int rx_slot[4];
++	unsigned int tx_slot[4];
+ 	int ret;
+ 
+ 	switch (cpu_dai->id) {
+@@ -142,6 +155,17 @@ static int x1e80100_snd_prepare(struct snd_pcm_substream *substream)
+ 		if (ret)
+ 			return ret;
+ 		break;
++	case WSA_CODEC_DMA_TX_0:
++		ret = x1e80100_snd_hw_map_channels(tx_slot, channels);
++		if (ret)
++			return ret;
++
++		ret = snd_soc_dai_set_channel_map(cpu_dai, channels, tx_slot,
++						  0, NULL);
++		if (ret)
++			return ret;
++
++		break;
+ 	default:
+ 		break;
+ 	}
+-- 
+2.43.0
