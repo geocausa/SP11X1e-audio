@@ -55,6 +55,7 @@ prove graph lifetime overlap or acoustic purpose.
 | reviewed root-protection CFG inventory | `e0eb0a8cdace2d9be5cce4cdf8ab122bb7f77a233baec8b910541c118b0d1716` | Strict decode of live SP/SP_VI configuration, including the two-speaker R0/T0 body |
 | QCADCM INF | `4d9443dad9b25979d523b736e18a6676f568f1410a91cf6da1543f4dacbfcd0b` | Installed 8 kHz/32-bit SP_VI endpoint policy |
 | reviewed Windows INF format inventory | `5db9cd4c5999941ab0bf41449ae954c99f2f7040ef7c65302e0280bdbff4d76d` | Strict inventory of speaker host/offload/loopback formats and VI registry values |
+| Surface AUCD extension INF | `eae4bc6c98288f7e5a4ca793655d1072b16cf8b97cb352606b63b778d65c2402` | MSHW0486 has one enabled WSA/SoundWire macro instance and only the SWR_WSA interrupt |
 | reviewed QGPR lifecycle summary | `81454093ddd7e1712f0e5290726f087f0af09f73ee2af3d2206c8065bc4ac2a9` | Corrected live OPEN/START/STOP/CLOSE inventory from four recovered traces |
 | Windows ADSP firmware | `921870a839ee2aba647b04598d62ed96f3d2d5dfbb2499fc842f9a6ff0e0da13` | Static module registration and executable CAPI behavior |
 | QCADCM Windows driver | `37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429` | Render selector, enum-to-GKV translation, and SP/SP_VI R0/T0 payload construction |
@@ -285,6 +286,15 @@ payload independently contains `sampling_rate=8000`. Windows therefore has a
 concrete 8 kHz, 32-bit, two-channel WSA feedback endpoint; the current Linux
 sound card's missing
 `WSA_CODEC_DMA_TX_0` link is an exact structural gap.
+
+The installed MSHW0486 AUCD policy has exactly one enabled WSA slave type,
+SoundWire interface, macro instance 0, and `SWR_WSA` interrupt. It does not
+install the documented `SWR_WSA2` interrupt. The running Linux system matches:
+one `sdw-master-1-0` and two WSA8845 slaves at link addresses `0` and `1`.
+Recovered four-amplifier/two-macro notes and their two-VI-link A/B proposal are
+not applicable to SP11. The Linux implementation target is one two-channel
+TX0 backend into `lpass_wsamacro` DAI 2; this DAI-name translation remains a
+high-confidence Linux implementation deduction pending a muted boot test.
 
 ## DEFAULT render family A — `0xb000007e` + `0xb000007f`
 
@@ -610,7 +620,7 @@ render family feeding a shared protection root.
 | Root render path | `SAL -> CHMIXER -> SP -> SPLITTER -> LOGGER -> DMA` | `SAL` is inside donor stream; no CHMIXER/SP/SPLITTER | Implement exact shared root |
 | SP module | `070010e2`, 1/1 | absent | Required |
 | SP_VI module | `070010e3`, 1/1 | absent | Required |
-| VI transport | `4026` is WSA interface 1, 8 kHz, 32-bit, 2 channels/mask `3`; SP_VI expects `[SP1 V,I, SP2 V,I]` | WSA TX/VI DAI link absent; VI mixers off | Add `WSA_CODEC_DMA_TX_0` sound-card and topology transport with the exact format/map after resolving the SoundWire ports |
+| VI transport | `4026` is WSA interface 1, 8 kHz, 32-bit, 2 channels/mask `3`; SP_VI expects `[SP1 V,I, SP2 V,I]`; MSHW0486 has one WSA macro | One WSA master/two amps are correct; WSA TX0/VI DAI link absent; VISENSE and VI mixers off | Add one `WSA_CODEC_DMA_TX_0 -> lpass_wsamacro DAI 2` link and validate ports 10/11 with amps muted |
 | SP/SP_VI data edge | none in live `MODULE_CONN` | none | Do not invent one |
 | SP/SP_VI control link | exact `INTENT_ID_SP` control link | no decoded equivalent | Implement as a control link, not an audio edge |
 | Other control links | CPS, timer-drift, and EQ/headroom links are exact | no decoded equivalents | Preserve exact peer ports and intents |
@@ -681,7 +691,7 @@ of these are true:
 | P0 | Runtime selection/order of the 27 static SP/SP_VI ACDB mappings | Capture all out-of-band `SET_CFG` bodies and correlate them with the reviewed POOL hashes |
 | P0 | Returned values for SP/SP_VI `GET_CFG` requests | Capture response packets, not only request buffers |
 | P0 | Linux WSA playback+VI SoundWire transport behavior | Instrument a reproducible kernel with amplifiers muted |
-| P1 | Physical mapping after proven WSA interface 1 | Bind selected channels 0/1 and Dolby-corroborated output routes 0/1 to exact WSA macro slots, SoundWire master/slave ports, and left/right amplifier instances |
+| P1 | Final physical binding after proven single WSA interface | Linux maps left/right amp addresses 0/1 to master DAC 1/4 and VISENSE 10/11; obtain the missing physical Windows left/right listening observation before calling Windows speaker 1/2 labels exact |
 | P1 | Dynamic gain-update ordering relative to audio | Timestamp complete GPR commands and Windows volume events |
 
 ## Next decision
