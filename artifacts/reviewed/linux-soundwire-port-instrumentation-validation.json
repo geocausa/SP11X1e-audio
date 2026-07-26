@@ -1,0 +1,60 @@
+{
+  "schema": "sp11-linux-kernel-instrumentation-validation-v1",
+  "date": "2026-07-26",
+  "candidate": {
+    "path": "patches/0002-qcom-soundwire-log-static-port-allocation.patch",
+    "sha256": "7d77e7ba6792ebde05a8ef75d75990ddaad081be32e08ea942ba2694801b3060",
+    "deployment_status": "not-deployed",
+    "behavior_change": false
+  },
+  "base": {
+    "kernel_release": "7.1.5-sp11+",
+    "source": {
+      "path": "drivers/soundwire/qcom.c",
+      "sha256": "6dea347565244472ff25c641672ac30c13cb47258cd7f272ada2b6b5b9f754d9",
+      "git_blob": "3d8f5a81eff19511d80e33c76f54972691ccf530"
+    }
+  },
+  "observation": {
+    "call_site": "qcom_swrm_stream_alloc_ports",
+    "output_gate": "dynamic debug",
+    "fields": [
+      "stream",
+      "bus",
+      "slave device number",
+      "slave port",
+      "master port",
+      "channel mask",
+      "master port already in controller port mask"
+    ],
+    "expected_sp11_focus": {
+      "shared_pbr_master_port": 7,
+      "left_visense_master_port": 10,
+      "right_visense_master_port": 11,
+      "shared_cps_master_port": 13
+    }
+  },
+  "validation": {
+    "git_apply_check": "pass",
+    "checkpatch_strict": {
+      "status": "pass",
+      "ignored_types": [
+        "MISSING_SIGN_OFF"
+      ],
+      "reason": "Temporary instrumentation is not an authored upstream submission."
+    },
+    "compiler": "aarch64-linux-gnu-gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+    "object": {
+      "target": "drivers/soundwire/qcom.o",
+      "status": "pass",
+      "sha256": "9be49d8ee99c0e6ad992c13dc3c1fa6ce1fe78049e7d63e8ee4591b2cb23e2f9"
+    }
+  },
+  "safety": {
+    "allocator_decisions_changed": false,
+    "register_programming_changed": false,
+    "mixer_state_changed": false,
+    "live_kernel_modified": false,
+    "boot_files_modified": false
+  }
+}

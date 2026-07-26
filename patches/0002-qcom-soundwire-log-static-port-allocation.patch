@@ -1,0 +1,47 @@
+From: SP11 audio reverse-engineering project
+Date: 2026-07-26
+Subject: [INSTRUMENTATION PATCH] soundwire: qcom: log static port allocation
+
+Add dynamic-debug output for each slave-to-master port mapping accepted by
+the Qualcomm SoundWire allocator.  Mark a mapping as reused when its master
+port was already present in the controller port mask.
+
+This temporary observation-only patch is intended to establish the actual
+SP11 playback stream layout, particularly the two amplifiers' shared PBR
+master port 7 and distinct VISENSE master ports 10 and 11.  It does not
+change allocation or hardware-programming behaviour and emits no messages
+unless dynamic debug is enabled for this call site.
+
+---
+ drivers/soundwire/qcom.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
+index 3d8f5a81eff1..35eb4f63aacc 100644
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -1230,6 +1230,7 @@ static int qcom_swrm_stream_alloc_ports(struct qcom_swrm_ctrl *ctrl,
+ 	unsigned long *port_mask;
+ 	int maxport, pn, nports = 0;
+ 	unsigned int m_port;
++	bool port_in_use;
+ 	struct sdw_port_config *pconfig __free(kfree) = kzalloc_objs(*pconfig,
+ 								     ctrl->nports);
+ 	if (!pconfig)
+@@ -1275,6 +1276,14 @@ static int qcom_swrm_stream_alloc_ports(struct qcom_swrm_ctrl *ctrl,
+ 					dev_err(ctrl->dev, "All ports busy\n");
+ 					return -EBUSY;
+ 				}
++
++				port_in_use = test_bit(pn, port_mask);
++				dev_dbg(ctrl->dev,
++					"stream=%s bus=%d dev=%u sport=%u mport=%d mask=%#x%s\n",
++					stream->name, ctrl->bus.id, slave->dev_num,
++					p_rt->num, pn, p_rt->ch_mask,
++					port_in_use ? " reused" : "");
++
+ 				set_bit(pn, port_mask);
+ 				pconfig[nports].num = pn;
+ 				pconfig[nports].ch_mask = p_rt->ch_mask;
+-- 
+2.43.0

@@ -31,6 +31,7 @@ themselves are exact.
 | Linux `x1-microsoft-denali.dtsi` | `9de46d6628c224324b37073dbcbe1ae528c2a02f9e32ae06845e36df3b4cbcd9` | One WSA macro, one SoundWire master, two WSA8845 slaves and exact port maps |
 | Linux `lpass-wsa-macro.c` | `8636964acd1e1d2c9c1691dfa005c417efa5d4085268e6217396618ca133ce35` | Single VI DAI and its two speaker-slot controls |
 | Linux `wsa884x.c` | `1a642229730fb47c69013df93aef3bf7b11d8ea672925e6d8fa5e551a1f630e3` | Six slave ports, masks and SoundWire stream construction |
+| Linux SoundWire `qcom.c` | `6dea347565244472ff25c641672ac30c13cb47258cd7f272ada2b6b5b9f754d9` | Static master-port allocation and duplicate handling |
 | Linux `x1e80100.c` | `75d5dc2f56310c0dd34137c36e70668d7c05fab960e9c1ce4f18ec5dab00f361` | Current playback channel map and missing WSA TX handling |
 | Linux `q6afe.c` | `77ea51ffe6ed5dbc8f6f431e9a721ee00e598555aa5b2bd1f3d2828b743c0ff4` | Paired WSA codec-DMA RX0/TX0 port identities |
 | Installed SP11 UCM | `956bfdcb273b08a5e981cde0c2ccaa9a536d888370b7a32db13f7b1dd942a9ec` | Current PBR-on, VISENSE-off policy |
@@ -93,6 +94,16 @@ The function map is:
 | 4 | PBR | 7 | 7 |
 | 5 | VISENSE | 10 | 11 |
 | 6 | CPS | 13 | 13 |
+
+The Qualcomm allocator appends one master-port entry for every active slave
+port. For a static mapping it selects the requested master port directly,
+sets that port's bit, appends the entry and increments the entry count. It
+does not reject or merge an already-set bit. The SoundWire core then allocates
+and copies exactly that number of master-port entries without de-duplication.
+Consequently, enabling the same function on both amplifiers produces repeated
+master-port entries for shared PBR port 7 and shared CPS port 13. Static
+analysis proves the repeated list, but not whether programming the same
+master-port registers twice is the cause of a runtime fault.
 
 On the running `7.1.5-sp11+` kernel, sysfs exposes exactly:
 
@@ -208,5 +219,9 @@ DTB round trip confirms that the compiled link selects WSA macro DAI 2 and the
 single `WSA_CODEC_DMA_TX_0` CPU DAI.
 
 The UCM activation, protection graph and temporary SoundWire instrumentation
-remain separate work because they can alter live amplifier state. No live
-files or boot configuration were changed for this finding.
+remain separate from the transport patch because they can alter live amplifier
+state. The observation-only instrumentation is now implemented as
+`patches/0002-qcom-soundwire-log-static-port-allocation.patch` and its ARM64
+object builds successfully. It reports static-port reuse only when dynamic
+debug is explicitly enabled. No live files or boot configuration were changed
+for this finding.

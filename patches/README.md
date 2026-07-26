@@ -41,3 +41,23 @@ Validation against the preserved 7.1.5 source:
 
 Exact source, patch and output hashes are recorded in
 `artifacts/reviewed/linux-single-wsa-vi-candidate-validation.json`.
+
+## `0002-qcom-soundwire-log-static-port-allocation.patch`
+
+Adds one dynamic-debug observation point to the Qualcomm SoundWire master
+allocator. For every active amplifier slave port it records:
+
+- SoundWire stream and bus;
+- slave device number and slave port;
+- selected master port;
+- channel mask;
+- whether the master port was already in use.
+
+The last field is needed because both SP11 amplifiers map PBR to master port 7,
+while their VISENSE paths map separately to ports 10 and 11. The SoundWire core
+does not de-duplicate the allocator's master-port list, but static analysis
+alone does not establish whether the duplicate programming is harmful.
+
+The patch only uses `dev_dbg()`. It does not change allocation, stream setup,
+register programming or mixer state, and remains silent unless dynamic debug
+is explicitly enabled during an instrumented kernel boot.
