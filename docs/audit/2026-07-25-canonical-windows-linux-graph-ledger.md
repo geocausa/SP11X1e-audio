@@ -53,6 +53,8 @@ prove graph lifetime overlap or acoustic purpose.
 | REV_0D ACDB | `a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde` | Original Windows static calibration database |
 | full QGPR CFG trace | `3a2b03868033cff3a147e4e120f05809b957da276217d963e457683b1fae2ca0` | Live root-protection command order and bodies |
 | reviewed root-protection CFG inventory | `e0eb0a8cdace2d9be5cce4cdf8ab122bb7f77a233baec8b910541c118b0d1716` | Strict decode of live SP/SP_VI configuration, including the two-speaker R0/T0 body |
+| QCADCM INF | `4d9443dad9b25979d523b736e18a6676f568f1410a91cf6da1543f4dacbfcd0b` | Installed 8 kHz/32-bit SP_VI endpoint policy |
+| reviewed Windows INF format inventory | `5db9cd4c5999941ab0bf41449ae954c99f2f7040ef7c65302e0280bdbff4d76d` | Strict inventory of speaker host/offload/loopback formats and VI registry values |
 | reviewed QGPR lifecycle summary | `81454093ddd7e1712f0e5290726f087f0af09f73ee2af3d2206c8065bc4ac2a9` | Corrected live OPEN/START/STOP/CLOSE inventory from four recovered traces |
 | Windows ADSP firmware | `921870a839ee2aba647b04598d62ed96f3d2d5dfbb2499fc842f9a6ff0e0da13` | Static module registration and executable CAPI behavior |
 | QCADCM Windows driver | `37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429` | Render selector, enum-to-GKV translation, and SP/SP_VI R0/T0 payload construction |
@@ -246,9 +248,12 @@ lpaif_type=2 (LPAIF_WSA), interface_index=1
 The rows are fixed-point PCM at 48 kHz: 16- or 24-bit, with either two
 channels/mask `00000003` or four channels/mask `0000000f`. Live QGPR parameter
 `080011f5`, decoded against the QCADCM construction path, proves that this
-machine selected two protected speaker channels. The playback selection is
-therefore two channels/mask `00000003`; only its 16-versus-24-bit choice
-remains uncaptured. WSA interface 1 is invariant across both bit-width rows.
+machine selected two protected speaker channels. The installed Surface
+miniport INF exposes 28 non-loopback speaker formats and every one is 16-bit;
+its only 24-bit speaker format belongs to the separate loopback pin. QCAUD
+reads that endpoint bit width and QCADCM converts it through `GetBitWidthKV`
+for the root/protection selector. The selected playback endpoint is therefore
+48 kHz, 16-bit, two channels/mask `00000003`, on WSA interface 1.
 The complete MTKT → MTKL/MTLU → MTDE/MTDO → POOL closure is retained in
 `artifacts/reviewed/windows-root-codec-dma-hwif.json`.
 
@@ -270,9 +275,15 @@ values are in `artifacts/reviewed/windows-qgpr-root-protection-cfg.json`.
 channels and a matching `00000003`/`0000000f` mask at either 8 or 48 kHz.
 The live count selects the 2-channel/mask `00000003` alternative. SP_VI tag
 key `0401000b` consequently selects four ordered values: speaker 1
-Vsens/Isens, followed by speaker 2 Vsens/Isens. The runtime VI sample rate
-(8 or 48 kHz) remains unresolved. Windows nevertheless has a concrete WSA
-feedback endpoint; the current Linux sound card's missing
+Vsens/Isens, followed by speaker 2 Vsens/Isens.
+
+`[INF][DRV][ACDB]` QCADCM's installed `SpkrProtVIInfo` policy is exactly
+8 kHz/32-bit. Its driver reads those values, combines them with the graph's
+two-channel count, converts all three to graph keys, resolves the endpoint
+hardware interface, and submits it. The selected two-speaker static SP_VI
+payload independently contains `sampling_rate=8000`. Windows therefore has a
+concrete 8 kHz, 32-bit, two-channel WSA feedback endpoint; the current Linux
+sound card's missing
 `WSA_CODEC_DMA_TX_0` link is an exact structural gap.
 
 ## DEFAULT render family A — `0xb000007e` + `0xb000007f`
@@ -599,13 +610,13 @@ render family feeding a shared protection root.
 | Root render path | `SAL -> CHMIXER -> SP -> SPLITTER -> LOGGER -> DMA` | `SAL` is inside donor stream; no CHMIXER/SP/SPLITTER | Implement exact shared root |
 | SP module | `070010e2`, 1/1 | absent | Required |
 | SP_VI module | `070010e3`, 1/1 | absent | Required |
-| VI transport | `4026` is WSA interface 1, 32-bit, 2 channels/mask `3`; SP_VI expects `[SP1 V,I, SP2 V,I]`; rate is 8 or 48 kHz | WSA TX/VI DAI link absent; VI mixers off | Add `WSA_CODEC_DMA_TX_0` sound-card and topology transport with the exact two-speaker map after resolving the rate and SoundWire ports |
+| VI transport | `4026` is WSA interface 1, 8 kHz, 32-bit, 2 channels/mask `3`; SP_VI expects `[SP1 V,I, SP2 V,I]` | WSA TX/VI DAI link absent; VI mixers off | Add `WSA_CODEC_DMA_TX_0` sound-card and topology transport with the exact format/map after resolving the SoundWire ports |
 | SP/SP_VI data edge | none in live `MODULE_CONN` | none | Do not invent one |
 | SP/SP_VI control link | exact `INTENT_ID_SP` control link | no decoded equivalent | Implement as a control link, not an audio edge |
 | Other control links | CPS, timer-drift, and EQ/headroom links are exact | no decoded equivalents | Preserve exact peer ports and intents |
 | Root external edges | splitter feeds MFC IIDs `47c9`, `4747`, `4730` in static SGs `9a`, `8c`, `8a` | absent | Close lifecycle/co-selection before deciding which peer graphs belong in baseline |
 | Render loopback edge | SPR port 3 feeds speaker-loopback SAL `4144`; SGs `45/46` terminate at `SH_MEM_PUSH_MODE 40e5` | absent | Optional for initial playback; preserve a disabled output-3 route until loopback is implemented |
-| Backend model | root contains CODEC_DMA sink and sources; sink uses WSA interface 1, fixed-point, 48 kHz, 2 channels/mask `3`; bit width is 16 or 24 | separate donor device105 logger/MFC/DMA chain; DMA tokens already select WSA interface 1 and fixed-point | Reuse the proven DMA interface tokens, but replace donor graph assumptions |
+| Backend model | root contains CODEC_DMA sink and sources; sink uses WSA interface 1, fixed-point, 48 kHz, 16-bit, 2 channels/mask `3` | separate donor device105 logger/MFC/DMA chain; DMA tokens already select WSA interface 1 and fixed-point | Reuse the proven DMA interface tokens, but replace donor graph assumptions |
 | Dormant backend | no conclusion from Windows bodies | DAPM set 106 names RX1 while module token uses graph 107 and kernel DAI 106 is TX0 | Remove from new baseline |
 | Dynamic gain | exact per-channel Q28 `VOL_CTRL` updates observed | topology names hide module identity; runtime parity unproven | Capture and compare update ordering before diagnosing spikes |
 | Dolby | no Dolby AudioReach module in these bodies | active PipeWire EQ changes samples | Keep a userspace identity/bypass insertion point; disable EQ for parity tests |
@@ -671,7 +682,6 @@ of these are true:
 | P0 | Returned values for SP/SP_VI `GET_CFG` requests | Capture response packets, not only request buffers |
 | P0 | Linux WSA playback+VI SoundWire transport behavior | Instrument a reproducible kernel with amplifiers muted |
 | P1 | Physical mapping after proven WSA interface 1 | Bind selected channels 0/1 and Dolby-corroborated output routes 0/1 to exact WSA macro slots, SoundWire master/slave ports, and left/right amplifier instances |
-| P1 | Selected hardware formats | Recover playback bit width (16/24) and VI rate (8/48 kHz) from a live endpoint body or equivalent exact state |
 | P1 | Dynamic gain-update ordering relative to audio | Timestamp complete GPR commands and Windows volume events |
 
 ## Next decision

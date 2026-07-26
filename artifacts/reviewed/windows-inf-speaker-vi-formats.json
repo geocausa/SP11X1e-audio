@@ -1,0 +1,364 @@
+{
+  "evidence_class": "B: installed Windows INF policy; driver code consumes these values, but this is not a captured DSP command body",
+  "format": "SP11 Windows INF audio-format inventory",
+  "format_version": 1,
+  "sources": {
+    "qcadcm_inf": {
+      "path": "/home/geoca/Documents/SP11-PROJECT/00-RE-archive/sp11-driverdump/qcadcm8380.inf_arm64_f5fba49e0720d715/qcadcm8380.inf",
+      "sha256": "4d9443dad9b25979d523b736e18a6676f568f1410a91cf6da1543f4dacbfcd0b"
+    },
+    "surface_audio_miniport_extension_inf": {
+      "path": "/home/geoca/Documents/SP11-PROJECT/00-RE-archive/sp11-driverdump/surface_audiominiext8380.inf_arm64_5f9fc16bb2caf005/surface_audiominiext8380.inf",
+      "sha256": "5acd5091f45da4232945046eeedc913bff75c57adc6e17954391264d7cec8134"
+    }
+  },
+  "sp_vi_endpoint_registry": {
+    "bits_per_sample": 32,
+    "sample_rate": 8000
+  },
+  "speaker_format_groups": [
+    {
+      "group_index": 0,
+      "modes": [],
+      "pin_formats": [],
+      "type": "engine"
+    },
+    {
+      "group_index": 1,
+      "modes": [
+        {
+          "formats": [
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 0,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            }
+          ],
+          "mode_index": 0,
+          "name": "RAW"
+        },
+        {
+          "formats": [
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 0,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            }
+          ],
+          "mode_index": 1,
+          "name": "DEFAULT"
+        },
+        {
+          "formats": [
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 0,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            }
+          ],
+          "mode_index": 2,
+          "name": "MEDIA"
+        },
+        {
+          "formats": [
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 0,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            }
+          ],
+          "mode_index": 3,
+          "name": "MOVIE"
+        },
+        {
+          "formats": [
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 0,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            }
+          ],
+          "mode_index": 4,
+          "name": "COMMUNICATIONS"
+        },
+        {
+          "formats": [
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 0,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            }
+          ],
+          "mode_index": 5,
+          "name": "NOTIFICATION"
+        }
+      ],
+      "pin_formats": [],
+      "type": "host"
+    },
+    {
+      "group_index": 2,
+      "modes": [
+        {
+          "formats": [
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 0,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 1,
+              "sample_rate": 44100,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 2,
+              "sample_rate": 22050,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x0000000f",
+              "channels": 4,
+              "format_index": 3,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x0000003f",
+              "channels": 6,
+              "format_index": 4,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x0000063f",
+              "channels": 8,
+              "format_index": 5,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            }
+          ],
+          "mode_index": 0,
+          "name": "DEFAULT"
+        },
+        {
+          "formats": [
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 0,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 1,
+              "sample_rate": 44100,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 2,
+              "sample_rate": 22050,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x0000000f",
+              "channels": 4,
+              "format_index": 3,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x0000003f",
+              "channels": 6,
+              "format_index": 4,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x0000063f",
+              "channels": 8,
+              "format_index": 5,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            }
+          ],
+          "mode_index": 1,
+          "name": "RAW"
+        },
+        {
+          "formats": [
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 0,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 1,
+              "sample_rate": 44100,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 2,
+              "sample_rate": 22050,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x0000003f",
+              "channels": 6,
+              "format_index": 3,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x0000063f",
+              "channels": 8,
+              "format_index": 4,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            }
+          ],
+          "mode_index": 2,
+          "name": "MEDIA"
+        },
+        {
+          "formats": [
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 0,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 1,
+              "sample_rate": 44100,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x00000003",
+              "channels": 2,
+              "format_index": 2,
+              "sample_rate": 22050,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x0000003f",
+              "channels": 6,
+              "format_index": 3,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            },
+            {
+              "bits_per_sample": 16,
+              "channel_mask": "0x0000063f",
+              "channels": 8,
+              "format_index": 4,
+              "sample_rate": 48000,
+              "valid_bits_per_sample": 16
+            }
+          ],
+          "mode_index": 3,
+          "name": "MOVIE"
+        }
+      ],
+      "pin_formats": [],
+      "type": "offload"
+    },
+    {
+      "group_index": 3,
+      "modes": [],
+      "pin_formats": [
+        {
+          "bits_per_sample": 24,
+          "channel_mask": "0x00000003",
+          "channels": 2,
+          "format_index": 0,
+          "sample_rate": 48000,
+          "valid_bits_per_sample": 24
+        },
+        {
+          "bits_per_sample": 16,
+          "channel_mask": "0x00000003",
+          "channels": 2,
+          "format_index": 1,
+          "sample_rate": 48000,
+          "valid_bits_per_sample": 16
+        }
+      ],
+      "type": "loopback"
+    }
+  ],
+  "speaker_loopback_summary": {
+    "bits_per_sample": [
+      16,
+      24
+    ],
+    "format_count": 2
+  },
+  "speaker_non_loopback_summary": {
+    "bits_per_sample": [
+      16
+    ],
+    "format_count": 28,
+    "valid_bits_per_sample": [
+      16
+    ]
+  }
+}

@@ -22,11 +22,11 @@ The static lookup contains four format rows:
 | 3 | 24 | 4 | `0x0000000f` |
 
 The recovered live QGPR trace selects the two-channel protection variant.
-That closes the channel-count half of the runtime choice: playback uses
-channels 0/1 and active-channel mask `0x00000003`. The playback bit width
-(16 or 24) is still not retained. The hardware-interface conclusion does not
-depend on that remaining choice: every row independently specifies WSA
-interface 1.
+The installed speaker INF and QCAUD/QCADCM data flow close the other half:
+every non-loopback speaker format is 16-bit, and QCADCM converts the active
+endpoint bit width into the protection graph key. The selected hardware row is
+therefore exactly 48 kHz, 16-bit, two-channel fixed-point PCM, active-channel
+mask `0x00000003`, on WSA interface 1.
 
 ## Bound evidence
 
@@ -42,6 +42,8 @@ interface 1.
 | reviewed SP_VI channel-map inventory | `6095994da1b4cb92cc09bad4f65cdd7bb51425ada6c86e6ff8c2b7b94cf09c11` |
 | live full QGPR CFG trace | `3a2b03868033cff3a147e4e120f05809b957da276217d963e457683b1fae2ca0` |
 | reviewed root-protection CFG inventory | `e0eb0a8cdace2d9be5cce4cdf8ab122bb7f77a233baec8b910541c118b0d1716` |
+| QCADCM INF | `4d9443dad9b25979d523b736e18a6676f568f1410a91cf6da1543f4dacbfcd0b` |
+| reviewed Windows INF format inventory | `5db9cd4c5999941ab0bf41449ae954c99f2f7040ef7c65302e0280bdbff4d76d` |
 | Dolby MSHW0486 speaker tuning XML (corroboration) | `985a6e6e976ebffeec54125597f0b4e35d80ae23cf0d4d0eacbbc4c187b3e06e` |
 | installed Linux topology | `4e00057b8e316c217347bcdee0af0c6d4ff40e8e0f1870d7efeaddc2669ff54e` |
 
@@ -51,7 +53,9 @@ The machine-readable decodes are
 `artifacts/reviewed/windows-root-spvi-channel-map.json`. They can be
 regenerated with `tools/acdb_module_tag_inventory.py`. The live decoder output
 is `artifacts/reviewed/windows-qgpr-root-protection-cfg.json` and can be
-regenerated with `tools/qgpr_cfg_inventory.py`.
+regenerated with `tools/qgpr_cfg_inventory.py`. The installed-format policy is
+decoded in `artifacts/reviewed/windows-inf-speaker-vi-formats.json` by
+`tools/windows_inf_audio_inventory.py`.
 
 ## Exact ACDB lookup chain
 
@@ -161,6 +165,46 @@ speakers, `Left` on output route 0 and `Right` on output route 1. That XML is
 useful corroboration for physical labels, but it is not the primary proof of
 the AudioReach runtime selection and does not make Dolby part of the hardware
 driver baseline.
+
+## Exact selected endpoint formats
+
+The MSHW0486 miniport extension has four speaker pin classes:
+
+| FormatsAndModes | Type | Relevant formats |
+|---:|---|---|
+| 0 | engine | no wave format |
+| 1 | host | 6 modes; every default is 2-channel, 48 kHz, 16-bit |
+| 2 | offload | 4 modes, 22 formats; every format is 16-bit |
+| 3 | loopback | 2-channel, 48 kHz at 16 or 24-bit |
+
+Across all 28 non-loopback speaker formats, both container and valid sample
+width are exclusively 16-bit. The only advertised 24-bit alternative belongs
+to the separately proven speaker-loopback capture pin.
+
+This is not merely a userspace default. QCAUD function `0x14008a3e8` reads
+`nChannels`, `nSamplesPerSec`, `nBitsPerSample`, valid bits, and channel mask
+from the selected INF format into its endpoint format object. In the QCADCM
+speaker-protection path at `0x140085270`, the endpoint bit width and channel
+count are passed through `GetBitWidthKV` and `GetNumChannelsKV`; those are the
+same graph keys (`0x0100000f` and `0x01000010`) that select the root ACDB row.
+For the captured DEFAULT/NOTIFICATION speaker render graph, the remaining
+24-bit ACDB row is therefore unreachable under the installed non-loopback
+format policy.
+
+The VI side is independently exact. QCADCM's installed INF sets:
+
+```text
+ADCM\SpkrProtVIInfo\SamplesPerSecond = 8000
+ADCM\SpkrProtVIInfo\BitsPerSample    = 32
+```
+
+The driver reads both values in `SetSpkrProtEffectEpConfig`, converts them with
+`GetSampleRateKV` and `GetBitWidthKV`, combines them with the proven speaker
+count, resolves WSA interface 1, and sends the VI endpoint configuration. The
+selected two-speaker ACDB `PARAM_ID_SP_VI_STATIC_CFG` (`0x080011f6`) begins
+with `{num_speakers=2, sampling_rate=8000}`, independently matching the INF.
+The exact VI endpoint is consequently 8 kHz, 32-bit, two-channel fixed-point
+PCM, mask `0x00000003`.
 
 ## Linux comparison
 
