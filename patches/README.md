@@ -86,3 +86,27 @@ Validation against the preserved 7.1.5 source:
 
 This is an offline candidate. It has not been installed, and it does not
 enable speaker protection, VI feedback, amplifiers or any mixer.
+
+## `0004-audioreach-add-speaker-protection-bypass.patch`
+
+Adds an opt-in topology flag which allows speaker-protection and
+speaker-protection-VI modules to remain instantiated but default-disabled.
+Without this flag, the stock Linux media-format path immediately sends its
+own protection configuration and `PARAM_ID_MODULE_ENABLE = 1`, which does not
+match the recovered Windows startup order.
+
+With the flag set, Linux sends no automatic protection parameter or enable
+command for that module. The recovered AudioReach API defines disabled as the
+default state. Existing topologies without the flag retain the current Linux
+behavior.
+
+Validation against the preserved 7.1.5 source:
+
+- patch dry-run directly on pristine 7.1.5: pass;
+- patch dry-run stacked after `0003`: pass;
+- strict kernel style check: zero findings;
+- ARM64 `audioreach.o` and `topology.o` build with `W=1`, stacked after
+  `0003`: pass.
+
+This is an offline structural primitive. It is not an implementation or
+activation of calibrated speaker protection and has not been installed.

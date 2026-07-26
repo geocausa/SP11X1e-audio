@@ -1,0 +1,101 @@
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Sun, 26 Jul 2026 20:00:00 +0100
+Subject: [PATCH] ASoC: qcom: audioreach: add speaker protection bypass
+
+The AudioReach media-format path automatically configures and enables every
+speaker-protection and speaker-protection-VI module in a selected graph.
+That prevents a topology from representing the modules and their control
+link while deliberately leaving protection inactive until calibration is
+ready.
+
+Add an explicit topology token which parks SP and SP_VI modules.  When set,
+media-format setup sends no protection commands.  The AudioReach module API
+defines PARAM_ID_MODULE_ENABLE as disabled by default, so a newly opened
+module remains in its default bypass state.
+
+The flag is opt-in.  Existing topologies without it retain the current
+automatic setup behavior.
+
+Signed-off-by: SP11 audio reconstruction <sp11-audio@localhost>
+---
+ include/uapi/sound/snd_ar_tokens.h | 7 +++++++
+ sound/soc/qcom/qdsp6/audioreach.c  | 6 ++++++
+ sound/soc/qcom/qdsp6/audioreach.h  | 1 +
+ sound/soc/qcom/qdsp6/topology.c    | 4 ++++
+ 4 files changed, 18 insertions(+)
+
+diff --git a/include/uapi/sound/snd_ar_tokens.h b/include/uapi/sound/snd_ar_tokens.h
+index 67fe10bbd0ad..4695f1aa0d1b 100644
+--- a/include/uapi/sound/snd_ar_tokens.h
++++ b/include/uapi/sound/snd_ar_tokens.h
+@@ -121,5 +121,11 @@
+  * %AR_TKN_U32_MODULE_DST_IN_PORT_ID:		Destination module input port ID
+  *
++ * %AR_TKN_U32_MODULE_SPEAKER_PROTECTION_BYPASS:
++ *						Leave speaker-protection modules
++ *						in their default disabled state.
++ *						0 = automatic setup,
++ *						1 = bypass.
++ *
+  * %AR_TKN_U32_MODULE_HW_IF_IDX:		Interface index types for I2S/LPAIF
+  *
+  * %AR_TKN_U32_MODULE_HW_IF_TYPE:		Interface type
+@@ -239,4 +245,5 @@
+ #define AR_TKN_U32_MODULE_LOG_CODE		259
+ #define AR_TKN_U32_MODULE_LOG_TAP_POINT_ID	260
+ #define AR_TKN_U32_MODULE_LOG_MODE		261
++#define AR_TKN_U32_MODULE_SPEAKER_PROTECTION_BYPASS	262
+ 
+diff --git a/sound/soc/qcom/qdsp6/audioreach.h b/sound/soc/qcom/qdsp6/audioreach.h
+index e7eb6e44fd87..176a90ba5895 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.h
++++ b/sound/soc/qcom/qdsp6/audioreach.h
+@@ -797,6 +797,7 @@ struct audioreach_module {
+ 	uint32_t log_code;
+ 	uint32_t log_tap_point_id;
+ 	uint32_t log_mode;
++	bool speaker_protection_bypass;
+ 
+ 	/* bookkeeping */
+ 	struct list_head node;
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+index a90853e9b8d9..52bb65378bd1 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1363,6 +1363,9 @@ int audioreach_set_media_format(struct q6apm_graph *graph,
+ 		rc = audioreach_gapless_set_media_format(graph, module, cfg);
+ 		break;
+ 	case MODULE_ID_SPEAKER_PROTECTION:
++		if (module->speaker_protection_bypass)
++			return 0;
++
+ 		rc = audioreach_speaker_protection(graph, module,
+ 						   PARAM_ID_SP_OP_MODE_NORMAL);
+ 		if (!rc)
+@@ -1370,6 +1373,9 @@ int audioreach_set_media_format(struct q6apm_graph *graph,
+ 
+ 		break;
+ 	case MODULE_ID_SPEAKER_PROTECTION_VI:
++		if (module->speaker_protection_bypass)
++			return 0;
++
+ 		rc = audioreach_speaker_protection_vi(graph, module, cfg);
+ 		if (!rc)
+ 			rc = audioreach_module_enable(graph, module, true);
+diff --git a/sound/soc/qcom/qdsp6/topology.c b/sound/soc/qcom/qdsp6/topology.c
+index f7e7fe49ea76..abcb91f19340 100644
+--- a/sound/soc/qcom/qdsp6/topology.c
++++ b/sound/soc/qcom/qdsp6/topology.c
+@@ -556,6 +556,10 @@ static struct audioreach_module *audioreach_parse_common_tokens(struct q6apm *ap
+ 		case AR_TKN_U32_MODULE_DST_IN_PORT_ID7:
+ 			dst_mod_ip_port_id[7] = le32_to_cpu(mod_elem->value);
+ 			break;
++		case AR_TKN_U32_MODULE_SPEAKER_PROTECTION_BYPASS:
++			mod->speaker_protection_bypass =
++				!!le32_to_cpu(mod_elem->value);
++			break;
+ 		default:
+ 			break;
+ 
+-- 
+2.51.0

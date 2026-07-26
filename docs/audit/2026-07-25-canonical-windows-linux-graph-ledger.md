@@ -747,9 +747,12 @@ stack:
    protection is enabled.
 
 The first required driver primitive for item 1 now exists as offline candidate
-`patches/0003-audioreach-add-topology-control-links.patch`. The next topology
-step is gated by the unsafe existing SP/SP_VI auto-enable path, not by any
-remaining ambiguity in the four Windows control links.
+`patches/0003-audioreach-add-topology-control-links.patch`. The unsafe existing
+SP/SP_VI auto-enable path is also contained by the opt-in, offline candidate
+`patches/0004-audioreach-add-speaker-protection-bypass.patch`. Together they
+allow the next clean topology model to represent all four Windows control
+links while leaving both protection modules in their API-defined
+default-disabled state.
 
 The next physical action is not needed until the widened KD script has been
 preflighted and the remaining recovered evidence has been exhausted.
