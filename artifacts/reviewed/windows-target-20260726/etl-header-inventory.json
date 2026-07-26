@@ -1,0 +1,3568 @@
+{
+  "format": "sp11-windows-audio-etl-header-inventory",
+  "format_version": 1,
+  "method": {
+    "reader": "dissect.etl",
+    "semantic_limit": "Microsoft-Windows-Audio manifest was not present; event names and payload meanings are intentionally not inferred",
+    "time_window_rule": "probe Timestamp through Timestamp + requested Seconds, inclusive"
+  },
+  "traces": [
+    {
+      "audio_provider": {
+        "event_count": 1436991,
+        "event_headers": [
+          {
+            "count": 1,
+            "event_id": 24,
+            "level": 4,
+            "opcode": 0,
+            "payload_sizes": {
+              "200": 1
+            },
+            "task": 120,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 25,
+            "level": 4,
+            "opcode": 0,
+            "payload_sizes": {
+              "200": 1
+            },
+            "task": 122,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 38,
+            "level": 5,
+            "opcode": 27,
+            "payload_sizes": {
+              "100": 1
+            },
+            "task": 123,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 41,
+            "level": 5,
+            "opcode": 30,
+            "payload_sizes": {
+              "116": 1
+            },
+            "task": 123,
+            "version": 0
+          },
+          {
+            "count": 42,
+            "event_id": 50,
+            "level": 4,
+            "opcode": 0,
+            "payload_sizes": {
+              "284": 15,
+              "292": 27
+            },
+            "task": 124,
+            "version": 0
+          },
+          {
+            "count": 14975,
+            "event_id": 116,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "96": 14975
+            },
+            "task": 135,
+            "version": 3
+          },
+          {
+            "count": 9,
+            "event_id": 117,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "72": 8,
+              "96": 1
+            },
+            "task": 136,
+            "version": 2
+          },
+          {
+            "count": 111,
+            "event_id": 119,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "72": 111
+            },
+            "task": 138,
+            "version": 2
+          },
+          {
+            "count": 111,
+            "event_id": 120,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 111
+            },
+            "task": 138,
+            "version": 2
+          },
+          {
+            "count": 6,
+            "event_id": 123,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "288": 6
+            },
+            "task": 140,
+            "version": 0
+          },
+          {
+            "count": 6,
+            "event_id": 124,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "152": 6
+            },
+            "task": 140,
+            "version": 0
+          },
+          {
+            "count": 15,
+            "event_id": 125,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "280": 9,
+              "288": 6
+            },
+            "task": 141,
+            "version": 0
+          },
+          {
+            "count": 15,
+            "event_id": 126,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "152": 7,
+              "160": 8
+            },
+            "task": 141,
+            "version": 0
+          },
+          {
+            "count": 10,
+            "event_id": 127,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "288": 10
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 10,
+            "event_id": 128,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "160": 10
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 10,
+            "event_id": 129,
+            "level": 4,
+            "opcode": 52,
+            "payload_sizes": {
+              "176": 10
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 10,
+            "event_id": 130,
+            "level": 4,
+            "opcode": 53,
+            "payload_sizes": {
+              "176": 10
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 10,
+            "event_id": 131,
+            "level": 4,
+            "opcode": 54,
+            "payload_sizes": {
+              "176": 10
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 10,
+            "event_id": 132,
+            "level": 4,
+            "opcode": 55,
+            "payload_sizes": {
+              "176": 10
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 9,
+            "event_id": 133,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "372": 9
+            },
+            "task": 143,
+            "version": 0
+          },
+          {
+            "count": 9,
+            "event_id": 134,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "248": 9
+            },
+            "task": 143,
+            "version": 0
+          },
+          {
+            "count": 14975,
+            "event_id": 135,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "132": 14975
+            },
+            "task": 144,
+            "version": 0
+          },
+          {
+            "count": 14988,
+            "event_id": 136,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "68": 14988
+            },
+            "task": 145,
+            "version": 0
+          },
+          {
+            "count": 14989,
+            "event_id": 137,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 14989
+            },
+            "task": 145,
+            "version": 0
+          },
+          {
+            "count": 14996,
+            "event_id": 138,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "60": 14996
+            },
+            "task": 146,
+            "version": 0
+          },
+          {
+            "count": 14996,
+            "event_id": 139,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "56": 14996
+            },
+            "task": 146,
+            "version": 0
+          },
+          {
+            "count": 14977,
+            "event_id": 140,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "72": 14977
+            },
+            "task": 147,
+            "version": 0
+          },
+          {
+            "count": 10,
+            "event_id": 141,
+            "level": 4,
+            "opcode": 0,
+            "payload_sizes": {
+              "268": 1,
+              "276": 9
+            },
+            "task": 148,
+            "version": 0
+          },
+          {
+            "count": 173,
+            "event_id": 145,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "108": 2,
+              "124": 1,
+              "132": 1,
+              "140": 5,
+              "148": 3,
+              "156": 3,
+              "244": 5,
+              "252": 6,
+              "260": 2,
+              "276": 2,
+              "292": 20,
+              "300": 4,
+              "316": 52,
+              "324": 9,
+              "340": 18,
+              "500": 40
+            },
+            "task": 152,
+            "version": 0
+          },
+          {
+            "count": 37781,
+            "event_id": 146,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "140": 253,
+              "148": 128,
+              "156": 10,
+              "164": 12,
+              "172": 1684,
+              "180": 1681,
+              "260": 20980,
+              "276": 12833,
+              "292": 200
+            },
+            "task": 153,
+            "version": 0
+          },
+          {
+            "count": 353313,
+            "event_id": 148,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "100": 179065,
+              "108": 61600,
+              "124": 53636,
+              "132": 504,
+              "140": 4,
+              "148": 36,
+              "156": 12,
+              "164": 6724,
+              "260": 51332,
+              "276": 400
+            },
+            "task": 155,
+            "version": 0
+          },
+          {
+            "count": 11,
+            "event_id": 150,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "304": 2,
+              "312": 9
+            },
+            "task": 157,
+            "version": 0
+          },
+          {
+            "count": 15175,
+            "event_id": 152,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "116": 14975,
+              "300": 200
+            },
+            "task": 159,
+            "version": 0
+          },
+          {
+            "count": 39255,
+            "event_id": 154,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "156": 253,
+              "164": 128,
+              "172": 10,
+              "180": 12,
+              "188": 1684,
+              "196": 3355,
+              "276": 20980,
+              "292": 12833
+            },
+            "task": 161,
+            "version": 0
+          },
+          {
+            "count": 4996,
+            "event_id": 155,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "140": 1,
+              "164": 1,
+              "172": 15,
+              "180": 3,
+              "188": 3,
+              "196": 3,
+              "204": 6,
+              "212": 9,
+              "220": 1,
+              "236": 3,
+              "244": 4,
+              "252": 1,
+              "260": 6,
+              "276": 7,
+              "284": 72,
+              "292": 73,
+              "300": 77,
+              "308": 89,
+              "316": 256,
+              "324": 327,
+              "332": 108,
+              "340": 216,
+              "348": 393,
+              "356": 153,
+              "364": 172,
+              "372": 312,
+              "380": 99,
+              "388": 129,
+              "396": 94,
+              "404": 36,
+              "412": 79,
+              "420": 89,
+              "428": 180,
+              "436": 208,
+              "444": 104,
+              "452": 18,
+              "460": 145,
+              "468": 168,
+              "476": 95,
+              "484": 35,
+              "492": 176,
+              "500": 25,
+              "508": 70,
+              "516": 210,
+              "524": 20,
+              "532": 80,
+              "540": 60,
+              "556": 30,
+              "564": 20,
+              "572": 128,
+              "580": 104,
+              "588": 106,
+              "596": 31,
+              "604": 10,
+              "612": 40,
+              "620": 7,
+              "636": 20,
+              "644": 50,
+              "92": 19
+            },
+            "task": 162,
+            "version": 0
+          },
+          {
+            "count": 31412,
+            "event_id": 156,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "116": 14994,
+              "124": 1,
+              "132": 14975,
+              "276": 600,
+              "292": 403,
+              "308": 401,
+              "332": 19,
+              "356": 9,
+              "444": 10
+            },
+            "task": 163,
+            "version": 0
+          },
+          {
+            "count": 14869,
+            "event_id": 158,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "120": 14869
+            },
+            "task": 165,
+            "version": 0
+          },
+          {
+            "count": 14933,
+            "event_id": 160,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "92": 14933
+            },
+            "task": 167,
+            "version": 0
+          },
+          {
+            "count": 14975,
+            "event_id": 162,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "56": 14975
+            },
+            "task": 169,
+            "version": 0
+          },
+          {
+            "count": 14975,
+            "event_id": 163,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 14975
+            },
+            "task": 169,
+            "version": 0
+          },
+          {
+            "count": 190016,
+            "event_id": 164,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "80": 190016
+            },
+            "task": 171,
+            "version": 1
+          },
+          {
+            "count": 190016,
+            "event_id": 165,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "88": 190016
+            },
+            "task": 171,
+            "version": 0
+          },
+          {
+            "count": 190016,
+            "event_id": 166,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "80": 190016
+            },
+            "task": 170,
+            "version": 0
+          },
+          {
+            "count": 190016,
+            "event_id": 167,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "80": 190016
+            },
+            "task": 170,
+            "version": 0
+          },
+          {
+            "count": 14864,
+            "event_id": 168,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "72": 14864
+            },
+            "task": 151,
+            "version": 0
+          },
+          {
+            "count": 14864,
+            "event_id": 169,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 14864
+            },
+            "task": 151,
+            "version": 0
+          },
+          {
+            "count": 9,
+            "event_id": 172,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "80": 9
+            },
+            "task": 173,
+            "version": 0
+          },
+          {
+            "count": 10,
+            "event_id": 173,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 10
+            },
+            "task": 173,
+            "version": 0
+          },
+          {
+            "count": 9,
+            "event_id": 175,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "96": 9
+            },
+            "task": 175,
+            "version": 0
+          }
+        ],
+        "event_id_counts": {
+          "116": 14975,
+          "117": 9,
+          "119": 111,
+          "120": 111,
+          "123": 6,
+          "124": 6,
+          "125": 15,
+          "126": 15,
+          "127": 10,
+          "128": 10,
+          "129": 10,
+          "130": 10,
+          "131": 10,
+          "132": 10,
+          "133": 9,
+          "134": 9,
+          "135": 14975,
+          "136": 14988,
+          "137": 14989,
+          "138": 14996,
+          "139": 14996,
+          "140": 14977,
+          "141": 10,
+          "145": 173,
+          "146": 37781,
+          "148": 353313,
+          "150": 11,
+          "152": 15175,
+          "154": 39255,
+          "155": 4996,
+          "156": 31412,
+          "158": 14869,
+          "160": 14933,
+          "162": 14975,
+          "163": 14975,
+          "164": 190016,
+          "165": 190016,
+          "166": 190016,
+          "167": 190016,
+          "168": 14864,
+          "169": 14864,
+          "172": 9,
+          "173": 10,
+          "175": 9,
+          "24": 1,
+          "25": 1,
+          "38": 1,
+          "41": 1,
+          "50": 42
+        },
+        "guid": "ae4bd3be-f36f-45b6-8d21-bdd6fb832853",
+        "top_pids": [
+          {
+            "count": 1299091,
+            "pid": 12172
+          },
+          {
+            "count": 40513,
+            "pid": 15912
+          },
+          {
+            "count": 26613,
+            "pid": 9336
+          },
+          {
+            "count": 17603,
+            "pid": 3792
+          },
+          {
+            "count": 17373,
+            "pid": 10208
+          },
+          {
+            "count": 16921,
+            "pid": 8740
+          },
+          {
+            "count": 15184,
+            "pid": 2556
+          },
+          {
+            "count": 2226,
+            "pid": 2792
+          },
+          {
+            "count": 1360,
+            "pid": 10560
+          },
+          {
+            "count": 104,
+            "pid": 4756
+          },
+          {
+            "count": 1,
+            "pid": 6872
+          },
+          {
+            "count": 1,
+            "pid": 11664
+          },
+          {
+            "count": 1,
+            "pid": 7224
+          }
+        ],
+        "unique_activity_ids": 41
+      },
+      "event_count": 2219186,
+      "file": "sp11_audio_parity.etl",
+      "probe_windows": [
+        {
+          "audio_event_count": 186720,
+          "audio_event_ids": {
+            "116": 1918,
+            "117": 1,
+            "119": 4,
+            "120": 4,
+            "125": 1,
+            "126": 1,
+            "127": 1,
+            "128": 1,
+            "129": 1,
+            "130": 1,
+            "131": 1,
+            "132": 1,
+            "133": 1,
+            "134": 1,
+            "135": 1918,
+            "136": 1919,
+            "137": 1920,
+            "138": 1921,
+            "139": 1921,
+            "140": 1918,
+            "141": 1,
+            "145": 23,
+            "146": 4932,
+            "148": 45774,
+            "150": 1,
+            "152": 1918,
+            "154": 4932,
+            "155": 768,
+            "156": 3844,
+            "158": 1911,
+            "160": 1913,
+            "162": 1918,
+            "163": 1918,
+            "164": 24894,
+            "165": 24894,
+            "166": 24894,
+            "167": 24894,
+            "168": 1914,
+            "169": 1914,
+            "172": 1,
+            "173": 2,
+            "175": 1,
+            "50": 5
+          },
+          "channels": 2,
+          "completed": true,
+          "end_utc": "2026-07-26T10:01:36.083518+00:00",
+          "evidence": {
+            "InitializeHr": "0x00000000",
+            "IsFormatSupportedHr": "0x00000000",
+            "LoopTimedOut": "False",
+            "Stopped": "1"
+          },
+          "file": "scenario10_dolby_bypass_shared.txt",
+          "format": "pcm16",
+          "format_supported": true,
+          "frames_written": 960000,
+          "initialized": true,
+          "inside_trace": true,
+          "mode": "shared",
+          "rate": 48000,
+          "raw": false,
+          "seconds": 20,
+          "start_utc": "2026-07-26T10:01:16.083518+00:00",
+          "started": true
+        },
+        {
+          "audio_event_count": 186761,
+          "audio_event_ids": {
+            "116": 1919,
+            "117": 1,
+            "119": 6,
+            "120": 6,
+            "125": 1,
+            "126": 1,
+            "127": 1,
+            "128": 1,
+            "129": 1,
+            "130": 1,
+            "131": 1,
+            "132": 1,
+            "133": 1,
+            "134": 1,
+            "135": 1919,
+            "136": 1920,
+            "137": 1920,
+            "138": 1921,
+            "139": 1921,
+            "140": 1919,
+            "141": 1,
+            "145": 17,
+            "146": 5045,
+            "148": 45782,
+            "150": 1,
+            "152": 1919,
+            "154": 5045,
+            "155": 549,
+            "156": 3844,
+            "158": 1911,
+            "160": 1913,
+            "162": 1919,
+            "163": 1919,
+            "164": 24900,
+            "165": 24900,
+            "166": 24900,
+            "167": 24900,
+            "168": 1913,
+            "169": 1913,
+            "172": 1,
+            "173": 1,
+            "175": 1,
+            "50": 5
+          },
+          "channels": 2,
+          "completed": true,
+          "end_utc": "2026-07-26T10:02:11.588645+00:00",
+          "evidence": {
+            "InitializeHr": "0x00000000",
+            "IsFormatSupportedHr": "0x00000000",
+            "LoopTimedOut": "False",
+            "Stopped": "1"
+          },
+          "file": "scenario11_enhancements_off_shared.txt",
+          "format": "pcm16",
+          "format_supported": true,
+          "frames_written": 960000,
+          "initialized": true,
+          "inside_trace": true,
+          "mode": "shared",
+          "rate": 48000,
+          "raw": false,
+          "seconds": 20,
+          "start_utc": "2026-07-26T10:01:51.588645+00:00",
+          "started": true
+        },
+        {
+          "audio_event_count": 254570,
+          "audio_event_ids": {
+            "116": 2919,
+            "117": 1,
+            "119": 1,
+            "120": 1,
+            "125": 1,
+            "126": 1,
+            "127": 1,
+            "128": 1,
+            "129": 1,
+            "130": 1,
+            "131": 1,
+            "132": 1,
+            "133": 1,
+            "134": 1,
+            "135": 2919,
+            "136": 2921,
+            "137": 2921,
+            "138": 2921,
+            "139": 2921,
+            "140": 2919,
+            "141": 1,
+            "145": 17,
+            "146": 7550,
+            "148": 63969,
+            "150": 1,
+            "152": 2919,
+            "154": 7550,
+            "155": 445,
+            "156": 5844,
+            "158": 2910,
+            "160": 2914,
+            "162": 2919,
+            "163": 2919,
+            "164": 32079,
+            "165": 32079,
+            "166": 32079,
+            "167": 32079,
+            "168": 2918,
+            "169": 2918,
+            "172": 1,
+            "173": 1,
+            "175": 1,
+            "50": 3
+          },
+          "channels": 2,
+          "completed": true,
+          "end_utc": "2026-07-26T10:02:46.174573+00:00",
+          "evidence": {
+            "InitializeHr": "0x00000000",
+            "IsFormatSupportedHr": "0x00000000",
+            "LoopTimedOut": "False",
+            "SetClientPropertiesRawHr": "0x00000000",
+            "Stopped": "1"
+          },
+          "file": "scenario20_shared_raw.txt",
+          "format": "pcm16",
+          "format_supported": true,
+          "frames_written": 1440000,
+          "initialized": true,
+          "inside_trace": true,
+          "mode": "shared",
+          "rate": 48000,
+          "raw": true,
+          "seconds": 30,
+          "start_utc": "2026-07-26T10:02:16.174573+00:00",
+          "started": true
+        },
+        {
+          "audio_event_count": 2245,
+          "audio_event_ids": {
+            "125": 1,
+            "126": 1,
+            "127": 1,
+            "128": 1,
+            "129": 1,
+            "130": 1,
+            "131": 1,
+            "132": 1,
+            "141": 1,
+            "145": 7,
+            "146": 200,
+            "148": 400,
+            "150": 2,
+            "152": 200,
+            "155": 26,
+            "156": 1401
+          },
+          "channels": 2,
+          "completed": true,
+          "end_utc": "2026-07-26T10:03:20.305880+00:00",
+          "evidence": {
+            "InitializeHr": "0x00000000",
+            "IsFormatSupportedHr": "0x00000000",
+            "LoopTimedOut": "False",
+            "Stopped": "1"
+          },
+          "file": "scenario25_exclusive_pcm16.txt",
+          "format": "pcm16",
+          "format_supported": true,
+          "frames_written": 960000,
+          "initialized": true,
+          "inside_trace": true,
+          "mode": "exclusive",
+          "rate": 48000,
+          "raw": false,
+          "seconds": 20,
+          "start_utc": "2026-07-26T10:03:00.305880+00:00",
+          "started": true
+        },
+        {
+          "audio_event_count": 429671,
+          "audio_event_ids": {
+            "116": 4419,
+            "117": 1,
+            "119": 57,
+            "120": 57,
+            "125": 1,
+            "126": 1,
+            "127": 1,
+            "128": 1,
+            "129": 1,
+            "130": 1,
+            "131": 1,
+            "132": 1,
+            "133": 1,
+            "134": 1,
+            "135": 4419,
+            "136": 4420,
+            "137": 4420,
+            "138": 4421,
+            "139": 4421,
+            "140": 4419,
+            "141": 1,
+            "145": 17,
+            "146": 11528,
+            "148": 105727,
+            "150": 1,
+            "152": 4419,
+            "154": 11528,
+            "155": 549,
+            "156": 8844,
+            "158": 4410,
+            "160": 4413,
+            "162": 4419,
+            "163": 4419,
+            "164": 57400,
+            "165": 57400,
+            "166": 57400,
+            "167": 57400,
+            "168": 4362,
+            "169": 4362,
+            "172": 1,
+            "173": 1,
+            "175": 1,
+            "50": 5
+          },
+          "channels": 2,
+          "completed": true,
+          "end_utc": "2026-07-26T10:04:39.738397+00:00",
+          "evidence": {
+            "InitializeHr": "0x00000000",
+            "IsFormatSupportedHr": "0x00000000",
+            "LoopTimedOut": "False",
+            "Stopped": "1"
+          },
+          "file": "scenario40_volume_steps.txt",
+          "format": "pcm16",
+          "format_supported": true,
+          "frames_written": 2160000,
+          "initialized": true,
+          "inside_trace": true,
+          "mode": "shared",
+          "rate": 48000,
+          "raw": false,
+          "seconds": 45,
+          "start_utc": "2026-07-26T10:03:54.738397+00:00",
+          "started": true
+        },
+        {
+          "audio_event_count": 186079,
+          "audio_event_ids": {
+            "116": 1919,
+            "117": 1,
+            "119": 3,
+            "120": 3,
+            "125": 1,
+            "126": 1,
+            "127": 1,
+            "128": 1,
+            "129": 1,
+            "130": 1,
+            "131": 1,
+            "132": 1,
+            "133": 1,
+            "134": 1,
+            "135": 1919,
+            "136": 1920,
+            "137": 1920,
+            "138": 1921,
+            "139": 1921,
+            "140": 1919,
+            "141": 1,
+            "145": 17,
+            "146": 4758,
+            "148": 45674,
+            "150": 1,
+            "152": 1919,
+            "154": 4758,
+            "155": 549,
+            "156": 3844,
+            "158": 1911,
+            "160": 1913,
+            "162": 1919,
+            "163": 1919,
+            "164": 24900,
+            "165": 24900,
+            "166": 24900,
+            "167": 24900,
+            "168": 1916,
+            "169": 1916,
+            "172": 1,
+            "173": 1,
+            "175": 1,
+            "50": 5
+          },
+          "channels": 2,
+          "completed": true,
+          "end_utc": "2026-07-26T10:05:04.246095+00:00",
+          "evidence": {
+            "InitializeHr": "0x00000000",
+            "IsFormatSupportedHr": "0x00000000",
+            "LoopTimedOut": "False",
+            "Stopped": "1"
+          },
+          "file": "scenario60_dolby_active.txt",
+          "format": "pcm16",
+          "format_supported": true,
+          "frames_written": 960000,
+          "initialized": true,
+          "inside_trace": true,
+          "mode": "shared",
+          "rate": 48000,
+          "raw": false,
+          "seconds": 20,
+          "start_utc": "2026-07-26T10:04:44.246095+00:00",
+          "started": true
+        }
+      ],
+      "provider_counts": {
+        "01853a65-418f-4f36-aefc-dc0f1d2fd235": 680,
+        "2cb15d1d-5fc1-11d2-abe1-00a0c911f518": 34822,
+        "3d6fa8d0-fe05-11d0-9dda-00c04fd7ba7c": 2280,
+        "3d6fa8d1-fe05-11d0-9dda-00c04fd7ba7c": 13953,
+        "68fdd900-4a3e-11d1-84f4-0000f80464e3": 15,
+        "9b79ee91-b5fd-41c0-a243-4248e266e9d0": 60,
+        "ae4bd3be-f36f-45b6-8d21-bdd6fb832853": 1436991,
+        "b3e675d7-2554-4f18-830b-2762732560de": 139098,
+        "bbccf6c1-6cd1-48c4-80ff-839482e37671": 49,
+        "ce1dbfb4-137e-4da6-87b0-3f59aa102cbc": 270951,
+        "def2fe46-7bd6-4b80-bd94-f57fe20d0ce3": 320287
+      },
+      "provider_top_pids": {
+        "01853a65-418f-4f36-aefc-dc0f1d2fd235": [
+          {
+            "count": 680,
+            "pid": 7148
+          }
+        ],
+        "2cb15d1d-5fc1-11d2-abe1-00a0c911f518": [
+          {
+            "count": 19358,
+            "pid": -1
+          },
+          {
+            "count": 826,
+            "pid": 10036
+          },
+          {
+            "count": 444,
+            "pid": 4940
+          },
+          {
+            "count": 365,
+            "pid": 6788
+          },
+          {
+            "count": 331,
+            "pid": 5204
+          },
+          {
+            "count": 317,
+            "pid": 7148
+          },
+          {
+            "count": 246,
+            "pid": 2612
+          },
+          {
+            "count": 244,
+            "pid": 14220
+          },
+          {
+            "count": 236,
+            "pid": 5324
+          },
+          {
+            "count": 232,
+            "pid": 5928
+          },
+          {
+            "count": 232,
+            "pid": 8048
+          },
+          {
+            "count": 160,
+            "pid": 2556
+          }
+        ],
+        "3d6fa8d0-fe05-11d0-9dda-00c04fd7ba7c": [
+          {
+            "count": 590,
+            "pid": 2556
+          },
+          {
+            "count": 391,
+            "pid": -1
+          },
+          {
+            "count": 15,
+            "pid": 2164
+          },
+          {
+            "count": 7,
+            "pid": 13264
+          },
+          {
+            "count": 7,
+            "pid": 5324
+          },
+          {
+            "count": 6,
+            "pid": 5204
+          },
+          {
+            "count": 6,
+            "pid": 2548
+          },
+          {
+            "count": 6,
+            "pid": 13436
+          },
+          {
+            "count": 6,
+            "pid": 8740
+          },
+          {
+            "count": 6,
+            "pid": 5188
+          },
+          {
+            "count": 6,
+            "pid": 11632
+          },
+          {
+            "count": 6,
+            "pid": 11180
+          }
+        ],
+        "3d6fa8d1-fe05-11d0-9dda-00c04fd7ba7c": [
+          {
+            "count": 3050,
+            "pid": 2556
+          },
+          {
+            "count": 1679,
+            "pid": 4
+          },
+          {
+            "count": 213,
+            "pid": 12172
+          },
+          {
+            "count": 176,
+            "pid": 8368
+          },
+          {
+            "count": 160,
+            "pid": 4536
+          },
+          {
+            "count": 153,
+            "pid": 6788
+          },
+          {
+            "count": 136,
+            "pid": 5680
+          },
+          {
+            "count": 132,
+            "pid": 14988
+          },
+          {
+            "count": 118,
+            "pid": 13888
+          },
+          {
+            "count": 107,
+            "pid": 16124
+          },
+          {
+            "count": 106,
+            "pid": 11280
+          },
+          {
+            "count": 104,
+            "pid": 8536
+          }
+        ],
+        "68fdd900-4a3e-11d1-84f4-0000f80464e3": [
+          {
+            "count": 9,
+            "pid": -1
+          },
+          {
+            "count": 4,
+            "pid": 5204
+          },
+          {
+            "count": 2,
+            "pid": 7148
+          }
+        ],
+        "9b79ee91-b5fd-41c0-a243-4248e266e9d0": [
+          {
+            "count": 60,
+            "pid": 0
+          }
+        ],
+        "ae4bd3be-f36f-45b6-8d21-bdd6fb832853": [
+          {
+            "count": 1299091,
+            "pid": 12172
+          },
+          {
+            "count": 40513,
+            "pid": 15912
+          },
+          {
+            "count": 26613,
+            "pid": 9336
+          },
+          {
+            "count": 17603,
+            "pid": 3792
+          },
+          {
+            "count": 17373,
+            "pid": 10208
+          },
+          {
+            "count": 16921,
+            "pid": 8740
+          },
+          {
+            "count": 15184,
+            "pid": 2556
+          },
+          {
+            "count": 2226,
+            "pid": 2792
+          },
+          {
+            "count": 1360,
+            "pid": 10560
+          },
+          {
+            "count": 104,
+            "pid": 4756
+          },
+          {
+            "count": 1,
+            "pid": 6872
+          },
+          {
+            "count": 1,
+            "pid": 11664
+          }
+        ],
+        "b3e675d7-2554-4f18-830b-2762732560de": [
+          {
+            "count": 3306,
+            "pid": 10036
+          },
+          {
+            "count": 2963,
+            "pid": 8368
+          },
+          {
+            "count": 2404,
+            "pid": 6788
+          },
+          {
+            "count": 2292,
+            "pid": 0
+          },
+          {
+            "count": 1778,
+            "pid": 4940
+          },
+          {
+            "count": 1742,
+            "pid": 8536
+          },
+          {
+            "count": 1552,
+            "pid": 13168
+          },
+          {
+            "count": 1476,
+            "pid": 9744
+          },
+          {
+            "count": 1437,
+            "pid": 16196
+          },
+          {
+            "count": 1296,
+            "pid": 11136
+          },
+          {
+            "count": 1184,
+            "pid": 13888
+          },
+          {
+            "count": 1170,
+            "pid": 9720
+          }
+        ],
+        "bbccf6c1-6cd1-48c4-80ff-839482e37671": [
+          {
+            "count": 33,
+            "pid": 12172
+          },
+          {
+            "count": 12,
+            "pid": 4756
+          },
+          {
+            "count": 4,
+            "pid": 10560
+          }
+        ],
+        "ce1dbfb4-137e-4da6-87b0-3f59aa102cbc": [
+          {
+            "count": 270945,
+            "pid": -1
+          },
+          {
+            "count": 5,
+            "pid": 7148
+          },
+          {
+            "count": 1,
+            "pid": 5204
+          }
+        ],
+        "def2fe46-7bd6-4b80-bd94-f57fe20d0ce3": [
+          {
+            "count": 320287,
+            "pid": -1
+          }
+        ]
+      },
+      "sha256": "c22779e6a36d5f7c82cc4a62bb5689f9b5277471a8779fb0d211dd1a1d3923b2",
+      "size": 377487360,
+      "trace_end_utc": "2026-07-26T10:05:32.471167+00:00",
+      "trace_start_utc": "2026-07-26T10:00:52.043837+00:00"
+    },
+    {
+      "audio_provider": {
+        "event_count": 235079,
+        "event_headers": [
+          {
+            "count": 1,
+            "event_id": 16,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "168": 1
+            },
+            "task": 102,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 17,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "168": 1
+            },
+            "task": 102,
+            "version": 0
+          },
+          {
+            "count": 5,
+            "event_id": 50,
+            "level": 4,
+            "opcode": 0,
+            "payload_sizes": {
+              "284": 2,
+              "292": 3
+            },
+            "task": 124,
+            "version": 0
+          },
+          {
+            "count": 2417,
+            "event_id": 116,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "96": 2417
+            },
+            "task": 135,
+            "version": 3
+          },
+          {
+            "count": 1,
+            "event_id": 117,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "72": 1
+            },
+            "task": 136,
+            "version": 2
+          },
+          {
+            "count": 10,
+            "event_id": 119,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "72": 10
+            },
+            "task": 138,
+            "version": 2
+          },
+          {
+            "count": 10,
+            "event_id": 120,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 10
+            },
+            "task": 138,
+            "version": 2
+          },
+          {
+            "count": 2,
+            "event_id": 125,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "280": 2
+            },
+            "task": 141,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 126,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "152": 2
+            },
+            "task": 141,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 127,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "288": 1
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 128,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "160": 1
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 129,
+            "level": 4,
+            "opcode": 52,
+            "payload_sizes": {
+              "176": 1
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 130,
+            "level": 4,
+            "opcode": 53,
+            "payload_sizes": {
+              "176": 1
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 131,
+            "level": 4,
+            "opcode": 54,
+            "payload_sizes": {
+              "176": 1
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 132,
+            "level": 4,
+            "opcode": 55,
+            "payload_sizes": {
+              "176": 1
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 133,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "372": 1
+            },
+            "task": 143,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 134,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "248": 1
+            },
+            "task": 143,
+            "version": 0
+          },
+          {
+            "count": 2417,
+            "event_id": 135,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "132": 2417
+            },
+            "task": 144,
+            "version": 0
+          },
+          {
+            "count": 2418,
+            "event_id": 136,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "68": 2418
+            },
+            "task": 145,
+            "version": 0
+          },
+          {
+            "count": 2419,
+            "event_id": 137,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 2419
+            },
+            "task": 145,
+            "version": 0
+          },
+          {
+            "count": 2420,
+            "event_id": 138,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "60": 2420
+            },
+            "task": 146,
+            "version": 0
+          },
+          {
+            "count": 2420,
+            "event_id": 139,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "56": 2420
+            },
+            "task": 146,
+            "version": 0
+          },
+          {
+            "count": 2417,
+            "event_id": 140,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "72": 2417
+            },
+            "task": 147,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 141,
+            "level": 4,
+            "opcode": 0,
+            "payload_sizes": {
+              "276": 1
+            },
+            "task": 148,
+            "version": 0
+          },
+          {
+            "count": 23,
+            "event_id": 145,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "244": 1,
+              "252": 1,
+              "292": 4,
+              "316": 6,
+              "324": 1,
+              "340": 2,
+              "500": 8
+            },
+            "task": 152,
+            "version": 0
+          },
+          {
+            "count": 6178,
+            "event_id": 146,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "260": 3823,
+              "276": 2355
+            },
+            "task": 153,
+            "version": 0
+          },
+          {
+            "count": 57678,
+            "event_id": 148,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "100": 28951,
+              "108": 9649,
+              "124": 9658,
+              "260": 9420
+            },
+            "task": 155,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 150,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "312": 1
+            },
+            "task": 157,
+            "version": 0
+          },
+          {
+            "count": 2417,
+            "event_id": 152,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "116": 2417
+            },
+            "task": 159,
+            "version": 0
+          },
+          {
+            "count": 6178,
+            "event_id": 154,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "276": 3823,
+              "292": 2355
+            },
+            "task": 161,
+            "version": 0
+          },
+          {
+            "count": 790,
+            "event_id": 155,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "172": 3,
+              "220": 1,
+              "244": 2,
+              "276": 1,
+              "284": 11,
+              "292": 8,
+              "300": 9,
+              "308": 11,
+              "316": 29,
+              "324": 38,
+              "332": 12,
+              "340": 27,
+              "348": 65,
+              "356": 21,
+              "364": 22,
+              "372": 57,
+              "380": 11,
+              "388": 17,
+              "396": 13,
+              "404": 4,
+              "412": 14,
+              "420": 17,
+              "428": 27,
+              "436": 24,
+              "444": 14,
+              "452": 3,
+              "460": 28,
+              "468": 33,
+              "476": 20,
+              "484": 8,
+              "492": 43,
+              "500": 8,
+              "508": 14,
+              "516": 42,
+              "524": 4,
+              "532": 16,
+              "540": 12,
+              "556": 6,
+              "564": 4,
+              "572": 20,
+              "580": 20,
+              "588": 18,
+              "596": 5,
+              "604": 2,
+              "612": 8,
+              "620": 1,
+              "636": 4,
+              "644": 10,
+              "92": 3
+            },
+            "task": 162,
+            "version": 0
+          },
+          {
+            "count": 4842,
+            "event_id": 156,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "116": 2419,
+              "132": 2417,
+              "332": 3,
+              "356": 1,
+              "444": 2
+            },
+            "task": 163,
+            "version": 0
+          },
+          {
+            "count": 2411,
+            "event_id": 158,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "120": 2411
+            },
+            "task": 165,
+            "version": 0
+          },
+          {
+            "count": 2412,
+            "event_id": 160,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "92": 2412
+            },
+            "task": 167,
+            "version": 0
+          },
+          {
+            "count": 2417,
+            "event_id": 162,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "56": 2417
+            },
+            "task": 169,
+            "version": 0
+          },
+          {
+            "count": 2417,
+            "event_id": 163,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 2417
+            },
+            "task": 169,
+            "version": 0
+          },
+          {
+            "count": 31382,
+            "event_id": 164,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "80": 31382
+            },
+            "task": 171,
+            "version": 1
+          },
+          {
+            "count": 31382,
+            "event_id": 165,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "88": 31382
+            },
+            "task": 171,
+            "version": 0
+          },
+          {
+            "count": 31382,
+            "event_id": 166,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "80": 31382
+            },
+            "task": 170,
+            "version": 0
+          },
+          {
+            "count": 31382,
+            "event_id": 167,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "80": 31382
+            },
+            "task": 170,
+            "version": 0
+          },
+          {
+            "count": 2407,
+            "event_id": 168,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "72": 2407
+            },
+            "task": 151,
+            "version": 0
+          },
+          {
+            "count": 2407,
+            "event_id": 169,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 2407
+            },
+            "task": 151,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 172,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "80": 1
+            },
+            "task": 173,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 173,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 2
+            },
+            "task": 173,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 175,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "96": 1
+            },
+            "task": 175,
+            "version": 0
+          }
+        ],
+        "event_id_counts": {
+          "116": 2417,
+          "117": 1,
+          "119": 10,
+          "120": 10,
+          "125": 2,
+          "126": 2,
+          "127": 1,
+          "128": 1,
+          "129": 1,
+          "130": 1,
+          "131": 1,
+          "132": 1,
+          "133": 1,
+          "134": 1,
+          "135": 2417,
+          "136": 2418,
+          "137": 2419,
+          "138": 2420,
+          "139": 2420,
+          "140": 2417,
+          "141": 1,
+          "145": 23,
+          "146": 6178,
+          "148": 57678,
+          "150": 1,
+          "152": 2417,
+          "154": 6178,
+          "155": 790,
+          "156": 4842,
+          "158": 2411,
+          "16": 1,
+          "160": 2412,
+          "162": 2417,
+          "163": 2417,
+          "164": 31382,
+          "165": 31382,
+          "166": 31382,
+          "167": 31382,
+          "168": 2407,
+          "169": 2407,
+          "17": 1,
+          "172": 1,
+          "173": 2,
+          "175": 1,
+          "50": 5
+        },
+        "guid": "ae4bd3be-f36f-45b6-8d21-bdd6fb832853",
+        "top_pids": [
+          {
+            "count": 213274,
+            "pid": 12172
+          },
+          {
+            "count": 21789,
+            "pid": 14480
+          },
+          {
+            "count": 10,
+            "pid": 4756
+          },
+          {
+            "count": 3,
+            "pid": 10560
+          },
+          {
+            "count": 2,
+            "pid": 15296
+          },
+          {
+            "count": 1,
+            "pid": 5444
+          }
+        ],
+        "unique_activity_ids": 6
+      },
+      "event_count": 907716,
+      "file": "sp11_audio_parity_extra.etl",
+      "probe_windows": [
+        {
+          "audio_event_count": 257,
+          "audio_event_ids": {
+            "125": 1,
+            "126": 1,
+            "137": 1,
+            "138": 1,
+            "139": 1,
+            "145": 6,
+            "155": 241,
+            "156": 2,
+            "16": 1,
+            "17": 1,
+            "173": 1
+          },
+          "channels": 2,
+          "completed": false,
+          "end_utc": "2026-07-26T10:21:34.392657+00:00",
+          "evidence": {
+            "IsFormatSupportedHr": "0x00000001",
+            "UnsupportedFormatNoInitialize": "1"
+          },
+          "file": "scenario15_44100hz_resampling.txt",
+          "format": "pcm16",
+          "format_supported": false,
+          "frames_written": 0,
+          "initialized": false,
+          "inside_trace": true,
+          "mode": "shared",
+          "rate": 44100,
+          "raw": false,
+          "seconds": 20,
+          "start_utc": "2026-07-26T10:21:14.392657+00:00",
+          "started": false
+        },
+        {
+          "audio_event_count": 234822,
+          "audio_event_ids": {
+            "116": 2417,
+            "117": 1,
+            "119": 10,
+            "120": 10,
+            "125": 1,
+            "126": 1,
+            "127": 1,
+            "128": 1,
+            "129": 1,
+            "130": 1,
+            "131": 1,
+            "132": 1,
+            "133": 1,
+            "134": 1,
+            "135": 2417,
+            "136": 2418,
+            "137": 2418,
+            "138": 2419,
+            "139": 2419,
+            "140": 2417,
+            "141": 1,
+            "145": 17,
+            "146": 6178,
+            "148": 57678,
+            "150": 1,
+            "152": 2417,
+            "154": 6178,
+            "155": 549,
+            "156": 4840,
+            "158": 2411,
+            "160": 2412,
+            "162": 2417,
+            "163": 2417,
+            "164": 31382,
+            "165": 31382,
+            "166": 31382,
+            "167": 31382,
+            "168": 2407,
+            "169": 2407,
+            "172": 1,
+            "173": 1,
+            "175": 1,
+            "50": 5
+          },
+          "channels": 2,
+          "completed": true,
+          "end_utc": "2026-07-26T10:22:31.775974+00:00",
+          "evidence": {
+            "InitializeHr": "0x00000000",
+            "IsFormatSupportedHr": "0x00000000",
+            "LoopTimedOut": "False",
+            "Stopped": "1"
+          },
+          "file": "scenario70_mic_coexistence.txt",
+          "format": "pcm16",
+          "format_supported": true,
+          "frames_written": 1200000,
+          "initialized": true,
+          "inside_trace": true,
+          "mode": "shared",
+          "rate": 48000,
+          "raw": false,
+          "seconds": 25,
+          "start_utc": "2026-07-26T10:22:06.775974+00:00",
+          "started": true
+        }
+      ],
+      "provider_counts": {
+        "01853a65-418f-4f36-aefc-dc0f1d2fd235": 688,
+        "2cb15d1d-5fc1-11d2-abe1-00a0c911f518": 38834,
+        "3d6fa8d0-fe05-11d0-9dda-00c04fd7ba7c": 2946,
+        "3d6fa8d1-fe05-11d0-9dda-00c04fd7ba7c": 18363,
+        "68fdd900-4a3e-11d1-84f4-0000f80464e3": 15,
+        "9b79ee91-b5fd-41c0-a243-4248e266e9d0": 61,
+        "ae4bd3be-f36f-45b6-8d21-bdd6fb832853": 235079,
+        "b3e675d7-2554-4f18-830b-2762732560de": 154342,
+        "bbccf6c1-6cd1-48c4-80ff-839482e37671": 45,
+        "ce1dbfb4-137e-4da6-87b0-3f59aa102cbc": 201790,
+        "def2fe46-7bd6-4b80-bd94-f57fe20d0ce3": 255553
+      },
+      "provider_top_pids": {
+        "01853a65-418f-4f36-aefc-dc0f1d2fd235": [
+          {
+            "count": 688,
+            "pid": 8648
+          }
+        ],
+        "2cb15d1d-5fc1-11d2-abe1-00a0c911f518": [
+          {
+            "count": 19778,
+            "pid": -1
+          },
+          {
+            "count": 364,
+            "pid": 9224
+          },
+          {
+            "count": 333,
+            "pid": 8648
+          },
+          {
+            "count": 324,
+            "pid": 16484
+          },
+          {
+            "count": 305,
+            "pid": 2396
+          },
+          {
+            "count": 246,
+            "pid": 14928
+          },
+          {
+            "count": 234,
+            "pid": 11800
+          },
+          {
+            "count": 232,
+            "pid": 12832
+          },
+          {
+            "count": 232,
+            "pid": 2436
+          },
+          {
+            "count": 200,
+            "pid": 5740
+          },
+          {
+            "count": 170,
+            "pid": 15296
+          },
+          {
+            "count": 169,
+            "pid": 13888
+          }
+        ],
+        "3d6fa8d0-fe05-11d0-9dda-00c04fd7ba7c": [
+          {
+            "count": 789,
+            "pid": 7996
+          },
+          {
+            "count": 402,
+            "pid": -1
+          },
+          {
+            "count": 27,
+            "pid": 9224
+          },
+          {
+            "count": 24,
+            "pid": 2164
+          },
+          {
+            "count": 16,
+            "pid": 15296
+          },
+          {
+            "count": 9,
+            "pid": 13888
+          },
+          {
+            "count": 9,
+            "pid": 17240
+          },
+          {
+            "count": 8,
+            "pid": 5444
+          },
+          {
+            "count": 8,
+            "pid": 7216
+          },
+          {
+            "count": 8,
+            "pid": 10852
+          },
+          {
+            "count": 8,
+            "pid": 5240
+          },
+          {
+            "count": 7,
+            "pid": 1368
+          }
+        ],
+        "3d6fa8d1-fe05-11d0-9dda-00c04fd7ba7c": [
+          {
+            "count": 3951,
+            "pid": 7996
+          },
+          {
+            "count": 2258,
+            "pid": -1
+          },
+          {
+            "count": 1277,
+            "pid": 4
+          },
+          {
+            "count": 436,
+            "pid": 15296
+          },
+          {
+            "count": 209,
+            "pid": 9224
+          },
+          {
+            "count": 208,
+            "pid": 4536
+          },
+          {
+            "count": 203,
+            "pid": 14492
+          },
+          {
+            "count": 197,
+            "pid": 8368
+          },
+          {
+            "count": 181,
+            "pid": 10728
+          },
+          {
+            "count": 137,
+            "pid": 13888
+          },
+          {
+            "count": 128,
+            "pid": 12884
+          },
+          {
+            "count": 123,
+            "pid": 14988
+          }
+        ],
+        "68fdd900-4a3e-11d1-84f4-0000f80464e3": [
+          {
+            "count": 9,
+            "pid": -1
+          },
+          {
+            "count": 4,
+            "pid": 2396
+          },
+          {
+            "count": 2,
+            "pid": 8648
+          }
+        ],
+        "9b79ee91-b5fd-41c0-a243-4248e266e9d0": [
+          {
+            "count": 61,
+            "pid": 0
+          }
+        ],
+        "ae4bd3be-f36f-45b6-8d21-bdd6fb832853": [
+          {
+            "count": 213274,
+            "pid": 12172
+          },
+          {
+            "count": 21789,
+            "pid": 14480
+          },
+          {
+            "count": 10,
+            "pid": 4756
+          },
+          {
+            "count": 3,
+            "pid": 10560
+          },
+          {
+            "count": 2,
+            "pid": 15296
+          },
+          {
+            "count": 1,
+            "pid": 5444
+          }
+        ],
+        "b3e675d7-2554-4f18-830b-2762732560de": [
+          {
+            "count": 3080,
+            "pid": 8368
+          },
+          {
+            "count": 2310,
+            "pid": 0
+          },
+          {
+            "count": 1953,
+            "pid": 6788
+          },
+          {
+            "count": 1890,
+            "pid": 16484
+          },
+          {
+            "count": 1534,
+            "pid": 13168
+          },
+          {
+            "count": 1484,
+            "pid": 9744
+          },
+          {
+            "count": 1425,
+            "pid": 9224
+          },
+          {
+            "count": 1297,
+            "pid": 11136
+          },
+          {
+            "count": 1198,
+            "pid": 15296
+          },
+          {
+            "count": 1179,
+            "pid": 13888
+          },
+          {
+            "count": 1170,
+            "pid": 9720
+          },
+          {
+            "count": 1042,
+            "pid": 4068
+          }
+        ],
+        "bbccf6c1-6cd1-48c4-80ff-839482e37671": [
+          {
+            "count": 32,
+            "pid": 12172
+          },
+          {
+            "count": 8,
+            "pid": 4756
+          },
+          {
+            "count": 3,
+            "pid": 14480
+          },
+          {
+            "count": 2,
+            "pid": 15296
+          }
+        ],
+        "ce1dbfb4-137e-4da6-87b0-3f59aa102cbc": [
+          {
+            "count": 201784,
+            "pid": -1
+          },
+          {
+            "count": 5,
+            "pid": 8648
+          },
+          {
+            "count": 1,
+            "pid": 2396
+          }
+        ],
+        "def2fe46-7bd6-4b80-bd94-f57fe20d0ce3": [
+          {
+            "count": 255553,
+            "pid": -1
+          }
+        ]
+      },
+      "sha256": "2e3969d42edf6d754b2de259da4db7f8fbcbd673d0cca7eb86ecd2fda0912eaf",
+      "size": 144703488,
+      "trace_end_utc": "2026-07-26T10:23:01.487789+00:00",
+      "trace_start_utc": "2026-07-26T10:21:14.143703+00:00"
+    },
+    {
+      "audio_provider": {
+        "event_count": 518261,
+        "event_headers": [
+          {
+            "count": 2,
+            "event_id": 24,
+            "level": 4,
+            "opcode": 0,
+            "payload_sizes": {
+              "200": 2
+            },
+            "task": 120,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 25,
+            "level": 4,
+            "opcode": 0,
+            "payload_sizes": {
+              "200": 2
+            },
+            "task": 122,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 33,
+            "level": 5,
+            "opcode": 22,
+            "payload_sizes": {
+              "96": 1
+            },
+            "task": 123,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 38,
+            "level": 5,
+            "opcode": 27,
+            "payload_sizes": {
+              "100": 1
+            },
+            "task": 123,
+            "version": 0
+          },
+          {
+            "count": 1,
+            "event_id": 41,
+            "level": 5,
+            "opcode": 30,
+            "payload_sizes": {
+              "116": 1
+            },
+            "task": 123,
+            "version": 0
+          },
+          {
+            "count": 10,
+            "event_id": 50,
+            "level": 4,
+            "opcode": 0,
+            "payload_sizes": {
+              "284": 4,
+              "292": 6
+            },
+            "task": 124,
+            "version": 0
+          },
+          {
+            "count": 5436,
+            "event_id": 116,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "96": 5436
+            },
+            "task": 135,
+            "version": 3
+          },
+          {
+            "count": 3,
+            "event_id": 117,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "96": 3
+            },
+            "task": 136,
+            "version": 2
+          },
+          {
+            "count": 24,
+            "event_id": 119,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "72": 24
+            },
+            "task": 138,
+            "version": 2
+          },
+          {
+            "count": 24,
+            "event_id": 120,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 24
+            },
+            "task": 138,
+            "version": 2
+          },
+          {
+            "count": 10,
+            "event_id": 123,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "288": 10
+            },
+            "task": 140,
+            "version": 0
+          },
+          {
+            "count": 10,
+            "event_id": 124,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "152": 10
+            },
+            "task": 140,
+            "version": 0
+          },
+          {
+            "count": 6,
+            "event_id": 125,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "288": 6
+            },
+            "task": 141,
+            "version": 0
+          },
+          {
+            "count": 6,
+            "event_id": 126,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "160": 6
+            },
+            "task": 141,
+            "version": 0
+          },
+          {
+            "count": 3,
+            "event_id": 127,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "288": 3
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 3,
+            "event_id": 128,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "160": 3
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 3,
+            "event_id": 129,
+            "level": 4,
+            "opcode": 52,
+            "payload_sizes": {
+              "176": 3
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 3,
+            "event_id": 130,
+            "level": 4,
+            "opcode": 53,
+            "payload_sizes": {
+              "176": 3
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 131,
+            "level": 4,
+            "opcode": 54,
+            "payload_sizes": {
+              "176": 2
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 132,
+            "level": 4,
+            "opcode": 55,
+            "payload_sizes": {
+              "176": 2
+            },
+            "task": 142,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 133,
+            "level": 4,
+            "opcode": 1,
+            "payload_sizes": {
+              "372": 2
+            },
+            "task": 143,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 134,
+            "level": 4,
+            "opcode": 2,
+            "payload_sizes": {
+              "248": 2
+            },
+            "task": 143,
+            "version": 0
+          },
+          {
+            "count": 5436,
+            "event_id": 135,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "132": 5436
+            },
+            "task": 144,
+            "version": 0
+          },
+          {
+            "count": 5444,
+            "event_id": 136,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "68": 5444
+            },
+            "task": 145,
+            "version": 0
+          },
+          {
+            "count": 5444,
+            "event_id": 137,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 5444
+            },
+            "task": 145,
+            "version": 0
+          },
+          {
+            "count": 5446,
+            "event_id": 138,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "60": 5446
+            },
+            "task": 146,
+            "version": 0
+          },
+          {
+            "count": 5446,
+            "event_id": 139,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "56": 5446
+            },
+            "task": 146,
+            "version": 0
+          },
+          {
+            "count": 5442,
+            "event_id": 140,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "72": 5442
+            },
+            "task": 147,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 141,
+            "level": 4,
+            "opcode": 0,
+            "payload_sizes": {
+              "276": 2
+            },
+            "task": 148,
+            "version": 0
+          },
+          {
+            "count": 44,
+            "event_id": 145,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "108": 6,
+              "124": 2,
+              "132": 2,
+              "140": 4,
+              "156": 1,
+              "172": 1,
+              "292": 4,
+              "316": 8,
+              "324": 2,
+              "340": 6,
+              "500": 8
+            },
+            "task": 152,
+            "version": 0
+          },
+          {
+            "count": 10980,
+            "event_id": 146,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "140": 506,
+              "148": 5346,
+              "156": 5110,
+              "164": 18
+            },
+            "task": 153,
+            "version": 0
+          },
+          {
+            "count": 124239,
+            "event_id": 148,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "100": 59705,
+              "108": 22202,
+              "124": 21048,
+              "132": 11106,
+              "140": 10106,
+              "148": 72
+            },
+            "task": 155,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 150,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "312": 2
+            },
+            "task": 157,
+            "version": 0
+          },
+          {
+            "count": 5436,
+            "event_id": 152,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "116": 5436
+            },
+            "task": 159,
+            "version": 0
+          },
+          {
+            "count": 13500,
+            "event_id": 154,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "156": 506,
+              "164": 5346,
+              "172": 5110,
+              "180": 18,
+              "204": 2520
+            },
+            "task": 161,
+            "version": 0
+          },
+          {
+            "count": 1187,
+            "event_id": 155,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "140": 3,
+              "164": 2,
+              "172": 2,
+              "188": 1,
+              "196": 2,
+              "204": 7,
+              "220": 2,
+              "228": 1,
+              "236": 3,
+              "244": 4,
+              "252": 1,
+              "268": 2,
+              "276": 2,
+              "284": 15,
+              "292": 21,
+              "300": 21,
+              "308": 16,
+              "316": 68,
+              "324": 93,
+              "332": 31,
+              "340": 55,
+              "348": 90,
+              "356": 32,
+              "364": 35,
+              "372": 98,
+              "380": 24,
+              "388": 31,
+              "396": 37,
+              "404": 8,
+              "412": 22,
+              "420": 22,
+              "428": 43,
+              "436": 52,
+              "444": 24,
+              "452": 3,
+              "460": 31,
+              "468": 38,
+              "476": 18,
+              "484": 8,
+              "492": 27,
+              "500": 2,
+              "508": 15,
+              "516": 56,
+              "524": 6,
+              "532": 24,
+              "540": 15,
+              "556": 6,
+              "564": 4,
+              "572": 6,
+              "580": 18,
+              "588": 10,
+              "596": 2,
+              "604": 2,
+              "612": 8,
+              "636": 4,
+              "644": 10,
+              "92": 4
+            },
+            "task": 162,
+            "version": 0
+          },
+          {
+            "count": 10889,
+            "event_id": 156,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "116": 5441,
+              "124": 3,
+              "132": 5436,
+              "332": 4,
+              "356": 3,
+              "444": 2
+            },
+            "task": 163,
+            "version": 0
+          },
+          {
+            "count": 5319,
+            "event_id": 158,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "120": 5319
+            },
+            "task": 165,
+            "version": 0
+          },
+          {
+            "count": 5443,
+            "event_id": 160,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "92": 5443
+            },
+            "task": 167,
+            "version": 0
+          },
+          {
+            "count": 5436,
+            "event_id": 162,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "56": 5436
+            },
+            "task": 169,
+            "version": 0
+          },
+          {
+            "count": 5436,
+            "event_id": 163,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 5436
+            },
+            "task": 169,
+            "version": 0
+          },
+          {
+            "count": 70326,
+            "event_id": 164,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "80": 70326
+            },
+            "task": 171,
+            "version": 1
+          },
+          {
+            "count": 70326,
+            "event_id": 165,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "88": 70326
+            },
+            "task": 171,
+            "version": 0
+          },
+          {
+            "count": 70326,
+            "event_id": 166,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "80": 70326
+            },
+            "task": 170,
+            "version": 0
+          },
+          {
+            "count": 70326,
+            "event_id": 167,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "80": 70326
+            },
+            "task": 170,
+            "version": 0
+          },
+          {
+            "count": 5412,
+            "event_id": 168,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "72": 5412
+            },
+            "task": 151,
+            "version": 0
+          },
+          {
+            "count": 5412,
+            "event_id": 169,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 5412
+            },
+            "task": 151,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 172,
+            "level": 5,
+            "opcode": 1,
+            "payload_sizes": {
+              "80": 2
+            },
+            "task": 173,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 173,
+            "level": 5,
+            "opcode": 2,
+            "payload_sizes": {
+              "72": 2
+            },
+            "task": 173,
+            "version": 0
+          },
+          {
+            "count": 2,
+            "event_id": 175,
+            "level": 5,
+            "opcode": 0,
+            "payload_sizes": {
+              "96": 2
+            },
+            "task": 175,
+            "version": 0
+          }
+        ],
+        "event_id_counts": {
+          "116": 5436,
+          "117": 3,
+          "119": 24,
+          "120": 24,
+          "123": 10,
+          "124": 10,
+          "125": 6,
+          "126": 6,
+          "127": 3,
+          "128": 3,
+          "129": 3,
+          "130": 3,
+          "131": 2,
+          "132": 2,
+          "133": 2,
+          "134": 2,
+          "135": 5436,
+          "136": 5444,
+          "137": 5444,
+          "138": 5446,
+          "139": 5446,
+          "140": 5442,
+          "141": 2,
+          "145": 44,
+          "146": 10980,
+          "148": 124239,
+          "150": 2,
+          "152": 5436,
+          "154": 13500,
+          "155": 1187,
+          "156": 10889,
+          "158": 5319,
+          "160": 5443,
+          "162": 5436,
+          "163": 5436,
+          "164": 70326,
+          "165": 70326,
+          "166": 70326,
+          "167": 70326,
+          "168": 5412,
+          "169": 5412,
+          "172": 2,
+          "173": 2,
+          "175": 2,
+          "24": 2,
+          "25": 2,
+          "33": 1,
+          "38": 1,
+          "41": 1,
+          "50": 10
+        },
+        "guid": "ae4bd3be-f36f-45b6-8d21-bdd6fb832853",
+        "top_pids": [
+          {
+            "count": 472406,
+            "pid": 12172
+          },
+          {
+            "count": 43086,
+            "pid": 15296
+          },
+          {
+            "count": 2717,
+            "pid": 10560
+          },
+          {
+            "count": 52,
+            "pid": 4756
+          }
+        ],
+        "unique_activity_ids": 18
+      },
+      "event_count": 907991,
+      "file": "sp11_audio_parity_real_youtube.etl",
+      "probe_windows": [],
+      "provider_counts": {
+        "01853a65-418f-4f36-aefc-dc0f1d2fd235": 688,
+        "2cb15d1d-5fc1-11d2-abe1-00a0c911f518": 23942,
+        "3d6fa8d0-fe05-11d0-9dda-00c04fd7ba7c": 1002,
+        "3d6fa8d1-fe05-11d0-9dda-00c04fd7ba7c": 9995,
+        "68fdd900-4a3e-11d1-84f4-0000f80464e3": 15,
+        "9b79ee91-b5fd-41c0-a243-4248e266e9d0": 61,
+        "ae4bd3be-f36f-45b6-8d21-bdd6fb832853": 518261,
+        "b3e675d7-2554-4f18-830b-2762732560de": 95608,
+        "bbccf6c1-6cd1-48c4-80ff-839482e37671": 50,
+        "ce1dbfb4-137e-4da6-87b0-3f59aa102cbc": 118210,
+        "def2fe46-7bd6-4b80-bd94-f57fe20d0ce3": 140159
+      },
+      "provider_top_pids": {
+        "01853a65-418f-4f36-aefc-dc0f1d2fd235": [
+          {
+            "count": 688,
+            "pid": 13272
+          }
+        ],
+        "2cb15d1d-5fc1-11d2-abe1-00a0c911f518": [
+          {
+            "count": 19863,
+            "pid": -1
+          },
+          {
+            "count": 321,
+            "pid": 13272
+          },
+          {
+            "count": 305,
+            "pid": 3404
+          },
+          {
+            "count": 146,
+            "pid": 12672
+          },
+          {
+            "count": 106,
+            "pid": 4068
+          },
+          {
+            "count": 103,
+            "pid": 13308
+          },
+          {
+            "count": 81,
+            "pid": 16948
+          },
+          {
+            "count": 76,
+            "pid": 3764
+          },
+          {
+            "count": 75,
+            "pid": 9656
+          },
+          {
+            "count": 73,
+            "pid": 17284
+          },
+          {
+            "count": 34,
+            "pid": 12884
+          },
+          {
+            "count": 22,
+            "pid": 11192
+          }
+        ],
+        "3d6fa8d0-fe05-11d0-9dda-00c04fd7ba7c": [
+          {
+            "count": 406,
+            "pid": -1
+          },
+          {
+            "count": 194,
+            "pid": 12672
+          },
+          {
+            "count": 4,
+            "pid": 3764
+          },
+          {
+            "count": 2,
+            "pid": 3404
+          },
+          {
+            "count": 2,
+            "pid": 17284
+          },
+          {
+            "count": 2,
+            "pid": 9656
+          },
+          {
+            "count": 2,
+            "pid": 4068
+          },
+          {
+            "count": 2,
+            "pid": 15976
+          },
+          {
+            "count": 2,
+            "pid": 15732
+          },
+          {
+            "count": 2,
+            "pid": 11192
+          },
+          {
+            "count": 2,
+            "pid": 13692
+          },
+          {
+            "count": 2,
+            "pid": 9468
+          }
+        ],
+        "3d6fa8d1-fe05-11d0-9dda-00c04fd7ba7c": [
+          {
+            "count": 1183,
+            "pid": 4
+          },
+          {
+            "count": 1160,
+            "pid": 12884
+          },
+          {
+            "count": 1025,
+            "pid": 12672
+          },
+          {
+            "count": 794,
+            "pid": -1
+          },
+          {
+            "count": 213,
+            "pid": 15296
+          },
+          {
+            "count": 200,
+            "pid": 14492
+          },
+          {
+            "count": 170,
+            "pid": 8368
+          },
+          {
+            "count": 123,
+            "pid": 14988
+          },
+          {
+            "count": 114,
+            "pid": 5680
+          },
+          {
+            "count": 108,
+            "pid": 4536
+          },
+          {
+            "count": 108,
+            "pid": 16124
+          },
+          {
+            "count": 101,
+            "pid": 11280
+          }
+        ],
+        "68fdd900-4a3e-11d1-84f4-0000f80464e3": [
+          {
+            "count": 9,
+            "pid": -1
+          },
+          {
+            "count": 4,
+            "pid": 3404
+          },
+          {
+            "count": 2,
+            "pid": 13272
+          }
+        ],
+        "9b79ee91-b5fd-41c0-a243-4248e266e9d0": [
+          {
+            "count": 61,
+            "pid": 0
+          }
+        ],
+        "ae4bd3be-f36f-45b6-8d21-bdd6fb832853": [
+          {
+            "count": 472406,
+            "pid": 12172
+          },
+          {
+            "count": 43086,
+            "pid": 15296
+          },
+          {
+            "count": 2717,
+            "pid": 10560
+          },
+          {
+            "count": 52,
+            "pid": 4756
+          }
+        ],
+        "b3e675d7-2554-4f18-830b-2762732560de": [
+          {
+            "count": 3063,
+            "pid": 8368
+          },
+          {
+            "count": 2309,
+            "pid": 0
+          },
+          {
+            "count": 1953,
+            "pid": 6788
+          },
+          {
+            "count": 1534,
+            "pid": 13168
+          },
+          {
+            "count": 1484,
+            "pid": 9744
+          },
+          {
+            "count": 1297,
+            "pid": 11136
+          },
+          {
+            "count": 1170,
+            "pid": 9720
+          },
+          {
+            "count": 1156,
+            "pid": 16484
+          },
+          {
+            "count": 1155,
+            "pid": 15296
+          },
+          {
+            "count": 1033,
+            "pid": 5636
+          },
+          {
+            "count": 996,
+            "pid": 12672
+          },
+          {
+            "count": 986,
+            "pid": 11280
+          }
+        ],
+        "bbccf6c1-6cd1-48c4-80ff-839482e37671": [
+          {
+            "count": 34,
+            "pid": 12172
+          },
+          {
+            "count": 12,
+            "pid": 4756
+          },
+          {
+            "count": 4,
+            "pid": 10560
+          }
+        ],
+        "ce1dbfb4-137e-4da6-87b0-3f59aa102cbc": [
+          {
+            "count": 118204,
+            "pid": -1
+          },
+          {
+            "count": 5,
+            "pid": 13272
+          },
+          {
+            "count": 1,
+            "pid": 3404
+          }
+        ],
+        "def2fe46-7bd6-4b80-bd94-f57fe20d0ce3": [
+          {
+            "count": 140159,
+            "pid": -1
+          }
+        ]
+      },
+      "sha256": "0daf9412de5dcb8edc90a5be9f96b245c47ab9a433a7475cdc7c7037f04b58bf",
+      "size": 148897792,
+      "trace_end_utc": "2026-07-26T10:28:16.335297+00:00",
+      "trace_start_utc": "2026-07-26T10:26:40.741091+00:00"
+    }
+  ]
+}

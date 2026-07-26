@@ -1,0 +1,1056 @@
+{
+  "control_links": [
+    {
+      "baseline_disposition": "admitted",
+      "parameter_offset": "0x00000490",
+      "peer_1_control_port": "0x80000000",
+      "peer_1_iid": "0x00004024",
+      "peer_1_subgraphs": [
+        "0xb0000001"
+      ],
+      "peer_2_control_port": "0x80000000",
+      "peer_2_iid": "0x00004027",
+      "peer_2_subgraphs": [
+        "0xb0000001"
+      ],
+      "properties": [
+        {
+          "intent_ids": [
+            "0x08001204"
+          ],
+          "intent_names": [
+            "INTENT_ID_SP"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "0100000004120008",
+          "value_u32": [
+            "0x00000001",
+            "0x08001204"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "internal"
+    },
+    {
+      "baseline_disposition": "admitted",
+      "parameter_offset": "0x00000490",
+      "peer_1_control_port": "0x80000000",
+      "peer_1_iid": "0x00004028",
+      "peer_1_subgraphs": [
+        "0xb0000001"
+      ],
+      "peer_2_control_port": "0x80000001",
+      "peer_2_iid": "0x00004027",
+      "peer_2_subgraphs": [
+        "0xb0000001"
+      ],
+      "properties": [
+        {
+          "intent_ids": [
+            "0x08001537"
+          ],
+          "intent_names": [
+            "INTENT_ID_CPS"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "0100000037150008",
+          "value_u32": [
+            "0x00000001",
+            "0x08001537"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "internal"
+    },
+    {
+      "baseline_disposition": "declared_speaker_loopback_dependency",
+      "parameter_offset": "0x00000490",
+      "peer_1_control_port": "0x80000007",
+      "peer_1_iid": "0x00004157",
+      "peer_1_subgraphs": [
+        "0xb0000001"
+      ],
+      "peer_2_control_port": "0xc0000001",
+      "peer_2_iid": "0x000040df",
+      "peer_2_subgraphs": [],
+      "peer_identity": "RATE_ADAPTED_TIMER in subgraph 0xb0000045",
+      "properties": [
+        {
+          "intent_ids": [
+            "0x080010c2"
+          ],
+          "intent_names": [
+            "INTENT_ID_TIMER_DRIFT_INFO"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "01000000c2100008",
+          "value_u32": [
+            "0x00000001",
+            "0x080010c2"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "external_peer_2"
+    },
+    {
+      "baseline_disposition": "admitted",
+      "parameter_offset": "0x00000a80",
+      "peer_1_control_port": "0x80000000",
+      "peer_1_iid": "0x00004664",
+      "peer_1_subgraphs": [
+        "0xb000007e"
+      ],
+      "peer_2_control_port": "0x80000000",
+      "peer_2_iid": "0x00004663",
+      "peer_2_subgraphs": [
+        "0xb000007e"
+      ],
+      "properties": [
+        {
+          "intent_ids": [
+            "0x08001118"
+          ],
+          "intent_names": [
+            "INTENT_ID_P_EQ_VOL_HEADROOM"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "0100000018110008",
+          "value_u32": [
+            "0x00000001",
+            "0x08001118"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "internal"
+    }
+  ],
+  "counts": {
+    "control_links": 4,
+    "data_connections": 30,
+    "dispositions": {
+      "admitted": 29,
+      "declared_dormant_speaker_loopback": 1,
+      "declared_speaker_loopback_dependency": 1,
+      "deferred_capture_extension": 3
+    },
+    "modules": 29
+  },
+  "data_connections": [
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x0000402c",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004001",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004003",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004002",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "deferred_capture_extension",
+      "destination_iid": "0x00004747",
+      "destination_port": 2,
+      "destination_subgraphs": [],
+      "parameter_offset": "0x000003a8",
+      "peer_identity": "SPEECH MFC in subgraph 0xb000008c",
+      "provenance": "structural MODULE_CONN",
+      "scope": "external_destination",
+      "source_iid": "0x00004002",
+      "source_port": 5,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "deferred_capture_extension",
+      "destination_iid": "0x000047c9",
+      "destination_port": 2,
+      "destination_subgraphs": [],
+      "parameter_offset": "0x000003a8",
+      "peer_identity": "SPEECH MFC in subgraph 0xb000009a",
+      "provenance": "structural MODULE_CONN",
+      "scope": "external_destination",
+      "source_iid": "0x00004002",
+      "source_port": 9,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "deferred_capture_extension",
+      "destination_iid": "0x00004730",
+      "destination_port": 2,
+      "destination_subgraphs": [],
+      "parameter_offset": "0x000003a8",
+      "peer_identity": "COMMUNICATIONS MFC in subgraph 0xb000008a",
+      "provenance": "structural MODULE_CONN",
+      "scope": "external_destination",
+      "source_iid": "0x00004002",
+      "source_port": 11,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004157",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004003",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004024",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004025",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004025",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004026",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004002",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004027",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004028",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004029",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004029",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000402a",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x0000402a",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000402b",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004027",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000402c",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x000047e9",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x00000af0",
+      "provenance": "supplemental MODULE_CONN",
+      "scope": "cross_subgraph",
+      "source_iid": "0x0000412b",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "baseline_disposition": "declared_dormant_speaker_loopback",
+      "destination_iid": "0x00004144",
+      "destination_port": 16,
+      "destination_subgraphs": [],
+      "parameter_offset": "0x000009c8",
+      "peer_identity": "speaker-loopback SAL in subgraph 0xb0000045",
+      "provenance": "structural MODULE_CONN",
+      "scope": "external_destination",
+      "source_iid": "0x0000412b",
+      "source_port": 3,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x0000465f",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000465c",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004663",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000465f",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x0000465c",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004660",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004664",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004662",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004662",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004663",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004669",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004664",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x0000466a",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004669",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x0000466b",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000466a",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x0000412b",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000466b",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x0000489e",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x000006d8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004675",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004001",
+      "destination_port": 12,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x00000ac8",
+      "provenance": "supplemental MODULE_CONN",
+      "scope": "cross_subgraph",
+      "source_iid": "0x0000467a",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004a63",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x000006d8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x000047e9",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x000048a1",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x000006d8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000489e",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x0000467a",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x000006d8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x000048a1",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    },
+    {
+      "baseline_disposition": "admitted",
+      "destination_iid": "0x00004675",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x000006d8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004a63",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    }
+  ],
+  "deployment_state": "reference_only_not_deployable",
+  "evidence": {
+    "graph_open_packet_sha256": "001e8f78c2aed10e74faad7c2f70095f307a52d4590ec0d00e785e57f44a006e",
+    "graph_open_packet_size": 2840,
+    "reviewed_graph_json_sha256": "78ce0fb63d7cc506e8b779423d5b1e1cae482381600b73d2500aa4e754f9595d"
+  },
+  "format": "sp11-windows-default-speaker-structural-model",
+  "format_version": 1,
+  "linux_translation_gates": {
+    "dolby": "userspace identity/bypass boundary only",
+    "external_routes": {
+      "capture_peers": "excluded from speaker-only baseline",
+      "speaker_loopback": "declared but not instantiated"
+    },
+    "front_end_endpoint": {
+      "rule": "do not copy the Windows endpoint type blindly",
+      "status": "unresolved_os_transport_translation",
+      "windows_module": "SH_MEM_PULL_MODE"
+    },
+    "speaker_protection": {
+      "activation_requires": [
+        "exact ordered calibration implementation",
+        "single WSA VI transport validation",
+        "muted hardware bring-up"
+      ],
+      "module_iids": [
+        "0x00004024",
+        "0x00004027"
+      ],
+      "state": "parked"
+    }
+  },
+  "mode": "DEFAULT",
+  "modules": [
+    {
+      "container_id": "0xe0000001",
+      "iid": "0x00004001",
+      "module_id": "0x07001010",
+      "module_name": "SAL",
+      "properties": {
+        "max_input_ports": 10,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000001",
+      "iid": "0x00004002",
+      "module_id": "0x07001011",
+      "module_name": "SPLITTER",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 7,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000001",
+      "iid": "0x00004003",
+      "module_id": "0x0700101a",
+      "module_name": "DATA_LOGGING",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000001",
+      "iid": "0x00004027",
+      "linux_topology_overlay": {
+        "AR_TKN_U32_MODULE_SPEAKER_PROTECTION_BYPASS": 1,
+        "state": "parked_default_disabled"
+      },
+      "module_id": "0x070010e2",
+      "module_name": "SPEAKER_PROTECTION",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000001",
+      "iid": "0x0000402c",
+      "module_id": "0x07001013",
+      "module_name": "CHMIXER",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000001",
+      "iid": "0x00004157",
+      "module_id": "0x07001023",
+      "module_name": "CODEC_DMA_SINK",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 0,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000005",
+      "iid": "0x0000402a",
+      "module_id": "0x0700101a",
+      "module_name": "DATA_LOGGING",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000005",
+      "iid": "0x0000402b",
+      "module_id": "0x07001024",
+      "module_name": "CODEC_DMA_SOURCE",
+      "properties": {
+        "max_input_ports": 0,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000006",
+      "iid": "0x00004028",
+      "module_id": "0x070010e4",
+      "module_name": "UNKNOWN_0xE4",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 0,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000006",
+      "iid": "0x00004029",
+      "module_id": "0x07001098",
+      "module_name": "MUX_DEMUX",
+      "properties": {
+        "max_input_ports": 2,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000007",
+      "iid": "0x00004024",
+      "linux_topology_overlay": {
+        "AR_TKN_U32_MODULE_SPEAKER_PROTECTION_BYPASS": 1,
+        "state": "parked_default_disabled"
+      },
+      "module_id": "0x070010e3",
+      "module_name": "SPEAKER_PROTECTION_VI",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000007",
+      "iid": "0x00004025",
+      "module_id": "0x0700101a",
+      "module_name": "DATA_LOGGING",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000007",
+      "iid": "0x00004026",
+      "module_id": "0x07001024",
+      "module_name": "CODEC_DMA_SOURCE",
+      "properties": {
+        "max_input_ports": 0,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe000004c",
+      "iid": "0x0000465c",
+      "module_id": "0x0700101a",
+      "module_name": "DATA_LOGGING",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007e"
+    },
+    {
+      "container_id": "0xe000004c",
+      "iid": "0x0000465f",
+      "module_id": "0x07001003",
+      "module_name": "PCM_CNV",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007e"
+    },
+    {
+      "container_id": "0xe000004c",
+      "iid": "0x00004660",
+      "module_id": "0x07001006",
+      "module_name": "SH_MEM_PULL_MODE",
+      "properties": {
+        "max_input_ports": 0,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007e"
+    },
+    {
+      "container_id": "0xe000004c",
+      "iid": "0x00004662",
+      "module_id": "0x07001097",
+      "module_name": "SWR_SINK",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007e"
+    },
+    {
+      "container_id": "0xe000004c",
+      "iid": "0x00004663",
+      "module_id": "0x0700101b",
+      "module_name": "VOL_CTRL",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007e"
+    },
+    {
+      "container_id": "0xe000004c",
+      "iid": "0x00004664",
+      "module_id": "0x07001045",
+      "module_name": "POPLESS_EQUALIZER",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007e"
+    },
+    {
+      "container_id": "0xe000004c",
+      "iid": "0x00004669",
+      "module_id": "0x0700101b",
+      "module_name": "VOL_CTRL",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007e"
+    },
+    {
+      "container_id": "0xe000004c",
+      "iid": "0x0000466a",
+      "module_id": "0x07001015",
+      "module_name": "MFC",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007e"
+    },
+    {
+      "container_id": "0xe000004c",
+      "iid": "0x0000466b",
+      "module_id": "0x07001019",
+      "module_name": "SOFT_PAUSE",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007e"
+    },
+    {
+      "container_id": "0xe0000066",
+      "iid": "0x0000412b",
+      "module_id": "0x07001032",
+      "module_name": "SPR",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 2,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007e"
+    },
+    {
+      "container_id": "0xe0000114",
+      "iid": "0x00004675",
+      "module_id": "0x07001097",
+      "module_name": "SWR_SINK",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007f"
+    },
+    {
+      "container_id": "0xe0000114",
+      "iid": "0x0000467a",
+      "module_id": "0x0700101a",
+      "module_name": "DATA_LOGGING",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007f"
+    },
+    {
+      "container_id": "0xe0000114",
+      "iid": "0x000047e9",
+      "module_id": "0x0700101a",
+      "module_name": "DATA_LOGGING",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007f"
+    },
+    {
+      "container_id": "0xe0000114",
+      "iid": "0x0000489e",
+      "module_id": "0x07001014",
+      "module_name": "MSIIR",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007f"
+    },
+    {
+      "container_id": "0xe0000114",
+      "iid": "0x000048a1",
+      "module_id": "0x07001014",
+      "module_name": "MSIIR",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007f"
+    },
+    {
+      "container_id": "0xe0000114",
+      "iid": "0x00004a63",
+      "module_id": "0x0700101b",
+      "module_name": "VOL_CTRL",
+      "properties": {
+        "max_input_ports": 1,
+        "max_output_ports": 1,
+        "property_count": 1
+      },
+      "subgraph_id": "0xb000007f"
+    }
+  ],
+  "windows_activation_set": [
+    "0xb0000001",
+    "0xb000007e",
+    "0xb000007f"
+  ]
+}

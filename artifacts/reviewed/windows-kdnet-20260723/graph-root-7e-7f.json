@@ -1,0 +1,2603 @@
+{
+  "connection_count": 30,
+  "connection_scope_counts": {
+    "cross_subgraph": 2,
+    "external_destination": 4,
+    "internal": 24
+  },
+  "container_groups": [
+    {
+      "container_id": "0xe0000001",
+      "modules": [
+        {
+          "iid": "0x00004001",
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "properties": {
+            "max_input_ports": 10,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004002",
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 7,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004003",
+          "module_id": "0x0700101a",
+          "module_name": "DATA_LOGGING",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004157",
+          "module_id": "0x07001023",
+          "module_name": "CODEC_DMA_SINK",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 0,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004027",
+          "module_id": "0x070010e2",
+          "module_name": "SPEAKER_PROTECTION",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x0000402c",
+          "module_id": "0x07001013",
+          "module_name": "CHMIXER",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        }
+      ],
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000007",
+      "modules": [
+        {
+          "iid": "0x00004024",
+          "module_id": "0x070010e3",
+          "module_name": "SPEAKER_PROTECTION_VI",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004025",
+          "module_id": "0x0700101a",
+          "module_name": "DATA_LOGGING",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004026",
+          "module_id": "0x07001024",
+          "module_name": "CODEC_DMA_SOURCE",
+          "properties": {
+            "max_input_ports": 0,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        }
+      ],
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000006",
+      "modules": [
+        {
+          "iid": "0x00004028",
+          "module_id": "0x070010e4",
+          "module_name": "UNKNOWN_0xE4",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 0,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004029",
+          "module_id": "0x07001098",
+          "module_name": "MUX_DEMUX",
+          "properties": {
+            "max_input_ports": 2,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        }
+      ],
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000005",
+      "modules": [
+        {
+          "iid": "0x0000402a",
+          "module_id": "0x0700101a",
+          "module_name": "DATA_LOGGING",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x0000402b",
+          "module_id": "0x07001024",
+          "module_name": "CODEC_DMA_SOURCE",
+          "properties": {
+            "max_input_ports": 0,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        }
+      ],
+      "subgraph_id": "0xb0000001"
+    },
+    {
+      "container_id": "0xe0000114",
+      "modules": [
+        {
+          "iid": "0x00004675",
+          "module_id": "0x07001097",
+          "module_name": "SWR_SINK",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x0000467a",
+          "module_id": "0x0700101a",
+          "module_name": "DATA_LOGGING",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x000047e9",
+          "module_id": "0x0700101a",
+          "module_name": "DATA_LOGGING",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004a63",
+          "module_id": "0x0700101b",
+          "module_name": "VOL_CTRL",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x0000489e",
+          "module_id": "0x07001014",
+          "module_name": "MSIIR",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x000048a1",
+          "module_id": "0x07001014",
+          "module_name": "MSIIR",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        }
+      ],
+      "subgraph_id": "0xb000007f"
+    },
+    {
+      "container_id": "0xe000004c",
+      "modules": [
+        {
+          "iid": "0x0000465c",
+          "module_id": "0x0700101a",
+          "module_name": "DATA_LOGGING",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x0000465f",
+          "module_id": "0x07001003",
+          "module_name": "PCM_CNV",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004660",
+          "module_id": "0x07001006",
+          "module_name": "SH_MEM_PULL_MODE",
+          "properties": {
+            "max_input_ports": 0,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004662",
+          "module_id": "0x07001097",
+          "module_name": "SWR_SINK",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004663",
+          "module_id": "0x0700101b",
+          "module_name": "VOL_CTRL",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004664",
+          "module_id": "0x07001045",
+          "module_name": "POPLESS_EQUALIZER",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x00004669",
+          "module_id": "0x0700101b",
+          "module_name": "VOL_CTRL",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x0000466a",
+          "module_id": "0x07001015",
+          "module_name": "MFC",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        },
+        {
+          "iid": "0x0000466b",
+          "module_id": "0x07001019",
+          "module_name": "SOFT_PAUSE",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 1,
+            "property_count": 1
+          }
+        }
+      ],
+      "subgraph_id": "0xb000007e"
+    },
+    {
+      "container_id": "0xe0000066",
+      "modules": [
+        {
+          "iid": "0x0000412b",
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "properties": {
+            "max_input_ports": 1,
+            "max_output_ports": 2,
+            "property_count": 1
+          }
+        }
+      ],
+      "subgraph_id": "0xb000007e"
+    }
+  ],
+  "control_link_count": 4,
+  "evidence_class": "C: decoded from a live Windows KDNET GRAPH_OPEN OOB body",
+  "format": "AudioReach GRAPH_OPEN live OOB body",
+  "format_version": 1,
+  "module_count": 29,
+  "parameter_count": 19,
+  "parameters": [
+    {
+      "end": "0x00000040",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000000",
+      "param_id": "0x08001001",
+      "param_name": "APM_PARAM_ID_SUB_GRAPH_CONFIG",
+      "payload_sha256": "67e70cac48d99ef072010760756e6e80be5a8f79e019d69b126fe17961c373c2",
+      "size": 48
+    },
+    {
+      "end": "0x000001a8",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000040",
+      "param_id": "0x08001000",
+      "param_name": "APM_PARAM_ID_CONTAINER_CONFIG",
+      "payload_sha256": "13fabc34b5889a9501f800f4a1e0452fcb106c21b60ed45621ade9463fa88e9d",
+      "size": 340
+    },
+    {
+      "end": "0x00000258",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x000001a8",
+      "param_id": "0x08001002",
+      "param_name": "APM_PARAM_ID_MODULE_LIST",
+      "payload_sha256": "6b23a121188fd1f115d9148351f83ec3a7c05ab42a8b9137d3886b9b47f89eae",
+      "size": 156
+    },
+    {
+      "end": "0x000003a8",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000258",
+      "param_id": "0x08001003",
+      "param_name": "APM_PARAM_ID_MODULE_PROP",
+      "payload_sha256": "084ab057f2e6d106ab71f85b0bf8e1b7a9c0a03f28ba37c98c675470871b62d7",
+      "size": 316
+    },
+    {
+      "end": "0x00000490",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x000003a8",
+      "param_id": "0x08001004",
+      "param_name": "APM_PARAM_ID_MODULE_CONN",
+      "payload_sha256": "66ec3dfba4a35b22251241c5fd770b2daab1681afd4da064fec49983cdec0397",
+      "size": 212
+    },
+    {
+      "end": "0x00000538",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000490",
+      "param_id": "0x08001061",
+      "param_name": "APM_PARAM_ID_MODULE_CTRL_LINK_CFG",
+      "payload_sha256": "06d19ed6a84dc956529fa90a462ba827f2db65dae04ecf450aed28efd40008be",
+      "size": 148
+    },
+    {
+      "end": "0x00000578",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000538",
+      "param_id": "0x08001001",
+      "param_name": "APM_PARAM_ID_SUB_GRAPH_CONFIG",
+      "payload_sha256": "d1a2f5b4cc1a1e7858b02b7f246585ce1b3559a657cc575e1819642d6b3b4dd5",
+      "size": 48
+    },
+    {
+      "end": "0x000005e0",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000578",
+      "param_id": "0x08001000",
+      "param_name": "APM_PARAM_ID_CONTAINER_CONFIG",
+      "payload_sha256": "88989cc4b6426b12554c449fde1fbd17153790427bf6a6e2f3fb257a3f403236",
+      "size": 88
+    },
+    {
+      "end": "0x00000630",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x000005e0",
+      "param_id": "0x08001002",
+      "param_name": "APM_PARAM_ID_MODULE_LIST",
+      "payload_sha256": "8550bd99897c6d9b947b5e330b20f7576f6b8aa6fcca4a5f18578b4cab68b9e0",
+      "size": 64
+    },
+    {
+      "end": "0x000006d8",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000630",
+      "param_id": "0x08001003",
+      "param_name": "APM_PARAM_ID_MODULE_PROP",
+      "payload_sha256": "26ffb2e57df7ec7c56bb45d8a2a0b584334ef9c22e1bbc15784c29f9a96077c8",
+      "size": 148
+    },
+    {
+      "end": "0x00000740",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x000006d8",
+      "param_id": "0x08001004",
+      "param_name": "APM_PARAM_ID_MODULE_CONN",
+      "payload_sha256": "91d26b2dfb6717cea7b4ca93f1fae585a8aca1a782fd5a3e7bfc4b61822738cf",
+      "size": 84
+    },
+    {
+      "end": "0x00000780",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000740",
+      "param_id": "0x08001001",
+      "param_name": "APM_PARAM_ID_SUB_GRAPH_CONFIG",
+      "payload_sha256": "70d42234e3ab9faa7e571ee32451225aef4807d83023773b92852bd880c53934",
+      "size": 48
+    },
+    {
+      "end": "0x00000840",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000780",
+      "param_id": "0x08001000",
+      "param_name": "APM_PARAM_ID_CONTAINER_CONFIG",
+      "payload_sha256": "a0418021d0d50c4fab6393ed39e46b64cf7ebea63c560549e62c02ae23d48ca5",
+      "size": 172
+    },
+    {
+      "end": "0x000008c0",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000840",
+      "param_id": "0x08001002",
+      "param_name": "APM_PARAM_ID_MODULE_LIST",
+      "payload_sha256": "e2de75d54ba8b8c7bafd9b80bcb31296d743ba8131be56fa6cd37329ee016aef",
+      "size": 108
+    },
+    {
+      "end": "0x000009c8",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x000008c0",
+      "param_id": "0x08001003",
+      "param_name": "APM_PARAM_ID_MODULE_PROP",
+      "payload_sha256": "8989850de8a4ca2f1a849cbf18973a84df61576aecf94f22d5b198f60c838d4e",
+      "size": 244
+    },
+    {
+      "end": "0x00000a80",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x000009c8",
+      "param_id": "0x08001004",
+      "param_name": "APM_PARAM_ID_MODULE_CONN",
+      "payload_sha256": "29baa843286a25d3691f7203e6d10f9a56c16bf1bf13ea6e87988275301bde0b",
+      "size": 164
+    },
+    {
+      "end": "0x00000ac8",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000a80",
+      "param_id": "0x08001061",
+      "param_name": "APM_PARAM_ID_MODULE_CTRL_LINK_CFG",
+      "payload_sha256": "b3685b5cdb5db755f0d8a68202de4ead74df1ebc65a56b706040e2b7d1f0b285",
+      "size": 52
+    },
+    {
+      "end": "0x00000af0",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000ac8",
+      "param_id": "0x08001004",
+      "param_name": "APM_PARAM_ID_MODULE_CONN",
+      "payload_sha256": "a55bf32f025fa13e818be045f402cafc483d29c69bfdd860344cec51fab9b276",
+      "size": 20
+    },
+    {
+      "end": "0x00000b18",
+      "error_code": "0x00000000",
+      "iid": "0x00000001",
+      "offset": "0x00000af0",
+      "param_id": "0x08001004",
+      "param_name": "APM_PARAM_ID_MODULE_CONN",
+      "payload_sha256": "92c0acc8ff56e3482c9c4409c72ef4ab1d84691c85178d3c6f2c04db02fcb90d",
+      "size": 20
+    }
+  ],
+  "parsed_end": "0x00000b18",
+  "record_count": 3,
+  "records": [
+    {
+      "connections": [
+        {
+          "destination_iid": "0x00004003",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004002",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004157",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004003",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x000047c9",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004002",
+          "source_port": 9
+        },
+        {
+          "destination_iid": "0x00004747",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004002",
+          "source_port": 5
+        },
+        {
+          "destination_iid": "0x00004730",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004002",
+          "source_port": 11
+        },
+        {
+          "destination_iid": "0x00004002",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004027",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004025",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004026",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004024",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004025",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x0000402a",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x0000402b",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004028",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004029",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004029",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x0000402a",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x0000402c",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004001",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004027",
+          "destination_port": 2,
+          "parameter_offset": "0x000003a8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x0000402c",
+          "source_port": 1
+        }
+      ],
+      "container_config": [
+        {
+          "container_id": "0xe0000001",
+          "properties": [
+            {
+              "property_id": "0x08001014",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x08001013",
+              "size": 4,
+              "value_hex": "00100000",
+              "value_u32": [
+                "0x00001000"
+              ]
+            },
+            {
+              "property_id": "0x08001011",
+              "size": 8,
+              "value_hex": "010000000110000b",
+              "value_u32": [
+                "0x00000001",
+                "0x0b001001"
+              ]
+            },
+            {
+              "property_id": "0x08001012",
+              "size": 4,
+              "value_hex": "04000000",
+              "value_u32": [
+                "0x00000004"
+              ]
+            },
+            {
+              "property_id": "0x080010cb",
+              "size": 4,
+              "value_hex": "ffffffff",
+              "value_u32": [
+                "0xffffffff"
+              ]
+            },
+            {
+              "property_id": "0x08001174",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            }
+          ],
+          "property_count": 6
+        },
+        {
+          "container_id": "0xe0000005",
+          "properties": [
+            {
+              "property_id": "0x08001174",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            },
+            {
+              "property_id": "0x08001013",
+              "size": 4,
+              "value_hex": "00080000",
+              "value_u32": [
+                "0x00000800"
+              ]
+            },
+            {
+              "property_id": "0x080010cb",
+              "size": 4,
+              "value_hex": "ffffffff",
+              "value_u32": [
+                "0xffffffff"
+              ]
+            },
+            {
+              "property_id": "0x08001012",
+              "size": 4,
+              "value_hex": "ffffffff",
+              "value_u32": [
+                "0xffffffff"
+              ]
+            },
+            {
+              "property_id": "0x08001014",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x08001011",
+              "size": 8,
+              "value_hex": "010000000110000b",
+              "value_u32": [
+                "0x00000001",
+                "0x0b001001"
+              ]
+            }
+          ],
+          "property_count": 6
+        },
+        {
+          "container_id": "0xe0000006",
+          "properties": [
+            {
+              "property_id": "0x08001174",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            },
+            {
+              "property_id": "0x08001013",
+              "size": 4,
+              "value_hex": "00080000",
+              "value_u32": [
+                "0x00000800"
+              ]
+            },
+            {
+              "property_id": "0x080010cb",
+              "size": 4,
+              "value_hex": "ffffffff",
+              "value_u32": [
+                "0xffffffff"
+              ]
+            },
+            {
+              "property_id": "0x08001012",
+              "size": 4,
+              "value_hex": "ffffffff",
+              "value_u32": [
+                "0xffffffff"
+              ]
+            },
+            {
+              "property_id": "0x08001014",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x08001011",
+              "size": 8,
+              "value_hex": "010000000110000b",
+              "value_u32": [
+                "0x00000001",
+                "0x0b001001"
+              ]
+            }
+          ],
+          "property_count": 6
+        },
+        {
+          "container_id": "0xe0000007",
+          "properties": [
+            {
+              "property_id": "0x08001174",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            },
+            {
+              "property_id": "0x08001013",
+              "size": 4,
+              "value_hex": "00100000",
+              "value_u32": [
+                "0x00001000"
+              ]
+            },
+            {
+              "property_id": "0x080010cb",
+              "size": 4,
+              "value_hex": "ffffffff",
+              "value_u32": [
+                "0xffffffff"
+              ]
+            },
+            {
+              "property_id": "0x08001012",
+              "size": 4,
+              "value_hex": "ffffffff",
+              "value_u32": [
+                "0xffffffff"
+              ]
+            },
+            {
+              "property_id": "0x08001014",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x08001011",
+              "size": 8,
+              "value_hex": "010000000110000b",
+              "value_u32": [
+                "0x00000001",
+                "0x0b001001"
+              ]
+            }
+          ],
+          "property_count": 6
+        }
+      ],
+      "container_groups": [
+        {
+          "container_id": "0xe0000001",
+          "modules": [
+            {
+              "iid": "0x00004001",
+              "module_id": "0x07001010",
+              "module_name": "SAL",
+              "properties": {
+                "max_input_ports": 10,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004002",
+              "module_id": "0x07001011",
+              "module_name": "SPLITTER",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 7,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004003",
+              "module_id": "0x0700101a",
+              "module_name": "DATA_LOGGING",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004157",
+              "module_id": "0x07001023",
+              "module_name": "CODEC_DMA_SINK",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 0,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004027",
+              "module_id": "0x070010e2",
+              "module_name": "SPEAKER_PROTECTION",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x0000402c",
+              "module_id": "0x07001013",
+              "module_name": "CHMIXER",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            }
+          ],
+          "subgraph_id": "0xb0000001"
+        },
+        {
+          "container_id": "0xe0000007",
+          "modules": [
+            {
+              "iid": "0x00004024",
+              "module_id": "0x070010e3",
+              "module_name": "SPEAKER_PROTECTION_VI",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004025",
+              "module_id": "0x0700101a",
+              "module_name": "DATA_LOGGING",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004026",
+              "module_id": "0x07001024",
+              "module_name": "CODEC_DMA_SOURCE",
+              "properties": {
+                "max_input_ports": 0,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            }
+          ],
+          "subgraph_id": "0xb0000001"
+        },
+        {
+          "container_id": "0xe0000006",
+          "modules": [
+            {
+              "iid": "0x00004028",
+              "module_id": "0x070010e4",
+              "module_name": "UNKNOWN_0xE4",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 0,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004029",
+              "module_id": "0x07001098",
+              "module_name": "MUX_DEMUX",
+              "properties": {
+                "max_input_ports": 2,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            }
+          ],
+          "subgraph_id": "0xb0000001"
+        },
+        {
+          "container_id": "0xe0000005",
+          "modules": [
+            {
+              "iid": "0x0000402a",
+              "module_id": "0x0700101a",
+              "module_name": "DATA_LOGGING",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x0000402b",
+              "module_id": "0x07001024",
+              "module_name": "CODEC_DMA_SOURCE",
+              "properties": {
+                "max_input_ports": 0,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            }
+          ],
+          "subgraph_id": "0xb0000001"
+        }
+      ],
+      "control_links": [
+        {
+          "parameter_offset": "0x00000490",
+          "peer_1_control_port": "0x80000000",
+          "peer_1_iid": "0x00004024",
+          "peer_2_control_port": "0x80000000",
+          "peer_2_iid": "0x00004027",
+          "properties": [
+            {
+              "intent_ids": [
+                "0x08001204"
+              ],
+              "intent_names": [
+                "INTENT_ID_SP"
+              ],
+              "property_id": "0x08001062",
+              "size": 8,
+              "value_hex": "0100000004120008",
+              "value_u32": [
+                "0x00000001",
+                "0x08001204"
+              ]
+            },
+            {
+              "heap_id": "0x00000001",
+              "property_id": "0x0800136f",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            }
+          ],
+          "property_count": 2
+        },
+        {
+          "parameter_offset": "0x00000490",
+          "peer_1_control_port": "0x80000000",
+          "peer_1_iid": "0x00004028",
+          "peer_2_control_port": "0x80000001",
+          "peer_2_iid": "0x00004027",
+          "properties": [
+            {
+              "intent_ids": [
+                "0x08001537"
+              ],
+              "intent_names": [
+                "INTENT_ID_CPS"
+              ],
+              "property_id": "0x08001062",
+              "size": 8,
+              "value_hex": "0100000037150008",
+              "value_u32": [
+                "0x00000001",
+                "0x08001537"
+              ]
+            },
+            {
+              "heap_id": "0x00000001",
+              "property_id": "0x0800136f",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            }
+          ],
+          "property_count": 2
+        },
+        {
+          "parameter_offset": "0x00000490",
+          "peer_1_control_port": "0x80000007",
+          "peer_1_iid": "0x00004157",
+          "peer_2_control_port": "0xc0000001",
+          "peer_2_iid": "0x000040df",
+          "properties": [
+            {
+              "intent_ids": [
+                "0x080010c2"
+              ],
+              "intent_names": [
+                "INTENT_ID_TIMER_DRIFT_INFO"
+              ],
+              "property_id": "0x08001062",
+              "size": 8,
+              "value_hex": "01000000c2100008",
+              "value_u32": [
+                "0x00000001",
+                "0x080010c2"
+              ]
+            },
+            {
+              "heap_id": "0x00000001",
+              "property_id": "0x0800136f",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            }
+          ],
+          "property_count": 2
+        }
+      ],
+      "record_end": "0x00000538",
+      "record_sha256": "7e4d356f81e1a3a3ad7aed218589f363ed9b15e93f8070e10fc1ee4835030b2b",
+      "record_start": "0x00000000",
+      "structural_end": "0x00000490",
+      "structural_parameters": [
+        {
+          "end": "0x00000040",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000000",
+          "param_id": "0x08001001",
+          "param_name": "APM_PARAM_ID_SUB_GRAPH_CONFIG",
+          "payload_sha256": "67e70cac48d99ef072010760756e6e80be5a8f79e019d69b126fe17961c373c2",
+          "size": 48
+        },
+        {
+          "end": "0x000001a8",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000040",
+          "param_id": "0x08001000",
+          "param_name": "APM_PARAM_ID_CONTAINER_CONFIG",
+          "payload_sha256": "13fabc34b5889a9501f800f4a1e0452fcb106c21b60ed45621ade9463fa88e9d",
+          "size": 340
+        },
+        {
+          "end": "0x00000258",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x000001a8",
+          "param_id": "0x08001002",
+          "param_name": "APM_PARAM_ID_MODULE_LIST",
+          "payload_sha256": "6b23a121188fd1f115d9148351f83ec3a7c05ab42a8b9137d3886b9b47f89eae",
+          "size": 156
+        },
+        {
+          "end": "0x000003a8",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000258",
+          "param_id": "0x08001003",
+          "param_name": "APM_PARAM_ID_MODULE_PROP",
+          "payload_sha256": "084ab057f2e6d106ab71f85b0bf8e1b7a9c0a03f28ba37c98c675470871b62d7",
+          "size": 316
+        },
+        {
+          "end": "0x00000490",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x000003a8",
+          "param_id": "0x08001004",
+          "param_name": "APM_PARAM_ID_MODULE_CONN",
+          "payload_sha256": "66ec3dfba4a35b22251241c5fd770b2daab1681afd4da064fec49983cdec0397",
+          "size": 212
+        }
+      ],
+      "structural_sha256": "a082e851fc7e885f818191551b1d61691fceec9d14e9be017a9787dd040aef94",
+      "subgraph_config": [
+        {
+          "properties": [
+            {
+              "property_id": "0x0800100e",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x0800100f",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x08001010",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            }
+          ],
+          "property_count": 3,
+          "subgraph_id": "0xb0000001"
+        }
+      ],
+      "subgraph_ids": [
+        "0xb0000001"
+      ],
+      "trailing_parameters": [
+        {
+          "end": "0x00000538",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000490",
+          "param_id": "0x08001061",
+          "param_name": "APM_PARAM_ID_MODULE_CTRL_LINK_CFG",
+          "payload_sha256": "06d19ed6a84dc956529fa90a462ba827f2db65dae04ecf450aed28efd40008be",
+          "size": 148
+        }
+      ]
+    },
+    {
+      "connections": [
+        {
+          "destination_iid": "0x000048a1",
+          "destination_port": 2,
+          "parameter_offset": "0x000006d8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x0000489e",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x0000467a",
+          "destination_port": 2,
+          "parameter_offset": "0x000006d8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x000048a1",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x0000489e",
+          "destination_port": 2,
+          "parameter_offset": "0x000006d8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004675",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004675",
+          "destination_port": 2,
+          "parameter_offset": "0x000006d8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004a63",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004a63",
+          "destination_port": 2,
+          "parameter_offset": "0x000006d8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x000047e9",
+          "source_port": 1
+        }
+      ],
+      "container_config": [
+        {
+          "container_id": "0xe0000114",
+          "properties": [
+            {
+              "property_id": "0x08001014",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x08001013",
+              "size": 4,
+              "value_hex": "00100000",
+              "value_u32": [
+                "0x00001000"
+              ]
+            },
+            {
+              "property_id": "0x08001011",
+              "size": 8,
+              "value_hex": "010000000010000b",
+              "value_u32": [
+                "0x00000001",
+                "0x0b001000"
+              ]
+            },
+            {
+              "property_id": "0x08001012",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            },
+            {
+              "property_id": "0x08001174",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            },
+            {
+              "property_id": "0x080010cb",
+              "size": 4,
+              "value_hex": "ffffffff",
+              "value_u32": [
+                "0xffffffff"
+              ]
+            }
+          ],
+          "property_count": 6
+        }
+      ],
+      "container_groups": [
+        {
+          "container_id": "0xe0000114",
+          "modules": [
+            {
+              "iid": "0x00004675",
+              "module_id": "0x07001097",
+              "module_name": "SWR_SINK",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x0000467a",
+              "module_id": "0x0700101a",
+              "module_name": "DATA_LOGGING",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x000047e9",
+              "module_id": "0x0700101a",
+              "module_name": "DATA_LOGGING",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004a63",
+              "module_id": "0x0700101b",
+              "module_name": "VOL_CTRL",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x0000489e",
+              "module_id": "0x07001014",
+              "module_name": "MSIIR",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x000048a1",
+              "module_id": "0x07001014",
+              "module_name": "MSIIR",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            }
+          ],
+          "subgraph_id": "0xb000007f"
+        }
+      ],
+      "control_links": [],
+      "record_end": "0x00000740",
+      "record_sha256": "f0ea14fbb5138b40c4603c667dc6fd461272ac7230cf365f8fe17f35dd3a9dc2",
+      "record_start": "0x00000538",
+      "structural_end": "0x00000740",
+      "structural_parameters": [
+        {
+          "end": "0x00000578",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000538",
+          "param_id": "0x08001001",
+          "param_name": "APM_PARAM_ID_SUB_GRAPH_CONFIG",
+          "payload_sha256": "d1a2f5b4cc1a1e7858b02b7f246585ce1b3559a657cc575e1819642d6b3b4dd5",
+          "size": 48
+        },
+        {
+          "end": "0x000005e0",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000578",
+          "param_id": "0x08001000",
+          "param_name": "APM_PARAM_ID_CONTAINER_CONFIG",
+          "payload_sha256": "88989cc4b6426b12554c449fde1fbd17153790427bf6a6e2f3fb257a3f403236",
+          "size": 88
+        },
+        {
+          "end": "0x00000630",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x000005e0",
+          "param_id": "0x08001002",
+          "param_name": "APM_PARAM_ID_MODULE_LIST",
+          "payload_sha256": "8550bd99897c6d9b947b5e330b20f7576f6b8aa6fcca4a5f18578b4cab68b9e0",
+          "size": 64
+        },
+        {
+          "end": "0x000006d8",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000630",
+          "param_id": "0x08001003",
+          "param_name": "APM_PARAM_ID_MODULE_PROP",
+          "payload_sha256": "26ffb2e57df7ec7c56bb45d8a2a0b584334ef9c22e1bbc15784c29f9a96077c8",
+          "size": 148
+        },
+        {
+          "end": "0x00000740",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x000006d8",
+          "param_id": "0x08001004",
+          "param_name": "APM_PARAM_ID_MODULE_CONN",
+          "payload_sha256": "91d26b2dfb6717cea7b4ca93f1fae585a8aca1a782fd5a3e7bfc4b61822738cf",
+          "size": 84
+        }
+      ],
+      "structural_sha256": "f0ea14fbb5138b40c4603c667dc6fd461272ac7230cf365f8fe17f35dd3a9dc2",
+      "subgraph_config": [
+        {
+          "properties": [
+            {
+              "property_id": "0x0800100e",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x0800100f",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x08001010",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            }
+          ],
+          "property_count": 3,
+          "subgraph_id": "0xb000007f"
+        }
+      ],
+      "subgraph_ids": [
+        "0xb000007f"
+      ],
+      "trailing_parameters": []
+    },
+    {
+      "connections": [
+        {
+          "destination_iid": "0x0000466a",
+          "destination_port": 2,
+          "parameter_offset": "0x000009c8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004669",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x0000466b",
+          "destination_port": 2,
+          "parameter_offset": "0x000009c8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x0000466a",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x0000465c",
+          "destination_port": 2,
+          "parameter_offset": "0x000009c8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004660",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x0000465f",
+          "destination_port": 2,
+          "parameter_offset": "0x000009c8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x0000465c",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004669",
+          "destination_port": 2,
+          "parameter_offset": "0x000009c8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004664",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004664",
+          "destination_port": 2,
+          "parameter_offset": "0x000009c8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004662",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004662",
+          "destination_port": 2,
+          "parameter_offset": "0x000009c8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x00004663",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004663",
+          "destination_port": 2,
+          "parameter_offset": "0x000009c8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x0000465f",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x0000412b",
+          "destination_port": 2,
+          "parameter_offset": "0x000009c8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x0000466b",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x00004144",
+          "destination_port": 16,
+          "parameter_offset": "0x000009c8",
+          "provenance": "structural MODULE_CONN",
+          "source_iid": "0x0000412b",
+          "source_port": 3
+        },
+        {
+          "destination_iid": "0x00004001",
+          "destination_port": 12,
+          "parameter_offset": "0x00000ac8",
+          "provenance": "supplemental MODULE_CONN",
+          "source_iid": "0x0000467a",
+          "source_port": 1
+        },
+        {
+          "destination_iid": "0x000047e9",
+          "destination_port": 2,
+          "parameter_offset": "0x00000af0",
+          "provenance": "supplemental MODULE_CONN",
+          "source_iid": "0x0000412b",
+          "source_port": 1
+        }
+      ],
+      "container_config": [
+        {
+          "container_id": "0xe000004c",
+          "properties": [
+            {
+              "property_id": "0x08001014",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x08001013",
+              "size": 4,
+              "value_hex": "00100000",
+              "value_u32": [
+                "0x00001000"
+              ]
+            },
+            {
+              "property_id": "0x08001011",
+              "size": 8,
+              "value_hex": "010000000010000b",
+              "value_u32": [
+                "0x00000001",
+                "0x0b001000"
+              ]
+            },
+            {
+              "property_id": "0x08001012",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            },
+            {
+              "property_id": "0x08001174",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            },
+            {
+              "property_id": "0x080010cb",
+              "size": 4,
+              "value_hex": "ffffffff",
+              "value_u32": [
+                "0xffffffff"
+              ]
+            }
+          ],
+          "property_count": 6
+        },
+        {
+          "container_id": "0xe0000066",
+          "properties": [
+            {
+              "property_id": "0x08001174",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            },
+            {
+              "property_id": "0x08001013",
+              "size": 4,
+              "value_hex": "00040000",
+              "value_u32": [
+                "0x00000400"
+              ]
+            },
+            {
+              "property_id": "0x080010cb",
+              "size": 4,
+              "value_hex": "ffffffff",
+              "value_u32": [
+                "0xffffffff"
+              ]
+            },
+            {
+              "property_id": "0x08001012",
+              "size": 4,
+              "value_hex": "ffffffff",
+              "value_u32": [
+                "0xffffffff"
+              ]
+            },
+            {
+              "property_id": "0x08001014",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x08001011",
+              "size": 8,
+              "value_hex": "010000000110000b",
+              "value_u32": [
+                "0x00000001",
+                "0x0b001001"
+              ]
+            }
+          ],
+          "property_count": 6
+        }
+      ],
+      "container_groups": [
+        {
+          "container_id": "0xe000004c",
+          "modules": [
+            {
+              "iid": "0x0000465c",
+              "module_id": "0x0700101a",
+              "module_name": "DATA_LOGGING",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x0000465f",
+              "module_id": "0x07001003",
+              "module_name": "PCM_CNV",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004660",
+              "module_id": "0x07001006",
+              "module_name": "SH_MEM_PULL_MODE",
+              "properties": {
+                "max_input_ports": 0,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004662",
+              "module_id": "0x07001097",
+              "module_name": "SWR_SINK",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004663",
+              "module_id": "0x0700101b",
+              "module_name": "VOL_CTRL",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004664",
+              "module_id": "0x07001045",
+              "module_name": "POPLESS_EQUALIZER",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x00004669",
+              "module_id": "0x0700101b",
+              "module_name": "VOL_CTRL",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x0000466a",
+              "module_id": "0x07001015",
+              "module_name": "MFC",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            },
+            {
+              "iid": "0x0000466b",
+              "module_id": "0x07001019",
+              "module_name": "SOFT_PAUSE",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 1,
+                "property_count": 1
+              }
+            }
+          ],
+          "subgraph_id": "0xb000007e"
+        },
+        {
+          "container_id": "0xe0000066",
+          "modules": [
+            {
+              "iid": "0x0000412b",
+              "module_id": "0x07001032",
+              "module_name": "SPR",
+              "properties": {
+                "max_input_ports": 1,
+                "max_output_ports": 2,
+                "property_count": 1
+              }
+            }
+          ],
+          "subgraph_id": "0xb000007e"
+        }
+      ],
+      "control_links": [
+        {
+          "parameter_offset": "0x00000a80",
+          "peer_1_control_port": "0x80000000",
+          "peer_1_iid": "0x00004664",
+          "peer_2_control_port": "0x80000000",
+          "peer_2_iid": "0x00004663",
+          "properties": [
+            {
+              "intent_ids": [
+                "0x08001118"
+              ],
+              "intent_names": [
+                "INTENT_ID_P_EQ_VOL_HEADROOM"
+              ],
+              "property_id": "0x08001062",
+              "size": 8,
+              "value_hex": "0100000018110008",
+              "value_u32": [
+                "0x00000001",
+                "0x08001118"
+              ]
+            },
+            {
+              "heap_id": "0x00000001",
+              "property_id": "0x0800136f",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            }
+          ],
+          "property_count": 2
+        }
+      ],
+      "record_end": "0x00000b18",
+      "record_sha256": "86bfbfde840cdaef4392d89c9542a7e7cae49bafd7edffafd8071f5bb06919c6",
+      "record_start": "0x00000740",
+      "structural_end": "0x00000a80",
+      "structural_parameters": [
+        {
+          "end": "0x00000780",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000740",
+          "param_id": "0x08001001",
+          "param_name": "APM_PARAM_ID_SUB_GRAPH_CONFIG",
+          "payload_sha256": "70d42234e3ab9faa7e571ee32451225aef4807d83023773b92852bd880c53934",
+          "size": 48
+        },
+        {
+          "end": "0x00000840",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000780",
+          "param_id": "0x08001000",
+          "param_name": "APM_PARAM_ID_CONTAINER_CONFIG",
+          "payload_sha256": "a0418021d0d50c4fab6393ed39e46b64cf7ebea63c560549e62c02ae23d48ca5",
+          "size": 172
+        },
+        {
+          "end": "0x000008c0",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000840",
+          "param_id": "0x08001002",
+          "param_name": "APM_PARAM_ID_MODULE_LIST",
+          "payload_sha256": "e2de75d54ba8b8c7bafd9b80bcb31296d743ba8131be56fa6cd37329ee016aef",
+          "size": 108
+        },
+        {
+          "end": "0x000009c8",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x000008c0",
+          "param_id": "0x08001003",
+          "param_name": "APM_PARAM_ID_MODULE_PROP",
+          "payload_sha256": "8989850de8a4ca2f1a849cbf18973a84df61576aecf94f22d5b198f60c838d4e",
+          "size": 244
+        },
+        {
+          "end": "0x00000a80",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x000009c8",
+          "param_id": "0x08001004",
+          "param_name": "APM_PARAM_ID_MODULE_CONN",
+          "payload_sha256": "29baa843286a25d3691f7203e6d10f9a56c16bf1bf13ea6e87988275301bde0b",
+          "size": 164
+        }
+      ],
+      "structural_sha256": "9839961991c3af32b0e3721f25ac70c16a663579ba32ed86f5420d68a48b9f53",
+      "subgraph_config": [
+        {
+          "properties": [
+            {
+              "property_id": "0x0800100e",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x0800100f",
+              "size": 4,
+              "value_hex": "02000000",
+              "value_u32": [
+                "0x00000002"
+              ]
+            },
+            {
+              "property_id": "0x08001010",
+              "size": 4,
+              "value_hex": "01000000",
+              "value_u32": [
+                "0x00000001"
+              ]
+            }
+          ],
+          "property_count": 3,
+          "subgraph_id": "0xb000007e"
+        }
+      ],
+      "subgraph_ids": [
+        "0xb000007e"
+      ],
+      "trailing_parameters": [
+        {
+          "end": "0x00000ac8",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000a80",
+          "param_id": "0x08001061",
+          "param_name": "APM_PARAM_ID_MODULE_CTRL_LINK_CFG",
+          "payload_sha256": "b3685b5cdb5db755f0d8a68202de4ead74df1ebc65a56b706040e2b7d1f0b285",
+          "size": 52
+        },
+        {
+          "end": "0x00000af0",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000ac8",
+          "param_id": "0x08001004",
+          "param_name": "APM_PARAM_ID_MODULE_CONN",
+          "payload_sha256": "a55bf32f025fa13e818be045f402cafc483d29c69bfdd860344cec51fab9b276",
+          "size": 20
+        },
+        {
+          "end": "0x00000b18",
+          "error_code": "0x00000000",
+          "iid": "0x00000001",
+          "offset": "0x00000af0",
+          "param_id": "0x08001004",
+          "param_name": "APM_PARAM_ID_MODULE_CONN",
+          "payload_sha256": "92c0acc8ff56e3482c9c4409c72ef4ab1d84691c85178d3c6f2c04db02fcb90d",
+          "size": 20
+        }
+      ]
+    }
+  ],
+  "resolved_connections": [
+    {
+      "destination_iid": "0x00004003",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004002",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x00004157",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004003",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x000047c9",
+      "destination_port": 2,
+      "destination_subgraphs": [],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "external_destination",
+      "source_iid": "0x00004002",
+      "source_port": 9,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x00004747",
+      "destination_port": 2,
+      "destination_subgraphs": [],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "external_destination",
+      "source_iid": "0x00004002",
+      "source_port": 5,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x00004730",
+      "destination_port": 2,
+      "destination_subgraphs": [],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "external_destination",
+      "source_iid": "0x00004002",
+      "source_port": 11,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x00004002",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004027",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x00004025",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004026",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x00004024",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004025",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x0000402a",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000402b",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x00004028",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004029",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x00004029",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000402a",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x0000402c",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004001",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x00004027",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x000003a8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000402c",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb0000001"
+      ]
+    },
+    {
+      "destination_iid": "0x000048a1",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x000006d8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000489e",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    },
+    {
+      "destination_iid": "0x0000467a",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x000006d8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x000048a1",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    },
+    {
+      "destination_iid": "0x0000489e",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x000006d8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004675",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    },
+    {
+      "destination_iid": "0x00004675",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x000006d8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004a63",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    },
+    {
+      "destination_iid": "0x00004a63",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x000006d8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x000047e9",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    },
+    {
+      "destination_iid": "0x0000466a",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004669",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "destination_iid": "0x0000466b",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000466a",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "destination_iid": "0x0000465c",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004660",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "destination_iid": "0x0000465f",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000465c",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "destination_iid": "0x00004669",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004664",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "destination_iid": "0x00004664",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004662",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "destination_iid": "0x00004662",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x00004663",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "destination_iid": "0x00004663",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000465f",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "destination_iid": "0x0000412b",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007e"
+      ],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "internal",
+      "source_iid": "0x0000466b",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "destination_iid": "0x00004144",
+      "destination_port": 16,
+      "destination_subgraphs": [],
+      "parameter_offset": "0x000009c8",
+      "provenance": "structural MODULE_CONN",
+      "scope": "external_destination",
+      "source_iid": "0x0000412b",
+      "source_port": 3,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    },
+    {
+      "destination_iid": "0x00004001",
+      "destination_port": 12,
+      "destination_subgraphs": [
+        "0xb0000001"
+      ],
+      "parameter_offset": "0x00000ac8",
+      "provenance": "supplemental MODULE_CONN",
+      "scope": "cross_subgraph",
+      "source_iid": "0x0000467a",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007f"
+      ]
+    },
+    {
+      "destination_iid": "0x000047e9",
+      "destination_port": 2,
+      "destination_subgraphs": [
+        "0xb000007f"
+      ],
+      "parameter_offset": "0x00000af0",
+      "provenance": "supplemental MODULE_CONN",
+      "scope": "cross_subgraph",
+      "source_iid": "0x0000412b",
+      "source_port": 1,
+      "source_subgraphs": [
+        "0xb000007e"
+      ]
+    }
+  ],
+  "resolved_control_links": [
+    {
+      "parameter_offset": "0x00000490",
+      "peer_1_control_port": "0x80000000",
+      "peer_1_iid": "0x00004024",
+      "peer_1_subgraphs": [
+        "0xb0000001"
+      ],
+      "peer_2_control_port": "0x80000000",
+      "peer_2_iid": "0x00004027",
+      "peer_2_subgraphs": [
+        "0xb0000001"
+      ],
+      "properties": [
+        {
+          "intent_ids": [
+            "0x08001204"
+          ],
+          "intent_names": [
+            "INTENT_ID_SP"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "0100000004120008",
+          "value_u32": [
+            "0x00000001",
+            "0x08001204"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "internal"
+    },
+    {
+      "parameter_offset": "0x00000490",
+      "peer_1_control_port": "0x80000000",
+      "peer_1_iid": "0x00004028",
+      "peer_1_subgraphs": [
+        "0xb0000001"
+      ],
+      "peer_2_control_port": "0x80000001",
+      "peer_2_iid": "0x00004027",
+      "peer_2_subgraphs": [
+        "0xb0000001"
+      ],
+      "properties": [
+        {
+          "intent_ids": [
+            "0x08001537"
+          ],
+          "intent_names": [
+            "INTENT_ID_CPS"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "0100000037150008",
+          "value_u32": [
+            "0x00000001",
+            "0x08001537"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "internal"
+    },
+    {
+      "parameter_offset": "0x00000490",
+      "peer_1_control_port": "0x80000007",
+      "peer_1_iid": "0x00004157",
+      "peer_1_subgraphs": [
+        "0xb0000001"
+      ],
+      "peer_2_control_port": "0xc0000001",
+      "peer_2_iid": "0x000040df",
+      "peer_2_subgraphs": [],
+      "properties": [
+        {
+          "intent_ids": [
+            "0x080010c2"
+          ],
+          "intent_names": [
+            "INTENT_ID_TIMER_DRIFT_INFO"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "01000000c2100008",
+          "value_u32": [
+            "0x00000001",
+            "0x080010c2"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "external_peer_2"
+    },
+    {
+      "parameter_offset": "0x00000a80",
+      "peer_1_control_port": "0x80000000",
+      "peer_1_iid": "0x00004664",
+      "peer_1_subgraphs": [
+        "0xb000007e"
+      ],
+      "peer_2_control_port": "0x80000000",
+      "peer_2_iid": "0x00004663",
+      "peer_2_subgraphs": [
+        "0xb000007e"
+      ],
+      "properties": [
+        {
+          "intent_ids": [
+            "0x08001118"
+          ],
+          "intent_names": [
+            "INTENT_ID_P_EQ_VOL_HEADROOM"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "0100000018110008",
+          "value_u32": [
+            "0x00000001",
+            "0x08001118"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "internal"
+    }
+  ],
+  "source": "/home/geoca/Documents/SP11-PROJECT/01-audio/artifacts/live/kdnet-20260723/oob_00_size0xb18.bin",
+  "source_sha256": "001e8f78c2aed10e74faad7c2f70095f307a52d4590ec0d00e785e57f44a006e",
+  "source_size": 2840,
+  "subgraph_ids": [
+    "0xb0000001",
+    "0xb000007e",
+    "0xb000007f"
+  ]
+}

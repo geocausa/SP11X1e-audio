@@ -1,0 +1,1824 @@
+{
+  "byte_count": 676439479,
+  "evidence_rules": {
+    "blank_operator_notes_template": "proves no human observation was recorded in this file",
+    "loaded_module": "proves address-space presence, not APO instantiation, order, bypass state, or signal contribution",
+    "untrusted_generated_narrative": "lead index only; no claim is promoted without underlying bytes"
+  },
+  "file_count": 154,
+  "files": [
+    {
+      "path": "MANIFEST.sha256",
+      "role": "source_manifest",
+      "sha256": "4b69ec3bfc818fd4fb824a88da1df9215c15221b491b9d526e0da68a8fc646f3",
+      "size": 1917
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/capture-file-inventory.txt",
+      "role": "source_manifest",
+      "sha256": "d3f4be05191221252c16173b7532fd23d7e1d381f56ba9a1dba31e492b427f7d",
+      "size": 21344
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/capture-sha256.txt",
+      "role": "source_manifest",
+      "sha256": "709b157a4fbaa41f9956caf9f0390a6f426f49ec934d137e6da048f2857ce802",
+      "size": 28454
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/dryrun_exclusive.txt",
+      "role": "capture_auxiliary",
+      "sha256": "9f60b2312e6bafe59bb10c86db0812fd183ac7d47dcd940ba0f8a28ca98b9baf",
+      "size": 356
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/dryrun_shared.txt",
+      "role": "capture_auxiliary",
+      "sha256": "4a037ec7f336d0606a1fb9ab1dc0059a5ede962b819593a5ab1fad1225c5e40b",
+      "size": 353
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/dryrun_shared_raw.txt",
+      "role": "capture_auxiliary",
+      "sha256": "9ccb7fdb20e6210d123ec24993ceba164674a31cafe4d48865e49aff725bda98",
+      "size": 389
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/scenario-notes.txt",
+      "role": "blank_operator_notes_template",
+      "sha256": "352d4ccbe9c98b49196e9195f0d26d17baddf11b39c1fa2d627c2cbd20846091",
+      "size": 3133
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/scenario10_dolby_bypass_shared.txt",
+      "role": "wasapi_probe_result",
+      "sha256": "453cebfd1bcc6cd47ced2e4c3b3424dc330c1733afac4491eff7c4d1f54ca0ed",
+      "size": 516
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/scenario11_enhancements_off_shared.txt",
+      "role": "wasapi_probe_result",
+      "sha256": "d7f91d7c029332149edd71028f4d9c12847ac2fa60409d44c9a6bfd7aa14cddb",
+      "size": 516
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/scenario20_shared_raw.txt",
+      "role": "wasapi_probe_result",
+      "sha256": "b395121087b7df60b673be9982acf60349ee0d6e53b16f22344027656ecd413a",
+      "size": 553
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/scenario25_exclusive_pcm16.txt",
+      "role": "wasapi_probe_result",
+      "sha256": "ce3460c59ff5a3b07ca5d598e85a67866726c880011b6134f8c69f7110dbd514",
+      "size": 542
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/scenario40_volume_steps.txt",
+      "role": "wasapi_probe_result",
+      "sha256": "d40ed241af826168de40447472c78c50d911d19730693ec3bb480c41efc2876b",
+      "size": 517
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/scenario60_dolby_active.txt",
+      "role": "wasapi_probe_result",
+      "sha256": "2f3a936677f80fc0444f46523e4ec58c553add2006359b384127350e7adf9d7e",
+      "size": 516
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/sp11_audio_parity.etl",
+      "role": "etl_trace",
+      "sha256": "c22779e6a36d5f7c82cc4a62bb5689f9b5277471a8779fb0d211dd1a1d3923b2",
+      "size": 377487360
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/00_session.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "f5baf93446835cdc9e279331cec180bd0d2a1d5e8dd27d7da41b0218176ce46b",
+      "size": 462
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/01_qcadcm_version_lock.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+      "size": 405
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/02_audio_services_processes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "db72c0c1ca596ad51b89f616f26b454eca6328ddd2be5ac5aeababc94abff66d",
+      "size": 1214
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/03_audiodg_modules.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "5f572c0f9c6b2cb1f2e921edd51c93bf3601d3c246b6eac21c7ec80fe8cd749c",
+      "size": 11172
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/04_relevant_module_hashes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "d895f069ceaf37dd0b9119d1b79acf1492b92d21aca2529ac2f1ddec6dfcdc33",
+      "size": 3987
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/05_audio_devices.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "5e4282244916e54fa32cb92d370a52404b2df3c3827280d83d2b5c48bea30d32",
+      "size": 26872
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/06_signed_audio_drivers.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+      "size": 57647
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/07_dolby_packages.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+      "size": 656
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/08_recent_audio_events.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "d2efa193b380b86de964aff4ad8a98b810bafc782dc8e745054ea71b27c0981c",
+      "size": 31417
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/09_hklm_mmdevices_render.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "97d13e9e96493f5e293f0099ac703578fce3e92ac31b3038c5173db9b2556ec6",
+      "size": 324046
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/11_hklm_dolby.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+      "size": 1070
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/13_hklm_windows_audio.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+      "size": 804
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115/14_endpoint_clsid_resolution.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "f37522c2a9b014a43e3925831e78d2318cb4877c9e8f0aee64f11ab4ab030a5f",
+      "size": 95151
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/00_session.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "9229d0263b28c1bcca37d40339c16fce90debd1bf96f1062c68226f68d3fc8a5",
+      "size": 462
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/01_qcadcm_version_lock.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+      "size": 405
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/02_audio_services_processes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+      "size": 1214
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/03_audiodg_modules.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "11d1709e844cb5ff509530ee010525c27427587334c9a1d01da68239239264dc",
+      "size": 12429
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/04_relevant_module_hashes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+      "size": 4929
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/05_audio_devices.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "f4a706e618f0b2b46883aaf94f159cde05067a8a37fbf94a6560ebe18d05776c",
+      "size": 26662
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/06_signed_audio_drivers.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+      "size": 57647
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/07_dolby_packages.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+      "size": 656
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/08_recent_audio_events.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+      "size": 31417
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/09_hklm_mmdevices_render.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+      "size": 312636
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/11_hklm_dolby.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+      "size": 1070
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/13_hklm_windows_audio.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+      "size": 804
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009/14_endpoint_clsid_resolution.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+      "size": 99321
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/00_session.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4f15d4456ced9d3c6e5d4bda06bf1a87860bc8fecc060b360051093dfe4d2f31",
+      "size": 486
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/01_qcadcm_version_lock.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+      "size": 405
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/02_audio_services_processes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+      "size": 1214
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/03_audiodg_modules.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4d3852d48141e53db38f61d4d055c18db5a23a7a0248af9aec7363bb897aabf3",
+      "size": 12429
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/04_relevant_module_hashes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+      "size": 4929
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/05_audio_devices.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "f4a706e618f0b2b46883aaf94f159cde05067a8a37fbf94a6560ebe18d05776c",
+      "size": 26662
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/06_signed_audio_drivers.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+      "size": 57647
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/07_dolby_packages.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+      "size": 656
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/08_recent_audio_events.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+      "size": 31417
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/09_hklm_mmdevices_render.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+      "size": 312636
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/11_hklm_dolby.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+      "size": 1070
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/13_hklm_windows_audio.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+      "size": 804
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135/14_endpoint_clsid_resolution.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+      "size": 99321
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/00_session.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "e695492719d411a1928e24a27360d87fbeb2147575f29e5963501bfd0ea1a600",
+      "size": 454
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/01_qcadcm_version_lock.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+      "size": 405
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/02_audio_services_processes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+      "size": 1214
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/03_audiodg_modules.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "7e7f58b39198a10793da4f76a32f72cec4d7f6e8b88877a163f50d296fc9947b",
+      "size": 11404
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/04_relevant_module_hashes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4f6835058996857b481e8b70ad21404d4ceafc12e4f19318e189047f7879b32e",
+      "size": 4239
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/05_audio_devices.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "f4a706e618f0b2b46883aaf94f159cde05067a8a37fbf94a6560ebe18d05776c",
+      "size": 26662
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/06_signed_audio_drivers.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+      "size": 57647
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/07_dolby_packages.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+      "size": 656
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/08_recent_audio_events.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+      "size": 31417
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/09_hklm_mmdevices_render.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+      "size": 312636
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/11_hklm_dolby.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+      "size": 1070
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/13_hklm_windows_audio.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+      "size": 804
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523/14_endpoint_clsid_resolution.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+      "size": 99321
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/00_session.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "b64607b8213cfb418bdfba11df464af4a3175bf43d49648b7a55df4fa7f045be",
+      "size": 468
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/01_qcadcm_version_lock.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+      "size": 405
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/02_audio_services_processes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+      "size": 1214
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/03_audiodg_modules.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "3409209e32dc1baa28c999e4dcc665ba6f6369d1827dbba508dcbb0d6e3e9490",
+      "size": 12429
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/04_relevant_module_hashes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+      "size": 4929
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/05_audio_devices.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "f4a706e618f0b2b46883aaf94f159cde05067a8a37fbf94a6560ebe18d05776c",
+      "size": 26662
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/06_signed_audio_drivers.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+      "size": 57647
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/07_dolby_packages.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+      "size": 656
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/08_recent_audio_events.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+      "size": 31417
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/09_hklm_mmdevices_render.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+      "size": 312636
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/11_hklm_dolby.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+      "size": 1070
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/13_hklm_windows_audio.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+      "size": 804
+    },
+    {
+      "path": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245/14_endpoint_clsid_resolution.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+      "size": 99321
+    },
+    {
+      "path": "USB-MANIFEST.sha256",
+      "role": "source_manifest",
+      "sha256": "2772451cba919f5eff5611b3f9c3a4ec57a84b3243a38991da3e0c0a61a3cab3",
+      "size": 21834
+    },
+    {
+      "path": "capture-package/AudioApoStackKernel2.wprp",
+      "role": "capture_tooling",
+      "sha256": "9d34684bc102be1eeada2211772f483e2cc710acf33e3eea743daa7bb5ee3bd0",
+      "size": 1704
+    },
+    {
+      "path": "capture-package/MANIFEST.sha256",
+      "role": "capture_tooling",
+      "sha256": "d34f5365766afa1d646a3a3656f01ddf81e5226503cebd33d773f0c721989224",
+      "size": 1219
+    },
+    {
+      "path": "capture-package/QUICK-CHECKLIST.md",
+      "role": "capture_tooling",
+      "sha256": "bd3628fee5a5de7ff652267043b4f84ab817f8165a9f05ef41b295f79e3ffd82",
+      "size": 2513
+    },
+    {
+      "path": "capture-package/START-HERE.md",
+      "role": "capture_tooling",
+      "sha256": "36481e4a10db025bcdf4e878319a263acabe5745d1c548fb5a91db2ae19313cc",
+      "size": 24123
+    },
+    {
+      "path": "capture-package/WasapiExclusiveRenderProbe/WasapiExclusiveRenderProbe.deps.json",
+      "role": "capture_tooling",
+      "sha256": "6fda858dd3698382fddc93e090aa8ef505eb239f8c9889ab6a92e50d65a8853f",
+      "size": 527
+    },
+    {
+      "path": "capture-package/WasapiExclusiveRenderProbe/WasapiExclusiveRenderProbe.dll",
+      "role": "capture_tooling",
+      "sha256": "e4bd7be63b8be90d5437f3d9fc88dbc2431d3fb5f21dc9ee878fd53a4bd566ed",
+      "size": 15360
+    },
+    {
+      "path": "capture-package/WasapiExclusiveRenderProbe/WasapiExclusiveRenderProbe.exe",
+      "role": "capture_tooling",
+      "sha256": "b1215040638ec984a5bc8c456488c3fca0e527b16128e4825c11e42f9b318e6b",
+      "size": 137216
+    },
+    {
+      "path": "capture-package/WasapiExclusiveRenderProbe/WasapiExclusiveRenderProbe.runtimeconfig.json",
+      "role": "capture_tooling",
+      "sha256": "1e37b90d2683e3482072b1e51fcba0e8fd8fdb459f0312970532bc58cedc505e",
+      "size": 325
+    },
+    {
+      "path": "capture-package/capture-windows-parity.kd",
+      "role": "capture_tooling",
+      "sha256": "8887ea9c7efdd4eb0aa5818df53aa7f11c253e5e9af5116305562d1727bc4540",
+      "size": 6255
+    },
+    {
+      "path": "capture-package/check-kd-log.py",
+      "role": "capture_tooling",
+      "sha256": "dfeb7d36fa415bba5a4c21ee60d1e5c424d91517abc1cf0b88a496b0adcf9cfa",
+      "size": 2697
+    },
+    {
+      "path": "capture-package/collect-audio-state.ps1",
+      "role": "capture_tooling",
+      "sha256": "1bc22e6ea134d14817e4eff7f54dc4a721c5d0c349f982214caed50ddbceed93",
+      "size": 6989
+    },
+    {
+      "path": "capture-package/extra-capture.md",
+      "role": "untrusted_generated_narrative",
+      "sha256": "d863c469e1a0ce1e97d60ec7be3713d4a1a54746ab5363c1758c348519a3c449",
+      "size": 13925
+    },
+    {
+      "path": "capture-package/power_rails.md",
+      "role": "untrusted_generated_narrative",
+      "sha256": "8038032f641799daca649c57eb0dc3a5c7bedf93bc64bcf93947cd88f24afb25",
+      "size": 54581
+    },
+    {
+      "path": "capture-package/scenario-notes-template.txt",
+      "role": "blank_operator_notes_template",
+      "sha256": "352d4ccbe9c98b49196e9195f0d26d17baddf11b39c1fa2d627c2cbd20846091",
+      "size": 3133
+    },
+    {
+      "path": "capture-package/sp11_audio_parity_captured_telemetry.md",
+      "role": "untrusted_generated_narrative",
+      "sha256": "08883489f9778273f0c20fc99c3d7afefb5eaa0f027b23bfefc2c3b9224f643d",
+      "size": 5638
+    },
+    {
+      "path": "capture-package/start-host-kdnet.ps1",
+      "role": "capture_tooling",
+      "sha256": "0d563ac713f360db7538deb20fdc5334b8b6e9bc40742bfbcc935855505e31cc",
+      "size": 1498
+    },
+    {
+      "path": "extra-capture/extra-capture-file-inventory.txt",
+      "role": "source_manifest",
+      "sha256": "75a5436446e0dc2acae1a548e0332349ceb5635f340b2a51bdeecd41802ad4fb",
+      "size": 18134
+    },
+    {
+      "path": "extra-capture/extra-capture-sha256.txt",
+      "role": "source_manifest",
+      "sha256": "36d200ff6351f498dcc338ba02d78ee716b052059c6c92b22bd7de5427467022",
+      "size": 23534
+    },
+    {
+      "path": "extra-capture/scenario15_44100hz_resampling.txt",
+      "role": "wasapi_probe_result",
+      "sha256": "b0c8daab43d380de3f1803ca69e030bfeeb0d436bcb5af69731efe466a962f35",
+      "size": 346
+    },
+    {
+      "path": "extra-capture/scenario70_mic_coexistence.txt",
+      "role": "wasapi_probe_result",
+      "sha256": "26c9396beabcbd09da4032c4bcc31fea11fcdfab013eef60f9aec6f20f747fd6",
+      "size": 517
+    },
+    {
+      "path": "extra-capture/sp11_audio_parity_extra.etl",
+      "role": "etl_trace",
+      "sha256": "2e3969d42edf6d754b2de259da4db7f8fbcbd673d0cca7eb86ecd2fda0912eaf",
+      "size": 144703488
+    },
+    {
+      "path": "extra-capture/sp11_audio_parity_real_youtube.etl",
+      "role": "etl_trace",
+      "sha256": "0daf9412de5dcb8edc90a5be9f96b245c47ab9a433a7475cdc7c7037f04b58bf",
+      "size": 148897792
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/00_session.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "0c273f7c08e12ac81547db6047f1f5aa1946dccaa97e6d79adfb875bfa46b61a",
+      "size": 480
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/01_qcadcm_version_lock.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+      "size": 405
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/02_audio_services_processes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+      "size": 1214
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/03_audiodg_modules.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "7e7f58b39198a10793da4f76a32f72cec4d7f6e8b88877a163f50d296fc9947b",
+      "size": 11404
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/04_relevant_module_hashes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4f6835058996857b481e8b70ad21404d4ceafc12e4f19318e189047f7879b32e",
+      "size": 4239
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/05_audio_devices.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "5e4282244916e54fa32cb92d370a52404b2df3c3827280d83d2b5c48bea30d32",
+      "size": 26872
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/06_signed_audio_drivers.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+      "size": 57647
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/07_dolby_packages.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+      "size": 656
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/08_recent_audio_events.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+      "size": 31417
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/09_hklm_mmdevices_render.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+      "size": 312636
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/11_hklm_dolby.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+      "size": 1070
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/13_hklm_windows_audio.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+      "size": 804
+    },
+    {
+      "path": "extra-capture/state_extra_final_idle_20260726_112253/14_endpoint_clsid_resolution.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+      "size": 99321
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/00_session.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "a57683e29a0ed5fa623adc926a4800227d23bb0e80676dd8d0077e7060f1b2c8",
+      "size": 492
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/01_qcadcm_version_lock.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+      "size": 405
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/02_audio_services_processes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+      "size": 1214
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/03_audiodg_modules.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "7933bc7a8bce307ae42c885ec54c651df28fb9ddf4ef321cf6c27d0835c8d520",
+      "size": 12429
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/04_relevant_module_hashes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+      "size": 4929
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/05_audio_devices.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "5e4282244916e54fa32cb92d370a52404b2df3c3827280d83d2b5c48bea30d32",
+      "size": 26872
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/06_signed_audio_drivers.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+      "size": 57647
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/07_dolby_packages.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+      "size": 656
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/08_recent_audio_events.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+      "size": 31417
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/09_hklm_mmdevices_render.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+      "size": 312636
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/11_hklm_dolby.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+      "size": 1070
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/13_hklm_windows_audio.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+      "size": 804
+    },
+    {
+      "path": "extra-capture/state_mic_coexistence_active_20260726_112231/14_endpoint_clsid_resolution.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+      "size": 99321
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/00_session.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "8ab096596c4e97a318384431ab7520514cc94bd67c6e7326557b0e6b7f60fc4b",
+      "size": 486
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/01_qcadcm_version_lock.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+      "size": 405
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/02_audio_services_processes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+      "size": 1214
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/03_audiodg_modules.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "a73a9189da418d4f3df531508d3b04608ac16750a9efc3b0d63225b9aeb57ab7",
+      "size": 12429
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/04_relevant_module_hashes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+      "size": 4929
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/05_audio_devices.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "5e4282244916e54fa32cb92d370a52404b2df3c3827280d83d2b5c48bea30d32",
+      "size": 26872
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/06_signed_audio_drivers.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+      "size": 57647
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/07_dolby_packages.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+      "size": 656
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/08_recent_audio_events.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+      "size": 31417
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/09_hklm_mmdevices_render.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+      "size": 312636
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/11_hklm_dolby.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+      "size": 1070
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/13_hklm_windows_audio.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+      "size": 804
+    },
+    {
+      "path": "extra-capture/state_rate_44100hz_active_20260726_112114/14_endpoint_clsid_resolution.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+      "size": 99321
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/00_session.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "590cb5f6a3019a878dff1e708929f352791bbddf6c4fd4279d2ddc61b1912c94",
+      "size": 504
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/01_qcadcm_version_lock.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+      "size": 405
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/02_audio_services_processes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+      "size": 1214
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/03_audiodg_modules.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "64d62282eb59af7d3e2c0af0b1125a99e0241b9894e27f59da53023bda75d628",
+      "size": 12429
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/04_relevant_module_hashes.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+      "size": 4929
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/05_audio_devices.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "5e4282244916e54fa32cb92d370a52404b2df3c3827280d83d2b5c48bea30d32",
+      "size": 26872
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/06_signed_audio_drivers.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+      "size": 57647
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/07_dolby_packages.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+      "size": 656
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/08_recent_audio_events.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+      "size": 31417
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/09_hklm_mmdevices_render.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+      "size": 312636
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/11_hklm_dolby.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+      "size": 1070
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/13_hklm_windows_audio.reg",
+      "role": "windows_state_snapshot",
+      "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+      "size": 804
+    },
+    {
+      "path": "extra-capture/state_real_youtube_playback_active_20260726_112804/14_endpoint_clsid_resolution.txt",
+      "role": "windows_state_snapshot",
+      "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+      "size": 99321
+    }
+  ],
+  "format": "sp11-returned-windows-capture-inventory",
+  "format_version": 1,
+  "role_counts": {
+    "blank_operator_notes_template": 2,
+    "capture_auxiliary": 3,
+    "capture_tooling": 12,
+    "etl_trace": 3,
+    "source_manifest": 6,
+    "untrusted_generated_narrative": 3,
+    "wasapi_probe_result": 8,
+    "windows_state_snapshot": 117
+  },
+  "root": "windows-target-20260726",
+  "state_file_equality_groups": {
+    "00_session.txt": {
+      "0c273f7c08e12ac81547db6047f1f5aa1946dccaa97e6d79adfb875bfa46b61a": [
+        "extra-capture/state_extra_final_idle_20260726_112253"
+      ],
+      "4f15d4456ced9d3c6e5d4bda06bf1a87860bc8fecc060b360051093dfe4d2f31": [
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135"
+      ],
+      "590cb5f6a3019a878dff1e708929f352791bbddf6c4fd4279d2ddc61b1912c94": [
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ],
+      "8ab096596c4e97a318384431ab7520514cc94bd67c6e7326557b0e6b7f60fc4b": [
+        "extra-capture/state_rate_44100hz_active_20260726_112114"
+      ],
+      "9229d0263b28c1bcca37d40339c16fce90debd1bf96f1062c68226f68d3fc8a5": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009"
+      ],
+      "a57683e29a0ed5fa623adc926a4800227d23bb0e80676dd8d0077e7060f1b2c8": [
+        "extra-capture/state_mic_coexistence_active_20260726_112231"
+      ],
+      "b64607b8213cfb418bdfba11df464af4a3175bf43d49648b7a55df4fa7f045be": [
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245"
+      ],
+      "e695492719d411a1928e24a27360d87fbeb2147575f29e5963501bfd0ea1a600": [
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523"
+      ],
+      "f5baf93446835cdc9e279331cec180bd0d2a1d5e8dd27d7da41b0218176ce46b": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115"
+      ]
+    },
+    "01_qcadcm_version_lock.txt": {
+      "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115",
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245",
+        "extra-capture/state_extra_final_idle_20260726_112253",
+        "extra-capture/state_mic_coexistence_active_20260726_112231",
+        "extra-capture/state_rate_44100hz_active_20260726_112114",
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ]
+    },
+    "02_audio_services_processes.txt": {
+      "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245",
+        "extra-capture/state_extra_final_idle_20260726_112253",
+        "extra-capture/state_mic_coexistence_active_20260726_112231",
+        "extra-capture/state_rate_44100hz_active_20260726_112114",
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ],
+      "db72c0c1ca596ad51b89f616f26b454eca6328ddd2be5ac5aeababc94abff66d": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115"
+      ]
+    },
+    "03_audiodg_modules.txt": {
+      "11d1709e844cb5ff509530ee010525c27427587334c9a1d01da68239239264dc": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009"
+      ],
+      "3409209e32dc1baa28c999e4dcc665ba6f6369d1827dbba508dcbb0d6e3e9490": [
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245"
+      ],
+      "4d3852d48141e53db38f61d4d055c18db5a23a7a0248af9aec7363bb897aabf3": [
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135"
+      ],
+      "5f572c0f9c6b2cb1f2e921edd51c93bf3601d3c246b6eac21c7ec80fe8cd749c": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115"
+      ],
+      "64d62282eb59af7d3e2c0af0b1125a99e0241b9894e27f59da53023bda75d628": [
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ],
+      "7933bc7a8bce307ae42c885ec54c651df28fb9ddf4ef321cf6c27d0835c8d520": [
+        "extra-capture/state_mic_coexistence_active_20260726_112231"
+      ],
+      "7e7f58b39198a10793da4f76a32f72cec4d7f6e8b88877a163f50d296fc9947b": [
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "extra-capture/state_extra_final_idle_20260726_112253"
+      ],
+      "a73a9189da418d4f3df531508d3b04608ac16750a9efc3b0d63225b9aeb57ab7": [
+        "extra-capture/state_rate_44100hz_active_20260726_112114"
+      ]
+    },
+    "04_relevant_module_hashes.txt": {
+      "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245",
+        "extra-capture/state_mic_coexistence_active_20260726_112231",
+        "extra-capture/state_rate_44100hz_active_20260726_112114",
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ],
+      "4f6835058996857b481e8b70ad21404d4ceafc12e4f19318e189047f7879b32e": [
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "extra-capture/state_extra_final_idle_20260726_112253"
+      ],
+      "d895f069ceaf37dd0b9119d1b79acf1492b92d21aca2529ac2f1ddec6dfcdc33": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115"
+      ]
+    },
+    "05_audio_devices.txt": {
+      "5e4282244916e54fa32cb92d370a52404b2df3c3827280d83d2b5c48bea30d32": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115",
+        "extra-capture/state_extra_final_idle_20260726_112253",
+        "extra-capture/state_mic_coexistence_active_20260726_112231",
+        "extra-capture/state_rate_44100hz_active_20260726_112114",
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ],
+      "f4a706e618f0b2b46883aaf94f159cde05067a8a37fbf94a6560ebe18d05776c": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245"
+      ]
+    },
+    "06_signed_audio_drivers.txt": {
+      "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115",
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245",
+        "extra-capture/state_extra_final_idle_20260726_112253",
+        "extra-capture/state_mic_coexistence_active_20260726_112231",
+        "extra-capture/state_rate_44100hz_active_20260726_112114",
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ]
+    },
+    "07_dolby_packages.txt": {
+      "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115",
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245",
+        "extra-capture/state_extra_final_idle_20260726_112253",
+        "extra-capture/state_mic_coexistence_active_20260726_112231",
+        "extra-capture/state_rate_44100hz_active_20260726_112114",
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ]
+    },
+    "08_recent_audio_events.txt": {
+      "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245",
+        "extra-capture/state_extra_final_idle_20260726_112253",
+        "extra-capture/state_mic_coexistence_active_20260726_112231",
+        "extra-capture/state_rate_44100hz_active_20260726_112114",
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ],
+      "d2efa193b380b86de964aff4ad8a98b810bafc782dc8e745054ea71b27c0981c": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115"
+      ]
+    },
+    "09_hklm_mmdevices_render.reg": {
+      "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245",
+        "extra-capture/state_extra_final_idle_20260726_112253",
+        "extra-capture/state_mic_coexistence_active_20260726_112231",
+        "extra-capture/state_rate_44100hz_active_20260726_112114",
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ],
+      "97d13e9e96493f5e293f0099ac703578fce3e92ac31b3038c5173db9b2556ec6": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115"
+      ]
+    },
+    "11_hklm_dolby.reg": {
+      "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115",
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245",
+        "extra-capture/state_extra_final_idle_20260726_112253",
+        "extra-capture/state_mic_coexistence_active_20260726_112231",
+        "extra-capture/state_rate_44100hz_active_20260726_112114",
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ]
+    },
+    "13_hklm_windows_audio.reg": {
+      "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115",
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245",
+        "extra-capture/state_extra_final_idle_20260726_112253",
+        "extra-capture/state_mic_coexistence_active_20260726_112231",
+        "extra-capture/state_rate_44100hz_active_20260726_112114",
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ]
+    },
+    "14_endpoint_clsid_resolution.txt": {
+      "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+        "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+        "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+        "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245",
+        "extra-capture/state_extra_final_idle_20260726_112253",
+        "extra-capture/state_mic_coexistence_active_20260726_112231",
+        "extra-capture/state_rate_44100hz_active_20260726_112114",
+        "extra-capture/state_real_youtube_playback_active_20260726_112804"
+      ],
+      "f37522c2a9b014a43e3925831e78d2318cb4877c9e8f0aee64f11ab4ab030a5f": [
+        "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115"
+      ]
+    }
+  },
+  "state_snapshots": [
+    {
+      "directory": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115",
+      "file_count": 13,
+      "files": {
+        "00_session.txt": {
+          "sha256": "f5baf93446835cdc9e279331cec180bd0d2a1d5e8dd27d7da41b0218176ce46b",
+          "size": 462
+        },
+        "01_qcadcm_version_lock.txt": {
+          "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+          "size": 405
+        },
+        "02_audio_services_processes.txt": {
+          "sha256": "db72c0c1ca596ad51b89f616f26b454eca6328ddd2be5ac5aeababc94abff66d",
+          "size": 1214
+        },
+        "03_audiodg_modules.txt": {
+          "sha256": "5f572c0f9c6b2cb1f2e921edd51c93bf3601d3c246b6eac21c7ec80fe8cd749c",
+          "size": 11172
+        },
+        "04_relevant_module_hashes.txt": {
+          "sha256": "d895f069ceaf37dd0b9119d1b79acf1492b92d21aca2529ac2f1ddec6dfcdc33",
+          "size": 3987
+        },
+        "05_audio_devices.txt": {
+          "sha256": "5e4282244916e54fa32cb92d370a52404b2df3c3827280d83d2b5c48bea30d32",
+          "size": 26872
+        },
+        "06_signed_audio_drivers.txt": {
+          "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+          "size": 57647
+        },
+        "07_dolby_packages.txt": {
+          "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+          "size": 656
+        },
+        "08_recent_audio_events.txt": {
+          "sha256": "d2efa193b380b86de964aff4ad8a98b810bafc782dc8e745054ea71b27c0981c",
+          "size": 31417
+        },
+        "09_hklm_mmdevices_render.reg": {
+          "sha256": "97d13e9e96493f5e293f0099ac703578fce3e92ac31b3038c5173db9b2556ec6",
+          "size": 324046
+        },
+        "11_hklm_dolby.reg": {
+          "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+          "size": 1070
+        },
+        "13_hklm_windows_audio.reg": {
+          "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+          "size": 804
+        },
+        "14_endpoint_clsid_resolution.txt": {
+          "sha256": "f37522c2a9b014a43e3925831e78d2318cb4877c9e8f0aee64f11ab4ab030a5f",
+          "size": 95151
+        }
+      },
+      "label": "cold_boot_idle",
+      "qcadcm": {
+        "expected_hash_match": true,
+        "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+        "version": "1.0.0.7966"
+      },
+      "relevant_audiodg_modules": [
+        "dolbyapovlldp150.dll",
+        "dolbyapovr.dll",
+        "dolbydax3apo.dll",
+        "surfaceapo.dll",
+        "virtualsurroundapo.dll"
+      ]
+    },
+    {
+      "directory": "SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_110009",
+      "file_count": 13,
+      "files": {
+        "00_session.txt": {
+          "sha256": "9229d0263b28c1bcca37d40339c16fce90debd1bf96f1062c68226f68d3fc8a5",
+          "size": 462
+        },
+        "01_qcadcm_version_lock.txt": {
+          "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+          "size": 405
+        },
+        "02_audio_services_processes.txt": {
+          "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+          "size": 1214
+        },
+        "03_audiodg_modules.txt": {
+          "sha256": "11d1709e844cb5ff509530ee010525c27427587334c9a1d01da68239239264dc",
+          "size": 12429
+        },
+        "04_relevant_module_hashes.txt": {
+          "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+          "size": 4929
+        },
+        "05_audio_devices.txt": {
+          "sha256": "f4a706e618f0b2b46883aaf94f159cde05067a8a37fbf94a6560ebe18d05776c",
+          "size": 26662
+        },
+        "06_signed_audio_drivers.txt": {
+          "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+          "size": 57647
+        },
+        "07_dolby_packages.txt": {
+          "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+          "size": 656
+        },
+        "08_recent_audio_events.txt": {
+          "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+          "size": 31417
+        },
+        "09_hklm_mmdevices_render.reg": {
+          "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+          "size": 312636
+        },
+        "11_hklm_dolby.reg": {
+          "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+          "size": 1070
+        },
+        "13_hklm_windows_audio.reg": {
+          "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+          "size": 804
+        },
+        "14_endpoint_clsid_resolution.txt": {
+          "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+          "size": 99321
+        }
+      },
+      "label": "cold_boot_idle",
+      "qcadcm": {
+        "expected_hash_match": true,
+        "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+        "version": "1.0.0.7966"
+      },
+      "relevant_audiodg_modules": [
+        "dolbyapovlldp150.dll",
+        "dolbyapovr.dll",
+        "dolbyaudioprocessing.dll",
+        "dolbydax3apo.dll",
+        "dolbyhrtfenc.dll",
+        "surfaceapo.dll",
+        "virtualsurroundapo.dll",
+        "voiceclarityapo.dll"
+      ]
+    },
+    {
+      "directory": "SP11-PARITY-OUTPUT/state_dolby_bypass_shared_active_20260726_110135",
+      "file_count": 13,
+      "files": {
+        "00_session.txt": {
+          "sha256": "4f15d4456ced9d3c6e5d4bda06bf1a87860bc8fecc060b360051093dfe4d2f31",
+          "size": 486
+        },
+        "01_qcadcm_version_lock.txt": {
+          "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+          "size": 405
+        },
+        "02_audio_services_processes.txt": {
+          "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+          "size": 1214
+        },
+        "03_audiodg_modules.txt": {
+          "sha256": "4d3852d48141e53db38f61d4d055c18db5a23a7a0248af9aec7363bb897aabf3",
+          "size": 12429
+        },
+        "04_relevant_module_hashes.txt": {
+          "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+          "size": 4929
+        },
+        "05_audio_devices.txt": {
+          "sha256": "f4a706e618f0b2b46883aaf94f159cde05067a8a37fbf94a6560ebe18d05776c",
+          "size": 26662
+        },
+        "06_signed_audio_drivers.txt": {
+          "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+          "size": 57647
+        },
+        "07_dolby_packages.txt": {
+          "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+          "size": 656
+        },
+        "08_recent_audio_events.txt": {
+          "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+          "size": 31417
+        },
+        "09_hklm_mmdevices_render.reg": {
+          "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+          "size": 312636
+        },
+        "11_hklm_dolby.reg": {
+          "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+          "size": 1070
+        },
+        "13_hklm_windows_audio.reg": {
+          "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+          "size": 804
+        },
+        "14_endpoint_clsid_resolution.txt": {
+          "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+          "size": 99321
+        }
+      },
+      "label": "dolby_bypass_shared_active",
+      "qcadcm": {
+        "expected_hash_match": true,
+        "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+        "version": "1.0.0.7966"
+      },
+      "relevant_audiodg_modules": [
+        "dolbyapovlldp150.dll",
+        "dolbyapovr.dll",
+        "dolbyaudioprocessing.dll",
+        "dolbydax3apo.dll",
+        "dolbyhrtfenc.dll",
+        "surfaceapo.dll",
+        "virtualsurroundapo.dll",
+        "voiceclarityapo.dll"
+      ]
+    },
+    {
+      "directory": "SP11-PARITY-OUTPUT/state_final_idle_20260726_110523",
+      "file_count": 13,
+      "files": {
+        "00_session.txt": {
+          "sha256": "e695492719d411a1928e24a27360d87fbeb2147575f29e5963501bfd0ea1a600",
+          "size": 454
+        },
+        "01_qcadcm_version_lock.txt": {
+          "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+          "size": 405
+        },
+        "02_audio_services_processes.txt": {
+          "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+          "size": 1214
+        },
+        "03_audiodg_modules.txt": {
+          "sha256": "7e7f58b39198a10793da4f76a32f72cec4d7f6e8b88877a163f50d296fc9947b",
+          "size": 11404
+        },
+        "04_relevant_module_hashes.txt": {
+          "sha256": "4f6835058996857b481e8b70ad21404d4ceafc12e4f19318e189047f7879b32e",
+          "size": 4239
+        },
+        "05_audio_devices.txt": {
+          "sha256": "f4a706e618f0b2b46883aaf94f159cde05067a8a37fbf94a6560ebe18d05776c",
+          "size": 26662
+        },
+        "06_signed_audio_drivers.txt": {
+          "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+          "size": 57647
+        },
+        "07_dolby_packages.txt": {
+          "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+          "size": 656
+        },
+        "08_recent_audio_events.txt": {
+          "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+          "size": 31417
+        },
+        "09_hklm_mmdevices_render.reg": {
+          "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+          "size": 312636
+        },
+        "11_hklm_dolby.reg": {
+          "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+          "size": 1070
+        },
+        "13_hklm_windows_audio.reg": {
+          "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+          "size": 804
+        },
+        "14_endpoint_clsid_resolution.txt": {
+          "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+          "size": 99321
+        }
+      },
+      "label": "final_idle",
+      "qcadcm": {
+        "expected_hash_match": true,
+        "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+        "version": "1.0.0.7966"
+      },
+      "relevant_audiodg_modules": [
+        "dolbyapovlldp150.dll",
+        "dolbyapovr.dll",
+        "dolbydax3apo.dll",
+        "surfaceapo.dll",
+        "virtualsurroundapo.dll",
+        "voiceclarityapo.dll"
+      ]
+    },
+    {
+      "directory": "SP11-PARITY-OUTPUT/state_shared_raw_active_20260726_110245",
+      "file_count": 13,
+      "files": {
+        "00_session.txt": {
+          "sha256": "b64607b8213cfb418bdfba11df464af4a3175bf43d49648b7a55df4fa7f045be",
+          "size": 468
+        },
+        "01_qcadcm_version_lock.txt": {
+          "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+          "size": 405
+        },
+        "02_audio_services_processes.txt": {
+          "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+          "size": 1214
+        },
+        "03_audiodg_modules.txt": {
+          "sha256": "3409209e32dc1baa28c999e4dcc665ba6f6369d1827dbba508dcbb0d6e3e9490",
+          "size": 12429
+        },
+        "04_relevant_module_hashes.txt": {
+          "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+          "size": 4929
+        },
+        "05_audio_devices.txt": {
+          "sha256": "f4a706e618f0b2b46883aaf94f159cde05067a8a37fbf94a6560ebe18d05776c",
+          "size": 26662
+        },
+        "06_signed_audio_drivers.txt": {
+          "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+          "size": 57647
+        },
+        "07_dolby_packages.txt": {
+          "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+          "size": 656
+        },
+        "08_recent_audio_events.txt": {
+          "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+          "size": 31417
+        },
+        "09_hklm_mmdevices_render.reg": {
+          "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+          "size": 312636
+        },
+        "11_hklm_dolby.reg": {
+          "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+          "size": 1070
+        },
+        "13_hklm_windows_audio.reg": {
+          "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+          "size": 804
+        },
+        "14_endpoint_clsid_resolution.txt": {
+          "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+          "size": 99321
+        }
+      },
+      "label": "shared_raw_active",
+      "qcadcm": {
+        "expected_hash_match": true,
+        "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+        "version": "1.0.0.7966"
+      },
+      "relevant_audiodg_modules": [
+        "dolbyapovlldp150.dll",
+        "dolbyapovr.dll",
+        "dolbyaudioprocessing.dll",
+        "dolbydax3apo.dll",
+        "dolbyhrtfenc.dll",
+        "surfaceapo.dll",
+        "virtualsurroundapo.dll",
+        "voiceclarityapo.dll"
+      ]
+    },
+    {
+      "directory": "extra-capture/state_extra_final_idle_20260726_112253",
+      "file_count": 13,
+      "files": {
+        "00_session.txt": {
+          "sha256": "0c273f7c08e12ac81547db6047f1f5aa1946dccaa97e6d79adfb875bfa46b61a",
+          "size": 480
+        },
+        "01_qcadcm_version_lock.txt": {
+          "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+          "size": 405
+        },
+        "02_audio_services_processes.txt": {
+          "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+          "size": 1214
+        },
+        "03_audiodg_modules.txt": {
+          "sha256": "7e7f58b39198a10793da4f76a32f72cec4d7f6e8b88877a163f50d296fc9947b",
+          "size": 11404
+        },
+        "04_relevant_module_hashes.txt": {
+          "sha256": "4f6835058996857b481e8b70ad21404d4ceafc12e4f19318e189047f7879b32e",
+          "size": 4239
+        },
+        "05_audio_devices.txt": {
+          "sha256": "5e4282244916e54fa32cb92d370a52404b2df3c3827280d83d2b5c48bea30d32",
+          "size": 26872
+        },
+        "06_signed_audio_drivers.txt": {
+          "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+          "size": 57647
+        },
+        "07_dolby_packages.txt": {
+          "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+          "size": 656
+        },
+        "08_recent_audio_events.txt": {
+          "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+          "size": 31417
+        },
+        "09_hklm_mmdevices_render.reg": {
+          "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+          "size": 312636
+        },
+        "11_hklm_dolby.reg": {
+          "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+          "size": 1070
+        },
+        "13_hklm_windows_audio.reg": {
+          "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+          "size": 804
+        },
+        "14_endpoint_clsid_resolution.txt": {
+          "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+          "size": 99321
+        }
+      },
+      "label": "extra_final_idle",
+      "qcadcm": {
+        "expected_hash_match": true,
+        "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+        "version": "1.0.0.7966"
+      },
+      "relevant_audiodg_modules": [
+        "dolbyapovlldp150.dll",
+        "dolbyapovr.dll",
+        "dolbydax3apo.dll",
+        "surfaceapo.dll",
+        "virtualsurroundapo.dll",
+        "voiceclarityapo.dll"
+      ]
+    },
+    {
+      "directory": "extra-capture/state_mic_coexistence_active_20260726_112231",
+      "file_count": 13,
+      "files": {
+        "00_session.txt": {
+          "sha256": "a57683e29a0ed5fa623adc926a4800227d23bb0e80676dd8d0077e7060f1b2c8",
+          "size": 492
+        },
+        "01_qcadcm_version_lock.txt": {
+          "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+          "size": 405
+        },
+        "02_audio_services_processes.txt": {
+          "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+          "size": 1214
+        },
+        "03_audiodg_modules.txt": {
+          "sha256": "7933bc7a8bce307ae42c885ec54c651df28fb9ddf4ef321cf6c27d0835c8d520",
+          "size": 12429
+        },
+        "04_relevant_module_hashes.txt": {
+          "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+          "size": 4929
+        },
+        "05_audio_devices.txt": {
+          "sha256": "5e4282244916e54fa32cb92d370a52404b2df3c3827280d83d2b5c48bea30d32",
+          "size": 26872
+        },
+        "06_signed_audio_drivers.txt": {
+          "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+          "size": 57647
+        },
+        "07_dolby_packages.txt": {
+          "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+          "size": 656
+        },
+        "08_recent_audio_events.txt": {
+          "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+          "size": 31417
+        },
+        "09_hklm_mmdevices_render.reg": {
+          "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+          "size": 312636
+        },
+        "11_hklm_dolby.reg": {
+          "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+          "size": 1070
+        },
+        "13_hklm_windows_audio.reg": {
+          "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+          "size": 804
+        },
+        "14_endpoint_clsid_resolution.txt": {
+          "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+          "size": 99321
+        }
+      },
+      "label": "mic_coexistence_active",
+      "qcadcm": {
+        "expected_hash_match": true,
+        "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+        "version": "1.0.0.7966"
+      },
+      "relevant_audiodg_modules": [
+        "dolbyapovlldp150.dll",
+        "dolbyapovr.dll",
+        "dolbyaudioprocessing.dll",
+        "dolbydax3apo.dll",
+        "dolbyhrtfenc.dll",
+        "surfaceapo.dll",
+        "virtualsurroundapo.dll",
+        "voiceclarityapo.dll"
+      ]
+    },
+    {
+      "directory": "extra-capture/state_rate_44100hz_active_20260726_112114",
+      "file_count": 13,
+      "files": {
+        "00_session.txt": {
+          "sha256": "8ab096596c4e97a318384431ab7520514cc94bd67c6e7326557b0e6b7f60fc4b",
+          "size": 486
+        },
+        "01_qcadcm_version_lock.txt": {
+          "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+          "size": 405
+        },
+        "02_audio_services_processes.txt": {
+          "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+          "size": 1214
+        },
+        "03_audiodg_modules.txt": {
+          "sha256": "a73a9189da418d4f3df531508d3b04608ac16750a9efc3b0d63225b9aeb57ab7",
+          "size": 12429
+        },
+        "04_relevant_module_hashes.txt": {
+          "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+          "size": 4929
+        },
+        "05_audio_devices.txt": {
+          "sha256": "5e4282244916e54fa32cb92d370a52404b2df3c3827280d83d2b5c48bea30d32",
+          "size": 26872
+        },
+        "06_signed_audio_drivers.txt": {
+          "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+          "size": 57647
+        },
+        "07_dolby_packages.txt": {
+          "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+          "size": 656
+        },
+        "08_recent_audio_events.txt": {
+          "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+          "size": 31417
+        },
+        "09_hklm_mmdevices_render.reg": {
+          "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+          "size": 312636
+        },
+        "11_hklm_dolby.reg": {
+          "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+          "size": 1070
+        },
+        "13_hklm_windows_audio.reg": {
+          "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+          "size": 804
+        },
+        "14_endpoint_clsid_resolution.txt": {
+          "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+          "size": 99321
+        }
+      },
+      "label": "rate_44100hz_active",
+      "qcadcm": {
+        "expected_hash_match": true,
+        "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+        "version": "1.0.0.7966"
+      },
+      "relevant_audiodg_modules": [
+        "dolbyapovlldp150.dll",
+        "dolbyapovr.dll",
+        "dolbyaudioprocessing.dll",
+        "dolbydax3apo.dll",
+        "dolbyhrtfenc.dll",
+        "surfaceapo.dll",
+        "virtualsurroundapo.dll",
+        "voiceclarityapo.dll"
+      ]
+    },
+    {
+      "directory": "extra-capture/state_real_youtube_playback_active_20260726_112804",
+      "file_count": 13,
+      "files": {
+        "00_session.txt": {
+          "sha256": "590cb5f6a3019a878dff1e708929f352791bbddf6c4fd4279d2ddc61b1912c94",
+          "size": 504
+        },
+        "01_qcadcm_version_lock.txt": {
+          "sha256": "dae7f111e3182901284b4e724616925f860dd018f6139eb1bc4817258f83474b",
+          "size": 405
+        },
+        "02_audio_services_processes.txt": {
+          "sha256": "74a54580a11dd21adbf6024b8fecbf8d84502942bb2cf1b60075e77573e22ae4",
+          "size": 1214
+        },
+        "03_audiodg_modules.txt": {
+          "sha256": "64d62282eb59af7d3e2c0af0b1125a99e0241b9894e27f59da53023bda75d628",
+          "size": 12429
+        },
+        "04_relevant_module_hashes.txt": {
+          "sha256": "4425f07aca72384402fe67fc89386a8e4de5c006553af2b2eb0cd047ebf060d7",
+          "size": 4929
+        },
+        "05_audio_devices.txt": {
+          "sha256": "5e4282244916e54fa32cb92d370a52404b2df3c3827280d83d2b5c48bea30d32",
+          "size": 26872
+        },
+        "06_signed_audio_drivers.txt": {
+          "sha256": "90c17c62edfbe39ebdcd93ccc67389424c5caab42518eb433b955dbf61e84ddc",
+          "size": 57647
+        },
+        "07_dolby_packages.txt": {
+          "sha256": "577319e7c5ff832ff973f38d7797e4fe670a2ebe3507e5b58b72ebfdc996e60f",
+          "size": 656
+        },
+        "08_recent_audio_events.txt": {
+          "sha256": "41ac5ff3ab6f5f76aff4af69d8b9db43e82472ffc49b5ecfe13c3fd81e7635b9",
+          "size": 31417
+        },
+        "09_hklm_mmdevices_render.reg": {
+          "sha256": "43dfa069e48c5597dc64c461060d510576f25457dcccaad1566a38361fea365c",
+          "size": 312636
+        },
+        "11_hklm_dolby.reg": {
+          "sha256": "cbc4cd35091b9929c97f2257994e6ef5f3c83b6f8e1912e852e8660269c27e0a",
+          "size": 1070
+        },
+        "13_hklm_windows_audio.reg": {
+          "sha256": "51fbe7a17c103f790ca622cbaaf0bc875477beb85a256a7e3e3d22944c8be157",
+          "size": 804
+        },
+        "14_endpoint_clsid_resolution.txt": {
+          "sha256": "4a91e17b1a8428a19132b9153569726e5ab67ac27864d69e1a1d81cafdce1835",
+          "size": 99321
+        }
+      },
+      "label": "real_youtube_playback_active",
+      "qcadcm": {
+        "expected_hash_match": true,
+        "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+        "version": "1.0.0.7966"
+      },
+      "relevant_audiodg_modules": [
+        "dolbyapovlldp150.dll",
+        "dolbyapovr.dll",
+        "dolbyaudioprocessing.dll",
+        "dolbydax3apo.dll",
+        "dolbyhrtfenc.dll",
+        "surfaceapo.dll",
+        "virtualsurroundapo.dll",
+        "voiceclarityapo.dll"
+      ]
+    }
+  ]
+}
