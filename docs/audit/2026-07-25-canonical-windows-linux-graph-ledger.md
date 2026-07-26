@@ -232,6 +232,37 @@ matches the recovered CPS router API and the live module's 1/0 port shape.
 The full evidence chain is recorded in
 `docs/findings/2026-07-26-qcadsp-e4-cps-data-router.md`.
 
+### Root CODEC_DMA hardware interface
+
+`[ACDB][DRV][HDR]` The module-tag lookup for root `b0000001`, endpoint tag key
+`04010003`, resolves four permitted configurations for `CODEC_DMA_SINK 4157`.
+All four select `PARAM_ID_CODEC_DMA_INTF_CFG` with:
+
+```text
+lpaif_type=2 (LPAIF_WSA), interface_index=1
+```
+
+The rows are fixed-point PCM at 48 kHz: 16- or 24-bit, with either two
+channels/mask `00000003` or four channels/mask `0000000f`. The exact runtime
+row remains uncaptured, but WSA interface 1 is invariant across every row.
+The complete MTKT → MTKL/MTLU → MTDE/MTDO → POOL closure is retained in
+`artifacts/reviewed/windows-root-codec-dma-hwif.json`.
+
+`[LINUX]` The installed `device105.codec_dma_rx1` already has hardware
+interface index `1`, interface type `2` (`LPAIF_WSA`), and fixed-point format
+`1`. Linux derives the same two/four-channel masks from the negotiated channel
+count. This narrow backend boundary matches Windows; it does not validate the
+donor graph before it or the physical SoundWire/amp mapping after it.
+
+`[ACDB][HDR]` Root tag key `04010005` independently configures the VI
+`CODEC_DMA_SOURCE 4026` as WSA interface 1, fixed-point, 32-bit, with 2/4
+channels and a matching `00000003`/`0000000f` mask at either 8 or 48 kHz.
+SP_VI tag key `0401000b` maps the 2-channel alternative to four ordered
+Vsens/Isens values for speakers 1/2, and the 4-channel alternative to eight
+values for speakers 1..4. Windows therefore has a concrete WSA feedback
+endpoint; the current Linux sound card's missing `WSA_CODEC_DMA_TX_0` link is
+an exact structural gap.
+
 ## DEFAULT render family A — `0xb000007e` + `0xb000007f`
 
 `[DRV][ACDB]` The complete six-key selector for this family is:
@@ -556,13 +587,13 @@ render family feeding a shared protection root.
 | Root render path | `SAL -> CHMIXER -> SP -> SPLITTER -> LOGGER -> DMA` | `SAL` is inside donor stream; no CHMIXER/SP/SPLITTER | Implement exact shared root |
 | SP module | `070010e2`, 1/1 | absent | Required |
 | SP_VI module | `070010e3`, 1/1 | absent | Required |
-| VI transport | two CODEC_DMA_SOURCE branches exist in root | WSA TX/VI DAI link absent; VI mixers off | Add kernel/DT/topology transport only after offline graph completion |
+| VI transport | `4026` is WSA interface 1, 32-bit, 2/4 channels; SP_VI expects paired Vsens/Isens maps | WSA TX/VI DAI link absent; VI mixers off | Add `WSA_CODEC_DMA_TX_0` sound-card and topology transport with the selected exact channel count/map |
 | SP/SP_VI data edge | none in live `MODULE_CONN` | none | Do not invent one |
 | SP/SP_VI control link | exact `INTENT_ID_SP` control link | no decoded equivalent | Implement as a control link, not an audio edge |
 | Other control links | CPS, timer-drift, and EQ/headroom links are exact | no decoded equivalents | Preserve exact peer ports and intents |
 | Root external edges | splitter feeds MFC IIDs `47c9`, `4747`, `4730` in static SGs `9a`, `8c`, `8a` | absent | Close lifecycle/co-selection before deciding which peer graphs belong in baseline |
 | Render loopback edge | SPR port 3 feeds speaker-loopback SAL `4144`; SGs `45/46` terminate at `SH_MEM_PUSH_MODE 40e5` | absent | Optional for initial playback; preserve a disabled output-3 route until loopback is implemented |
-| Backend model | root contains CODEC_DMA sink and sources | separate donor device105 logger/MFC/DMA chain | Replace donor backend assumptions |
+| Backend model | root contains CODEC_DMA sink and sources; sink uses WSA interface 1, fixed-point, 48 kHz, 2/4 channels | separate donor device105 logger/MFC/DMA chain; DMA tokens already select WSA interface 1 and fixed-point | Reuse the proven DMA interface tokens, but replace donor graph assumptions |
 | Dormant backend | no conclusion from Windows bodies | DAPM set 106 names RX1 while module token uses graph 107 and kernel DAI 106 is TX0 | Remove from new baseline |
 | Dynamic gain | exact per-channel Q28 `VOL_CTRL` updates observed | topology names hide module identity; runtime parity unproven | Capture and compare update ordering before diagnosing spikes |
 | Dolby | no Dolby AudioReach module in these bodies | active PipeWire EQ changes samples | Keep a userspace identity/bypass insertion point; disable EQ for parity tests |
@@ -625,7 +656,7 @@ of these are true:
 | P0 | Runtime selection/order of the 27 static SP/SP_VI ACDB mappings | Capture all out-of-band `SET_CFG` bodies and correlate them with the reviewed POOL hashes |
 | P0 | Returned values for SP/SP_VI `GET_CFG` requests | Capture response packets, not only request buffers |
 | P0 | Linux WSA playback+VI SoundWire transport behavior | Instrument a reproducible kernel with amplifiers muted |
-| P1 | Exact multi-speaker hardware routing after root `CODEC_DMA_SINK 4157` | Resolve codec-DMA, WSA macro, SoundWire port/channel, and amplifier maps; do not infer it from A/B or the loopback tap |
+| P1 | Physical mapping after proven WSA interface 1 | Resolve WSA channel 0..3 to macro slots, SoundWire master/slave ports, and amplifier instances; do not infer labels from the channel mask |
 | P1 | Dynamic gain-update ordering relative to audio | Timestamp complete GPR commands and Windows volume events |
 
 ## Next decision

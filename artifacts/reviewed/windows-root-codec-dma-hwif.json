@@ -1,0 +1,436 @@
+{
+  "chunk_sha256": {
+    "MTDE": "f0348cef98ad6fd35ffcdcde014565aa90be75e1e1f7bc963634536e5cb145da",
+    "MTDO": "20c1bf7ad8b2d959ac824c6827faba1f02463572585ab210a7fe118ce7e4759e",
+    "MTKL": "c5b6e116f1181998fa2398c87317197991bc7490f43d8408f658dd17e28987f6",
+    "MTKT": "19f8b09bf1357e2c8eac1e1974d63ba83d02aa75115524bcff1b62769bd5ad02",
+    "MTLU": "e6272e8d568fd5e562d2720e9dcbdcac6d7e719c2dca8e0a64cc13e02ea611c5",
+    "POOL": "35073b935392fa6981f514d14871b003442e47d8a96b24a34b845e1b3f0ae759"
+  },
+  "evidence_class": "B: static Windows ACDB MTKT/MTKL/MTLU/MTDE/MTDO/POOL mapping; not proof of runtime row selection",
+  "format": "SP11 ACDB module-tag lookup inventory",
+  "format_version": 1,
+  "key_ids": [
+    "0x01000006",
+    "0x01000007",
+    "0x0100000e",
+    "0x0100000f",
+    "0x01000010",
+    "0x01000012",
+    "0x01000013",
+    "0x01000014",
+    "0x01000015",
+    "0x01000016",
+    "0x01000017",
+    "0x01000018",
+    "0x01000019",
+    "0x0100001a",
+    "0x01000022"
+  ],
+  "mtlu_offset": "0x00000000",
+  "row_count": 4,
+  "rows": [
+    {
+      "mtde_offset": "0x00000000",
+      "mtdo_offset": "0x00000000",
+      "parameters": [
+        {
+          "decoded": {
+            "bit_width": 16,
+            "data_format": 1,
+            "name": "PARAM_ID_HW_EP_MF_CFG",
+            "num_channels": 2,
+            "sample_rate": 48000
+          },
+          "iid": "0x00004157",
+          "param_id": "0x08001017",
+          "payload_hex": "80bb00001000020001000000",
+          "payload_sha256": "da890917dc6b1d4bfbe0eda16f8a994e68037f9a6b55690576d56de20b6b808d",
+          "payload_size": 12,
+          "pool_offset": "0x000183f8"
+        },
+        {
+          "decoded": {
+            "active_channels_mask": "0x00000003",
+            "interface_index": 1,
+            "lpaif_type": 2,
+            "lpaif_type_name": "LPAIF_WSA",
+            "name": "PARAM_ID_CODEC_DMA_INTF_CFG"
+          },
+          "iid": "0x00004157",
+          "param_id": "0x08001063",
+          "payload_hex": "020000000100000003000000",
+          "payload_sha256": "88a785e43f0814338c5cb47bde7de708c7172eabad671e4511199c78a3b4daa1",
+          "payload_size": 12,
+          "pool_offset": "0x0001b0f8"
+        }
+      ],
+      "row_index": 0,
+      "selection": [
+        {
+          "key_id": "0x01000006",
+          "value": 1
+        },
+        {
+          "key_id": "0x01000007",
+          "value": 1
+        },
+        {
+          "key_id": "0x0100000e",
+          "value": 48000
+        },
+        {
+          "key_id": "0x0100000f",
+          "value": 16
+        },
+        {
+          "key_id": "0x01000010",
+          "value": 2
+        },
+        {
+          "key_id": "0x01000012",
+          "value": 2
+        },
+        {
+          "key_id": "0x01000013",
+          "value": 1
+        },
+        {
+          "key_id": "0x01000014",
+          "value": 2
+        },
+        {
+          "key_id": "0x01000015",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000016",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000017",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000018",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000019",
+          "value": 0
+        },
+        {
+          "key_id": "0x0100001a",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000022",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "mtde_offset": "0x00000000",
+      "mtdo_offset": "0x0000000c",
+      "parameters": [
+        {
+          "decoded": {
+            "bit_width": 16,
+            "data_format": 1,
+            "name": "PARAM_ID_HW_EP_MF_CFG",
+            "num_channels": 4,
+            "sample_rate": 48000
+          },
+          "iid": "0x00004157",
+          "param_id": "0x08001017",
+          "payload_hex": "80bb00001000040001000000",
+          "payload_sha256": "351366840d56a49481ba60447355ad8df2563bf8ec8cf970b83197f63328c96e",
+          "payload_size": 12,
+          "pool_offset": "0x0001840c"
+        },
+        {
+          "decoded": {
+            "active_channels_mask": "0x0000000f",
+            "interface_index": 1,
+            "lpaif_type": 2,
+            "lpaif_type_name": "LPAIF_WSA",
+            "name": "PARAM_ID_CODEC_DMA_INTF_CFG"
+          },
+          "iid": "0x00004157",
+          "param_id": "0x08001063",
+          "payload_hex": "02000000010000000f000000",
+          "payload_sha256": "10bea00689922074b1fb7fd4a557efdef9f736b2636b554232d3517b883435eb",
+          "payload_size": 12,
+          "pool_offset": "0x0001bc80"
+        }
+      ],
+      "row_index": 1,
+      "selection": [
+        {
+          "key_id": "0x01000006",
+          "value": 1
+        },
+        {
+          "key_id": "0x01000007",
+          "value": 1
+        },
+        {
+          "key_id": "0x0100000e",
+          "value": 48000
+        },
+        {
+          "key_id": "0x0100000f",
+          "value": 16
+        },
+        {
+          "key_id": "0x01000010",
+          "value": 4
+        },
+        {
+          "key_id": "0x01000012",
+          "value": 2
+        },
+        {
+          "key_id": "0x01000013",
+          "value": 1
+        },
+        {
+          "key_id": "0x01000014",
+          "value": 2
+        },
+        {
+          "key_id": "0x01000015",
+          "value": 3
+        },
+        {
+          "key_id": "0x01000016",
+          "value": 6
+        },
+        {
+          "key_id": "0x01000017",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000018",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000019",
+          "value": 0
+        },
+        {
+          "key_id": "0x0100001a",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000022",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "mtde_offset": "0x00000000",
+      "mtdo_offset": "0x00000018",
+      "parameters": [
+        {
+          "decoded": {
+            "bit_width": 24,
+            "data_format": 1,
+            "name": "PARAM_ID_HW_EP_MF_CFG",
+            "num_channels": 2,
+            "sample_rate": 48000
+          },
+          "iid": "0x00004157",
+          "param_id": "0x08001017",
+          "payload_hex": "80bb00001800020001000000",
+          "payload_sha256": "3e0fc621f1b6bd0463cbadb3046ff257af17cb492f24ff8d82d2bb9a180258d9",
+          "payload_size": 12,
+          "pool_offset": "0x00018420"
+        },
+        {
+          "decoded": {
+            "active_channels_mask": "0x00000003",
+            "interface_index": 1,
+            "lpaif_type": 2,
+            "lpaif_type_name": "LPAIF_WSA",
+            "name": "PARAM_ID_CODEC_DMA_INTF_CFG"
+          },
+          "iid": "0x00004157",
+          "param_id": "0x08001063",
+          "payload_hex": "020000000100000003000000",
+          "payload_sha256": "88a785e43f0814338c5cb47bde7de708c7172eabad671e4511199c78a3b4daa1",
+          "payload_size": 12,
+          "pool_offset": "0x0001b0f8"
+        }
+      ],
+      "row_index": 2,
+      "selection": [
+        {
+          "key_id": "0x01000006",
+          "value": 1
+        },
+        {
+          "key_id": "0x01000007",
+          "value": 1
+        },
+        {
+          "key_id": "0x0100000e",
+          "value": 48000
+        },
+        {
+          "key_id": "0x0100000f",
+          "value": 24
+        },
+        {
+          "key_id": "0x01000010",
+          "value": 2
+        },
+        {
+          "key_id": "0x01000012",
+          "value": 2
+        },
+        {
+          "key_id": "0x01000013",
+          "value": 1
+        },
+        {
+          "key_id": "0x01000014",
+          "value": 2
+        },
+        {
+          "key_id": "0x01000015",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000016",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000017",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000018",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000019",
+          "value": 0
+        },
+        {
+          "key_id": "0x0100001a",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000022",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "mtde_offset": "0x00000000",
+      "mtdo_offset": "0x00000024",
+      "parameters": [
+        {
+          "decoded": {
+            "bit_width": 24,
+            "data_format": 1,
+            "name": "PARAM_ID_HW_EP_MF_CFG",
+            "num_channels": 4,
+            "sample_rate": 48000
+          },
+          "iid": "0x00004157",
+          "param_id": "0x08001017",
+          "payload_hex": "80bb00001800040001000000",
+          "payload_sha256": "7529f50c7722fd613124bb7eab9cdb6b538a1a8ce7bd629ae0abfb34e46efa3a",
+          "payload_size": 12,
+          "pool_offset": "0x00018434"
+        },
+        {
+          "decoded": {
+            "active_channels_mask": "0x0000000f",
+            "interface_index": 1,
+            "lpaif_type": 2,
+            "lpaif_type_name": "LPAIF_WSA",
+            "name": "PARAM_ID_CODEC_DMA_INTF_CFG"
+          },
+          "iid": "0x00004157",
+          "param_id": "0x08001063",
+          "payload_hex": "02000000010000000f000000",
+          "payload_sha256": "10bea00689922074b1fb7fd4a557efdef9f736b2636b554232d3517b883435eb",
+          "payload_size": 12,
+          "pool_offset": "0x0001bc80"
+        }
+      ],
+      "row_index": 3,
+      "selection": [
+        {
+          "key_id": "0x01000006",
+          "value": 1
+        },
+        {
+          "key_id": "0x01000007",
+          "value": 1
+        },
+        {
+          "key_id": "0x0100000e",
+          "value": 48000
+        },
+        {
+          "key_id": "0x0100000f",
+          "value": 24
+        },
+        {
+          "key_id": "0x01000010",
+          "value": 4
+        },
+        {
+          "key_id": "0x01000012",
+          "value": 2
+        },
+        {
+          "key_id": "0x01000013",
+          "value": 1
+        },
+        {
+          "key_id": "0x01000014",
+          "value": 2
+        },
+        {
+          "key_id": "0x01000015",
+          "value": 3
+        },
+        {
+          "key_id": "0x01000016",
+          "value": 6
+        },
+        {
+          "key_id": "0x01000017",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000018",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000019",
+          "value": 0
+        },
+        {
+          "key_id": "0x0100001a",
+          "value": 0
+        },
+        {
+          "key_id": "0x01000022",
+          "value": 1
+        }
+      ]
+    }
+  ],
+  "schema_pool_offset": "0x00018c58",
+  "source": "/home/geoca/Documents/SP11-PROJECT/00-RE-archive/sp11-driverdump/surface_acsp8380.inf_arm64_f6524e4db745e12a/REV_0D/acdb_cal_0D.acdb",
+  "source_sha256": "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde",
+  "source_size": 440150,
+  "subgraph_id": "0xb0000001",
+  "tag_key_id": "0x04010003"
+}
