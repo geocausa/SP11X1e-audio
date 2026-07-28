@@ -1,0 +1,124 @@
+From: SP11 audio reconstruction project
+Subject: [PATCH] ASoC: qcom: audioreach: use runtime-keyed atomic calibration
+
+The per-frame diagnostic identified the first graph-calibration record as a
+SAL output-format sentinel with value UINT_MAX.  Sending that record alone
+changes the ACDB transaction semantics and the DSP rejects it.
+
+Recovered Qualcomm ACDB and GSL sources show that Windows resolves the full
+subgraph calibration for the active CKV and submits the resulting buffer as
+one SET_CFG transaction.  Replaying the official resolver against the exact
+SP11 REV_0D database and the full-volume 48 kHz stereo CKV produces 10,464
+bytes.  This matches the size in the Windows full-volume QGPR capture.  The
+prior Linux payload was the 10,280-byte zero/default-CKV response.
+
+Require the runtime-keyed size and restore atomic OOB sends for all static
+stages.  The topology generator locks the graph-calibration body to the
+official resolver's SHA-256.
+
+---
+ sound/soc/qcom/qdsp6/audioreach.c | 48 +++++++++------------------------------
+ 1 file changed, 11 insertions(+), 37 deletions(-)
+
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1054,38 +1054,6 @@ static const u8 *audioreach_stage_frame(
+ 	return NULL;
+ }
+ 
+-static int audioreach_send_oob_stage(struct audioreach_graph *graph,
+-				     const struct audioreach_module_priv_data *stage)
+-{
+-	size_t size = le32_to_cpu(stage->size);
+-	const u8 *cursor = (const u8 *)stage->data;
+-	const u8 *end = cursor + size;
+-	unsigned int index = 0;
+-
+-	while (cursor < end) {
+-		u32 iid = get_unaligned_le32(cursor);
+-		u32 param_id = get_unaligned_le32(cursor + sizeof(u32));
+-		u32 param_size = get_unaligned_le32(cursor + 2 * sizeof(u32));
+-		size_t frame_size =
+-			ALIGN(sizeof(struct apm_module_param_data) + param_size, 8);
+-		int ret;
+-
+-		if (frame_size > end - cursor)
+-			return -EINVAL;
+-		ret = q6apm_send_oob_config(graph, cursor, frame_size);
+-		if (ret) {
+-			dev_err(graph->apm->dev,
+-				"OOB stage frame %u iid 0x%08x param 0x%08x failed: %d\n",
+-				index, iid, param_id, ret);
+-			return ret;
+-		}
+-		cursor += frame_size;
+-		index++;
+-	}
+-
+-	return cursor == end ? 0 : -EINVAL;
+-}
+-
+ static int audioreach_validate_protection_profile(
+ 	const struct audioreach_graph_info *info,
+ 	const struct audioreach_module_priv_data *graph_cal,
+@@ -1108,7 +1076,7 @@ static int audioreach_validate_protection_profile(
+ 	const struct audioreach_module_priv_data *stages[] = {
+ 		graph_cal, render_ep, sp_tag, spvi_tag, vi_ep, dynamic,
+ 	};
+-	const size_t expected_sizes[] = { 10280, 64, 1888, 1328, 64, 128 };
++	const size_t expected_sizes[] = { 10464, 64, 1888, 1328, 64, 128 };
+ 	const u8 *frame;
+ 	int i, ret;
+ 
+@@ -1169,7 +1137,7 @@ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ 		return 0;
+ 	if (!graph_cal || !render_ep)
+ 		return -EINVAL;
+-	if (le32_to_cpu(graph_cal->size) != 10280 ||
++	if (le32_to_cpu(graph_cal->size) != 10464 ||
+ 	    le32_to_cpu(render_ep->size) != 64)
+ 		return -EINVAL;
+ 	ret = audioreach_validate_stage_modules(graph->info, graph_cal);
+@@ -1179,10 +1147,12 @@ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = audioreach_send_oob_stage(graph, graph_cal);
++	ret = q6apm_send_oob_config(graph, graph_cal->data,
++				    le32_to_cpu(graph_cal->size));
+ 	if (ret)
+ 		return ret;
+-	return audioreach_send_oob_stage(graph, render_ep);
++	return q6apm_send_oob_config(graph, render_ep->data,
++				      le32_to_cpu(render_ep->size));
+ }
+ EXPORT_SYMBOL_GPL(audioreach_send_protected_graph_calibration);
+ 
+@@ -1234,7 +1204,8 @@ int audioreach_configure_protection(struct q6apm_graph *graph)
+ 	ret = audioreach_send_inband_frame(graph, frame);
+ 	if (ret)
+ 		goto out;
+-	ret = audioreach_send_oob_stage(ar_graph, sp_tag);
++	ret = q6apm_send_oob_config(ar_graph, sp_tag->data,
++				    le32_to_cpu(sp_tag->size));
+ 	if (ret)
+ 		goto out;
+ 	for (int i = 1; i < 4; i++) {
+@@ -1243,10 +1214,12 @@ int audioreach_configure_protection(struct q6apm_graph *graph)
+ 		if (ret)
+ 			goto out;
+ 	}
+-	ret = audioreach_send_oob_stage(ar_graph, spvi_tag);
++	ret = q6apm_send_oob_config(ar_graph, spvi_tag->data,
++				    le32_to_cpu(spvi_tag->size));
+ 	if (ret)
+ 		goto out;
+-	ret = audioreach_send_oob_stage(ar_graph, vi_ep);
++	ret = q6apm_send_oob_config(ar_graph, vi_ep->data,
++				    le32_to_cpu(vi_ep->size));
+ 	if (ret)
+ 		goto out;
+ 
+-- 
+2.51.0

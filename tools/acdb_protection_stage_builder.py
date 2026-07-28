@@ -16,6 +16,7 @@ boundary used by the captured Windows commands.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import json
 import struct
@@ -33,16 +34,38 @@ SP11_REV_0D_SHA256 = (
     "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde"
 )
 ROOT_SUBGRAPH_ID = 0xB0000001
+RENDER_SUBGRAPH_ID = 0xB000007E
+SPEAKER_SUBGRAPH_ID = 0xB000007F
 RENDER_ENDPOINT_TAG_KEY_ID = 0x04010003
 VI_ENDPOINT_TAG_KEY_ID = 0x04010005
 SP_TAG_KEY_ID = 0x0401000A
 SPVI_TAG_KEY_ID = 0x0401000B
 
-# The exact CDLU-selected graph groups admitted by the DEFAULT speaker graph.
-GRAPH_GROUPS = (
-    ("root", 0x00000000, 0x00000000),
-    ("render-family-0x7e", 0x000036B4, 0x00001060),
-    ("speaker-family-0x7f", 0x00003788, 0x00001100),
+# GSL supplies these runtime calibration keys when it asks ACDB to resolve
+# the full graph-calibration blob.  The highest of the 30 speaker-volume
+# rows is used because the matching Windows capture was made at full volume;
+# Linux leaves subsequent user-volume changes to PipeWire.
+SAMPLE_RATE_KEY_ID = 0x0100000E
+CHANNEL_COUNT_KEY_ID = 0x01000010
+SPEAKER_VOLUME_STEP_KEY_ID = 0x01000011
+RX_DEVICE_KEY_ID = 0x01000013
+DEVICE_CHANNEL_COUNT_KEY_ID = 0x01000014
+SPEAKER_VOLUME_STEP = 30
+GRAPH_CALIBRATION_CKV = {
+    SAMPLE_RATE_KEY_ID: 48000,
+    CHANNEL_COUNT_KEY_ID: 2,
+    SPEAKER_VOLUME_STEP_KEY_ID: SPEAKER_VOLUME_STEP,
+    RX_DEVICE_KEY_ID: 1,
+    DEVICE_CHANNEL_COUNT_KEY_ID: 2,
+}
+GRAPH_SUBGRAPHS = (
+    ("root", ROOT_SUBGRAPH_ID),
+    ("render-family-0x7e", RENDER_SUBGRAPH_ID),
+    ("speaker-family-0x7f", SPEAKER_SUBGRAPH_ID),
+)
+SP11_FULL_VOLUME_GRAPH_CAL_SIZE = 10464
+SP11_FULL_VOLUME_GRAPH_CAL_SHA256 = (
+    "2a654ffa7a4467c93ecfc64f380974df0bccdd5c67959ba6ac7c59a008358ca1"
 )
 
 # Seven captured Windows initializations used these byte-identical dynamic
@@ -125,6 +148,208 @@ def serialize_cdlu_group(
     return bytes(body), parameters
 
 
+def parse_subgraph_calibration_lut(data: bytes) -> dict[int, list[tuple[int, int]]]:
+    """Parse CSLU into subgraph -> (CAKT offset, CDLU offset) entries."""
+    if len(data) < 4:
+        raise ValueError("CSLU has no entry count")
+    count = struct.unpack_from("<I", data)[0]
+    offset = 4
+    result = {}
+    for _ in range(count):
+        if offset + 8 > len(data):
+            raise ValueError("short CSLU subgraph header")
+        subgraph_id, entry_count = struct.unpack_from("<II", data, offset)
+        offset += 8
+        end = offset + entry_count * 8
+        if end > len(data):
+            raise ValueError(f"short CSLU entry list for {subgraph_id:#x}")
+        if subgraph_id in result:
+            raise ValueError(f"duplicate CSLU subgraph {subgraph_id:#x}")
+        result[subgraph_id] = [
+            struct.unpack_from("<II", data, offset + index * 8)
+            for index in range(entry_count)
+        ]
+        offset = end
+    if offset != len(data):
+        raise ValueError("CSLU has trailing bytes")
+    return result
+
+
+def _calibration_key_ids(data: bytes, offset: int) -> tuple[int, ...]:
+    if offset + 4 > len(data):
+        raise ValueError(f"CAKT offset {offset:#x} has no key count")
+    count = struct.unpack_from("<I", data, offset)[0]
+    end = offset + 4 + count * 4
+    if end > len(data):
+        raise ValueError(f"CAKT key list at {offset:#x} is truncated")
+    return struct.unpack_from(f"<{count}I", data, offset + 4) if count else ()
+
+
+def _calibration_offsets(
+    data: bytes, offset: int, values: tuple[int, ...]
+) -> tuple[int, int, int] | None:
+    if offset + 8 > len(data):
+        raise ValueError(f"CDLU offset {offset:#x} has no table header")
+    key_count, entry_count = struct.unpack_from("<II", data, offset)
+    if key_count != len(values):
+        raise ValueError(
+            f"CDLU table at {offset:#x} expects {key_count} keys, "
+            f"not {len(values)}"
+        )
+    entry_words = key_count + 3
+    entry_size = entry_words * 4
+    start = offset + 8
+    end = start + entry_count * entry_size
+    if end > len(data):
+        raise ValueError(f"CDLU table at {offset:#x} is truncated")
+    for index in range(entry_count):
+        row = struct.unpack_from(
+            f"<{entry_words}I", data, start + index * entry_size
+        )
+        if row[:key_count] == values:
+            return row[key_count], row[key_count + 1], row[key_count + 2]
+    return None
+
+
+def _serialize_rows(
+    chunks: dict[str, dict],
+    rows: list[tuple[int, int, int]],
+) -> tuple[bytes, list[dict]]:
+    body = bytearray()
+    parameters = []
+    pool = chunks["POOL"]["data"]
+    for row_index, (iid, param_id, pool_offset) in enumerate(rows):
+        payload = _pool_payload(pool, pool_offset)
+        frame = serialize_parameter(iid, param_id, payload)
+        body += frame
+        parameters.append(
+            {
+                "row_index": row_index,
+                "iid": f"0x{iid:08x}",
+                "param_id": f"0x{param_id:08x}",
+                "pool_offset": f"0x{pool_offset:08x}",
+                "payload_size": len(payload),
+                "payload_sha256": sha256(payload),
+                "frame_size": len(frame),
+            }
+        )
+    return bytes(body), parameters
+
+
+def _calibration_rows(
+    chunks: dict[str, dict], offsets: tuple[int, int, int]
+) -> list[tuple[int, int, int]]:
+    cdde_offset, cddo_offset, _ = offsets
+    cdde_groups = parse_groups(chunks["CDDE"]["data"], 2)
+    cddo_groups = parse_groups(chunks["CDDO"]["data"], 1)
+    if cdde_offset not in cdde_groups:
+        raise ValueError(f"missing CDDE group {cdde_offset:#x}")
+    if cddo_offset not in cddo_groups:
+        raise ValueError(f"missing CDDO group {cddo_offset:#x}")
+    descriptors = cdde_groups[cdde_offset]
+    pool_offsets = cddo_groups[cddo_offset]
+    if len(descriptors) != len(pool_offsets):
+        raise ValueError("CDDE/CDDO group length mismatch")
+    return [
+        (iid, param_id, pool_offset)
+        for (iid, param_id), (pool_offset,) in zip(
+            descriptors, pool_offsets, strict=True
+        )
+    ]
+
+
+def resolve_subgraph_calibration(
+    chunks: dict[str, dict],
+    subgraph_id: int,
+    ckv: dict[int, int],
+) -> tuple[bytes, dict]:
+    """Reproduce ACDB's first-time non-persistent subgraph-cal query."""
+    tables = parse_subgraph_calibration_lut(chunks["CSLU"]["data"])
+    entries = tables.get(subgraph_id)
+    if not entries:
+        raise ValueError(f"CSLU has no calibration for {subgraph_id:#x}")
+
+    cakt = chunks["CAKT"]["data"]
+    cdlu = chunks["CDLU"]["data"]
+    selected = []
+    default_offsets = None
+    for key_offset, lut_offset in entries:
+        key_ids = _calibration_key_ids(cakt, key_offset)
+        if not key_ids:
+            offsets = _calibration_offsets(cdlu, lut_offset, ())
+            if offsets is None:
+                raise ValueError(f"default CDLU table at {lut_offset:#x} is empty")
+            if default_offsets is not None:
+                raise ValueError(f"multiple default CKVs for {subgraph_id:#x}")
+            default_offsets = offsets
+            continue
+        if not all(key_id in ckv for key_id in key_ids):
+            continue
+        values = tuple(ckv[key_id] for key_id in key_ids)
+        offsets = _calibration_offsets(cdlu, lut_offset, values)
+        if offsets is not None:
+            selected.append((key_offset, lut_offset, key_ids, values, offsets))
+
+    if default_offsets is None:
+        raise ValueError(f"no default CKV for {subgraph_id:#x}")
+
+    # Qualcomm's AcdbGetCalDataForSubgraph() records default IID reference
+    # counts, emits every matching non-default CKV, then emits only the
+    # default rows that were not overridden by those module-IID rows.
+    default_rows = _calibration_rows(chunks, default_offsets)
+    default_iids = Counter(row[0] for row in default_rows)
+    output_rows = []
+    groups = []
+    for key_offset, lut_offset, key_ids, values, offsets in selected:
+        rows = _calibration_rows(chunks, offsets)
+        output_rows.extend(rows)
+        for iid, _, _ in rows:
+            if default_iids[iid]:
+                default_iids[iid] -= 1
+        groups.append(
+            {
+                "selection": "runtime-ckv",
+                "cakt_offset": f"0x{key_offset:08x}",
+                "cdlu_offset": f"0x{lut_offset:08x}",
+                "keys": [
+                    {
+                        "key_id": f"0x{key_id:08x}",
+                        "value": value,
+                    }
+                    for key_id, value in zip(key_ids, values, strict=True)
+                ],
+                "cdde_group_offset": f"0x{offsets[0]:08x}",
+                "cddo_group_offset": f"0x{offsets[1]:08x}",
+                "parameter_count": len(rows),
+            }
+        )
+
+    remaining_default = []
+    for row in default_rows:
+        if default_iids[row[0]]:
+            default_iids[row[0]] -= 1
+            remaining_default.append(row)
+    output_rows.extend(remaining_default)
+    groups.append(
+        {
+            "selection": "default-remainder",
+            "cdde_group_offset": f"0x{default_offsets[0]:08x}",
+            "cddo_group_offset": f"0x{default_offsets[1]:08x}",
+            "parameter_count": len(remaining_default),
+        }
+    )
+
+    body, parameters = _serialize_rows(chunks, output_rows)
+    return body, {
+        "subgraph_id": f"0x{subgraph_id:08x}",
+        "groups": groups,
+        "parameter_count": len(parameters),
+        "serialized_size": len(body),
+        "serialized_sha256": sha256(body),
+        "parameters": parameters,
+    }
+
+
 def _selection_dict(row: dict) -> dict[int, int]:
     return {
         int(item["key_id"], 16): item["value"] for item in row["selection"]
@@ -174,27 +399,25 @@ def serialize_tag_row(
 def build_stages(data: bytes, source: str = "<bytes>") -> tuple[dict[str, bytes], dict]:
     source_hash = sha256(data)
     chunks = parse_chunks(data)
-    required = {"CDDE", "CDDO", "POOL"}
+    required = {"CSLU", "CAKT", "CDLU", "CDDE", "CDDO", "POOL"}
     missing = required - chunks.keys()
     if missing:
         raise ValueError(f"missing required chunks: {sorted(missing)}")
 
     graph_body = bytearray()
     graph_groups = []
-    for name, cdde_offset, cddo_offset in GRAPH_GROUPS:
-        body, parameters = serialize_cdlu_group(chunks, cdde_offset, cddo_offset)
-        graph_body += body
-        graph_groups.append(
-            {
-                "name": name,
-                "cdde_group_offset": f"0x{cdde_offset:08x}",
-                "cddo_group_offset": f"0x{cddo_offset:08x}",
-                "parameter_count": len(parameters),
-                "serialized_size": len(body),
-                "serialized_sha256": sha256(body),
-                "parameters": parameters,
-            }
+    for name, subgraph_id in GRAPH_SUBGRAPHS:
+        body, group = resolve_subgraph_calibration(
+            chunks, subgraph_id, GRAPH_CALIBRATION_CKV
         )
+        graph_body += body
+        graph_groups.append({"name": name, **group})
+
+    if source_hash == SP11_REV_0D_SHA256:
+        if len(graph_body) != SP11_FULL_VOLUME_GRAPH_CAL_SIZE:
+            raise ValueError("reviewed REV_0D graph-calibration size changed")
+        if sha256(graph_body) != SP11_FULL_VOLUME_GRAPH_CAL_SHA256:
+            raise ValueError("reviewed REV_0D graph-calibration bytes changed")
 
     render_body, render_meta = serialize_tag_row(
         data,
@@ -259,6 +482,13 @@ def build_stages(data: bytes, source: str = "<bytes>") -> tuple[dict[str, bytes]
         "expected_rev_0d_sha256": SP11_REV_0D_SHA256,
         "source_matches_expected_rev_0d": source_hash == SP11_REV_0D_SHA256,
         "alignment": 8,
+        "graph_calibration_ckv": [
+            {
+                "key_id": f"0x{key_id:08x}",
+                "value": value,
+            }
+            for key_id, value in GRAPH_CALIBRATION_CKV.items()
+        ],
         "graph_groups": graph_groups,
         "stages": {
             "graph-calibration": {

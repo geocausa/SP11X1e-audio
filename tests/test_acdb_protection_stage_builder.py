@@ -2,7 +2,9 @@ import struct
 import unittest
 
 from tools.acdb_protection_stage_builder import (
+    _calibration_offsets,
     align8,
+    parse_subgraph_calibration_lut,
     serialize_cdlu_group,
     serialize_parameter,
 )
@@ -79,6 +81,43 @@ class AcdbProtectionStageBuilderTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "missing CDDE group"):
             serialize_cdlu_group(chunks, 12, 0)
+
+    def test_subgraph_calibration_lut_preserves_entry_order(self):
+        data = struct.pack(
+            "<IIIIIIIIIII",
+            2,
+            0xB0000001,
+            1,
+            0,
+            4,
+            0xB000007F,
+            2,
+            8,
+            12,
+            16,
+            20,
+        )
+
+        self.assertEqual(
+            parse_subgraph_calibration_lut(data),
+            {
+                0xB0000001: [(0, 4)],
+                0xB000007F: [(8, 12), (16, 20)],
+            },
+        )
+
+    def test_calibration_lut_selects_exact_runtime_values(self):
+        data = (
+            struct.pack("<II", 2, 2)
+            + struct.pack("<IIIII", 48000, 1, 0x10, 0x20, 0)
+            + struct.pack("<IIIII", 48000, 2, 0x30, 0x40, 0)
+        )
+
+        self.assertEqual(
+            _calibration_offsets(data, 0, (48000, 2)),
+            (0x30, 0x40, 0),
+        )
+        self.assertIsNone(_calibration_offsets(data, 0, (96000, 2)))
 
 
 if __name__ == "__main__":

@@ -30,6 +30,12 @@ capture audio-kernel-journal.txt bash -c \
 	"journalctl -b -k --no-pager | rg -i 'audio|asoc|alsa|apr|gpr|q6|soundwire|wsa884|x1e80100' || true"
 capture modules.txt bash -c \
 	"lsmod | rg '^(snd|soundwire|q6|wsa|lpass|apr|gpr)' || true"
+capture module-identities.txt bash -c \
+	"printf 'loaded snd_q6apm srcversion: '; cat /sys/module/snd_q6apm/srcversion; \
+	printf 'installed snd-q6apm srcversion: '; modinfo -F srcversion snd-q6apm; \
+	printf 'installed snd-q6apm signer: '; modinfo -F signer snd-q6apm; \
+	printf 'installed snd-q6apm file: '; modinfo -F filename snd-q6apm; \
+	sha256sum /lib/modules/7.1.5-sp11-audio-v2/updates/sp11-audio/snd-q6apm.ko.zst"
 capture alsa-cards.txt cat /proc/asound/cards
 capture alsa-pcm.txt cat /proc/asound/pcm
 capture aplay-devices.txt aplay -l

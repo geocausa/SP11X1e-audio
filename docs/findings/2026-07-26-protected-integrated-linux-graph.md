@@ -50,10 +50,10 @@ They are not part of the DEFAULT speaker graph closure needed by this endpoint.
   and graph-position properties;
 - six ordered raw stage objects.
 
-The topology SHA-256 is
-`bc9b8b115027dcce4fc2ce0a9ea37ce7ea54e80bcffab6e8b5a91f31e12f458b`.
-It compiles and decodes with `alsatplg`, and the generator/stage test suite has
-six passing tests.
+The current runtime-keyed topology SHA-256 is
+`5211cfe50bb1dc33dd6502f8c43550829b8b3e62d2fa35b60e2472e708706d58`.
+It compiles and decodes with `alsatplg`; the complete repository test suite
+has 67 passing tests.
 
 The virtual DPCM mixer joins the MM1 frontend and WSA RX0 backend without
 creating a second DSP edge: the graph already contains the exact
@@ -66,7 +66,7 @@ objects:
 
 | Stage | Parameters | Bytes | SHA-256 |
 |---|---:|---:|---|
-| graph/subgraph calibration | 107 | 10,280 | `2a5ce757f550af205a6da386f0b6ca213da046d637c4cb998db2a249cc46a1eb` |
+| graph/subgraph calibration | 107 | 10,464 | `2a654ffa7a4467c93ecfc64f380974df0bccdd5c67959ba6ac7c59a008358ca1` |
 | render endpoint | 2 | 64 | `296c44c1adfd1e26fcb5e0ad8f8ba4b840c01a097e6d288314aaa66ac314ae36` |
 | SP module tag | 7 | 1,888 | `096fcca5dd925692f29db589a7431ebaf6cd8bc1926418914670c3c1520f9800` |
 | SP_VI module tag | 5 | 1,328 | `c383b831db8f91a0d33b6ba79ff04852658882b50d4a187b2dedfeeab281bc8c` |
@@ -87,6 +87,13 @@ The kernel applies them in this order:
 The exact static SP and SP_VI channel-count fields are prevalidated as two.
 The Windows runtime GET response bodies were not captured, so this candidate
 does not claim to reproduce or verify their remaining returned fields.
+
+The graph/subgraph stage is not a direct concatenation of each default CDLU
+group. The generator now reproduces Qualcomm ACDB's first-time query for the
+48 kHz, stereo, full-volume-step CKV: matching non-default groups override
+module-IID rows and only the unclaimed default rows are appended. The result is
+byte-identical to the recovered official ACDB library. See
+[`2026-07-28-windows-acdb-runtime-ckv.md`](2026-07-28-windows-acdb-runtime-ckv.md).
 
 ## Kernel implementation
 

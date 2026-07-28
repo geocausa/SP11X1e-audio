@@ -221,3 +221,47 @@ Validation before deployment:
 This is a Linux transport compatibility correction, not a claim that the
 entire static calibration has been accepted. The next boot must either pass
 all frames or identify the first real payload rejection.
+
+## `0009-audioreach-use-runtime-keyed-atomic-calibration.patch`
+
+Supersedes the `0008` diagnostic conclusion. The `0008` boot did identify the
+first isolated frame precisely:
+
+```text
+IID 0x00004001 / PARAM_ID_SAL_OUTPUT_CFG 0x08001016 / payload ffffffff
+```
+
+The sentinel is present in both the default and active Windows calibration
+responses. Its rejection as a standalone command therefore does not prove
+that Windows replaces or filters it; it proves that splitting the ACDB
+transaction changes its semantics.
+
+Recovered Qualcomm GSL source shows that Windows asks ACDB to fill one OOB
+buffer and submits that buffer directly. Rebuilding and running the recovered
+Qualcomm ACDB library against the exact REV_0D file established:
+
+- empty/default CKV: 10,280 bytes, SHA-256 `2a5ce757...`;
+- 48 kHz, stereo, full-volume step 30 CKV: 10,464 bytes, SHA-256
+  `2a654ffa...`;
+- archived Windows `volume_FULL` QGPR capture: 10,464-byte graph-calibration
+  `SET_CFG`.
+
+The Python stage builder now implements the same CSLU/CAKT/CDLU override and
+default-remainder algorithm. Its output matches the official resolver
+byte-for-byte. Patch `0009` requires the 10,464-byte stage and restores atomic
+OOB sends for graph, endpoint and tag calibration.
+
+Validation before deployment:
+
+- recovered Qualcomm library and Python resolver output equality: pass;
+- full 67-test repository suite: pass;
+- strict kernel style check: zero findings, missing submission sign-off
+  intentionally ignored;
+- scoped V2 q6apm build with `W=1`: pass;
+- staged core source version: `E867095C478C0A3D413CAA9`;
+- staged compressed module SHA-256:
+  `8dcb94709104faaf49d72100a6c74ee2cbba3267d18593dbcedaf8a39e78f5c9`;
+- staged topology SHA-256:
+  `5211cfe50bb1dc33dd6502f8c43550829b8b3e62d2fa35b60e2472e708706d58`.
+
+Runtime acceptance still requires the next one-shot V2 boot.

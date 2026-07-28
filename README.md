@@ -53,13 +53,18 @@ registration, clash-free idle and loading of the 29-module integrated
 topology. The topology exposes only MM1 playback and all protection feedback
 controls remain parked. Patch `0007` fixed the first protection OOB allocation:
 the IOMMU-attached DAI device now allocates and maps the buffer successfully.
-The next gate is the first graph-calibration `SET_CFG`, which this firmware
-rejects when all 107 parameter frames are packed into one transaction.
-Recovered instrumented Linux tests already proved the same firmware accepts
-such frames individually. Patch `0008` therefore preserves the recovered
-bytes and order but sends one OOB transaction per frame, with exact failure
-telemetry. Successful graph calibration, playback and nonzero protection
-feedback are not yet claimed.
+Patch `0008` was a diagnostic split-send. Its boot identified frame zero,
+SAL output configuration `0x08001016`, as the first isolated rejection.
+
+That result led to the recovered Qualcomm ACDB implementation. Replaying its
+exact first-time query proved that the old 10,280-byte payload was the
+zero/default-CKV response. Windows resolves the active calibration key vector
+and sends a 10,464-byte block atomically; the archived full-volume QGPR trace
+records that same size. Patch `0009` restores the atomic transaction and the
+stage generator now reproduces Qualcomm's full-volume response byte-for-byte.
+The signed replacement is staged for the next isolated V2 boot. Successful
+graph calibration, playback and nonzero protection feedback are not yet
+claimed.
 
 Dolby is deliberately outside this phase. No Dolby processing module is
 instantiated in the parity graph; bypass/placement work remains a separate

@@ -1,0 +1,96 @@
+{
+  "format": "SP11 Windows ACDB runtime-CKV calibration finding",
+  "format_version": 1,
+  "date": "2026-07-28",
+  "evidence_class": "recovered Qualcomm source plus exact binary reproduction and independent Windows QGPR size",
+  "source_acdb": {
+    "revision": "REV_0D",
+    "sha256": "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde"
+  },
+  "recovered_qualcomm_sources": {
+    "gsl_graph_c_sha256": "8fa5f35d280ff27623e28d6e829d3f7ed73d8e28eca7c98fd092c9e2c913c4e9",
+    "acdb_command_c_sha256": "813bab0776ce840676ee3a978208527c055888980762df4595e5811a800a2f01"
+  },
+  "independent_windows_capture": {
+    "name": "qgpr_records_domain2_boot_init_after_music_toggle_volume_FULL_20260612_015043.csv",
+    "sha256": "03f753a236060b56050f2821abd308ccc53537d360bb9388b93e66a7cbdad46e",
+    "observed_graph_calibration_size": 10464
+  },
+  "query": {
+    "subgraph_ids": [
+      "0xb0000001",
+      "0xb000007e",
+      "0xb000007f"
+    ],
+    "calibration_key_vector": [
+      {
+        "key_id": "0x0100000e",
+        "value": 48000
+      },
+      {
+        "key_id": "0x01000010",
+        "value": 2
+      },
+      {
+        "key_id": "0x01000011",
+        "value": 30
+      },
+      {
+        "key_id": "0x01000013",
+        "value": 1
+      },
+      {
+        "key_id": "0x01000014",
+        "value": 2
+      }
+    ]
+  },
+  "outputs": {
+    "empty_ckv": {
+      "size": 10280,
+      "parameter_count": 107,
+      "sha256": "2a5ce757f550af205a6da386f0b6ca213da046d637c4cb998db2a249cc46a1eb"
+    },
+    "runtime_ckv": {
+      "size": 10464,
+      "parameter_count": 107,
+      "sha256": "2a654ffa7a4467c93ecfc64f380974df0bccdd5c67959ba6ac7c59a008358ca1",
+      "python_equals_recovered_qualcomm_library": true
+    }
+  },
+  "diagnostic_0008": {
+    "running_source_version": "E6A40A02F649E378E80B4B6",
+    "first_isolated_rejection": {
+      "frame_index": 0,
+      "iid": "0x00004001",
+      "param_id": "0x08001016",
+      "payload_hex": "ffffffff",
+      "linux_errno": -22
+    },
+    "interpretation": "splitting changes calibration semantics; the sentinel is also present in the Windows-equivalent aggregate"
+  },
+  "staged_0009": {
+    "patch_sha256": "62ae880d120427931bab4e75d00bd0275b944d15963a19dc40ae9d631cc8ffad",
+    "module_srcversion": "E867095C478C0A3D413CAA9",
+    "module_sha256_uncompressed_signed": "551f4f38c786784ea73dd375fc7560191a7840f3cd41ee6076525f26f60a76a6",
+    "module_sha256_zstd": "8dcb94709104faaf49d72100a6c74ee2cbba3267d18593dbcedaf8a39e78f5c9",
+    "topology_sha256": "5211cfe50bb1dc33dd6502f8c43550829b8b3e62d2fa35b60e2472e708706d58",
+    "graph_calibration_is_atomic": true,
+    "installed_not_running": true
+  },
+  "validation": {
+    "repository_tests": 67,
+    "repository_tests_passed": true,
+    "kernel_checkpatch_errors": 0,
+    "kernel_checkpatch_warnings": 0,
+    "kernel_w1_module_build_passed": true,
+    "topology_module_count": 29,
+    "topology_inventory_issues": 0
+  },
+  "runtime_claims_not_yet_made": [
+    "DSP accepts the 10464-byte aggregate",
+    "graph prepare and start succeed",
+    "speaker playback is safe and stable",
+    "VI and CPS feedback is live"
+  ]
+}
