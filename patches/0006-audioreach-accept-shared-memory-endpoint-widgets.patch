@@ -1,0 +1,41 @@
+From: SP11 audio reconstruction project
+Subject: [PATCH] ASoC: qcom: audioreach: accept shared-memory endpoint widgets
+
+The AudioReach topology loader uses AIF widgets for the write and read
+shared-memory endpoints.  audioreach_widget_load_buffer() successfully
+loads their common subgraph, container, module and connection metadata,
+but then falls through to -EINVAL because the endpoint has no
+type-specific tokens.
+
+Historically audioreach_widget_ready() discarded that error, so the
+partially populated module remained usable.  Once topology loader errors
+are correctly propagated, every ordinary playback topology fails at its
+first WR_SHARED_MEM_EP widget.
+
+Explicitly accept both shared-memory endpoint module IDs.  They require
+no additional parsing after the common loader.
+
+---
+ sound/soc/qcom/qdsp6/topology.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/sound/soc/qcom/qdsp6/topology.c b/sound/soc/qcom/qdsp6/topology.c
+--- a/sound/soc/qcom/qdsp6/topology.c
++++ b/sound/soc/qcom/qdsp6/topology.c
+@@ -1010,6 +1010,14 @@ static int audioreach_widget_load_buffer(struct snd_soc_component *component,
+ 	mod_array = audioreach_get_module_array(&tplg_w->priv);
+ 
+ 	switch (mod->module_id) {
++	case MODULE_ID_WR_SHARED_MEM_EP:
++	case MODULE_ID_RD_SHARED_MEM_EP:
++		/*
++		 * Shared-memory endpoints have no endpoint-specific topology
++		 * tokens.  The common loader above has already populated the
++		 * module, subgraph, container and connection metadata.
++		 */
++		break;
+ 	case MODULE_ID_CODEC_DMA_SINK:
+ 	case MODULE_ID_CODEC_DMA_SOURCE:
+ 		audioreach_widget_dma_module_load(mod, mod_array);
+-- 
+2.51.0

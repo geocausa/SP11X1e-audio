@@ -141,3 +141,47 @@ show:
    parked.
 
 Playback and feedback activation come only after these gates pass.
+
+## First V2 boot result and loader correction
+
+V2 booted successfully as `7.1.5-sp11-audio-v2` using the dedicated boot
+image and Phase91 platform data. The first-boot collector completed. Both
+SoundWire amplifier devices reported `Attached`; neither the old missing
+reset-GPIO error nor the SoundWire clock-stop/deprepare timeout recurred.
+This closes the platform-build failure that invalidated the first candidate.
+
+The ALSA card did not register because topology loading stopped at the first
+ordinary frontend shared-memory widget:
+
+```text
+ASoC: failed to load widget stream0.wrsh_ep1
+ASoC: topology: could not load header: -22
+tplg component load failed: -22
+failed to instantiate card -22
+```
+
+The deployed widget and tokens match the recovered structural baseline.
+Source tracing found that `audioreach_widget_load_buffer()` loads all common
+metadata for `MODULE_ID_WR_SHARED_MEM_EP`, then returns `-EINVAL` solely
+because shared-memory endpoints have no entry in its type-specific switch.
+The old upstream caller discarded that return code; the V2 error-propagation
+patch exposed the latent loader defect.
+
+Patch `0006-audioreach-accept-shared-memory-endpoint-widgets.patch` explicitly
+accepts both write and read shared-memory endpoints after common parsing. The
+replacement `snd-q6apm` module:
+
+- builds cleanly against the exact V2 source and configuration;
+- reports the exact `7.1.5-sp11-audio-v2` vermagic;
+- is signed by the V2 kernel build key;
+- is installed under `updates/sp11-audio`, selected by `depmod`;
+- leaves the topology, UCM protection policy and Dolby bypass boundary
+  unchanged.
+
+A live swap was intentionally not forced: the active Qualcomm resource-clock
+provider holds `q6prm`, which in turn holds `snd-q6apm`. Rebooting the V2
+entry is safer than unbinding live clock consumers. No PCM stream was opened,
+and VI, VISENSE and CPS remain parked.
+
+The machine-readable first-boot record is
+[`artifacts/reviewed/linux-audio-v2-first-boot-20260728.json`](../../artifacts/reviewed/linux-audio-v2-first-boot-20260728.json).

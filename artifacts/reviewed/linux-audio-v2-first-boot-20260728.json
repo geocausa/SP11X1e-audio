@@ -1,0 +1,47 @@
+{
+  "schema": "sp11-linux-audio-v2-first-boot-v1",
+  "captured_date": "2026-07-28",
+  "kernel_release": "7.1.5-sp11-audio-v2",
+  "boot_identity": {
+    "grub_entry": "sp11-audio-v2",
+    "dedicated_boot_image": true,
+    "first_boot_collector": "completed",
+    "collector_directory": "/var/log/sp11-audio-first-boot/20260728T113026Z"
+  },
+  "platform": {
+    "phase91_devices_available": true,
+    "soundwire_devices": {
+      "sdw:1:0:0217:0204:00:0": "Attached",
+      "sdw:1:0:0217:0204:00:1": "Attached"
+    },
+    "missing_reset_gpio_error": false,
+    "soundwire_clock_stop_timeout": false
+  },
+  "audio_card": {
+    "registered": false,
+    "playback_opened": false,
+    "failure_widget": "stream0.wrsh_ep1",
+    "failure_errno": -22,
+    "classification": "AudioReach loader omitted explicit WR_SHARED_MEM_EP/RD_SHARED_MEM_EP success cases after common parsing"
+  },
+  "correction": {
+    "patch": "patches/0006-audioreach-accept-shared-memory-endpoint-widgets.patch",
+    "module": "snd-q6apm",
+    "uncompressed_sha256": "1a19fca54131eb980c8376d41b4784d32e8d9ec7d7282386b3afd87b6dd834f5",
+    "installed_compressed_sha256": "b5bd5ce1b07918aecb2a5ffa855951a8716d2615216c0781f7da921c5781e7dd",
+    "vermagic": "7.1.5-sp11-audio-v2 SMP preempt mod_unload modversions aarch64",
+    "signed_by_v2_build_key": true,
+    "installed_path": "/lib/modules/7.1.5-sp11-audio-v2/updates/sp11-audio/snd-q6apm.ko.zst",
+    "resolver_selects_override": true,
+    "live_reload": "not forced because active q6prm clock consumers hold snd-q6apm",
+    "requires_reboot": true
+  },
+  "safety": {
+    "vi_mixer_auto_enabled": false,
+    "visense_auto_enabled": false,
+    "cps_auto_enabled": false,
+    "topology_changed": false,
+    "ucm_changed": false,
+    "pcm_stream_opened": false
+  }
+}

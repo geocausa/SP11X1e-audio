@@ -146,3 +146,23 @@ speaker protection.
 See
 [`docs/findings/2026-07-26-protected-integrated-linux-graph.md`](../docs/findings/2026-07-26-protected-integrated-linux-graph.md)
 for the evidence boundary, calibration order and first-boot gates.
+
+## `0006-audioreach-accept-shared-memory-endpoint-widgets.patch`
+
+Fixes the first V2 boot's isolated topology-loader failure. Both WSA884x
+devices attached and the earlier reset-GPIO and SoundWire clock-stop failures
+were absent, but card registration stopped at `stream0.wrsh_ep1` with
+`-EINVAL`.
+
+`WR_SHARED_MEM_EP` and `RD_SHARED_MEM_EP` use AIF widgets and have no
+endpoint-specific topology fields. The common loader had already populated
+their module and graph metadata; the buffer loader then incorrectly returned
+`-EINVAL` because its specialization switch listed only hardware DMA and
+logging endpoints. Upstream hid this error by discarding the loader return
+value. Patch `0003` correctly began propagating errors and therefore exposed
+the latent mismatch.
+
+This patch explicitly accepts both shared-memory endpoint IDs after common
+loading. Unsupported module IDs still fail. It dry-runs against pristine
+7.1.5 and the resulting `snd-q6apm.ko` builds with the V2 ABI and kernel build
+signature.
