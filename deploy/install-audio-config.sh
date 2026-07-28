@@ -49,6 +49,7 @@ if [[ -z "${target_home}" || ! -d "${target_home}" ]]; then
     exit 1
 fi
 pw_dir="${target_home}/.config/pipewire/pipewire.conf.d"
+dolby_bypass_conf="${pw_dir}/98-sp11-dolby-bypass.conf"
 pw_conf="${pw_dir}/99-sp11-speaker-eq.conf"
 
 run() {
@@ -182,6 +183,24 @@ install_pipewire() {
     note "installed PipeWire EQ for ${target_user}"
 }
 
+install_dolby_bypass() {
+    local src="${deploy_root}/pipewire/98-sp11-dolby-bypass.conf"
+    [[ -f "${src}" ]] || {
+        printf 'refusing: missing required Dolby identity/bypass boundary %s\n' \
+            "${src}" >&2
+        exit 1
+    }
+    run install -d -m 0755 -o "${target_user}" -g "${target_user}" -- "${pw_dir}"
+    if [[ -f "${dolby_bypass_conf}" ]] && cmp -s -- "${src}" "${dolby_bypass_conf}"; then
+        note "Dolby identity/bypass boundary already matches repo copy"
+        return 0
+    fi
+    backup "${dolby_bypass_conf}"
+    run install -m 0644 -o "${target_user}" -g "${target_user}" \
+        -- "${src}" "${dolby_bypass_conf}"
+    note "installed Dolby identity/bypass boundary for ${target_user}"
+}
+
 disable_pipewire_eq() {
     if [[ -f "${pw_conf}" ]]; then
         backup "${pw_conf}"
@@ -231,6 +250,8 @@ uninstall() {
     fi
     run rm -f -- "${pw_conf}"
     note "removed PipeWire EQ"
+    run rm -f -- "${dolby_bypass_conf}"
+    note "removed Dolby identity/bypass boundary"
     printf '\nRestart audio: systemctl --user restart pipewire pipewire-pulse wireplumber\n'
     printf 'Timestamped .bak-* files were left in place deliberately.\n'
 }
@@ -246,6 +267,7 @@ printf '\nInstalling:\n'
 setup_diversion
 inject_branch
 install_ucm
+install_dolby_bypass
 if ((install_pipewire_eq)); then
     install_pipewire
 else

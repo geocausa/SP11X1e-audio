@@ -4,7 +4,7 @@
 
 set -u
 
-expected_kernel=7.1.5-sp11-audio-protected
+expected_kernel=7.1.5-sp11-audio-v2
 timestamp=$(date -u +%Y%m%dT%H%M%SZ)
 output_root=/var/log/sp11-audio-first-boot
 output_dir="${output_root}/${timestamp}"

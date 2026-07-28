@@ -1,0 +1,26 @@
+#!/bin/sh
+# Include the Phase91 SP11 transport and touch overrides in the Audio V2
+# initramfs.  The generic in-tree GPI and GENI SPI modules are also present,
+# so the overrides must be available before udev probes the touch device.
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case "$1" in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+[ "${version:-}" = "7.1.5-sp11-audio-v2" ] || exit 0
+
+manual_add_modules gpi
+manual_add_modules spi-geni-qcom
+manual_add_modules mshw0485_touch

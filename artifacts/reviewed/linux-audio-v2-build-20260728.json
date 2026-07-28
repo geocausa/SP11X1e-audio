@@ -1,0 +1,60 @@
+{
+  "schema": "sp11-linux-audio-v2-build-v1",
+  "captured_date": "2026-07-28",
+  "state": "installed_pre_boot",
+  "kernel": {
+    "release": "7.1.5-sp11-audio-v2",
+    "source_archive_sha256": "22a0196b3cbcdf34dc27b77561f4d040585fd3447edc9ab3531a1ac79e3041e7",
+    "compiler": "GCC 15.2.0",
+    "image_sha256": "0b28442903312ffaf1bfaeee39dc9efd38a08810e95496975ec8745ee5286028",
+    "system_map_sha256": "0ca39a869a2a1836a38b0d0d730222b3aa81313effec0689b96af4bd3a77c9de",
+    "config_sha256": "7002da72b721035e6a7b8e92fb6d149e8283be0d418d92891938f71f18037def"
+  },
+  "modules": {
+    "in_tree_count": 7883,
+    "installed_file_count": 7886,
+    "installed_tree_bytes": 2537599547,
+    "depmod_unresolved_diagnostics": 0,
+    "phase91_overrides": {
+      "gpi.ko.zst": "5d198a6e5b2a03f888aeb8e8688c4ecc9941ed7863052d2c7fb7cca93c8c7bf5",
+      "spi-geni-qcom.ko.zst": "1b5c095cd7446366177b670039a0ebf5d9a4f6cc3696ef582920d78cb56cdb94",
+      "mshw0485_touch.ko.zst": "00ec7834e623cf8d78e0d7f742e72e838d877e8d6a243d745acaeefd9cdc8b0b"
+    },
+    "resolver_selects_updates": true,
+    "all_checked_vermagic_match_release": true
+  },
+  "boot": {
+    "grub_entry": "sp11-audio-v2",
+    "boot_directory": "/boot/sp11-7.1.5-audio-v2",
+    "fallback_entry": "sp11-7.1.5-clean",
+    "phase91_dtb_sha256": "dfbc3c49217aeeec91eadfc2a74a4dc88a8a76bf81458bd24194b61b5d0f0e72",
+    "initramfs_sha256": "e5c2f067fdbc928741e4af5058f864c11f1046e7fc021a19169398e384601f64",
+    "initramfs_bytes": 982437440,
+    "initramfs_entries": 4310,
+    "phase91_overrides_present_in_initramfs": true,
+    "grub_script_check": "pass",
+    "retired_candidate_present_in_generated_grub": false
+  },
+  "audio_policy": {
+    "topology_sha256": "4e00057b8e316c217347bcdee0af0c6d4ff40e8e0f1870d7efeaddc2669ff54e",
+    "parked_ucm_sha256": "956bfdcb273b08a5e981cde0c2ccaa9a536d888370b7a32db13f7b1dd942a9ec",
+    "pipewire_eq_installed": false,
+    "vi_mixer_auto_enabled": false,
+    "visense_auto_enabled": false,
+    "cps_auto_enabled": false,
+    "dolby_state": "userspace stereo identity boundary instantiated with two PipeWire copy nodes; no Dolby processing or coefficients",
+    "dolby_bypass_config_sha256": "de3f394731d47ec63cec05b7d5a45929a7fd4f3bb2d92159e8c50cf6c613e289",
+    "dolby_bypass_default_sink": "effect_input.sp11_dolby_bypass",
+    "dolby_bypass_target_sink": "alsa_output.platform-sound.HiFi__Speaker__sink",
+    "fallback_idle_validation": {
+      "opened_playback_stream": false,
+      "identity_nodes_present": true,
+      "speaker_eq_node_present": false,
+      "vi_mixers_enabled": false,
+      "visense_enabled": false,
+      "cps_enabled": false,
+      "new_bus_clash_events": 0
+    }
+  },
+  "validation_boundary": "This record proves build, ABI, dependency, initramfs and GRUB consistency. Hardware behavior remains unproven until the first V2 boot."
+}

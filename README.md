@@ -14,20 +14,31 @@ The known-working rollback is kernel `7.1.5-sp11+` on Ubuntu 26.04 LTS
 aarch64. Its basic MM1 speaker route works through both WSA884x amplifiers, but
 it does not implement the recovered Windows protection graph.
 
-The first evidence-locked protected-audio candidate was installed on
-2026-07-28 as a separate kernel and GRUB entry:
+The first protected candidate was retired after its boot proved that it had
+been built from an incomplete 156-module configuration and used the wrong
+device tree. No ALSA card registered. Its later apparent bus-clash symptom was
+separately traced to the experimental global UCM activating VI/CPS on the
+fallback kernel. See the
+[failure classification](artifacts/reviewed/linux-protected-boot-failure-20260728.json).
 
-- kernel `7.1.5-sp11-audio-protected`;
-- boot entry ID `sp11-audio-protected`;
+The replacement is a clean, isolated rebuild from the verified official Linux
+7.1.5 tarball:
+
+- kernel `7.1.5-sp11-audio-v2`;
+- boot entry ID `sp11-audio-v2`;
+- full known-working SP11 configuration and Phase91 platform DTB/modules;
 - one strict 48 kHz, S16_LE, stereo MM1 frontend;
 - one integrated AudioReach graph with 29 recovered Windows modules, 26 data
   edges, three internal control links and seven containers;
 - exact render, VI and CPS `CODEC_DMA` endpoints;
 - six ordered calibration stages generated from the REV_0D ACDB and returned
   QGPR startup sequence;
-- both WSA884x VI mixer inputs and both amplifier PBR/VISENSE/CPS paths enabled
-  by UCM;
-- no userspace equalizer and no invented Dolby processing.
+- VI mixer, VISENSE and CPS support present but parked for first boot;
+- a real userspace Dolby boundary instantiated as two identity-copy channels,
+  with no invented Dolby processing or coefficients;
+- no userspace equalizer;
+- 7,886 installed modules, zero unresolved dependency diagnostics, and a
+  validated initramfs containing the Phase91 overrides.
 
 The recovered endpoint contracts are:
 
@@ -37,11 +48,11 @@ The recovered endpoint contracts are:
 | voltage/current | IID `0x4026` | WSA type 1, index 1 | 8 kHz, S32_LE, stereo |
 | CPS | IID `0x402b` | type 2, index 3, mask 3 | 24 kHz, S32_LE, stereo |
 
-This candidate is installed but has not yet completed its first boot. Build,
-topology decode and six generator tests pass; that proves the payload is
-structurally consistent, not that physical V/I telemetry is live. The boot
-must still prove graph start, all ordered calibration sends, SoundWire port
-allocation, stable render and nonzero protection feedback.
+Offline build and topology validation prove only payload and ABI consistency.
+The first V2 boot must still prove the complete platform, both amplifier
+resets, ALSA card registration, clash-free idle and topology load. VI/CPS will
+then be activated incrementally under instrumentation; nonzero protection
+feedback is not yet claimed.
 
 Dolby is deliberately outside this phase. No Dolby processing module is
 instantiated in the parity graph; bypass/placement work remains a separate
@@ -70,8 +81,12 @@ graph receives nonzero VI/CPS data.
 - `deploy/ucm2/Qualcomm/x1e80100/` -- the SP11 UCM profile
 - `deploy/firmware/` -- local generated protected topology manifest; opaque
   binaries and recovered vendor calibration remain untracked
-- `deploy/grub/46_sp11_audio_protected` -- isolated, rollback-safe boot entry
+- `deploy/grub/46_sp11_audio_v2` -- isolated, rollback-safe boot entry
+- `deploy/initramfs/sp11-audio-v2-phase91` -- V2-only early Phase91 module
+  inclusion, ahead of the generic GPI/SPI copies
 - `deploy/first-boot/` -- read-only automatic first-boot evidence capture
+- `deploy/pipewire/98-sp11-dolby-bypass.conf` -- required two-channel identity
+  stage reserving the separate Dolby project's userspace boundary
 - `deploy/pipewire/99-sp11-speaker-eq.conf` -- archived optional experiment,
   disabled by default
 - `deploy/install-audio-config.sh` -- idempotent installer, `--dry-run` and
@@ -86,9 +101,9 @@ sudo ./deploy/install-audio-config.sh
 SP11 branch with a `dpkg-divert` so upgrades do not clobber it. The other two
 UCM files are locally added and unowned.
 
-The complete installed manifest, hashes, rollback rule and first-boot gates are
-in
-[`docs/deployment/2026-07-28-protected-audio-candidate.md`](docs/deployment/2026-07-28-protected-audio-candidate.md).
+The failed-candidate diagnosis, clean source lineage, patch hashes, rollback
+rule and V2 first-boot gates are in the
+[audio-v2 rebuild record](docs/deployment/2026-07-28-audio-v2-rebuild.md).
 
 ### UCM speaker-count note
 

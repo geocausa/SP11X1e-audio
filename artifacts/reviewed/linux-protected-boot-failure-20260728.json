@@ -1,0 +1,42 @@
+{
+  "schema": "sp11-linux-protected-boot-failure-v1",
+  "captured_date": "2026-07-28",
+  "failed_entry": {
+    "kernel_release": "7.1.5-sp11-audio-protected",
+    "grub_entry": "sp11-audio-protected",
+    "module_file_count": 156,
+    "module_tree_bytes": 6537803,
+    "config_sha256": "7e02f57eb4358b693d34b75d7900df547894829c8643375d511c4431c338673b",
+    "dtb_sha256": "94af1d3a3cba094cc00f9fe02ae8f8244615d368e5452256318992d9a08ea629",
+    "alsa_card_registered": false,
+    "observed_failures": [
+      "SoundWire clock-stop deprepare wait timed out with -110",
+      "both WSA884x codecs deferred because their reset GPIOs were unavailable",
+      "the MSHW0485 Phase91 touchscreen/DMA modules were absent"
+    ]
+  },
+  "working_fallback": {
+    "kernel_release": "7.1.5-sp11+",
+    "grub_entry": "sp11-7.1.5-clean",
+    "module_file_count": 7888,
+    "module_tree_bytes": 2539796265,
+    "phase91_dtb_sha256": "dfbc3c49217aeeec91eadfc2a74a4dc88a8a76bf81458bd24194b61b5d0f0e72",
+    "external_modules": [
+      "gpi.ko",
+      "spi-geni-qcom.ko",
+      "mshw0485_touch.ko",
+      "snd-soc-x1e80100.ko"
+    ]
+  },
+  "classification": {
+    "platform_failure": "The failed candidate was built from an incomplete configuration and booted with the generic OLED DTB instead of the hardware-validated Phase91 DTB.",
+    "bus_clash_timing": "The Bus clash flood occurred in the following fallback boot after the experimental global UCM enabled VI mixer, VISENSE and CPS controls on that kernel.",
+    "audio_policy_failure": "Feedback controls were activated before the protected graph and physical VI/CPS transport had been proven.",
+    "topology_sha256": "4e00057b8e316c217347bcdee0af0c6d4ff40e8e0f1870d7efeaddc2669ff54e",
+    "restored_safe_ucm_sha256": "956bfdcb273b08a5e981cde0c2ccaa9a536d888370b7a32db13f7b1dd942a9ec"
+  },
+  "evidence": {
+    "local_directory": "artifacts/live/failed-protected-boot-20260728",
+    "note": "Raw journals are retained locally and gitignored; this reviewed record contains the publishable classification."
+  }
+}

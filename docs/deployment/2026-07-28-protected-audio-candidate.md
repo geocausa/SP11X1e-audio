@@ -1,9 +1,16 @@
 # Protected-audio candidate deployment — 2026-07-28
 
+> **Retired after first boot.** This document is the immutable deployment
+> record for the failed first candidate. It is not the current boot recipe.
+> The failure analysis and replacement lineage are in
+> [2026-07-28-audio-v2-rebuild.md](2026-07-28-audio-v2-rebuild.md).
+
 ## State
 
-`7.1.5-sp11-audio-protected` is installed as an isolated first-boot candidate
-on the Surface Pro 11 OLED. It has not yet been boot-validated.
+`7.1.5-sp11-audio-protected` was installed as an isolated first-boot candidate
+on the Surface Pro 11 OLED. Its first boot failed before ALSA card
+registration because the kernel/module set was incomplete and the entry used
+the wrong DTB. Its GRUB entry is disabled and retained only as evidence.
 
 The working `7.1.5-sp11+` kernel, its device tree, initramfs and saved GRUB
 entry remain intact. The protected candidate is selected with a one-time
