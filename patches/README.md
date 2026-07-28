@@ -192,3 +192,32 @@ allocation and release. Validation before deployment:
 
 The prior module is preserved beside the override. Runtime graph-open and
 calibration results require the next V2 boot.
+
+## `0008-audioreach-send-protected-calibration-per-frame.patch`
+
+The `0007` verification boot proved that the coherent OOB allocation and
+shared-memory map now succeed. The DSP then returned status 1 for the first
+graph-calibration `APM_CMD_SET_CFG`, before render-endpoint calibration or any
+sample playback. That stage contains 107 ordered parameter frames in one
+10,280-byte OOB transaction.
+
+Recovered instrumented Linux tests on this same firmware had already isolated
+the transport behavior: parameter frames accepted as individual `SET_CFG`
+transactions were rejected when packed together. Patch `0008` therefore keeps
+every recovered payload byte and the CDLU order but sends each static graph,
+endpoint, SP and SP_VI parameter frame as its own OOB transaction. A rejected
+frame reports its stage index, module instance and parameter ID.
+
+Validation before deployment:
+
+- reverse patch dry-run against the exact V2 source after `0007`: pass;
+- strict kernel style check: zero findings;
+- scoped ARM64 q6apm module build: pass;
+- exported symbol CRCs still match both companion DAI modules;
+- staged source version: `E6A40A02F649E378E80B4B6`;
+- staged compressed module SHA-256:
+  `46e8e4a8422534e90446ebfc2d39b69d5f95d450d19400914b645f87b3cc271a`.
+
+This is a Linux transport compatibility correction, not a claim that the
+entire static calibration has been accepted. The next boot must either pass
+all frames or identify the first real payload rejection.

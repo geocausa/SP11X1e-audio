@@ -51,6 +51,35 @@
     "module_compressed_sha256": "f226f1f8383ef7edaa8d8dd0ce67dfed7933338ba088239a8fb6c5e6c9d1a34b",
     "installed_path": "/lib/modules/7.1.5-sp11-audio-v2/updates/sp11-audio/snd-q6apm.ko.zst",
     "signed_by_v2_build_key": true,
+    "requires_reboot": false,
+    "verification": {
+      "loaded": true,
+      "dma_warning_recurred": false,
+      "oob_map_succeeded": true,
+      "first_failed_opcode": "0x01001006 APM_CMD_SET_CFG",
+      "first_failed_stage": "aggregate graph calibration",
+      "first_failed_stage_size": 10280,
+      "dsp_status": 1
+    }
+  },
+  "matching_companion_modules": {
+    "q6apm-dai": {
+      "srcversion": "866000C05164E3793C3C320",
+      "compressed_sha256": "2bffd9c9f0693ab716f2d057f519bf9257d77605caa9aedc12375b47d45cc103"
+    },
+    "q6apm-lpass-dais": {
+      "srcversion": "034771BBF6A543A50A1001F",
+      "compressed_sha256": "41aa292802722007d33460cf6be87ab75563677f85d51dee5a34cb54e53b74ba"
+    }
+  },
+  "staged_per_frame_correction": {
+    "patch": "patches/0008-audioreach-send-protected-calibration-per-frame.patch",
+    "patch_sha256": "9b3c704ca3dab29689ba7c2c4993191f89a27808ee2e743353df9b23ea2a2cda",
+    "module_srcversion": "E6A40A02F649E378E80B4B6",
+    "module_compressed_sha256": "46e8e4a8422534e90446ebfc2d39b69d5f95d450d19400914b645f87b3cc271a",
+    "preserves_parameter_bytes": true,
+    "preserves_parameter_order": true,
+    "adds_exact_failure_identity": true,
     "requires_reboot": true
   },
   "rollback": {

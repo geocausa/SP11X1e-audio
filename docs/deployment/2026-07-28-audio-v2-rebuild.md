@@ -265,3 +265,39 @@ resource-clock dependency prevents a safe live swap. The next one-shot V2
 boot must confirm the `7DB0...` identity and repeat only the non-playing
 capability probe. Passing that gate proves OOB mapping, not successful
 calibration or safe playback.
+
+## `0007` verification and calibration transaction boundary
+
+The next V2 boot loaded the corrected core source version
+`7DB02EBB2A2FCD1685D2CBA`, and no DMA API warning recurred. The initial card
+probe was blocked because `q6apm-dai` and `q6apm-lpass-dais` were still the
+older full-build copies and failed module-version checks against the scoped
+core. Matching, V2-signed companion modules were installed under the same
+`updates/sp11-audio` directory:
+
+| Module | Source version | Compressed SHA-256 |
+|---|---|---|
+| `q6apm-dai` | `866000C05164E3793C3C320` | `2bffd9c9f0693ab716f2d057f519bf9257d77605caa9aedc12375b47d45cc103` |
+| `q6apm-lpass-dais` | `034771BBF6A543A50A1001F` | `41aa292802722007d33460cf6be87ab75563677f85d51dee5a34cb54e53b74ba` |
+
+Both companions loaded safely without replacing the active core. The card
+then registered with one MM1 PCM and 29 integrated widgets. With PipeWire and
+its sockets stopped, the bounded ACP capability probe reached graph open.
+
+The `0007` correction passed its intended gate: coherent allocation produced
+no warning, the shared-memory map completed, and the DSP received the first
+out-of-band payload. The rejected opcode was `0x01001006`
+(`APM_CMD_SET_CFG`), not the map opcode `0x0100100c`. DSP status 1 therefore
+belongs to the aggregate 10,280-byte graph-calibration stage. The PCM closed
+again in `new` state, no backend remained active, no sample was sent, and no
+SoundWire bus clash occurred.
+
+Earlier preserved Linux instrumentation on this firmware established that
+multiple parameter frames rejected in one `SET_CFG` are accepted when sent
+as separate transactions. Patch
+`0008-audioreach-send-protected-calibration-per-frame.patch` applies that
+transport constraint consistently to graph, endpoint, SP and SP_VI static
+calibration. It preserves each frame and its recovered order and reports the
+exact IID and parameter ID on failure. The signed staged core is identified
+by source version `E6A40A02F649E378E80B4B6` and compressed SHA-256
+`46e8e4a8422534e90446ebfc2d39b69d5f95d450d19400914b645f87b3cc271a`.
