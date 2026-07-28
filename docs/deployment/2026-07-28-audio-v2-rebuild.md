@@ -183,5 +183,16 @@ provider holds `q6prm`, which in turn holds `snd-q6apm`. Rebooting the V2
 entry is safer than unbinding live clock consumers. No PCM stream was opened,
 and VI, VISENSE and CPS remain parked.
 
+The first reboot intended to test `0006` correctly resolved the
+`updates/sp11-audio` path but reproduced the same error. Binary identity
+auditing showed that the scoped module build had emitted its output in the
+source-tree `M` directory, while the installation command had selected the
+older full-build `O` directory object. Its unchanged source version proved
+the patch was not in the running binary. The install was corrected without
+changing source: the verified module containing the new endpoint branches has
+source version `E8232949B1C7119F6BFA060`, is signed by the same V2 key, and is
+now the installed override. The machine-readable record preserves both
+identities rather than treating the repeated failure as a topology result.
+
 The machine-readable first-boot record is
 [`artifacts/reviewed/linux-audio-v2-first-boot-20260728.json`](../../artifacts/reviewed/linux-audio-v2-first-boot-20260728.json).

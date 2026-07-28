@@ -27,14 +27,24 @@
   "correction": {
     "patch": "patches/0006-audioreach-accept-shared-memory-endpoint-widgets.patch",
     "module": "snd-q6apm",
-    "uncompressed_sha256": "1a19fca54131eb980c8376d41b4784d32e8d9ec7d7282386b3afd87b6dd834f5",
-    "installed_compressed_sha256": "b5bd5ce1b07918aecb2a5ffa855951a8716d2615216c0781f7da921c5781e7dd",
+    "srcversion": "E8232949B1C7119F6BFA060",
+    "uncompressed_sha256": "1020dfba6b22e4ff1fe32bf138fe30083c142902ca54f9cc81e88ec2871a12cd",
+    "installed_compressed_sha256": "fac066fd6ae7cb826913c92f660e73670cf055fcc1f7d157a14ed8b8538e9924",
     "vermagic": "7.1.5-sp11-audio-v2 SMP preempt mod_unload modversions aarch64",
     "signed_by_v2_build_key": true,
     "installed_path": "/lib/modules/7.1.5-sp11-audio-v2/updates/sp11-audio/snd-q6apm.ko.zst",
     "resolver_selects_override": true,
     "live_reload": "not forced because active q6prm clock consumers hold snd-q6apm",
     "requires_reboot": true
+  },
+  "installation_audit": {
+    "first_override_srcversion": "8A7CFBB67A230E52AC87E9D",
+    "first_override_uncompressed_sha256": "1a19fca54131eb980c8376d41b4784d32e8d9ec7d7282386b3afd87b6dd834f5",
+    "first_override_result": "second boot reproduced the original failure because the install step selected the stale full-build-directory object",
+    "cause": "the scoped module build emitted snd-q6apm.ko in the source-tree M directory, while the first install command selected the older O-directory module",
+    "corrected_output_verified": true,
+    "corrected_output_location": "/home/geoca/Documents/SP11-PROJECT/02-kernel/sp11-audio-v2-src-clean/sound/soc/qcom/qdsp6/snd-q6apm.ko",
+    "instruction_level_endpoint_success_path_verified": true
   },
   "safety": {
     "vi_mixer_auto_enabled": false,

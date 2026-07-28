@@ -165,4 +165,6 @@ the latent mismatch.
 This patch explicitly accepts both shared-memory endpoint IDs after common
 loading. Unsupported module IDs still fail. It dry-runs against pristine
 7.1.5 and the resulting `snd-q6apm.ko` builds with the V2 ABI and kernel build
-signature.
+signature. The installed corrected binary is additionally identified by
+source version `E8232949B1C7119F6BFA060`; this identity check prevents a stale
+full-build-directory object from being mistaken for the scoped rebuild.
