@@ -48,11 +48,15 @@ The recovered endpoint contracts are:
 | voltage/current | IID `0x4026` | WSA type 1, index 1 | 8 kHz, S32_LE, stereo |
 | CPS | IID `0x402b` | type 2, index 3, mask 3 | 24 kHz, S32_LE, stereo |
 
-Offline build and topology validation prove only payload and ABI consistency.
-The first V2 boot must still prove the complete platform, both amplifier
-resets, ALSA card registration, clash-free idle and topology load. VI/CPS will
-then be activated incrementally under instrumentation; nonzero protection
-feedback is not yet claimed.
+V2 has now proved the complete platform, both amplifier resets, ALSA card
+registration, clash-free idle and loading of the 29-module integrated
+topology. The topology exposes only MM1 playback and all protection feedback
+controls remain parked. A userspace capability probe reached graph open but
+the first protection OOB allocation used the non-DMA GPR transport device and
+failed with `-ENOMEM`. Patch `0007` retains the IOMMU-attached DAI device for
+that allocation; its signed module is staged for the next V2 boot. Successful
+graph calibration, playback and nonzero protection feedback are not yet
+claimed.
 
 Dolby is deliberately outside this phase. No Dolby processing module is
 instantiated in the parity graph; bypass/placement work remains a separate

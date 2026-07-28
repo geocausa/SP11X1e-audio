@@ -1,0 +1,62 @@
+{
+  "schema": "sp11-linux-audio-v2-integrated-gate-v1",
+  "captured_date": "2026-07-28",
+  "kernel_release": "7.1.5-sp11-audio-v2",
+  "platform": {
+    "alsa_card_registered": true,
+    "soundwire_devices_attached": 2,
+    "soundwire_bus_clash_count": 0
+  },
+  "topology": {
+    "installed_path": "/lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-tplg.bin",
+    "size_bytes": 28912,
+    "sha256": "bc9b8b115027dcce4fc2ce0a9ea37ce7ea54e80bcffab6e8b5a91f31e12f458b",
+    "parser_accepted": true,
+    "sp11_widget_count": 29,
+    "pcm_devices": [
+      "MultiMedia1 Playback"
+    ],
+    "pcm_state": "new",
+    "active_dsp_backends": 0
+  },
+  "parked_state": {
+    "vi_mixers_enabled": 0,
+    "visense_switches_enabled": 0,
+    "cps_switches_enabled": 0,
+    "pcm_sample_playback": false
+  },
+  "ucm": {
+    "speaker_device_resolves": true,
+    "playback_pcm": "hw:${CardId},0",
+    "removed_stale_routes": [
+      "MultiMedia2 playback",
+      "MultiMedia4 capture mixer",
+      "capture PCM 3"
+    ],
+    "sha256": "71c92ee0cf07898c361dba90d72d5bb8de0a18333f029990a900760370b14c09"
+  },
+  "graph_open_failure": {
+    "trigger": "PipeWire ACP capability probe without sample playback",
+    "errno": -12,
+    "warning_site": "kernel/dma/mapping.c:633 dma_alloc_attrs",
+    "call_site": "q6apm_graph_open",
+    "cause": "coherent protection OOB allocation used the non-DMA APM GPR transport device",
+    "running_module_srcversion": "E8232949B1C7119F6BFA060"
+  },
+  "staged_correction": {
+    "patch": "patches/0007-audioreach-use-dma-capable-device-for-protection-oob.patch",
+    "patch_sha256": "b9f201705c7a7a97391ff9eb58cd27384afb432eba576ea7edb6bde0b7cdde1d",
+    "module_srcversion": "7DB02EBB2A2FCD1685D2CBA",
+    "module_uncompressed_sha256": "596d166669744fd12df399ddac317346913c7530b06ff118e06c0c4cc30c70fb",
+    "module_compressed_sha256": "f226f1f8383ef7edaa8d8dd0ce67dfed7933338ba088239a8fb6c5e6c9d1a34b",
+    "installed_path": "/lib/modules/7.1.5-sp11-audio-v2/updates/sp11-audio/snd-q6apm.ko.zst",
+    "signed_by_v2_build_key": true,
+    "requires_reboot": true
+  },
+  "rollback": {
+    "persistent_grub_entry": "sp11-7.1.5-clean",
+    "structural_topology_backup": "/lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-tplg.structural-baseline-4e00057b.bak",
+    "structural_topology_sha256": "4e00057b8e316c217347bcdee0af0c6d4ff40e8e0f1870d7efeaddc2669ff54e",
+    "previous_module_backup": "/lib/modules/7.1.5-sp11-audio-v2/updates/sp11-audio/snd-q6apm.pre-0007-E8232949.ko.zst"
+  }
+}

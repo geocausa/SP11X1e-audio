@@ -1,0 +1,89 @@
+From: SP11 audio reconstruction project
+Subject: [PATCH] ASoC: qcom: audioreach: use DAI device for protection DMA
+
+The APM GPR service is a message-transport child and has no DMA mask.
+The protected graph's out-of-band calibration buffer was allocated against
+that device, triggering the DMA API warning and failing with -ENOMEM.
+
+The q6apm DAI child passed to q6apm_graph_open() is DMA capable. It is
+attached to the platform IOMMU and remains valid for the PCM lifetime.
+Retain it on the AudioReach graph and use it for coherent OOB allocation
+and release.
+
+---
+ sound/soc/qcom/qdsp6/q6apm.c | 15 +++++++++------
+ sound/soc/qcom/qdsp6/q6apm.h |  1 +
+ 2 files changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -61,7 +61,7 @@ static int q6apm_map_oob_buffer(struct audioreach_graph *graph)
+ 		return PTR_ERR(pkt);
+ 
+ 	graph->oob_size = Q6APM_OOB_BUFFER_SIZE;
+-	graph->oob_virt = dma_alloc_coherent(apm->dev, graph->oob_size,
+-					    &graph->oob_phys, GFP_KERNEL);
++	graph->oob_virt = dma_alloc_coherent(graph->dma_dev, graph->oob_size,
++					     &graph->oob_phys, GFP_KERNEL);
+ 	if (!graph->oob_virt)
+ 		return -ENOMEM;
+@@ -79,7 +79,7 @@ static int q6apm_map_oob_buffer(struct audioreach_graph *graph)
+ 	int ret = q6apm_send_cmd_sync(apm, pkt,
+ 				      APM_CMD_RSP_SHARED_MEM_MAP_REGIONS);
+ 	if (ret) {
+-		dma_free_coherent(apm->dev, graph->oob_size,
++		dma_free_coherent(graph->dma_dev, graph->oob_size,
+ 				  graph->oob_virt, graph->oob_phys);
+ 		graph->oob_virt = NULL;
+ 		graph->oob_phys = 0;
+@@ -112,7 +112,7 @@ static int q6apm_unmap_oob_buffer(struct audioreach_graph *graph)
+ 	}
+ 
+ 	if (graph->oob_virt) {
+-		dma_free_coherent(apm->dev, graph->oob_size,
++		dma_free_coherent(graph->dma_dev, graph->oob_size,
+ 				  graph->oob_virt, graph->oob_phys);
+ 		graph->oob_virt = NULL;
+ 		graph->oob_phys = 0;
+@@ -150,7 +150,9 @@ int q6apm_send_oob_config(struct audioreach_graph *graph,
+ }
+ EXPORT_SYMBOL_GPL(q6apm_send_oob_config);
+ 
+-static struct audioreach_graph *q6apm_get_audioreach_graph(struct q6apm *apm, uint32_t graph_id)
++static struct audioreach_graph *
++q6apm_get_audioreach_graph(struct q6apm *apm, struct device *dma_dev,
++			   uint32_t graph_id)
+ {
+ 	struct audioreach_graph_info *info;
+ 	struct audioreach_graph *graph;
+@@ -176,6 +178,7 @@ static struct audioreach_graph *q6apm_get_audioreach_graph(struct q6apm *apm,
+ 	graph->apm = apm;
+ 	graph->info = info;
+ 	graph->id = graph_id;
++	graph->dma_dev = dma_dev;
+ 	mutex_init(&graph->protection_lock);
+ 
+ 	graph->graph = audioreach_alloc_graph_pkt(apm, info);
+@@ -775,7 +778,7 @@ struct q6apm_graph *q6apm_graph_open(struct device *dev, q6apm_cb cb,
+ 	struct q6apm_graph *graph;
+ 	int ret;
+ 
+-	ar_graph = q6apm_get_audioreach_graph(apm, graph_id);
++	ar_graph = q6apm_get_audioreach_graph(apm, dev, graph_id);
+ 	if (IS_ERR(ar_graph)) {
+ 		dev_err(dev, "No graph found with id %d\n", graph_id);
+ 		return ERR_CAST(ar_graph);
+diff --git a/sound/soc/qcom/qdsp6/q6apm.h b/sound/soc/qcom/qdsp6/q6apm.h
+--- a/sound/soc/qcom/qdsp6/q6apm.h
++++ b/sound/soc/qcom/qdsp6/q6apm.h
+@@ -87,6 +87,7 @@ struct audioreach_graph {
+ 	int start_count;
+ 	bool protection_configured;
+ 	struct mutex protection_lock;
++	struct device *dma_dev;
+ 	void *oob_virt;
+ 	dma_addr_t oob_phys;
+ 	size_t oob_size;
+-- 
+2.51.0

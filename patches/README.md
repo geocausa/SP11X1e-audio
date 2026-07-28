@@ -168,3 +168,27 @@ loading. Unsupported module IDs still fail. It dry-runs against pristine
 signature. The installed corrected binary is additionally identified by
 source version `E8232949B1C7119F6BFA060`; this identity check prevents a stale
 full-build-directory object from being mistaken for the scoped rebuild.
+
+## `0007-audioreach-use-dma-capable-device-for-protection-oob.patch`
+
+Fixes the next failure exposed after the integrated 29-module topology loaded
+and registered its single MM1 PCM. PipeWire's read-only capability probe
+reached `q6apm_graph_open()`, where the protected graph attempted to allocate
+its coherent out-of-band calibration buffer against the APM GPR service
+device. That message-transport device has no DMA mask, so the DMA API warned
+and graph open failed with `-ENOMEM`.
+
+The q6apm DAI child passed to graph open is attached to the platform IOMMU.
+This patch retains that device on the graph and uses it for coherent OOB
+allocation and release. Validation before deployment:
+
+- reverse patch dry-run against the exact patched V2 source: pass;
+- strict kernel style check: zero findings;
+- scoped ARM64 q6apm module build: pass;
+- V2 vermagic and build-key signature: pass;
+- staged source version: `7DB02EBB2A2FCD1685D2CBA`;
+- staged compressed module SHA-256:
+  `f226f1f8383ef7edaa8d8dd0ce67dfed7933338ba088239a8fb6c5e6c9d1a34b`.
+
+The prior module is preserved beside the override. Runtime graph-open and
+calibration results require the next V2 boot.
