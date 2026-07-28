@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "candidate": "7.1.5-sp11-audio-v3",
+  "date": "2026-07-28",
+  "runtime_validated": false,
+  "boot_policy": {
+    "candidate_grub_id": "sp11-audio-v3",
+    "saved_fallback_grub_id": "sp11-7.1.5-clean",
+    "one_shot": true
+  },
+  "root_cause": {
+    "windows_iid": "0x4660",
+    "windows_module_id": "0x07001006",
+    "retired_linux_substitution": "0x07001000",
+    "failure": "AR_ENOTEXIST at source-endpoint configuration"
+  },
+  "build": {
+    "in_tree_module_count": 7883,
+    "installed_module_count": 7886,
+    "installed_module_tree_bytes": 2537766682,
+    "repository_tests": 70,
+    "repository_tests_passed": true,
+    "target_audio_w1_build_passed": true,
+    "full_kernel_build_passed": true,
+    "depmod_unresolved_count": 0
+  },
+  "hashes_sha256": {
+    "kernel_image_gzip": "be4a41ced29a768fad2cca6a71bf69085bdaacf78971bf0d9d83e191986619e6",
+    "kernel_config": "f7ff7e0fb5c7286f8e7976a71f59a32eb83571191d6534737bf55dcc48efa2a1",
+    "phase91_dtb": "dfbc3c49217aeeec91eadfc2a74a4dc88a8a76bf81458bd24194b61b5d0f0e72",
+    "initramfs": "96e96ec56de939497fcbbc65cd9b47b067c3d727f1ea3ae4a7bd96ea91556bfe",
+    "topology": "110e4db8224a9b77ebe047fef1fc235d8914008ba572bf58fe9921d0dd283af0",
+    "kernel_patch_0015": "9c58dd1b3e853498e8f539fcbd1816cb9073146de138e716367594ae1c6a3d37",
+    "snd_q6apm_compressed": "67d0d3e371e8bafdfcbcc42cc64bc4b07980b811dc31cc2ef427bee3c7225d3b",
+    "q6apm_dai_compressed": "a9a37e6577b24c30cbb1f4a7f5bd899c3a1296b2af3be23f950823a833be8e67"
+  },
+  "snd_q6apm_srcversion": "5F2C814E2065E90C81BC333",
+  "initramfs": {
+    "bytes": 982589990,
+    "entries": 4314,
+    "contains_phase91_overrides": true,
+    "contains_topology": true
+  },
+  "dolby": {
+    "boundary_present": true,
+    "mode": "identity-bypass",
+    "dynamic_processing_implemented": false
+  }
+}

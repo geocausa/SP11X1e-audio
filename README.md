@@ -21,18 +21,20 @@ separately traced to the experimental global UCM activating VI/CPS on the
 fallback kernel. See the
 [failure classification](artifacts/reviewed/linux-protected-boot-failure-20260728.json).
 
-The replacement is a clean, isolated rebuild from the verified official Linux
-7.1.5 tarball:
+The current candidate is a clean, isolated rebuild from the verified official
+Linux 7.1.5 tarball:
 
-- kernel `7.1.5-sp11-audio-v2`;
-- boot entry ID `sp11-audio-v2`;
+- kernel `7.1.5-sp11-audio-v3`;
+- boot entry ID `sp11-audio-v3`;
 - full known-working SP11 configuration and Phase91 platform DTB/modules;
 - one strict 48 kHz, S16_LE, stereo MM1 frontend;
 - one integrated AudioReach graph with 29 recovered Windows modules, 26 data
   edges, three internal control links and seven containers;
+- the canonical Windows `SH_MEM_PULL_MODE` source with a 3,840-byte ring,
+  separate position page and registered watermark events;
 - exact render, VI and CPS `CODEC_DMA` endpoints;
-- six ordered calibration stages generated from the REV_0D ACDB and returned
-  QGPR startup sequence;
+- ten ordered topology stages plus the exact captured pull/format/event and
+  SP/SPVI GET/SET sequence;
 - VI mixer, VISENSE and CPS support present but parked for first boot;
 - a real userspace Dolby boundary instantiated as two identity-copy channels,
   with no invented Dolby processing or coefficients;
@@ -48,27 +50,28 @@ The recovered endpoint contracts are:
 | voltage/current | IID `0x4026` | WSA type 1, index 1 | 8 kHz, S32_LE, stereo |
 | CPS | IID `0x402b` | type 2, index 3, mask 3 | 24 kHz, S32_LE, stereo |
 
-V2 has now proved the complete platform, both amplifier resets, ALSA card
-registration, clash-free idle and loading of the 29-module integrated
-topology. The topology exposes only MM1 playback and all protection feedback
-controls remain parked. Patch `0007` fixed the first protection OOB allocation:
-the IOMMU-attached DAI device now allocates and maps the buffer successfully.
-Patch `0008` was a diagnostic split-send. Its boot identified frame zero,
-SAL output configuration `0x08001016`, as the first isolated rejection.
+V2 proved the complete platform, both amplifier resets, ALSA card
+registration, clash-free idle and loading of the integrated topology. Its
+successive named failures also established the OOB DMA/SID policy and the
+GSL-compatible handling of unsupported graph-calibration records.
 
-That result led to the recovered Qualcomm ACDB implementation. Replaying its
-exact first-time query proved that the old 10,280-byte payload was the
-zero/default-CKV response. Windows resolves the active calibration key vector
-and sends a 10,464-byte block atomically; the archived full-volume QGPR trace
-records that same size. Patch `0009` restores the atomic transaction and the
-stage generator now reproduces Qualcomm's full-volume response byte-for-byte.
-The signed replacement is staged for the next isolated V2 boot. Successful
-graph calibration, playback and nonzero protection feedback are not yet
-claimed.
+The decisive V2 failure was `AR_ENOTEXIST` at source-endpoint setup. The full
+QGPR trace and recovered Qualcomm source proved why: the Linux generator had
+rewritten Windows IID `0x4660`, MID `0x07001006`, to an unrelated legacy
+write-command endpoint. V3 retires that translation and implements the actual
+pull endpoint contract. It also includes the recovered gain, volume-step
+MSIIR, mute and root channel-mixer tail before graph start.
 
-Dolby is deliberately outside this phase. No Dolby processing module is
-instantiated in the parity graph; bypass/placement work remains a separate
-project after the hardware and base Windows graph are proven.
+The complete transaction comparison is in the
+[Windows/Linux start ledger](docs/audit/2026-07-28-windows-linux-start-transaction-ledger.md).
+The installed V3 identities and rollback policy are in the
+[audio-v3 deployment record](docs/deployment/2026-07-28-audio-v3-pull-pipeline.md).
+The V3 build is complete and installed, but physical playback and nonzero
+protection feedback are not claimed until its one-shot boot is validated.
+
+Dolby dynamic processing is deliberately outside this phase. Its userspace
+boundary is present in identity/bypass mode; no Dolby coefficients, EQ or
+synthetic processing have been invented.
 
 ## SoundWire protection boundary
 
@@ -93,8 +96,8 @@ graph receives nonzero VI/CPS data.
 - `deploy/ucm2/Qualcomm/x1e80100/` -- the SP11 UCM profile
 - `deploy/firmware/` -- local generated protected topology manifest; opaque
   binaries and recovered vendor calibration remain untracked
-- `deploy/grub/46_sp11_audio_v2` -- isolated, rollback-safe boot entry
-- `deploy/initramfs/sp11-audio-v2-phase91` -- V2-only early Phase91 module
+- `deploy/grub/46_sp11_audio_v3` -- isolated, rollback-safe V3 boot entry
+- `deploy/initramfs/sp11-audio-v3-phase91` -- V3-only early Phase91 module
   inclusion, ahead of the generic GPI/SPI copies
 - `deploy/first-boot/` -- read-only automatic first-boot evidence capture
 - `deploy/pipewire/98-sp11-dolby-bypass.conf` -- required two-channel identity
@@ -113,9 +116,10 @@ sudo ./deploy/install-audio-config.sh
 SP11 branch with a `dpkg-divert` so upgrades do not clobber it. The other two
 UCM files are locally added and unowned.
 
-The failed-candidate diagnosis, clean source lineage, patch hashes, rollback
-rule and V2 first-boot gates are in the
+The failed-candidate diagnosis and clean source lineage remain in the
 [audio-v2 rebuild record](docs/deployment/2026-07-28-audio-v2-rebuild.md).
+The current hashes, rollback rule and V3 acceptance gates are in the
+[audio-v3 deployment record](docs/deployment/2026-07-28-audio-v3-pull-pipeline.md).
 
 ### UCM speaker-count note
 

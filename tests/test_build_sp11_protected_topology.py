@@ -39,7 +39,7 @@ def test_source_link_token_slots():
     assert "token209 16387" in rendered
 
 
-def test_windows_pull_endpoint_is_translated():
+def test_windows_pull_endpoint_keeps_its_canonical_module_id():
     module = {
         "iid": "0x4660",
         "module_id": "0x07001006",
@@ -49,5 +49,5 @@ def test_windows_pull_endpoint_is_translated():
         "properties": {"max_input_ports": 0, "max_output_ports": 1},
     }
     rendered = MODULE.module_tuple(module, [])
-    assert "token200 117444608" in rendered
-    assert "token200 117444614" not in rendered
+    assert "token200 117444614" in rendered
+    assert "token200 117444608" not in rendered

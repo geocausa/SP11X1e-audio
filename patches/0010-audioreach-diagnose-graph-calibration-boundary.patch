@@ -1,0 +1,110 @@
+From: SP11 Linux audio parity project
+Subject: [PATCH] ASoC: qcom: audioreach: diagnose graph calibration boundary
+
+Keep the protected graph fail-closed, but collect three discriminating
+results after the original graph calibration has failed:
+
+  - submit a generic module-enable frame in-band;
+  - submit the same frame through the graph OOB mapping;
+  - submit the original aggregate without its first SAL sentinel frame.
+
+The original error is always returned and the graph is subsequently closed.
+No PCM samples are submitted. This temporary SP11-only diagnostic
+distinguishes graph identity, OOB visibility, and aggregate payload
+failures.
+
+---
+ sound/soc/qcom/qdsp6/audioreach.c | 27 ++++++++++++++++++++++-----
+ sound/soc/qcom/qdsp6/q6apm.c      | 20 ++++++++++++++++++++
+ sound/soc/qcom/qdsp6/q6apm.h      |  2 ++
+ 3 files changed, 44 insertions(+), 5 deletions(-)
+
+diff --git a/sound/soc/qcom/qdsp6/q6apm.h b/sound/soc/qcom/qdsp6/q6apm.h
+--- a/sound/soc/qcom/qdsp6/q6apm.h
++++ b/sound/soc/qcom/qdsp6/q6apm.h
+@@ -155,5 +155,7 @@ int q6apm_graph_id_for_backend(struct device *dev, int backend_id);
+ int q6apm_send_oob_config(struct audioreach_graph *graph,
+ 			   const void *data, size_t size);
++int q6apm_send_inband_config(struct audioreach_graph *graph,
++			     const void *data, size_t size);
+ 
+ /* Callback for graph specific */
+ struct audioreach_module *q6apm_find_module_by_mid(struct q6apm_graph *graph,
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -150,6 +150,26 @@ int q6apm_send_oob_config(struct audioreach_graph *graph,
+ }
+ EXPORT_SYMBOL_GPL(q6apm_send_oob_config);
+ 
++int q6apm_send_inband_config(struct audioreach_graph *graph,
++			     const void *data, size_t size)
++{
++	void *payload;
++
++	if (!data || !size)
++		return -EINVAL;
++
++	struct gpr_pkt *pkt __free(kfree) =
++		audioreach_alloc_apm_cmd_pkt(size, APM_CMD_SET_CFG, 0);
++	if (IS_ERR(pkt))
++		return PTR_ERR(pkt);
++
++	payload = (u8 *)pkt + GPR_HDR_SIZE + APM_CMD_HDR_SIZE;
++	memcpy(payload, data, size);
++
++	return q6apm_send_cmd_sync(graph->apm, pkt, 0);
++}
++EXPORT_SYMBOL_GPL(q6apm_send_inband_config);
++
+ static struct audioreach_graph *
+ q6apm_get_audioreach_graph(struct q6apm *apm, struct device *dma_dev,
+ 			   uint32_t graph_id)
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1128,9 +1128,19 @@ static int audioreach_validate_protection_stages(
+ 
+ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ {
++	const __le32 enable[] = {
++		cpu_to_le32(0x00004027),
++		cpu_to_le32(0x08001026),
++		cpu_to_le32(sizeof(u32)),
++		0,
++		cpu_to_le32(1),
++		0,
++	};
+ 	struct audioreach_module_priv_data *graph_cal;
+ 	struct audioreach_module_priv_data *render_ep;
++	const u8 *cal;
++	u32 cal_size;
+-	int ret;
++	int ib, ob, tail, ret;
+ 
+ 	graph_cal = audioreach_find_stage(graph->info,
+ 					 SND_SOC_AR_TPLG_GRAPH_CAL_CFG_TYPE);
+@@ -1146,11 +1156,18 @@ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ 	ret = audioreach_validate_stage_modules(graph->info, render_ep);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = q6apm_send_oob_config(graph, graph_cal->data,
+-				    le32_to_cpu(graph_cal->size));
+-	if (ret)
++	cal = (const u8 *)graph_cal->data;
++	cal_size = le32_to_cpu(graph_cal->size);
++	ret = q6apm_send_oob_config(graph, cal, cal_size);
++	if (ret) {
++		ib = q6apm_send_inband_config(graph, enable, sizeof(enable));
++		ob = q6apm_send_oob_config(graph, enable, sizeof(enable));
++		tail = q6apm_send_oob_config(graph, cal + 24, cal_size - 24);
++		pr_info("sp11 graph-cal diagnostic: original=%d inband-enable=%d oob-enable=%d aggregate-without-sal-sentinel=%d\n",
++			ret, ib, ob, tail);
+ 		return ret;
++	}
+ 	return q6apm_send_oob_config(graph, render_ep->data,
+ 				      le32_to_cpu(render_ep->size));
+ }
+-- 
+2.43.0

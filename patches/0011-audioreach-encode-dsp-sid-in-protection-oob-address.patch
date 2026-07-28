@@ -1,0 +1,119 @@
+From: SP11 Linux audio parity project
+Subject: [PATCH] ASoC: qcom: audioreach: encode DSP SID in protection OOB address
+
+AudioReach shared-memory addresses are DSP virtual addresses, not bare DMA
+offsets on platforms whose APM DAI is behind an IOMMU.  The established PCM
+path encodes the low nibble of the first IOMMU stream ID into bits 32-35
+before both mapping and referencing a buffer.
+
+Apply the same translation to the protected-graph OOB buffer.  Keep the raw
+DMA address separately for the DMA API free operation, and report both
+addresses when the mapping succeeds.
+
+The SP11 DAI's first stream ID is 0x1001, so this converts the previous
+0x00000000:offset requests to the 0x00000001:offset form independently
+observed in Windows QGPR captures.
+
+---
+ sound/soc/qcom/qdsp6/q6apm.c | 29 +++++++++++++++++++++++++----
+ sound/soc/qcom/qdsp6/q6apm.h |  1 +
+ 2 files changed, 26 insertions(+), 4 deletions(-)
+
+diff --git a/sound/soc/qcom/qdsp6/q6apm.h b/sound/soc/qcom/qdsp6/q6apm.h
+--- a/sound/soc/qcom/qdsp6/q6apm.h
++++ b/sound/soc/qcom/qdsp6/q6apm.h
+@@ -92,6 +92,7 @@ struct audioreach_graph {
+ 	struct device *dma_dev;
+ 	void *oob_virt;
+ 	dma_addr_t oob_phys;
++	phys_addr_t oob_dsp_addr;
+ 	size_t oob_size;
+ 	uint32_t oob_mem_map_handle;
+ 	/* Cached Graph data */
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -19,6 +19,7 @@
+ /* Graph Management */
+ #define Q6APM_OOB_MAP_TOKEN	BIT(31)
+ #define Q6APM_OOB_BUFFER_SIZE	SZ_16K
++#define Q6APM_DSP_SID_MASK	GENMASK(3, 0)
+ 
+ struct apm_graph_mgmt_cmd {
+ 	struct apm_module_param_data param_data;
+@@ -33,6 +34,22 @@ static struct q6apm *g_apm;
+ static int audioreach_graph_mgmt_cmd(struct audioreach_graph *graph,
+ 				     uint32_t opcode);
+ 
++static phys_addr_t q6apm_dsp_addr(struct device *dev, dma_addr_t dma_addr)
++{
++	struct of_phandle_args args;
++	phys_addr_t dsp_addr = dma_addr;
++
++	if (!dev->of_node ||
++	    of_parse_phandle_with_fixed_args(dev->of_node, "iommus", 1, 0,
++					     &args))
++		return dsp_addr;
++
++	dsp_addr |= (phys_addr_t)(args.args[0] & Q6APM_DSP_SID_MASK) << 32;
++	of_node_put(args.np);
++
++	return dsp_addr;
++}
++
+ int q6apm_send_cmd_sync(struct q6apm *apm, const struct gpr_pkt *pkt,
+ 			uint32_t rsp_opcode)
+ {
+@@ -64,6 +80,7 @@ static int q6apm_map_oob_buffer(struct audioreach_graph *graph)
+ 					     &graph->oob_phys, GFP_KERNEL);
+ 	if (!graph->oob_virt)
+ 		return -ENOMEM;
++	graph->oob_dsp_addr = q6apm_dsp_addr(graph->dma_dev, graph->oob_phys);
+ 
+ 	p = (u8 *)pkt + GPR_HDR_SIZE;
+ 	cmd = p;
+@@ -72,7 +89,7 @@ static int q6apm_map_oob_buffer(struct audioreach_graph *graph)
+ 	cmd->property_flag = 0;
+ 	region = p + sizeof(*cmd);
+-	region->shm_addr_lsw = lower_32_bits(graph->oob_phys);
+-	region->shm_addr_msw = upper_32_bits(graph->oob_phys);
++	region->shm_addr_lsw = lower_32_bits(graph->oob_dsp_addr);
++	region->shm_addr_msw = upper_32_bits(graph->oob_dsp_addr);
+ 	region->mem_size_bytes = graph->oob_size;
+ 
+ 	int ret = q6apm_send_cmd_sync(apm, pkt,
+@@ -84,7 +101,13 @@ static int q6apm_map_oob_buffer(struct audioreach_graph *graph)
+ 				  graph->oob_virt, graph->oob_phys);
+ 		graph->oob_virt = NULL;
+ 		graph->oob_phys = 0;
++		graph->oob_dsp_addr = 0;
+ 		graph->oob_size = 0;
++	} else {
++		dev_info(graph->dma_dev,
++			 "protection OOB map DMA %pad DSP %pap handle %#x\n",
++			 &graph->oob_phys, &graph->oob_dsp_addr,
++			 graph->oob_mem_map_handle);
+ 	}
+ 	return ret;
+ }
+@@ -116,6 +139,7 @@ static int q6apm_unmap_oob_buffer(struct audioreach_graph *graph)
+ 				  graph->oob_virt, graph->oob_phys);
+ 		graph->oob_virt = NULL;
+ 		graph->oob_phys = 0;
++		graph->oob_dsp_addr = 0;
+ 		graph->oob_size = 0;
+ 	}
+ 	return ret;
+@@ -141,8 +165,8 @@ int q6apm_send_oob_config(struct audioreach_graph *graph,
+ 		return PTR_ERR(pkt);
+ 
+ 	cmd = (void *)pkt + GPR_HDR_SIZE;
+-	cmd->payload_address_lsw = lower_32_bits(graph->oob_phys);
+-	cmd->payload_address_msw = upper_32_bits(graph->oob_phys);
++	cmd->payload_address_lsw = lower_32_bits(graph->oob_dsp_addr);
++	cmd->payload_address_msw = upper_32_bits(graph->oob_dsp_addr);
+ 	cmd->mem_map_handle = graph->oob_mem_map_handle;
+ 	cmd->payload_size = size;
+ 	ret = q6apm_send_cmd_sync(graph->apm, pkt, 0);
+-- 
+2.43.0

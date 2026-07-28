@@ -652,7 +652,7 @@ render family feeding a shared protection root.
 
 | Area | Windows fact | Current Linux | Required disposition |
 |---|---|---|---|
-| Source endpoint | `SH_MEM_PULL_MODE` in each observed render family | `WR_SHARED_MEM_EP -> PCM_DEC` | Determine the correct Linux FE model; do not copy endpoint type blindly across OS transports |
+| Source endpoint | `SH_MEM_PULL_MODE` in each observed render family | `SH_MEM_PULL_MODE` with mapped ring and position page | Full QGPR plus recovered Qualcomm source proves this is the required DSP contract; the earlier `WR_SHARED_MEM_EP` substitution is retired |
 | Family structure | DEFAULT and NOTIFICATION are mirrored 16-module alternatives | One selected donor serial chain into a common backend | Rebuild DEFAULT from explicit subgraphs and bridges; reserve NOTIFICATION as an alternate selector |
 | Early stage order | `PCM_CNV -> VOL -> SWR -> EQ -> VOL` | `PCM_CNV -> SWR -> VOL -> EQ -> VOL` | Correct order from selected Windows family |
 | Post-pause fan-out | `SPR` is 1/2; output 1 continues toward hardware, output 3 is a speaker-loopback tap to `4144` | `SPR` is 1/1 with one serial output | Restore the port declaration; keep loopback disabled or implement it separately, never route it to hardware |

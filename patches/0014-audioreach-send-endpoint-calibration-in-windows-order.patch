@@ -1,0 +1,82 @@
+From: SP11 Linux audio parity project
+Subject: [PATCH] ASoC: qcom: audioreach: send endpoint calibration in Windows order
+
+The first boot which tolerated graph-calibration AR_EUNSUPPORTED reached
+the next transaction and proved that the render CODEC_DMA endpoint
+calibration was sent too early.  IID 0x4157 returned AR_ENOTEXIST.
+
+The complete Windows QGPR startup trace places the 10,464-byte graph
+calibration directly after GRAPH_OPEN.  It sends the 1,888-byte SP tag, the
+1,328-byte SP_VI tag and only then two 64-byte endpoint-calibration
+transactions.  The recovered ACDB resolver identifies those final two
+transactions as render IID 0x4157 followed by VI IID 0x4026.
+
+Keep graph open limited to graph calibration.  Move render endpoint
+calibration next to the already correctly placed VI endpoint calibration,
+preserving their exact Windows order after SP and SP_VI configuration.
+
+---
+ sound/soc/qcom/qdsp6/audioreach.c | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
+
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1179,32 +1179,21 @@ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ 		0,
+ 	};
+ 	struct audioreach_module_priv_data *graph_cal;
+-	struct audioreach_module_priv_data *render_ep;
+ 	const u8 *cal;
+ 	u32 cal_size;
+ 	int ib, ob, tail, ret;
+ 
+ 	graph_cal = audioreach_find_stage(graph->info,
+ 					 SND_SOC_AR_TPLG_GRAPH_CAL_CFG_TYPE);
+-	render_ep = audioreach_find_stage(graph->info,
+-					 SND_SOC_AR_TPLG_RENDER_EP_CFG_TYPE);
+ 	if (IS_ERR(graph_cal))
+ 		return PTR_ERR(graph_cal);
+-	if (IS_ERR(render_ep))
+-		return PTR_ERR(render_ep);
+-	if (!graph_cal && !render_ep)
++	if (!graph_cal)
+ 		return 0;
+-	if (!graph_cal || !render_ep)
+-		return -EINVAL;
+-	if (le32_to_cpu(graph_cal->size) != 10464 ||
+-	    le32_to_cpu(render_ep->size) != 64)
++	if (le32_to_cpu(graph_cal->size) != 10464)
+ 		return -EINVAL;
+ 	ret = audioreach_validate_stage_modules(graph->info, graph_cal);
+ 	if (ret)
+ 		return ret;
+-	ret = audioreach_validate_stage_modules(graph->info, render_ep);
+-	if (ret)
+-		return ret;
+ 
+ 	cal = (const u8 *)graph_cal->data;
+ 	cal_size = le32_to_cpu(graph_cal->size);
+@@ -1228,8 +1217,7 @@ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ 		audioreach_diagnose_oob_frames(graph, cal, cal_size);
+ 		return ret;
+ 	}
+-	return q6apm_send_oob_config(graph, render_ep->data,
+-				      le32_to_cpu(render_ep->size));
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(audioreach_send_protected_graph_calibration);
+ 
+@@ -1280,6 +1268,10 @@ int audioreach_configure_protection(struct q6apm_graph *graph)
+ 				    le32_to_cpu(spvi_tag->size));
+ 	if (ret)
+ 		goto out;
++	ret = q6apm_send_oob_config(ar_graph, render_ep->data,
++				    le32_to_cpu(render_ep->size));
++	if (ret)
++		goto out;
+ 	ret = q6apm_send_oob_config(ar_graph, vi_ep->data,
+ 				    le32_to_cpu(vi_ep->size));
+ 	if (ret)
+-- 
+2.43.0

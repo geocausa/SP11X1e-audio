@@ -1,0 +1,67 @@
+From: SP11 Linux audio parity project
+Subject: [PATCH] ASoC: qcom: audioreach: match GSL unsupported graph-cal policy
+
+The recovered Qualcomm ACDB resolver and Windows GSL sources explain the
+single rejected record in the SP11 graph-calibration aggregate.  ACDB emits
+PARAM_ID_SPR_SESSION_TIME, a query-only parameter, in the 10,464-byte
+non-persistent calibration body.  SPF consequently reports
+AR_EUNSUPPORTED (3) for the aggregate after processing its records.
+
+Qualcomm GSL deliberately treats AR_EUNSUPPORTED from non-persistent graph
+calibration as a warning and continues opening the graph.  Linux currently
+collapses every positive DSP status to -EINVAL, so the same reference
+transaction closes the graph.
+
+Preserve AR_EUNSUPPORTED as -EOPNOTSUPP at the common response boundary and
+tolerate it only for the protected graph-calibration stage.  Other DSP
+errors remain fatal and all other callers still treat the unsupported
+result as an error.
+
+---
+ sound/soc/qcom/qdsp6/audioreach.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -11,6 +11,8 @@
+ #include "q6apm.h"
+ #include "audioreach.h"
+ 
++#define AUDIOREACH_DSP_EUNSUPPORTED	3
++
+ /* SubGraph Config */
+ struct apm_sub_graph_data {
+ 	struct apm_sub_graph_cfg sub_graph_cfg;
+@@ -700,7 +702,10 @@ int audioreach_send_cmd_sync(struct device *dev, gpr_device_t *gdev,
+ 		rc = -ETIMEDOUT;
+ 	} else if (result->status > 0) {
+ 		dev_err(dev, "DSP returned error[%x] %x\n", hdr->opcode, result->status);
+-		rc = -EINVAL;
++		if (result->status == AUDIOREACH_DSP_EUNSUPPORTED)
++			rc = -EOPNOTSUPP;
++		else
++			rc = -EINVAL;
+ 	} else {
+ 		/* DSP successfully finished the command */
+ 		rc = 0;
+@@ -1203,6 +1208,17 @@ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ 	cal = (const u8 *)graph_cal->data;
+ 	cal_size = le32_to_cpu(graph_cal->size);
+ 	ret = q6apm_send_oob_config(graph, cal, cal_size);
++	if (ret == -EOPNOTSUPP) {
++		/*
++		 * Match Qualcomm GSL's graph-calibration policy. ACDB can
++		 * include query-only parameters in this aggregate; SPF reports
++		 * AR_EUNSUPPORTED after applying the supported records and GSL
++		 * deliberately lets graph open continue.
++		 */
++		dev_warn(graph->apm->dev,
++			 "graph calibration returned AR_EUNSUPPORTED; continuing as Qualcomm GSL does\n");
++		ret = 0;
++	}
+ 	if (ret) {
+ 		ib = q6apm_send_inband_config(graph, enable, sizeof(enable));
+ 		ob = q6apm_send_oob_config(graph, enable, sizeof(enable));
+-- 
+2.43.0

@@ -25,6 +25,10 @@ RAW_TYPES = {
     "spvi-tag-calibration": 0x53503104,
     "vi-endpoint-calibration": 0x53503105,
     "protection-dynamic": 0x53503106,
+    "volume-gain": 0x53503107,
+    "volume-filter-calibration": 0x53503108,
+    "volume-mute": 0x53503109,
+    "channel-mixer-calibration": 0x5350310A,
 }
 
 STAGE_SUFFIX = {
@@ -34,6 +38,10 @@ STAGE_SUFFIX = {
     "spvi-tag-calibration": "spvitag",
     "vi-endpoint-calibration": "viep",
     "protection-dynamic": "dynamic",
+    "volume-gain": "vgain",
+    "volume-filter-calibration": "vfilter",
+    "volume-mute": "vmute",
+    "channel-mixer-calibration": "chmix",
     "control-links": "ctrl",
 }
 
@@ -124,8 +132,6 @@ def load_inputs(model_path: Path, stages_dir: Path, control_path: Path):
 def module_tuple(module: dict, outgoing: list[dict]) -> str:
     iid = integer(module["iid"])
     mid = integer(module["module_id"])
-    if module["module_name"] == "SH_MEM_PULL_MODE":
-        mid = 0x07001000  # Linux WR_SHARED_MEM_EP translation
     sgid = integer(module["subgraph_id"])
     cid = integer(module["container_id"])
     cap, stack, graph_pos, parent, heap = CONTAINERS[cid]
@@ -219,6 +225,12 @@ def render(model: dict, admitted: list[dict], stage_payloads: dict, control: byt
         0x4660: ("graph-calibration", "render-endpoint-calibration"),
         0x4027: ("sp-tag-calibration", "protection-dynamic", "control-links"),
         0x4024: ("spvi-tag-calibration", "vi-endpoint-calibration"),
+        0x4A63: (
+            "volume-gain",
+            "volume-filter-calibration",
+            "volume-mute",
+            "channel-mixer-calibration",
+        ),
     }
     raw_blocks = dict(stage_payloads)
     raw_blocks["control-links"] = control

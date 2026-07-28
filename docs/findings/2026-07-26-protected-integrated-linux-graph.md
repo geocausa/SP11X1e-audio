@@ -27,10 +27,12 @@ the complete graph start.
 | returned 2026-07-26 ETL/WASAPI set | public render contract is 48 kHz, PCM16, stereo |
 | live SP11 codec and DT inventory | one WSA macro, two WSA884x amplifiers, WSA RX0 render and VI/CPS ports |
 
-The Windows shared-memory pull endpoint `MID 0x07001006 / IID 0x1234` is
-translated to Linux's write shared-memory endpoint
-`MID 0x07001000 / IID 0x1234`. All other admitted DSP module IDs, instance IDs,
-containers, edges and internal control links are retained.
+The Windows shared-memory pull endpoint is retained exactly as
+`MID 0x07001006 / IID 0x4660`. Earlier candidates translated it to Linux's
+write shared-memory endpoint, but the full QGPR sequence and recovered
+Qualcomm implementation prove that this changed the transport contract rather
+than adapting it. Linux now uses the same mapped circular data buffer,
+dedicated position page, watermark events and pull-mode media format.
 
 The external capture peers attached to splitter IID `0x4002`, the dormant
 loopback branch, and the external timer-drift control peer are not admitted.
@@ -48,12 +50,14 @@ They are not part of the DEFAULT speaker graph closure needed by this endpoint.
 - three internal module control links;
 - seven containers with the recovered parent, heap, stack, processor-domain
   and graph-position properties;
-- six ordered raw stage objects.
+- ten ordered raw stage objects.
 
-The current runtime-keyed topology SHA-256 is
-`5211cfe50bb1dc33dd6502f8c43550829b8b3e62d2fa35b60e2472e708706d58`.
+The generated configuration SHA-256 is
+`76ee29f84ab7afa0f6ea3bb459db6c74dd546bd88ea13a59ff2af29a4ab0424c`;
+the compiled topology SHA-256 is
+`110e4db8224a9b77ebe047fef1fc235d8914008ba572bf58fe9921d0dd283af0`.
 It compiles and decodes with `alsatplg`; the complete repository test suite
-has 67 passing tests.
+has 70 passing tests.
 
 The virtual DPCM mixer joins the MM1 frontend and WSA RX0 backend without
 creating a second DSP edge: the graph already contains the exact
@@ -72,17 +76,29 @@ objects:
 | SP_VI module tag | 5 | 1,328 | `c383b831db8f91a0d33b6ba79ff04852658882b50d4a187b2dedfeeab281bc8c` |
 | VI endpoint | 2 | 64 | `e83d98e48617e2d21b6e2372ff0a65b7b4cff41307caa30db26783882377b103` |
 | dynamic protection values | 4 | 128 | `96ac15bb5f7d9aed6f681fd660aba46ee4d9ec57725e52c322afddc8b073227a` |
+| volume gain frame | 1 | 120 | `e63657dc0d4e7b8b811734431ea1bcfbf2b4f9dce23cf5a9236df0937c17b818` |
+| volume-step MSIIR | 4 | 216 | `f266b601b8a026e8dfefe63139c6baa616c7989865d9761bb91116b0060acde5` |
+| volume mute frame | 1 | 120 | `5b0275626aca900910c325a2cacbe37ae36cbae7e319560c404124206b524c3c` |
+| root channel mixer | 1 | 40 | `f973f220dead6167fd003d25197d12b3dd94b276311f668216e9eb20d2723e76` |
 
 The kernel applies them in this order:
 
 1. graph open;
 2. graph/subgraph calibration;
-3. render endpoint calibration;
-4. SP operating mode;
-5. SP-tag calibration;
-6. two-speaker R0/T0 and SP_VI mode parameters;
-7. SP_VI-tag calibration;
-8. VI endpoint calibration.
+3. pull ring/position configuration and event registration;
+4. pull, PCM converter and MFC media formats;
+5. SP operating mode;
+6. SP-tag calibration;
+7. SP and SP_VI configuration queries;
+8. two-speaker R0/T0 and SP_VI mode parameters;
+9. SP_VI-tag calibration;
+10. render endpoint calibration;
+11. VI endpoint calibration;
+12. volume gain;
+13. volume-step MSIIR calibration;
+14. volume mute;
+15. root channel-mixer calibration;
+16. graph start with subgraphs ordered root, speaker, render.
 
 The exact static SP and SP_VI channel-count fields are prevalidated as two.
 The Windows runtime GET response bodies were not captured, so this candidate
@@ -97,8 +113,8 @@ byte-identical to the recovered official ACDB library. See
 
 ## Kernel implementation
 
-`patches/0005-sp11-protected-integrated-graph.patch` adds the narrowly scoped
-kernel support required by the generated topology:
+The kernel patch series through the pull-mode parity update adds the narrowly
+scoped support required by the generated topology:
 
 - raw, type-tagged calibration stage retention and validation;
 - extended container-property serialization;
@@ -107,6 +123,10 @@ kernel support required by the generated topology:
 - retained 16 KiB coherent out-of-band `SET_CFG` transport;
 - protected-stage format and graph-shape validation;
 - serialized protection configuration;
+- exact pull-mode ring, position and event handling;
+- exact-instance PCM converter and MFC configuration;
+- captured GET/SET protection, volume and channel-mixer tail stages;
+- graph-port start in the captured subgraph order;
 - strict propagation of media-format and calibration errors;
 - a WSA884x SoundWire stream guard that leaves PBR, VISENSE and CPS out of the
   playback-direction stream.

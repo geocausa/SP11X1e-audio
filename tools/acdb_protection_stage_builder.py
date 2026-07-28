@@ -38,6 +38,7 @@ RENDER_SUBGRAPH_ID = 0xB000007E
 SPEAKER_SUBGRAPH_ID = 0xB000007F
 RENDER_ENDPOINT_TAG_KEY_ID = 0x04010003
 VI_ENDPOINT_TAG_KEY_ID = 0x04010005
+CHANNEL_MIXER_TAG_KEY_ID = 0x04010009
 SP_TAG_KEY_ID = 0x0401000A
 SPVI_TAG_KEY_ID = 0x0401000B
 
@@ -84,6 +85,33 @@ PROTECTION_DYNAMIC_PARAMETERS = (
         "020000000000000000000000000000000000000000000000",
     ),
     (0x00004024, 0x080011FF, "0000000000000000"),
+)
+
+# These two inline records are byte-for-byte copies of commands 26 and 28 in
+# the canonical full-volume Windows startup cycle.  They are VOL_CTRL's
+# per-channel master-gain and mute parameters, not HW endpoint clock records
+# as the early capture decoder labelled them.
+VOLUME_GAIN_PARAMETER = (
+    0x00004A63,
+    0x08001038,
+    (
+        "0800000002000000000000001c7f07000400000000000000"
+        "1c7f07000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000"
+        "0000000000000000"
+    ),
+)
+VOLUME_MUTE_PARAMETER = (
+    0x00004A63,
+    0x08001039,
+    (
+        "080000000200000000000000000000000400000000000000"
+        "000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000"
+        "000000000000000000000000000000000000000000000000"
+        "0000000000000000"
+    ),
 )
 
 
@@ -406,12 +434,15 @@ def build_stages(data: bytes, source: str = "<bytes>") -> tuple[dict[str, bytes]
 
     graph_body = bytearray()
     graph_groups = []
+    speaker_group = None
     for name, subgraph_id in GRAPH_SUBGRAPHS:
         body, group = resolve_subgraph_calibration(
             chunks, subgraph_id, GRAPH_CALIBRATION_CKV
         )
         graph_body += body
         graph_groups.append({"name": name, **group})
+        if subgraph_id == SPEAKER_SUBGRAPH_ID:
+            speaker_group = group
 
     if source_hash == SP11_REV_0D_SHA256:
         if len(graph_body) != SP11_FULL_VOLUME_GRAPH_CAL_SIZE:
@@ -461,12 +492,66 @@ def build_stages(data: bytes, source: str = "<bytes>") -> tuple[dict[str, bytes]
             0x01000022: 1,
         },
     )
+    channel_mixer_body, channel_mixer_meta = serialize_tag_row(
+        data,
+        CHANNEL_MIXER_TAG_KEY_ID,
+        {0x01000023: 0},
+    )
+
+    # Windows sends the volume-step-dependent MSIIR row again immediately
+    # after VOL_CTRL gain.  It is the second runtime CKV group in subgraph
+    # 0x7f and is exactly 216 bytes at full-volume step 30.
+    if speaker_group is None or len(speaker_group["groups"]) < 2:
+        raise ValueError("speaker calibration is missing its volume-step group")
+    volume_group = speaker_group["groups"][1]
+    expected_volume_keys = [
+        {"key_id": "0x0100000e", "value": 48000},
+        {"key_id": "0x01000010", "value": 2},
+        {"key_id": "0x01000011", "value": SPEAKER_VOLUME_STEP},
+        {"key_id": "0x01000013", "value": 1},
+        {"key_id": "0x01000014", "value": 2},
+    ]
+    if (
+        volume_group["selection"] != "runtime-ckv"
+        or volume_group["keys"] != expected_volume_keys
+        or volume_group["parameter_count"] != 4
+    ):
+        raise ValueError("speaker volume-step calibration selection changed")
+    volume_start = speaker_group["groups"][0]["parameter_count"]
+    volume_parameters = speaker_group["parameters"][
+        volume_start : volume_start + volume_group["parameter_count"]
+    ]
+    volume_filter_body = b"".join(
+        serialize_parameter(
+            int(parameter["iid"], 16),
+            int(parameter["param_id"], 16),
+            _pool_payload(
+                chunks["POOL"]["data"], int(parameter["pool_offset"], 16)
+            ),
+        )
+        for parameter in volume_parameters
+    )
+    if len(volume_filter_body) != 216:
+        raise ValueError("full-volume MSIIR stage is no longer 216 bytes")
+
+    gain_iid, gain_param, gain_hex = VOLUME_GAIN_PARAMETER
+    mute_iid, mute_param, mute_hex = VOLUME_MUTE_PARAMETER
+    volume_gain_body = serialize_parameter(
+        gain_iid, gain_param, bytes.fromhex(gain_hex)
+    )
+    volume_mute_body = serialize_parameter(
+        mute_iid, mute_param, bytes.fromhex(mute_hex)
+    )
     stages = {
         "graph-calibration": bytes(graph_body),
         "render-endpoint-calibration": render_body,
         "sp-tag-calibration": sp_body,
         "spvi-tag-calibration": spvi_body,
         "vi-endpoint-calibration": vi_body,
+        "volume-gain": volume_gain_body,
+        "volume-filter-calibration": volume_filter_body,
+        "volume-mute": volume_mute_body,
+        "channel-mixer-calibration": channel_mixer_body,
     }
     dynamic_body = b"".join(
         serialize_parameter(iid, param_id, bytes.fromhex(payload_hex))
@@ -538,6 +623,42 @@ def build_stages(data: bytes, source: str = "<bytes>") -> tuple[dict[str, bytes]
                 "parameter_count": len(PROTECTION_DYNAMIC_PARAMETERS),
                 "serialized_size": len(dynamic_body),
                 "serialized_sha256": sha256(dynamic_body),
+            },
+            "volume-gain": {
+                "evidence_source": (
+                    "canonical live Windows full-volume startup command 26"
+                ),
+                "parameter_count": 1,
+                "serialized_size": len(volume_gain_body),
+                "serialized_sha256": sha256(volume_gain_body),
+            },
+            "volume-filter-calibration": {
+                "evidence_source": (
+                    "REV_0D ACDB subgraph 0x7f runtime CKV at volume step 30; "
+                    "live Windows command 27 has the same 216-byte boundary"
+                ),
+                "parameters": volume_parameters,
+                "parameter_count": len(volume_parameters),
+                "serialized_size": len(volume_filter_body),
+                "serialized_sha256": sha256(volume_filter_body),
+            },
+            "volume-mute": {
+                "evidence_source": (
+                    "canonical live Windows full-volume startup command 28"
+                ),
+                "parameter_count": 1,
+                "serialized_size": len(volume_mute_body),
+                "serialized_sha256": sha256(volume_mute_body),
+            },
+            "channel-mixer-calibration": {
+                **channel_mixer_meta,
+                "evidence_source": (
+                    "REV_0D root module-tag 0x04010009; selector rows 0, 1, "
+                    "and 3 are byte-identical in the reviewed ACDB"
+                ),
+                "parameter_count": len(channel_mixer_meta["parameters"]),
+                "serialized_size": len(channel_mixer_body),
+                "serialized_sha256": sha256(channel_mixer_body),
             },
         },
     }

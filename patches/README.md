@@ -265,3 +265,45 @@ Validation before deployment:
   `5211cfe50bb1dc33dd6502f8c43550829b8b3e62d2fa35b60e2472e708706d58`.
 
 Runtime acceptance still requires the next one-shot V2 boot.
+
+## `0010` through `0014` — diagnostic lineage
+
+These patches preserve the evidence trail from the audio-v2 runtime probes.
+They added named graph-calibration diagnostics, encoded the DAI IOMMU SID in
+DSP-visible OOB addresses, matched Qualcomm GSL's `AR_EUNSUPPORTED` graph-cal
+policy, and corrected the endpoint-calibration order. They are retained for
+auditability, but they are not the final implementation and should not be
+applied after `0015`.
+
+The decisive final V2 result was `AR_ENOTEXIST` while configuring the source
+endpoint. Correlation with the complete Windows QGPR sequence established
+that the topology generator had replaced the Windows pull-mode endpoint with
+a different Linux write-command endpoint.
+
+## `0015-audioreach-implement-windows-pull-mode-startup.patch`
+
+This is the cumulative audio-v3 update based on the deployed audio-v2 source
+state. It supersedes diagnostic patches `0010` through `0014` and implements
+the complete recovered pre-start transaction:
+
+- retains IID `0x4660` as `SH_MEM_PULL_MODE` MID `0x07001006`;
+- maps the 3,840-byte ALSA ring and a separate DSP position page;
+- registers exact 1,920/3,840-byte watermark and soft-pause events;
+- configures pull, PCM-converter and MFC formats at their captured IIDs;
+- sends the SP/SPVI queries and all recovered protection stages;
+- sends the captured gain, volume-step MSIIR, mute and channel-mixer tail;
+- starts the graph through its client port in root, speaker, render order;
+- reports each required stage by name and fails closed on a real mismatch.
+
+Validation completed before packaging:
+
+- forward patch check against the preserved audio-v2 source: pass;
+- ARM64 `q6apm.o` and `q6apm-dai.o` compile: pass;
+- strict patch check: zero errors, one commit-text wrapping warning corrected;
+- topology compile, decode and inventory checks: pass;
+- complete repository suite: 70 passing tests;
+- generated gain and mute frames match QGPR sequences 26 and 28
+  byte-for-byte.
+
+The full kernel/module build and first audio-v3 boot remain the hardware
+acceptance boundary.

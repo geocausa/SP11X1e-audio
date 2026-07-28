@@ -1,0 +1,83 @@
+From: SP11 Linux audio parity project
+Subject: [PATCH] ASoC: qcom: audioreach: diagnose graph calibration records
+
+The corrected DSP SID address translation proves that the SP11 OOB mapping
+is visible: a known-valid module-enable frame succeeds through both in-band
+and OOB delivery.  The complete 10,464-byte calibration still returns DSP
+status 3, as does the aggregate without its first frame.
+
+After that aggregate failure, submit each of its 107 framed parameters
+through the now-proven OOB transport.  Record every rejected frame's index,
+offset, IID, parameter ID and payload size, plus a final accepted/rejected
+count.  Run this extended diagnostic only once per boot.
+
+The original aggregate error is still returned, the graph remains
+fail-closed and no PCM samples are submitted.
+
+---
+ sound/soc/qcom/qdsp6/audioreach.c | 43 +++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1128,6 +1128,49 @@ static int audioreach_validate_protection_profile(
+ 	return 0;
+ }
+ 
++static atomic_t sp11_frame_diag_done = ATOMIC_INIT(0);
++
++static void audioreach_diagnose_oob_frames(struct audioreach_graph *graph,
++					   const u8 *data, size_t size)
++{
++	const u8 *cursor = data;
++	const u8 *end = data + size;
++	int first_rejected = -1;
++	unsigned int accepted = 0;
++	unsigned int rejected = 0;
++	unsigned int index = 0;
++
++	if (atomic_xchg(&sp11_frame_diag_done, 1))
++		return;
++
++	while (cursor < end) {
++		u32 iid = get_unaligned_le32(cursor);
++		u32 param_id = get_unaligned_le32(cursor + sizeof(u32));
++		u32 param_size = get_unaligned_le32(cursor + 2 * sizeof(u32));
++		size_t frame_size =
++			ALIGN(sizeof(struct apm_module_param_data) + param_size, 8);
++		int ret;
++
++		ret = q6apm_send_oob_config(graph, cursor, frame_size);
++		if (ret) {
++			if (first_rejected < 0)
++				first_rejected = index;
++			rejected++;
++			dev_err(graph->apm->dev,
++				"SP11 OOB frame %u offset %zu iid 0x%08x param 0x%08x size %u rejected: %d\n",
++				index, cursor - data, iid, param_id,
++				param_size, ret);
++		} else {
++			accepted++;
++		}
++		cursor += frame_size;
++		index++;
++	}
++
++	pr_info("sp11 graph-cal frame diagnostic: frames=%u accepted=%u rejected=%u first-rejected=%d\n",
++		index, accepted, rejected, first_rejected);
++}
++
+ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ {
+ 	const __le32 enable[] = {
+@@ -1165,6 +1208,7 @@ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ 		tail = q6apm_send_oob_config(graph, cal + 24, cal_size - 24);
+ 		pr_info("sp11 graph-cal diagnostic: original=%d inband-enable=%d oob-enable=%d aggregate-without-sal-sentinel=%d\n",
+ 			ret, ib, ob, tail);
++		audioreach_diagnose_oob_frames(graph, cal, cal_size);
+ 		return ret;
+ 	}
+ 	return q6apm_send_oob_config(graph, render_ep->data,
+-- 
+2.43.0

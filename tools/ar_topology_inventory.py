@@ -22,6 +22,11 @@ from pathlib import Path
 
 MODULE_CFG_TYPE = 0x01001006
 WORD_TUPLE_TYPE = 4
+RAW_PRIVATE_TYPES = {
+    MODULE_CFG_TYPE,
+    0x08001061,  # APM_PARAM_ID_MODULE_CTRL_LINK_CFG
+    *range(0x53503101, 0x5350310B),  # reviewed SP11 ordered stages
+}
 
 MODULE_NAMES = {
     0x07001000: "WR_SHARED_MEM_EP",
@@ -228,8 +233,8 @@ def parse_private_blob(blob: bytes) -> tuple[dict[int, int], list[dict], list[st
         # snd_soc_tplg_vendor_array.size includes the 12-byte array header.
         # AudioReach's MODULE_CFG private record is different: its size field
         # is the payload length following a 16-byte private-data header.
-        total_size = 16 + size if array_type == MODULE_CFG_TYPE else size
-        minimum_size = 0 if array_type == MODULE_CFG_TYPE else 12
+        total_size = 16 + size if array_type in RAW_PRIVATE_TYPES else size
+        minimum_size = 0 if array_type in RAW_PRIVATE_TYPES else 12
         if size < minimum_size or offset + total_size > len(blob):
             issues.append(
                 f"invalid private block at {offset}: size={size}, "
@@ -247,10 +252,11 @@ def parse_private_blob(blob: bytes) -> tuple[dict[int, int], list[dict], list[st
             for element in range(count):
                 token, value = struct.unpack_from("<II", block, 12 + element * 8)
                 tokens[token] = value
-        elif array_type == MODULE_CFG_TYPE:
+        elif array_type in RAW_PRIVATE_TYPES:
             payloads.append(
                 {
                     "offset": offset,
+                    "type": f"0x{array_type:08x}",
                     "size": size,
                     "sha256": hashlib.sha256(block).hexdigest(),
                     "data_size": size,

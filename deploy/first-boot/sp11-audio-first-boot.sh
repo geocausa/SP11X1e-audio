@@ -4,7 +4,7 @@
 
 set -u
 
-expected_kernel=7.1.5-sp11-audio-v2
+expected_kernel=7.1.5-sp11-audio-v3
 timestamp=$(date -u +%Y%m%dT%H%M%SZ)
 output_root=/var/log/sp11-audio-first-boot
 output_dir="${output_root}/${timestamp}"
@@ -35,7 +35,7 @@ capture module-identities.txt bash -c \
 	printf 'installed snd-q6apm srcversion: '; modinfo -F srcversion snd-q6apm; \
 	printf 'installed snd-q6apm signer: '; modinfo -F signer snd-q6apm; \
 	printf 'installed snd-q6apm file: '; modinfo -F filename snd-q6apm; \
-	sha256sum /lib/modules/7.1.5-sp11-audio-v2/updates/sp11-audio/snd-q6apm.ko.zst"
+	module_path=\$(modinfo -F filename snd-q6apm); sha256sum \"\${module_path}\""
 capture alsa-cards.txt cat /proc/asound/cards
 capture alsa-pcm.txt cat /proc/asound/pcm
 capture aplay-devices.txt aplay -l
