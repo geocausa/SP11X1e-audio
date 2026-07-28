@@ -1,0 +1,76 @@
+{
+  "capture_directory": "/home/geoca/Documents/SP11-PROJECT/01-audio/artifacts/live/kdnet-20260723",
+  "capture_log": {
+    "sha256": "386aabc5cc7a98c67031748826c98386badf41d23e67e4cbaa23ca6690e919aa",
+    "size": 213885,
+    "source": "/home/geoca/Documents/SP11-PROJECT/01-audio/artifacts/live/kdnet-20260723/capture.log"
+  },
+  "evidence_class": "C: live Windows kernel-debugger capture",
+  "format": "SP11 Windows KDNET reviewed evidence manifest",
+  "format_version": 1,
+  "graph_bodies": [
+    {
+      "connection_count": 30,
+      "control_link_count": 4,
+      "label": "root-7e-7f",
+      "module_count": 29,
+      "occurrence_count": 4,
+      "output": "graph-root-7e-7f.json",
+      "output_sha256": "78ce0fb63d7cc506e8b779423d5b1e1cae482381600b73d2500aa4e754f9595d",
+      "source_files": [
+        "oob_00_size0xb18.bin",
+        "oob_02_size0xb18.bin",
+        "oob_04_size0xb18.bin",
+        "oob_06_size0xb18.bin"
+      ],
+      "source_sha256": "001e8f78c2aed10e74faad7c2f70095f307a52d4590ec0d00e785e57f44a006e",
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb000007e",
+        "0xb000007f"
+      ]
+    },
+    {
+      "connection_count": 30,
+      "control_link_count": 4,
+      "label": "root-82-83",
+      "module_count": 29,
+      "occurrence_count": 1,
+      "output": "graph-root-82-83.json",
+      "output_sha256": "ee7e80b81da06076599cb6e55e727c0e7d0e5fb098c1e5c3d4b737492cefcc83",
+      "source_files": [
+        "oob_03_size0xb18.bin"
+      ],
+      "source_sha256": "a0d4b5a0fa9102a428402ecd9ad19967e73e74b302fb4e67378d76dc49725a46",
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb0000082",
+        "0xb0000083"
+      ]
+    },
+    {
+      "connection_count": 17,
+      "control_link_count": 1,
+      "label": "82-83-only",
+      "module_count": 16,
+      "occurrence_count": 2,
+      "output": "graph-82-83-only.json",
+      "output_sha256": "2988d2baa04c5db20fb3c152f028e7aaaed4da753fb3b220ef72e87d26fe11be",
+      "source_files": [
+        "oob_01_size0x5e0.bin",
+        "oob_05_size0x5e0.bin"
+      ],
+      "source_sha256": "d4b009f53961de29ca81226bd5f0cbe5f37e94c9f7b5224aee4fa3ffc65d1c4c",
+      "subgraph_ids": [
+        "0xb0000082",
+        "0xb0000083"
+      ]
+    }
+  ],
+  "graph_body_capture_count": 7,
+  "setcfg_capture_count": 14,
+  "setcfg_inventory": "setcfg-inventory.json",
+  "setcfg_inventory_sha256": "4587925a9633abbd212f5f88ea2236c1e94763dd262fcaffc941e64ce1337f28",
+  "unique_graph_body_count": 3,
+  "unique_setcfg_body_count": 7
+}

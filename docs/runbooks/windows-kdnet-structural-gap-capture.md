@@ -26,6 +26,15 @@ The saved boot log proves that `qcadcm8380+0x307a8` receives selector query
 +0x08  uint32 *values      (the pointer the old script did not dereference)
 ```
 
+The same saved hit also shows the vector pointer directly in register `x8`.
+Because "the input-struct base is in `x1`" is an interpretation while `x8` is a
+directly observed fact, the script captures both and triggers on the query id
+alone, so the `x8` path is recorded even if the struct is not in `x1`:
+
+- `CODEX_ACDB_X8_DIRECT` — six words at `x8`;
+- `CODEX_ACDB_X1_STRUCT` — six words at `*(x1+8)` when the `+0x00/+0x08` struct
+  form is present in `x1` (otherwise `CODEX_ACDB_X1_STRUCT_MISS`).
+
 Independent disassembly of the matching driver and the saved playback stack
 identify `qcadcm8380+0x5aa34` as the point after both request segments are
 copied and immediately before the GRAPH_OPEN wrapper is built and sent. At that
@@ -59,8 +68,10 @@ breakpoint, does not exclude the decisive 64-byte requests.
 5. After playback has opened, break into the target, save/close the WinDbg log,
    and detach or shut down normally.
 
-The selector breakpoint records every valid six-word query, up to 64 matches,
-because repeated or changed vectors are needed to reconstruct selection order.
+The selector breakpoint fires on every `0xacdb0017` query and dumps both the
+`x8`-direct vector and the `x1`-struct vector, up to 256 matches, because
+repeated or changed vectors are needed to reconstruct selection order and the
+higher cap keeps boot-time queries from disabling it before playback.
 The SET_CFG breakpoint records valid payloads up to `0x4000` bytes and disables
 itself after 256 matches. The GRAPH_OPEN OOB breakpoint records only requests
 from `0x500` through `0x4000` bytes whose two segment sizes sum to the total,
@@ -71,7 +82,10 @@ Expected log markers:
 
 ```text
 ===== CODEX_ACDB_SELECTOR_6X32_BEGIN =====
-...
+CODEX_ACDB_X8_DIRECT
+...        (six dwords at the x8 vector pointer)
+CODEX_ACDB_X1_STRUCT
+...        (six dwords at *(x1+8) when the struct form is present)
 ===== CODEX_ACDB_SELECTOR_6X32_END =====
 
 ===== CODEX_QCADCM_SET_CFG_BEGIN =====

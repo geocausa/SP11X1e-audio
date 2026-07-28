@@ -1,0 +1,152 @@
+{
+  "capture_id": "windows-kdnet-20260726-gemini",
+  "review_date": "2026-07-26",
+  "overall_status": "incomplete_or_review_required",
+  "promotion_status": "do_not_promote_as_topology_capture",
+  "raw_sources": [
+    "artifacts/raw/windows-kdnet-20260726-gemini/sp11_audio_parity_captured_telemetry.md",
+    "artifacts/raw/windows-kdnet-20260726-gemini/extra-capture.md",
+    "artifacts/raw/windows-kdnet-20260726-gemini/power_rails.md",
+    "artifacts/raw/windows-target-20260726/SP11-PARITY-OUTPUT/state_cold_boot_idle_20260726_000115"
+  ],
+  "coverage_observed_in_returned_kd_telemetry": {
+    "selector_records": 0,
+    "set_cfg_records": 0,
+    "graph_open_oob_records": 0,
+    "apm_tx_records": 3,
+    "apm_rx_records": 0,
+    "get_cfg_complete_records": 1,
+    "scenario_markers": 0,
+    "raw_debugger_log_present": false,
+    "wpr_etl_present": false
+  },
+  "verified_target_baseline": {
+    "snapshot_label": "cold_boot_idle",
+    "snapshot_time_local": "2026-07-26 00:01:15",
+    "windows_version": "10.0.26200",
+    "architecture": "ARM64",
+    "qcadcm8380": {
+      "file_version": "1.0.0.7966",
+      "file_length": 768224,
+      "sha256": "37F76305AC8051B0B03B6D2CE1DF7A353253DEBF546E512E447C9D95EC661429",
+      "expected_hash_match": true
+    },
+    "active_render_endpoint": {
+      "id": "{5bb689e6-2c6b-4357-b4c1-beb815638f88}",
+      "device_state": 1,
+      "adapter": "Qualcomm(R) Aqstic(TM) Audio Adapter Device",
+      "device_instance": "AUCD\\VEN_QCOM&DEV_0C29&SUBSYS_MSHW0486&REV_0D",
+      "surface_profile": "SurfaceAPO_0D.json",
+      "fx_registration": {
+        "property_13": [
+          "{0EBD8605-17BB-4AE7-AD76-E86F99A425E9}"
+        ],
+        "property_19": [
+          "{0EBD8611-17BB-4AE7-AD76-E86F99A425E9}"
+        ],
+        "property_14": [
+          "{0EBD8606-17BB-4AE7-AD76-E86F99A425E9}",
+          "{34D30CD8-370E-4229-85BE-3346C594C805}"
+        ],
+        "property_20": [
+          "{0EBD8612-17BB-4AE7-AD76-E86F99A425E9}",
+          "{34D30CD8-370E-4229-85BE-3346C594C805}"
+        ]
+      }
+    },
+    "audiodg_loaded_modules_at_cold_idle": [
+      {
+        "name": "DolbyAPOvlldp150.dll",
+        "version": "3.30704.742.0",
+        "sha256": "A2553FF7B013B5A248E50BDCAE46D08405E393C0085073975214D035CEDF02C1"
+      },
+      {
+        "name": "DolbyApoVr.dll",
+        "version": "3.30704.742.0",
+        "sha256": "1D74477EA0DAE66961A21BF6BC3CE0D8062836FC4DD96B59C14DE11257F5EECC"
+      },
+      {
+        "name": "DolbyDax3Apo.dll",
+        "version": "3.30704.742.0",
+        "sha256": "6EA1702C0F86766E45C2E248E169022E3D71EAA3C655B3FCA159B4DD59F18D87"
+      },
+      {
+        "name": "SurfaceAPO.dll",
+        "version": "1.216.42.0",
+        "sha256": "AA3A97E2CC7740CE3BD6B80B154354A023170D3EF29992978E36C179550A5206"
+      },
+      {
+        "name": "VirtualSurroundApo.dll",
+        "version": "10.0.26100.8115",
+        "sha256": "8AE87E55F69EAE4C1EDDA186C3F91AD55B4F4177BA3A3752B1ACEA91E255B739"
+      }
+    ],
+    "interpretation_limit": "Loaded-module and endpoint-registration evidence does not prove APO instantiation, processing order, bypass state, or DSP graph membership."
+  },
+  "independently_decoded_packet_samples": [
+    {
+      "reported_index": 7,
+      "opcode": "0x01001007",
+      "opcode_name": "APM_CMD_GET_CFG",
+      "src_port": "0x2010",
+      "dst_port": "0x4675",
+      "module_instance_id": "0x4675",
+      "param_id": "0x080011B4",
+      "param_name": "PARAM_ID_HW_EP_GET_CFG",
+      "param_size": 20,
+      "returned_first_u32": 2,
+      "assessment": "valid but generic GET_CFG sample; the same packet form exists in recovered June traces"
+    },
+    {
+      "reported_index": 10,
+      "opcode": "0x0100100F",
+      "opcode_name": "PRM_CMD_REQUEST_HW_RSC",
+      "src_port": "0x2004",
+      "dst_port": "0x0002",
+      "module_instance_id": "0x0002",
+      "param_id": "0x080014F3",
+      "gpio_count": 2,
+      "logical_gpio_records": [
+        [10, 1, 1, 0, 1, 0],
+        [11, 1, 1, 0, 1, 0]
+      ],
+      "assessment": "live confirmation of the qcadcm custom endpoint-resource enable request; not graph close or stop"
+    },
+    {
+      "reported_index": 11,
+      "opcode": "0x01001010",
+      "opcode_name": "PRM_CMD_RELEASE_HW_RSC",
+      "src_port": "0x2004",
+      "dst_port": "0x0002",
+      "module_instance_id": "0x0002",
+      "param_id": "0x08001032",
+      "param_name": "PARAM_ID_RSC_HW_CORE",
+      "param_size": 4,
+      "hardware_block_id": 1,
+      "assessment": "hardware-core resource release; not shared-memory unmap"
+    }
+  ],
+  "rejected_or_unproven_claims": [
+    "All six capture boundaries were fully recorded",
+    "All required scenarios were executed and reproducible",
+    "The returned material contains graph open, prepare, start, stop, close, and flush bodies",
+    "The loaded audiodg module inventory proves an active processing order",
+    "SNPE and FastRPC module presence proves active NPU offload",
+    "PA05 at I2C 0x14 monitors the smart audio amplifiers",
+    "The narrative end-to-end pipeline diagram is canonical"
+  ],
+  "next_required_evidence": [
+    "No additional output files are expected from this run: the WinDbg launcher was not used and the target-side scenario stages were not executed",
+    "Exhaust the recovered QGPR, KD, ETW, ACDB, process-dump, and static-analysis corpus before requesting another Windows boot",
+    "If a future capture remains necessary, use kd-mcp exclusively and pre-stage an autonomous target runner with automatic raw-output packaging"
+  ],
+  "workflow_postmortem": {
+    "debugger_owner": "kd-mcp",
+    "classic_windbg_used": false,
+    "classic_windbg_compatible_concurrently": false,
+    "target_scenario_runner_completed": false,
+    "root_cause": "The handoff split mandatory actions between the SP7 debugger host and manual SP11 target operation, while also assuming a classic-WinDbg log that the actual kd-mcp-only workflow could not create.",
+    "operator_fault": false,
+    "handoff_reusable": false
+  }
+}

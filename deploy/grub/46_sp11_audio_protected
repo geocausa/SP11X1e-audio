@@ -1,0 +1,14 @@
+#!/bin/sh
+exec tail -n +3 $0
+menuentry 'Ubuntu SP11 7.1.5 PROTECTED AUDIO (Windows graph validation)' --id 'sp11-audio-protected' --class ubuntu --class gnu-linux --class gnu --class os {
+	load_video
+	set gfxpayload=keep
+	insmod gzio
+	insmod part_gpt
+	insmod ext2
+	insmod fdt
+	search --no-floppy --fs-uuid --set=root 33e842b7-0434-4749-b03a-299bdcdb8b9f
+	devicetree /boot/sp11-7.1.5-audio-protected/x1e80100-microsoft-denali-oled.dtb
+	linux /boot/sp11-7.1.5-audio-protected/vmlinuz-7.1.5-sp11-audio-protected root=UUID=33e842b7-0434-4749-b03a-299bdcdb8b9f ro clk_ignore_unused pd_ignore_unused cma=128M efi=noruntime quiet splash console=tty0 crashkernel=2G-4G:320M,4G-32G:512M,32G-64G:1024M,64G-128G:2048M,128G-:4096M mshw0485_touch.windows_init_parity=1 mshw0485_touch.parity_linux_power=1 mshw0485_touch.windows_read_cadence=1 mshw0485_touch.parity_display_bitmap=1 mshw0485_touch.parity_stitching_flag=0 mshw0485_touch.parity_hinge_angle=400 mshw0485_touch.parity_fast_host_id=400 mshw0485_touch.parity_report56_identity=0xbc,0xe6,0x4a,0x2e,0x86,0x78 mshw0485_touch.parity_report56_flag=0 mshw0485_touch.parity_cfu_inventory=1 mshw0485_touch.parity_cfu_offer=0x00,0x00,0x12,0x00,0x89,0x14,0x00,0x3f,0xff,0xff,0xff,0xff,0x04,0x04,0x75,0x00 mshw0485_touch.parity_heat_input=1 mshw0485_touch.behavior_v2=1 mshw0485_touch.host_fault_recovery=1 mshw0485_touch.ready_quiesce=1 sp11_entry=7.1.5-sp11-audio-protected
+	initrd /boot/sp11-7.1.5-audio-protected/initrd.img-7.1.5-sp11-audio-protected
+}

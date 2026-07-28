@@ -8,31 +8,131 @@ kernel/DT, AudioReach topology, ALSA UCM policy, and PipeWire policy as separate
 layers so that a result in one layer is not mistaken for a driver fix in
 another.
 
-## Current baseline
+## Current status
 
-On the test machine running `7.1.3-sp11-baseline1+`, the MM1 speaker route can
-run 48 kHz, 16-bit, two-channel PCM through both WSA884x amplifiers without a
-new kernel error.  The installed topology is nevertheless invalid: module
-instance ID `0x6020` is assigned to both `stream0.msiir0` and
-`stream2.logger1`.  The kernel rejects the later definition.
+The known-working rollback is kernel `7.1.5-sp11+` on Ubuntu 26.04 LTS
+aarch64. Its basic MM1 speaker route works through both WSA884x amplifiers, but
+it does not implement the recovered Windows protection graph.
 
-Speaker voltage/current telemetry and closed-loop protection have **not** been
-proved.  The current local WSA884x change excludes PBR, VISENSE, and CPS ports
-from the playback stream globally and is not considered an upstream-quality
-solution.
+The first evidence-locked protected-audio candidate was installed on
+2026-07-28 as a separate kernel and GRUB entry:
 
-The present work is diagram-first: tuning, EQ changes, Dolby emulation, and
-deployment are frozen while the Windows ACDB, donor topology, active Linux
-topology, kernel, UCM, and codec port map are reconciled. See the
-[pipeline provenance audit](docs/audit/2026-07-22-pipeline-provenance-audit.md).
+- kernel `7.1.5-sp11-audio-protected`;
+- boot entry ID `sp11-audio-protected`;
+- one strict 48 kHz, S16_LE, stereo MM1 frontend;
+- one integrated AudioReach graph with 29 recovered Windows modules, 26 data
+  edges, three internal control links and seven containers;
+- exact render, VI and CPS `CODEC_DMA` endpoints;
+- six ordered calibration stages generated from the REV_0D ACDB and returned
+  QGPR startup sequence;
+- both WSA884x VI mixer inputs and both amplifier PBR/VISENSE/CPS paths enabled
+  by UCM;
+- no userspace equalizer and no invented Dolby processing.
 
-See [the initial live orientation](docs/baseline/2026-07-22-live-orientation.md)
-for the evidence and boundaries of these findings.
+The recovered endpoint contracts are:
+
+| Role | Endpoint | Interface | Format |
+|---|---|---|---|
+| render | IID `0x4157` | WSA type 1, index 1 | 48 kHz, S16_LE, stereo |
+| voltage/current | IID `0x4026` | WSA type 1, index 1 | 8 kHz, S32_LE, stereo |
+| CPS | IID `0x402b` | type 2, index 3, mask 3 | 24 kHz, S32_LE, stereo |
+
+This candidate is installed but has not yet completed its first boot. Build,
+topology decode and six generator tests pass; that proves the payload is
+structurally consistent, not that physical V/I telemetry is live. The boot
+must still prove graph start, all ordered calibration sends, SoundWire port
+allocation, stable render and nonzero protection feedback.
+
+Dolby is deliberately outside this phase. No Dolby processing module is
+instantiated in the parity graph; bypass/placement work remains a separate
+project after the hardware and base Windows graph are proven.
+
+## SoundWire protection boundary
+
+Mainline Linux 7.1 adds every enabled WSA884x sink port to the playback
+SoundWire stream. On this board that includes PBR, VISENSE and CPS even though
+the recovered Windows graph represents VI/CPS as internal
+`CODEC_DMA_SOURCE` endpoints.
+
+Patch `0005` therefore carries a **local candidate guard** which excludes those
+three sink ports from the playback-direction stream while leaving their codec
+enable controls active. This is not an upstream fix and is not yet proof of a
+complete feedback path. It addresses the previously observed playback bus
+collision; only the protected boot can establish whether the integrated DSP
+graph receives nonzero VI/CPS data.
+
+**Do not add low-frequency gain until that proof is captured.**
+
+## Deployment
+
+`deploy/` holds the live runtime configuration, and is the source of truth:
+
+- `deploy/ucm2/Qualcomm/x1e80100/` -- the SP11 UCM profile
+- `deploy/firmware/` -- local generated protected topology manifest; opaque
+  binaries and recovered vendor calibration remain untracked
+- `deploy/grub/46_sp11_audio_protected` -- isolated, rollback-safe boot entry
+- `deploy/first-boot/` -- read-only automatic first-boot evidence capture
+- `deploy/pipewire/99-sp11-speaker-eq.conf` -- archived optional experiment,
+  disabled by default
+- `deploy/install-audio-config.sh` -- idempotent installer, `--dry-run` and
+  `--uninstall` supported, preflights on DT model and amp count
+
+```sh
+sudo ./deploy/install-audio-config.sh --dry-run
+sudo ./deploy/install-audio-config.sh
+```
+
+`x1e80100.conf` is package-owned by `alsa-ucm-conf`; the installer protects the
+SP11 branch with a `dpkg-divert` so upgrades do not clobber it. The other two
+UCM files are locally added and unowned.
+
+The complete installed manifest, hashes, rollback rule and first-boot gates are
+in
+[`docs/deployment/2026-07-28-protected-audio-candidate.md`](docs/deployment/2026-07-28-protected-audio-candidate.md).
+
+### UCM speaker-count note
+
+This machine has two WSA884x amps and two drivers. The card conf must include
+`/codecs/wsa884x/two-speakers/init.conf`, not the four-speaker variant, or the
+`Speakers Volume` remap resolves to nonexistent `Woofer*`/`Tweeter*` controls.
+
+Neither upstream `wsa-macro` init file is usable: the plain one uses the
+unprefixed `'WSA_RX0 Digital Volume'` namespace while this card uses the
+prefixed `'WSA WSA_RX0 Digital Volume'`, and the four-speaker one additionally
+csets a nonexistent `WSA2` macro. There is no `wsa-macro/two-speakers/`
+directory. The boot state is therefore declared inline in the card conf.
+
+`Wsa1SpeakerEnableSeq.conf` means WSA macro instance 1, **not** one speaker. It
+is correct for this machine; do not "fix" it.
+
+## Volume policy
+
+All user-facing volume is in PipeWire, deliberately. `SpkrLeft/SpkrRight PA
+Volume` is a 0..10 control spanning only -9..+6 dB in 1.5 dB steps, so exposing
+it as the endpoint volume would leave "0%" audible at -9 dB. PA is pinned at 6
+(= 0 dB). The WSA digital volume sits at 72 (= -12 dB), matching the Windows
+REV_0D default `DefaultDeviceVolume=0xFFF40000`.
+
+If hardware volume is ever wanted, the correct control is `WSA WSA_RX0/RX1
+Digital Volume` (0..84, 1 dB steps), which needs its own stereo ctl-remap.
+
+## Known cosmetic defect
+
+`qcom-apm gprsvc:service:2:1: CMD timeout for [1001021] opcode` at boot. The
+ADSP does not answer `APM_CMD_GET_SPF_STATE`, so `audioreach_send_cmd_sync()`
+waits the full `5 * HZ`. This is generic x1e80100 behaviour, not SP11 specific.
+
+Nothing consumes the result: `apm_probe()` discards it, `q6apm_get_apm_state()`
+discards the send result, and `apm->state` is read only by
+`q6apm_is_adsp_ready()`, which re-queries anyway and has no caller here. The
+only cost is a 5 second stall in `apm_probe()` that delays card registration to
+~9.8s. `02-kernel/recipe/patches/0006-*` removes the redundant call; it is not
+yet in a built kernel.
 
 ## Safety rules
 
 - Never overwrite the currently bootable kernel, DTB, topology, or UCM files.
-- Capture exact hashes before every experiment.
+- Capture exact hashes before every experiment (`tools/capture-live-state.sh`).
 - Build a separate boot entry with an explicit rollback path.
 - Do not treat a successful PCM open as proof of speaker protection.
 - Keep raw observations separate from hypotheses derived from Windows traces.
@@ -47,6 +147,10 @@ Capture the current machine state without opening an audio stream:
 ./tools/capture-live-state.sh
 ```
 
+Captures raw control values with dB scales, the decoded topology, copies of the
+actual config payloads, and package ownership. Output lands in `artifacts/live/`
+and is gitignored until deliberately promoted.
+
 Check an `alsatplg` decoded configuration or binary topology for duplicate
 AudioReach module instance IDs:
 
@@ -54,6 +158,10 @@ AudioReach module instance IDs:
 ./tools/ar_topology_lint.py topology.conf
 ./tools/ar_topology_lint.py topology.bin
 ```
+
+Note: a result of "checked 0 module definitions" means the linter could not
+parse the file, not that the file is clean. The pre-baseline
+`*-tplg.bin.bak` reports 0 and must be inspected with the inventory tool.
 
 Create a full structural inventory, including hand-injected raw-byte modules
 that `alsatplg` does not render as normal tuples:
@@ -94,9 +202,7 @@ explicitly typed as `APM_PARAM_ID_MODULE_CONN`:
 ```
 
 Generate the current evidence-backed Linux structural baseline from a decoded
-installed topology. This removes the invalid main-lane MSIIR and the complete
-disconnected `stream6` graft, reconnects EQ directly to volume control, and
-does not install the result:
+installed topology:
 
 ```sh
 alsatplg -d /lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-tplg.bin \
@@ -116,9 +222,6 @@ resolve each list against that GKV inventory:
 The remaining Windows selector and GRAPH_OPEN-body gap has a version-locked,
 read-only [KDNET capture runbook](docs/runbooks/windows-kdnet-structural-gap-capture.md).
 
-Generated captures are placed under `artifacts/live/` and ignored by Git until
-they have been reviewed and deliberately promoted into documentation.
-
 The loudness-event collector is retained for a later phase. Do not use it as a
 substitute for closing the topology ledger:
 
@@ -130,3 +233,19 @@ Press Enter whenever the jump is heard. The tool records PipeWire volume,
 PipeWire graph events, ALSA control events, before/after control state, kernel
 messages, and optionally the digital signal at the default-sink monitor. It
 does not change the volume or any audio control.
+
+## Archived userspace EQ
+
+`deploy/pipewire/99-sp11-speaker-eq.conf` inserts a stereo biquad chain in front
+of the ALSA sink when explicitly installed with `--with-pipewire-eq`. It is
+disabled by default and was removed from the protected baseline. Chain: -4 dB
+preamp, 140 Hz LR4 high-pass, +3.5 dB peak @220 (body), -3 dB @900 (de-box),
++2.5 dB @3.5k (presence), +2 dB shelf @9k (air).
+
+Revised 2026-07-25. The previous revision used a +5 dB low **shelf** at 130 Hz
+behind a 2nd-order 60 Hz high-pass, which lifted the entire 60-130 Hz octave --
+the region where this driver has the least excursion headroom and least useful
+output -- with no closed-loop protection anywhere in the path.
+
+This is a userspace layer, **not** the DSP path. Disable it before any
+Windows-parity work, or the A/B measures these biquads instead of `graph_105`.

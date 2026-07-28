@@ -105,8 +105,26 @@ def duplicate_instances(
     return {iid: values for iid, values in grouped.items() if len(values) > 1}
 
 
+TPLG_MAGIC = b"CoSA"  # SND_SOC_TPLG_MAGIC 0x41536F43, little-endian on disk
+
+
+def looks_like_binary_topology(candidate) -> bool:
+    """Detect a binary topology by content rather than by file name.
+
+    Sniffing the extension silently mishandles names like
+    '*-tplg.bin.bak' or '*-tplg.bin.bak_native_gen': the binary was parsed as
+    already-decoded text, yielding zero widgets and zero modules, which then
+    got reported as a clean result. Read the magic instead.
+    """
+    try:
+        with open(candidate, "rb") as handle:
+            return handle.read(4) == TPLG_MAGIC
+    except OSError:
+        return False
+
+
 def decode_if_needed(path: Path, temporary_directory: Path) -> tuple[Path, bool]:
-    if path.suffix.lower() not in {".bin", ".tplg"}:
+    if not looks_like_binary_topology(path):
         return path, False
 
     alsatplg = shutil.which("alsatplg")

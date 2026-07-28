@@ -110,3 +110,39 @@ Validation against the preserved 7.1.5 source:
 
 This is an offline structural primitive. It is not an implementation or
 activation of calibrated speaker protection and has not been installed.
+
+## `0005-sp11-protected-integrated-graph.patch`
+
+Stacks on the structural primitives and implements the first evidence-locked
+SP11 protected-audio boot candidate. It adds:
+
+- exact extended AudioReach container properties;
+- raw validated graph, endpoint, SP-tag, SP_VI-tag and dynamic calibration
+  stages;
+- retained coherent out-of-band `SET_CFG` transport;
+- one integrated frontend/backend graph mapping;
+- strict protected-graph and media-format validation;
+- serialized Windows-order protection configuration;
+- strict error propagation;
+- a local WSA884x playback-stream guard for PBR, VISENSE and CPS ports.
+
+The matching generated topology contains the 29 modules, 26 admitted data
+edges and three internal control links in the reviewed Windows DEFAULT speaker
+model. The legacy T14s-derived quad-graph construction is not carried forward.
+
+The guard is candidate logic, not existing upstream behavior. Official Linux
+v7.1 adds every enabled WSA884x sink port to the playback stream. The returned
+Windows graph instead owns VI and CPS through internal `CODEC_DMA_SOURCE`
+modules, so the local guard excludes those feedback ports from the
+playback-direction stream while preserving their enable state. Boot telemetry,
+not static analysis, must decide whether that ownership model is correct.
+
+The patch is built and installed against Linux 7.1.5 with local version
+`-sp11-audio-protected`. Installation uses a separate kernel directory and
+one-shot GRUB entry; it does not replace the working 7.1.5 fallback. The
+candidate is awaiting its first boot and must not yet be described as validated
+speaker protection.
+
+See
+[`docs/findings/2026-07-26-protected-integrated-linux-graph.md`](../docs/findings/2026-07-26-protected-integrated-linux-graph.md)
+for the evidence boundary, calibration order and first-boot gates.

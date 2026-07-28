@@ -3,3 +3,14 @@ artifacts/live/
 build/
 *.pyc
 __pycache__/
+
+# Recovered vendor captures/calibration stay local. Reviewed structural facts,
+# generators and hashes are versioned; opaque payload bytes are not published.
+artifacts/raw/
+artifacts/topology-recovery/
+artifacts/reviewed/windows-acdb-rev0d-root-protection-setcfg.json
+deploy/firmware/*.bin
+deploy/firmware/reference/
+
+# Operator handoffs can contain transient debugger transport credentials.
+docs/handoffs/

@@ -30,17 +30,18 @@ MODULE_NAMES = {
     0x07001003: "PCM_CNV",
     0x07001004: "PCM_ENC",
     0x07001005: "PCM_DEC",
+    0x07001006: "SH_MEM_PULL_MODE",
     0x07001010: "SAL",
     0x07001014: "MSIIR",
     0x07001015: "MFC",
-    0x07001019: "observed:SOFT_PAUSE",
+    0x07001019: "SOFT_PAUSE",
     0x0700101A: "DATA_LOGGING",
-    0x0700101B: "observed:SAL_V2",
+    0x0700101B: "VOL_CTRL",
     0x07001023: "CODEC_DMA_SINK",
     0x07001024: "CODEC_DMA_SOURCE",
-    0x07001032: "observed:UNKNOWN_0x32",
-    0x07001045: "observed:EQ",
-    0x07001097: "observed:SWR_SINK",
+    0x07001032: "SPR",
+    0x07001045: "POPLESS_EQUALIZER",
+    0x07001097: "SWR_SINK",
     0x070010E2: "SPEAKER_PROTECTION",
     0x070010E3: "SPEAKER_PROTECTION_VI",
 }
@@ -101,8 +102,26 @@ class NamedBlock:
     lines: list[str]
 
 
+TPLG_MAGIC = b"CoSA"  # SND_SOC_TPLG_MAGIC 0x41536F43, little-endian on disk
+
+
+def looks_like_binary_topology(candidate) -> bool:
+    """Detect a binary topology by content rather than by file name.
+
+    Sniffing the extension silently mishandles names like
+    '*-tplg.bin.bak' or '*-tplg.bin.bak_native_gen': the binary was parsed as
+    already-decoded text, yielding zero widgets and zero modules, which then
+    got reported as a clean result. Read the magic instead.
+    """
+    try:
+        with open(candidate, "rb") as handle:
+            return handle.read(4) == TPLG_MAGIC
+    except OSError:
+        return False
+
+
 def decode_if_needed(source: Path, directory: Path) -> tuple[Path, bool]:
-    if source.suffix.lower() not in {".bin", ".tplg"}:
+    if not looks_like_binary_topology(source):
         return source, False
     alsatplg = shutil.which("alsatplg")
     if alsatplg is None:

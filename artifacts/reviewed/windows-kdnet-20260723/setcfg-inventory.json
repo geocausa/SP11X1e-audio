@@ -1,0 +1,682 @@
+{
+  "capture_count": 14,
+  "capture_directory": "/home/geoca/Documents/SP11-PROJECT/01-audio/artifacts/live/kdnet-20260723",
+  "evidence_class": "C: decoded from live Windows KDNET SET_CFG OOB bodies",
+  "format": "AudioReach SET_CFG live OOB parameter bodies",
+  "format_version": 1,
+  "unique_bodies": [
+    {
+      "iid": "0x00004a5f",
+      "occurrence_count": 2,
+      "param_id": "0x08001038",
+      "param_name": "PARAM_ID_VOL_CTRL_MULTICHANNEL_GAIN",
+      "payload_sha256": "be18fdd89363bb92c43aff1ca7f962f4085a7c715321bedeaaf3d647485fd534",
+      "payload_size": 104,
+      "payload_u32": [
+        "0x00000008",
+        "0x00000002",
+        "0x00000000",
+        "0x0013615a",
+        "0x00000004",
+        "0x00000000",
+        "0x0013615a",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "source": "/home/geoca/Documents/SP11-PROJECT/01-audio/artifacts/live/kdnet-20260723/setcfg_02.bin",
+      "source_files": [
+        "setcfg_02.bin",
+        "setcfg_06.bin"
+      ],
+      "source_sha256": "04e8ac48e39700e293065c69de52bef871514d1b4dd6bbb0f5828d72e82f1626",
+      "source_size": 120,
+      "volume_control_config": {
+        "entries": [
+          {
+            "channel_mask_lsb": "0x00000002",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x0013615a",
+            "index": 0
+          },
+          {
+            "channel_mask_lsb": "0x00000004",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x0013615a",
+            "index": 1
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 2
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 3
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 4
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 5
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 6
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 7
+          }
+        ],
+        "entry_count": 8
+      }
+    },
+    {
+      "iid": "0x00004a63",
+      "occurrence_count": 1,
+      "param_id": "0x08001038",
+      "param_name": "PARAM_ID_VOL_CTRL_MULTICHANNEL_GAIN",
+      "payload_sha256": "2e66acd8ed4c236a391a26d67fc8ad93e26fe9577ff48f896f076134cb0d6ac3",
+      "payload_size": 104,
+      "payload_u32": [
+        "0x00000008",
+        "0x00000002",
+        "0x00000000",
+        "0x007dda19",
+        "0x00000004",
+        "0x00000000",
+        "0x0013615a",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "source": "/home/geoca/Documents/SP11-PROJECT/01-audio/artifacts/live/kdnet-20260723/setcfg_10.bin",
+      "source_files": [
+        "setcfg_10.bin"
+      ],
+      "source_sha256": "0528f967b058ba2f08d2f28af0d737ba3d3cd1ae4d9e035e74e8a9f6a07d9015",
+      "source_size": 120,
+      "volume_control_config": {
+        "entries": [
+          {
+            "channel_mask_lsb": "0x00000002",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x007dda19",
+            "index": 0
+          },
+          {
+            "channel_mask_lsb": "0x00000004",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x0013615a",
+            "index": 1
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 2
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 3
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 4
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 5
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 6
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 7
+          }
+        ],
+        "entry_count": 8
+      }
+    },
+    {
+      "iid": "0x00004a63",
+      "occurrence_count": 1,
+      "param_id": "0x08001038",
+      "param_name": "PARAM_ID_VOL_CTRL_MULTICHANNEL_GAIN",
+      "payload_sha256": "54eb705eaea0b4f8f24e64e02dcd3aa7cf21e25baec392712140281c6d3ee672",
+      "payload_size": 104,
+      "payload_u32": [
+        "0x00000008",
+        "0x00000002",
+        "0x00000000",
+        "0x007dda19",
+        "0x00000004",
+        "0x00000000",
+        "0x007dda19",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "source": "/home/geoca/Documents/SP11-PROJECT/01-audio/artifacts/live/kdnet-20260723/setcfg_11.bin",
+      "source_files": [
+        "setcfg_11.bin"
+      ],
+      "source_sha256": "1f10e5eb72b1fbd3f5504e867f7b709de12aa8454691ac9ff3709a128b520175",
+      "source_size": 120,
+      "volume_control_config": {
+        "entries": [
+          {
+            "channel_mask_lsb": "0x00000002",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x007dda19",
+            "index": 0
+          },
+          {
+            "channel_mask_lsb": "0x00000004",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x007dda19",
+            "index": 1
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 2
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 3
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 4
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 5
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 6
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 7
+          }
+        ],
+        "entry_count": 8
+      }
+    },
+    {
+      "iid": "0x00004a63",
+      "occurrence_count": 3,
+      "param_id": "0x08001039",
+      "param_name": "PARAM_ID_VOL_CTRL_MULTICHANNEL_MUTE",
+      "payload_sha256": "441d3acf732158b63bea99b8581e172ec2385c0e5531ff7a4e7bf69cb46f4bea",
+      "payload_size": 104,
+      "payload_u32": [
+        "0x00000008",
+        "0x00000002",
+        "0x00000000",
+        "0x00000000",
+        "0x00000004",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "source": "/home/geoca/Documents/SP11-PROJECT/01-audio/artifacts/live/kdnet-20260723/setcfg_01.bin",
+      "source_files": [
+        "setcfg_01.bin",
+        "setcfg_05.bin",
+        "setcfg_09.bin"
+      ],
+      "source_sha256": "5b0275626aca900910c325a2cacbe37ae36cbae7e319560c404124206b524c3c",
+      "source_size": 120,
+      "volume_control_config": {
+        "entries": [
+          {
+            "channel_mask_lsb": "0x00000002",
+            "channel_mask_msb": "0x00000000",
+            "index": 0,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000004",
+            "channel_mask_msb": "0x00000000",
+            "index": 1,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 2,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 3,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 4,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 5,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 6,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 7,
+            "mute": "0x00000000"
+          }
+        ],
+        "entry_count": 8
+      }
+    },
+    {
+      "iid": "0x00004a63",
+      "occurrence_count": 3,
+      "param_id": "0x08001038",
+      "param_name": "PARAM_ID_VOL_CTRL_MULTICHANNEL_GAIN",
+      "payload_sha256": "be18fdd89363bb92c43aff1ca7f962f4085a7c715321bedeaaf3d647485fd534",
+      "payload_size": 104,
+      "payload_u32": [
+        "0x00000008",
+        "0x00000002",
+        "0x00000000",
+        "0x0013615a",
+        "0x00000004",
+        "0x00000000",
+        "0x0013615a",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "source": "/home/geoca/Documents/SP11-PROJECT/01-audio/artifacts/live/kdnet-20260723/setcfg_00.bin",
+      "source_files": [
+        "setcfg_00.bin",
+        "setcfg_04.bin",
+        "setcfg_08.bin"
+      ],
+      "source_sha256": "8c8ccd5ef669d50e9865cb13b5215990cc9b574c1d99516ead218ec8ba48f1b4",
+      "source_size": 120,
+      "volume_control_config": {
+        "entries": [
+          {
+            "channel_mask_lsb": "0x00000002",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x0013615a",
+            "index": 0
+          },
+          {
+            "channel_mask_lsb": "0x00000004",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x0013615a",
+            "index": 1
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 2
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 3
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 4
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 5
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 6
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 7
+          }
+        ],
+        "entry_count": 8
+      }
+    },
+    {
+      "iid": "0x00004a5f",
+      "occurrence_count": 3,
+      "param_id": "0x08001039",
+      "param_name": "PARAM_ID_VOL_CTRL_MULTICHANNEL_MUTE",
+      "payload_sha256": "441d3acf732158b63bea99b8581e172ec2385c0e5531ff7a4e7bf69cb46f4bea",
+      "payload_size": 104,
+      "payload_u32": [
+        "0x00000008",
+        "0x00000002",
+        "0x00000000",
+        "0x00000000",
+        "0x00000004",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "source": "/home/geoca/Documents/SP11-PROJECT/01-audio/artifacts/live/kdnet-20260723/setcfg_03.bin",
+      "source_files": [
+        "setcfg_03.bin",
+        "setcfg_07.bin",
+        "setcfg_13.bin"
+      ],
+      "source_sha256": "c066ae9039c87d8b93b8b3e61c10ab5dcfbdd01f92e24b08323e62f5e60ee226",
+      "source_size": 120,
+      "volume_control_config": {
+        "entries": [
+          {
+            "channel_mask_lsb": "0x00000002",
+            "channel_mask_msb": "0x00000000",
+            "index": 0,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000004",
+            "channel_mask_msb": "0x00000000",
+            "index": 1,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 2,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 3,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 4,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 5,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 6,
+            "mute": "0x00000000"
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "index": 7,
+            "mute": "0x00000000"
+          }
+        ],
+        "entry_count": 8
+      }
+    },
+    {
+      "iid": "0x00004a5f",
+      "occurrence_count": 1,
+      "param_id": "0x08001038",
+      "param_name": "PARAM_ID_VOL_CTRL_MULTICHANNEL_GAIN",
+      "payload_sha256": "54eb705eaea0b4f8f24e64e02dcd3aa7cf21e25baec392712140281c6d3ee672",
+      "payload_size": 104,
+      "payload_u32": [
+        "0x00000008",
+        "0x00000002",
+        "0x00000000",
+        "0x007dda19",
+        "0x00000004",
+        "0x00000000",
+        "0x007dda19",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "source": "/home/geoca/Documents/SP11-PROJECT/01-audio/artifacts/live/kdnet-20260723/setcfg_12.bin",
+      "source_files": [
+        "setcfg_12.bin"
+      ],
+      "source_sha256": "dc335b87abc481219992ba7bfcf4043e35bada7702b7f5f1b90e9d755b96e2d7",
+      "source_size": 120,
+      "volume_control_config": {
+        "entries": [
+          {
+            "channel_mask_lsb": "0x00000002",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x007dda19",
+            "index": 0
+          },
+          {
+            "channel_mask_lsb": "0x00000004",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x007dda19",
+            "index": 1
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 2
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 3
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 4
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 5
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 6
+          },
+          {
+            "channel_mask_lsb": "0x00000000",
+            "channel_mask_msb": "0x00000000",
+            "gain_q28": "0x00000000",
+            "index": 7
+          }
+        ],
+        "entry_count": 8
+      }
+    }
+  ],
+  "unique_body_count": 7
+}
