@@ -1,0 +1,49 @@
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Subject: [PATCH] ASoC: qcom: audioreach: map pull position buffer uncached
+
+The shared-memory pull module updates its position structure without cache
+maintenance.  AudioReach therefore requires the position page to be mapped
+uncached, and the captured Windows transaction sets property flag bit 1.
+
+Linux currently maps the page as cached.  The graph and pull module can
+start successfully while HLOS continues to observe the initial zero frame
+counter and index.
+
+Set the uncached property only for the dedicated pull position mapping.
+The PCM circular buffer remains cached, matching the AudioReach contract
+and the Windows transaction.
+
+Signed-off-by: SP11 audio reconstruction <sp11-audio@localhost>
+---
+ sound/soc/qcom/qdsp6/audioreach.h | 1 +
+ sound/soc/qcom/qdsp6/q6apm.c      | 7 ++++++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/sound/soc/qcom/qdsp6/audioreach.h b/sound/soc/qcom/qdsp6/audioreach.h
+--- a/sound/soc/qcom/qdsp6/audioreach.h
++++ b/sound/soc/qcom/qdsp6/audioreach.h
+@@ -70,6 +70,7 @@
+ #define APM_EVENT_MODULE_TO_CLIENT		0x03001000
+ 
+ #define APM_MEMORY_MAP_SHMEM8_4K_POOL		3
++#define APM_MEMORY_MAP_FLAG_UNCACHED		BIT(1)
+ 
+ struct apm_cmd_shared_mem_map_regions {
+ 	uint16_t mem_pool_id;
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -145,7 +145,12 @@ static int q6apm_map_position_buffer(struct audioreach_graph *graph)
+ 	cmd = p;
+ 	cmd->mem_pool_id = APM_MEMORY_MAP_SHMEM8_4K_POOL;
+ 	cmd->num_regions = 1;
+-	cmd->property_flag = 0;
++	/*
++	 * The pull-mode position structure is shared live between the DSP and
++	 * HLOS.  AudioReach updates it without cache maintenance and therefore
++	 * requires this mapping to be uncached.
++	 */
++	cmd->property_flag = APM_MEMORY_MAP_FLAG_UNCACHED;
+ 	region = p + sizeof(*cmd);
+ 	region->shm_addr_lsw = lower_32_bits(graph->position_dsp_addr);
+ 	region->shm_addr_msw = upper_32_bits(graph->position_dsp_addr);

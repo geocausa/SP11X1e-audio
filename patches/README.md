@@ -388,3 +388,27 @@ Validation before deployment:
 - staged frontend source version: `2F2511DFBA83E7B2099E507`;
 - staged compressed module SHA-256:
   `50d430e812c9202ecf6118c497eea7d9c2c44b953a5fb07918130e091f022b25`.
+
+## `0019-audioreach-map-pull-position-buffer-uncached.patch`
+
+The fifth audio-v3 boot proved that configuration and lifecycle were complete:
+the full Windows-ordered transaction and `GRAPH_START` succeeded, repeated
+prepare was accepted, and ALSA entered `RUNNING`. PipeWire filled the exact
+960-frame ring, but `hw_ptr` remained zero and no space was returned.
+
+Recovered AudioReach source establishes that the DSP owns the pull-mode
+position counter and index and updates them without cache maintenance. Its API
+requires the dedicated position page to be uncached. The Windows QGPR capture
+confirms this with `property_flag = 0x2` for the position page while retaining
+`0x0` for the cached circular data page. Linux used `0x0` for both.
+
+Patch `0019` sets only the dedicated position mapping to the AudioReach
+uncached flag. The data ring mapping remains unchanged.
+
+Validation before deployment:
+
+- exact Windows map packets decoded: data page `0x0`, position page `0x2`;
+- recovered API bit definition: `APM_MEMORY_MAP_BIT_MASK_IS_UNCACHED = 0x2`;
+- recovered pull module writes the position structure without a cache flush;
+- ARM64 QDSP6 module build: pass;
+- staged module source version and SHA-256 recorded in the deployment ledger.

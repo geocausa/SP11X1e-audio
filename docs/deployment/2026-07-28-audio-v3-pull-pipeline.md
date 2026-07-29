@@ -234,3 +234,36 @@ The previous module is preserved under
 The clean saved fallback remains unchanged. The next boot must confirm the
 named `duplicate prepare reused pull graph` boundary and a successful
 PipeWire capability probe before any deliberate sample playback.
+
+## Fifth boot result — 2026-07-29
+
+Patch `0018` loaded with source version `2F2511DFBA83E7B2099E507`.
+The normal PipeWire probe and a deterministic direct-ALSA probe both accepted
+repeated prepare calls. The latter produced the named
+`duplicate prepare reused pull graph` boundary with no DSP or ALSA failure.
+
+A muted, zero-volume, zero-data stream then reached ALSA `RUNNING`. PipeWire
+filled the exact 960-frame ring, but repeated status reads stayed at
+`hw_ptr = 0`, `appl_ptr = 960`, `avail = 0`. No audible data was sent. This
+places the first remaining boundary after graph start, at the DSP-owned pull
+position transport.
+
+Recovered AudioReach source proves that the DSP updates the position
+structure without cache maintenance and that this page must be mapped
+uncached. The canonical Windows map packet sets `property_flag = 0x2` for the
+position page and `0x0` for the cached PCM page. Linux incorrectly used
+`0x0` for both.
+
+Patch `0019-audioreach-map-pull-position-buffer-uncached.patch` changes only
+the position mapping. Strict checkpatch reports zero errors and warnings, all
+67 repository tests pass, and the QDSP6 modules build with `W=1`. The signed
+core override has source version `5F2C814E2065E90C81BC333`, V3 vermagic and
+compressed SHA-256
+`40b7acb45f2889bf74f56e1f2337df2e49ca52d0c38d7eb0d619ed4c7fab5c10`.
+The previous module is preserved under
+`02-kernel/v3-runtime-backups/pre-0019-position-cache/`.
+
+The default sink remains muted. The clean saved fallback is unchanged, and
+the next boot is armed once for `sp11-audio-v3`. Validation must first prove a
+moving `hw_ptr` with the same muted zero stream; audible playback remains a
+later gate.

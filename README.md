@@ -75,9 +75,16 @@ because graph-client response dispatch omitted lifecycle opcodes. Patch
 `GRAPH_START accepted` completions with no timeout. PipeWire then exposed one
 later host-state bug: ALSA calls `prepare` twice on the same open PCM, while
 the persistent pull endpoint accepts its ring configuration only once. Patch
-`0018` makes repeated prepare idempotent for this fixed-format pull graph; its
-signed frontend override is installed for the next one-shot V3 boot. Physical
-playback and nonzero protection feedback are not yet claimed.
+`0018` made repeated prepare idempotent, as confirmed by the fifth boot.
+
+That boot then reached ALSA `RUNNING`, but its DSP-owned hardware position
+remained zero after PipeWire filled the complete ring. Recovered AudioReach
+source and the Windows map packet identify the exact mismatch: the position
+page must be uncached (`0x2`), while Linux mapped it cached (`0x0`). Patch
+`0019` corrects only that mapping and is installed for the next one-shot V3
+boot. The sink remains muted; physical playback and nonzero protection
+feedback are not yet claimed. See the
+[position-cache finding](docs/findings/2026-07-29-pull-position-cache-contract.md).
 
 Dolby dynamic processing is deliberately outside this phase. Its userspace
 boundary is present in identity/bypass mode; no Dolby coefficients, EQ or
