@@ -412,3 +412,12 @@ Validation before deployment:
 - recovered pull module writes the position structure without a cache flush;
 - ARM64 QDSP6 module build: pass;
 - staged module source version and SHA-256 recorded in the deployment ledger.
+
+The first `0019` deployment accidentally relinked an older `q6apm.o` and
+regressed the already validated `0017` lifecycle handler. The sixth boot
+proved this directly: the DSP returned successful `GRAPH_START` status zero
+after 7.193 ms, while the loaded callback discarded it. A forced cumulative
+rebuild now contains both the lifecycle cases and the uncached position-map
+encoding in machine code. The corrected signed core has source version
+`B81C31D91BEE0320DA11F97` and compressed SHA-256
+`f7dfe0c86b957db22cd5c857be66ff5272af23f263ca790f7f5f94f3947b6365`.

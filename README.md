@@ -81,10 +81,18 @@ That boot then reached ALSA `RUNNING`, but its DSP-owned hardware position
 remained zero after PipeWire filled the complete ring. Recovered AudioReach
 source and the Windows map packet identify the exact mismatch: the position
 page must be uncached (`0x2`), while Linux mapped it cached (`0x0`). Patch
-`0019` corrects only that mapping and is installed for the next one-shot V3
-boot. The sink remains muted; physical playback and nonzero protection
-feedback are not yet claimed. See the
-[position-cache finding](docs/findings/2026-07-29-pull-position-cache-contract.md).
+`0019` corrects only that mapping.
+
+The sixth boot revealed that the first `0019` deployment had accidentally
+relinked a pre-`0017` core object. Live tracing proved the DSP returned
+successful `GRAPH_START` status zero after 7.193 ms, while the stale callback
+discarded it. A forced cumulative rebuild now contains both lifecycle reply
+handling and the uncached position map in machine code and is installed for
+the next one-shot V3 boot. The sink remains muted; physical playback and
+nonzero protection feedback are not yet claimed. See the
+[position-cache finding](docs/findings/2026-07-29-pull-position-cache-contract.md)
+and the
+[cumulative-build finding](docs/findings/2026-07-29-cumulative-core-build-regression.md).
 
 Dolby dynamic processing is deliberately outside this phase. Its userspace
 boundary is present in identity/bypass mode; no Dolby coefficients, EQ or

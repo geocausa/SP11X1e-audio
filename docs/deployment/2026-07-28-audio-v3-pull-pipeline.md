@@ -267,3 +267,32 @@ The default sink remains muted. The clean saved fallback is unchanged, and
 the next boot is armed once for `sp11-audio-v3`. Validation must first prove a
 moving `hw_ptr` with the same muted zero stream; audible playback remains a
 later gate.
+
+## Sixth boot result — 2026-07-29
+
+The sixth boot exposed a deployment regression before it could validate the
+position cache contract. The loaded core reported source version
+`5F2C814E2065E90C81BC333`, but its linked `q6apm.o` predated patches `0017`
+and `0019`.
+
+Live probes proved that the DSP returned successful `GRAPH_START` status zero
+to the correct graph client after 7.193 ms and immediately emitted pull
+watermarks at 100 Hz. The loaded callback returned without recording that
+reply, so the synchronous host wait expired after five seconds. Disassembly
+then confirmed that the deployed binary lacked the lifecycle cases and the
+uncached position-map encoding even though both were present in source.
+
+The QDSP6 directory was forcibly rebuilt. The corrected cumulative core now
+contains the lifecycle reply cases in machine code and encodes only the
+position map with `property_flag = 0x2`. It has source version
+`B81C31D91BEE0320DA11F97`, V3 vermagic, the existing build-key signature, and
+compressed SHA-256
+`f7dfe0c86b957db22cd5c857be66ff5272af23f263ca790f7f5f94f3947b6365`.
+All 71 repository tests pass, the targeted QDSP6 `W=1` build passes, and
+patches `0017` through `0019` each pass strict checkpatch with zero findings.
+
+The regressed module is preserved under
+`02-kernel/v3-runtime-backups/pre-corrected-0017-0019-core/`. The V3 initramfs
+does not embed `snd-q6apm`, so it remains unchanged. The next one-shot V3 boot
+must first validate the corrected cumulative core and only then retest the
+DSP position transport.
