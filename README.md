@@ -87,12 +87,20 @@ The sixth boot revealed that the first `0019` deployment had accidentally
 relinked a pre-`0017` core object. Live tracing proved the DSP returned
 successful `GRAPH_START` status zero after 7.193 ms, while the stale callback
 discarded it. A forced cumulative rebuild now contains both lifecycle reply
-handling and the uncached position map in machine code and is installed for
-the next one-shot V3 boot. The sink remains muted; physical playback and
-nonzero protection feedback are not yet claimed. See the
+handling and the uncached position map in machine code.
+
+The seventh boot validates that cumulative build. The DSP position now
+advances, a direct five-second zero stream remained `RUNNING` for 240,960
+frames, and a five-second PipeWire stream crossed the Dolby bypass boundary
+with 510 pull watermarks and no transport error. A heavily attenuated
+left/right audible probe was then completed and both sinks were returned to
+zero and muted. Perceptual quality and nonzero protection feedback are not yet
+claimed. See the
 [position-cache finding](docs/findings/2026-07-29-pull-position-cache-contract.md)
 and the
-[cumulative-build finding](docs/findings/2026-07-29-cumulative-core-build-regression.md).
+[cumulative-build finding](docs/findings/2026-07-29-cumulative-core-build-regression.md),
+followed by the
+[runtime validation](docs/findings/2026-07-29-pull-transport-runtime-validation.md).
 
 Dolby dynamic processing is deliberately outside this phase. Its userspace
 boundary is present in identity/bypass mode; no Dolby coefficients, EQ or

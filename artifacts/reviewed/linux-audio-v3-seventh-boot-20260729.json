@@ -1,0 +1,91 @@
+{
+  "candidate": "7.1.5-sp11-audio-v3",
+  "boot": "seventh",
+  "boot_id": "8237dad7-897a-407c-a375-effade6c56c2",
+  "captured_utc": "2026-07-29T09:06:00Z",
+  "purpose": "Validate the corrected cumulative core and the uncached DSP pull-position transport",
+  "runtime_identity": {
+    "kernel": "7.1.5-sp11-audio-v3",
+    "grub_entry": "sp11-audio-v3",
+    "saved_fallback": "sp11-7.1.5-clean",
+    "next_entry_after_boot": "",
+    "loaded_snd_q6apm_srcversion": "B81C31D91BEE0320DA11F97",
+    "loaded_q6apm_dai_srcversion": "2F2511DFBA83E7B2099E507",
+    "loaded_q6apm_lpass_dais_srcversion": "DB0C4EDB6BE0ED19BA8AB30",
+    "installed_snd_q6apm_compressed_sha256": "f7dfe0c86b957db22cd5c857be66ff5272af23f263ca790f7f5f94f3947b6365"
+  },
+  "platform": {
+    "alsa_card_count": 1,
+    "pcm": "MultiMedia1 Playback",
+    "soundwire_amplifier_status": [
+      "Attached",
+      "Attached"
+    ],
+    "pipewire_services": "active",
+    "default_sink": "effect_input.sp11_dolby_bypass",
+    "default_sink_muted_after_tests": true,
+    "physical_sink_muted_after_tests": true
+  },
+  "lifecycle": {
+    "graph_start_accepted_count": 12,
+    "graph_start_timeout_count": 0,
+    "duplicate_prepare_reuse_count": 6
+  },
+  "single_ring_probe": {
+    "format": "48000 Hz, S16_LE, stereo",
+    "period_frames": 480,
+    "buffer_frames": 960,
+    "zero_frames_written": 960,
+    "initial_state": "RUNNING",
+    "observed_hw_positions_frames": [
+      0,
+      480,
+      192
+    ],
+    "first_status_avail_frames": 192,
+    "first_status_delay_frames": 768,
+    "watermark_events": 205,
+    "terminal_state": "XRUN",
+    "xrun_interpretation": "Expected: the probe deliberately supplied one ring and did not refill it. The full ring became available, proving DSP consumption."
+  },
+  "sustained_direct_probe": {
+    "input": "all-zero PCM",
+    "duration_seconds": 5,
+    "completed_frames": 240960,
+    "final_state": "RUNNING",
+    "xrun": false,
+    "watermark_events": 501,
+    "hw_position_coverage": "Observed values from 0 through 720 frames across the 960-frame circular ring",
+    "result": "The direct ALSA pull stream remained stable while the DSP returned one 10 ms watermark per period."
+  },
+  "pipewire_bypass_probe": {
+    "route": "PipeWire -> SP11 Dolby Boundary (Bypass) -> physical speaker sink",
+    "input": "all-zero PCM",
+    "duration_seconds": 5,
+    "watermark_events": 510,
+    "hw_position_coverage": "Observed values from 0 through 912 frames across the 960-frame circular ring",
+    "pipewire_node_errors": 0,
+    "kernel_xrun_or_underrun_count": 0,
+    "result": "The normal userspace route sustained the pull stream and the bypass boundary remained instantiated."
+  },
+  "diagnostic_classification": {
+    "get_spf_state_timeout_count": 1,
+    "get_spf_state_opcode": "0x01001021",
+    "get_spf_state_status": "Long-standing non-audio startup query timeout",
+    "graph_calibration_unsupported_count": 21,
+    "graph_calibration_continue_count": 21,
+    "graph_calibration_status": "Expected AR_EUNSUPPORTED; every occurrence followed the recovered Qualcomm GSL continuation policy",
+    "unexpected_dsp_errors": 0,
+    "soundwire_or_amplifier_errors": 0
+  },
+  "controlled_audible_probe": {
+    "signal": "440 Hz left/right speaker-test",
+    "duration_seconds": 4,
+    "dolby_bypass_sink_volume": 0.02,
+    "physical_sink_volume": 0.10,
+    "automatic_post_test_state": "Both sinks volume zero and muted",
+    "transport_error": false,
+    "perceptual_result": "Awaiting user report; no sound quality or loudness claim is made."
+  },
+  "conclusion": "Patch 0019 is validated. The DSP-written uncached position page advances, direct ALSA sustains the fixed pull ring, and the normal PipeWire/Dolby-bypass route sustains the same transport without XRUN or node errors."
+}

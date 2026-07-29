@@ -421,3 +421,10 @@ rebuild now contains both the lifecycle cases and the uncached position-map
 encoding in machine code. The corrected signed core has source version
 `B81C31D91BEE0320DA11F97` and compressed SHA-256
 `f7dfe0c86b957db22cd5c857be66ff5272af23f263ca790f7f5f94f3947b6365`.
+
+The seventh boot validates that corrected cumulative module. The one-ring
+probe returned capacity to ALSA and exposed changing hardware positions. A
+five-second continuously refilled direct stream completed 240,960 zero frames
+with 501 watermarks and remained `RUNNING`. The normal PipeWire/Dolby-bypass
+route then produced 510 watermarks over five seconds with hardware positions
+covering the circular ring and no transport error.

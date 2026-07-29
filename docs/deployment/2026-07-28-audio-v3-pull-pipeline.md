@@ -296,3 +296,30 @@ The regressed module is preserved under
 does not embed `snd-q6apm`, so it remains unchanged. The next one-shot V3 boot
 must first validate the corrected cumulative core and only then retest the
 DSP position transport.
+
+## Seventh boot result — 2026-07-29
+
+The corrected core loaded with source version `B81C31D91BEE0320DA11F97`.
+Twelve frontend graphs reached `GRAPH_START accepted`, no graph-start timeout
+occurred, and six repeated prepares reused the configured pull graph.
+
+Patch `0019` passed its runtime gate. A bounded one-ring probe observed
+hardware positions `0`, `480` and `192` frames before deliberately
+underrunning. A sustained direct-ALSA zero stream then completed 240,960
+frames over five seconds, remained `RUNNING`, and received 501 pull
+watermarks with no XRUN.
+
+The normal PipeWire route also passed. Five seconds of zero PCM traversed the
+SP11 Dolby identity/bypass boundary into the physical speaker sink, produced
+510 watermarks, and exercised positions across the 960-frame ring without a
+PipeWire node or kernel transport error.
+
+The sole startup timeout remains the pre-existing optional `GET_SPF_STATE`
+query. All status-3 graph-calibration results were paired with the recovered
+Qualcomm GSL continuation, after which every individually ordered module stage
+was accepted.
+
+A heavily attenuated four-second left/right tone completed without a
+transport fault. Both sinks were returned to zero and muted. Perceptual
+balance, quality and absence of loudness modulation remain pending the user's
+listening report.
