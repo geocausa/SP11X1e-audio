@@ -335,3 +335,29 @@ Validation before deployment:
 - ARM64 backend object build with `W=1`: pass;
 - complete incremental module link: pass;
 - signed V3 override source version: `DB0C4EDB6BE0ED19BA8AB30`.
+
+## `0017-audioreach-handle-client-graph-lifecycle-replies.patch`
+
+The third audio-v3 boot accepted the complete recovered pre-start transaction:
+pull ring and events, PCM converter, MFC, SP/SPVI configuration, endpoint
+calibration, gain, MSIIR, mute and channel-mixer stages all succeeded. The DSP
+then started the graph, but Linux reported a five-second `GRAPH_START` timeout.
+
+The protected graph sends lifecycle commands from its allocated graph-client
+port, exactly as Windows does. Their basic replies therefore arrive at
+`graph_callback()`. That callback handled configuration commands but omitted
+`GRAPH_START`, `GRAPH_STOP` and `GRAPH_FLUSH`, so it discarded the successful
+reply. The immediate retry's `AR_EALREADY` result at pull-ring setup confirms
+that the DSP had entered run state.
+
+Patch `0017` completes client-port lifecycle replies and adds a named
+`GRAPH_START accepted` boundary. Validation before deployment:
+
+- Windows and Linux start requests have the same destination, opcode,
+  parameter header and root/speaker/render subgraph list;
+- strict patch check: zero errors and zero warnings;
+- ARM64 AudioReach module build with `W=1`: pass;
+- staged V3 vermagic and build-key signature: pass;
+- staged core source version: `F9E7D8831E4103A96D5B05A`;
+- staged compressed module SHA-256:
+  `b60d9b8c197ddb61c0a50a0a942aa3d2e800973e855ae9b4246d37dd00a16c9d`.

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "candidate": "7.1.5-sp11-audio-v3",
+  "captured_utc": "2026-07-29T07:31:18Z",
+  "boot_identity_correct": true,
+  "platform": {
+    "wifi_up": true,
+    "phase91_overrides_loaded": true,
+    "soundwire_devices_attached": 2,
+    "alsa_cards": 1,
+    "playback_pcms": 1,
+    "soundwire_bus_clash_count": 0,
+    "soundwire_clock_stop_timeout_count": 0
+  },
+  "graph_probe": {
+    "complete_pre_start_transactions": 7,
+    "pcm_converter_format_acceptances": 7,
+    "mfc_format_acceptances": 7,
+    "speaker_protection_sequence_acceptances": 7,
+    "endpoint_calibration_acceptances": 7,
+    "volume_tail_acceptances": 7,
+    "graph_start_timeouts": 7,
+    "samples_played": false
+  },
+  "failure": {
+    "layer": "Linux graph-client response dispatch",
+    "opcode": "0x01001002",
+    "reported_result": "ETIMEDOUT after five seconds",
+    "dsp_result": "success reply delivered to the allocated graph-client port",
+    "cause": "graph_callback handled configuration replies but omitted GRAPH_START, GRAPH_STOP and GRAPH_FLUSH"
+  },
+  "confirmation": {
+    "request_matches_windows_sequence": 31,
+    "windows_destination_port": "0x00000001",
+    "windows_subgraph_order": [
+      "0xb0000001",
+      "0xb000007f",
+      "0xb000007e"
+    ],
+    "retry_result": "pull-ring configuration returned status 2 because the first graph had already entered run state"
+  },
+  "correction": {
+    "patch": "0017-audioreach-handle-client-graph-lifecycle-replies.patch",
+    "scope": "basic lifecycle replies received by graph_callback",
+    "installed_override_srcversion": "F9E7D8831E4103A96D5B05A",
+    "installed_override_sha256": "b60d9b8c197ddb61c0a50a0a942aa3d2e800973e855ae9b4246d37dd00a16c9d",
+    "runtime_validated": false
+  }
+}

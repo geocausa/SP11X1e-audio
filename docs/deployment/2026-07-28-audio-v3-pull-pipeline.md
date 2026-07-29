@@ -52,8 +52,8 @@ The evidence ledger is
 | initramfs size | 982,594,444 bytes |
 | topology SHA-256 | `5cda975f1559311b979b4e81554231629725d365c46cf55692d6e33b5132c704` |
 | cumulative kernel patch SHA-256 | `9c58dd1b3e853498e8f539fcbd1816cb9073146de138e716367594ae1c6a3d37` |
-| `snd-q6apm` source version | `5F2C814E2065E90C81BC333` |
-| `snd-q6apm.ko.zst` SHA-256 | `67d0d3e371e8bafdfcbcc42cc64bc4b07980b811dc31cc2ef427bee3c7225d3b` |
+| `snd-q6apm` source version | `F9E7D8831E4103A96D5B05A` |
+| `snd-q6apm.ko.zst` SHA-256 | `b60d9b8c197ddb61c0a50a0a942aa3d2e800973e855ae9b4246d37dd00a16c9d` |
 | `q6apm-dai.ko.zst` SHA-256 | `a9a37e6577b24c30cbb1f4a7f5bd899c3a1296b2af3be23f950823a833be8e67` |
 
 All installed modules report the V3 vermagic. `gpi`, `spi-geni-qcom` and
@@ -167,3 +167,35 @@ The previous topology and initramfs are preserved under
 
 The one-shot V3 boot is armed. Runtime acceptance requires one further boot;
 no playback samples have been sent.
+
+## Third boot result — 2026-07-29
+
+The corrected PCM-converter layout passed. The DSP accepted every recovered
+pre-start operation, including PCM_CNV, MFC, SP/SPVI setup and calibration,
+render/VI endpoint calibration, gain, full-volume MSIIR, mute and channel
+mixer. This is the first Linux boot to complete the entire Windows pre-start
+transaction.
+
+The subsequent `GRAPH_START` request timed out after five seconds without a
+DSP error. Its packet matches Windows sequence 31: client source port, APM
+destination port 1, opcode `0x01001002`, and root/speaker/render list
+`[0xb0000001, 0xb000007f, 0xb000007e]`.
+
+The timeout was local response dispatch, not a rejected start. Lifecycle
+commands are sent from the graph client, so their basic replies arrive at
+`graph_callback()`. That callback recognized configuration replies but not
+`GRAPH_START`, `GRAPH_STOP` or `GRAPH_FLUSH`. It discarded the successful
+start reply; the retry then received status 2 at pull-ring configuration
+because the first graph was already running.
+
+Patch `0017-audioreach-handle-client-graph-lifecycle-replies.patch` handles all
+three client lifecycle replies and records a named `GRAPH_START accepted`
+boundary. The signed V3 core override has source version
+`F9E7D8831E4103A96D5B05A` and compressed SHA-256
+`b60d9b8c197ddb61c0a50a0a942aa3d2e800973e855ae9b4246d37dd00a16c9d`.
+The prior core module and boot image are preserved under
+`02-kernel/v3-runtime-backups/pre-0017-lifecycle/`.
+
+The override loads from the root module tree after pivot, so the validated
+initramfs and topology remain unchanged. The one-shot V3 entry is ready for
+the next lifecycle-validation boot; no playback samples have been sent.

@@ -66,12 +66,12 @@ The complete transaction comparison is in the
 [Windows/Linux start ledger](docs/audit/2026-07-28-windows-linux-start-transaction-ledger.md).
 The installed V3 identities and rollback policy are in the
 [audio-v3 deployment record](docs/deployment/2026-07-28-audio-v3-pull-pipeline.md).
-The first V3 boot isolated and patch `0016` corrected one Linux DPCM ordering
-error. The second boot then accepted the pull ring, events and media format
-before rejecting PCM_CNV configuration. Byte comparison with Windows sequence
-13 found a deterministic topology-generator omission: IID `0x465f` requires
-format token `252 = 3` (`PCM_DEINTERLEAVED_UNPACKED`), while omission made
-Linux send invalid value zero. The corrected topology and boot image are
+The first V3 boot isolated and patch `0016` corrected a Linux DPCM ordering
+error. The second boot identified and corrected the missing Windows PCM_CNV
+layout token. The third boot then completed every recovered pre-start
+transaction. Its final `GRAPH_START` success reply was discarded by Linux
+because graph-client response dispatch omitted lifecycle opcodes. Patch
+`0017` adds start/stop/flush reply handling; its signed core override is
 installed for the next one-shot V3 boot. Physical playback and nonzero
 protection feedback are not yet claimed.
 

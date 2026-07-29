@@ -1,0 +1,52 @@
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Subject: [PATCH] ASoC: qcom: q6apm: handle graph-client lifecycle replies
+
+The protected SP11 pull graph addresses GRAPH_START, GRAPH_STOP and
+GRAPH_FLUSH through its allocated graph-client port, matching the recovered
+Windows transaction.  The DSP therefore returns the basic response to
+graph_callback(), not the global APM callback.
+
+Teach the graph callback to complete those lifecycle commands.  The DSP
+starts the graph successfully, but Linux otherwise ignores the reply, waits
+five seconds, and reports a false timeout.  A retry subsequently receives
+AR_EALREADY from pull-ring configuration because the first graph is already
+running.
+
+Log the accepted SP11 GRAPH_START boundary so boot evidence distinguishes a
+real lifecycle acknowledgment from configuration-only progress.
+
+Signed-off-by: SP11 audio reconstruction <sp11-audio@localhost>
+---
+ sound/soc/qcom/qdsp6/q6apm.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -1229,6 +1229,9 @@ static int graph_callback(const struct gpr_resp_pkt *data, void *priv, int op)
+ 		case APM_CMD_SET_CFG:
+ 		case APM_CMD_GET_CFG:
+ 		case APM_CMD_REGISTER_MODULE_EVENTS:
++		case APM_CMD_GRAPH_START:
++		case APM_CMD_GRAPH_STOP:
++		case APM_CMD_GRAPH_FLUSH:
+ 			graph->result.opcode = result->opcode;
+ 			graph->result.status = result->status;
+ 			if (result->status)
+@@ -1330,9 +1333,13 @@ int q6apm_graph_start(struct q6apm_graph *graph)
+ 	struct audioreach_graph *ar_graph = graph->ar_graph;
+ 	int ret = 0;
+ 
+-	if (ar_graph->start_count == 0)
++	if (ar_graph->start_count == 0) {
+ 		ret = audioreach_graph_client_mgmt_cmd(graph,
+ 						      APM_CMD_GRAPH_START);
++		if (!ret && graph->pull_mode)
++			dev_info(graph->dev,
++				 "SP11 stage GRAPH_START accepted\n");
++	}
+ 
+ 	if (!ret)
+ 		ar_graph->start_count++;
+-- 
+2.46.0
