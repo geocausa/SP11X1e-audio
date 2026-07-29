@@ -100,8 +100,8 @@ The complete build and isolated installation finished successfully:
 | Initramfs SHA-256 | `02eade545454ceb710b907f3ed6f73fdb00b484957dfc271b0d24aca18885256` |
 | Initramfs size | 982,479,336 bytes |
 | Topology SHA-256 | `ac82587d145743537f1aa50bc764bd4aebc47ca6c03f344f8e65e95fa5078d8d` |
-| UCM SHA-256 | `e6be4ec6d0aef1484564607506d72cf4dbaa3c85230ad19551d25ba3d49bc37b` |
-| Cumulative kernel patch SHA-256 | `216c534aca4f88a515929d1969ac18d3b333d1971c6a58966c2fd29be93d05ed` |
+| UCM SHA-256 | `1a5ecca74efe0b338e938dd868f24b61c51d0aa6aa27113b23d1796c2438ab84` |
+| Cumulative kernel patch SHA-256 | `31d48f107c85232ff38d86d4796727b0989968718322ac14aaec15bc67568dde` |
 | Repository tests | 74 passed |
 | Focused WSA884x DT binding/schema check | passed |
 
@@ -128,7 +128,34 @@ If the new entry fails to boot or regresses unrelated hardware, select
 `sp11-7.1.5-clean` from GRUB. `audio-v3` and the clean fallback are deliberately
 not overwritten by this deployment.
 
-## Runtime status
+## First-boot result
 
-Installed and pending first boot. Build-time success and artifact validation
-do not constitute an audible-output claim.
+The first boot reached the desktop with the expected kernel, complete module
+catalog, Phase91 touch stack, networking interfaces, AudioReach DSP, both
+WSA884x amplifiers, and the SP11 ALSA card. The initial collector ran four
+seconds before asynchronous card registration, so it now waits up to 20
+seconds for the card on subsequent boots.
+
+Normal desktop capability probing initially opened the VI backend before UCM
+could enable its `VISENSE` source switches. Both WSA VI DAIs therefore returned
+`-ENODEV`, and WirePlumber declined to create the physical sink. A controlled
+zero-data probe with both source switches enabled then proved the complete
+kernel path:
+
+- both amplifiers registered 8 kHz `VISENSE` source streams;
+- `WSA_CODEC_DMA_TX_0` backend 106 reported VI ready;
+- render and VI endpoint calibration were accepted;
+- SP/SPVI enabled with feedback rather than bypass;
+- the corrected volume, MSIIR, mute, and channel-mixer stages were accepted;
+- `GRAPH_START` completed successfully; and
+- the stream completed without an XRUN or SoundWire/amplifier fault.
+
+The follow-up driver corrects the discovered ordering boundary by making the
+dedicated VI DAI expose its single `VISENSE` source port whenever the DAI is
+opened. Playback port selection remains controlled independently. The rebuilt,
+signed module has compressed SHA-256
+`1709e73006a8e877bcadbffd3547b7d1f3eb2196130b0e858498af4787cadf6a`
+and is installed for the next boot.
+
+Audible output remains deliberately unclaimed until the corrected normal
+desktop path is rebooted and passes a conservative listening test.

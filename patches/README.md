@@ -465,6 +465,13 @@ Validation before first boot:
 - combined DTB contains both the Phase91 touchscreen node and the new
   `WSA VI Protection` link.
 
+The first dedicated boot proved the complete kernel path with a zero-data
+probe, including both 8 kHz VISENSE streams, backend 106 readiness, SP/SPVI
+enable, all ordered calibration stages, and graph start. It also showed that
+desktop capability probing precedes UCM control enablement. The cumulative
+patch therefore makes the dedicated VI DAI expose its single source port
+intrinsically instead of returning `-ENODEV` before UCM can run.
+
 The patch SHA-256 is
-`216c534aca4f88a515929d1969ac18d3b333d1971c6a58966c2fd29be93d05ed`.
-Runtime behavior remains pending the dedicated first boot.
+`31d48f107c85232ff38d86d4796727b0989968718322ac14aaec15bc67568dde`.
+Normal desktop and audible validation remain pending the follow-up boot.

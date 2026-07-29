@@ -114,3 +114,22 @@ dedicated `audio-vi` kernel boots and the first-boot collector verifies:
 Dolby dynamic processing remains intentionally outside this milestone. Its
 module may remain represented in bypass, but it is not used to conceal or tune
 the base render and protection pipeline.
+
+## First `audio-vi` boot
+
+The first boot proved that the complete feedback implementation works when its
+physical source controls are present. A one-second zero-data direct ALSA probe
+registered both WSA884x VI streams at 8 kHz on source port 5, prepared backend
+106, asserted VI readiness, enabled SP/SPVI with feedback, accepted every
+ordered calibration stage, and completed `GRAPH_START`.
+
+It also exposed an earlier lifecycle boundary: WirePlumber probes the PCM
+before UCM device enable sequences run. At that moment the amplifier
+`VISENSE` software switches are still off, so the VI codec DAI returned
+`-ENODEV` and profile creation failed. Userspace ordering cannot precede that
+probe.
+
+The driver fix makes VISENSE intrinsic to the dedicated VI DAI: opening that
+DAI always contributes exactly its single source port, while the ordinary
+speaker DAI continues to honor its playback-port switches. UCM still controls
+the VI DAPM mixers and amplifier switches for normal device lifecycle.

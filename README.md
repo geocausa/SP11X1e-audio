@@ -35,6 +35,16 @@ DSP gain stage while retaining the Windows fixed -12 dB WSA digital gain.
 Dolby remains present only as an identity boundary and is not part of this
 milestone.
 
+The first `audio-vi` boot reached the desktop with the complete platform and
+proved the protected kernel path using a silent zero-data probe: both 8 kHz
+VISENSE sources, backend 106 readiness, SP/SPVI enable, all calibration stages,
+and graph start succeeded. It also proved that desktop PCM capability probing
+runs before UCM can enable VISENSE, causing the initial physical-profile
+failure. The installed follow-up module makes the dedicated VI source
+intrinsic to that DAI; normal desktop and audible validation are pending its
+next boot. See the
+[reviewed first-boot evidence](artifacts/reviewed/linux-audio-vi-first-boot-20260729.json).
+
 The first protected candidate was retired after its boot proved that it had
 been built from an incomplete 156-module configuration and used the wrong
 device tree. No ALSA card registered. Its later apparent bus-clash symptom was

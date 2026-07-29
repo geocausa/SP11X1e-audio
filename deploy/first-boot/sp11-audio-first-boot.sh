@@ -11,6 +11,18 @@ output_dir="${output_root}/${timestamp}"
 
 install -d -m 0755 -- "${output_dir}"
 
+# The ADSP/GPR card registers asynchronously several seconds after udev has
+# settled. Wait for that bounded event so the structural capture does not
+# incorrectly report an absent card while probe is still in progress.
+wait_count=0
+while [ "$wait_count" -lt 20 ]; do
+	if grep -q 'X1E80100' /proc/asound/cards 2>/dev/null; then
+		break
+	fi
+	sleep 1
+	wait_count=$((wait_count + 1))
+done
+
 capture() {
 	local name=$1
 	shift
