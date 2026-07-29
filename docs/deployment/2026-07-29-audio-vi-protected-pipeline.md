@@ -152,10 +152,26 @@ kernel path:
 
 The follow-up driver corrects the discovered ordering boundary by making the
 dedicated VI DAI expose its single `VISENSE` source port whenever the DAI is
-opened. Playback port selection remains controlled independently. The rebuilt,
-signed module has compressed SHA-256
+opened. Playback port selection remains controlled independently.
+
+The second boot proved that the first follow-up package did **not** contain that
+source change. A live read-only kprobe showed that ASoC passed the correct
+`SPKR_VI` runtime and driver ID (`1`), ruling out DAI identity as the cause.
+Disassembly then showed that the installed module with compressed SHA-256
 `1709e73006a8e877bcadbffd3547b7d1f3eb2196130b0e858498af4787cadf6a`
-and is installed for the next boot.
+still checked the userspace `port_enable` state before the DAI split. The
+installation had selected a stale module from the separate output tree whose
+`wsa884x.o` predated the corrected source, rather than the freshly compiled
+source-tree artifact.
+
+The correctly compiled artifact was inspected, signed, compressed, and
+installed. Its compressed SHA-256 is
+`017407776ddc060eb1ff5e6a23b10766cfbdd2fafdf42d62074c5895efa2b4c4`.
+Its disassembly branches on the VI DAI before any playback-switch test and
+unconditionally contributes SoundWire source port 5 for `SPKR_VI`. The
+repository now includes `tools/verify_module_build_provenance.sh`, which
+rejects an object older than its source, a module older than its object, an
+unexpected vermagic release, or a missing binary marker before deployment.
 
 Audible output remains deliberately unclaimed until the corrected normal
 desktop path is rebooted and passes a conservative listening test.

@@ -41,9 +41,15 @@ VISENSE sources, backend 106 readiness, SP/SPVI enable, all calibration stages,
 and graph start succeeded. It also proved that desktop PCM capability probing
 runs before UCM can enable VISENSE, causing the initial physical-profile
 failure. The installed follow-up module makes the dedicated VI source
-intrinsic to that DAI; normal desktop and audible validation are pending its
-next boot. See the
-[reviewed first-boot evidence](artifacts/reviewed/linux-audio-vi-first-boot-20260729.json).
+intrinsic to that DAI. The second boot exposed a packaging error rather than a
+new graph error: the deployed module came from a stale separate output tree
+even though the reviewed source-tree build was correct. A live trace proved
+that ASoC supplies the correct `SPKR_VI` ID, and binary disassembly identified
+the stale switch-gated branch. The correct signed artifact is now installed
+and a build-provenance guard prevents that mismatch from recurring. Normal
+desktop and audible validation are pending its next boot. See the
+[first-boot evidence](artifacts/reviewed/linux-audio-vi-first-boot-20260729.json)
+and [second-boot binary audit](artifacts/reviewed/linux-audio-vi-second-boot-20260729.json).
 
 The first protected candidate was retired after its boot proved that it had
 been built from an incomplete 156-module configuration and used the wrong
