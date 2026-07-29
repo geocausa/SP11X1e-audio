@@ -476,4 +476,45 @@ intrinsically instead of returning `-ENODEV` before UCM can run.
 
 The patch SHA-256 is
 `31d48f107c85232ff38d86d4796727b0989968718322ac14aaec15bc67568dde`.
-Normal desktop and audible validation remain pending the follow-up boot.
+Normal desktop playback, the protected render graph, and the physical VI
+feedback chain were subsequently validated.  Amplifier supply handling and PA
+fault recovery are carried separately by patch `0021`.
+
+## `0021-wsa884x-recover-pa-and-apply-2s-supply.patch`
+
+Stacks after cumulative patch `0020`.  It fixes a board-configuration feature
+gap in the upstream WSA884x driver.
+
+Both SP11 amplifiers report `VPHX_SYS_EN_STATUS = 0x02`, Qualcomm's
+`CONFIG_2S`.  Upstream nevertheless programs fixed QRD8550-oriented 1S,
+8-ohm, 21 dB defaults and omits the full driver's battery/load/gain
+configuration interface.  Under full-volume playback the left amplifier
+repeatedly entered PA error state `sta1=0x06`, `err0=0x08`.
+
+The patch:
+
+- detects the hardware supply configuration;
+- applies Qualcomm's exact 2S DAC VCM, class-H, UVLO and current-limit values;
+- clears the low-battery OCP selector required for non-1S supplies;
+- restores the downstream one-shot VPHX analogue-enable bits;
+- monitors PA state only while playback is active; and
+- performs bounded Qualcomm-sequence PA recovery as a safety net.
+
+Runtime validation on `7.1.5-sp11-audio-vi`:
+
+- loaded and installed source version:
+  `FA7950FAFC83EAEDC2F3A41`;
+- both amplifiers detected as 2S;
+- all targeted registers matched the confirmed Qualcomm sequence;
+- both devices remained in healthy PA state during full-volume playback;
+- eight alternating stereo pink-noise passes completed;
+- twenty playback-client start/stop cycles completed;
+- zero PA faults, zero recovery interventions and zero SoundWire IRQ storms.
+
+The correction does not guess the nominal SP11 load, system gain, or
+load-specific PBR threshold table.  Those remaining Qualcomm-driver features
+require direct SP11 evidence.
+
+See
+[`docs/findings/2026-07-29-wsa884x-2s-supply-gap.md`](../docs/findings/2026-07-29-wsa884x-2s-supply-gap.md)
+for the evidence ledger and live register proof.

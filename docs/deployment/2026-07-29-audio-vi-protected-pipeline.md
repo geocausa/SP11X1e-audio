@@ -203,3 +203,46 @@ full-volume MSIIR pregain and root channel mixer independently decode to exact
 unity, ruling them out as hidden fixed attenuation. Subjective comparison
 after this correction and a protection-gated path to the remaining 0 dB
 endpoint maximum are still pending.
+
+## WSA884x 2S correction and validation
+
+Sustained full-volume YouTube playback later exposed a separate physical
+amplifier fault. Only the left WSA884x repeatedly entered PA error state
+`sta1=0x06`, `err0=0x08`. A temporary no-IRQ health worker recovered the PA
+state in approximately 1.5 ms and prevented the former interrupt storm, but
+the repeated error proved that recovery alone was not a root-cause fix.
+
+Both physical amplifiers report `VPHX_SYS_EN_STATUS = 0x02`, Qualcomm's
+`CONFIG_2S`. The upstream WSA884x driver was still programming fixed
+QRD8550-oriented 1S defaults and omitted the full Qualcomm driver's 2S
+initialization. Patch `0021` adds hardware supply detection, the exact 2S
+register sequence, the non-1S OCP setting, the 2S PBR current limit and the
+missing VPHX write-once enable bits. The bounded health worker remains
+installed only as a safety net.
+
+The corrected signed module is:
+
+```text
+srcversion:     FA7950FAFC83EAEDC2F3A41
+vermagic:       7.1.5-sp11-audio-vi SMP preempt mod_unload modversions aarch64
+compressed SHA: beaaeaf0a87cee9c6550e70a8e8e67ecb34713e0f8f759e2b0c53470a6e0a5fa
+```
+
+The prior recovery-only module is preserved at:
+
+```text
+/home/geoca/Documents/SP11-PROJECT/02-kernel/audio-vi-deployment-backups/post-first-boot-20260729/snd-soc-wsa884x.pre-2s-supply-fix.ko.zst
+```
+
+The validation boot proved:
+
+- both amplifiers detected and initialized as 2S;
+- both write-once analogue controls read `0xdd` during playback;
+- both PA state machines remained healthy with zero error registers;
+- eight full-volume alternating stereo pink-noise passes completed;
+- twenty client start/stop cycles completed;
+- zero PA faults, zero recovery actions and zero SoundWire IRQ storms.
+
+This closes the known driver-level left-channel dropout. It does not yet
+establish nominal load, the SP11-specific system gain, the matching PBR
+threshold table, or final subjective Windows loudness/tonal parity.
