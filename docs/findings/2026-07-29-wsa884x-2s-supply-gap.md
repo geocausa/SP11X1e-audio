@@ -2,10 +2,21 @@
 
 Date: 2026-07-29
 
+> **Erratum / superseded scope:** This finding validated the missing 2S
+> initialization, but it did not close the nominal-load profile. A subsequent
+> reboot logged five more identical left-PA faults. Structural ACDB decoding
+> then proved that SP11 selects a 4-ohm load while this module still carried
+> upstream 8-ohm/21-dB sensing and PBR values. See
+> [`2026-07-29-wsa884x-sp11-4ohm-profile.md`](2026-07-29-wsa884x-sp11-4ohm-profile.md)
+> and patch `0022`. The clean stress interval below remains historical
+> evidence for the 2S correction; it must not be read as final root-cause
+> closure.
+
 ## Result
 
-The repeated left-speaker dropout was a WSA884x board-configuration fault, not
-a Dolby, PipeWire, mixer, or AudioReach graph-volume fault.
+The repeated left-speaker dropout reaches the WSA884x PA state machine and is
+not a Dolby, PipeWire, mixer, or AudioReach graph-volume event. This patch
+corrected one proven board-configuration fault: missing 2S initialization.
 
 Both SP11 amplifiers report `VPHX_SYS_EN_STATUS = 0x02`, which Qualcomm
 defines as `CONFIG_2S`.  The upstream Linux WSA884x driver nevertheless used
@@ -49,8 +60,8 @@ The Windows live calibration reported:
 - right `R0 = 5.370454669 ohm`.
 
 This explains why the left channel can reach a protection boundary first, but
-it is not by itself sufficient to declare the nominal load category.  The
-load-specific PBR tables remain outside this patch.
+it was not by itself sufficient to declare the nominal load category. The
+later structural ACDB decode proved the category is 4 ohms.
 
 ## Implemented correction
 
@@ -132,19 +143,16 @@ SoundWire IRQ storms: 0
 ```
 
 Before the 2S correction, comparable full-volume playback repeatedly faulted
-the left amplifier within seconds.  The clean run therefore validates removal
-of the observed driver-level dropout cause; it does not claim final Windows
-tonal or loudness parity.
+the left amplifier within seconds. The clean run validated the 2S correction
+over that interval only. A later reboot reproduced the fault under the
+remaining mixed 4-ohm/8-ohm profile, so it did not validate final dropout
+removal or Windows tonal/loudness parity.
 
 ## Remaining WSA884x parity work
 
-The upstream driver is still incomplete relative to Qualcomm's full driver.
-The following require SP11-specific evidence before implementation:
-
-- nominal speaker load category and matching OCP current limit;
-- exact SP11 system-gain selection;
-- load/supply/gain-specific PBR class-H threshold table;
-- any remaining per-device OTP or board-policy overrides.
+Patch `0022` now implements the evidence-backed 4-ohm/18-dB/2S sensing, OCP,
+and PBR profile. Runtime verification and any remaining per-device OTP or
+board-policy overrides remain open.
 
 Dolby dynamic processing remains a separate project.  Its module boundary is
 present in bypass mode and was not used to conceal or compensate for this

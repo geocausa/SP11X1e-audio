@@ -4,6 +4,23 @@ Files in this directory are evidence-backed candidates for offline review
 and build validation.  They are not automatically applied to the live
 kernel, boot files, ALSA UCM configuration, or speaker controls.
 
+## `0022-wsa884x-apply-sp11-2s-4ohm-profile.patch`
+
+Closes the load ambiguity left by `0021`. Structural decoding of the exact
+Surface REV_0D ACDB resolves WSA driver-data module `0x08000090`, parameter
+`0x08000091`, to the six-word payload `1, 3, 0, 4, 0, 1`.
+`qcaucd8380.sys` control flow proves the fourth word is nominal load, so SP11
+is a 4-ohm design.
+
+The patch applies Qualcomm's coupled 18 dB / 2S / 4-ohm profile: matching
+V/I-sense gains, Windows' `0xf6` over-current value, and the exact downstream
+15-step PBR threshold curve. The signed module builds against and is staged
+for `7.1.5-sp11-audio-vi` with source version
+`203517BBF9C87B3E6B2210C`. Runtime validation starts at the next boot.
+
+See
+[`docs/findings/2026-07-29-wsa884x-sp11-4ohm-profile.md`](../docs/findings/2026-07-29-wsa884x-sp11-4ohm-profile.md).
+
 ## `0001-sp11-add-single-wsa-vi-backend.patch`
 
 Adds only the missing transport boundary proven strongly enough to build:
