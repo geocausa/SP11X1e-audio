@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "candidate": "7.1.5-sp11-audio-v3",
+  "captured_utc": "2026-07-29T06:36:52Z",
+  "boot_identity_correct": true,
+  "platform": {
+    "wifi_up": true,
+    "phase91_overrides_loaded": true,
+    "soundwire_devices_attached": 2,
+    "alsa_cards": 1,
+    "playback_pcms": 1,
+    "soundwire_bus_clash_count": 0,
+    "soundwire_clock_stop_timeout_count": 0
+  },
+  "graph_probe": {
+    "opens_observed": 12,
+    "position_map_succeeded": true,
+    "oob_map_succeeded": true,
+    "graph_calibration_result": "AR_EUNSUPPORTED tolerated per Qualcomm GSL",
+    "backend_media_format_failures": 60,
+    "pull_ring_config_acceptances": 0,
+    "samples_played": false
+  },
+  "failure": {
+    "layer": "Linux DPCM ordering",
+    "dsp_opcode": "0x01001006",
+    "dsp_status": 1,
+    "linux_call": "q6apm_lpass_dai_prepare -> q6apm_graph_media_format_pcm",
+    "cause": "generic backend configured PCM/MFC/protection before frontend pull ring and events"
+  },
+  "correction": {
+    "patch": "0016-audioreach-defer-integrated-pull-backend-config.patch",
+    "scope": "pull-mode integrated graph only",
+    "installed_override_srcversion": "DB0C4EDB6BE0ED19BA8AB30",
+    "installed_override_sha256": "3dca3b3b45d9d46e0e095d12e2ac2d87e10295e2500160c21becbe58bec800ef",
+    "runtime_validated": false
+  }
+}

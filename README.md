@@ -66,8 +66,11 @@ The complete transaction comparison is in the
 [Windows/Linux start ledger](docs/audit/2026-07-28-windows-linux-start-transaction-ledger.md).
 The installed V3 identities and rollback policy are in the
 [audio-v3 deployment record](docs/deployment/2026-07-28-audio-v3-pull-pipeline.md).
-The V3 build is complete and installed, but physical playback and nonzero
-protection feedback are not claimed until its one-shot boot is validated.
+The first V3 boot validated the full platform and isolated one Linux DPCM
+ordering error: generic backend prepare ran before frontend pull
+configuration. Patch `0016` defers backend configuration only for the
+integrated pull graph; its signed V3 override is installed for the next boot.
+Physical playback and nonzero protection feedback are not yet claimed.
 
 Dolby dynamic processing is deliberately outside this phase. Its userspace
 boundary is present in identity/bypass mode; no Dolby coefficients, EQ or

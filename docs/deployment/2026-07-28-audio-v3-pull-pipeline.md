@@ -108,3 +108,33 @@ establish:
 If a DSP stage fails, the V3 logs now identify its exact Windows transaction
 by name, IID and parameter/event ID. That makes any follow-up a specific
 compatibility correction rather than another anonymous one-line probe.
+
+## First boot result — 2026-07-29
+
+The V3 platform build is valid:
+
+- the expected kernel and GRUB command line booted;
+- Wi-Fi and the Phase91 platform stack initialized;
+- both WSA884x SoundWire devices reported `Attached`;
+- the SP11 ALSA card registered one MM1 playback PCM;
+- no SoundWire bus clash or clock-stop timeout occurred.
+
+PipeWire's capability probe opened the graph without sending samples. The
+position and OOB pages mapped, `GRAPH_OPEN` succeeded, and graph-calibration
+`AR_EUNSUPPORTED` followed the recovered GSL policy. The next operation was
+not the expected pull-ring configuration. Linux DPCM invoked backend prepare
+first, which sent the common PCM/MFC/protection sequence. The DSP rejected
+that out-of-order `SET_CFG` with status 1. The frontend therefore never
+reached its named pull stage.
+
+The complete Windows trace already resolves the correct order: pull ring,
+events and pull media format precede PCM converter, MFC and protection.
+Patch `0016-audioreach-defer-integrated-pull-backend-config.patch` makes the
+integrated pull frontend the single configuration owner. It does not change
+payload bytes, module identities or ordinary split-graph behavior.
+
+A signed V3 override with source version `DB0C4EDB6BE0ED19BA8AB30` is installed
+under `updates/sp11-audio`; its compressed SHA-256 is
+`3dca3b3b45d9d46e0e095d12e2ac2d87e10295e2500160c21becbe58bec800ef`.
+The original module is preserved outside the module tree. Runtime acceptance
+requires one further V3 boot.

@@ -1,0 +1,44 @@
+From: SP11 Linux audio parity project
+Subject: [PATCH] ASoC: qcom: audioreach: defer integrated pull backend config
+
+The first audio-v3 boot proves that DPCM backend prepare reaches the shared
+graph before frontend prepare. The backend therefore sends PCM/MFC and
+protection configuration before the pull ring and module events exist. The
+DSP rejects that out-of-order SET_CFG with status 1.
+
+The recovered Windows transaction has a single configuration owner. It
+configures the pull ring and events first, followed by pull/PCM/MFC formats
+and the protection tail. The integrated Linux frontend now implements that
+complete order.
+
+Skip generic backend configuration only when the topology is the protected
+pull graph. Existing split AudioReach graphs retain their current backend
+prepare behavior.
+
+---
+ sound/soc/qcom/qdsp6/q6apm-lpass-dais.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+--- a/sound/soc/qcom/qdsp6/q6apm-lpass-dais.c
++++ b/sound/soc/qcom/qdsp6/q6apm-lpass-dais.c
+@@ -215,6 +215,20 @@
+ 		dai_data->graph[dai->id] = graph;
+ 	}
+ 
++	/*
++	 * The integrated SP11 pull graph has one Windows-ordered configuration
++	 * owner: its frontend.  Generic backend prepare runs first in the DPCM
++	 * sequence, before the pull ring and event registrations exist.  Sending
++	 * PCM/MFC/protection configuration here therefore changes the captured
++	 * order and is rejected by the DSP.  The frontend configures the same
++	 * shared graph completely before start.
++	 */
++	if (dai_data->graph[dai->id]->pull_mode) {
++		dev_info_once(dai->dev,
++			      "SP11 pull graph: backend configuration deferred to frontend\n");
++		return 0;
++	}
++
+ 	cfg->direction = substream->stream;
+ 	rc = q6apm_graph_media_format_pcm(dai_data->graph[dai->id], cfg);
+ 	if (rc) {

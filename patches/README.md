@@ -307,3 +307,31 @@ Validation completed before packaging:
 
 The full kernel/module build and first audio-v3 boot remain the hardware
 acceptance boundary.
+
+## `0016-audioreach-defer-integrated-pull-backend-config.patch`
+
+The first audio-v3 boot passed every platform gate: the Phase91 overrides,
+Wi-Fi, both SoundWire amplifiers, the ALSA card and the single MM1 PCM all
+registered. PipeWire's read-only capability probe then exposed a deterministic
+DPCM ordering error before pull configuration.
+
+Linux backend prepare opened the shared integrated graph and immediately
+called the common PCM/MFC/protection configurator. The DSP returned status 1
+because Windows configures the pull ring and module events before those
+stages. Five backend prepare attempts failed for each graph probe; the
+frontend never reached its named `pull-ring-config` stage.
+
+Patch `0016` makes generic backend configuration a no-op only for a graph
+identified as pull mode. The frontend remains the single configuration owner
+and executes the complete captured transaction from `0015`. Existing split
+AudioReach graphs retain their normal backend behavior.
+
+Validation before deployment:
+
+- exact failure boundary repeated across 12 graph probes: pass;
+- no pull-ring acceptance preceded the failure: confirmed;
+- patch reverse-check against the exact audio-v3 source: pass;
+- strict patch check: zero errors and zero warnings;
+- ARM64 backend object build with `W=1`: pass;
+- complete incremental module link: pass;
+- signed V3 override source version: `DB0C4EDB6BE0ED19BA8AB30`.
