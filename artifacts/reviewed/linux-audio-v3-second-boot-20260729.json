@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "candidate": "7.1.5-sp11-audio-v3",
+  "captured_utc": "2026-07-29T06:49:03Z",
+  "boot_identity_correct": true,
+  "platform": {
+    "wifi_up": true,
+    "phase91_overrides_loaded": true,
+    "soundwire_devices_attached": 2,
+    "alsa_cards": 1,
+    "playback_pcms": 1,
+    "soundwire_bus_clash_count": 0,
+    "soundwire_clock_stop_timeout_count": 0
+  },
+  "graph_probe": {
+    "backend_defer_observed": true,
+    "pull_ring_config_acceptances": 12,
+    "pull_event_registration_acceptances": 12,
+    "pull_media_format_acceptances": 12,
+    "pcm_converter_format_acceptances": 0,
+    "mfc_format_acceptances": 0,
+    "format_block_failures": 12,
+    "samples_played": false
+  },
+  "failure": {
+    "layer": "generated topology module format metadata",
+    "dsp_opcode": "0x01001006",
+    "dsp_status": 1,
+    "module_instance_id": "0x0000465f",
+    "parameter_id": "0x08001008",
+    "cause": "PCM_CNV interleave token 252 was absent, so Linux serialized interleaved=0; the Windows frame uses PCM_DEINTERLEAVED_UNPACKED=3"
+  },
+  "windows_frame": {
+    "source_sha256": "3a2b03868033cff3a147e4e120f05809b957da276217d963e457683b1fae2ca0",
+    "sequence": 13,
+    "parameter_size": 30,
+    "payload_hex": "0100000000100009120000001000010010000f0001000300000002000102"
+  },
+  "correction": {
+    "generator": "tools/build_sp11_protected_topology.py",
+    "token": 252,
+    "value": 3,
+    "meaning": "PCM_DEINTERLEAVED_UNPACKED",
+    "topology_sha256": "5cda975f1559311b979b4e81554231629725d365c46cf55692d6e33b5132c704",
+    "initramfs_sha256": "43a551537f4b3468e05a92c17eee394fde3d278832f562063727f08a01141a17",
+    "tests_passed": 71,
+    "runtime_validated": false
+  }
+}

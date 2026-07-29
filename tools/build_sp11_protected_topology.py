@@ -52,7 +52,7 @@ TOKENS = (
     206, 207, 208, 209,
     210, 211, 212, 213, 214, 215, 216, 217, 218,
     219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230,
-    262, 263,
+    252, 262, 263,
 )
 
 CONTAINERS = {
@@ -162,6 +162,12 @@ def module_tuple(module: dict, outgoing: list[dict]) -> str:
         )
     if module["module_name"] in {"SPEAKER_PROTECTION", "SPEAKER_PROTECTION_VI"}:
         module_lines.append("token262 1")
+    # The Windows root render transaction configures PCM_CNV IID 0x465f with
+    # interleaving value 3 (PCM_DEINTERLEAVED_UNPACKED).  Leaving the token
+    # absent zero-initializes audioreach_module::interleave_type and produces
+    # a PARAM_ID_PCM_OUTPUT_FORMAT_CFG frame that the DSP rejects.
+    if iid == 0x465F:
+        module_lines.append("token252 3")
     if iid == 0x4157:
         module_lines.append(f"token263 {BACKEND_ID}")
 

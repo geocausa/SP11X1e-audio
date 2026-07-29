@@ -48,9 +48,9 @@ The evidence ledger is
 | kernel image SHA-256 | `be4a41ced29a768fad2cca6a71bf69085bdaacf78971bf0d9d83e191986619e6` |
 | configuration SHA-256 | `f7ff7e0fb5c7286f8e7976a71f59a32eb83571191d6534737bf55dcc48efa2a1` |
 | Phase91 DTB SHA-256 | `dfbc3c49217aeeec91eadfc2a74a4dc88a8a76bf81458bd24194b61b5d0f0e72` |
-| initramfs SHA-256 | `96e96ec56de939497fcbbc65cd9b47b067c3d727f1ea3ae4a7bd96ea91556bfe` |
-| initramfs size / entries | 982,589,990 bytes / 4,314 |
-| topology SHA-256 | `110e4db8224a9b77ebe047fef1fc235d8914008ba572bf58fe9921d0dd283af0` |
+| initramfs SHA-256 | `43a551537f4b3468e05a92c17eee394fde3d278832f562063727f08a01141a17` |
+| initramfs size | 982,594,444 bytes |
+| topology SHA-256 | `5cda975f1559311b979b4e81554231629725d365c46cf55692d6e33b5132c704` |
 | cumulative kernel patch SHA-256 | `9c58dd1b3e853498e8f539fcbd1816cb9073146de138e716367594ae1c6a3d37` |
 | `snd-q6apm` source version | `5F2C814E2065E90C81BC333` |
 | `snd-q6apm.ko.zst` SHA-256 | `67d0d3e371e8bafdfcbcc42cc64bc4b07980b811dc31cc2ef427bee3c7225d3b` |
@@ -136,5 +136,34 @@ payload bytes, module identities or ordinary split-graph behavior.
 A signed V3 override with source version `DB0C4EDB6BE0ED19BA8AB30` is installed
 under `updates/sp11-audio`; its compressed SHA-256 is
 `3dca3b3b45d9d46e0e095d12e2ac2d87e10295e2500160c21becbe58bec800ef`.
-The original module is preserved outside the module tree. Runtime acceptance
-requires one further V3 boot.
+The original module is preserved outside the module tree.
+
+## Second boot result — 2026-07-29
+
+Patch `0016` loaded with the expected source version and fixed the ownership
+boundary. The first graph attempt then reached the captured Windows order:
+
+1. backend configuration deferred;
+2. pull ring accepted;
+3. watermark and soft-pause/resume events accepted;
+4. pull media format accepted;
+5. PCM-converter format rejected with DSP status 1.
+
+The full QGPR command at Windows sequence 13 resolves the rejection without
+another diagnostic kernel. Its 30-byte parameter payload sets PCM_CNV IID
+`0x465f`, PID `0x08001008`, to interleave value `3`
+(`PCM_DEINTERLEAVED_UNPACKED`). The generated Linux topology omitted format
+token `252`, leaving `audioreach_module::interleave_type` at zero. All other
+fields in that command match; the following MFC command also matches the
+captured Windows frame.
+
+The topology generator now emits `token252 3` only for IID `0x465f`, and a
+regression test locks that requirement. The regenerated 29-module topology
+decodes cleanly with no duplicate instances; all 71 repository tests pass.
+The deployed and initramfs-embedded topology hash is
+`5cda975f1559311b979b4e81554231629725d365c46cf55692d6e33b5132c704`.
+The previous topology and initramfs are preserved under
+`02-kernel/v3-runtime-backups/pre-0017/`.
+
+The one-shot V3 boot is armed. Runtime acceptance requires one further boot;
+no playback samples have been sent.

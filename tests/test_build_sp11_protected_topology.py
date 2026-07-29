@@ -51,3 +51,16 @@ def test_windows_pull_endpoint_keeps_its_canonical_module_id():
     rendered = MODULE.module_tuple(module, [])
     assert "token200 117444614" in rendered
     assert "token200 117444608" not in rendered
+
+
+def test_root_pcm_converter_uses_windows_internal_layout():
+    module = {
+        "iid": "0x465f",
+        "module_id": "0x07001003",
+        "module_name": "PCM_CNV",
+        "subgraph_id": "0xb000007e",
+        "container_id": "0xe000004c",
+        "properties": {"max_input_ports": 1, "max_output_ports": 1},
+    }
+    rendered = MODULE.module_tuple(module, [])
+    assert "token252 3" in rendered
