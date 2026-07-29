@@ -449,8 +449,10 @@ speaker-protection feedback chain:
 
 The matching topology and UCM policy enable both WSA VI mixers and both
 amplifier `VISENSE` switches. The operational gain parameter replaces the
-captured approximately -54.7 dB front-channel Q28 value with Q28 unity while
-retaining the Windows fixed -12 dB WSA digital gain.
+captured approximately -54.7 dB front-channel Q28 value with Q28 unity. UCM
+uses the X1E driver's protected -3 dB WSA ceiling; Windows' -12 dB
+`DefaultDeviceVolume` is the initial endpoint position, not fixed hardware
+gain.
 
 Validation before first boot:
 

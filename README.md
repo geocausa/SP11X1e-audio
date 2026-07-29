@@ -31,7 +31,9 @@ remain untouched.
 The new candidate provides the complete 8 kHz/S32_LE/stereo feedback backend,
 enables it through UCM, gates SP/SPVI enable on VI readiness, and explicitly
 bypasses protection if that backend cannot prepare. It uses Q28 unity in the
-DSP gain stage while retaining the Windows fixed -12 dB WSA digital gain.
+DSP gain stage and the X1E driver's protected -3 dB WSA ceiling. Windows'
+-12 dB `DefaultDeviceVolume` is an initial endpoint position, not a fixed
+hardware gain.
 Dolby remains present only as an identity boundary and is not part of this
 milestone.
 

@@ -31,8 +31,8 @@ change:
 - AudioReach does not enable SP/SPVI until the VI backend reports ready;
 - failure to prepare VI selects explicit speaker-protection bypass instead of
   leaving a half-connected protection graph active; and
-- the operational front-channel DSP gain is Q28 unity, while amplifier digital
-  gain remains fixed at the Windows -12 dB value.
+- the operational front-channel DSP gain is Q28 unity, while the WSA macro is
+  pinned at the X1E driver's protected -3 dB ceiling.
 
 Dolby dynamic processing is not enabled by this deployment.
 
@@ -173,5 +173,33 @@ repository now includes `tools/verify_module_build_provenance.sh`, which
 rejects an object older than its source, a module older than its object, an
 unexpected vermagic release, or a missing binary marker before deployment.
 
-Audible output remains deliberately unclaimed until the corrected normal
-desktop path is rebooted and passes a conservative listening test.
+At that point, audible output remained deliberately unclaimed pending a
+corrected normal-desktop reboot and conservative listening test. The following
+third-boot result closes that earlier checkpoint.
+
+## Third-boot result
+
+The correctly packaged module loaded and normal desktop probing completed the
+full graph without manual mixer preparation. WirePlumber published the
+physical speaker sink and connected the persistent Dolby-bypass boundary to
+it. Both WSA884x amplifiers supplied 8 kHz VI feedback, backend 106 became
+ready, SP/SPVI enabled with feedback, every ordered calibration stage and
+`GRAPH_START` was accepted, and sustained Firefox playback advanced at
+48 kHz without an XRUN, PipeWire error, SoundWire fault, or amplifier fault.
+
+The first audible Firefox/YouTube result was only about 5–10% of the perceived
+Windows maximum. Live inspection found the bypass node, physical sink, and
+ALSA speaker control at unity, but both WSA macro channels were deliberately
+pinned at -12 dB. That policy had incorrectly treated Windows
+`DefaultDeviceVolume=0xFFF40000` as fixed hardware gain. The same REV_0D INF
+declares `MaxEpVolume=0x00000000`, proving that -12 dB is the initial endpoint
+position and 0 dB is its maximum.
+
+Both WSA channels were raised live to the current X1E protected ceiling,
+-3 dB, for a verified +9 dB correction. Firefox's independent 80% stream
+volume was also restored to unity. Playback remained stable with the complete
+VI/protection graph active and no hardware or transport fault. The recovered
+full-volume MSIIR pregain and root channel mixer independently decode to exact
+unity, ruling them out as hidden fixed attenuation. Subjective comparison
+after this correction and a protection-gated path to the remaining 0 dB
+endpoint maximum are still pending.

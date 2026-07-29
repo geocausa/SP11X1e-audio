@@ -1,0 +1,70 @@
+{
+  "schema": "sp11-audio-runtime-evidence-v1",
+  "captured_local": "2026-07-29T13:08:00+01:00",
+  "kernel": "7.1.5-sp11-audio-vi",
+  "boot_entry": "sp11-audio-vi",
+  "boot_id": "58f72668-cf17-411a-b8d7-d83210f01e0f",
+  "automatic_capture": "/var/log/sp11-audio-first-boot/20260729T115656Z",
+  "module_identity": {
+    "snd_soc_wsa884x_loaded_srcversion": "0335F15993C0B4147CA241F",
+    "snd_soc_wsa884x_installed_srcversion": "0335F15993C0B4147CA241F",
+    "snd_soc_wsa884x_installed_compressed_sha256": "017407776ddc060eb1ff5e6a23b10766cfbdd2fafdf42d62074c5895efa2b4c4"
+  },
+  "normal_desktop_probe": {
+    "physical_sink_created": true,
+    "sink_name": "alsa_output.platform-sound.HiFi__Speaker__sink",
+    "dolby_bypass_connected": true,
+    "left_vi": "8000 Hz source port 5",
+    "right_vi": "8000 Hz source port 5",
+    "backend_106_ready": true,
+    "speaker_protection": "SP/SPVI enabled with VI feedback",
+    "ordered_calibration_stages": "accepted",
+    "graph_start": "accepted"
+  },
+  "sustained_firefox_playback": {
+    "pcm_state": "RUNNING",
+    "sample_rate": 48000,
+    "format": "S16_LE stereo at physical sink",
+    "hardware_pointer_advancing": true,
+    "pipewire_errors": 0,
+    "xrun": false,
+    "soundwire_or_amplifier_fault": false
+  },
+  "initial_audible_result": {
+    "user_report": "At maximum volume, approximately 5-10% of perceived Windows loudness.",
+    "pipewire_bypass_volume": 1.0,
+    "pipewire_physical_sink_volume": 1.0,
+    "alsa_speakers_db": 0.0,
+    "wsa_rx0_db": -12.0,
+    "wsa_rx1_db": -12.0
+  },
+  "gain_policy_correction": {
+    "finding": "Windows DefaultDeviceVolume=-12 dB is an initial endpoint position; the same REV_0D INF declares MaxEpVolume=0 dB. It must not be pinned as fixed WSA hardware gain.",
+    "live_wsa_rx0_db": -3.0,
+    "live_wsa_rx1_db": -3.0,
+    "live_gain_change_db": 9.0,
+    "firefox_stream_before": 0.8,
+    "firefox_stream_after": 1.0,
+    "current_limit_reason": "Static X1E machine-driver safety ceiling; the remaining 3 dB must only be exposed while VI-backed speaker protection is confirmed active",
+    "post_change_pcm_advancing": true,
+    "post_change_fault": false,
+    "subjective_result": "pending user comparison"
+  },
+  "persistent_ucm_correction": {
+    "installed_local": "2026-07-29T13:19:00+01:00",
+    "card_configuration_sha256": "225976f925624f156d9fab84e15a5126a60a236783cfcb82d43d2a2aec028d7b",
+    "hifi_configuration_sha256": "23ce80a0713d489603cd5571e211e1cc5ee0d0ab06a4244ad18d71802d1d518d",
+    "installed_matches_repository": true,
+    "ucm_parse_succeeded": true,
+    "live_wsa_rx0_control_value": 81,
+    "live_wsa_rx1_control_value": 81
+  },
+  "fixed_gain_audit": {
+    "volume_control_q28": "0x10000000 unity",
+    "msiir_pregain_q27": "0x08000000 unity",
+    "channel_mixer_q30": "0x40000000 unity",
+    "hidden_fixed_dsp_attenuation_found": false
+  },
+  "audible_output_confirmed": true,
+  "windows_loudness_parity_claimed": false
+}

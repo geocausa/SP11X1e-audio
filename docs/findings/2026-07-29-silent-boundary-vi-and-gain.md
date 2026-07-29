@@ -58,9 +58,12 @@ is encoded directly in this DSP module parameter. The previous unity test
 therefore did not test the graph at unity end to end.
 
 The new operational payload preserves the captured 104-byte parameter layout
-but substitutes Q28 unity for front-left and front-right. The WSA digital gain
-remains at the Windows fixed value of -12 dB. This is an engineering correction
-to make the base path audible, not an attempt to reproduce Dolby processing.
+but substitutes Q28 unity for front-left and front-right. The initial
+deployment kept the WSA digital gain at -12 dB, but third-boot live evidence
+proved that this misinterpreted Windows `DefaultDeviceVolume` as a fixed gain.
+REV_0D declares a 0 dB endpoint maximum; Linux now uses the X1E driver's
+protected -3 dB ceiling. This is an engineering correction to make the base
+path audible, not an attempt to reproduce Dolby processing.
 
 ## Corrective implementation
 
