@@ -87,16 +87,18 @@ PROTECTION_DYNAMIC_PARAMETERS = (
     (0x00004024, 0x080011FF, "0000000000000000"),
 )
 
-# These two inline records are byte-for-byte copies of commands 26 and 28 in
-# the canonical full-volume Windows startup cycle.  They are VOL_CTRL's
-# per-channel master-gain and mute parameters, not HW endpoint clock records
-# as the early capture decoder labelled them.
+# The captured command 26 carried 0x00077f1c on FL/FR, which the recovered
+# Qualcomm API proves is Q28 (-54.7 dB), despite the old capture filename
+# calling that run "full volume". Linux owns user volume above this fixed graph,
+# so its operational baseline must be the API-defined Q28 unity value
+# 0x10000000. Command 28 is retained byte-for-byte and leaves both channels
+# unmuted.
 VOLUME_GAIN_PARAMETER = (
     0x00004A63,
     0x08001038,
     (
-        "0800000002000000000000001c7f07000400000000000000"
-        "1c7f07000000000000000000000000000000000000000000"
+        "080000000200000000000000000000100400000000000000"
+        "000000100000000000000000000000000000000000000000"
         "000000000000000000000000000000000000000000000000"
         "000000000000000000000000000000000000000000000000"
         "0000000000000000"
@@ -626,7 +628,8 @@ def build_stages(data: bytes, source: str = "<bytes>") -> tuple[dict[str, bytes]
             },
             "volume-gain": {
                 "evidence_source": (
-                    "canonical live Windows full-volume startup command 26"
+                    "Qualcomm soft_vol_api.h Q28 unity default; captured "
+                    "command 26 layout with Linux-owned user gain"
                 ),
                 "parameter_count": 1,
                 "serialized_size": len(volume_gain_body),

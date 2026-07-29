@@ -14,6 +14,27 @@ The known-working rollback is kernel `7.1.5-sp11+` on Ubuntu 26.04 LTS
 aarch64. Its basic MM1 speaker route works through both WSA884x amplifiers, but
 it does not implement the recovered Windows protection graph.
 
+The next one-shot candidate is installed as `7.1.5-sp11-audio-vi`, GRUB ID
+`sp11-audio-vi`. It keeps the complete Ubuntu module catalog and the Phase91
+touch/DMA/SPI overrides. Its device tree is the built audio-VI OLED tree with
+the validated Phase91 touchscreen overlay applied; both older bootable entries
+remain untouched.
+
+`audio-vi` closes two boundaries proven after V3 transport validation:
+
+- Linux had no physical path from both WSA884x `VISENSE` sources through
+  SoundWire ports 10/11, WSA macro VI and `WSA_CODEC_DMA_TX_0` backend 106;
+  and
+- the captured front-channel DSP gain parameter was still Q28 `0x00077f1c`,
+  approximately -54.7 dB, even when PipeWire and ALSA were set to unity.
+
+The new candidate provides the complete 8 kHz/S32_LE/stereo feedback backend,
+enables it through UCM, gates SP/SPVI enable on VI readiness, and explicitly
+bypasses protection if that backend cannot prepare. It uses Q28 unity in the
+DSP gain stage while retaining the Windows fixed -12 dB WSA digital gain.
+Dolby remains present only as an identity boundary and is not part of this
+milestone.
+
 The first protected candidate was retired after its boot proved that it had
 been built from an incomplete 156-module configuration and used the wrong
 device tree. No ALSA card registered. Its later apparent bus-clash symptom was
@@ -21,8 +42,8 @@ separately traced to the experimental global UCM activating VI/CPS on the
 fallback kernel. See the
 [failure classification](artifacts/reviewed/linux-protected-boot-failure-20260728.json).
 
-The current candidate is a clean, isolated rebuild from the verified official
-Linux 7.1.5 tarball:
+The V3 transport baseline was a clean, isolated rebuild from the verified
+official Linux 7.1.5 tarball:
 
 - kernel `7.1.5-sp11-audio-v3`;
 - boot entry ID `sp11-audio-v3`;
@@ -108,17 +129,17 @@ synthetic processing have been invented.
 
 ## SoundWire protection boundary
 
-Mainline Linux 7.1 adds every enabled WSA884x sink port to the playback
-SoundWire stream. On this board that includes PBR, VISENSE and CPS even though
-the recovered Windows graph represents VI/CPS as internal
-`CODEC_DMA_SOURCE` endpoints.
+The earlier local guard kept PBR, VISENSE and CPS out of the render-direction
+SoundWire stream, but the silent V3 test proved that exclusion alone was
+insufficient. `audio-vi` gives VISENSE a real source port and routes the two
+amplifiers through SoundWire master ports 10/11 into one render-coupled VI
+backend. The controller selects physical direction from its DAI identity,
+because the ASoC link intentionally uses pseudo-playback semantics to keep the
+feedback backend active with render.
 
-Patch `0005` therefore carries a **local candidate guard** which excludes those
-three sink ports from the playback-direction stream while leaving their codec
-enable controls active. This is not an upstream fix and is not yet proof of a
-complete feedback path. It addresses the previously observed playback bus
-collision; only the protected boot can establish whether the integrated DSP
-graph receives nonzero VI/CPS data.
+The DSP data-edge tuples remain the recovered Windows tuples. The additional
+Linux topology bridge is DAPM-only and exists solely for backend lifecycle and
+power connectivity.
 
 **Do not add low-frequency gain until that proof is captured.**
 
@@ -129,8 +150,8 @@ graph receives nonzero VI/CPS data.
 - `deploy/ucm2/Qualcomm/x1e80100/` -- the SP11 UCM profile
 - `deploy/firmware/` -- local generated protected topology manifest; opaque
   binaries and recovered vendor calibration remain untracked
-- `deploy/grub/46_sp11_audio_v3` -- isolated, rollback-safe V3 boot entry
-- `deploy/initramfs/sp11-audio-v3-phase91` -- V3-only early Phase91 module
+- `deploy/grub/47_sp11_audio_vi` -- isolated, rollback-safe AUDIO VI entry
+- `deploy/initramfs/sp11-audio-vi-phase91` -- AUDIO-VI-only early Phase91 module
   inclusion, ahead of the generic GPI/SPI copies
 - `deploy/first-boot/` -- read-only automatic first-boot evidence capture
 - `deploy/pipewire/98-sp11-dolby-bypass.conf` -- required two-channel identity
@@ -151,8 +172,8 @@ UCM files are locally added and unowned.
 
 The failed-candidate diagnosis and clean source lineage remain in the
 [audio-v2 rebuild record](docs/deployment/2026-07-28-audio-v2-rebuild.md).
-The current hashes, rollback rule and V3 acceptance gates are in the
-[audio-v3 deployment record](docs/deployment/2026-07-28-audio-v3-pull-pipeline.md).
+The current hashes, rollback rule and first-boot gates are in the
+[audio-vi deployment record](docs/deployment/2026-07-29-audio-vi-protected-pipeline.md).
 
 ### UCM speaker-count note
 

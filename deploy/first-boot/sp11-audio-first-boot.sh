@@ -4,7 +4,7 @@
 
 set -u
 
-expected_kernel=7.1.5-sp11-audio-v3
+expected_kernel=7.1.5-sp11-audio-vi
 timestamp=$(date -u +%Y%m%dT%H%M%SZ)
 output_root=/var/log/sp11-audio-first-boot
 output_dir="${output_root}/${timestamp}"
@@ -27,7 +27,7 @@ capture cmdline.txt cat /proc/cmdline
 capture boot-journal.txt journalctl -b --no-pager
 capture kernel-journal.txt journalctl -b -k --no-pager
 capture audio-kernel-journal.txt bash -c \
-	"journalctl -b -k --no-pager | rg -i 'audio|asoc|alsa|apr|gpr|q6|soundwire|wsa884|x1e80100' || true"
+	"journalctl -b -k --no-pager | rg -i 'audio|asoc|alsa|apr|gpr|q6|soundwire|wsa884|x1e80100|WSA VI|protection|SPVI|backend 106|VI ready|bypass' || true"
 capture modules.txt bash -c \
 	"lsmod | rg '^(snd|soundwire|q6|wsa|lpass|apr|gpr)' || true"
 capture module-identities.txt bash -c \
@@ -43,6 +43,30 @@ capture alsa-control-list.txt amixer -D hw:0 controls
 capture alsa-control-contents.txt amixer -D hw:0 contents
 capture soundwire-tree.txt find /sys/bus/soundwire/devices \
 	-maxdepth 3 -mindepth 1 -printf '%y %p -> %l\n'
+capture asoc-debug-tree.txt bash -c \
+	"find /sys/kernel/debug/asoc -maxdepth 5 -mindepth 1 -printf '%y %p -> %l\n' 2>/dev/null || true"
+capture asoc-dapm.txt bash -c \
+	"for f in /sys/kernel/debug/asoc/*/dapm/*; do \
+		[ -f \"\$f\" ] || continue; \
+		printf '\\n===== %s =====\\n' \"\$f\"; cat \"\$f\"; \
+	done 2>/dev/null || true"
+capture soundwire-debug.txt bash -c \
+	"for f in /sys/kernel/debug/soundwire/*/*; do \
+		[ -f \"\$f\" ] || continue; \
+		printf '\\n===== %s =====\\n' \"\$f\"; cat \"\$f\"; \
+	done 2>/dev/null || true"
+capture pcm-runtime.txt bash -c \
+	"for f in /proc/asound/card*/pcm*/sub*/{hw_params,status}; do \
+		[ -r \"\$f\" ] || continue; \
+		printf '\\n===== %s =====\\n' \"\$f\"; cat \"\$f\"; \
+	done 2>/dev/null || true"
+capture platform-smoke.txt bash -c \
+	"printf 'network:\\n'; ip -brief link; \
+	printf '\\ntouch module:\\n'; modinfo -F filename mshw0485_touch; \
+	printf '\\nphase91 resolution:\\n'; \
+	for m in gpi spi-geni-qcom mshw0485_touch; do \
+		printf '%s -> ' \"\$m\"; modinfo -F filename \"\$m\"; \
+	done"
 
 {
 	for status in /sys/bus/soundwire/devices/*/status; do

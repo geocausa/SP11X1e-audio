@@ -64,3 +64,23 @@ def test_root_pcm_converter_uses_windows_internal_layout():
     }
     rendered = MODULE.module_tuple(module, [])
     assert "token252 3" in rendered
+
+
+def test_vi_codec_dma_source_maps_to_wsa_tx0_backend():
+    module = {
+        "iid": "0x4026",
+        "module_id": "0x07001024",
+        "module_name": "CODEC_DMA_SOURCE",
+        "subgraph_id": "0xb0000001",
+        "container_id": "0xe0000007",
+        "properties": {"max_input_ports": 0, "max_output_ports": 1},
+    }
+    rendered = MODULE.module_tuple(module, [])
+    assert "token263 106" in rendered
+
+
+def test_backend_and_frontend_tuple_directions_are_distinct():
+    backend = MODULE.simple_tuple("WSA", 0xB0000001, 0, 1)
+    frontend = MODULE.simple_tuple("MultiMedia1", 0xB0000001, 0, 2)
+    assert "token4 1" in backend
+    assert "token4 2" in frontend

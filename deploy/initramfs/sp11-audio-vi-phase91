@@ -1,0 +1,25 @@
+#!/bin/sh
+# Include the matched Phase91 SP11 transport/touch overrides in the AUDIO VI
+# initramfs before generic in-tree GPI and GENI SPI modules can bind.
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case "$1" in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+[ "${version:-}" = "7.1.5-sp11-audio-vi" ] || exit 0
+
+manual_add_modules gpi
+manual_add_modules spi-geni-qcom
+manual_add_modules mshw0485_touch

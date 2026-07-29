@@ -428,3 +428,43 @@ five-second continuously refilled direct stream completed 240,960 zero frames
 with 501 watermarks and remained `RUNNING`. The normal PipeWire/Dolby-bypass
 route then produced 510 watermarks over five seconds with hardware positions
 covering the circular ring and no transport error.
+
+## `0020-sp11-audio-vi-cumulative.patch`
+
+This is the reproducible `audio-vi` kernel source used for the isolated
+`7.1.5-sp11-audio-vi` build. It is a cumulative alternative to patches
+`0003` through `0019`, not an additional patch to stack after them. Apply the
+documented SP11 platform recipe first, then apply `0020` once.
+
+Besides the validated pull transport, it adds the complete physical
+speaker-protection feedback chain:
+
+- WSA884x `VISENSE` source ports and dedicated VI DAIs on both amplifiers;
+- SoundWire master DIN0 with amplifier feedback on master ports 10 and 11;
+- WSA-macro VI and `WSA_CODEC_DMA_TX_0` endpoints at 8 kHz, S32_LE, stereo;
+- SP11 machine-link format, channel map, readiness and teardown handling;
+- explicit SP/SPVI bypass when the VI backend is not prepared; and
+- a DAPM-only lifecycle bridge to backend 106 without inventing a DSP data
+  edge absent from the Windows graph.
+
+The matching topology and UCM policy enable both WSA VI mixers and both
+amplifier `VISENSE` switches. The operational gain parameter replaces the
+captured approximately -54.7 dB front-channel Q28 value with Q28 unity while
+retaining the Windows fixed -12 dB WSA digital gain.
+
+Validation before first boot:
+
+- forward patch check against its documented post-platform baseline: pass;
+- strict checkpatch: zero errors, one expected cumulative binding-split
+  warning;
+- complete ARM64 kernel, 7,883 in-tree modules and DTBs: pass;
+- all installed in-tree and Phase91 modules report the exact
+  `7.1.5-sp11-audio-vi` ABI;
+- repository suite: 74 tests passed;
+- generated topology compile/decode/lint: pass; and
+- combined DTB contains both the Phase91 touchscreen node and the new
+  `WSA VI Protection` link.
+
+The patch SHA-256 is
+`216c534aca4f88a515929d1969ac18d3b333d1971c6a58966c2fd29be93d05ed`.
+Runtime behavior remains pending the dedicated first boot.

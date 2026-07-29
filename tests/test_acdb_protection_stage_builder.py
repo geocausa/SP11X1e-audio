@@ -2,6 +2,7 @@ import struct
 import unittest
 
 from tools.acdb_protection_stage_builder import (
+    VOLUME_GAIN_PARAMETER,
     _calibration_offsets,
     align8,
     parse_subgraph_calibration_lut,
@@ -15,6 +16,14 @@ def group(entries):
 
 
 class AcdbProtectionStageBuilderTests(unittest.TestCase):
+    def test_operational_volume_stage_uses_q28_unity_for_stereo(self):
+        _, _, payload_hex = VOLUME_GAIN_PARAMETER
+        payload = bytes.fromhex(payload_hex)
+
+        self.assertEqual(struct.unpack_from("<I", payload), (8,))
+        self.assertEqual(struct.unpack_from("<III", payload, 4), (2, 0, 0x10000000))
+        self.assertEqual(struct.unpack_from("<III", payload, 16), (4, 0, 0x10000000))
+
     def test_parameter_frame_uses_eight_byte_alignment(self):
         body = serialize_parameter(0x4027, 0x080011E8, b"abcde")
 

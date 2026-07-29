@@ -16,7 +16,8 @@ from pathlib import Path
 
 
 GRAPH_ID = 0
-BACKEND_ID = 105  # WSA_CODEC_DMA_RX_0
+PLAYBACK_BACKEND_ID = 105  # WSA_CODEC_DMA_RX_0
+VI_BACKEND_ID = 106  # WSA_CODEC_DMA_TX_0
 
 RAW_TYPES = {
     "graph-calibration": 0x53503101,
@@ -169,7 +170,9 @@ def module_tuple(module: dict, outgoing: list[dict]) -> str:
     if iid == 0x465F:
         module_lines.append("token252 3")
     if iid == 0x4157:
-        module_lines.append(f"token263 {BACKEND_ID}")
+        module_lines.append(f"token263 {PLAYBACK_BACKEND_ID}")
+    elif iid == 0x4026:
+        module_lines.append(f"token263 {VI_BACKEND_ID}")
 
     def block(number: int, lines: list[str]) -> str:
         body = "\n".join(f"\t\t\t\t{line}" for line in lines)
@@ -203,7 +206,7 @@ def module_tuple(module: dict, outgoing: list[dict]) -> str:
     )
 
 
-def simple_tuple(name: str, sgid: int, graph_id: int) -> str:
+def simple_tuple(name: str, sgid: int, graph_id: int, direction: int) -> str:
     return (
         f"\t'{name}:tuple0' {{\n"
         f"\t\ttokens '{name}'\n"
@@ -211,7 +214,7 @@ def simple_tuple(name: str, sgid: int, graph_id: int) -> str:
         f"\t\t\ttoken2 {sgid}\n"
         f"\t\t\ttoken1 {graph_id}\n"
         "\t\t\ttoken3 2\n"
-        "\t\t\ttoken4 2\n"
+        f"\t\t\ttoken4 {direction}\n"
         "\t\t\ttoken5 1\n"
         "\t\t}\n"
         "\t}"
@@ -335,8 +338,10 @@ def render(model: dict, admitted: list[dict], stage_payloads: dict, control: byt
         module_tuple(module, outgoing[integer(module["iid"])])
         for module in modules
     )
-    lines.append(simple_tuple("WSA_CODEC_DMA_RX_0 Audio Mixer", 0xB0000001, GRAPH_ID))
-    lines.append(simple_tuple("MultiMedia1", 0xB0000001, GRAPH_ID))
+    lines.append(simple_tuple(
+        "WSA_CODEC_DMA_RX_0 Audio Mixer", 0xB0000001, GRAPH_ID, 1
+    ))
+    lines.append(simple_tuple("MultiMedia1", 0xB0000001, GRAPH_ID, 2))
     lines.extend(("}", "", "SectionData {"))
     for module in modules:
         name = widget_name(module)
@@ -386,6 +391,12 @@ def render(model: dict, admitted: list[dict], stage_payloads: dict, control: byt
             "WSA_CODEC_DMA_RX_0 Audio Mixer'",
             "\t\t\t'WSA_CODEC_DMA_RX_0 Playback, , "
             f"{widget_name(by_iid[0x4157])}'",
+            # DAPM-only sidechain bridge: all DSP data edges remain sourced
+            # exclusively from the admitted Windows connection tuples above.
+            f"\t\t\t'{widget_name(by_iid[0x4026])}, , "
+            f"{widget_name(by_iid[sp_iid])}'",
+            "\t\t\t'WSA_CODEC_DMA_TX_0 Protection, , "
+            f"{widget_name(by_iid[0x4026])}'",
             "\t\t]",
             "\t}",
             "}",

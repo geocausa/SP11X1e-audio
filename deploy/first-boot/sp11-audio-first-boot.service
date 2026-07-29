@@ -1,6 +1,6 @@
 [Unit]
-Description=Capture SP11 protected-audio first-boot state
-ConditionKernelCommandLine=sp11_entry=7.1.5-sp11-audio-v3
+Description=Capture SP11 AUDIO VI protected-pipeline first-boot state
+ConditionKernelCommandLine=sp11_entry=7.1.5-sp11-audio-vi
 After=systemd-udev-settle.service sound.target
 Wants=sound.target
 
