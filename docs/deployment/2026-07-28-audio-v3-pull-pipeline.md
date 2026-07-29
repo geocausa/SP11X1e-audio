@@ -43,8 +43,8 @@ The evidence ledger is
 |---|---|
 | kernel release | `7.1.5-sp11-audio-v3` |
 | in-tree modules | 7,883 |
-| installed modules | 7,886 |
-| installed module tree | 2,537,766,682 bytes |
+| installed modules, including shadow overrides | 7,889 |
+| installed module tree | 2,538,363,590 bytes |
 | kernel image SHA-256 | `be4a41ced29a768fad2cca6a71bf69085bdaacf78971bf0d9d83e191986619e6` |
 | configuration SHA-256 | `f7ff7e0fb5c7286f8e7976a71f59a32eb83571191d6534737bf55dcc48efa2a1` |
 | Phase91 DTB SHA-256 | `dfbc3c49217aeeec91eadfc2a74a4dc88a8a76bf81458bd24194b61b5d0f0e72` |
@@ -54,7 +54,8 @@ The evidence ledger is
 | cumulative kernel patch SHA-256 | `9c58dd1b3e853498e8f539fcbd1816cb9073146de138e716367594ae1c6a3d37` |
 | `snd-q6apm` source version | `F9E7D8831E4103A96D5B05A` |
 | `snd-q6apm.ko.zst` SHA-256 | `b60d9b8c197ddb61c0a50a0a942aa3d2e800973e855ae9b4246d37dd00a16c9d` |
-| `q6apm-dai.ko.zst` SHA-256 | `a9a37e6577b24c30cbb1f4a7f5bd899c3a1296b2af3be23f950823a833be8e67` |
+| `q6apm-dai` source version | `2F2511DFBA83E7B2099E507` |
+| `q6apm-dai.ko.zst` SHA-256 | `50d430e812c9202ecf6118c497eea7d9c2c44b953a5fb07918130e091f022b25` |
 
 All installed modules report the V3 vermagic. `gpi`, `spi-geni-qcom` and
 `mshw0485_touch` resolve from `updates/sp11-phase91`; ath12k and the remainder
@@ -66,7 +67,7 @@ The generated GRUB configuration passes `grub-script-check`.
 
 ## Offline validation
 
-- complete repository suite: 70 tests passed;
+- complete repository suite: 71 tests passed;
 - topology compile/decode/inventory: pass, no graph-shape issues;
 - IID `0x4660` remains MID `0x07001006`: pass;
 - generated gain and mute frames versus QGPR commands 26 and 28:
@@ -199,3 +200,37 @@ The prior core module and boot image are preserved under
 The override loads from the root module tree after pivot, so the validated
 initramfs and topology remain unchanged. The one-shot V3 entry is ready for
 the next lifecycle-validation boot; no playback samples have been sent.
+
+## Fourth boot result — 2026-07-29
+
+Patch `0017` loaded with source version `F9E7D8831E4103A96D5B05A`.
+Every complete frontend attempt accepted the full recovered pre-start
+transaction and `GRAPH_START`; the earlier five-second lifecycle timeout is
+gone. Five pull-ring configurations and five frontend graph starts completed,
+plus the shared backend start. Both amplifiers remained attached and the MM1
+PCM registered normally.
+
+PipeWire's capability probe then called ALSA `prepare` a second time on the
+same open stream. The first prepare had already configured and started the
+persistent pull graph. The generic second-prepare path stopped it and resent
+IID `0x4660`, parameter `0x0800100a`; the DSP returned status 2
+(`AR_EALREADY`), and ALSA surfaced `-EINVAL`. This is a host lifecycle error,
+not a missing Windows parameter or topology mismatch.
+
+Patch `0018-audioreach-reuse-configured-pull-graph-on-prepare.patch` treats
+subsequent prepares as idempotent only for pull mode. It keeps the configured
+graph and re-arms the host stream state. The SP11 pull PCM cannot change
+format within that open stream: its constraints fix 48 kHz, signed 16-bit,
+stereo, a 3,840-byte ring and two 1,920-byte periods.
+
+The patch reverse-checks against the exact V3 source, strict checkpatch reports
+zero errors and zero warnings, and the QDSP6 modules build with `W=1`. The
+signed frontend override has source version `2F2511DFBA83E7B2099E507`,
+V3 vermagic and compressed SHA-256
+`50d430e812c9202ecf6118c497eea7d9c2c44b953a5fb07918130e091f022b25`.
+The previous module is preserved under
+`02-kernel/v3-runtime-backups/pre-0018-duplicate-prepare/`.
+
+The clean saved fallback remains unchanged. The next boot must confirm the
+named `duplicate prepare reused pull graph` boundary and a successful
+PipeWire capability probe before any deliberate sample playback.

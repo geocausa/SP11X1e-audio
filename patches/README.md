@@ -361,3 +361,30 @@ Patch `0017` completes client-port lifecycle replies and adds a named
 - staged core source version: `F9E7D8831E4103A96D5B05A`;
 - staged compressed module SHA-256:
   `b60d9b8c197ddb61c0a50a0a942aa3d2e800973e855ae9b4246d37dd00a16c9d`.
+
+## `0018-audioreach-reuse-configured-pull-graph-on-prepare.patch`
+
+The fourth audio-v3 boot confirmed that patch `0017` works: every complete
+frontend transaction reached `GRAPH_START accepted`, with no lifecycle
+timeout. PipeWire then called ALSA `prepare` twice on the same open stream.
+The first call fully configured and started the persistent pull graph. The
+generic second call stopped it and resent the one-time pull-ring parameter,
+which the DSP rejected with `AR_EALREADY`.
+
+Patch `0018` makes subsequent prepare calls idempotent only for pull mode.
+It preserves the running graph and re-arms the host stream state. The SP11
+pull PCM is fixed at 48 kHz, stereo, signed 16-bit, with a 3,840-byte ring and
+two 1,920-byte periods, so no format change is hidden by this reuse.
+
+Validation before deployment:
+
+- five full pre-start transactions and five frontend graph starts accepted;
+- zero `GRAPH_START` timeouts after patch `0017`;
+- duplicate prepare isolated at IID `0x4660`, PID `0x0800100a`, status 2;
+- patch reverse-check against the exact modified V3 source: pass;
+- strict patch check: zero errors and zero warnings;
+- ARM64 QDSP6 module build with `W=1`: pass;
+- staged V3 vermagic and build-key signature: pass;
+- staged frontend source version: `2F2511DFBA83E7B2099E507`;
+- staged compressed module SHA-256:
+  `50d430e812c9202ecf6118c497eea7d9c2c44b953a5fb07918130e091f022b25`.

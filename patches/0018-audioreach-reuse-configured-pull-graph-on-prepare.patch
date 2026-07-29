@@ -1,0 +1,44 @@
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Subject: [PATCH] ASoC: qcom: q6apm: reuse configured pull graph on prepare
+
+The protected SP11 pull endpoint is configured once for the lifetime of its
+graph.  ALSA may call prepare more than once on the same open stream,
+including after STOP.  The existing generic path stops the graph and
+resends the shared-memory endpoint configuration on every prepare.
+
+The DSP rejects that second pull-ring transaction with AR_EALREADY.
+Keep the persistent pull graph configured and running, and only re-arm
+the host stream state on subsequent prepares.  This is pull-mode-only;
+the endpoint's PCM constraints fix its format at 48 kHz, stereo, 16-bit,
+with a 3,840-byte ring and two 1,920-byte periods.
+
+Signed-off-by: SP11 audio reconstruction <sp11-audio@localhost>
+---
+ sound/soc/qcom/qdsp6/q6apm-dai.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/sound/soc/qcom/qdsp6/q6apm-dai.c b/sound/soc/qcom/qdsp6/q6apm-dai.c
+--- a/sound/soc/qcom/qdsp6/q6apm-dai.c
++++ b/sound/soc/qcom/qdsp6/q6apm-dai.c
+@@ -252,6 +252,19 @@ static int q6apm_dai_prepare(struct snd_soc_component *component,
+ 		return -EINVAL;
+ 	}
+ 
++	/*
++	 * The SP11 pull endpoint is configured once for the lifetime of its
++	 * graph.  ALSA may call prepare again on the same open stream, including
++	 * after STOP.  Re-sending the pull-ring parameter is rejected by the DSP
++	 * with AR_EALREADY, while the fixed 48 kHz stereo format cannot change.
++	 * Keep the persistent graph running and only re-arm the host-side state.
++	 */
++	if (prtd->graph->pull_mode && prtd->state != Q6APM_STREAM_IDLE) {
++		prtd->state = Q6APM_STREAM_RUNNING;
++		dev_info(dev, "SP11 stage duplicate prepare reused pull graph\n");
++		return 0;
++	}
++
+ 	cfg.direction = substream->stream;
+ 	cfg.sample_rate = runtime->rate;
+ 	cfg.num_channels = runtime->channels;
+-- 
+2.46.0

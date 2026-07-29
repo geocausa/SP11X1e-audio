@@ -71,9 +71,13 @@ error. The second boot identified and corrected the missing Windows PCM_CNV
 layout token. The third boot then completed every recovered pre-start
 transaction. Its final `GRAPH_START` success reply was discarded by Linux
 because graph-client response dispatch omitted lifecycle opcodes. Patch
-`0017` adds start/stop/flush reply handling; its signed core override is
-installed for the next one-shot V3 boot. Physical playback and nonzero
-protection feedback are not yet claimed.
+`0017` fixed that dispatch, and the fourth boot confirmed repeated
+`GRAPH_START accepted` completions with no timeout. PipeWire then exposed one
+later host-state bug: ALSA calls `prepare` twice on the same open PCM, while
+the persistent pull endpoint accepts its ring configuration only once. Patch
+`0018` makes repeated prepare idempotent for this fixed-format pull graph; its
+signed frontend override is installed for the next one-shot V3 boot. Physical
+playback and nonzero protection feedback are not yet claimed.
 
 Dolby dynamic processing is deliberately outside this phase. Its userspace
 boundary is present in identity/bypass mode; no Dolby coefficients, EQ or
