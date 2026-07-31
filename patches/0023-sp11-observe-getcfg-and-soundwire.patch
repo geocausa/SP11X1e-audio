@@ -1,0 +1,114 @@
+From 174d5b76602907d8541510c8d992ed3067af937f Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Wed, 29 Jul 2026 23:20:00 +0100
+Subject: [PATCH] ASoC: SP11: observe GET_CFG and SoundWire ports
+
+Retain the current audio policy and transport selection while exposing
+the two most important unknowns for the next boot.
+
+Log a bounded copy of each APM GET_CFG response body, including status
+and token. Log the complete WSA884x enabled and selected SoundWire port
+masks plus every selected port and channel mask.
+
+The patch performs no mixer, register, gain, stream-selection or
+port-enable writes.
+
+Signed-off-by: SP11 audio reconstruction <sp11-audio@localhost>
+---
+ sound/soc/codecs/wsa884x.c   | 18 ++++++++++++++++--
+ sound/soc/qcom/qdsp6/q6apm.c | 17 +++++++++++++++++
+ 2 files changed, 33 insertions(+), 2 deletions(-)
+
+diff --git a/sound/soc/codecs/wsa884x.c b/sound/soc/codecs/wsa884x.c
+index a7e4a15..69dd9c5 100644
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -2018,6 +2018,8 @@ static int wsa884x_hw_params(struct snd_pcm_substream *substream,
+ 		.bps = 1,
+ 		.type = SDW_STREAM_PDM,
+ 	};
++	u32 enabled_mask = 0;
++	u32 selected_mask = 0;
+ 	int active_ports = 0;
+ 	int i;
+ 
+@@ -2025,6 +2027,8 @@ static int wsa884x_hw_params(struct snd_pcm_substream *substream,
+ 		if (!wsa884x->port_enable[i])
+ 			continue;
+ 
++		enabled_mask |= BIT(i);
++
+ 		if (dai->id == 0) {
+ 			/*
+ 			 * Playback uses the three receive data ports.  PBR,
+@@ -2038,19 +2042,29 @@ static int wsa884x_hw_params(struct snd_pcm_substream *substream,
+ 			continue;
+ 		}
+ 
++		selected_mask |= BIT(i);
+ 		port_config[active_ports++] = wsa884x_pconfig[i];
+ 	}
+ 
++	dev_info(dai->dev,
++		 "SP11 SoundWire selection: dai=%d enabled-mask=%#x selected-mask=%#x rate=%u\n",
++		 dai->id, enabled_mask, selected_mask, params_rate(params));
++
+ 	if (!active_ports)
+ 		return -ENODEV;
+ 
+ 	sconfig.frame_rate = params_rate(params);
+ 	sconfig.direction = dai->id == 0 ? SDW_DATA_DIR_RX : SDW_DATA_DIR_TX;
+ 
+-	dev_info(dai->dev, "SP11 %s stream: rate=%u port=%u direction=%s\n",
++	dev_info(dai->dev,
++		 "SP11 %s stream: rate=%u ports=%d direction=%s\n",
+ 		 dai->id == 0 ? "speaker playback" : "VI feedback",
+-		 sconfig.frame_rate, port_config[0].num,
++		 sconfig.frame_rate, active_ports,
+ 		 sconfig.direction == SDW_DATA_DIR_TX ? "source" : "sink");
++	for (i = 0; i < active_ports; i++)
++		dev_info(dai->dev,
++			 "SP11 SoundWire port[%d]: num=%u ch-mask=%#x\n",
++			 i, port_config[i].num, port_config[i].ch_mask);
+ 
+ 	return sdw_stream_add_slave(wsa884x->slave, &sconfig, port_config,
+ 				    active_ports, wsa884x->sruntime[dai->id]);
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+index 6dcf9dd..e48c65b 100644
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -1159,6 +1159,7 @@ static int graph_callback(const struct gpr_resp_pkt *data, void *priv, int op)
+ 	struct device *dev = graph->dev;
+ 	uint32_t client_event;
+ 	phys_addr_t phys;
++	size_t dump_len;
+ 	int token;
+ 
+ 	result = data->payload;
+@@ -1166,7 +1167,23 @@ static int graph_callback(const struct gpr_resp_pkt *data, void *priv, int op)
+ 	switch (hdr->opcode) {
+ 	case APM_CMD_RSP_GET_CFG:
+ 		graph->result.opcode = hdr->opcode;
++		if (data->payload_size < sizeof(u32)) {
++			dev_err(dev,
++				"SP11 GET_CFG response token=%#x is truncated: %d bytes\n",
++				hdr->token, data->payload_size);
++			graph->result.status = -EPROTO;
++			wake_up(&graph->cmd_wait);
++			break;
++		}
++
+ 		graph->result.status = *(const u32 *)data->payload;
++		dump_len = min_t(size_t, data->payload_size, 512);
++		dev_info(dev,
++			 "SP11 GET_CFG response token=%#x bytes=%d status=%#x%s\n",
++			 hdr->token, data->payload_size, graph->result.status,
++			 data->payload_size > dump_len ? " (dump truncated)" : "");
++		print_hex_dump(KERN_INFO, "sp11-getcfg: ", DUMP_PREFIX_OFFSET,
++			       16, 1, data->payload, dump_len, false);
+ 		wake_up(&graph->cmd_wait);
+ 		break;
+ 	case APM_EVENT_MODULE_TO_CLIENT: {
+-- 
+2.53.0
+

@@ -54,70 +54,33 @@ working-correctly.
 
 ---
 
-## 2. Graph calibration is rejected by the DSP — unresolved
+## 2. Graph-calibration warning isolated to one unsupported record — closed
 
-`OBSERVED`, same test:
-
-```text
-qcom-apm: Error (3) Processing 0x01001006 cmd
-qcom-apm: DSP returned error[1001006] 3
-qcom-apm: graph calibration returned AR_EUNSUPPORTED; continuing as Qualcomm GSL does
-```
-
-`0x01001006` is `SET_CFG`. `SOURCE`: `audioreach_send_protected_graph_calibration()`
-sends a 10,464-byte aggregate and, on `-EOPNOTSUPP`, logs the warning and sets
-`ret = 0`, deliberately matching Qualcomm GSL policy. The stated theory is that
-ACDB includes query-only parameters and SPF reports `AR_EUNSUPPORTED` after
-applying the supported records.
-
-**That theory has never been verified on this machine.** Two very different
-possibilities remain open:
-
-- SPF applied nearly all the tuning and rejected a few query-only records; or
-- SPF rejected the aggregate at the first bad record and applied nothing.
-
-`OBSERVED`: `audioreach_diagnose_oob_frames()` exists to answer exactly this —
-it walks each record and reports `frames/accepted/rejected/first-rejected`. It
-has **never run on any boot** (zero occurrences in all journals) because it sits
-inside `if (ret)` and `ret` was just set to 0. There is no module parameter or
-debugfs knob to force it.
-
-`SOURCE`: an unused diagnostic in the same block also tests a specific
-hypothesis — `aggregate-without-sal-sentinel` retries at `cal + 24`. Someone
-already suspected a leading sentinel breaks the aggregate.
-
-### Offline frame analysis of the calibration payload
-
-`STATIC`. Extracted the blob from the installed topology and walked it with the
-driver's own frame format (`iid, param_id, param_size, err`, then
-`ALIGN(16 + param_size, 8)`). Clean walk at offset 20: **111 frames**.
-
-Targets, which confirm it is genuine manufacturer calibration:
+`OBSERVED`, corrected full-config diagnostic boot on 2026-07-31:
 
 ```text
-iid 0x4027  SPEAKER_PROTECTION      18 frames   5522 bytes
-iid 0x4024  SPEAKER_PROTECTION_VI    9 frames   1256 bytes
-iid 0x4157  CODEC_DMA_SINK           6 frames
-iid 0x402B/0x402A/0x4025/0x4026     VI lane modules
-iid 0x4029/0x402C/0x4028            Windows-chain modules
+sp11 graph-cal frame diagnostic: frames=107 accepted=106 rejected=1 first-rejected=63
+SP11 OOB frame 63 offset 8352 iid 0x0000412b param 0x0800113d size 28 rejected: -95
 ```
 
-Three malformed trailing records, strong candidates for the rejection:
+`-95` is `-EOPNOTSUPP`. The normal aggregate 10,464-byte `SET_CFG` still returns
+`AR_EUNSUPPORTED`, but the one-shot diagnostic re-sent every parsed record
+individually and found that 106 of 107 are supported. The repeated Q6APM
+`Error (3) Processing 0x01001006` messages in the boot are repeated aggregate
+reports as graphs are created; they are not separate calibration defects.
 
-```text
-iid 0x00000000  param 0x00000007  size 0
-iid 0x00000000  param 0x0000000B  size 0
-iid 0x00000040  param 0x53503102  size 0     <- ASCII "SP1\x02", a text marker
-```
+This rules out the two broad failure theories that the manufacturer calibration
+is wholly unsupported or that the aggregate consists mostly of malformed
+records. It strongly supports continuing after this error as Qualcomm GSL does.
+The diagnostic does not formally prove whether the original aggregate request
+has partial or atomic application semantics; queryable post-state is the narrow
+remaining way to settle that distinction.
 
-`iid 0` is not a valid module instance. Several other frames carry implausible
-instance IDs (`0x00000001`, `0x00000005`, `0x0000002C`, `0x000000C9`).
-
-`INFERRED` (inputs: the three zero-size records, the ASCII marker, the unused
-sentinel-retry diagnostic): the aggregate has malformed trailing/sentinel
-records that likely trigger `AR_EUNSUPPORTED`. Not proven.
-
----
+The earlier offline walk reported 111 candidate frames and several trailing
+marker-like records. For runtime acceptance accounting it is superseded by the
+kernel diagnostic's own bounded walk: 107 frames, one rejection. The earlier
+analysis remains useful as parser-development history, not as the authoritative
+frame count.
 
 ## 3. AudioReach is open source — the reference nobody was using
 
@@ -262,29 +225,49 @@ inference presented as observation.
 
 ---
 
-## 7. State of the diagnostic kernel
+## 7. State of the diagnostic kernel — corrected and successful
 
-Unchanged from `2026-07-30-diagnostic-candidate-config-defect.md`: the candidate
-is unusable (159-module config vs the working kernel's 7,651 causes a
-probe-ordering race; no sound card). Requires a rebuild with the `audio-vi`
-config. Patch 0023 itself is present and correctly compiled.
+The earlier 159-module candidate remains unusable and preserved as negative
+evidence. A corrected replacement was rebuilt from the same diagnostic source
+using the exact `audio-vi` configuration and booted successfully as
+`7.1.5-sp11-audio-diag-observe+`.
 
-This remains the shortest path to answering section 2, because patch 0023 dumps
-the `GET_CFG` response bodies.
+Observed live:
+
+```text
+4,061 built-in options
+7,651 module options
+7,886 installed module files
+ALSA card present
+speaker playback working
+touchscreen working
+```
+
+Patch `0023` captured complete GET_CFG bodies and the actual WSA port masks.
+Patch `0024` made the existing frame diagnostic run once and produced the
+106/107 result above. Patch `0024` is intentionally non-passive and should not
+be carried into the daily `audio-vi` kernel.
+
+See
+[`2026-07-31-diagnostic-observation-success.md`](2026-07-31-diagnostic-observation-success.md).
 
 ---
 
 ## 8. Ordered next steps
 
-1. Rebuild the diagnostic kernel with the `audio-vi` config (recipe known,
-   version-locked, ~1-3 h). Deploy as a separate GRUB entry.
-2. Boot it and capture whether the graph calibration is applied — either via
-   the `GET_CFG` bodies or by making `audioreach_diagnose_oob_frames()` run
-   unconditionally (a one-line change).
-3. Only then author the three missing tuning subgraphs, informed by (2).
-4. Identify the remaining 8 unnamed module IDs before instantiating them.
-5. Resolve R0/T0 provenance.
+1. Preserve the successful diagnostic result and exact patches in the repo.
+2. Decode the stable 92-byte SP and 68-byte SPVI GET_CFG payloads and identify
+   dynamic V/I, R0, temperature and excursion fields.
+3. Build one isolated manual runtime `VOL_CTRL` candidate. Hold PipeWire level
+   fixed so DSP gain is tested without double attenuation.
+4. After runtime gain is proven, select the recovered MSIIR row for the same
+   endpoint volume state.
+5. Perform controlled A/B tests before adding topology complexity.
+6. Reconstruct the two per-speaker tuning branches and monitoring branch only
+   after the bounded volume path.
+7. Keep PBR and CPS transport as separate hardware work; do not add their shared
+   ports blindly to the playback stream.
 
-Do not graft ~50 modules before step 2. Protection currently works; a
-speculative graft risks it, and it would be built on an unverified assumption
-about whether calibration is reaching the DSP at all.
+Do not rerun the one-shot 107-frame experiment merely to reproduce the same
+answer, and do not graft the missing ~50 modules before the smaller volume path
+is measurable and rollback-safe.

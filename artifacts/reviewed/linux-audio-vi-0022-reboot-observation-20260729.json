@@ -1,0 +1,61 @@
+{
+  "schema": "sp11-audio-runtime-observation-v1",
+  "date": "2026-07-29",
+  "purpose": "Read-only observation of the first reboot using the exact SP11 WSA884x 2S/4-ohm/18-dB profile from patch 0022.",
+  "observation": {
+    "observed_at": "2026-07-29T21:09:25+01:00",
+    "boot_time": "2026-07-29T19:29:03+01:00",
+    "boot_id": "87177d2b-ee00-4b50-97b8-717fb4f82ffa",
+    "kernel_release": "7.1.5-sp11-audio-vi"
+  },
+  "wsa884x_module": {
+    "name": "snd_soc_wsa884x",
+    "srcversion": "203517BBF9C87B3E6B2210C",
+    "vermagic": "7.1.5-sp11-audio-vi SMP preempt mod_unload modversions aarch64",
+    "compressed_sha256": "56f70402882b4c48bed4411a0350b8e05b5da599766e048e49e5df01e0ff23eb",
+    "signed": true,
+    "profile": "SP11 2S / 4 ohm / 18 dB"
+  },
+  "desktop_state": {
+    "alsa_playback_device": "card 0 device 0 MultiMedia1 Playback",
+    "physical_sink": "Built-in Audio Speaker playback",
+    "physical_sink_volume": 1.0,
+    "default_sink": "effect_input.sp11_dolby_bypass",
+    "speaker_control_db": 0.0,
+    "wsa_rx0_digital_db": -3.0,
+    "wsa_rx1_digital_db": -3.0
+  },
+  "journal_counts": {
+    "vphx_2s_detections": 2,
+    "vi_feedback_stream_messages": 32,
+    "protected_graph_start_accepted": 16,
+    "pa_faults": 0,
+    "pa_recovery_messages": 0,
+    "xrun_underrun_overrun_messages": 0,
+    "soundwire_irq_storm_messages": 0
+  },
+  "interpretation": {
+    "supported": [
+      "The intended patch 0022 module loaded after reboot.",
+      "Both amplifiers detected the 2S supply configuration.",
+      "The protected render and 8 kHz VI paths repeatedly reached successful graph start.",
+      "No PA fault, recovery, XRUN-like, or SoundWire interrupt-storm message was present by the observation time."
+    ],
+    "not_yet_claimed": [
+      "Direct live readback of every 4-ohm/18-dB/OCP/PBR register value.",
+      "A controlled repeat of the full-volume alternating-channel and client-cycle stress workload.",
+      "Final closure of the dropout root cause over an extended validation interval.",
+      "Nonzero protection-feedback measurement or Windows loudness and tonal parity."
+    ]
+  },
+  "collection": {
+    "mode": "read-only",
+    "sources": [
+      "uname and modinfo",
+      "SHA-256 of the loaded compressed module path",
+      "current-boot kernel journal",
+      "wpctl status",
+      "amixer control state"
+    ]
+  }
+}

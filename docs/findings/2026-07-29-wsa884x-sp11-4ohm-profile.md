@@ -122,6 +122,59 @@ rollback module SHA:     beaaeaf0a87cee9c6550e70a8e8e67ecb34713e0f8f759e2b0c5347
 kernel source commit:    c9d74235e4f826a3830f5c073bd9d87d77360ee1
 ```
 
-The module is signed by the kernel's existing build key and installed. Runtime
-register and stress validation requires the next boot; this document does not
-claim that validation in advance.
+The module is signed by the kernel's existing build key and installed.
+
+## First reboot observation
+
+The machine rebooted into this exact module at `2026-07-29 19:29:03 BST`.
+Read-only inspection at `2026-07-29 21:09:25 BST` confirmed:
+
+```text
+kernel:                  7.1.5-sp11-audio-vi
+loaded module srcversion: 203517BBF9C87B3E6B2210C
+compressed module SHA:    56f70402882b4c48bed4411a0350b8e05b5da599766e048e49e5df01e0ff23eb
+VPHX 2S detections:       2
+protected GRAPH_START:    16 accepted
+PA faults:                0
+PA recovery messages:     0
+XRUN-like messages:       0
+SoundWire IRQ storms:     0
+```
+
+The physical speaker sink was present at unity, the Dolby identity boundary
+remained the configured default sink, both WSA digital channels were at the
+protected `-3 dB` ceiling, and the journal contained repeated 8 kHz source-port
+5 VI stream activation for both amplifiers.
+
+This positive first-reboot evidence proves that the intended `0022` binary is
+active without an immediate recurrence of the former PA fault.
+
+## Direct live register readback
+
+At `2026-07-29 22:33:04 BST`, read-only debugfs capture confirmed both codecs
+contain the advertised profile values:
+
+```text
+0x3020 = 0x67
+0x3021 = 0x07
+0x304c = 0xf6
+0x3091 = 0x44
+0x34e0 = 0x02
+0x34e1..0x34ef = 54 58 5f 63 69 6c 73 7b 84 8d 95 a8 bb d1 ec
+```
+
+Both live CPS controls were off and `CPS_CTL 0x3468` was `0x00` on both
+codecs. This closes the static register-programming question for the values
+advertised by `0022`; it does not prove nonzero or correctly ordered VISENSE
+data, an active CPS sidechain, a supplied PBR SoundWire lane, or a correctly
+adapting protection model.
+
+A controlled repeat of the full-volume alternating-channel/client-cycle
+stress workload remains pending. Final dropout closure, nonzero protection
+feedback, PBR/CPS transport closure, and Windows loudness/tonal parity remain
+unclaimed.
+
+The reviewed evidence is recorded in
+[`linux-audio-vi-0022-reboot-observation-20260729.json`](../../artifacts/reviewed/linux-audio-vi-0022-reboot-observation-20260729.json)
+and
+[`linux-audio-vi-0022-register-readback-20260729.json`](../../artifacts/reviewed/linux-audio-vi-0022-register-readback-20260729.json).

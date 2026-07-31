@@ -1,0 +1,89 @@
+{
+  "record_type": "SP11 audio diagnostic boot closure",
+  "created_utc": "2026-07-31T21:10:46.830189+00:00",
+  "running_kernel": "7.1.5-sp11-audio-diag-observe+",
+  "boot_validation": {
+    "alsa_card_present": true,
+    "touchscreen_reported_working_by_operator": true,
+    "reboot_performed_by_this_update": false
+  },
+  "config": {
+    "path": "/boot/sp11-7.1.5-audio-diag-observe/config-7.1.5-sp11-audio-diag-observe+",
+    "built_in_y": 4061,
+    "modules_m": 7651,
+    "lines": 15516,
+    "installed_module_files": 7886
+  },
+  "frame_diagnostic": {
+    "summary": {
+      "frames": 107,
+      "accepted": 106,
+      "rejected": 1,
+      "first_rejected": 63
+    },
+    "first_rejection": {
+      "frame": 63,
+      "offset": 8352,
+      "iid": "0x0000412b",
+      "param_id": "0x0800113d",
+      "size": 28,
+      "errno": -95,
+      "errno_name": "EOPNOTSUPP"
+    },
+    "conclusion": "SPF accepts 106 of 107 manufacturer calibration records; aggregate AR_EUNSUPPORTED is caused by one unsupported record and does not mean the aggregate is wholly discarded."
+  },
+  "get_cfg": {
+    "preserved_capture": {
+      "response_headers": 10,
+      "hex_dump_lines": 55,
+      "payload_multiset": [
+        {
+          "count": 5,
+          "declared_bytes": 68,
+          "captured_bytes": 68,
+          "sha256": "8abc3b615f4f57322365c5c921eb2dcba8a1a3736276b8758f2456e3a3a271f4"
+        },
+        {
+          "count": 5,
+          "declared_bytes": 92,
+          "captured_bytes": 92,
+          "sha256": "d46a099f70b2ac0ee001d2adc7f7db2e018e73fbcf6dd10db8034926e27eafa6"
+        }
+      ]
+    },
+    "later_live_extraction": {
+      "path": "artifacts/diagnostic-boots/20260731T190946Z-SUCCESS/current-boot-diagnostic-lines-20260731T211046Z.txt",
+      "response_headers": 26,
+      "hex_dump_lines": 143
+    },
+    "counting_correction": "The earlier phrase \u201c65 GET_CFG bodies\u201d conflated 10 response headers with 55 hex-dump lines in the preserved capture. The preserved capture contains 10 complete bodies."
+  },
+  "known_remaining_boundaries": [
+    "Numerical correctness, channel order and scaling of live V/I feedback are not yet decoded.",
+    "PBR and CPS hardware transport are not implemented.",
+    "Runtime endpoint volume does not update DSP VOL_CTRL or choose a volume-step MSIIR row.",
+    "Windows per-speaker tuning and monitoring subgraphs remain absent."
+  ],
+  "artifacts": {
+    "alsa-controls.txt": {
+      "bytes": 12908,
+      "sha256": "de0c353ad1417b7f83cdeb47ab1f03a58cc9ebd9889bbb3fc59da8dd187c155a"
+    },
+    "current-boot-diagnostic-lines-20260731T211046Z.txt": {
+      "bytes": 61043,
+      "sha256": "38db6fb88802a64d4fc156c16518802fefb15f79f99dbc6318ef11b73042f6df"
+    },
+    "kernel-journal.txt": {
+      "bytes": 199643,
+      "sha256": "c8868ee788753a503f0b9ed91c226b83e777ed9e2f6ad2d5a09400857fd4c8d4"
+    },
+    "kernel-release.txt": {
+      "bytes": 31,
+      "sha256": "0757f268aa40cf1367ab7449fbe90d11efbcc9df7fdb2e3aeaeac2f9627775c8"
+    },
+    "sp11-audio-lines.txt": {
+      "bytes": 199643,
+      "sha256": "c8868ee788753a503f0b9ed91c226b83e777ed9e2f6ad2d5a09400857fd4c8d4"
+    }
+  }
+}

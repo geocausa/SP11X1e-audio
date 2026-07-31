@@ -1,0 +1,55 @@
+From: SP11 X1E audio project
+Date: Fri, 31 Jul 2026 18:18:00 +0100
+Subject: [PATCH 0024] ASoC: qcom: diagnose protected graph calibration frames
+
+Diagnostic kernel only; do not merge into a daily kernel.
+
+When the aggregate protected graph calibration returns AR_EUNSUPPORTED,
+run the existing bounded per-frame diagnostic once per boot. This re-sends
+each calibration record individually and reports how many SPF accepts or
+rejects, identifying the first rejected instance and parameter.
+
+The diagnostic is intentionally not passive and can delay first graph setup.
+It does not change the normal aggregate return policy: AR_EUNSUPPORTED is
+still ignored after the diagnostic, matching Qualcomm GSL behaviour.
+
+This patch produced the 2026-07-31 result:
+
+  frames=107 accepted=106 rejected=1 first-rejected=63
+  iid=0x0000412b param=0x0800113d size=28 error=-EOPNOTSUPP
+
+The experiment is complete. Preserve this patch for provenance; do not carry
+it into the normal AUDIO VI kernel.
+---
+ sound/soc/qcom/qdsp6/audioreach.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+index a52c51d..1f2a0be 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1293,6 +1293,22 @@ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ 		 */
+ 		dev_warn(graph->apm->dev,
+ 			 "graph calibration returned AR_EUNSUPPORTED; continuing as Qualcomm GSL does\n");
++
++		/*
++		 * 2026-07-31 DIAGNOSTIC KERNEL ONLY. Do not merge into a daily kernel.
++		 *
++		 * Nothing has ever established whether SPF applies the supported
++		 * records of this aggregate or discards all of them. The frame walk
++		 * below answers that, but it is NOT passive: it re-sends each of the
++		 * ~111 records individually, costing that many extra SET_CFG round
++		 * trips during graph setup, which could stall bring-up on a slow DSP.
++		 * Guarded by sp11_frame_diag_done so it runs at most once per boot.
++		 *
++		 * Behaviour is otherwise unchanged: ret is still forced to 0 below,
++		 * exactly as Qualcomm GSL does.
++		 */
++		audioreach_diagnose_oob_frames(graph, cal, cal_size);
++
+ 		ret = 0;
+ 	}
+ 	if (ret) {
+-- 
+2.47.3

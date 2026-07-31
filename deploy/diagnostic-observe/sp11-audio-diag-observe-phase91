@@ -1,0 +1,16 @@
+#!/bin/sh
+# Include the matched SP11 Phase91 transport/touch modules in the diagnostic
+# kernel's initramfs before the generic in-tree controller modules can bind.
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+prereqs) prereqs; exit 0 ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+[ "${version:-}" = "7.1.5-sp11-audio-diag-observe" ] || exit 0
+
+manual_add_modules gpi
+manual_add_modules spi-geni-qcom
+manual_add_modules mshw0485_touch

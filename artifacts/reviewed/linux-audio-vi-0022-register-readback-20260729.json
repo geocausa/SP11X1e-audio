@@ -1,0 +1,68 @@
+{
+  "schema": "sp11-audio-reviewed-evidence-v1",
+  "captured_at": "2026-07-29T22:33:04+01:00",
+  "capture_type": "read-only-live-wsa884x-register-and-control-state",
+  "kernel": "7.1.5-sp11-audio-vi",
+  "safety": {
+    "writes_performed": false,
+    "mixer_changes_performed": false,
+    "audio_stream_opened": false
+  },
+  "controls": {
+    "SpkrLeft PBR Switch": "on",
+    "SpkrRight PBR Switch": "on",
+    "SpkrLeft VISENSE Switch": "on",
+    "SpkrRight VISENSE Switch": "on",
+    "SpkrLeft CPS Switch": "off",
+    "SpkrRight CPS Switch": "off"
+  },
+  "codecs": [
+    {
+      "soundwire_device": "sdw:1:0:0217:0204:00:0",
+      "registers": {
+        "0x3020": "0x67",
+        "0x3021": "0x07",
+        "0x304c": "0xf6",
+        "0x3091": "0x44",
+        "0x3468": "0x00",
+        "0x34e0": "0x02",
+        "0x34e1..0x34ef": "54 58 5f 63 69 6c 73 7b 84 8d 95 a8 bb d1 ec"
+      }
+    },
+    {
+      "soundwire_device": "sdw:1:0:0217:0204:00:1",
+      "registers": {
+        "0x3020": "0x67",
+        "0x3021": "0x07",
+        "0x304c": "0xf6",
+        "0x3091": "0x44",
+        "0x3468": "0x00",
+        "0x34e0": "0x02",
+        "0x34e1..0x34ef": "54 58 5f 63 69 6c 73 7b 84 8d 95 a8 bb d1 ec"
+      }
+    }
+  ],
+  "interpretation": {
+    "0022_advertised_profile_programmed": true,
+    "both_codecs_match": true,
+    "cps_hardware_control_disabled": true,
+    "proves": [
+      "Both WSA884x codecs contain the intended 18 dB / 4-ohm V/I-sense values.",
+      "Both codecs contain the intended 4/6-ohm OCP value and 2S current-limit value.",
+      "Both codecs contain the intended 15-step PBR threshold table.",
+      "CPS_CTL is zero on both codecs while both CPS mixer controls are off."
+    ],
+    "does_not_prove": [
+      "Nonzero or correctly ordered VISENSE samples reach the DSP.",
+      "The CPS sidechain is implemented or active.",
+      "The PBR SoundWire data lane is present.",
+      "The protection algorithm is adapting correctly.",
+      "Windows sound-quality parity or final dropout closure."
+    ]
+  },
+  "source_paths": [
+    "/sys/kernel/debug/regmap/sdw:1:0:0217:0204:00:0/registers",
+    "/sys/kernel/debug/regmap/sdw:1:0:0217:0204:00:1/registers",
+    "ALSA card 0 mixer controls"
+  ]
+}

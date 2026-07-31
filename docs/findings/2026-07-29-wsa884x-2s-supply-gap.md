@@ -151,8 +151,13 @@ removal or Windows tonal/loudness parity.
 ## Remaining WSA884x parity work
 
 Patch `0022` now implements the evidence-backed 4-ohm/18-dB/2S sensing, OCP,
-and PBR profile. Runtime verification and any remaining per-device OTP or
-board-policy overrides remain open.
+and PBR profile. Its first reboot loaded the intended module and, after 16
+accepted protected graph starts, had logged zero PA faults, recovery actions,
+XRUN-like events or SoundWire IRQ storms. A subsequent read-only capture
+confirmed the exact advertised V/I gain, OCP, current-limit and 15-step PBR
+register values on both codecs. Controlled full-volume stress, nonzero
+protection feedback, PBR/CPS transport closure and any remaining per-device
+OTP or board-policy overrides remain open.
 
 Dolby dynamic processing remains a separate project.  Its module boundary is
 present in bypass mode and was not used to conceal or compensate for this

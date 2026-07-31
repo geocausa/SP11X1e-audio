@@ -4,6 +4,48 @@ Files in this directory are evidence-backed candidates for offline review
 and build validation.  They are not automatically applied to the live
 kernel, boot files, ALSA UCM configuration, or speaker controls.
 
+## `0023-sp11-observe-getcfg-and-soundwire.patch`
+
+Observation-only patch that logs complete bounded `APM_CMD_RSP_GET_CFG` bodies
+and the actual WSA enabled/selected SoundWire port masks. It changes no gain,
+mixer state, port enablement, protection policy, codec register, UCM or topology.
+
+Patch SHA-256:
+
+```text
+72ef6a8fc0fc5b2622fd1b166b08932743caf3c3e87e1b08afb0865a35c06864
+```
+
+The first reduced-config build failed for packaging reasons unrelated to this
+patch. The corrected build used the exact `audio-vi` configuration and booted
+successfully as `7.1.5-sp11-audio-diag-observe+` with 7,886 installed modules,
+a registered ALSA card, working touchscreen and audible speaker path.
+
+The preserved success capture contains 10 complete GET_CFG bodies and 55 hex
+dump lines. Both amplifiers select render ports 1/2/3 at 48 kHz and VI port 5
+at 8 kHz. A later read-only extraction from the same boot accumulated 22 bodies.
+
+See
+[`2026-07-31-diagnostic-observation-success.md`](../docs/findings/2026-07-31-diagnostic-observation-success.md).
+
+## `0024-sp11-diagnose-graph-calibration-frames.patch`
+
+Diagnostic-only one-shot addition. When the normal aggregate protected
+calibration returns `AR_EUNSUPPORTED`, it invokes the existing bounded frame
+walker once per boot and re-sends each record individually.
+
+Observed result:
+
+```text
+frames=107 accepted=106 rejected=1 first-rejected=63
+IID 0x412b, parameter 0x0800113d, 28 bytes: -EOPNOTSUPP
+```
+
+This isolates the warning to one unsupported record and proves the calibration
+corpus is overwhelmingly supported. The diagnostic is deliberately not passive:
+it adds 107 `SET_CFG` round trips during first graph setup. Preserve it for
+provenance; do not merge it into the normal daily kernel.
+
 ## `0022-wsa884x-apply-sp11-2s-4ohm-profile.patch`
 
 Closes the load ambiguity left by `0021`. Structural decoding of the exact
@@ -14,9 +56,18 @@ is a 4-ohm design.
 
 The patch applies Qualcomm's coupled 18 dB / 2S / 4-ohm profile: matching
 V/I-sense gains, Windows' `0xf6` over-current value, and the exact downstream
-15-step PBR threshold curve. The signed module builds against and is staged
-for `7.1.5-sp11-audio-vi` with source version
-`203517BBF9C87B3E6B2210C`. Runtime validation starts at the next boot.
+15-step PBR threshold curve. The signed module is now running on
+`7.1.5-sp11-audio-vi` with source version `203517BBF9C87B3E6B2210C` and
+compressed SHA-256
+`56f70402882b4c48bed4411a0350b8e05b5da599766e048e49e5df01e0ff23eb`.
+
+The first reboot observation recorded 16 accepted protected graph starts and
+zero PA faults, recovery actions, XRUN-like messages or SoundWire IRQ storms.
+Read-only live register capture now confirms both codecs contain the exact
+advertised V/I gain, OCP, current-limit and 15-step PBR values. The controlled
+full-volume stress repeat, nonzero protection feedback and PBR/CPS transport
+closure remain pending, so this is not yet final dropout or sound-quality
+closure.
 
 See
 [`docs/findings/2026-07-29-wsa884x-sp11-4ohm-profile.md`](../docs/findings/2026-07-29-wsa884x-sp11-4ohm-profile.md).

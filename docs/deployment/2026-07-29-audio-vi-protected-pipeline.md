@@ -243,6 +243,50 @@ The validation boot proved:
 - twenty client start/stop cycles completed;
 - zero PA faults, zero recovery actions and zero SoundWire IRQ storms.
 
-This closes the known driver-level left-channel dropout. It does not yet
-establish nominal load, the SP11-specific system gain, the matching PBR
-threshold table, or final subjective Windows loudness/tonal parity.
+That clean interval validated the 2S supply correction only. It did not close
+the driver-level dropout because a later reboot reproduced five left-channel
+PA faults while the driver still carried the upstream 8-ohm/21-dB sensing and
+PBR profile. Structural decoding subsequently established the SP11 nominal
+load and produced patch `0022`.
+
+## Exact 2S/4-ohm/18-dB profile reboot
+
+Patch `0022-wsa884x-apply-sp11-2s-4ohm-profile.patch` couples the exact SP11
+profile as one change: 2S supply programming, 4-ohm/18-dB V/I sensing gains,
+Windows' `0xf6` OCP value, and Qualcomm's matching 15-step PBR thresholds.
+
+The machine rebooted at `2026-07-29 19:29:03 BST` with the intended signed
+module:
+
+```text
+kernel:          7.1.5-sp11-audio-vi
+srcversion:      203517BBF9C87B3E6B2210C
+compressed SHA:  56f70402882b4c48bed4411a0350b8e05b5da599766e048e49e5df01e0ff23eb
+```
+
+Read-only inspection at `2026-07-29 21:09:25 BST` found the normal physical
+speaker sink, the persistent Dolby identity boundary, both WSA channels at the
+protected `-3 dB` ceiling, two successful 2S detections, repeated activation of
+both 8 kHz VI sources, and 16 accepted protected `GRAPH_START` transactions.
+The current-boot journal contained:
+
+```text
+PA faults:            0
+PA recoveries:        0
+XRUN-like messages:   0
+SoundWire IRQ storms: 0
+```
+
+This proves that the exact `0022` artifact is active and has not shown an
+immediate recurrence of the former fault. Read-only live capture at
+`2026-07-29 22:33:04 BST` then confirmed both codecs contain the advertised
+4-ohm/18-dB/OCP/current-limit/PBR values. A controlled repeat of the
+full-volume stress workload remains required before final root-cause closure
+is claimed. Nonzero protection-feedback measurement, PBR/CPS transport
+closure and Windows loudness/tonal parity also remain
+open.
+
+See the
+[4-ohm profile finding](../findings/2026-07-29-wsa884x-sp11-4ohm-profile.md)
+and the
+[0022 reboot observation](../../artifacts/reviewed/linux-audio-vi-0022-reboot-observation-20260729.json).

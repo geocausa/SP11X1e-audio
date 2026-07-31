@@ -10,11 +10,77 @@ another.
 
 ## Current status
 
+### Corrected diagnostic observation closure — 2026-07-31
+
+The full-configuration observation kernel is now built, installed and proven by
+boot. The machine is currently running
+`7.1.5-sp11-audio-diag-observe+`; its configuration matches `audio-vi`
+(4,061 built-in options, 7,651 module options, 15,516 lines) and its installed
+module tree contains 7,886 files. The ALSA card, touchscreen and audible speaker
+path are working. The `sp11-audio-vi` entry remains the clean rollback.
+
+The one-shot frame diagnostic closed the calibration-support question:
+
+```text
+frames=107 accepted=106 rejected=1 first-rejected=63
+IID 0x412b, parameter 0x0800113d, 28 bytes: -EOPNOTSUPP
+```
+
+The calibration corpus is not broadly invalid or wholly unsupported. One
+record explains the repeated aggregate `AR_EUNSUPPORTED` warning. The
+individual retry strongly supports Qualcomm GSL's continue policy, while not
+claiming formal proof of aggregate transaction atomicity.
+
+Patch `0023` captured complete GET_CFG responses and selected SoundWire ports.
+The preserved success capture contains 10 complete response bodies and 55 hex
+dump lines; the earlier phrase "65 bodies" conflated those two counts. The two
+stable payloads are 92 and 68 bytes. Both amplifiers select render ports 1/2/3
+at 48 kHz and VI port 5 at 8 kHz.
+
+Authoritative record:
+[`2026-07-31-diagnostic-observation-success.md`](docs/findings/2026-07-31-diagnostic-observation-success.md).
+Reviewed evidence:
+[`linux-audio-diag-observe-success-20260731.json`](artifacts/reviewed/linux-audio-diag-observe-success-20260731.json).
+
+The next bounded candidate is runtime DSP volume control. The existing ALSA
+callback only changes a cached value and sends no `VOL_CTRL` packet. First prove
+a manual DSP control with PipeWire held fixed; then integrate endpoint volume
+and volume-step MSIIR selection. PBR/CPS transport and the larger per-speaker
+Windows tuning branches remain separate later work.
+
+### Historical offline audit and observation candidate — 2026-07-29
+
+The following chronology describes the state before the corrected 2026-07-31
+build and boot. Statements that the diagnostic candidate is staged, uninstalled
+or blocked are superseded by the closure above.
+
+The exhaustive pre-reboot audit is complete. A deduplicated 22.87 GB payload
+scan, all unique compressed archives, the buried Windows resource binaries,
+Qualcomm ACDB source and fresh Ghidra headless analysis found no safe hidden
+PBR/CPS implementation to deploy. The same work disproved the earlier SP11
+endpoint-component/regulator interpretation: the exact Surface
+`0x08000041` payload has component count zero and `ADCMResources.bin` contains
+no concrete PMIC, GPIO, clock or bus operation.
+
+A separate observation-only candidate is fully built and staged as
+`7.1.5-sp11-audio-diag-observe`. Patch `0023` logs complete bounded SP/SPVI
+GET_CFG responses and the actual WSA enabled/selected SoundWire port masks. It
+changes no gain, mixer state, port enablement, protection policy or codec
+register. The complete module catalogue and exact Phase91 GPI/SPI/touch source
+versions are included and signed. The installer has passed root-level
+verification but has **not** been run in install mode; no boot file or GRUB
+entry has changed.
+
+The authoritative continuation record is
+[`NEXT-BOOT-HANDOFF.md`](../NEXT-BOOT-HANDOFF.md). The exhaustive evidence
+closure is in
+[`2026-07-29-offline-exhaustive-closure.md`](docs/findings/2026-07-29-offline-exhaustive-closure.md).
+
 The known-working rollback is kernel `7.1.5-sp11+` on Ubuntu 26.04 LTS
 aarch64. Its basic MM1 speaker route works through both WSA884x amplifiers, but
 it does not implement the recovered Windows protection graph.
 
-The next one-shot candidate is installed as `7.1.5-sp11-audio-vi`, GRUB ID
+The active validation entry is `7.1.5-sp11-audio-vi`, GRUB ID
 `sp11-audio-vi`. It keeps the complete Ubuntu module catalog and the Phase91
 touch/DMA/SPI overrides. Its device tree is the built audio-VI OLED tree with
 the validated Phase91 touchscreen overlay applied; both older bootable entries
@@ -40,18 +106,28 @@ milestone.
 The first `audio-vi` boot reached the desktop with the complete platform and
 proved the protected kernel path using a silent zero-data probe: both 8 kHz
 VISENSE sources, backend 106 readiness, SP/SPVI enable, all calibration stages,
-and graph start succeeded. It also proved that desktop PCM capability probing
-runs before UCM can enable VISENSE, causing the initial physical-profile
-failure. The installed follow-up module makes the dedicated VI source
-intrinsic to that DAI. The second boot exposed a packaging error rather than a
-new graph error: the deployed module came from a stale separate output tree
-even though the reviewed source-tree build was correct. A live trace proved
-that ASoC supplies the correct `SPKR_VI` ID, and binary disassembly identified
-the stale switch-gated branch. The correct signed artifact is now installed
-and a build-provenance guard prevents that mismatch from recurring. Normal
-desktop and audible validation are pending its next boot. See the
-[first-boot evidence](artifacts/reviewed/linux-audio-vi-first-boot-20260729.json)
-and [second-boot binary audit](artifacts/reviewed/linux-audio-vi-second-boot-20260729.json).
+and graph start succeeded. The second boot isolated a stale-module packaging
+error, and the third boot proved normal desktop probing, the physical speaker
+sink, the Dolby identity boundary and sustained audible playback with the full
+protected graph active.
+
+The current boot started at `2026-07-29 19:29:03 BST` with the exact SP11
+2S/4-ohm/18-dB WSA884x profile from patch `0022`. The loaded signed module has
+srcversion `203517BBF9C87B3E6B2210C` and compressed SHA-256
+`56f70402882b4c48bed4411a0350b8e05b5da599766e048e49e5df01e0ff23eb`.
+At `2026-07-29 21:09:25 BST`, the boot had completed 16 protected
+`GRAPH_START` transactions, exposed both 8 kHz VI sources repeatedly, and
+logged zero PA faults, recovery actions, XRUN-like events or SoundWire IRQ
+storms. Read-only live register capture at `2026-07-29 22:33:04 BST` then
+confirmed both codecs contain the exact advertised `0022` V/I gain, OCP,
+current-limit and 15-step PBR values. Controlled full-volume stress, nonzero
+feedback proof, PBR/CPS transport closure and Windows sound-quality parity
+remain pending. See the
+[first-boot evidence](artifacts/reviewed/linux-audio-vi-first-boot-20260729.json),
+[second-boot binary audit](artifacts/reviewed/linux-audio-vi-second-boot-20260729.json),
+[third-boot evidence](artifacts/reviewed/linux-audio-vi-third-boot-20260729.json)
+[0022 reboot observation](artifacts/reviewed/linux-audio-vi-0022-reboot-observation-20260729.json)
+and [0022 register readback](artifacts/reviewed/linux-audio-vi-0022-register-readback-20260729.json).
 
 The first protected candidate was retired after its boot proved that it had
 been built from an incomplete 156-module configuration and used the wrong
@@ -213,11 +289,15 @@ is correct for this machine; do not "fix" it.
 All user-facing volume is in PipeWire, deliberately. `SpkrLeft/SpkrRight PA
 Volume` is a 0..10 control spanning only -9..+6 dB in 1.5 dB steps, so exposing
 it as the endpoint volume would leave "0%" audible at -9 dB. PA is pinned at 6
-(= 0 dB). The WSA digital volume sits at 72 (= -12 dB), matching the Windows
-REV_0D default `DefaultDeviceVolume=0xFFF40000`.
+(= 0 dB). The WSA digital channels are currently pinned at 81 (= -3 dB), the
+protected X1E ceiling used during validation. Windows REV_0D
+`DefaultDeviceVolume=0xFFF40000` is the initial -12 dB endpoint position, not a
+fixed amplifier gain; the same INF declares a 0 dB endpoint maximum.
 
 If hardware volume is ever wanted, the correct control is `WSA WSA_RX0/RX1
-Digital Volume` (0..84, 1 dB steps), which needs its own stereo ctl-remap.
+Digital Volume` (0..81 in the current protected driver, 1 dB steps), which
+needs its own stereo ctl-remap. Moving the protected ceiling from -3 dB to 0 dB
+remains a separate, protection-gated decision.
 
 ## Known cosmetic defect
 

@@ -1,4 +1,4 @@
-# Diagnostic observation candidate: config defect and installer defect
+# Historical failed diagnostic candidate: config and installer defects
 
 Date: 2026-07-30
 
@@ -10,6 +10,29 @@ Two separate defects were found. Neither is in the kernel source, the
 observation patch, the device tree, or the audio work.
 
 The running system was returned to `7.1.5-sp11-audio-vi` and is healthy.
+
+## Closure — corrected build succeeded 2026-07-31
+
+This document remains the authoritative analysis of the failed 159-module
+candidate. Its required fix has now been completed. A replacement was rebuilt
+with the exact `audio-vi` configuration while retaining the isolated diagnostic
+release, installed, and booted successfully as:
+
+```text
+7.1.5-sp11-audio-diag-observe+
+4,061 built-in options
+7,651 module options
+7,886 installed module files
+```
+
+The ALSA card, touchscreen and speaker playback work. Patch `0023` captured
+complete GET_CFG bodies and port masks. The additional one-shot frame diagnostic
+reported 107 frames, 106 accepted and one unsupported record at IID `0x412b`,
+parameter `0x0800113d`.
+
+See
+[`2026-07-31-diagnostic-observation-success.md`](2026-07-31-diagnostic-observation-success.md).
+Nothing in the old candidate below should be reinstalled or rebuilt.
 
 ## 1. Installer defect: unreachable initramfs validation
 
@@ -164,7 +187,7 @@ Verified good, so these need no rework:
 - **The collector is intact and read-only.** SHA-256 matches the handoff
   (`25a2de9c...`). It ran on the failed boot without altering audio state.
 
-## 4. Required fix
+## 4. Required fix — completed 2026-07-31
 
 Rebuild the candidate from the existing diagnostic source tree, replacing only
 the configuration:
