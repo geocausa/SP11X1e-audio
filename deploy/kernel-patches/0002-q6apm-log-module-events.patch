@@ -1,0 +1,32 @@
+--- /home/geoca/Documents/SP11-PROJECT/02-kernel/sp11-audio-diag-src-20260729/sound/soc/qcom/qdsp6/q6apm.c.bak-before-protevents-20260801	2026-08-01 09:44:52.912515183 +0100
++++ /home/geoca/Documents/SP11-PROJECT/02-kernel/sp11-audio-diag-src-20260729/sound/soc/qcom/qdsp6/q6apm.c	2026-08-01 14:04:46.951747977 +0100
+@@ -1189,6 +1189,29 @@
+ 	case APM_EVENT_MODULE_TO_CLIENT: {
+ 		const struct apm_module_event *event = data->payload;
+ 
++		/*
++		 * SP11 2026-08-01: log every module->client event.
++		 *
++		 * Upstream drops anything that is not the pull-mode watermark, so
++		 * if the DSP reports speaker-protection activity nobody sees it.
++		 * Windows registers ADSP callbacks (EVENT_ID_VI_CALIBRATION,
++		 * EVENT_ID_SPv5_SPEAKER_DIAGNOSTICS per Ghidra of qcadcm8380.sys)
++		 * and persists the resulting R0Cal/T0Cal to the registry. Linux has
++		 * no equivalent return path, which is why protection can be shown
++		 * CONFIGURED but never shown to be ACTING.
++		 *
++		 * The SPv5 diagnostics event id is NOT known: prior analysis found
++		 * 0x0800138C belongs to instance 0x4ac1 in an unrelated graph, and
++		 * 0x08001511 is used by the Windows driver directly via GSL and is
++		 * absent from the CDDE. So do not guess an id. Log whatever
++		 * arrives, with its source instance, and let evidence name it.
++		 */
++		if (event->event_id != EVENT_ID_SH_MEM_PULL_PUSH_MODE_WATERMARK)
++			dev_info(graph->dev,
++				 "SP11 module event: src %#x event %#x payload %u\n",
++				 data->hdr.src_port, event->event_id,
++				 event->event_payload_size);
++
+ 		if (!graph->pull_mode ||
+ 		    event->event_id !=
+ 			    EVENT_ID_SH_MEM_PULL_PUSH_MODE_WATERMARK)
