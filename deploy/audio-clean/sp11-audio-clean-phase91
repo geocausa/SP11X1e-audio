@@ -1,0 +1,16 @@
+#!/bin/sh
+# Include the matched SP11 Phase91 transport and touch modules in the clean
+# audio kernel's initramfs before the generic in-tree controllers can bind.
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+prereqs) prereqs; exit 0 ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+[ "${version:-}" = "7.1.5-sp11-audio-clean+" ] || exit 0
+
+manual_add_modules gpi
+manual_add_modules spi-geni-qcom
+manual_add_modules mshw0485_touch

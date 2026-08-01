@@ -1,7 +1,9 @@
 # SOLVED: loudness ceiling was an upstream software cap — 2026-08-01
 
-**Result: from roughly 10% of Windows loudness to 30-35%, with better sound
-quality at higher gain, not worse.**
+**Validated result:** the temporary upstream PA-volume cap was the dominant
+Linux loudness restriction. The accepted clean operating point is PA 24
+(+27 dB) with WSA digital 81 (-3 dB). The operator considers the resulting
+ceiling usable and substantially better, although still below Windows.
 
 This supersedes the conclusions in `2026-08-01-gain-chain-loudness-investigation.md`
 (written earlier the same day, before the cause was found) and the whole of
@@ -92,13 +94,14 @@ as upstream. Backup: `x1e80100.c.bak-before-palimit-20260801`.
 ### UCM: `SP11-HiFi.conf`
 
 ```text
-cset "name='SpkrLeft PA Volume' 26"     # was 6
-cset "name='SpkrRight PA Volume' 26"
+cset "name='SpkrLeft PA Volume' 24"     # was capped at 6
+cset "name='SpkrRight PA Volume' 24"
 cset "name='WSA WSA_Softclip0 Enable' 1"
 cset "name='WSA WSA_Softclip1 Enable' 1"
 ```
 
-26 = **+30 dB**. Backups: `.bak-before-pa12-20260801`,
+24 = **+27 dB**. Values up to 26 were tested during bring-up, but 24 is the
+accepted clean baseline. Backups: `.bak-before-pa12-20260801`,
 `.bak-before-pa26-20260801`, `.bak-before-softclip-20260801`.
 
 ## 4. Hardware soft clipping — was disabled, now enabled
@@ -117,8 +120,8 @@ Both were **off**. Now enabled and written into UCM.
 
 Soft clipping rounds peaks that would otherwise clip hard, avoiding the harsh
 odd-order harmonics hard clipping produces. Upstream leaving it off is a
-reasonable default when PA gain is capped at 0 dB — you are nowhere near
-clipping. At +30 dB it matters.
+reasonable default when PA gain is capped at 0 dB. It is enabled at the
+protected +27 dB operating point.
 
 Applied via `wsa_macro_config_softclip()` on `SND_SOC_DAPM_POST_PMU`, so it
 takes effect at **stream start**, not immediately on the control write.
@@ -141,18 +144,18 @@ digitally rather than the reverse. It is not only about loudness.
 ## 6. Current state
 
 ```text
-PA Volume        26 of 31   (+30 dB)   both channels matched
+PA Volume        24 of 31   (+27 dB)   both channels matched
 Digital Volume   81 of 81   (-3 dB)    runtime adjustable, 1 dB steps
 Softclip 0/1     on
 PipeWire sink    1.00
 ```
 
-Headroom remaining: 5 PA steps (+7.5 dB) to the register maximum.
+Register headroom remaining: 7 PA steps (+10.5 dB). This is not a recommendation
+to use it; 24 is the accepted operating point.
 
 **Warning kept in the driver comment:** protection limits excursion and coil
 temperature. It does not make arbitrary levels safe on 4 ohm micro-speakers.
-Treat roughly 18-20 as a conservative working point and 26 as already
-assertive; sustained operation near 31 will damage them.
+Treat 24 as already assertive; sustained operation near 31 can damage them.
 
 Check coil temperature within ~3 s of stopping playback (the amps
 runtime-suspend and reads then fail):
@@ -165,16 +168,16 @@ Baseline 40-42 C. 50s under load is normal; sustained 60s+ means back off.
 
 ## 7. Remaining gap to Windows
 
-At 30-35%, roughly 10 dB short. Two candidates:
-
-1. **The last 5 PA steps** (+7.5 dB) — one command, try first.
-2. **The volume leveler.** Windows' `AUCD_DEV_0C29_SUBSYS_MSHW0486_REV_0D_ADCM_*.xml`
-   for this exact device has all static gains at **zero**
-   (`system-gain`, `postgain`, `pregain`, `calibration-boost`) but sets
-   `volume-leveler-in-target` and `out-target` to `-320` with
-   `volume-leveler-drc-enable=1` and `regulator-enable=1`. A leveler driving
-   average level toward its target is worth 10-15 dB of *perceived* loudness on
-   real music without raising peaks.
+Do not close the remaining perceived-loudness gap by raising PA gain again.
+The user has accepted the protected PA 24 ceiling. The remaining candidate is
+the Windows dynamic-processing layer, especially its volume leveler. Windows'
+`AUCD_DEV_0C29_SUBSYS_MSHW0486_REV_0D_ADCM_*.xml`
+for this exact device has all static gains at **zero** (`system-gain`,
+`postgain`, `pregain`, `calibration-boost`) but sets
+`volume-leveler-in-target` and `out-target` to `-320` with
+`volume-leveler-drc-enable=1` and `regulator-enable=1`. A leveler driving
+average level toward its target can increase perceived loudness on real music
+without simply raising peaks.
 
 Note the unresolved units question already flagged in the archive: `-320` was
 read as `-32 dBFS` in one document and `-5 dBFS` in another. Settle that before
@@ -200,3 +203,13 @@ A genuine upstream bug was also found and is documented in commit `444c8fe`:
 and the code only ORs, so any gain selector without those bits set is silently
 mangled (`0xa` becomes `0xb`). Currently reverted along with the PA_AUX work,
 but valid on its own merits.
+
+## 9. Clean-build validation closure
+
+The full clean kernel `7.1.5-sp11-audio-clean+` was booted after an `mrproper`
+rebuild. Both live WSA884x regmaps report `0xdd`, proving that the PA_AUX 18 dB
+experiment (`0xe9`) is absent. PA 24 and digital 81 remained matched through
+controlled and sustained playback. The protected graph started with both VI
+paths active, and no PA fault, recovery loop, channel dropout, XRUN or
+SoundWire error was observed. This is the baseline to preserve while Dolby is
+developed separately.

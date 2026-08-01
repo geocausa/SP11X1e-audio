@@ -94,37 +94,27 @@ SP11 module event: src %#x event %#x payload %u
 using `data->hdr.src_port` for the source (the `apm_module_event` struct has
 only `event_id` and `event_payload_size` — no instance field).
 
-Backup: `q6apm.c.bak-before-protevents-20260801`. Built and installed into
-`7.1.5-sp11-audio-diag-observe+`. **Not yet booted.**
+Backup: `q6apm.c.bak-before-protevents-20260801`. This passive logging is now
+part of the boot-validated `7.1.5-sp11-audio-clean+` baseline. No unsolicited
+SPv5 module event was observed during the controlled playback windows.
 
-### Deliberately NOT implemented: event registration
+### Event registration experiment: rejected and removed
 
-`q6apm_register_module_event()` exists and would subscribe SPv5 `0x4027` to
-`0x08001511`. It was not wired up, because:
+`q6apm_register_module_event()` was subsequently wired experimentally to
+subscribe SPv5 instance `0x4027` to `0x08001511`. The DSP rejected the request
+deterministically with `-EOPNOTSUPP` on every graph open. The subscription probe
+was therefore removed before the clean rebuild. Do not reintroduce this event
+ID through APM registration without new Windows call-site evidence that proves
+the exact destination, payload and registration mechanism.
 
-1. the DSP may already emit without registration — untested, and testing it
-   costs nothing since the logging is already installed;
-2. a prior session flagged `0x08001511` **do-not-init-send**. Subscribing to
-   receive is not the same act as sending it as config, but the flag deserves
-   respect rather than being overridden on a hunch;
-3. guessing an event ID and having it silently accepted-but-wrong would be
-   worse than no data.
+## Next step
 
-## Next step, in order
-
-1. **Boot the installed kernel, play audio, then:**
-
-   ```sh
-   sudo dmesg | grep "SP11 module event"
-   ```
-
-   * **Events appear** -> the loop was closed all along, only the logging was
-     missing. Decode the payload and compare against R0/T0.
-   * **Nothing** -> registration is genuinely required. Then subscribe SPv5
-     `0x4027` to `0x08001511` via `q6apm_register_module_event()` and retest.
-
-2. Either way, this is the first mechanism that could **prove** protection is
-   acting rather than merely configured.
+Keep the passive logger and decode any genuine unsolicited module event if one
+appears. Separately reverse the exact Windows registration call path before
+another Linux subscription attempt. The absence of a returned calibration
+event does not invalidate the independently proven active VI transport and
+accepted protection configuration, but it means adaptive persistence remains
+an open boundary.
 
 ## Why this matters for the loudness work
 

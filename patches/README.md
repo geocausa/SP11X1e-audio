@@ -4,6 +4,29 @@ Files in this directory are evidence-backed candidates for offline review
 and build validation.  They are not automatically applied to the live
 kernel, boot files, ALSA UCM configuration, or speaker controls.
 
+## `0025-sp11-finalize-clean-protected-playback.patch`
+
+Exact export of kernel source commit
+`f102e3fa8c7e860f3a9ac3ba2043a5fd55242e44`, used to build the accepted
+`7.1.5-sp11-audio-clean+` baseline. It consolidates the final runtime DSP
+volume update, narrowly allowlisted MSIIR injection transport, passive module
+event logging, bounded GET_CFG/SoundWire observations, one-shot calibration
+frame diagnosis and removal of the temporary PA-volume cap.
+
+It does not contain either rejected experiment: forced PA_AUX 18 dB or SPv5
+`0x08001511` event registration. Both live amplifiers reported normal PA_AUX
+0 dB (`0xdd`) after boot. The protected graph, Wi-Fi, touch and two-channel
+playback passed validation with PA 24 and digital 81.
+
+Patch SHA-256:
+
+```text
+adf002d9da9f389ed2752a4b515e2556f3085afa83f6e33ea37456791788a8cd
+```
+
+See
+[`2026-08-01-audio-clean-baseline.md`](../docs/deployment/2026-08-01-audio-clean-baseline.md).
+
 ## `0023-sp11-observe-getcfg-and-soundwire.patch`
 
 Observation-only patch that logs complete bounded `APM_CMD_RSP_GET_CFG` bodies
@@ -43,8 +66,9 @@ IID 0x412b, parameter 0x0800113d, 28 bytes: -EOPNOTSUPP
 
 This isolates the warning to one unsupported record and proves the calibration
 corpus is overwhelmingly supported. The diagnostic is deliberately not passive:
-it adds 107 `SET_CFG` round trips during first graph setup. Preserve it for
-provenance; do not merge it into the normal daily kernel.
+it adds 107 `SET_CFG` round trips during the first graph setup. It was retained
+in the accepted clean baseline as a once-per-boot diagnostic; remove it in a
+later production-minimal kernel only after preserving equivalent evidence.
 
 ## `0022-wsa884x-apply-sp11-2s-4ohm-profile.patch`
 
@@ -54,9 +78,12 @@ Surface REV_0D ACDB resolves WSA driver-data module `0x08000090`, parameter
 `qcaucd8380.sys` control flow proves the fourth word is nominal load, so SP11
 is a 4-ohm design.
 
-The patch applies Qualcomm's coupled 18 dB / 2S / 4-ohm profile: matching
-V/I-sense gains, Windows' `0xf6` over-current value, and the exact downstream
-15-step PBR threshold curve. The signed module is now running on
+The patch applies Qualcomm's `G_18_DB`-labelled 2S/4-ohm protection profile:
+matching V/I-sense gains, Windows' `0xf6` over-current value, and the exact
+downstream 15-step PBR threshold curve. `G_18_DB` is a system/profile label;
+it does **not** authorize the codec's separate PA_AUX 18 dB setting. The clean
+baseline leaves PA_AUX at the normal 0 dB value (`0xdd` live on both amps).
+The signed profile was first run on
 `7.1.5-sp11-audio-vi` with source version `203517BBF9C87B3E6B2210C` and
 compressed SHA-256
 `56f70402882b4c48bed4411a0350b8e05b5da599766e048e49e5df01e0ff23eb`.

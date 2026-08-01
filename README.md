@@ -10,6 +10,40 @@ another.
 
 ## Current status
 
+### Validated audio-clean baseline — 2026-08-01
+
+Kernel `7.1.5-sp11-audio-clean+` is installed, booted and accepted as the
+pre-Dolby baseline. It came from a full `mrproper` rebuild at source commit
+`f102e3fa8c7e860f3a9ac3ba2043a5fd55242e44`; the installed audio, Wi-Fi,
+touch, GPI and SPI modules all match the new ABI.
+
+The clean build removes the temporary upstream PA-volume ceiling and uses the
+validated UCM operating point: PA 24 (+27 dB), WSA digital 81 (-3 dB), both
+channels matched. It also removes the abandoned forced PA_AUX 18 dB experiment.
+Both live amplifiers report `0xdd`, the normal variant-selected PA_AUX 0 dB
+state, rather than experimental `0xe9`.
+
+Both 8 kHz VI feedback paths run; SP/SPVI queries and the Windows-order
+protection sequence succeed; the graph starts; and controlled plus sustained
+playback showed no PA fault, recovery loop, SoundWire error, XRUN or channel
+dropout. Playback remains routed through `sp11_dolby_bypass`. The operator
+accepts the resulting ceiling as usable and materially improved over the
+upstream-capped state, although it remains below Windows.
+
+The one unsupported aggregate calibration frame remains a known diagnostic
+fact and is continued exactly as Qualcomm GSL does. The rejected SPv5 event
+subscription experiment is not in this build; passive event observation is
+retained. Dolby dynamics and coefficient parity are the next separate phase.
+
+Deployment identity, hashes and the completed acceptance gate are in
+[`deploy/audio-clean/README.md`](deploy/audio-clean/README.md). The structured
+first-boot record is
+[`linux-audio-clean-first-boot-20260801.json`](artifacts/reviewed/linux-audio-clean-first-boot-20260801.json).
+
+The sections below are chronology. Any statement that the diagnostic kernel is
+current, that PA_AUX 18 dB is required, or that first boot is pending is
+superseded by this baseline.
+
 ### Corrected diagnostic observation closure — 2026-07-31
 
 The full-configuration observation kernel is now built, installed and proven by

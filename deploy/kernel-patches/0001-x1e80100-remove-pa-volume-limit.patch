@@ -21,9 +21,9 @@
 +		 * WARNING: protection limits excursion and coil temperature. It
 +		 * does NOT make arbitrary levels safe on 4 ohm micro-speakers.
 +		 * Sustained operation near the top of this range will damage them.
-+		 * The operating point is set in UCM (SP11-HiFi.conf), currently 12
-+		 * (+9 dB); treat roughly 18-20 as a practical ceiling and go higher
-+		 * only briefly and deliberately.
++		 * The operating point is set independently in UCM (SP11-HiFi.conf),
++		 * currently 24 (+27 dB). Do not confuse that PA control with the
++		 * codec's separate PA_AUX setting when comparing deployments.
 +		 *
 +		 * Digital Volume stays capped at 81 (-3 dB) as upstream, and is the
 +		 * runtime knob for fine adjustment in 1 dB steps.

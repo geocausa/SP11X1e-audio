@@ -1,0 +1,481 @@
+From f102e3fa8c7e860f3a9ac3ba2043a5fd55242e44 Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Sat, 1 Aug 2026 20:09:56 +0100
+Subject: [PATCH] ASoC: qcom: finalize SP11 protected playback baseline
+
+---
+ sound/soc/codecs/wsa884x.c        |  18 +++-
+ sound/soc/qcom/qdsp6/audioreach.c | 124 +++++++++++++++++++++++++++
+ sound/soc/qcom/qdsp6/audioreach.h |   2 +
+ sound/soc/qcom/qdsp6/q6apm.c      | 136 +++++++++++++++++++++++++++++-
+ sound/soc/qcom/qdsp6/topology.c   |  23 ++++-
+ sound/soc/qcom/x1e80100.c         |  29 +++++--
+ 6 files changed, 318 insertions(+), 14 deletions(-)
+
+diff --git a/sound/soc/codecs/wsa884x.c b/sound/soc/codecs/wsa884x.c
+index a7e4a15..69dd9c5 100644
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -2018,6 +2018,8 @@ static int wsa884x_hw_params(struct snd_pcm_substream *substream,
+ 		.bps = 1,
+ 		.type = SDW_STREAM_PDM,
+ 	};
++	u32 enabled_mask = 0;
++	u32 selected_mask = 0;
+ 	int active_ports = 0;
+ 	int i;
+ 
+@@ -2025,6 +2027,8 @@ static int wsa884x_hw_params(struct snd_pcm_substream *substream,
+ 		if (!wsa884x->port_enable[i])
+ 			continue;
+ 
++		enabled_mask |= BIT(i);
++
+ 		if (dai->id == 0) {
+ 			/*
+ 			 * Playback uses the three receive data ports.  PBR,
+@@ -2038,19 +2042,29 @@ static int wsa884x_hw_params(struct snd_pcm_substream *substream,
+ 			continue;
+ 		}
+ 
++		selected_mask |= BIT(i);
+ 		port_config[active_ports++] = wsa884x_pconfig[i];
+ 	}
+ 
++	dev_info(dai->dev,
++		 "SP11 SoundWire selection: dai=%d enabled-mask=%#x selected-mask=%#x rate=%u\n",
++		 dai->id, enabled_mask, selected_mask, params_rate(params));
++
+ 	if (!active_ports)
+ 		return -ENODEV;
+ 
+ 	sconfig.frame_rate = params_rate(params);
+ 	sconfig.direction = dai->id == 0 ? SDW_DATA_DIR_RX : SDW_DATA_DIR_TX;
+ 
+-	dev_info(dai->dev, "SP11 %s stream: rate=%u port=%u direction=%s\n",
++	dev_info(dai->dev,
++		 "SP11 %s stream: rate=%u ports=%d direction=%s\n",
+ 		 dai->id == 0 ? "speaker playback" : "VI feedback",
+-		 sconfig.frame_rate, port_config[0].num,
++		 sconfig.frame_rate, active_ports,
+ 		 sconfig.direction == SDW_DATA_DIR_TX ? "source" : "sink");
++	for (i = 0; i < active_ports; i++)
++		dev_info(dai->dev,
++			 "SP11 SoundWire port[%d]: num=%u ch-mask=%#x\n",
++			 i, port_config[i].num, port_config[i].ch_mask);
+ 
+ 	return sdw_stream_add_slave(wsa884x->slave, &sconfig, port_config,
+ 				    active_ports, wsa884x->sruntime[dai->id]);
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+index a52c51d..7aaf84d 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1293,6 +1293,22 @@ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ 		 */
+ 		dev_warn(graph->apm->dev,
+ 			 "graph calibration returned AR_EUNSUPPORTED; continuing as Qualcomm GSL does\n");
++
++		/*
++		 * 2026-07-31 DIAGNOSTIC KERNEL ONLY. Do not merge into a daily kernel.
++		 *
++		 * Nothing has ever established whether SPF applies the supported
++		 * records of this aggregate or discards all of them. The frame walk
++		 * below answers that, but it is NOT passive: it re-sends each of the
++		 * ~111 records individually, costing that many extra SET_CFG round
++		 * trips during graph setup, which could stall bring-up on a slow DSP.
++		 * Guarded by sp11_frame_diag_done so it runs at most once per boot.
++		 *
++		 * Behaviour is otherwise unchanged: ret is still forced to 0 below,
++		 * exactly as Qualcomm GSL does.
++		 */
++		audioreach_diagnose_oob_frames(graph, cal, cal_size);
++
+ 		ret = 0;
+ 	}
+ 	if (ret) {
+@@ -1828,6 +1844,114 @@ int audioreach_gain_set_vol_ctrl(struct q6apm *apm,
+ }
+ EXPORT_SYMBOL_GPL(audioreach_gain_set_vol_ctrl);
+ 
++/*
++ * SP11 runtime module-parameter injection (added 2026-08-01).
++ *
++ * Windows does not filter audio in user space. DolbyAPOvlldp150 analyses the
++ * stream, computes filter coefficients, and injects them into the MSIIR
++ * modules that already live in the DSP graph, via gsl_set_custom_config.
++ * The DSP does the filtering, ahead of speaker protection.
++ *
++ * Linux had no equivalent: every module parameter was only ever sent during
++ * graph setup, so MSIIR sits at whatever the topology loaded (currently unity
++ * on 0x489e) for the life of the stream. A user-space processor could compute
++ * the right coefficients but had no way to deliver them.
++ *
++ * This provides that delivery path. It deliberately mirrors
++ * audioreach_gain_set_vol_ctrl(): build an APM_CMD_SET_CFG packet addressed to
++ * one module instance and send it to the live graph.
++ *
++ * SAFETY: the caller is user space, and the modules adjacent to these live in
++ * the speaker-protection subgraph. Both the target instance and the parameter
++ * id are checked against an allowlist below. Do not widen it without
++ * understanding what the module does; a wrong write next to SP/SP_VI is not a
++ * cosmetic bug.
++ */
++
++/* MSIIR instances present in the deployed SP11 topology. */
++#define SP11_MSIIR_IID_A		0x489e
++#define SP11_MSIIR_IID_B		0x48a1
++
++/* MSIIR tuning parameters. Per firmware analysis these are gated behind the
++ * module's CAPI-initialised flag, so they are only accepted after the graph
++ * has started and media format has been applied.
++ */
++#define SP11_PARAM_MSIIR_ENABLE		0x08001020
++#define SP11_PARAM_MSIIR_PREGAIN		0x08001021
++#define SP11_PARAM_MSIIR_COEFFS		0x08001022
++
++#define SP11_MAX_INJECT_PAYLOAD	1024
++
++static bool sp11_inject_target_allowed(u32 iid, u32 param_id)
++{
++	if (iid != SP11_MSIIR_IID_A && iid != SP11_MSIIR_IID_B)
++		return false;
++
++	switch (param_id) {
++	case SP11_PARAM_MSIIR_ENABLE:
++	case SP11_PARAM_MSIIR_PREGAIN:
++	case SP11_PARAM_MSIIR_COEFFS:
++		return true;
++	default:
++		return false;
++	}
++}
++
++/**
++ * audioreach_sp11_inject_module_param() - push one parameter to a live module
++ * @apm:the APM instance
++ * @iid:target module instance id (allowlisted)
++ * @param_id:parameter id (allowlisted)
++ * @payload:parameter body
++ * @size:length of @payload in bytes
++ *
++ * Returns 0 on success. -EPERM if the target is not allowlisted, -EINVAL on a
++ * bad size, or the DSP's error if it rejects the parameter. A rejection of -22
++ * typically means the module has not been initialised through the media-format
++ * path yet, i.e. the graph is not running.
++ */
++int audioreach_sp11_inject_module_param(struct q6apm *apm, u32 iid, u32 param_id,
++					const void *payload, size_t size)
++{
++	struct apm_module_param_data *param_data;
++	int pkt_size;
++	void *p;
++
++	if (!apm || !payload)
++		return -EINVAL;
++
++	if (!size || size > SP11_MAX_INJECT_PAYLOAD)
++		return -EINVAL;
++
++	if (!sp11_inject_target_allowed(iid, param_id)) {
++		dev_warn(apm->dev,
++			 "SP11 inject refused: iid %#x param %#x not allowlisted\n",
++			 iid, param_id);
++		return -EPERM;
++	}
++
++	pkt_size = ALIGN(size, 8) + APM_MODULE_PARAM_DATA_SIZE;
++
++	struct gpr_pkt *pkt __free(kfree) =
++		audioreach_alloc_apm_cmd_pkt(pkt_size, APM_CMD_SET_CFG, 0);
++	if (IS_ERR(pkt))
++		return PTR_ERR(pkt);
++
++	p = (void *)pkt + GPR_HDR_SIZE + APM_CMD_HDR_SIZE;
++
++	param_data = p;
++	param_data->module_instance_id = iid;
++	param_data->error_code = 0;
++	param_data->param_id = param_id;
++	param_data->param_size = ALIGN(size, 8);
++
++	p += APM_MODULE_PARAM_DATA_SIZE;
++	memcpy(p, payload, size);
++
++	return q6apm_send_cmd_sync(apm, pkt, 0);
++}
++EXPORT_SYMBOL_GPL(audioreach_sp11_inject_module_param);
++
+ static int audioreach_gain_set(struct q6apm_graph *graph,
+ 			       const struct audioreach_module *module)
+ {
+diff --git a/sound/soc/qcom/qdsp6/audioreach.h b/sound/soc/qcom/qdsp6/audioreach.h
+index 1f2b427..eee60c1 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.h
++++ b/sound/soc/qcom/qdsp6/audioreach.h
+@@ -923,6 +923,8 @@ int audioreach_configure_protection(struct q6apm_graph *graph);
+ int audioreach_shared_memory_send_eos(struct q6apm_graph *graph);
+ int audioreach_gain_set_vol_ctrl(struct q6apm *apm,
+ 				 const struct audioreach_module *module, int vol);
++int audioreach_sp11_inject_module_param(struct q6apm *apm, u32 iid, u32 param_id,
++					const void *payload, size_t size);
+ int audioreach_send_u32_param(struct q6apm_graph *graph,
+ 			      const struct audioreach_module *module,
+ 			      uint32_t param_id, uint32_t param_val);
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+index 6dcf9dd..f4a19b5 100644
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -632,8 +632,8 @@ int q6apm_graph_media_format_shmem(struct q6apm_graph *graph,
+ EXPORT_SYMBOL_GPL(q6apm_graph_media_format_shmem);
+ 
+ static int q6apm_register_module_event(struct q6apm_graph *graph, u32 iid,
+-				       u32 event_id, const void *config,
+-				       size_t config_size)
++					u32 event_id, const void *config,
++					size_t config_size)
+ {
+ 	struct apm_module_register_events *event;
+ 	size_t payload_size = ALIGN(sizeof(*event) + config_size, 8);
+@@ -1159,6 +1159,7 @@ static int graph_callback(const struct gpr_resp_pkt *data, void *priv, int op)
+ 	struct device *dev = graph->dev;
+ 	uint32_t client_event;
+ 	phys_addr_t phys;
++	size_t dump_len;
+ 	int token;
+ 
+ 	result = data->payload;
+@@ -1166,12 +1167,51 @@ static int graph_callback(const struct gpr_resp_pkt *data, void *priv, int op)
+ 	switch (hdr->opcode) {
+ 	case APM_CMD_RSP_GET_CFG:
+ 		graph->result.opcode = hdr->opcode;
++		if (data->payload_size < sizeof(u32)) {
++			dev_err(dev,
++				"SP11 GET_CFG response token=%#x is truncated: %d bytes\n",
++				hdr->token, data->payload_size);
++			graph->result.status = -EPROTO;
++			wake_up(&graph->cmd_wait);
++			break;
++		}
++
+ 		graph->result.status = *(const u32 *)data->payload;
++		dump_len = min_t(size_t, data->payload_size, 512);
++		dev_info(dev,
++			 "SP11 GET_CFG response token=%#x bytes=%d status=%#x%s\n",
++			 hdr->token, data->payload_size, graph->result.status,
++			 data->payload_size > dump_len ? " (dump truncated)" : "");
++		print_hex_dump(KERN_INFO, "sp11-getcfg: ", DUMP_PREFIX_OFFSET,
++			       16, 1, data->payload, dump_len, false);
+ 		wake_up(&graph->cmd_wait);
+ 		break;
+ 	case APM_EVENT_MODULE_TO_CLIENT: {
+ 		const struct apm_module_event *event = data->payload;
+ 
++		/*
++		 * SP11 2026-08-01: log every module->client event.
++		 *
++		 * Upstream drops anything that is not the pull-mode watermark, so
++		 * if the DSP reports speaker-protection activity nobody sees it.
++		 * Windows registers ADSP callbacks (EVENT_ID_VI_CALIBRATION,
++		 * EVENT_ID_SPv5_SPEAKER_DIAGNOSTICS per Ghidra of qcadcm8380.sys)
++		 * and persists the resulting R0Cal/T0Cal to the registry. Linux has
++		 * no equivalent return path, which is why protection can be shown
++		 * CONFIGURED but never shown to be ACTING.
++		 *
++		 * The SPv5 diagnostics event id is NOT known: prior analysis found
++		 * 0x0800138C belongs to instance 0x4ac1 in an unrelated graph, and
++		 * 0x08001511 is used by the Windows driver directly via GSL and is
++		 * absent from the CDDE. So do not guess an id. Log whatever
++		 * arrives, with its source instance, and let evidence name it.
++		 */
++		if (event->event_id != EVENT_ID_SH_MEM_PULL_PUSH_MODE_WATERMARK)
++			dev_info(graph->dev,
++				 "SP11 module event: src %#x event %#x payload %u\n",
++				 data->hdr.src_port, event->event_id,
++				 event->event_payload_size);
++
+ 		if (!graph->pull_mode ||
+ 		    event->event_id !=
+ 			    EVENT_ID_SH_MEM_PULL_PUSH_MODE_WATERMARK)
+@@ -1383,8 +1423,100 @@ int q6apm_graph_flush(struct q6apm_graph *graph)
+ }
+ EXPORT_SYMBOL_GPL(q6apm_graph_flush);
+ 
++/*
++ * SP11 MSIIR parameter injection control (added 2026-08-01).
++ *
++ * Mirrors what DolbyAPOvlldp150 does on Windows: a user-space processor
++ * analyses the stream, computes MSIIR coefficients, and injects them into the
++ * DSP module that is already in the graph. The DSP filters; user space only
++ * decides the coefficients. Audio never leaves the DSP path, so speaker
++ * protection still sees the processed signal exactly as it does on Windows.
++ *
++ * Write format (little-endian):
++ *
++ *     u32 instance_id
++ *     u32 param_id
++ *     u32 payload_size
++ *     u8  payload[payload_size]
++ *
++ * Both instance_id and param_id are allowlisted in
++ * audioreach_sp11_inject_module_param(). A write while no graph is running
++ * will be rejected by the DSP, typically with -22, because MSIIR gates its
++ * tuning parameters behind CAPI initialisation.
++ */
++#define SND_SOC_TLV_HDR		(2 * sizeof(u32))
++#define SP11_INJECT_CTL_HDR	(3 * sizeof(u32))
++#define SP11_INJECT_CTL_MAX	1152
++
++static int q6apm_sp11_inject_put(struct snd_kcontrol *kcontrol,
++				 const unsigned int __user *bytes,
++				 unsigned int size)
++{
++	struct snd_soc_component *c = snd_kcontrol_chip(kcontrol);
++	struct q6apm *apm = dev_get_drvdata(c->dev);
++	u32 hdr[3], iid, param_id, psize;
++	void *payload;
++	int ret;
++
++	/*
++	 * snd_soc_bytes_tlv_callback() hands us the whole TLV buffer, which
++	 * begins with the two-word ALSA TLV header (type, length). Skip it;
++	 * our own header starts after that.
++	 */
++	if (size < SND_SOC_TLV_HDR + SP11_INJECT_CTL_HDR ||
++	    size > SND_SOC_TLV_HDR + SP11_INJECT_CTL_MAX)
++		return -EINVAL;
++
++	bytes += 2;
++	size -= SND_SOC_TLV_HDR;
++
++	if (copy_from_user(hdr, bytes, sizeof(hdr)))
++		return -EFAULT;
++
++	iid = le32_to_cpu(hdr[0]);
++	param_id = le32_to_cpu(hdr[1]);
++	psize = le32_to_cpu(hdr[2]);
++
++	if (psize == 0 || psize > size - SP11_INJECT_CTL_HDR)
++		return -EINVAL;
++
++	payload = kzalloc(psize, GFP_KERNEL);
++	if (!payload)
++		return -ENOMEM;
++
++	if (copy_from_user(payload,
++			   (const u8 __user *)bytes + SP11_INJECT_CTL_HDR,
++			   psize)) {
++		kfree(payload);
++		return -EFAULT;
++	}
++
++	ret = audioreach_sp11_inject_module_param(apm, iid, param_id,
++						  payload, psize);
++	if (ret)
++		dev_dbg(apm->dev,
++			"SP11 inject iid %#x param %#x size %u -> %d\n",
++			iid, param_id, psize, ret);
++
++	kfree(payload);
++	return ret;
++}
++
++static const struct snd_kcontrol_new q6apm_sp11_controls[] = {
++	SND_SOC_BYTES_TLV("SP11 MSIIR Inject", SP11_INJECT_CTL_MAX,
++			  NULL, q6apm_sp11_inject_put),
++};
++
+ static int q6apm_audio_probe(struct snd_soc_component *component)
+ {
++	int ret;
++
++	ret = snd_soc_add_component_controls(component,
++					     q6apm_sp11_controls,
++					     ARRAY_SIZE(q6apm_sp11_controls));
++	if (ret)
++		return ret;
++
+ 	return audioreach_tplg_init(component);
+ }
+ 
+diff --git a/sound/soc/qcom/qdsp6/topology.c b/sound/soc/qcom/qdsp6/topology.c
+index a4acdd4..3c59e63 100644
+--- a/sound/soc/qcom/qdsp6/topology.c
++++ b/sound/soc/qcom/qdsp6/topology.c
+@@ -1444,8 +1444,29 @@ static int audioreach_put_vol_ctrl_audio_mixer(struct snd_kcontrol *kcontrol,
+ {
+ 	struct snd_soc_dapm_widget *dw = snd_soc_dapm_kcontrol_to_widget(kcontrol);
+ 	struct audioreach_module *mod = dw->dobj.private;
++	struct snd_soc_component *c = snd_soc_dapm_to_component(dw->dapm);
++	struct q6apm *apm = dev_get_drvdata(c->dev);
++	int vol = ucontrol->value.integer.value[0];
++
++	if (mod->gain == vol)
++		return 0;
+ 
+-	mod->gain = ucontrol->value.integer.value[0];
++	mod->gain = vol;
++
++	/*
++	 * 2026-07-31: upstream stores the value here and returns, so nothing is
++	 * ever sent to the DSP. audioreach_gain_set_vol_ctrl() is only called
++	 * from audioreach_pga_event() on POST_PMU, meaning DSP gain is fixed at
++	 * whatever mod->gain held when the widget powered up, and every later
++	 * userspace volume change is silently dropped.
++	 *
++	 * Push the new gain through immediately, but only while the widget is
++	 * powered: sending SET_CFG for a module that has no live graph instance
++	 * fails and would spam the log on every volume change at idle. When the
++	 * widget is off, the stored value is applied by the POST_PMU path.
++	 */
++	if (dw->power)
++		audioreach_gain_set_vol_ctrl(apm, mod, vol);
+ 
+ 	return 1;
+ }
+diff --git a/sound/soc/qcom/x1e80100.c b/sound/soc/qcom/x1e80100.c
+index b97af1e..bb3643a 100644
+--- a/sound/soc/qcom/x1e80100.c
++++ b/sound/soc/qcom/x1e80100.c
+@@ -37,20 +37,31 @@ static int x1e80100_snd_init(struct snd_soc_pcm_runtime *rtd)
+ 	case WSA_CODEC_DMA_RX_0:
+ 	case WSA_CODEC_DMA_RX_1:
+ 		/*
+-		 * Set limit of -3 dB on Digital Volume and 0 dB on PA Volume
+-		 * to reduce the risk of speaker damage until we have active
+-		 * speaker protection in place.
++		 * PA Volume limit REMOVED 2026-08-01. The control now exposes the
++		 * full hardware range, 0..31 (-9 dB .. +37.5 dB, 1.5 dB steps).
++		 *
++		 * Upstream capped this at 6 (0 dB) "to reduce the risk of speaker
++		 * damage until we have active speaker protection in place". Both
++		 * the author and reviewer of that series said the cap should go
++		 * once protection exists. On this machine it does, verified live:
++		 * SP 0x4027 + SP_VI 0x4024 enabled with VI feedback at 8 kHz on
++		 * both amps, R0/T0 byte-identical to Windows, 106/107 calibration
++		 * frames accepted, 20 protection stages accepted at graph start.
++		 *
++		 * WARNING: protection limits excursion and coil temperature. It
++		 * does NOT make arbitrary levels safe on 4 ohm micro-speakers.
++		 * Sustained operation near the top of this range will damage them.
++		 * The operating point is set independently in UCM (SP11-HiFi.conf),
++		 * currently 24 (+27 dB). Do not confuse that PA control with the
++		 * codec's separate PA_AUX setting when comparing deployments.
++		 *
++		 * Digital Volume stays capped at 81 (-3 dB) as upstream, and is the
++		 * runtime knob for fine adjustment in 1 dB steps.
+ 		 */
+ 		snd_soc_limit_volume(card, "WSA WSA_RX0 Digital Volume", 81);
+ 		snd_soc_limit_volume(card, "WSA WSA_RX1 Digital Volume", 81);
+ 		snd_soc_limit_volume(card, "WSA2 WSA_RX0 Digital Volume", 81);
+ 		snd_soc_limit_volume(card, "WSA2 WSA_RX1 Digital Volume", 81);
+-		snd_soc_limit_volume(card, "SpkrLeft PA Volume", 6);
+-		snd_soc_limit_volume(card, "SpkrRight PA Volume", 6);
+-		snd_soc_limit_volume(card, "WooferLeft PA Volume", 6);
+-		snd_soc_limit_volume(card, "TweeterLeft PA Volume", 6);
+-		snd_soc_limit_volume(card, "WooferRight PA Volume", 6);
+-		snd_soc_limit_volume(card, "TweeterRight PA Volume", 6);
+ 		break;
+ 	case WSA_CODEC_DMA_TX_0:
+ 		return 0;
+-- 
+2.53.0

@@ -1,0 +1,71 @@
+{
+  "schema": "sp11-linux-audio-validation-v1",
+  "observed_date": "2026-08-01",
+  "decision": "accepted_pre_dolby_baseline",
+  "kernel": {
+    "release": "7.1.5-sp11-audio-clean+",
+    "grub_id": "sp11-audio-clean",
+    "source_commit": "f102e3fa8c7e860f3a9ac3ba2043a5fd55242e44",
+    "clean_build": true,
+    "module_count": 7886,
+    "build_log_sha256": "a7782fc5ace401b80355ca193101b02122764df771a40e4bf80b84ad97d43a6f"
+  },
+  "installed_sha256": {
+    "kernel_image": "8d856ba606dcedd8bb8389a7524b52b0ad49145f3e3c902da45ee82d9ebeaf03",
+    "initramfs": "92e4407a44f96bbe3f73649d3f3a3615ff8212161fba5b35e97b5e8667d58370",
+    "phase91_dtb": "5f7de091ec19cc874f401001d1e3aa984faf889921abb382df900c5d8fcd5d8a",
+    "snd_soc_wsa884x": "2e0e7f55dc2817ad106c1497b9687d68efd86346ef03efe69632863ff9ae7423",
+    "snd_q6apm": "ca221c2a51da3e4103e624a26293925df45616c57af298d8eebdfb606b712363",
+    "snd_soc_x1e80100": "65f5a5852f5b0abbb1cc96bbb91896fedb16384eba5d8ce0a4fd51344ba2e6c4",
+    "phase91_gpi": "70e84f159660269204474eea9c6747cf36d6774412947bf1da09e95698eb88d2",
+    "phase91_spi": "7a8e3aa3ef7394c38a1499325fc310ff85f9a6eaf7f055ee479d541b02e6b908",
+    "phase91_touch": "b723bf3e358d9622afcd12fb071a723e95449d5a5d2d5088d52b566ac5a6663b"
+  },
+  "audio_state": {
+    "pa_volume_left": 24,
+    "pa_volume_right": 24,
+    "pa_volume_db": 27.0,
+    "wsa_digital_left": 81,
+    "wsa_digital_right": 81,
+    "wsa_digital_db": -3.0,
+    "pa_aux_register_left": "0xdd",
+    "pa_aux_register_right": "0xdd",
+    "pa_aux_db": 0,
+    "abandoned_pa_aux_experiment_register": "0xe9",
+    "default_sink": "effect_input.sp11_dolby_bypass",
+    "dolby_mode": "bypass"
+  },
+  "protection": {
+    "vi_feedback_hz": 8000,
+    "vi_channels": 2,
+    "sp_instance": "0x4027",
+    "spvi_instance": "0x4024",
+    "get_cfg_status": 0,
+    "graph_start": "accepted",
+    "diagnostic_frames_total": 107,
+    "diagnostic_frames_accepted": 106,
+    "diagnostic_frames_rejected": 1,
+    "rejected_frame": 63,
+    "rejected_iid": "0x412b",
+    "rejected_param": "0x0800113d",
+    "rejected_errno": -95,
+    "unsupported_event_subscription_present": false,
+    "passive_module_event_logging_present": true
+  },
+  "platform": {
+    "wifi": "working",
+    "touch": "working",
+    "left_speaker": "audible",
+    "right_speaker": "audible"
+  },
+  "validation_window_faults": {
+    "pa_fault": 0,
+    "pa_fsm_reset": 0,
+    "channel_dropout": 0,
+    "xrun": 0,
+    "soundwire_error": 0,
+    "new_command_timeout": 0
+  },
+  "operator_observation": "Volume ceiling accepted as usable and materially improved over the upstream-capped state; still below Windows.",
+  "next_phase": "Dolby dynamic-processing parity while preserving this baseline"
+}
