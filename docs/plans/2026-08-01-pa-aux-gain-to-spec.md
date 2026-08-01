@@ -1,3 +1,16 @@
+> **SUPERSEDED 2026-08-01 (later same day).**
+>
+> The conclusions here are WRONG. The loudness ceiling was
+> `snd_soc_limit_volume(card, "SpkrLeft PA Volume", 6)` in
+> `sound/soc/qcom/x1e80100.c` -- an upstream software cap, not the amplifier
+> gain profile, not the topology, not speaker protection.
+>
+> In particular, `G_18_DB` in the WSA 4-ohm profile is a system-profile LABEL,
+> not an 18 dB output boost, and `PA_AUX` is kept at 0 dB by that profile
+> deliberately. Chasing it cost three reboots and was reverted.
+>
+> See: docs/findings/2026-08-01-SOLVED-loudness-ceiling-upstream-cap.md
+
 # PA_AUX gain to manufacturer spec + runtime loudness limiter
 
 Date: 2026-08-01
