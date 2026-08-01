@@ -57,6 +57,10 @@ PARAM_COEFFS = 0x08001022
 FS = 48000
 Q30 = 1 << 30
 
+# Structural constants decoded from the shipped topology blob. See build_payload().
+Q_FIELD = 0x00030000
+TRAILER = 0x00020002
+
 # Presets are (freq_hz, gain_db, Q) tuples. Kept conservative on purpose.
 PRESETS: dict[str, list[tuple[float, float, float]]] = {
     "flat": [],
@@ -104,25 +108,44 @@ def check_stable(coeffs: list[float], label: str) -> bool:
 
 
 def build_payload(stages: list[tuple[float, float, float]], channels: int = 2) -> bytes:
-    """MSIIR param 0x08001022 body.
+    """MSIIR param 0x08001022 body, matching the deployed topology exactly.
 
-    Layout mirrors what the deployed topology already contains for these
-    instances: a 4-word header then five Q30 words per stage.
-    Header observed in the shipped topology: [0, channels, stages, 0].
+    LAYOUT (decoded 2026-08-01 from the shipped topology blob for 0x48a1;
+    do not guess this, it was wrong twice before):
+
+        u32 channels          2
+        u32 num_stages        n - 1   (count is one LESS than stages present)
+        u32 reserved          0
+        u32 q_field           0x00030000
+        int32 coeffs[5] x n           b0, b1, b2, a1, a2 in Q30
+        u32 trailer           0x00020002
+
+    ...and the whole structure appears TWICE, once per channel. The shipped
+    0x48a1 payload is 164 bytes = two 82-byte blocks. An earlier version of
+    this function emitted a single 36-48 byte block with q_field=0 and no
+    trailer; the DSP returned rc=0 and silently ignored it, which is why the
+    first listening tests heard nothing.
     """
     n = max(len(stages), 1)
-    body = struct.pack("<IIII", 0, channels, n, 0)
 
-    if not stages:                      # flat: one unity stage
-        body += struct.pack("<iiiii", Q30, 0, 0, 0, 0)
-        return body
+    if stages:
+        coeff_words = []
+        for f0, gain, q in stages:
+            c = peaking(f0, gain, q)
+            if not check_stable(c, f"{gain:+g}dB @{f0:g}Hz"):
+                raise SystemExit("refusing to send an unstable filter")
+            coeff_words.append([int(round(x * Q30)) for x in c])
+    else:
+        coeff_words = [[Q30, 0, 0, 0, 0]]
 
-    for f0, gain, q in stages:
-        c = peaking(f0, gain, q)
-        if not check_stable(c, f"{gain:+g}dB @{f0:g}Hz"):
-            raise SystemExit("refusing to send an unstable filter")
-        body += struct.pack("<iiiii", *[int(round(x * Q30)) for x in c])
-    return body
+    def block() -> bytes:
+        out = struct.pack("<IIII", channels, max(len(coeff_words) - 1, 0), 0, Q_FIELD)
+        for cw in coeff_words:
+            out += struct.pack("<iiiii", *cw)
+        out += struct.pack("<I", TRAILER)
+        return out
+
+    return block() + block()
 
 
 def graph_running() -> bool:

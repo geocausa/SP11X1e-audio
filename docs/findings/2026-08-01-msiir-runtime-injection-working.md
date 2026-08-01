@@ -1,7 +1,31 @@
-# Runtime MSIIR injection path — working (2026-08-01)
+# Runtime MSIIR injection path — transport working, application UNPROVEN (2026-08-01)
 
-Status: **the user-space to DSP parameter injection path is built, deployed and
-verified.** This was the missing link for the Dolby port.
+> **CORRECTION APPENDED 2026-08-01, later the same day.**
+>
+> The original title of this document said "working". That overstated it and
+> should not be inherited as fact. Correct summary:
+>
+> * **The transport works.** user space -> ALSA bytes-TLV -> kernel handler ->
+>   allowlist -> `q6apm_send_cmd_sync` -> DSP, returning `rc=0`, with a proven
+>   `EPERM` rejection for a non-allowlisted instance. This is solid and
+>   verified at every layer.
+> * **Whether the DSP APPLIES injected MSIIR coefficients is NOT yet proven.**
+>   The first listening tests heard no change, because the payload was
+>   malformed. `rc=0` from the DSP means the packet was accepted, NOT that it
+>   was used.
+>
+> **The payload format was wrong, twice.** The first version emitted a single
+> 36-48 byte block with a zeroed q_field and no trailer, against the shipped
+> topology's 164 bytes. See section 9 for the layout as actually decoded from
+> the topology blob. Do not infer this structure; read it from the blob.
+>
+> Process note worth inheriting: the size mismatch (48 vs 164 bytes) was
+> visible in data already on hand *before* the listening test was run. Decode
+> the wire format first, then test on hardware. Two rounds of listening were
+> wasted on a payload that could not have worked.
+
+Status: the user-space to DSP parameter **delivery path** is built, deployed
+and verified. Coefficient application is still open.
 
 Read this before doing anything with MSIIR, Dolby, or DSP tuning.
 
@@ -167,7 +191,52 @@ set finishes the job. If dynamic, the VLLDP model must run continuously.
 
 ---
 
-## 7. Safety notes
+## 9. MSIIR param 0x08001022 payload layout (decoded, not inferred)
+
+Decoded 2026-08-01 from the shipped topology blob for instance `0x48a1`
+(164 bytes). **Do not guess this structure** — it was guessed wrong twice and
+cost two hardware listening tests.
+
+The payload is **two identical blocks, one per channel**, each 82 bytes:
+
+```text
+u32   channels        2
+u32   num_stages      n - 1        <- count is ONE LESS than stages present
+u32   reserved        0
+u32   q_field         0x00030000   <- NOT zero; likely a Q-format/shift field
+int32 coeffs[5] x n                <- b0, b1, b2, a1, a2 in Q30
+u32   trailer         0x00020002
+```
+
+Verified against the shipped blob:
+
+```text
+BLOCK1 @0:  channels=2 stages=2 reserved=0 qfield=0x00030000
+   stage0: +0.7934 -1.5688 +0.7787 -1.9750 +0.9793
+   stage1: +0.8695 -1.4223 +0.7489 -1.4223 +0.6184
+   stage2: +1.0892 -1.0817 +0.3830 -0.9428 +0.3333
+   trailer @76: 0x00020002
+BLOCK2 @80: channels=2 stages=4 reserved=0 qfield=0x00030000
+   stage0: +0.8902 -1.7602 +0.8738 -1.9750 +0.9793
+   stage1: +0.8507 -1.3738 +0.7125 -1.3738 +0.5632
+   stage2: +1.0892 -1.0817 +0.3830 -0.9428 +0.3333
+   trailer @156: 0x00020002
+total 164 bytes
+```
+
+Note BLOCK2 declares `stages=4` but only three stage slots follow before the
+trailer, so the `num_stages` semantics are still not fully certain. Treat the
+field as unresolved until a case with a known stage count confirms it.
+
+Instance `0x489e` (96 bytes) declares `channels=2 stages=6` and contains four
+unity stages — pass-through. It is the **last** stage before the SoundWire
+sink, i.e. exactly the slot Dolby would drive on Windows.
+
+`tools/sp11_msiir_filter.py` `build_payload()` now emits this structure.
+
+---
+
+## 10. Safety notes
 
 * Speaker protection is live and verified, which is what makes bass-lift
   testing acceptable at all. Do not assume that holds after any topology or
