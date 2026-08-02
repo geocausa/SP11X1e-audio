@@ -44,6 +44,41 @@ The sections below are chronology. Any statement that the diagnostic kernel is
 current, that PA_AUX 18 dB is required, or that first boot is pending is
 superseded by this baseline.
 
+### 2026-08-02 control correction — Clean2 and MapDiag rejected
+
+The accepted `audio-clean` entry was rebooted as an A/B control after Clean2
+and MapDiag reproduced a silent physical channel and MapDiag developed a long
+stream-start stall. During the control, both physical speakers remained
+audible, both SoundWire amplifiers remained attached, seven protected graph
+starts completed, and no SoundWire, regcache-sync, XRUN or WSA884x error was
+observed. A representative graph started about 26 ms after its scoped
+calibration warning. The operator confirmed that YouTube no longer stalled or
+dragged as it had under MapDiag.
+
+Fresh Ghidra verification of the hash-bound Windows `qcadcm8380.sys` corrected
+the premise behind Clean2. Windows requests and sends the full selected
+10,464-byte/107-frame ACDB graph calibration. In
+`gsl_graph_set_sg_cal` at RVA `0x58c60`, status `3` follows a literal warning
+path and graph construction continues. Windows does not remove the 48-byte
+`PARAM_ID_SPR_SESSION_TIME` frame. The original `audio-clean` policy therefore
+matches Qualcomm GSL more closely than Clean2's 10,416-byte filtered
+aggregate. Clean2 and every candidate inheriting that topology remain rejected
+for promotion.
+
+MapDiag also exposed a measurement defect. Reading the complete WSA884x
+debugfs register files populates the regmap cache; a later SoundWire detach
+marks that cache dirty and can turn reattachment into a long, failure-prone
+sync. Piping the generated register file through `grep` is equally invasive
+because the entire file must still be read. Normal diagnostic collection now
+performs no WSA884x debugfs register walk; full dumps are explicit opt-in only.
+
+The corrected evidence and decision are recorded in
+[`2026-08-02-windows-graph-calibration-warning-policy.md`](docs/findings/2026-08-02-windows-graph-calibration-warning-policy.md).
+No new kernel should combine topology filtering, amplifier polling, GPIO
+ownership changes and register-map collection. Remaining non-Dolby work is an
+offline evidence audit of Windows' dual-reset lifecycle, post-start protection
+telemetry, CPS use and any real left/right hardware asymmetry.
+
 ### Corrected diagnostic observation closure — 2026-07-31
 
 The full-configuration observation kernel is now built, installed and proven by
