@@ -1,4 +1,21 @@
 /*
+ * SUPERSEDED 2026-08-03 - DO NOT USE THE LEVELER OR REGULATOR IN THIS FILE.
+ *
+ * The leveler and regulator here were written from scratch and then tuned
+ * until their output approached the measured Windows transfer curve. That is
+ * an approximation, not a port.
+ *
+ * The real implementations are decoded from DolbyAudioProcessing.dll in:
+ *     sp11_dolby_leveler.c    (0x180051658 / 0x1800518a0 / 0x180051950)
+ *     sp11_dolby_regulator.c  (0x180051b38 / 0x180051cf0)
+ * with every constant read at its exact address. See
+ * docs/findings/2026-08-03-dolby-leveler-regulator-re-log.md
+ *
+ * The speaker PEQ in this file is still valid: its coefficients come from the
+ * device tuning XML, not from fitting.
+ */
+
+/*
  * sp11_dolby_dax.c — Dolby DAX3 "dynamic" profile for the Surface Pro 11
  *
  * This implements what the machine ACTUALLY runs, taken from its own tuning
