@@ -589,3 +589,42 @@ per-channel QMF analysis
 ```
 
 This is now the primary exact-port target. The current DAPVR -> VLLDP native harness is a useful partial oracle, not the complete Windows Dolby APO chain.
+
+## Continuation checkpoint — ETW/kernel/profile correlation preserved
+
+Historical June ETW/RPC captures and the July KDNET/kernel capture were
+cross-correlated to resolve the "different app / notification pipe" question.
+Full evidence and paths are preserved in:
+
+```text
+docs/findings/2026-08-04-DOLBY-ETW-KERNEL-CORRELATION.md
+```
+
+Key conclusions:
+
+- `{9CF2A70B-F377-403B-BD6B-360863E0355C}` is definitively
+  `AUDIO_SIGNALPROCESSINGMODE_NOTIFICATION`; older outputs that call it
+  "unknown" are stale.
+- System-sound ETW shows DEFAULT and NOTIFICATION as distinct Windows
+  processing modes, but Dolby DAX3 wrapper instances appear in both. The safe
+  interpretation is separate graph/configuration mode, **not** "notifications
+  bypass Dolby entirely".
+- Current DAX RPC mapping is `active_profile=5 -> Dynamic` and
+  `active_profile=1 -> Music` for the captured build.
+- The purpose-labelled Dynamic -> Music active-tone capture stayed in the same
+  `audiodg.exe` PID with the same Dolby/VLLDP/Surface module base addresses and
+  generated no `GRAPH_OPEN` or `SET_CFG`; that profile change is live in-place
+  reconfiguration of the running graph.
+- Music IEQ Off -> Detailed behaved differently: its QGPR trace contains graph
+  stop/flush plus two endpoint `SET_CFG` operations. UI controls must not all be
+  assumed to cross the same runtime boundary.
+- The July kernel-dump session is a known Firefox + YouTube active-media anchor.
+  The dump itself is kernel-only, but accompanying KDNET notes preserve an
+  audiodg module inventory containing `DolbyAudioProcessing.dll`,
+  `DolbyDax3Apo.dll`, `DolbyAPOvlldp150.dll`, `DolbyApoVr.dll`, and
+  `DolbyHrtfEnc.dll` while media was actively rendering.
+
+Working architecture is now explicitly split into Windows stream processing
+mode / graph selection, DAX profile policy, Dolby DSP state/history, and the
+endpoint/Qualcomm path. This prevents conflating Notification-vs-media routing
+with Dynamic-vs-Music profile changes.
