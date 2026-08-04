@@ -579,16 +579,113 @@ runtime 0x00007ffa244cf7a8
 
 This proves the dormant->active wake transition feeds directly into the same `FUN_18001f7a8` snapshot/crossfade/state-history orchestrator already proven hot in steady-state music playback.
 
-### Corrected external/internal scheduling: persistent 480 -> 256 FIFO adapter
+### Corrected block-domain model: 480 host -> 432 outer scheduler -> 256 inner VLLDP engine
 
-The earlier interpretation of a universal per-callback `480 = 256 + 224` split was too simple. A deeper live capture plus direct disassembly of the active scheduler proves that Windows uses a **persistent rolling adapter** between the 480-frame Audio Engine callback cadence and VLLDP150's 256-frame internal quantum.
+The earlier interpretations of either a universal per-callback `480 = 256 + 224` split or a single 480->256 rolling FIFO were too simple. A fresh post-dormancy reinstantiation capture exposed two distinct block domains inside VLLDP150 in addition to the 480-frame Windows Audio Engine callback.
 
-The fixed internal configuration is still directly visible in the VLLDP state header:
+The outer APO connection properties at the scheduler entry were:
+
+```text
+input frames = 480 (0x1e0)
+input flag   = 1 (VALID)
+output frames/capacity = 480
+output flag  = 0 (INVALID at entry)
+```
+
+The hot scheduler/state-machine function is at module RVA `0xED348` in this build. WinDbg labels the same address as `DolbyAPOvlldp150!DllUnregisterServer+0xDA928`; the `0xDA928` number is symbol-relative, not the module RVA.
+
+At a fresh active-graph scheduler hit its object fields were:
+
+```text
+obj+0x00 = 3       // current scheduler/state-machine mode
+obj+0x04 = 1024
+obj+0x08 = 432     // outer scheduler limit used by the accumulation loop
+obj+0x0C = 0       // persistent fill/phase field at this capture
+```
+
+The core loop directly uses `obj+0x08` and `obj+0x0C`:
+
+```text
+limit          = obj->u32_08       // 432 in this live graph
+current_offset = obj->u32_0C       // persistent state
+remaining      = input_frames
+
+while (remaining != 0) {
+    space = limit - current_offset;
+    take  = min(remaining, space);
+
+    helper/process/copy/mix take frames through the outer staging state;
+
+    remaining      -= take;
+    input_ptr       += take * input_channels  * sizeof(float);
+    output_ptr      += take * output_channels * sizeof(float);
+    current_offset += take;
+
+    if (current_offset == limit)
+        current_offset = 0;
+}
+```
+
+The decisive instructions in the live scheduler body are:
+
+```text
+ldr  w9,[x20,#0x0c]      // persistent current_offset
+sub  w8,w21,w9           // space = obj+0x08 - current_offset
+cmp  w23,w8
+cselhs w19,w8,w23        // take = min(remaining, space)
+...
+sub  w23,w23,w19         // remaining -= take
+...                        // advance input/output pointers by take*channels*4
+ldr  w8,[x20,#0x0c]
+add  w8,w19,w8
+str  w8,[x20,#0x0c]
+cmp  w8,w21
+bne  ...
+str  wzr,[x20,#0x0c]     // wrap at the outer scheduler limit
+cbnz w23,...              // continue until callback input is consumed
+```
+
+This is an **outer 432-frame scheduler/state machine**, not the 256-frame VLLDP core itself.
+
+#### Inner VLLDP object proves the separate 256-frame engine
+
+The scheduler subobject at `scheduler+0x12C040` points to the live inner VLLDP object. In the fresh graph:
+
+```text
+inner object = 0x0000020bdc68c1f8
+inner+0x08 -> header/config
+inner+0x20 = 0x100 = 256
+inner+0x28 -> main VLLDP state
+inner+0x30 -> auxiliary state
+```
+
+The referenced header/config contains:
+
+```text
+48000 Hz
+2 channels
+2 channels
+```
+
+The main VLLDP state itself begins with:
 
 ```text
 state+0x08 = 0x0000bb80`00000100
              48000 Hz     256 frames
+state+0x10 = 0x00000002`00000002
+             stereo / stereo
 ```
+
+So the 432 and 256 values are both genuine and belong to **different layers**.
+
+The inner object's vtable further anchors the call structure:
+
+```text
+vtable +0x60 -> module RVA 0x35160   descriptor/dispatch shim
+vtable +0xB0 -> module RVA 0x105000  outer processing-wrapper family
+```
+
+A live scheduler hit was followed immediately by the hardware breakpoint at module RVA `0x1F7A8`, proving that the outer scheduler feeds the same hot VLLDP orchestrator in the active graph.
 
 The orchestrator descriptors remain:
 
@@ -601,97 +698,28 @@ planes   = { base, base + 4 }
 
 This is interleaved float stereo represented as two channel pointers one float apart with stride 2.
 
-#### Directly decoded scheduler loop
-
-The hot outer APO callback at RVA `0x105050` takes the deep path when `this+0x70 == 0` and calls the active scheduler/state-machine at RVA `0xDA928`. Its core accumulation loop directly decodes as:
+The current proven layering is therefore:
 
 ```text
-quantum        = obj->u32_08       // 256
-current_offset = obj->u32_0C       // persistent across callbacks
-remaining      = input_frames
-
-while (remaining != 0) {
-    space = quantum - current_offset;
-    take  = min(remaining, space);
-
-    process/copy/mix take frames into the internal staging state;
-
-    remaining      -= take;
-    input_ptr       += take * input_channels  * sizeof(float);
-    output_ptr      += take * output_channels * sizeof(float);
-    current_offset += take;
-
-    if (current_offset == quantum)
-        current_offset = 0;
-}
-```
-
-The decisive instructions are in the live RVA `0xDA928` body around the scheduler loop:
-
-```text
-ldr  w9,[x20,#0x0c]      // persistent current_offset
-sub  w8,w21,w9           // space = quantum - current_offset
-cmp  w23,w8
-cselhs w19,w8,w23        // take = min(remaining, space)
-...
-sub  w23,w23,w19         // remaining -= take
-...                        // advance input/output pointers by take*channels*4
-ldr  w8,[x20,#0x0c]
-add  w8,w19,w8
-str  w8,[x20,#0x0c]
-cmp  w8,w21
-bne  ...
-str  wzr,[x20,#0x0c]     // wrap at the 256-frame quantum
-cbnz w23,...              // continue until callback input is consumed
-```
-
-Therefore `256+224` is only one possible observed phase. Because `480 mod 256 = 224`, the phase advances by 32 frames per 480-frame host callback and residue carries across callback boundaries.
-
-Representative consecutive live scheduler phases included:
-
-```text
-160 / 320
-256 /  64
-192 / 288
-256 /  32
-224 / 256
-```
-
-These register pairs are caller temporaries rather than a formal ABI, but their progression is consistent with the directly decoded persistent `current_offset` algorithm above. The disassembly, not the temporary register naming, is the authoritative result.
-
-#### Exact live function layering
-
-The current byte-identical VLLDP150 build now has a proven hot call chain:
-
-```text
-DAX3 wrapper APOProcess             RVA 0x0CD000
-  -> VLLDP150 outer APO callback    RVA 0x105050
+DAX3 wrapper APOProcess
+  -> VLLDP150 outer APO callback       module RVA 0x105050
        [this+0x70 == 0: deep path]
-       -> scheduler/state machine    RVA 0x0DA928
-            -> descriptor shim      RVA 0x035160 / related interface dispatch
-                 -> orchestrator     RVA 0x01F7A8
+       -> outer scheduler/state machine module RVA 0x0ED348
+            [live object limit = 432]
+            -> inner VLLDP object
+                 [inner quantum = 256]
+                 -> descriptor shim     module RVA 0x035160
+                 -> orchestrator        module RVA 0x01F7A8
 ```
 
-The live inner VLLDP interface vtable at RVA `0x1093A0` has slot `+0x18 -> RVA 0x105050`. The descriptor shim at RVA `0x35160` builds the exact channel/stride/format/plane descriptors and indirect-calls the object's process slot that reaches `FUN_18001f7a8`.
+Do **not** infer a fixed `256+224` orchestrator pattern from the earlier callee-saved register snapshots. Those register pairs were caller temporaries and are not a formal frame-count ABI. The assembly/object fields above are authoritative.
 
 #### Orchestrator state mutation snapshots
 
-Four narrow binary snapshots were captured around two consecutive orchestrator calls from the same live object:
+Four narrow binary snapshots were captured around two consecutive steady-state orchestrator calls from one live object:
 
 ```text
 entry #1 -> return #1 -> entry #2 -> return #2
-```
-
-Main state object base during this capture:
-
-```text
-0x000002034568c360
-```
-
-Auxiliary object:
-
-```text
-0x0000020345693ba8
 ```
 
 Diff results:
@@ -708,9 +736,7 @@ aux state:  entry2 -> return2   2781 changed bytes
 
 This proves that the large DSP/history mutation occurs **inside `FUN_18001f7a8`**. No captured main/aux state bytes changed between return of call #1 and entry of call #2.
 
-The first mutable region in the main object begins near `state+0xB60`; the earlier header/config region remained stable in this capture.
-
-Three consecutive 20-element runtime arrays are present there:
+The first mutable region in the main object begins near `state+0xB60`. Three consecutive 20-element runtime arrays are present there:
 
 ```text
 state+0xB60 .. +0xBAC   20 x int32
@@ -731,6 +757,35 @@ return2 1
 
 This is consistent with a ping-pong/history-bank selector, but that label remains provisional until its readers/writers are decoded statically.
 
+#### Fresh post-reinstantiation state vs steady state
+
+A later long-pause/resume cycle replaced the dormant `audiodg` with a fresh active host (PID `0x1764`). The new process loaded the full stack again, including `DolbyAudioProcessing.dll` and `DolbyHrtfEnc.dll`.
+
+The first captured scheduler object in that fresh graph had the outer fields `state=3`, `1024`, `432`, `offset=0` shown above. A matching orchestrator entry/return pair was captured from the same new graph.
+
+Fresh-graph diff:
+
+```text
+main state: entry -> return   6595 changed bytes
+aux state:  entry -> return   2788 changed bytes
+first changed main-state byte: +0xB60
+selector +0x1630: 1 -> 0
+```
+
+The fresh graph therefore uses the **same state layout and mutation machinery** as the prior steady-state graph, but begins from materially different 20-band/history values. This supports a reset/reinitialization-of-history model rather than a different DSP algorithm after wake.
+
+Example `state+0xB60` 20-band int32 array:
+
+```text
+steady entry:
+-285,-251,-316,-370,-423,-515,-569,-594,-583,-588,-657,-683,-681,-682,-695,-735,-772,-748,-636,-672
+
+fresh graph entry:
+-308,-265,-318,-359,-382,-386,-447,-486,-467,-482,-508,-549,-653,-648,-568,-599,-686,-643,-655,-785
+```
+
+Both calls still mutate the same array family and flip the same selector.
+
 #### Local evidence hashes
 
 The raw state snapshots are intentionally retained locally on SP7 rather than committed publicly because they contain live DSP buffers from playback and may include reconstructable audio content.
@@ -741,7 +796,7 @@ Local directory:
 C:\Users\SurfacePro7\Documents\KDNET\dolby-vlldp-state-20260804
 ```
 
-SHA256:
+Steady-state SHA256:
 
 ```text
 entry1_aux.bin      917965A2B6BB2340820A7CCB9B65C7BE4E76FC048275FC0368D4BB0DF832685C
@@ -754,18 +809,27 @@ return2_aux.bin     32C4A1E9CCB552B9DF386512B8DC32C493E771715381677618150B58DC68
 return2_state.bin   8C5775549D175D39FAC9A5BA901B43F1D6C0BAB9811D8E34EFA5CAF79B2A6262
 ```
 
-The identical hashes for `return1` and `entry2` independently confirm the zero-mutation interval between consecutive orchestrator invocations.
+Fresh-graph SHA256:
+
+```text
+freshgraph_orch_state.bin         7571895A431CC9D203E46BB3F76E8D40D9FC90EFA30153CF82BAA5CCC5445017
+freshgraph_orch_return_state.bin  CA32E99A4CB7A0BCEFE09E54C5DF61BD56CC28CA7BC2C82C869F9EE2B9CF63A1
+freshgraph_orch_aux.bin           9F7AFF7703EFCC420B7528581725AF67C224F952C55D94F74AFA6E8F59F4C440
+freshgraph_orch_return_aux.bin    E4DD1DC96F49A430BF23C1168AD68DFC324F42B00842E990D45C2406C94BB70B
+```
 
 ### Revised parity priority
 
-Before fitting any residual EQ or assuming AIDE is the missing steady-state speaker processor, reproduce the live VLLDP150 wrapper cadence exactly:
+Before fitting residual EQ or returning to AIDE as the presumed steady-state missing processor, reproduce the **layered live wrapper behavior**:
 
 ```text
-480-frame Windows-style external callback
-  -> persistent VLLDP150 object/state
-  -> 256-frame orchestrator call
-  -> 224-frame orchestrator call
-  -> preserve all state/history into the next 480-frame callback
+480-frame Windows Audio Engine callback
+  -> persistent outer scheduler/state machine (live limit 432)
+  -> persistent inner VLLDP object (256-frame engine quantum)
+  -> exact descriptor shim / orchestrator call sequence
+  -> preserve both outer scheduler state and inner DSP/history state across callbacks
 ```
+
+The remaining unknown is the exact scheduling relationship by which the 432-frame outer state machine feeds one or more 256-frame inner orchestrator invocations. That should be measured directly rather than inferred from temporary registers.
 
 The modern ASAR DLL is clearly reloaded on wake, but its previously trapped low-level AIDE/DAPVR/embedded-VLLDP blocks remain unproven as the hot steady-state stereo speaker path. The driver DAX3 -> VLLDP150 path is directly proven hot and now has its external/internal scheduling decoded live.
