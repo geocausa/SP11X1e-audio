@@ -270,3 +270,54 @@ All work for this checkpoint was done in an isolated worktree based on commit
 Temporary Ghidra analysis used a temporary project and can be regenerated from
 the exact binary and known addresses. Durable conclusions are recorded here so
 loss of `/tmp` does not lose the reasoning.
+
+## Continuation checkpoint — native DABS DAPVR process now runs
+
+Further reverse engineering established the exact low-level speaker-process ABI and removed the remaining native crash.
+
+### DABS audio descriptor at parent+0x6f8
+
+`CDolbyAudioProcessingModule::EnsureAideAndOarModules` constructs a normal 32-byte planar audio descriptor:
+
+- `+0x00`: channel count from parent `+0x654`
+- `+0x08`: stride = 1
+- `+0x10`: format = 7 (float)
+- `+0x18`: pointer-array address at parent `+0x710`
+- each plane pointer is `parent+0x660 + frame_count * channel * 4`
+
+This matches the C `AudioDesc` layout used by the native harness.
+
+### Speaker process ABI correction
+
+`FUN_18004e7b0` is a 20-byte struct-return function. Its visible arguments are:
+
+```c
+Result FUN_18004e7b0(void *core, AudioDesc *external_desc, void *scratch);
+```
+
+The third argument is the aligned scratch arena, **not another audio descriptor**. Raw AArch64 at `0x18004e828` passes that scratch pointer onward as x3 to `FUN_180060ce8`. Passing an output descriptor there was the cause of the previous `FUN_180063458` crash.
+
+The descriptor direction is also now established:
+
+- `FUN_180046fa0(..., param3, ...)` stores `param3` at `core+0x60` and that configured descriptor is the source side;
+- `FUN_18004e7b0(core, external_desc, scratch)` uses the passed descriptor as the destination side.
+
+Therefore the working neutral sequence is:
+
+```text
+configure(core, 1, input_descriptor, ...)
+speaker_process(core, output_descriptor, scratch_arena)
+```
+
+`core+0x30` points to Dolby's 48 kHz format table whose first words are `48000, 48000, 256, 20`; specifically `+8 = 256`. Thus `core+0xc4 = (param2 << 8) / 256 = param2`, and `param2=1` activates one 256-frame DABS processing step.
+
+### Native neutral gate passed
+
+With stereo planar float, mode/default init, no runtime Dolby effects enabled:
+
+- constructor succeeds;
+- `FUN_180046fa0` returns `2` and sets `core+0xc4 = 1`;
+- `FUN_18004e7b0` executes repeatedly without fault;
+- after startup latency, a 0.1-amplitude 1 kHz sine exits at approximately `0.100057` peak (unity within ~0.005 dB).
+
+This is the first clean execution of the modern DLL's DABS speaker DAPVR path on Linux. The next step is to apply the exact SP11 DAPVR leveler setters, measure them alone, then add regulator parameters and finally feed the output into the already-working native VLLDP stage.
