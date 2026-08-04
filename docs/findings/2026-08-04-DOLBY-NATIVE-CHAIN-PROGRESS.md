@@ -628,3 +628,44 @@ Working architecture is now explicitly split into Windows stream processing
 mode / graph selection, DAX profile policy, Dolby DSP state/history, and the
 endpoint/Qualcomm path. This prevents conflating Notification-vs-media routing
 with Dynamic-vs-Music profile changes.
+
+## Continuation checkpoint — live KDNET changes the hot-path priority
+
+Live KDNET hardware-execution tracing on the Windows SP11 now proves that the
+persistent DAX/VLLDP150 path, not the current low-level modern-DLL oracle, is
+the continuously hot stereo/music path under the tested condition.
+
+Full evidence, live addresses, module identities, breakpoint-method correction,
+and next traps are preserved in:
+
+```text
+docs/findings/2026-08-04-DOLBY-LIVE-KDNET-HOT-PATH.md
+```
+
+Most important corrections:
+
+- `DolbyDax3Apo` wrapper `APOProcess` is hardware-trap HOT.
+- `DolbyAPOvlldp150` outer `FUN_180105000` is hardware-trap HOT.
+- VLLDP150 top-level `FUN_18001f7a8` is hardware-trap HOT (~31 hits/s sample).
+- Modern `FUN_18004e7b0` DAPVR speaker wrapper, embedded VLLDP
+  `FUN_1800922f8`, and AIDE core `FUN_18003a438` were hardware-trap COLD during
+  the same active stereo/music condition.
+- The earlier `FUN_180061698` live control was the wrong DAPVR subpath for the
+  DABS speaker route; the native speaker harness actually uses
+  `FUN_18004e7b0 -> FUN_180060ce8`.
+- Software user-mode breakpoints in this KD setup produced false-negative
+  non-hits. Hardware execution breakpoints are required for hot-path claims.
+- AIDE remains proven present in `DefaultDAPModule`/ASAR code, but the statement
+  that it is part of the currently hot internal-speaker PCM path is no longer
+  proven. Reclassify it as **present, live participation unresolved/cold in the
+  tested stereo condition**.
+- The modern DLL identifies itself as `msft-asar-dap`, "Dolby Audio Processing
+  for Microsoft Spatial Audio", version 7.3.7.0. Treat it as an ASAR layer that
+  cooperates with, rather than replaces, the persistent DAX/VLLDP150 stack.
+- DAX UI/profile activity reached `Dax3DapControl!SetDapVariantParam`; the child
+  DAX3API process is the one that also loads `CaptureStreamMonitor.dll`.
+
+Immediate parity priority is therefore to reconstruct/call the live VLLDP150
+`FUN_18001f7a8` orchestration with correct state/snapshot history, while the
+modern ASAR/OAR/Crossfade path is mapped separately by high-level hardware
+traps instead of assumed from static reachability.
