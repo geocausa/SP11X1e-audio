@@ -714,6 +714,52 @@ DAX3 wrapper APOProcess
 
 Do **not** infer a fixed `256+224` orchestrator pattern from the earlier callee-saved register snapshots. Those register pairs were caller temporaries and are not a formal frame-count ABI. The assembly/object fields above are authoritative.
 
+#### Direct live call-count proof of the 480 -> 256 cadence
+
+A later auto-logged hardware-breakpoint run trapped both the outer scheduler entry and `FUN_18001f7a8` without manually stopping every block. Every scheduler entry still reported:
+
+```text
+mode  = 3
+obj+4 = 1024
+obj+8 = 432
+obj+C = 0 at scheduler entry
+input = 480 frames
+```
+
+The first eight complete host-callback intervals produced this orchestrator-call count pattern:
+
+```text
+2, 2, 2, 2, 2, 2, 1, 2
+```
+
+That is exactly 15 orchestrator invocations across eight 480-frame host callbacks:
+
+```text
+8 * 480 = 3840 frames
+15 * 256 = 3840 frames
+```
+
+Therefore the live graph **does** contain a persistent 480->256 rate adapter somewhere below/within the outer scheduler layer. The separate `432` field is not that inner engine quantum: it remained `432` while the observed orchestrator-call count followed the exact 480/256 ratio.
+
+The orchestrator selector at `state+0x1630` continued to alternate `1,0,1,0,...` on successive orchestrator calls, including across the host callback that contained only one orchestrator invocation.
+
+This gives the strongest current scheduling model:
+
+```text
+Windows Audio Engine: 480-frame callbacks
+    |
+    +-- outer VLLDP150 scheduler/state machine
+    |      live field obj+8 = 432
+    |
+    +-- persistent inner rate adaptation
+           average 480/256 = 1.875 inner calls per host callback
+           exact 8-callback period = 15 x 256-frame quanta
+              |
+              +-- FUN_18001f7a8 / 256-frame VLLDP engine
+```
+
+The exact code location/state variable that carries the 480->256 residue still needs to be mapped; the call-count relationship itself is now proven live.
+
 #### Orchestrator state mutation snapshots
 
 Four narrow binary snapshots were captured around two consecutive steady-state orchestrator calls from one live object:
@@ -830,6 +876,6 @@ Before fitting residual EQ or returning to AIDE as the presumed steady-state mis
   -> preserve both outer scheduler state and inner DSP/history state across callbacks
 ```
 
-The remaining unknown is the exact scheduling relationship by which the 432-frame outer state machine feeds one or more 256-frame inner orchestrator invocations. That should be measured directly rather than inferred from temporary registers.
+The remaining scheduling unknown is no longer the rate relationship: that is proven as `8 x 480 = 15 x 256`. The remaining task is to locate the exact persistent residue/carry field and helper code that implements that 480->256 adaptation beneath/within the 432-field outer state machine.
 
 The modern ASAR DLL is clearly reloaded on wake, but its previously trapped low-level AIDE/DAPVR/embedded-VLLDP blocks remain unproven as the hot steady-state stereo speaker path. The driver DAX3 -> VLLDP150 path is directly proven hot and now has its external/internal scheduling decoded live.
