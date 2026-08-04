@@ -391,3 +391,76 @@ The exact sample-buffer ownership/order around the two wrappers should still be
 confirmed from the audio-engine graph objects before claiming that the output
 of one is literally the input pointer of the other, but the callback ordering
 itself is directly observed.
+
+## SetDapVariantParam ABI partially decoded live
+
+A hardware breakpoint on `Dax3DapControl!SetDapVariantParam` was left armed
+while the system ran normally. It fired spontaneously before any requested UI
+click, proving that the DAX service emits variant updates autonomously as well
+as in response to visible Dolby Access controls.
+
+At the live stop:
+
+```text
+x0 = 0x000002153a1b8d80
+x1 = 0x838
+x2 = 0x000002153ab5a728
+x3 = 1
+lr = 0x00007ff70f9b264c   (DAX3API.exe caller)
+```
+
+Fresh entry disassembly corrects the first interpretation of `x0`. The setter
+immediately scans `x0` with `ldrsh` as a UTF-16 string; it is **not** a DAP
+handle. Live `du @x0` returned:
+
+```text
+{0.0.0.00000000}.{5bb689e6-2c6b-4357-b4c1-beb815638f88}
+```
+
+That GUID is the known active internal-speaker render endpoint from the July
+capture (Qualcomm Aqstic / AUCD REV_0D).
+
+The DAX3API caller is iterating a tree/map record. At the call site:
+
+```text
+ldr w1,[x19,#0x40]     ; parameter id
+mov w3,w21
+mov x2,x0              ; value object
+ldr x0,[x20,#8]        ; endpoint-id string
+bl  ...SetDapVariantParam
+```
+
+For the stopped record:
+
+```text
+x19 = 0x000002153ab5a6e0
+node+0x40 = 0x838
+node+0x48 = value object / x2
+```
+
+The value object has the standard COM VARIANT-looking prefix:
+
+```text
+03 00 ...              ; VARTYPE 3 = VT_I4
+```
+
+and the 32-bit integer payload at the VARIANT union slot is:
+
+```text
+0xfffffe2c = -468
+```
+
+So the observed call is approximately:
+
+```text
+SetDapVariantParam(
+    L"{0.0.0.00000000}.{5bb689e6-2c6b-4357-b4c1-beb815638f88}",
+    0x838,
+    VARIANT(VT_I4, -468),
+    1)
+```
+
+The semantic meaning of parameter `0x838` is not yet proven. `-468` is
+suspiciously compatible with a fixed-point / centi-dB-like volume quantity,
+but that must be confirmed by a controlled one-variable test before assigning
+a name. Do not label `0x838` as volume yet.
