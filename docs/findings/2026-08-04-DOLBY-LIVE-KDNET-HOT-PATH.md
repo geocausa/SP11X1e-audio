@@ -464,3 +464,185 @@ The semantic meaning of parameter `0x838` is not yet proven. `-468` is
 suspiciously compatible with a fixed-point / centi-dB-like volume quantity,
 but that must be confirmed by a controlled one-variable test before assigning
 a name. Do not label `0x838` as volume yet.
+
+## Dormant/silent-state -> active wake capture (2026-08-04 late session)
+
+A controlled long-pause/resume experiment captured the Dolby endpoint graph entering a dormant state and then being reinstantiated when meaningful playback resumed. Device Default Effects remained enabled throughout; no Dolby Access or Spatial Sound UI setting was changed during the test.
+
+### Dormant state while playback was paused
+
+The active audio-engine host before the long pause was:
+
+```text
+audiodg.exe PID 0x1650
+EPROCESS ffffae8a`db3ea100
+```
+
+After roughly a minute paused, the same `audiodg.exe` process remained alive. Its handle count fell from 623 to 516. `DolbyDax3Apo.dll` remained resident, while `DolbyAudioProcessing.dll` and `DolbyHrtfEnc.dll` were absent from the process module list. A hardware execution breakpoint on the known-hot DAX3 wrapper `APOProcess` (`DolbyDax3Apo + 0xcd000`) produced no hit while paused.
+
+The same PID showed a different VLLDP150 mapping from the earlier active snapshot, consistent with inner-module teardown/remap while the audio-engine host itself survived. Do not treat module residency alone as proof of active PCM processing.
+
+### Resume caused a fresh audiodg and full Dolby stack reinstantiation
+
+On playback resume, the previous `audiodg.exe` was replaced by a fresh process:
+
+```text
+new audiodg.exe PID 0x0d30
+EPROCESS ffffae8a`dbc95100
+```
+
+The new process immediately contained the full active stack:
+
+```text
+DolbyAudioProcessing.dll  0x00007ffa`0d1c0000
+DolbyApoVr.dll            0x00007ffa`106c0000
+DolbyAPOvlldp150.dll      0x00007ffa`244b0000
+DolbyDax3Apo.dll          0x00007ffa`24680000
+DolbyHrtfEnc.dll          0x00007ffa`3dba0000
+SurfaceAPO.dll            0x00007ffa`10410000
+audioeng.dll              0x00007ffa`109e0000
+```
+
+This directly supports the observed Windows behavior: prolonged silence can leave an audio-engine host alive in a dormant state, while resume can replace/rebuild the active `audiodg` graph and reload the modern adaptive Dolby components.
+
+### First active DAX3 wake callback carries VALID PCM
+
+After rebinding the hardware breakpoint to the fresh process, `DolbyDax3Apo + 0xcd000` fired immediately.
+
+Representative entry state:
+
+```text
+x0 = 0x0000020343192840   wrapper object
+x1 = 1                    input connection count
+x2 = 0x000000d43457ef58   input connection-property array
+x3 = 1                    output connection count
+x4 = 0x000000d43457ef50   output connection-property array
+```
+
+The first input connection property contained:
+
+```text
+buffer = 0x0000020344b16140
+frames = 480 (0x1e0)
+flag   = 1   (VALID)
+sig    = 0x41435053
+```
+
+The corresponding output property at callback entry contained:
+
+```text
+buffer = 0x0000020344b18180
+capacity / frame field = 480
+flag   = 0   (INVALID at entry)
+sig    = 0x41435053
+```
+
+The input buffer contained nonzero float PCM immediately. Thus the first trapped post-wake callback was already a real VALID audio block, not a SILENT placeholder.
+
+### Fresh DAX3 wrappers again resolve to VR and VLLDP150
+
+Two consecutive DAX3 wrapper invocations resolved through `this+0xc0` to the two inner APOs:
+
+```text
+wrapper 0x0000020343192840
+  +0xc0 -> 0x0000020345010008
+  vtable -> 0x00007ffa10895a18 (DolbyApoVr.dll)
+
+wrapper 0x000002034319ba10
+  +0xc0 -> 0x0000020345560008
+  vtable -> 0x00007ffa245b93a0 (DolbyAPOvlldp150.dll)
+  vtable slot +0x18 -> 0x00007ffa245b5050
+```
+
+Because the debugger was rebound mid-render cycle, this pair of hits must not be used to overturn the earlier stable VLLDP -> VR per-cycle ordering result.
+
+### Fresh VLLDP object takes the deep path
+
+The newly instantiated VLLDP150 outer callback at `0x00007ffa245b5050` fired immediately. At entry:
+
+```text
+this = 0x0000020345560008
+[this+0x70] = 0x00
+input  = 480 frames, VALID
+output = 480-frame buffer, INVALID at entry
+LR     = 0x00007ffa2474d664 (inside DolbyDax3Apo wrapper)
+```
+
+The zero gate byte confirms the newly created object takes the deeper VLLDP processing path rather than the short copy/pass-through branch.
+
+The hardware breakpoint on the byte-locked inner orchestrator then fired immediately:
+
+```text
+DolbyAPOvlldp150 + 0x1f7a8
+runtime 0x00007ffa244cf7a8
+```
+
+This proves the dormant->active wake transition feeds directly into the same `FUN_18001f7a8` snapshot/crossfade/state-history orchestrator already proven hot in steady-state music playback.
+
+### Exact external/internal block scheduling: 480 -> 256 + 224
+
+The wake capture exposed a critical scheduling detail for native parity.
+
+The Windows APO callback receives a 480-frame stereo block, but one outer VLLDP150 callback invokes `FUN_18001f7a8` twice before the next outer callback:
+
+```text
+480 frames = 256 frames + 224 frames
+             0x100        0x0e0
+```
+
+The first orchestrator state header included:
+
+```text
+state+0x08 = 0x0000bb80`00000100
+             48000 Hz     256 frames
+state header also contains 2 / 2, consistent with stereo
+```
+
+The live descriptor construction at the immediate caller is:
+
+```text
+channels = 2
+stride   = 2
+format   = 7
+planes   = { base, base + 4 }
+```
+
+This represents interleaved float stereo as two channel pointers one float apart with stride 2.
+
+On the second orchestrator call, source and destination pointers advanced by exactly `0x800` bytes:
+
+```text
+0x800 = 256 frames * 2 channels * 4 bytes
+```
+
+Live registers on that second call explicitly contained both:
+
+```text
+0x100 = 256
+0x0e0 = 224
+```
+
+Execution ordering was observed directly as:
+
+```text
+VLLDP150 outer APO callback (480 frames)
+  -> orchestrator call #1 (first 256 frames)
+  -> orchestrator call #2 (remaining 224 frames, pointers +0x800)
+-> next VLLDP150 outer APO callback
+```
+
+This is a first-class Linux parity requirement. A free-running native VLLDP150 harness that assumes one external callback equals one internal processing quantum will not reproduce Windows state/history timing exactly.
+
+### Revised parity priority
+
+Before fitting any residual EQ or assuming AIDE is the missing steady-state speaker processor, reproduce the live VLLDP150 wrapper cadence exactly:
+
+```text
+480-frame Windows-style external callback
+  -> persistent VLLDP150 object/state
+  -> 256-frame orchestrator call
+  -> 224-frame orchestrator call
+  -> preserve all state/history into the next 480-frame callback
+```
+
+The modern ASAR DLL is clearly reloaded on wake, but its previously trapped low-level AIDE/DAPVR/embedded-VLLDP blocks remain unproven as the hot steady-state stereo speaker path. The driver DAX3 -> VLLDP150 path is directly proven hot and now has its external/internal scheduling decoded live.
