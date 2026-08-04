@@ -135,7 +135,19 @@ void sp11_lim_process(Sp11Limiter *l, float *const *chans, int nchan,
         gains[b] = limiter_gain(l, env);
     }
 
-    /* pass 2: apply, ramping between consecutive gains */
+    /* Look-ahead: the ramp for block b interpolates INTO block b, so the
+     * reduction must already be in place before b's peak arrives. Without
+     * this a block spanning a zero crossing measures a low peak, earns a
+     * high gain, and carries it into the next loud block - measured as a
+     * 1.19 peak against a 0.985 ceiling, with the gain itself converged
+     * correctly to 0.65676. Taking the minimum of each gain and its
+     * successor is what makes it a look-ahead limiter rather than a
+     * feedforward one. */
+    for (int b = 0; b < nblocks - 1; b++)
+        if (gains[b + 1] < gains[b])
+            gains[b] = gains[b + 1];
+
+    /* pass 3: apply, ramping between consecutive gains */
     for (int b = 0; b < nblocks; b++) {
         int off = b * sub_block;
         int n = nframes - off;

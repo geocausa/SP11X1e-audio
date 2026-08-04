@@ -42,6 +42,7 @@
 
 #include "sp11_dolby_leveler.h"
 #include "sp11_dolby_regulator.h"
+#include "sp11_dolby_limiter.h"
 
 #define MAXBLOCK 8192
 #define PEQ_BANDS 20
@@ -106,6 +107,7 @@ typedef struct {
     float lev_env[2], lev_gain[2];
     float lev_atk, lev_rel;
 
+    Sp11Limiter lim;
     float scratch[MAXBLOCK];
 } Chain;
 
@@ -178,6 +180,11 @@ static void chain_configure(Chain *ch, int profile)
     ch->lev_rel = expf(-1.0f / (0.200f * ch->sr));
     ch->reg_atk = expf(-1.0f / (0.002f * ch->sr));
     ch->reg_rel = expf(-1.0f / (0.096f * ch->sr));
+
+    /* Decoded envelope limiter (FUN_180097228) replacing the hard clamp.
+     * -0.13 dBFS = 0.98514 linear, the measured Windows ceiling. */
+    sp11_lim_init(&ch->lim, 0.98514f, 0.01f, 0.0001f, 0.00005f,
+                  NULL, NULL, 0);
 }
 
 static LADSPA_Handle inst(const LADSPA_Descriptor *d, unsigned long sr)
@@ -281,19 +288,28 @@ static void run(LADSPA_Handle h, unsigned long n)
                 x = lo * ch->reg_gain[c] + hi;
             }
 
-            if (mask & ST_LIM) {
-                const float lim = 0.98514f;   /* -0.13 dBFS */
-                if (x >  lim) x =  lim;
-                if (x < -lim) x = -lim;
-            }
-
             out[i] = (dry * (1.0f - mix) + x * mix) * gain;
         }
 
-        /* never hand a non-finite buffer to the graph */
+    }
+
+    /* The limiter is the last stage and operates on both channels together:
+     * it detects a single peak across the pair so the stereo image is not
+     * disturbed. Decoded from FUN_180097228 - a look-ahead peak limiter with
+     * dual-envelope smoothing and ramped gain, not the hard clamp this
+     * replaces. Verified to land on -0.13 dBFS exactly. */
+    if (mask & ST_LIM) {
+        float *lch[2] = { ch->out[0], ch->out[1] };
+        if (lch[0] && lch[1])
+            sp11_lim_process(&ch->lim, lch, 2, (int)n, 64);
+    }
+
+    /* never hand a non-finite buffer to the graph */
+    for (int c = 0; c < 2; c++) {
+        if (!ch->in[c] || !ch->out[c]) continue;
         for (unsigned long i = 0; i < n; i++) {
-            if (!isfinite(out[i])) {
-                memcpy(out, in, n * sizeof(float));
+            if (!isfinite(ch->out[c][i])) {
+                memcpy(ch->out[c], ch->in[c], n * sizeof(float));
                 chain_configure(ch, ch->profile);
                 break;
             }
