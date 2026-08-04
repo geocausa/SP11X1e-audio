@@ -321,3 +321,134 @@ With stereo planar float, mode/default init, no runtime Dolby effects enabled:
 - after startup latency, a 0.1-amplitude 1 kHz sine exits at approximately `0.100057` peak (unity within ~0.005 dB).
 
 This is the first clean execution of the modern DLL's DABS speaker DAPVR path on Linux. The next step is to apply the exact SP11 DAPVR leveler setters, measure them alone, then add regulator parameters and finally feed the output into the already-working native VLLDP stage.
+
+## Continuation checkpoint — exact Windows stimulus replay and corrected parity target
+
+### The old three-number shorthand was misleading
+
+The Windows targets were not independent steady-state tone tests. They came from one continuous known-input WAV, so Dolby state carries through the full sequence.
+
+Original stimulus:
+
+```text
+00-RE-archive/.../dolby/windows-loopback-captures/sp11-known-input-stimulus-48k.wav
+```
+
+Original Windows report:
+
+```text
+00-RE-archive/.../dolby/windows-loopback-captures/known-input/known-input-transfer-report.md
+```
+
+Original generator proves the 1 kHz reference is `amp=0.18`, approximately -14.89 dBFS peak / -17.9 dBFS RMS, **not -12 dBFS**. The old handoff label `1 kHz @ -12 -> +8.01 dB` must not be used as an exact stimulus description.
+
+The exact stimulus sequence is:
+
+```text
+1.0 s silence
+2.0 s 1 kHz, amp 0.18
+0.5 s silence
+8.0 s log sweep, 35 Hz -> 18 kHz, amp 0.18
+0.5 s silence
+55 Hz bursts, amp 0.50
+90 Hz bursts, amp 0.45
+140 Hz bursts, amp 0.35
+0.5 s silence
+75 Hz stepped levels: -30,-24,-18,-12,-9,-6,-3 dBFS, each 1 s + 0.25 s silence
+1.0 s silence
+```
+
+The Windows analysis windows are also recovered exactly from `compare_known_input_output.py`:
+
+```text
+1 kHz                 1.0 .. 3.0 s
+log sweep             3.5 .. 11.5 s
+55 Hz bursts         12.0 .. 14.4 s
+90 Hz bursts         14.4 .. 16.8 s
+140 Hz bursts        16.8 .. 19.2 s
+75 Hz stepped        19.7 .. 28.45 s
+individual 75 levels: 1.0 s windows beginning at 19.7 s, spaced by 1.25 s
+```
+
+### Native persistent-state replay works
+
+New harness:
+
+```text
+dolby-port/sp11_dolby_native_known_input.c
+```
+
+It processes the original 16-bit stereo stimulus through one persistent native modern-DLL DAPVR -> VLLDP state in 256-frame blocks and writes float output for comparison.
+
+Current structurally grounded baseline includes:
+
+- exact DAPVR leveler: enable=1, amount=5, DRC=1, in/out target=-320
+- exact DAPVR profile regulator values
+- DAPVR output mode 11 with the XML stereo mix matrix
+- VLLDP audio optimizer with the exact two 20-band device rows
+- VLLDP detailed regulator threshold/stress/slope tuning
+- VLLDP speaker-distortion control disabled in this baseline because enabling it directly without the higher routing context over-attenuates severely
+- no fitted gain or EQ
+
+Native pipeline latency from correlation is about 689 samples = 14.35 ms.
+
+### Stateful replay results
+
+Using the same Windows report windows:
+
+```text
+segment                    native gain   Windows gain   delta
+1 kHz reference              +13.65         +8.01       +5.64 dB
+log sweep                    +13.71        +10.64       +3.07 dB
+55 Hz bursts                  +5.91         +6.01       -0.10 dB
+90 Hz bursts                  +7.19         +6.91       +0.28 dB
+140 Hz bursts                 +9.19         +6.08       +3.11 dB
+75 Hz stepped whole           +6.75         +5.51       +1.24 dB
+
+75 Hz -30 dBFS              +17.42        +16.82       +0.60 dB
+75 Hz -24 dBFS              +17.87        +14.76       +3.11 dB
+75 Hz -18 dBFS              +14.53        +13.47       +1.06 dB
+75 Hz -12 dBFS              +11.76        +10.25       +1.51 dB
+75 Hz  -9 dBFS               +8.78         +7.48       +1.30 dB
+75 Hz  -6 dBFS               +5.79         +4.51       +1.28 dB
+```
+
+The Windows -3 dBFS row collapses to -51.51 dB gain and appears to be an anomaly/dropout in that capture; do not tune around it yet.
+
+The stateful replay is much more informative than fresh isolated tones. In particular, the quiet 75 Hz point moves from a +2.9 dB steady-state error to only +0.60 dB when replayed in the original sequence.
+
+### Native peak protection is already active
+
+The native modern-DLL serial chain itself reaches about 0.9999 (-0.001 dBFS) on the original stimulus. Therefore the earlier simple statement that the -0.13 dBFS ceiling is only an external decoded limiter is incomplete: there is already strong peak protection in the modern native path before any separately ported limiter is appended. Exact ceiling provenance still needs separating.
+
+### Exact DAPVR/IEQ/output-mode findings added during replay work
+
+- volume-leveler DRC setter is `FUN_180045150` (string/callback verified)
+- volume-leveler in-target is `FUN_1800492e0`
+- volume-leveler out-target is `FUN_180049370`
+- IEQ data preparer is `FUN_180044fa8(core,count,center_freqs,target_gains)`
+- `ieq_balanced` exact targets are `157,167,218,218,203,188,192,192,205,213,218,209,193,159,134,97,71,22,-90,-283`
+- output-mode setter is `FUN_180046dd0(core,processing_mode,nb_output_channels,mix_matrix)`
+- XML `processing_mode=11` maps internally to mode 6 for stereo
+- `volmax-boost=96` alone creates an exact -3.00 dB shift in the current low-level path; it therefore cannot be applied in isolation without the higher routing context that normally accompanies it
+- surround-decoder enable and surround-boost=96 alone are neutral on the simple reference tones
+- dialog enhancer amount 5 is neutral on the simple reference tones
+
+### VLLDP setter ABI audit
+
+Fresh decompilation confirms the current native harness calling conventions are correct:
+
+```text
+FUN_180090120(core, audio_optimizer_array, count)
+FUN_180091988(core, threshold_high, threshold_low, count)
+FUN_180091670(core, isolated_band_array, count)
+FUN_180091890(core, stress_count, stress_array)
+```
+
+The scalar setters for timbre, slope, speaker-distortion, peak, target power, system gain, postgain and MB enable were also rechecked. The remaining transfer mismatch is not explained by a reversed array/count ABI.
+
+### Current interpretation
+
+The best evidence-backed baseline already matches the 55 Hz and 90 Hz burst gains within about 0.3 dB and the stateful 75 Hz -30 point within 0.6 dB, while it remains too loud around 140 Hz and 1 kHz. This pattern now points toward a missing frequency/routing stage rather than a missing broadband makeup gain.
+
+Next exact task: compare the aligned native output directly against the captured Windows output over the log sweep, deriving the Windows/native transfer difference versus frequency as evidence. Use that to identify which decoded/routed stage is absent; do not fit a replacement EQ.
