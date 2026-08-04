@@ -452,3 +452,78 @@ The scalar setters for timbre, slope, speaker-distortion, peak, target power, sy
 The best evidence-backed baseline already matches the 55 Hz and 90 Hz burst gains within about 0.3 dB and the stateful 75 Hz -30 point within 0.6 dB, while it remains too loud around 140 Hz and 1 kHz. This pattern now points toward a missing frequency/routing stage rather than a missing broadband makeup gain.
 
 Next exact task: compare the aligned native output directly against the captured Windows output over the log sweep, deriving the Windows/native transfer difference versus frequency as evidence. Use that to identify which decoded/routed stage is absent; do not fit a replacement EQ.
+
+## Continuation checkpoint — profile provenance and residual sweep fingerprint
+
+### Known-input Windows profile was not proven `dynamic`
+
+The May 18 known-input capture was played by PowerShell `System.Media.SoundPlayer` (`Run-SP11KnownInputLoopback.ps1`), not Edge/browser playback.
+
+Operator settings captured from the same Windows environment say:
+
+```text
+APP msedge.exe -> dynamic
+internal_speaker + spatial_audio=on  -> movie
+internal_speaker + spatial_audio=off -> music
+```
+
+Therefore the earlier assumption that the known-input reference used `dynamic` is not justified. `dynamic` is explicitly mapped to browser playback; ordinary SoundPlayer playback should fall back to `music` when spatial audio is off or `movie` when spatial audio is on.
+
+Exact low-level subset replays were therefore run with both profiles (without blindly applying high-level volmax/virtualizer controls whose routing context is not yet reconstructed).
+
+`movie` (leveler amount 0, output mode 11) still leaves +4.70 dB excess on the 1 kHz segment and +3.07 dB at 140 Hz, while matching 55/90 Hz within 0.3 dB.
+
+`music` (leveler amount 0, output mode 1) still leaves +4.59 dB excess on the 1 kHz segment and +3.04 dB at 140 Hz, while matching 55/90 Hz within 0.3 dB. It improves several 75 Hz stepped levels.
+
+So wrong profile selection was a real methodological error, but it does not by itself explain the midband residual.
+
+### Direct Windows/native log-sweep residual
+
+The native and Windows known-input outputs were aligned and compared in short windows over the original 35 Hz -> 18 kHz sweep. Approximate `Windows gain - native gain` residual for the current evidence-backed baseline:
+
+```text
+40 Hz      -1.5 dB
+55 Hz      -1.8 dB
+75 Hz      -2.5 dB
+90 Hz      -2.8 dB
+140 Hz     -2.5 dB
+200 Hz     -1.9 dB
+300 Hz     -3.5 dB
+500 Hz     -3.8 dB
+750 Hz     -4.5 dB
+1 kHz      -5.3 dB
+1.5 kHz    about -5 dB
+~1.8 kHz   about -6.4 dB
+2.5 kHz    -4.0 dB
+4 kHz      -2.1 dB
+6 kHz      about -0.4 dB
+```
+
+This is a frequency-shaped residual, not a missing broadband makeup gain.
+
+Naively enabling VLLDP speaker-distortion regulation does not reproduce this transfer: it happens to approach Windows around 1–2 kHz but over-attenuates low bass by roughly 8–15 dB. Fresh verification proves the VLLDP regulator threshold argument order is correct (`high`, then `low`, then count), so this is not an H/L array swap.
+
+### VLLDP constructor fourth argument corrected
+
+The fourth argument of `FUN_1800907d8` is `max operations`, not a generic mode flag. The real module logs:
+
+```text
+Initializing VLLDP with max channel count %d and max operations %d
+```
+
+The SP11 DABS XML explicitly specifies:
+
+```text
+max_num_channels = 2
+max_num_operations = 0
+```
+
+So the current native constructor tuple `(256, 48000, 2, 0, arena)` is correct for this device. The module's "must be set" checks concern property-presence flags, not requiring a nonzero max-operations value.
+
+### Current highest-value hypothesis
+
+The Windows loopback reference is the output of the full Windows endpoint render path, while the current native oracle explicitly runs only `DolbyAudioProcessing.dll` DAPVR + VLLDP. The project separately recovered Qualcomm/AudioReach endpoint processing (EQ, SAL_V2 B, SWR_SINK, MFC, etc.).
+
+The remaining Windows/native residual may therefore belong partly or entirely to the non-Dolby endpoint DSP rather than to an undecoded Dolby stage.
+
+Next exact task: compare the recovered Windows Qualcomm EQ/SAL transfer against the measured residual above before adding or fitting any new Dolby processing.
