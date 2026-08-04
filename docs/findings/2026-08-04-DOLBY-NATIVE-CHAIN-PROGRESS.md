@@ -527,3 +527,65 @@ The Windows loopback reference is the output of the full Windows endpoint render
 The remaining Windows/native residual may therefore belong partly or entirely to the non-Dolby endpoint DSP rather than to an undecoded Dolby stage.
 
 Next exact task: compare the recovered Windows Qualcomm EQ/SAL transfer against the measured residual above before adding or fitting any new Dolby processing.
+
+## Continuation checkpoint — hardware EQ ruled out; AIDE becomes primary missing stage
+
+### Windows AudioReach Popless EQ is flat
+
+The exact REV_0D ACDB body for EQ module `0x07001045`, param `0x0800110c`, was recovered with `tools/acdb_setcfg_inventory.py` from the captured SP11 ACDB.
+
+Decoded with Qualcomm `popless_equalizer_api.h`:
+
+```text
+pregain Q27 = 1.0
+preset = 18 (custom external)
+num_bands = 5
+
+band 0: BAND_BOOST 60 Hz,    gain 0 mdB, Q=100/256
+band 1: BAND_BOOST 230 Hz,   gain 0 mdB, Q=100/256
+band 2: BAND_BOOST 910 Hz,   gain 0 mdB, Q=100/256
+band 3: BAND_BOOST 3600 Hz,  gain 0 mdB, Q=100/256
+band 4: BAND_BOOST 14000 Hz, gain 0 mdB, Q=100/256
+```
+
+Therefore the Windows AudioReach Popless EQ is mathematically flat and cannot explain the Windows/native -5 to -6 dB midband residual.
+
+`SurfaceAPO_0D.json` also shows the 48 kHz stereo `R/MFX/DEFAULT/defaultEQ` as `Enabled=false` with identity coefficients. The easy non-Dolby endpoint-EQ explanation is therefore ruled out.
+
+### AIDE is part of the real Windows Dolby path and our direct oracle bypasses it
+
+Older full-pipeline RE plus fresh Ghidra confirms `DefaultDAPModule::EncodeAudioData` contains an AIDE stage in addition to DAPVR/VLLDP. AIDE is the **Adaptive Intelligent Dynamic Equalizer** and its core is exactly the kind of frequency-shaped adaptive processing missing from the current direct DAPVR -> VLLDP oracle.
+
+Freshly rechecked functions:
+
+```text
+FUN_180006910  AIDEModule::Initialize
+FUN_180006e40  AIDEModule::SetParams
+FUN_180007d90  per-channel vector/ring copy helper used by AIDE process
+FUN_18003a438  main AIDE QMF/adaptive-EQ core
+FUN_1800399d8  AIDE processing-context creator
+FUN_18003bde8  AIDE adaptive/steering parameter parser
+FUN_18003aab0  adaptive steering coefficients
+```
+
+Fresh `FUN_180006910` decompile shows only two visible arguments:
+
+```c
+uint32_t FUN_180006910(void *aide, uint32_t count_or_channels);
+```
+
+It allocates the AIDE internal buffers/context, creates per-channel pointer/vector arrays, sets `+0x28` initialized/enabled, and stores the second argument at `+0x38/+0x88`. Its semantic meaning must be recovered from the raw caller before use.
+
+Fresh `FUN_180006e40` is the real AIDE SetParams parser. It accepts a compact TLV-like payload and feeds adaptive settings into `FUN_18003bde8`; do not hand-set AIDE context fields when the original SP11 parameter blob can be recovered.
+
+Fresh `FUN_18003a438` confirms the DSP topology:
+
+```text
+per-channel QMF analysis
+-> adaptive steering via FUN_18003aab0 when ctx+0x8ec enabled
+-> IEQ gain / second-pass synthesis
+-> optional DAP-VR integration
+-> output copy
+```
+
+This is now the primary exact-port target. The current DAPVR -> VLLDP native harness is a useful partial oracle, not the complete Windows Dolby APO chain.
