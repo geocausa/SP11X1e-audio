@@ -243,6 +243,105 @@ Every DSP block lives at a fixed offset in one instance:
 
 ---
 
+## `FUN_180097228` — final envelope limiter — RESOLVED
+
+The last stage of the VLLDP chain, and the one that produces the measured
+`-0.13 dBFS` output ceiling. It is a **look-ahead peak limiter with spectral
+weighting**, not a simple clipper.
+
+### Signature
+
+```c
+uint FUN_180097228(float threshold,      /* param_1: linear ceiling      */
+                   uint  *state,         /* param_2                      */
+                   longlong coeffs,      /* param_3                      */
+                   longlong *audio,      /* param_4: channel buffers     */
+                   longlong chan_data,   /* param_5                      */
+                   uint  nframes,        /* param_6                      */
+                   uint  nchan,          /* param_7                      */
+                   longlong scratch);    /* param_8                      */
+```
+
+### Coefficient block at `param_3`
+
+| Offset | Meaning |
+|---|---|
+| `+0x04` | attack coefficient (peak rising) |
+| `+0x08` | release coefficient (peak falling) |
+| `+0x0c` | slow-release coefficient, second envelope |
+| `+0x10` | pointer to gain-interpolation ramp (4, 8 or 16 taps by mode) |
+| `+0x18` | pointer to 16 spectral weights |
+
+### State block at `param_2`
+
+| Offset | Meaning |
+|---|---|
+| `+0x06` | band peak history pointer (15 floats copied in/out) |
+| `+0x08` | reset flag |
+| `+0x09` | fast envelope, persisted across blocks |
+| `+0x0a` | slow envelope, persisted across blocks |
+| `+0x0c` | second history pointer |
+| `+0x0f` | last computed gain |
+| `+0x10` | gain-ramp continuity buffer |
+
+### Algorithm
+
+1. **Per-band peak detection.** `|x|` reduced with NEON `fmax`/`fmaxp` pairs
+   over 64-sample groups. Three code paths selected by `state[0]` (0, 1, or
+   other) giving 64, 128 or 256 samples per band — that is the mode-dependent
+   band resolution.
+
+2. **Cross-band reduction** to one peak per sub-block, again by `fmax`.
+
+3. **Dual-envelope smoothing**, the core of the limiter:
+
+   ```c
+   coef = (peak > fast) ? attack : release;   /* [+4] : [+8] */
+   fast = peak + (fast - peak) * coef;
+   slow = peak + (slow - peak) * slow_release; /* [+0xc] */
+   out  = max(peak, fast, slow);
+   ```
+
+   Both envelopes are persisted in `state[9]` and `state[10]`, and flushed to
+   zero when their magnitude falls below `DAT_180098288`.
+
+4. **Spectral weighting.** A 16-tap dot product of the band peaks against the
+   weights at `[+0x18]`, fully unrolled. This is what makes the limiter
+   frequency-aware rather than broadband.
+
+5. **Limiter gain**, the operative line:
+
+   ```c
+   gain = (weighted_peak <= threshold) ? 1.0f : threshold / weighted_peak;
+   ```
+
+   Unity below the ceiling, exact reciprocal above. `threshold` is `param_1`,
+   which the caller supplies as the linear form of `-0.13 dBFS`.
+
+6. **Gain interpolation.** Rather than stepping gain per sub-block, the gain
+   is ramped between successive values using the coefficients at `[+0x10]`:
+
+   ```c
+   d = g[n] - g[n-1];
+   out[k] = g[n-1] + d * ramp[k];
+   ```
+
+   4, 8 or 16 ramp taps by mode. This is what avoids zipper noise.
+
+7. **Application.** The interpolated per-sample gain multiplies the audio in
+   place, and the tail of the ramp is carried into `state[0x10]` so the next
+   block starts continuous.
+
+### Why this matters for the port
+
+The measured Windows curve limits at `-0.13 dBFS`, and this is the function
+that does it. The current `sp11_dolby_chain.c` uses a hard clamp at that
+level, which matches the ceiling but not the behaviour: it has no envelope,
+no spectral weighting and no ramp, so it distorts where Dolby would smoothly
+reduce gain.
+
+---
+
 ## Still to decode
 
 | Item | Status |
