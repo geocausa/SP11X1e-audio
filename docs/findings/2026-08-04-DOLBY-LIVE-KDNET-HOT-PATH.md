@@ -579,26 +579,18 @@ runtime 0x00007ffa244cf7a8
 
 This proves the dormant->active wake transition feeds directly into the same `FUN_18001f7a8` snapshot/crossfade/state-history orchestrator already proven hot in steady-state music playback.
 
-### Exact external/internal block scheduling: 480 -> 256 + 224
+### Corrected external/internal scheduling: persistent 480 -> 256 FIFO adapter
 
-The wake capture exposed a critical scheduling detail for native parity.
+The earlier interpretation of a universal per-callback `480 = 256 + 224` split was too simple. A deeper live capture plus direct disassembly of the active scheduler proves that Windows uses a **persistent rolling adapter** between the 480-frame Audio Engine callback cadence and VLLDP150's 256-frame internal quantum.
 
-The Windows APO callback receives a 480-frame stereo block, but one outer VLLDP150 callback invokes `FUN_18001f7a8` twice before the next outer callback:
-
-```text
-480 frames = 256 frames + 224 frames
-             0x100        0x0e0
-```
-
-The first orchestrator state header included:
+The fixed internal configuration is still directly visible in the VLLDP state header:
 
 ```text
 state+0x08 = 0x0000bb80`00000100
              48000 Hz     256 frames
-state header also contains 2 / 2, consistent with stereo
 ```
 
-The live descriptor construction at the immediate caller is:
+The orchestrator descriptors remain:
 
 ```text
 channels = 2
@@ -607,31 +599,162 @@ format   = 7
 planes   = { base, base + 4 }
 ```
 
-This represents interleaved float stereo as two channel pointers one float apart with stride 2.
+This is interleaved float stereo represented as two channel pointers one float apart with stride 2.
 
-On the second orchestrator call, source and destination pointers advanced by exactly `0x800` bytes:
+#### Directly decoded scheduler loop
 
-```text
-0x800 = 256 frames * 2 channels * 4 bytes
-```
-
-Live registers on that second call explicitly contained both:
+The hot outer APO callback at RVA `0x105050` takes the deep path when `this+0x70 == 0` and calls the active scheduler/state-machine at RVA `0xDA928`. Its core accumulation loop directly decodes as:
 
 ```text
-0x100 = 256
-0x0e0 = 224
+quantum        = obj->u32_08       // 256
+current_offset = obj->u32_0C       // persistent across callbacks
+remaining      = input_frames
+
+while (remaining != 0) {
+    space = quantum - current_offset;
+    take  = min(remaining, space);
+
+    process/copy/mix take frames into the internal staging state;
+
+    remaining      -= take;
+    input_ptr       += take * input_channels  * sizeof(float);
+    output_ptr      += take * output_channels * sizeof(float);
+    current_offset += take;
+
+    if (current_offset == quantum)
+        current_offset = 0;
+}
 ```
 
-Execution ordering was observed directly as:
+The decisive instructions are in the live RVA `0xDA928` body around the scheduler loop:
 
 ```text
-VLLDP150 outer APO callback (480 frames)
-  -> orchestrator call #1 (first 256 frames)
-  -> orchestrator call #2 (remaining 224 frames, pointers +0x800)
--> next VLLDP150 outer APO callback
+ldr  w9,[x20,#0x0c]      // persistent current_offset
+sub  w8,w21,w9           // space = quantum - current_offset
+cmp  w23,w8
+cselhs w19,w8,w23        // take = min(remaining, space)
+...
+sub  w23,w23,w19         // remaining -= take
+...                        // advance input/output pointers by take*channels*4
+ldr  w8,[x20,#0x0c]
+add  w8,w19,w8
+str  w8,[x20,#0x0c]
+cmp  w8,w21
+bne  ...
+str  wzr,[x20,#0x0c]     // wrap at the 256-frame quantum
+cbnz w23,...              // continue until callback input is consumed
 ```
 
-This is a first-class Linux parity requirement. A free-running native VLLDP150 harness that assumes one external callback equals one internal processing quantum will not reproduce Windows state/history timing exactly.
+Therefore `256+224` is only one possible observed phase. Because `480 mod 256 = 224`, the phase advances by 32 frames per 480-frame host callback and residue carries across callback boundaries.
+
+Representative consecutive live scheduler phases included:
+
+```text
+160 / 320
+256 /  64
+192 / 288
+256 /  32
+224 / 256
+```
+
+These register pairs are caller temporaries rather than a formal ABI, but their progression is consistent with the directly decoded persistent `current_offset` algorithm above. The disassembly, not the temporary register naming, is the authoritative result.
+
+#### Exact live function layering
+
+The current byte-identical VLLDP150 build now has a proven hot call chain:
+
+```text
+DAX3 wrapper APOProcess             RVA 0x0CD000
+  -> VLLDP150 outer APO callback    RVA 0x105050
+       [this+0x70 == 0: deep path]
+       -> scheduler/state machine    RVA 0x0DA928
+            -> descriptor shim      RVA 0x035160 / related interface dispatch
+                 -> orchestrator     RVA 0x01F7A8
+```
+
+The live inner VLLDP interface vtable at RVA `0x1093A0` has slot `+0x18 -> RVA 0x105050`. The descriptor shim at RVA `0x35160` builds the exact channel/stride/format/plane descriptors and indirect-calls the object's process slot that reaches `FUN_18001f7a8`.
+
+#### Orchestrator state mutation snapshots
+
+Four narrow binary snapshots were captured around two consecutive orchestrator calls from the same live object:
+
+```text
+entry #1 -> return #1 -> entry #2 -> return #2
+```
+
+Main state object base during this capture:
+
+```text
+0x000002034568c360
+```
+
+Auxiliary object:
+
+```text
+0x0000020345693ba8
+```
+
+Diff results:
+
+```text
+main state: entry1 -> return1   6725 changed bytes
+main state: return1 -> entry2      0 changed bytes
+main state: entry2 -> return2   4687 changed bytes
+
+aux state:  entry1 -> return1   2887 changed bytes
+aux state:  return1 -> entry2      0 changed bytes
+aux state:  entry2 -> return2   2781 changed bytes
+```
+
+This proves that the large DSP/history mutation occurs **inside `FUN_18001f7a8`**. No captured main/aux state bytes changed between return of call #1 and entry of call #2.
+
+The first mutable region in the main object begins near `state+0xB60`; the earlier header/config region remained stable in this capture.
+
+Three consecutive 20-element runtime arrays are present there:
+
+```text
+state+0xB60 .. +0xBAC   20 x int32
+state+0xBBC .. +0xC08   20 x float
+state+0xC0C .. +0xC58   20 x int32
+```
+
+All three mutate on each orchestrator call, strongly matching the 20-band topology, although their exact semantic names are not yet proven. They do not closely match the older exported `FUN_18001de90` vector corpus, so they are a distinct live runtime-state family rather than another copy of the already-known export vectors.
+
+A selector at `state+0x1630` changed:
+
+```text
+entry1  1
+return1 0
+entry2  0
+return2 1
+```
+
+This is consistent with a ping-pong/history-bank selector, but that label remains provisional until its readers/writers are decoded statically.
+
+#### Local evidence hashes
+
+The raw state snapshots are intentionally retained locally on SP7 rather than committed publicly because they contain live DSP buffers from playback and may include reconstructable audio content.
+
+Local directory:
+
+```text
+C:\Users\SurfacePro7\Documents\KDNET\dolby-vlldp-state-20260804
+```
+
+SHA256:
+
+```text
+entry1_aux.bin      917965A2B6BB2340820A7CCB9B65C7BE4E76FC048275FC0368D4BB0DF832685C
+entry1_state.bin    93F188D4004C10D85B4F19F6A00291EB9510EBB1BB9B571AE20E6672117F28B9
+entry2_aux.bin      C2797462CC94E1A21A4D13556BFBC90F7B3F74D2F469FBB66CBBD9F4C80034C0
+entry2_state.bin    B95D0A970D4AB199469494BE1680380109D9733AB3B0B5379F54DD335263CA18
+return1_aux.bin     C2797462CC94E1A21A4D13556BFBC90F7B3F74D2F469FBB66CBBD9F4C80034C0
+return1_state.bin   B95D0A970D4AB199469494BE1680380109D9733AB3B0B5379F54DD335263CA18
+return2_aux.bin     32C4A1E9CCB552B9DF386512B8DC32C493E771715381677618150B58DC68E612
+return2_state.bin   8C5775549D175D39FAC9A5BA901B43F1D6C0BAB9811D8E34EFA5CAF79B2A6262
+```
+
+The identical hashes for `return1` and `entry2` independently confirm the zero-mutation interval between consecutive orchestrator invocations.
 
 ### Revised parity priority
 
