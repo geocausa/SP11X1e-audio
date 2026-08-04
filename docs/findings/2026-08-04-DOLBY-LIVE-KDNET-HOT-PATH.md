@@ -275,3 +275,119 @@ the per-buffer Windows internal-speaker path.
 5. Reclassify the previous AIDE conclusion: AIDE is proven present in the
    modern ASAR code path, but is **not yet proven hot on the tested speaker
    stream**.
+
+## Live DAX3 wrapper objects resolve to VR and VLLDP150
+
+A hardware breakpoint on `DolbyDax3Apo` wrapper `APOProcess` revealed two
+nearly perfectly balanced live wrapper instances during the same music stream:
+
+```text
+this = 0x00000209396cb260   56 sampled calls
+this = 0x00000209396c8860   55 sampled calls
+```
+
+The two live wrapper vtable pointers differ:
+
+```text
+0x396cb260 -> vtable 0x00007ffd52826018
+0x396c8860 -> vtable 0x00007ffd52826188
+```
+
+The previously decoded inner-interface field at `this+0xc0` resolves the two
+wrappers directly to different Dolby modules:
+
+```text
+wrapper 0x396cb260 + 0xc0 -> 0x000002093b010008
+  first interface vtable -> 0x00007ffd111d5a18 -> DolbyApoVr.dll
+
+wrapper 0x396c8860 + 0xc0 -> 0x000002093b560008
+  first interface vtable -> 0x00007ffd30fa93a0 -> DolbyAPOvlldp150.dll
+```
+
+Thus the two equally hot DAX3 wrapper objects are not duplicate mystery
+instances. One wraps `DolbyApoVr`; the other wraps `DolbyAPOvlldp150`.
+
+### Exact inner process callbacks from the live vtables
+
+The DAX3 wrapper's inner dispatch uses the inner interface vtable slot at
+`+0x18`. Live memory gives:
+
+```text
+DolbyApoVr inner vtable 0x111d5a18
+  slot +0x18 -> 0x111d1220
+  0x111d1220 is a branch thunk -> 0x111d10c8
+
+VLLDP150 inner vtable 0x30fa93a0
+  slot +0x18 -> 0x30fa5050
+```
+
+Both exact targets were hardware-trap HOT. Representative call linkage for
+both was:
+
+```text
+LR = 0x00007ffd527bd664   (inside DolbyDax3Apo wrapper)
+```
+
+Observed short samples:
+
+```text
+DolbyApoVr  0x111d10c8   43 hits in about 1 second
+VLLDP150    0x30fa5050   32 hits in about 1 second
+```
+
+### Both inner APOs are actively processing, not taking the short bypass
+
+The VR and VLLDP interface callbacks have the same structural gate:
+
+```text
+ldrb w8, [this,#0x70]
+cbz  w8, deeper_processing_path
+otherwise: short copy/pass-through path
+```
+
+The byte was captured at hardware-breakpoint entry while the object page was
+resident:
+
+```text
+DolbyApoVr object 0x000002093b010008 + 0x70 = 0x00
+VLLDP150   object 0x000002093b560008 + 0x70 = 0x00
+```
+
+Therefore both callbacks take their deeper processing paths under the tested
+music condition.
+
+The old note that treated wrapper `this+0x5d0` as a universal bypass flag does
+not match these live derived wrapper objects: that offset contains UTF-16-like
+object data here. Do not apply the old base-class layout blindly to these two
+live wrapper variants.
+
+### Stable per-cycle order: VLLDP then VR
+
+A deliberately short dual hardware-marker run trapped the two exact inner
+callbacks simultaneously. 84 captured events alternated without reversal:
+
+```text
+VLL -> VR -> VLL -> VR -> ...
+```
+
+This is strong live evidence that for the current stream Windows invokes the
+VLLDP150-wrapping DAX3 instance before the DolbyApoVr-wrapping DAX3 instance in
+each repeating audio cycle.
+
+Updated persistent chain model for the tested stream:
+
+```text
+audioeng / audiodg
+  -> DAX3 wrapper instance (VLLDP)
+       -> DolbyAPOvlldp150 process gate [0x70 = 0]
+            -> VLLDP processing
+            -> FUN_18001f7a8 hot orchestrator
+  -> DAX3 wrapper instance (VR)
+       -> DolbyApoVr process gate [0x70 = 0]
+            -> VR deeper processing path
+```
+
+The exact sample-buffer ownership/order around the two wrappers should still be
+confirmed from the audio-engine graph objects before claiming that the output
+of one is literally the input pointer of the other, but the callback ordering
+itself is directly observed.
