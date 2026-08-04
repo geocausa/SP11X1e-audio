@@ -758,7 +758,101 @@ Windows Audio Engine: 480-frame callbacks
               +-- FUN_18001f7a8 / 256-frame VLLDP engine
 ```
 
-The exact code location/state variable that carries the 480->256 residue still needs to be mapped; the call-count relationship itself is now proven live.
+The exact code location/state variable that carries the 480->256 residue is now mapped as well.
+
+#### Exact inner 480 -> 256 accumulator: RVA 0x33640
+
+Trapping the descriptor shim at module RVA `0x35160` exposed its caller LR at module RVA `0x336E4`, inside function RVA `0x33640`. Direct disassembly of that function proves it owns the inner block accumulator.
+
+Relevant inner-object fields:
+
+```text
+inner+0x10 -> internal input staging buffer
+inner+0x18 -> internal output staging buffer
+inner+0x20 = mutable current fill count
+inner+0x38 = 176 (0xB0) on this graph; separate parameter/state
+inner+0x3C = fixed block size = 256 (0x100)
+inner+0x50 = separate output/special-mode phase field
+```
+
+Vtable slot `+0x38` resolves to a trivial getter:
+
+```asm
+ldr w0,[x0,#0x3C]
+ret
+```
+
+so the 256-frame block size is directly object-backed, not inferred.
+
+The accumulator logic in RVA `0x33640` is equivalent to:
+
+```text
+while (input_frames_remaining != 0) {
+    block = inner->u32_3C;          // 256
+
+    if (inner->fill >= block) {
+        process_internal_block();   // vtable +0x60 -> RVA 0x35160
+        inner->fill = 0;
+    }
+
+    space = block - inner->fill;
+    take  = min(input_frames_remaining, space);
+
+    memcpy(internal_input  + inner->fill * in_channels,
+           external_input,
+           take * in_channels * sizeof(float));
+
+    // current graph: vtable +0xA8 returns 0, selecting the direct-output path
+    memcpy(external_output,
+           internal_output + inner->fill * out_channels,
+           take * out_channels * sizeof(float));
+
+    external_input  += take * in_channels;
+    external_output += take * out_channels;
+    input_frames_remaining -= take;
+    inner->fill += take;
+}
+```
+
+The actual ARM64 update sequence includes:
+
+```asm
+ldr  w8,[x19,#0x20]       // fill
+...
+ldr  w0,[x19,#0x3c]       // via vtable +0x38 getter: block size
+sub  w8,w0,w24            // space = block - fill
+cmp  w23,w8
+csel w22,w23,w8,lo        // take = min(remaining, space)
+...
+str  wzr,[x19,#0x20]      // clear fill after processing a full block
+...
+add  w8,w8,w22
+str  w8,[x19,#0x20]       // fill += take
+cbnz w23,...               // continue until host input is consumed
+```
+
+This function therefore provides the exact wrapper algorithm needed for Linux parity.
+
+#### Direct host-boundary fill cycle
+
+A hardware-breakpoint logger read `inner+0x20` at ten consecutive 480-frame scheduler entries. The live fill sequence was:
+
+```text
+0x60, 0x40, 0x20, 0x100, 0xE0, 0xC0, 0xA0, 0x80, 0x60, 0x40, ...
+ 96,   64,   32,    256,  224,  192,  160,  128,   96,   64, ...
+```
+
+At the same entries:
+
+```text
+inner+0x3C = 0x100 (256) constant
+inner+0x38 = 0x0B0 (176) constant
+outer scheduler obj+0x0C = 0 constant at entry in this state
+```
+
+The fill cycle advances by 32 frames per 480-frame host callback because `480 mod 256 = 224`, equivalent to `-32 mod 256`. A stored value of `0x100` means a full 256-frame internal block is pending and is processed at the top of the next accumulator iteration.
+
+This directly explains the observed eight-callback orchestrator pattern. In particular, when a host callback begins at fill `32`, consuming 480 frames leaves a full block pending at `256` after only one processed block during that callback; the following callback begins at `256`, processes that pending block immediately, and returns to the usual two-block cadence.
 
 #### Orchestrator state mutation snapshots
 
@@ -876,6 +970,6 @@ Before fitting residual EQ or returning to AIDE as the presumed steady-state mis
   -> preserve both outer scheduler state and inner DSP/history state across callbacks
 ```
 
-The remaining scheduling unknown is no longer the rate relationship: that is proven as `8 x 480 = 15 x 256`. The remaining task is to locate the exact persistent residue/carry field and helper code that implements that 480->256 adaptation beneath/within the 432-field outer state machine.
+The inner rate adaptation is now decoded at RVA `0x33640` with `inner+0x20` as the fill counter and `inner+0x3C=256` as the block size. The remaining wrapper work is to reproduce the surrounding outer-state-machine behavior (including the separate 432 and 176 fields) and verify initialization/reset values at the literal first block of a new graph.
 
 The modern ASAR DLL is clearly reloaded on wake, but its previously trapped low-level AIDE/DAPVR/embedded-VLLDP blocks remain unproven as the hot steady-state stereo speaker path. The driver DAX3 -> VLLDP150 path is directly proven hot and now has its external/internal scheduling decoded live.
