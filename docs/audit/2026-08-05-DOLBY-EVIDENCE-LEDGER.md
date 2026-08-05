@@ -158,3 +158,21 @@ waveform stage until ordering/stream association and replay close the oracle.
   -83/-90 dBc. The very large odd-harmonic signature appears only near the loud
   ceiling, not as a continuously enabled Virtual Bass process.
 - `VR core+0x5E0` is a dormant/lazy output-mode cache flag, not missing gain.
+
+### 2026-08-05 — VR persistent gap localized to Volume-Leveler adaptive history
+
+- Exact-address hybrid replay reduced the dominant persistent June Windows
+  Music VR difference to one active arena float at `outer+0x1F1768`:
+  Windows `0.814902425`, fresh Music `0.801979303`.
+- An ARM64 hardware data watchpoint caught shipped Dolby `FUN_18006A2D0`
+  updating it with a hysteretic attack/release smoothing recurrence.
+- Caller chain terminates in the VR Volume-Leveler/DRC family, not Virtual
+  Bass. The state remains materially different after ~22 s of identical tone.
+- `core+0x93C=2` is a processing-geometry cache key that prevents the internal
+  Leveler aggregate from being rebuilt; it is not gain.
+- `core+0x4100..0x41FF` is a 64-float short-history/analysis vector written by
+  transform `FUN_180042590` from the VR-specific core. It refreshes rapidly
+  with current audio and influences the Leveler trajectory, but is not itself
+  the persistent long-memory state.
+- Correct parity work should reproduce Windows lifecycle/history semantics,
+  not hard-code the captured Leveler float.
