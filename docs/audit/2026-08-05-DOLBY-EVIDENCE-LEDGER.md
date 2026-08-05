@@ -97,6 +97,13 @@ history regions evolve between the two Windows snapshots.
 Detail:
 `docs/findings/2026-08-05-AUDIOENG-LIMITER-AND-LIVE-VR-CORE.md`
 
+- Full live VR outer replay at the original Windows heap/module VAs reveals a
+  persistent steady Music difference after identical continuous input: fresh
+  replay ~0.15354 RMS versus captured Windows ~0.12005 RMS. Exact-address hybrid
+  tests localize most of the difference to the live core plus one dependent
+  1-KiB arena block at `outer+0x1F1430` (`core+0x23C28`). This is now the
+  highest-value unresolved VR lifecycle/state target.
+
 ## Open high-value questions
 
 - Which upstream Music runtime/history state drives the Windows 75-Hz signal

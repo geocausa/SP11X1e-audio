@@ -203,6 +203,19 @@ not touch the loud 75-Hz oracle segments because the current Dolby output is
 below threshold there. The missing gain/nonlinearity is therefore upstream of
 this final limiter rather than created by it alone.
 
+
+### Full VR state replay / localized lifecycle gap
+
+The complete June VR outer allocation is retained and now replays at its exact
+Windows heap VA with the VR DLL loaded at its exact captured ASLR base. Under
+identical continuous 997-Hz input, the captured Music state settles around
+0.12005 RMS while a fresh reconstructed Music state settles around 0.15354 RMS.
+Exact-address hybrid transplants localize most of this persistent difference to
+the live VR core plus one dependent 1-KiB arena block at
+`outer+0x1F1430` (`core+0x23C28`). The outer DAX/FIFO wrapper is not the cause.
+This is a real unresolved VR lifecycle/state difference despite 34/34 stable
+Music profile-scalar parity.
+
 ## Runtime switching model
 
 Windows has more than one kind of state change:

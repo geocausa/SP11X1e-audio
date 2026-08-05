@@ -381,3 +381,97 @@ current gain is unity and the attack countdown is zero. Therefore the Windows
 AudioEng limiter is fully instantiated yet **not actively attenuating at either
 snapshot instant**. This is consistent with its role as a downstream safety
 ceiling rather than the source of the normal Music loudness/bass character.
+
+## 12. Full live VR outer allocation replays at original Windows addresses
+
+The June `audiodg.exe` dump retains the complete contiguous `DolbyApoVr` outer
+allocation:
+
+```text
+outer base          0x0000024539010000
+outer size          0x003C0430 (3,933,232 bytes)
+inner LibWrapperVr  outer+0x12C2F0 = 0x000002453913C2F0
+embedded arena      outer+0x12C430, size 0x294000
+live core           0x00000245391DD808
+DLL runtime base    0x00007FFD07A60000
+```
+
+There are no minidump gaps across the outer allocation. A replay maps that
+allocation at the exact Windows heap VA, loads the exact VR PE at its captured
+ASLR base, patches only the already-established Windows runtime plumbing, and
+calls the original `LibWrapperVr` process function.
+
+With a continuous-phase 997-Hz stereo tone, the captured Windows Music state
+and a fresh reconstructed Music state settle to **different** long-term levels:
+
+```text
+                         RMS after ~22 s     peak
+fresh reconstructed      ~0.15354            ~0.21544
+captured Windows Music    ~0.12005            ~0.16843
+```
+
+This difference survives thousands of blocks and is therefore not FIFO phase,
+startup ring-out, or a short warm-history transient. Static Music profile
+scalars already match the live core 34/34, so a separate VR lifecycle/state
+component remains.
+
+## 13. Exact-address hybrid localization
+
+Because fresh and captured allocations can occupy the same heap VA and use the
+same DLL base, captured chunks can be transplanted into a fresh deterministic
+object without pointer-relocation ambiguity.
+
+At 4096 continuous-phase blocks:
+
+```text
+fresh object                         ~0.153542 RMS
+captured core only (0x6000 bytes)    ~0.125866 RMS
+captured inner wrapper only          ~0.153653 RMS
+captured inner + core                ~0.125889 RMS
+captured entire embedded arena       ~0.120015 RMS
+captured complete outer allocation   ~0.120047 RMS
+```
+
+Thus most of the persistent difference is inside the VR core, with a smaller
+additional contribution from another arena subobject. DAX outer wrapper/FIFO
+state is not the cause.
+
+A 0x20000 arena scan localizes the primary contribution to:
+
+```text
+outer+0x1CC430 .. outer+0x1EC430
+```
+
+which contains the live core. Pairing that captured core window with each
+other arena window shows only one dependent region matters:
+
+```text
+outer+0x1EC430 .. outer+0x20C430
+```
+
+Further subdivision localizes the dependency to one 8-KiB region:
+
+```text
+outer+0x1F0430 .. outer+0x1F2430
+```
+
+and then to two 1-KiB blocks with opposing effects when paired with the live
+core:
+
+```text
+outer+0x1F0830 .. 0x1F0C30  -> raises hybrid toward fresh (~0.15409 RMS)
+outer+0x1F1430 .. 0x1F1830  -> lowers hybrid to captured (~0.11990 RMS)
+```
+
+The dominant downward block is at absolute Windows address approximately:
+
+```text
+0x0000024539201430
+```
+
+or `core + 0x23C28`. The opposing block begins at `core + 0x23028`.
+
+This is the current highest-value VR target: identify the object/fields in the
+`core+0x23C28` dependent block and the core state that makes it active. This is
+a concrete localized lifecycle/state discrepancy, not evidence that the named
+Virtual Bass switch is enabled.
