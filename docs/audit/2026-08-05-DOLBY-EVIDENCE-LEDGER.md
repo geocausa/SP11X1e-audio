@@ -51,6 +51,14 @@ not accidentally convert a useful hypothesis into folklore.
   enable=0, boundary=6, attack=712 ms, release=500 ms, max=52, min=0 and a zero
   curve. Applying these exact values through original setters is bit-identical
   to baseline in Dynamic/Movie/Music and across the full Music known-input.
+- The complete June captured VLLDP state/aux can be replayed at the original
+  Windows heap/module VAs with constructor geometry MATCH. Its huge first block
+  is program-history ring-out (also present with zero input). After three
+  repeated 997-Hz blocks, captured Windows-warm and fresh Music states converge
+  to the same RMS/peak output to displayed precision.
+- The live AudioEng limiter state was recovered from its exact initialization
+  signature. At both June snapshots current gain is 1.0 and attack-left is 0;
+  it is instantiated but not actively limiting at those instants.
 
 Primary detail record:
 

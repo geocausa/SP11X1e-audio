@@ -96,7 +96,7 @@ position and contribution to the recovered nonlinear waveform are still open.
 | Leveler / DRC / regulator / VolMax | A: live DAX map; B: output/ablation behavior | Original VR/VLLDP processing | **Active and acoustically important** |
 | SurfaceAPO media EQ | C: REV_0D MEDIA/MOVIE/default nodes disabled/identity | Not separately emulated | **Likely no-op for captured media mode** |
 | Modern ASAR/AIDE DAPVR | A: tested ordinary-stereo cores hardware-cold | Not in production chain | **Cold for tested mode; mode-dependent open elsewhere** |
-| `AudioEng!CAudioLimiter` | A: real audiodg ETW; C: exact ARM64 state machine decoded | Offline exact oracle decoded; not deployed | **Proven live final limiter; not sufficient to close 75-Hz residual** |
+| `AudioEng!CAudioLimiter` | A: real audiodg ETW; C: exact ARM64 state machine decoded | Offline exact oracle decoded; not deployed | **Proven live final limiter; unity gain / inactive attack in both June snapshots; not source of normal loudness** |
 | Qualcomm lower graph | A: KD/QGPR live graph | Reconstructed protected graph | **High topology confidence** |
 | VOL_CTRL gain/mute | A: parameter IDs and live writes | Present | **Known control, not mystery limiter** |
 | MSIIR stages | A/C: live graph + ACDB | Loaded in protected graph | **Static-stage confidence high** |
@@ -185,7 +185,11 @@ the Movie/Music family; the sibling VR core resolves the complete chain to
 Music. After pointer relocation and Windows `CRITICAL_SECTION` bookkeeping are
 excluded, the only stable VLLDP tuning mismatch is a disabled sliding-bass
 block. Reproducing its exact Windows values through original setters is
-bit-identical, closing that discrepancy as dormant. Detail:
+bit-identical, closing that discrepancy as dormant. The complete captured
+Windows VLLDP state was then replayed at its original heap/module addresses.
+Its first-block excess is stored program-history ring-out; after three repeated
+997-Hz blocks the Windows-warm state and a fresh Music state converge to the
+same steady RMS/peak output to displayed precision. Detail:
 `docs/findings/2026-08-05-LIVE-VLLDP-CORE-RECOVERY.md`.
 
 Detail: `docs/findings/2026-08-05-AUDIOENG-LIMITER-AND-LIVE-VR-CORE.md`.

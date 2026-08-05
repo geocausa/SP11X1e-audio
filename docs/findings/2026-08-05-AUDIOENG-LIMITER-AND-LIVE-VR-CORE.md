@@ -351,3 +351,33 @@ Therefore these recovered VR history arrays are acoustically active, but the
 specific June snapshot does not explain the Windows oracle's extra 2--3 dB of
 pre-limiter drive or its strong odd-harmonic onset. This significantly lowers
 "missing VR warm history" as the primary explanation for that residual.
+
+## 11. Live AudioEng limiter state recovered from the same June process
+
+The exact limiter initialization signature was used instead of the earlier
+incorrect absolute-detector-pointer heuristic. The unique live limiter state is
+identified by:
+
+```text
+channels             2
+look-ahead            64 frames
+1/look-ahead          0.015625
+sample rate           48000.0
+release-up            exp(+2.205/48000)
+release-down          exp(-2.205/48000)
+ceiling/envelope      0.9850000143
+```
+
+At both captured instants the live limiter reports:
+
+```text
+current gain          1.0
+attack frames left    0
+release enabled       1
+```
+
+The stored target/attack-step values retain evidence of prior peak events, but
+current gain is unity and the attack countdown is zero. Therefore the Windows
+AudioEng limiter is fully instantiated yet **not actively attenuating at either
+snapshot instant**. This is consistent with its role as a downstream safety
+ceiling rather than the source of the normal Music loudness/bass character.

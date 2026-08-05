@@ -227,3 +227,83 @@ stable word difference.
 Future work should focus on state-matched processing/lifecycle or other upstream
 actors, not on blindly enabling VLLDP sliding bass or the named VR Bass
 Enhancer/Virtual Bass controls.
+
+## Full captured-state replay at the original Windows addresses
+
+The older orchestrator replay infrastructure was adapted to the June full-dump
+addresses rather than transplanting selected fields:
+
+```text
+Windows VLLDP DLL runtime base  0x00007FFD07D80000
+Windows VLLDP state             0x000002453968C360
+mapped state page base          0x000002453968C000
+aux                             0x0000024539693BA8
+```
+
+The PE was loaded at the exact Windows ASLR base with `sp11_pe_load_at()`, the
+state arena was mapped at the exact Windows heap VA, the deterministic
+constructor was run there, and the captured main-state/aux bytes were overlaid.
+Constructor pointer geometry reports **MATCH** before overlay, independently
+validating that the replay and live allocation use the same deterministic
+layout.
+
+### The apparent 4x first-block output is stored program history
+
+A 0.05-amplitude 997-Hz stereo block initially produced:
+
+```text
+input RMS   ~0.035494607
+output RMS  ~0.138738610
+```
+
+This initially looked like a large state-dependent gain. A zero-input control
+proved otherwise. From the exact same captured state:
+
+```text
+zero block 0  RMS 0.137041480   peak 0.480750829
+zero block 1  RMS 0.005179541
+zero block 2  RMS 0.000460810
+zero block 3  ~1e-9
+zero block 4  0
+```
+
+Thus the first large block is stored transform/overlap/program ring-out from the
+real Windows stream captured in the snapshot, not a hidden broadband gain.
+
+### Captured Windows state and fresh Music state converge to the same audio
+
+Twenty-four identical direct 256-frame 997-Hz stereo blocks were then processed
+through both:
+
+1. the exact captured Windows-warm state/aux at their original addresses; and
+2. a fresh Music state built with the current Linux replay and original Dolby
+   setters.
+
+Captured Windows-warm state:
+
+```text
+block 0  RMS 0.138738610   (program-history ring-out)
+block 1  RMS 0.032028585
+block 2  RMS 0.031619503
+block 3  RMS 0.031597399   peak 0.055477429
+block 4+ RMS 0.031597400   peak 0.055477425
+```
+
+Fresh Music state:
+
+```text
+block 0  RMS 0.017253252   (cold transform/history fill)
+block 1  RMS 0.031503213
+block 2  RMS 0.031602261
+block 3  RMS 0.031597399   peak 0.055477429
+block 4+ RMS 0.031597400   peak 0.055477425
+```
+
+From block 3 onward the actual audio output converges to the same steady result
+to the displayed precision even though internal long-history gain/export
+vectors remain different. This is direct execution of the original Windows DSP
+from two independent state histories, not a fitted model.
+
+This is strong evidence that the reconstructed Music VLLDP configuration and
+sample-processing path are acoustically equivalent to the live Windows state
+once unrelated captured program history is normalized.
