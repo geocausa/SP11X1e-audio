@@ -292,3 +292,22 @@ optional feature completion rather than a blocker for the speaker path:
 2. continue investigating modern ASAR/AIDE only for modes where hardware traps
    prove those stages execute; do not assume them into the steady-state speaker
    chain without new live evidence.
+
+## Post-GEQ production smoke
+
+After installing the GEQ-capable self-contained production host, a three-second
+non-zero stereo float stream at approximately -120 dBFS was played through the
+actual PipeWire `effect_input.sp11_windows_dolby` sink. Before/after:
+
+```text
+filter-chain MainPID   92891 -> 92891
+NRestarts              0 -> 0
+Dolby sink volume      0.10 -> 0.10
+profile                 Dynamic
+Custom GEQ              off
+```
+
+The service journal contained no crash, core dump, assertion, xrun,
+under/overrun, failure, or error entry during the test. This verifies the final
+GEQ-capable production binary in the real PipeWire graph, not only the offline
+LADSPA harness.
