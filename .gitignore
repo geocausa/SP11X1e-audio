@@ -14,3 +14,13 @@ deploy/firmware/reference/
 
 # Operator handoffs can contain transient debugger transport credentials.
 docs/handoffs/
+
+# Dolby RE local build products. Source/probes are tracked; no-extension test
+# executables and locally built shared objects are reproducible artifacts.
+/dolby-port/*_test
+/dolby-port/*.so
+/dolby-port/sp11_*_probe
+/dolby-port/sp11_*_replay
+/dolby-port/sp11_*_oracle
+/dolby-port/sp11_dolby_windows_chain_known_input
+/dolby-port/sp11_vlldp_v8_contract_check

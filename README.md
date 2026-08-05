@@ -13,6 +13,14 @@ separate layers so that an acoustic result is never mistaken for a driver fact.
 > This is research-quality hardware enablement, not an upstream-ready driver or
 > a general-purpose installation package.
 
+> **Dolby completion branch update (2026-08-05):** on
+> `agent/dolby-completion-2026-08-05`, the original Windows ARM64
+> `DolbyAPOvlldp150 -> DolbyApoVr` processing path is executing on Linux as an
+> experimental overlay above the accepted protected lower graph. Final Windows
+> parity is **not** yet certified. Start with
+> [`docs/audit/2026-08-05-CANONICAL-DOLBY-PIPELINE.md`](docs/audit/2026-08-05-CANONICAL-DOLBY-PIPELINE.md),
+> not the older Dolby state-of-play notes.
+
 ## Current baseline
 
 The accepted control is kernel `7.1.5-sp11-audio-clean+`, GRUB ID

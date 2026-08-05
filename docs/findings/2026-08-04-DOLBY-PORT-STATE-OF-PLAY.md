@@ -1,5 +1,7 @@
 # Dolby port — state of play, 2026-08-04
 
+> **HISTORICAL TARGET (2026-08-05):** this handoff made real progress decoding modern `DolbyAudioProcessing.dll`, but later hardware traps made the persistent `DolbyAPOvlldp150 + DolbyApoVr` chain the primary ordinary-stereo target. Do not treat the modern DAPVR/VLLDP reconstruction below as the production parity path. See `docs/audit/2026-08-05-CANONICAL-DOLBY-PIPELINE.md`.
+
 Read this first. Everything below is committed and pushed to
 `github.com/geocausa/SP11X1e-audio`, branch **`dolby-re-decode`**
 (six commits, `8a95876` .. `a715962`).

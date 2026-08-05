@@ -1,5 +1,7 @@
 # Dolby native-chain progress checkpoint — 2026-08-04
 
+> **SUPERSEDED ARCHITECTURE (2026-08-05):** this checkpoint was valuable intermediate RE, but its `DAPVR -> VLLDP -> limiter` target was superseded by Aug-4 hardware evidence proving the persistent tested order `VLLDP -> VR`. Preserve measurements/disassembly; use `docs/audit/2026-08-05-CANONICAL-DOLBY-PIPELINE.md` for current topology.
+
 This checkpoint continues from `2026-08-04-DOLBY-PORT-STATE-OF-PLAY.md` at commit
 `e0a5a7b` and records the new reverse-engineering work done after that handoff.
 

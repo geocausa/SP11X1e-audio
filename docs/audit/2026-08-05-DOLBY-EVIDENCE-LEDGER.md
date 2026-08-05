@@ -73,4 +73,6 @@ which stream(s) it processes, and whether replaying it closes the 75-Hz oracle.
 ## Preservation checkpoints
 
 - `5563376` — runtime Dolby gain/limiter recheck, pushed to origin.
-- This ledger and the AudioEng/AudioLimiter evidence are the next checkpoint.
+- `21d5638` — evidence ledger + AudioEng/AudioLimiter live-ETW evidence, pushed to origin.
+- The canonical topology/index/production-manifest consolidation is maintained
+  by the next repository-organization checkpoint.

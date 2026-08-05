@@ -1,0 +1,212 @@
+# Canonical SP11 Dolby / speaker pipeline — 2026-08-05
+
+**Status:** canonical engineering model for the active Dolby completion branch.
+
+This document is the first place to start when resuming SP11 Dolby work. It is
+not a historical lab notebook. Older findings remain in the repository for
+provenance, but where they disagree with this page the newer direct evidence
+listed here wins.
+
+Canonical branch:
+
+```text
+agent/dolby-completion-2026-08-05
+```
+
+Evidence ledger:
+
+```text
+docs/audit/2026-08-05-DOLBY-EVIDENCE-LEDGER.md
+```
+
+Production manifest:
+
+```text
+docs/deployment/2026-08-05-DOLBY-PRODUCTION-MANIFEST.md
+```
+
+## Evidence grades
+
+- **A — direct runtime:** hardware execution trap, process/kernel dump, ETW/QGPR
+  event, exact live memory, or direct Windows RPC read from the identified
+  binary/session.
+- **B — controlled reproduction:** original Windows code replayed on Linux,
+  deterministic state oracle, exact-stimulus comparison, chunk invariance or
+  actor-ablation experiment.
+- **C — static:** shipped binary disassembly/RTTI, INF/XML/JSON/ACDB or other
+  configuration evidence without a matching live execution observation.
+- **OPEN:** credible target whose exact runtime role/order is not yet proved.
+
+A lower-grade source must not override contradictory higher-grade evidence.
+Historical AI prose is never evidence by itself.
+
+## Canonical ordinary stereo speaker model
+
+The currently supported model for ordinary built-in-speaker media is:
+
+```text
+application / shared-mode stream
+        |
+        v
+Windows Audio Engine graph
+        |
+        +-- DolbyDax3Apo wrapper instance 1
+        |       -> DolbyAPOvlldp150
+        |
+        +-- DolbyDax3Apo wrapper instance 2
+        |       -> DolbyApoVr
+        |
+        +-- CAudioLimiter / other AudioEng engine state [position/effect OPEN]
+        |
+        v
+MMDEVAPI speaker endpoint
+        |
+        v
+Qualcomm AudioReach render graph
+  SAL / VOL_CTRL / MSIIR / channel mixer / SPv5
+        |
+        +<-- SP_VI + WSA884x voltage/current feedback
+        |
+        v
+SoundWire / dual WSA884x amplifiers / speakers
+```
+
+The **proven Dolby sample-processing order** in the tested Windows media stream
+is:
+
+```text
+VLLDP -> VR
+```
+
+The diagram deliberately does not place `CAudioLimiter` before or after a
+specific APO callback. Its class is live in AudioEng ETW, but its exact graph
+position and contribution to the recovered nonlinear waveform are still open.
+
+## Actor confidence matrix
+
+| Actor / boundary | Evidence | Linux reproduction | Status |
+|---|---|---|---|
+| `DolbyDax3Apo` wrappers | A: August hardware-hot wrapper callbacks | Wrapper plumbing is not executed wholesale; inner native processors are hosted directly | Wrapper sample-rate/notification side paths substantially audited; no missing 48-kHz SRC effect found |
+| `DolbyAPOvlldp150` | A: hardware-hot scheduler/core; July live state page | Original ARM64 PE code, original 432 scheduler + 256 accumulator/core | **Proven hot / reproduced** |
+| `DolbyApoVr` | A: second persistent wrapper/core hot | Original ARM64 PE wrapper/core | **Proven hot / reproduced** |
+| DAX profile/config maps | A: RPC + DAX3API process memory | Profile setters reproduce recovered controls | **High confidence** |
+| DAX runtime volume feedback | A/C: decompiled live service path + endpoint object | Not yet continuously coupled to Linux endpoint volume | **Real runtime layer; parity work remains** |
+| Named Bass Enhancer | A: 33/33 direct reads = 0; live DAX map = `0` | Off | **Proven off in recovered states** |
+| Named Virtual Bass / extraction / modeler | A/C: live Music map values `0`; native setter probes | Off; exact off-block probes bit-identical | **Off in recovered state; not explanation for current residual** |
+| Leveler / DRC / regulator / VolMax | A: live DAX map; B: output/ablation behavior | Original VR/VLLDP processing | **Active and acoustically important** |
+| SurfaceAPO media EQ | C: REV_0D MEDIA/MOVIE/default nodes disabled/identity | Not separately emulated | **Likely no-op for captured media mode** |
+| Modern ASAR/AIDE DAPVR | A: tested ordinary-stereo cores hardware-cold | Not in production chain | **Cold for tested mode; mode-dependent open elsewhere** |
+| `AudioEng!CAudioLimiter` | A: real audiodg Microsoft-Windows-Audio Start/Stop ETW; C: exact AudioEng binary/class | Not reproduced | **Strong live candidate; exact role OPEN** |
+| Qualcomm lower graph | A: KD/QGPR live graph | Reconstructed protected graph | **High topology confidence** |
+| VOL_CTRL gain/mute | A: parameter IDs and live writes | Present | **Known control, not mystery limiter** |
+| MSIIR stages | A/C: live graph + ACDB | Loaded in protected graph | **Static-stage confidence high** |
+| SPv5 / SP_VI / VI feedback | A: Windows graph; live Linux logs | Active with both VI channels | **Active / substantially reproduced** |
+| Graph calibration | A: 107 Windows frames | 106 accepted, one unsupported filtered | **Not literal 107/107 parity** |
+| Protection telemetry/result callbacks | A: Windows evidence | Partial on Linux | **Observability gap** |
+
+## What the July Firefox/YouTube dump proves
+
+Dump:
+
+```text
+SP11-PROJECT/Gemini/dumps/WINDOWS_KERNEL_DUMP/sp11_kernel_mcp_windbg.dmp
+```
+
+Directly recovered facts:
+
+- Firefox is associated with the built-in speaker endpoint in retained audio
+  session material.
+- A genuine live `DolbyAPOvlldp150` runtime page survives.
+- Its object geometry resolves the July VLLDP state near
+  `0x0000018BD668C360` and DLL base near `0x00007FFBC9F00000`.
+- Named VLLDP controls are `deviation=96`, `slow_enable=1`, `slow_mix=103`.
+- Those values identify the **Movie/Music VLLDP family**, not Dynamic.
+- The retained page also gives live `peak_level=0` and `target_power=-80`.
+
+The `.dump /k` is **not** a complete user-mode oracle. The VR page needed to
+read every control did not survive, and the dump alone cannot certify the
+whole Windows audio engine or lower DSP pipeline.
+
+## What the old exact-stimulus Windows oracle proves
+
+Recovered pair:
+
+```text
+sp11-known-input-stimulus-48k.wav
+known-input/windows-loopback-20260518-153312.wav
+```
+
+The May DLL hashes match the July/August VLLDP/VR/DAX3 binaries. With latency
+alignment and one global gain fit, the current original-code chain reaches
+roughly 0.96 whole-waveform correlation. Movie is narrowly best in the current
+candidate set; warm history can raise Movie to about 0.967.
+
+Actor ablation is informative:
+
+```text
+VLLDP only       ~0.941 correlation
+VLLDP -> VR      ~0.963 correlation (cold Movie candidate)
+```
+
+Therefore VR is acoustically material and the recovered order is independently
+supported by waveform behavior.
+
+The oracle also exposes a **real unresolved residual**. At loud 75-Hz steps,
+Windows reaches a repeatable near-full-scale ceiling and produces much stronger
+odd harmonics (especially H3/H5) than the current Linux VLLDP->VR output. Warm
+history explains part of the mismatch but not this nonlinear signature.
+
+This residual is the current parity target. Do not hide it with guessed EQ or a
+hand-written bass enhancer.
+
+## Runtime switching model
+
+Windows has more than one kind of state change:
+
+1. signal-processing mode / graph construction (`DEFAULT`, `MEDIA`, `MOVIE`,
+   `NOTIFICATION`, etc.);
+2. DAX profile and feature changes inside an existing graph;
+3. runtime DAX parameter-map rebuilding, including endpoint-volume feedback;
+4. state/history inside VLLDP/VR leveler/regulator/maximizer blocks;
+5. lower endpoint/protection/gain controls.
+
+A module being loaded is not proof it processes samples. A profile XML value is
+not proof it is the final runtime value. Conversely, a runtime nonlinearity is
+not proof that the feature whose marketing name sounds similar is enabled.
+
+## Current production boundary
+
+The Linux production host intentionally executes the **proven original Windows
+VLLDP and VR processors** and does not add the old hand-written fake-bass DSP,
+modern ASAR, or an inferred AudioEng limiter.
+
+That is the correct engineering boundary while the residual is unresolved: do
+not improve subjective sound by adding an unproved stage and then call it
+parity.
+
+## Current open questions, in priority order
+
+1. Resolve `AudioEng!CAudioLimiter` graph position, state and algorithm for the
+   captured speaker stream; replay it against the 75-Hz oracle.
+2. Finish semantics of DAX `vlldp-limiter-gain` /
+   `mb_compressor_limiter_gain` (control vs status/readback) and correlate any
+   live value with VLLDP limiter state.
+3. Resolve the July Movie-vs-Music ambiguity from an independent retained state
+   source if possible.
+4. Reproduce the complete DAX runtime gain-feedback lifecycle, not only static
+   profile initialization.
+5. Obtain or reconstruct a state-pinned same-stimulus Windows oracle for final
+   waveform certification.
+6. Close the one unsupported lower calibration record and protection telemetry
+   only if they prove acoustically/materially relevant.
+
+## Change-control rule
+
+A new finding changes this canonical model only when it has a reproducible
+A/B/C evidence record. When that happens:
+
+- update this page;
+- update the evidence ledger;
+- mark the contradicted older note as superseded or historical;
+- add a regression/oracle when executable behavior changed;
+- commit and push the checkpoint before moving to the next major hypothesis.

@@ -1,5 +1,7 @@
 # Dolby integration map — binaries, imports, entry points (2026-08-01)
 
+> **HISTORICAL / PARTIALLY SUPERSEDED (2026-08-05):** retain this file for binary/import provenance. Its architecture predates the Aug-4 live DAX/VLLDP/VR callback recovery and later runtime-map work. Use `docs/audit/2026-08-05-CANONICAL-DOLBY-PIPELINE.md` for the current model.
+
 Built by direct inspection of the shipped ARM64 PE binaries with `objdump`,
 not from prior notes. Every claim here is reproducible with the commands shown.
 
