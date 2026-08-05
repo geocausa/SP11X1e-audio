@@ -6,12 +6,16 @@ Dolby DLLs are intentionally not stored in Git.
 The LADSPA bridge executes the original SP11 Windows render order:
 `DolbyAPOvlldp150 -> DolbyApoVr`.
 
-Profiles are chosen before plugin activation with `SP11_DOLBY_PROFILE`:
-`dynamic`, `movie`, `music`, `game`, `voice`, `onlinecourse`, or `personalize`.
-The helper persists the selected profile in `~/.config/sp11-dolby/profile`,
-writes a systemd user-service environment drop-in, then restarts only the
-dedicated `filter-chain.service`. The real-time audio callback never performs a
-profile rebuild.
+Profiles are `dynamic`, `movie`, `music`, `game`, `voice`, `onlinecourse`, or
+`personalize`. `SP11_DOLBY_PROFILE` remains the cold-start/default source, while
+the production LADSPA bridge also exposes a `Profile` control (`-1` = keep the
+startup profile, `0..6` = the seven profiles). The helper persists the selection
+in `~/.config/sp11-dolby/profile` and the systemd drop-in for the next cold
+start, then changes `dolby:Profile` on the existing PipeWire filter node. The
+bridge applies only profile-dependent original Dolby setters; VLLDP/VR are not
+reconstructed and adaptive history is preserved. A dedicated-service restart
+is retained only as a compatibility fallback for an older plugin or missing
+live node.
 
 `sp11-dolby off` selects the separate transparent bypass sink; it does not
 uninstall or mutate the Dolby processor.

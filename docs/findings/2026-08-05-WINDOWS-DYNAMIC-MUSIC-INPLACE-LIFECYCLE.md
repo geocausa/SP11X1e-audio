@@ -224,3 +224,59 @@ Profile/tuning changes should call the original setters/apply logic on the
 existing VLLDP and VR state and preserve adaptive history. Full reconstruction
 should be reserved for real instance creation/destruction or an explicit hard
 reset whose Windows analogue also resets DSP state.
+
+## Linux implementation and offline regression
+
+The production bridge now exposes a sixth LADSPA port:
+
+```text
+Profile   integer -1..6
+-1        preserve SP11_DOLBY_PROFILE startup selection
+0..6      Dynamic, Movie, Music, Game, Voice, OnlineCourse, Personalize
+```
+
+At a control change the existing instance compares old/new profile structures.
+Only changed VR scalar controls are sent to the recovered original setters; IEQ
+curve/output-mode work is performed only when those profile fields differ.
+VLLDP compressor tuning is updated only when crossing the Dynamic-family versus
+Movie/Music-family boundary, followed by the original VLLDP apply function.
+Neither VLLDP construction/scheduler initialization nor VR deinit/construction is
+called.
+
+A dedicated source-level lifecycle regression warms Dynamic for 12 seconds,
+records the exact VLLDP core, VR outer/inner/core pointers and the proved VR
+long-memory float at `outer+0x1F1768`, changes the LADSPA Profile control to
+Music with a zero-frame control cycle, and checks the state before any new audio
+is processed. Result:
+
+```text
+initial long memory    0.801979303  bits 3f4d4e84
+warmed long memory    0.794327974  bits 3f4b5914
+after Music retune    0.794327974  bits 3f4b5914
+
+VR outer pointer      unchanged
+VR core pointer       unchanged
+VLLDP core pointer    unchanged
+leveler amount        5 -> 0
+state preserved       YES
+PROFILE_LIFECYCLE_RESULT PASS
+```
+
+After one second of Music audio the state evolves normally, and an in-place
+return to Dynamic again preserves the exact instantaneous long-memory bits.
+
+The candidate also passes the existing regressions:
+
+```text
+block-size/plugin test       PASS, reference hash 01ec0adc40a8905b
+70-second activate/reset     PASS, 0 differing samples
+old installed Dynamic hash  01ec0adc40a8905b
+new candidate Dynamic hash  01ec0adc40a8905b
+```
+
+PipeWire runtime-control feasibility was independently checked on the live host
+using the pre-existing Bypass control with a no-op `false -> false` write.
+`pw-cli set-param ... Props` updated the LADSPA control without changing the
+filter service PID, `NRestarts`, sink volume, or default sink. The deployment
+helper therefore uses the same PipeWire Props mechanism for `dolby:Profile` and
+keeps the old service restart only as a fallback.

@@ -112,7 +112,7 @@ typedef struct {
     uint32_t reserved;
 } VlConnProp;
 
-enum { PORT_IN_L,PORT_IN_R,PORT_OUT_L,PORT_OUT_R,PORT_BYPASS,PORT_COUNT };
+enum { PORT_IN_L,PORT_IN_R,PORT_OUT_L,PORT_OUT_R,PORT_BYPASS,PORT_PROFILE,PORT_COUNT };
 
 typedef enum {
     CHAIN_PROFILE_DYNAMIC=0, CHAIN_PROFILE_MOVIE, CHAIN_PROFILE_MUSIC,
@@ -128,6 +128,15 @@ typedef struct {
     int movie_music_vlldp;
     const int32_t *ieq_curve;
 } ChainProfileCfg;
+
+/* VLLDP multiband-compressor profile payloads recovered from the shipped SP11
+ * tuning.  Dynamic-family profiles use one group; Movie/Music use four. */
+static const int32_t vl_gd[6]={20,0,32767,10,20,0};
+static const int32_t vl_gm0[6]={2,-256,12980,3,20,64};
+static const int32_t vl_gm1[6]={7,-160,16366,10,20,64};
+static const int32_t vl_gm2[6]={16,0,32767,10,20,0};
+static const int32_t *const vl_gp_dynamic[1]={vl_gd};
+static const int32_t *const vl_gp_movie_music[4]={vl_gm0,vl_gm1,vl_gm2,vl_gd};
 
 static const int32_t vr_centers[20]={47,141,234,328,469,656,844,1031,1313,1688,2250,3000,3750,4688,5813,7125,9000,11250,13875,19688};
 static const int32_t vr_ieq_balanced[20]={157,167,218,218,203,188,192,192,205,213,218,209,193,159,134,97,71,22,-90,-283};
@@ -151,6 +160,7 @@ typedef struct {
     Sp11PeImage vl_img,vr_img;
     int vl_loaded,vr_loaded,ready;
     ChainProfile profile;
+    int last_profile_request;
 
     void *vl_core_arena,*vl_sched,*vl_inner,*vl_inner_in,*vl_inner_out;
     uint32_t vl_fmt[8];
@@ -200,18 +210,20 @@ static ChainProfile chain_profile_from_env(void){
     return CHAIN_PROFILE_DYNAMIC;
 }
 
+static void vl_apply_profile_fields(ChainInst *p,void *core,const ChainProfileCfg *pc){
+    if(pc->movie_music_vlldp) p->vl_pid17(core,4,vl_gp_movie_music);
+    else p->vl_pid17(core,1,vl_gp_dynamic);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_COMP_DEVIATION_VA))(core,pc->movie_music_vlldp?96:0);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_COMP_SLOW_EN_VA))(core,pc->movie_music_vlldp?1:0);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_COMP_SLOW_MIX_VA))(core,pc->movie_music_vlldp?103:256);
+}
+
 static int vl_reset(ChainInst *p){
     const ChainProfileCfg *pc=&chain_profiles[p->profile];
     memset(p->vl_core_arena,0,VL_CORE_ARENA_SIZE); memset(p->vl_sched,0,VL_SCHED_SIZE);
     memset(p->vl_inner,0,VL_INNER_SIZE); memset(p->vl_inner_in,0,0x800); memset(p->vl_inner_out,0,0x800);
     uint8_t *core=p->vl_core_ctor(256,48000,2,0,p->vl_core_arena); if(!core)return -1;
     uint32_t empty[2]={0,0};
-    int32_t gd[6]={20,0,32767,10,20,0};
-    int32_t gm0[6]={2,-256,12980,3,20,64};
-    int32_t gm1[6]={7,-160,16366,10,20,64};
-    int32_t gm2[6]={16,0,32767,10,20,0};
-    const int32_t *gp_dynamic[1]={gd};
-    const int32_t *gp_movie_music[4]={gm0,gm1,gm2,gd};
     static const int32_t ao[40]={
       -16,18,16,30,16,-32,-16,-32,-16,-32,-48,-62,-64,-64,-16,-16,-16,16,80,48,
       0,32,32,45,16,0,-16,-16,-16,0,-32,-38,-48,-48,0,0,0,32,96,64};
@@ -222,11 +234,7 @@ static int vl_reset(ChainInst *p){
     p->vl_pid5(core,empty);
     ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_AO_ENABLE_VA))(core,1);
     ((VlArrayCountFn)sp11_pe_ptr_for_va(&p->vl_img,VL_AO_GAINS_VA))(core,ao,40);
-    if(pc->movie_music_vlldp) p->vl_pid17(core,4,gp_movie_music);
-    else p->vl_pid17(core,1,gp_dynamic);
-    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_COMP_DEVIATION_VA))(core,pc->movie_music_vlldp?96:0);
-    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_COMP_SLOW_EN_VA))(core,pc->movie_music_vlldp?1:0);
-    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_COMP_SLOW_MIX_VA))(core,pc->movie_music_vlldp?103:256);
+    vl_apply_profile_fields(p,core,pc);
     ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_TARGET_POWER_VA))(core,-80);
     ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_PEAK_LEVEL_VA))(core,0);
     ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_POSTGAIN_VA))(core,0);
@@ -297,6 +305,19 @@ static int vr_apply_geq(ChainInst *p,void *core){
     return 0;
 }
 
+static int vr_apply_ieq_curve(ChainInst *p,void *core,const int32_t *curve){
+    void *layout=(void*)(uintptr_t)q(core,0x28); if(!layout)return -1;
+    void *freqmap=(void*)(uintptr_t)q(layout,0x48); uint32_t nmap=d(layout,0x0c);
+    if(!freqmap || !nmap)return -2;
+    int gr=((VrBandGridFn)sp11_pe_ptr_for_va(&p->vr_img,VR_BAND_GRID_VA))((uint8_t*)core+0x754,freqmap,nmap,vr_centers,20);
+    if(gr!=2){
+        int tr=((VrBandTargetFn)sp11_pe_ptr_for_va(&p->vr_img,VR_BAND_TARGET_VA))((uint8_t*)core+0x754,(uint8_t*)core+0x704,curve,-480,480);
+        if(tr)wd(core,0x6fc,1);
+    }
+    if(d(core,0x6fc))wd(core,0x1278,1);
+    return 0;
+}
+
 static int vr_apply_profile_complex(ChainInst *p,void *core,const ChainProfileCfg *pc){
     const char *disable=getenv("SP11_VR_COMPLEX_PROFILE");
     if(disable && (!strcmp(disable,"0") || !strcasecmp(disable,"off") || !strcasecmp(disable,"false"))) return 0;
@@ -305,17 +326,7 @@ static int vr_apply_profile_complex(ChainInst *p,void *core,const ChainProfileCf
     int do_ieq=!parts || strstr(parts,"ieq");
     int do_reg=!parts || strstr(parts,"reg");
     if(do_output) ((VrOutputModeFn)sp11_pe_ptr_for_va(&p->vr_img,VR_OUTPUT_MODE_VA))(core,(uint32_t)pc->output_mode,2,vr_mix);
-    if(do_ieq){
-        void *layout=(void*)(uintptr_t)q(core,0x28); if(!layout)return -1;
-        void *freqmap=(void*)(uintptr_t)q(layout,0x48); uint32_t nmap=d(layout,0x0c);
-        if(!freqmap || !nmap)return -2;
-        int gr=((VrBandGridFn)sp11_pe_ptr_for_va(&p->vr_img,VR_BAND_GRID_VA))((uint8_t*)core+0x754,freqmap,nmap,vr_centers,20);
-        if(gr!=2){
-            int tr=((VrBandTargetFn)sp11_pe_ptr_for_va(&p->vr_img,VR_BAND_TARGET_VA))((uint8_t*)core+0x754,(uint8_t*)core+0x704,pc->ieq_curve,-480,480);
-            if(tr)wd(core,0x6fc,1);
-        }
-        if(d(core,0x6fc))wd(core,0x1278,1);
-    }
+    if(do_ieq && vr_apply_ieq_curve(p,core,pc->ieq_curve))return -1;
     if(do_reg){
         ((VrRegTuneFn)sp11_pe_ptr_for_va(&p->vr_img,VR_REG_TUNING_VA))((uint8_t*)core+0xdc0,20,vr_centers,vr_reg_lo,vr_reg_hi,vr_reg_iso);
         if(d(core,0xdcc))wd(core,0x1278,1);
@@ -357,6 +368,71 @@ static int vr_apply_profile(ChainInst *p,uint8_t *inner){
     vr_scalar(p,core,VR_H_VIRT_SURROUND,pc->virt_surround);
     vr_scalar(p,core,VR_H_VOLMAX_BOOST,pc->volmax_boost);
     return vr_apply_profile_complex(p,core,pc);
+}
+
+static int vr_retarget_profile(ChainInst *p,void *core,ChainProfile old_profile,ChainProfile new_profile){
+    const char *disable=getenv("SP11_VR_DYNAMIC_PROFILE");
+    if(disable && (!strcmp(disable,"0") || !strcasecmp(disable,"off") || !strcasecmp(disable,"false"))) return 0;
+    const ChainProfileCfg *old=&chain_profiles[old_profile],*pc=&chain_profiles[new_profile];
+#define VR_SCALAR_CHANGED(field,handler) do{if(old->field!=pc->field)vr_scalar(p,core,handler,pc->field);}while(0)
+    VR_SCALAR_CHANGED(leveler_enable,VR_H_LEVELER_ENABLE);
+    VR_SCALAR_CHANGED(leveler_amount,VR_H_LEVELER_AMOUNT);
+    VR_SCALAR_CHANGED(dialog_enable,VR_H_DIALOG_ENABLE);
+    VR_SCALAR_CHANGED(dialog_amount,VR_H_DIALOG_AMOUNT);
+    VR_SCALAR_CHANGED(ieq_enable,VR_H_IEQ_ENABLE);
+    VR_SCALAR_CHANGED(ieq_amount,VR_H_IEQ_AMOUNT);
+    if(old->mi_steering!=pc->mi_steering){
+        vr_scalar(p,core,VR_H_MI_DIALOG,pc->mi_steering);
+        vr_scalar(p,core,VR_H_MI_LEVELER,pc->mi_steering);
+        vr_scalar(p,core,VR_H_MI_IEQ,pc->mi_steering);
+        vr_scalar(p,core,VR_H_MI_SURR_COMP,pc->mi_steering);
+        vr_scalar(p,core,VR_H_MI_VIRT,pc->mi_steering);
+    }
+    VR_SCALAR_CHANGED(surround_boost,VR_H_SURROUND_BOOST);
+    VR_SCALAR_CHANGED(surround_decoder,VR_H_SURROUND_DEC);
+    VR_SCALAR_CHANGED(virt_front,VR_H_VIRT_FRONT);
+    VR_SCALAR_CHANGED(virt_height,VR_H_VIRT_HEIGHT);
+    VR_SCALAR_CHANGED(virt_surround,VR_H_VIRT_SURROUND);
+    VR_SCALAR_CHANGED(volmax_boost,VR_H_VOLMAX_BOOST);
+#undef VR_SCALAR_CHANGED
+
+    if(old_profile!=CHAIN_PROFILE_PERSONALIZE && new_profile==CHAIN_PROFILE_PERSONALIZE){
+        if(vr_apply_geq(p,core)<0)return -2;
+    } else if(old_profile==CHAIN_PROFILE_PERSONALIZE && new_profile!=CHAIN_PROFILE_PERSONALIZE){
+        vr_scalar(p,core,VR_H_GEQ_ENABLE,0);
+    }
+
+    const char *complex_disable=getenv("SP11_VR_COMPLEX_PROFILE");
+    if(!(complex_disable && (!strcmp(complex_disable,"0") || !strcasecmp(complex_disable,"off") || !strcasecmp(complex_disable,"false")))){
+        const char *parts=getenv("SP11_VR_COMPLEX_PARTS");
+        if(old->output_mode!=pc->output_mode && (!parts || strstr(parts,"output")))
+            ((VrOutputModeFn)sp11_pe_ptr_for_va(&p->vr_img,VR_OUTPUT_MODE_VA))(core,(uint32_t)pc->output_mode,2,vr_mix);
+        if(old->ieq_curve!=pc->ieq_curve && (!parts || strstr(parts,"ieq")) && vr_apply_ieq_curve(p,core,pc->ieq_curve))return -3;
+    }
+    return 0;
+}
+
+static int chain_apply_profile_inplace(ChainInst *p,ChainProfile next){
+    if(!p || !p->ready || next<0 || next>=CHAIN_PROFILE_COUNT)return -1;
+    ChainProfile old=p->profile; if(old==next)return 0;
+    uint8_t *vr_inner=(uint8_t*)(uintptr_t)q(p->vr_outer,VR_INNER_PTR_OFF);
+    void *vr_core=vr_inner?(void*)(uintptr_t)q(vr_inner,0x130):NULL;
+    void *vl_core=(void*)(uintptr_t)vl_r64(p->vl_inner,0x28);
+    if(!vr_core || !vl_core)return -2;
+    if(vr_retarget_profile(p,vr_core,old,next))return -3;
+    const ChainProfileCfg *oldpc=&chain_profiles[old],*newpc=&chain_profiles[next];
+    if(oldpc->movie_music_vlldp!=newpc->movie_music_vlldp){
+        vl_apply_profile_fields(p,vl_core,newpc);
+        p->vl_apply(vl_core,2);
+    }
+    p->profile=next;
+    return 0;
+}
+
+static int chain_profile_control(const LADSPA_Data *v){
+    if(!v || *v!=*v || *v<-.5f)return -1;
+    int n=(int)(*v+.5f);
+    return n>=0 && n<CHAIN_PROFILE_COUNT?n:-1;
 }
 
 static int vr_build(ChainInst *p){
@@ -402,6 +478,7 @@ static LADSPA_Handle chain_instantiate(const LADSPA_Descriptor*d,unsigned long r
     (void)d;if(rate!=48000)return NULL;
     ChainInst *p=calloc(1,sizeof(*p));if(!p)return NULL;
     p->profile=chain_profile_from_env();
+    p->last_profile_request=-2;
     if(chain_alloc(p)){chain_free_mem(p);free(p);return NULL;}
 
     if(sp11_pe_load(&p->vl_img,chain_vlldp_path())) goto fail;
@@ -445,7 +522,12 @@ static void chain_run(LADSPA_Handle h,unsigned long n){
     ChainInst*p=h;const float*il=p->ports[0],*ir=p->ports[1];float*ol=p->ports[2],*or=p->ports[3];
     if(!il||!ir||!ol||!or)return;
     if(!p->ready){for(unsigned long i=0;i<n;i++){ol[i]=il[i];or[i]=ir[i];}return;}
-    int dry=p->ports[4]&&*p->ports[4]>.5f;
+    int requested=chain_profile_control(p->ports[PORT_PROFILE]);
+    if(requested>=0 && requested!=(int)p->profile && requested!=p->last_profile_request){
+        p->last_profile_request=requested;
+        (void)chain_apply_profile_inplace(p,(ChainProfile)requested);
+    } else if(requested==(int)p->profile) p->last_profile_request=requested;
+    int dry=p->ports[PORT_BYPASS]&&*p->ports[PORT_BYPASS]>.5f;
     unsigned long pos=0;
     while(pos<n){
         uint32_t take=(uint32_t)((n-pos)>RT_CHUNK_FRAMES?RT_CHUNK_FRAMES:(n-pos));
@@ -476,9 +558,12 @@ static void chain_cleanup(LADSPA_Handle h){
 static LADSPA_PortDescriptor pd[PORT_COUNT];static const char*pn[PORT_COUNT];static LADSPA_PortRangeHint ph[PORT_COUNT];static LADSPA_Descriptor desc;
 const LADSPA_Descriptor *ladspa_descriptor(unsigned long i){
     if(i)return NULL;
-    pd[0]=pd[1]=LADSPA_PORT_INPUT|LADSPA_PORT_AUDIO;pd[2]=pd[3]=LADSPA_PORT_OUTPUT|LADSPA_PORT_AUDIO;pd[4]=LADSPA_PORT_INPUT|LADSPA_PORT_CONTROL;
-    pn[0]="Input L";pn[1]="Input R";pn[2]="Output L";pn[3]="Output R";pn[4]="Bypass";
-    memset(ph,0,sizeof(ph));ph[4].HintDescriptor=LADSPA_HINT_TOGGLED|LADSPA_HINT_DEFAULT_0;
+    pd[0]=pd[1]=LADSPA_PORT_INPUT|LADSPA_PORT_AUDIO;pd[2]=pd[3]=LADSPA_PORT_OUTPUT|LADSPA_PORT_AUDIO;
+    pd[PORT_BYPASS]=pd[PORT_PROFILE]=LADSPA_PORT_INPUT|LADSPA_PORT_CONTROL;
+    pn[0]="Input L";pn[1]="Input R";pn[2]="Output L";pn[3]="Output R";pn[PORT_BYPASS]="Bypass";pn[PORT_PROFILE]="Profile";
+    memset(ph,0,sizeof(ph));ph[PORT_BYPASS].HintDescriptor=LADSPA_HINT_TOGGLED|LADSPA_HINT_DEFAULT_0;
+    ph[PORT_PROFILE].HintDescriptor=LADSPA_HINT_BOUNDED_BELOW|LADSPA_HINT_BOUNDED_ABOVE|LADSPA_HINT_INTEGER|LADSPA_HINT_DEFAULT_MINIMUM;
+    ph[PORT_PROFILE].LowerBound=-1.0f;ph[PORT_PROFILE].UpperBound=(float)(CHAIN_PROFILE_COUNT-1);
     memset(&desc,0,sizeof(desc));desc.UniqueID=0x53503157;desc.Label="sp11_dolby_windows_chain";desc.Name="SP11 Exact Windows Dolby VLLDP+VR";
     desc.Maker="sp11 re project";desc.Copyright="research bridge; original Dolby DLLs supplied separately";
     desc.PortCount=PORT_COUNT;desc.PortDescriptors=pd;desc.PortNames=pn;desc.PortRangeHints=ph;

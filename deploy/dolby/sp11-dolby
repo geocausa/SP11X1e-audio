@@ -22,6 +22,20 @@ normalize_profile() {
     *) return 1 ;;
   esac
 }
+profile_index() {
+  case "$1" in
+    dynamic) echo 0 ;; movie) echo 1 ;; music) echo 2 ;; game) echo 3 ;;
+    voice) echo 4 ;; onlinecourse) echo 5 ;; personalize) echo 6 ;;
+    *) return 1 ;;
+  esac
+}
+profile_name_from_index() {
+  case "$1" in
+    0) echo dynamic ;; 1) echo movie ;; 2) echo music ;; 3) echo game ;;
+    4) echo voice ;; 5) echo onlinecourse ;; 6) echo personalize ;;
+    *) return 1 ;;
+  esac
+}
 current_profile() {
   if [ -s "$PROFILE_FILE" ]; then cat "$PROFILE_FILE"; else echo dynamic; fi
 }
@@ -43,13 +57,36 @@ actual_profile() {
   systemctl --user show filter-chain.service -p Environment --value 2>/dev/null \
     | tr ' ' '\n' | sed -n 's/^SP11_DOLBY_PROFILE=//p' | tail -1
 }
+runtime_profile_index() {
+  D=$(node_id 'effect_input.sp11_windows_dolby' || true)
+  [ -n "$D" ] || return 1
+  pw-cli enum-params "$D" Props 2>/dev/null | awk '
+    /String "dolby:Profile"/ { found=1; next }
+    found && ($1=="Float" || $1=="Int") { printf "%d\n", $2; exit }'
+}
+runtime_profile() {
+  I=$(runtime_profile_index || true)
+  case "$I" in
+    0|1|2|3|4|5|6) profile_name_from_index "$I" ;;
+    *) actual_profile ;;
+  esac
+}
+set_runtime_profile() {
+  P=$1
+  D=$(node_id 'effect_input.sp11_windows_dolby' || true)
+  [ -n "$D" ] || return 1
+  I=$(profile_index "$P") || return 1
+  pw-cli set-param "$D" Props "{ params = [ \"dolby:Profile\" $I.0 ] }" >/dev/null 2>&1 || return 1
+  GOT=$(runtime_profile_index || true)
+  [ "$GOT" = "$I" ]
+}
 status() {
   D=$(node_id 'effect_input.sp11_windows_dolby' || true)
   B=$(node_id 'effect_input.sp11_dolby_bypass' || true)
   DEF=$(wpctl status -n | awk '/Default Configured Devices:/{p=1;next} p && /Audio\/Sink/{print $0;exit}')
   WANT=$(current_profile)
-  LIVE=$(actual_profile || true)
-  echo "Profile: ${WANT}${LIVE:+ (host: $LIVE)}"
+  LIVE=$(runtime_profile || true)
+  echo "Profile: ${WANT}${LIVE:+ (live: $LIVE)}"
   G=$(current_geq)
   if [ "$G" = off ]; then echo "Custom GEQ: off"; else echo "Custom GEQ: saved (20 bands; active with personalize)"; fi
   echo "Default: ${DEF:-unknown}"
@@ -90,14 +127,26 @@ set_profile() {
   printf '%s\n' "$P" > "$PROFILE_FILE.tmp"
   mv "$PROFILE_FILE.tmp" "$PROFILE_FILE"
   write_dropin
-  snapshot_dolby_volume
   systemctl --user daemon-reload
+
+  # Current production plugins expose an integer Profile LADSPA control.
+  # PipeWire forwards this property to the existing plugin instance, whose
+  # original Dolby setters retune VLLDP/VR without rebuilding either engine.
+  # Keep the restart path only for older installed plugins / absent sinks.
+  if set_runtime_profile "$P"; then
+    select_dolby_default
+    echo "SP11 Windows Dolby profile: $P (retuned in place)"
+    status
+    return 0
+  fi
+
+  snapshot_dolby_volume
   systemctl --user reset-failed filter-chain.service 2>/dev/null || true
   systemctl --user restart filter-chain.service
   sleep 1
   restore_dolby_volume
   select_dolby_default
-  echo "SP11 Windows Dolby profile: $P"
+  echo "SP11 Windows Dolby profile: $P (compatibility restart)"
   status
 }
 
