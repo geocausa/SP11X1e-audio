@@ -1,5 +1,7 @@
 # Dolby ETW / kernel / profile correlation checkpoint — 2026-08-04
 
+> **2026-08-05 forensic correction:** Section 8's statement that the July `.dump /k` contains no user-mode Dolby memory "by construction" is too strong and is superseded by `2026-08-05-PIPELINE-COMPLETENESS-RECHECK.md`. The ARM64 RDMP does not retain the `audiodg.exe` process page-table root or complete user address space, but selected runtime pages do survive; one genuine live VLLDP state page was recovered and validated by its internal pointer geometry. The Firefox→speaker session provenance is also present directly in the dump. Preserve the rest of this note as the historical ETW/profile correlation record.
+
 This note preserves the archive-correlation work performed after the native-chain
 checkpoint. It exists so a future session does not have to rediscover which ETL,
 RPC-state, and kernel captures correspond to which application/profile state.
