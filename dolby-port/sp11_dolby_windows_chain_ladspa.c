@@ -1,0 +1,397 @@
+/*
+ * SP11 exact live Dolby chain bridge.
+ *
+ * Proven Windows render order on SP11: DolbyAPOvlldp150 -> DolbyApoVr.
+ * Both stages execute the original shipped ARM64 PE code.  Linux replaces
+ * only small Windows runtime/locking/resource plumbing.  The audio callback
+ * performs no dynamic allocation and slices arbitrary host buffers into a
+ * fixed preallocated realtime work buffer.
+ */
+#define _GNU_SOURCE
+#include "sp11_vlldp_pe_loader.h"
+#include <ladspa.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define SP11_VR_OUTER_NO_MAIN
+#include "sp11_vr_outer_probe.c"
+
+#define VL_INNER_VTABLE_VA 0x18010B9A8ULL
+#define VL_CORE_CTOR_VA     0x18001BFB0ULL
+#define VL_PID5_VA          0x18001BC80ULL
+#define VL_PID17_VA         0x18001CDD0ULL
+#define VL_PID22_VA         0x18001E5C8ULL
+#define VL_PID31_VA         0x18001EE68ULL
+#define VL_AO_ENABLE_VA     0x18001B8E0ULL
+#define VL_AO_GAINS_VA      0x18001B938ULL
+#define VL_REG_ISO_VA       0x18001E420ULL
+#define VL_REG_TUNE_VA      0x18001E670ULL
+#define VL_REG_SLOPE_VA     0x18001E3B0ULL
+#define VL_REG_OVERDRIVE_VA 0x18001E510ULL
+#define VL_REG_SPKDIST_VA   0x18001E570ULL
+#define VL_REG_TIMBRE_VA    0x18001E810ULL
+#define VL_TARGET_POWER_VA  0x18001F1B0ULL
+#define VL_PEAK_LEVEL_VA    0x18001D100ULL
+#define VL_POSTGAIN_VA      0x18001D170ULL
+#define VL_SYSTEM_GAIN_VA   0x18001F150ULL
+#define VL_NOISE_GATE_EN_VA 0x18001D010ULL
+#define VL_NOISE_GATE_TH_VA 0x18001D080ULL
+#define VL_APPLY_VA         0x18001D280ULL
+#define VL_SCHED_INIT_VA    0x1800ED2C0ULL
+#define VL_SCHED_RUN_VA     0x1800ED348ULL
+#define VL_CORE_ARENA_SIZE  0x20000U
+#define VL_SCHED_SIZE       0x12C200U
+#define VL_INNER_SIZE       0x200U
+#define SP11_SIG             0x41435053U
+#define RT_CHUNK_FRAMES      4096U
+#define VR_DEINIT_VA         0x1800DCBD0ULL
+/* DolbyApoVr dap_vr_state_s scalar handlers recovered from the DLL's own
+ * 39-property dispatch table. They operate on inner->core at +0x130. */
+#define VR_H_LEVELER_ENABLE   0x18003D110ULL
+#define VR_H_LEVELER_AMOUNT   0x18003D1D0ULL
+#define VR_H_LEVELER_IN       0x18003C770ULL
+#define VR_H_LEVELER_OUT      0x18003C6D0ULL
+#define VR_H_LEVELER_DRC      0x18003D170ULL
+#define VR_H_REG_ENABLE       0x1800333D0ULL
+#define VR_H_REG_SPKDIST      0x180033370ULL
+#define VR_H_REG_OVERDRIVE    0x180033220ULL
+#define VR_H_REG_RELAX        0x180033300ULL
+#define VR_H_REG_TIMBRE       0x180033290ULL
+#define VR_H_DIALOG_ENABLE    0x180032540ULL
+#define VR_H_DIALOG_AMOUNT    0x1800325A0ULL
+#define VR_H_DIALOG_DUCK      0x180032610ULL
+#define VR_H_IEQ_ENABLE       0x18003D0B0ULL
+#define VR_H_IEQ_AMOUNT       0x18003D240ULL
+#define VR_H_MI_DIALOG        0x18003CB20ULL
+#define VR_H_MI_LEVELER       0x18003CAC0ULL
+#define VR_H_MI_IEQ           0x18003CA60ULL
+#define VR_H_MI_SURR_COMP     0x18003CB80ULL
+#define VR_H_MI_VIRT          0x18003CBE0ULL
+#define VR_H_SURROUND_BOOST   0x1800326A0ULL
+#define VR_H_SURROUND_DEC     0x180032720ULL
+#define VR_H_VIRT_FRONT       0x18003C860ULL
+#define VR_H_VIRT_HEIGHT      0x18003C940ULL
+#define VR_H_VIRT_SURROUND    0x18003C8D0ULL
+#define VR_H_VOLMAX_BOOST     0x18003C450ULL
+#define VR_APPLY_RUNTIME_VA    0x18000BA58ULL
+#define VR_RUNTIME_BLOB_SIZE   0xD00u
+
+#ifndef SP11_CHAIN_DEFAULT_VLLDP_DLL
+#define SP11_CHAIN_DEFAULT_VLLDP_DLL "/home/geoca/Documents/SP11-PROJECT/04-dolby-re-work/dolby-port/dll/DolbyAPOvlldp150.dll"
+#endif
+#ifndef SP11_CHAIN_DEFAULT_VR_DLL
+#define SP11_CHAIN_DEFAULT_VR_DLL "/home/geoca/Documents/SP11-PROJECT/00-RE-archive/sp11-driverdump/dax3_swc_aposvc_sdw_arm64.inf_arm64_d6b97a780ee18ae9/DolbyAPOVR.dll"
+#endif
+
+typedef void *(*VlCoreCtorFn)(uint32_t,uint32_t,uint32_t,uint32_t,void*);
+typedef void (*VlPid5Fn)(void*,const uint32_t*);
+typedef void (*VlPid17Fn)(void*,uint32_t,const int32_t *const*);
+typedef void (*VlPid22Fn)(void*,uint32_t,const int32_t*);
+typedef void (*VlPid31Fn)(void*,const int32_t*);
+typedef void (*VlScalarFn)(void*,int32_t);
+typedef void (*VlArrayCountFn)(void*,const int32_t*,uint32_t);
+typedef void (*VlArray20Fn)(void*,const int32_t*);
+typedef void (*VlArrayPair20Fn)(void*,const int32_t*,const int32_t*);
+typedef void (*VlApplyFn)(void*,uint32_t);
+typedef int (*VlSchedInitFn)(void*,void*,uint32_t,uint32_t,uint32_t,uint32_t,uint32_t,uint32_t);
+typedef void (*VlSchedRunFn)(void*,uint32_t,void*,uint32_t,void*,void*);
+typedef void (*VrDeinitFn)(void*);
+
+typedef struct {
+    float *buffer;
+    uint32_t frames;
+    uint32_t flag;
+    uint32_t signature;
+    uint32_t reserved;
+} VlConnProp;
+
+enum { PORT_IN_L,PORT_IN_R,PORT_OUT_L,PORT_OUT_R,PORT_BYPASS,PORT_COUNT };
+
+typedef struct {
+    LADSPA_Data *ports[PORT_COUNT];
+    Sp11PeImage vl_img,vr_img;
+    int vl_loaded,vr_loaded,ready;
+
+    void *vl_core_arena,*vl_sched,*vl_inner,*vl_inner_in,*vl_inner_out;
+    uint32_t vl_fmt[8];
+    VlCoreCtorFn vl_core_ctor;
+    VlPid5Fn vl_pid5; VlPid17Fn vl_pid17; VlPid22Fn vl_pid22; VlPid31Fn vl_pid31;
+    VlApplyFn vl_apply; VlSchedInitFn vl_sched_init; VlSchedRunFn vl_sched_run;
+
+    uint8_t *vr_outer;
+    uint8_t vr_cfg[0x60] __attribute__((aligned(16)));
+    uint8_t vr_resource[VR_RESOURCE_SIZE] __attribute__((aligned(16)));
+    OuterHotFn vr_hot;
+    VrDeinitFn vr_deinit;
+    int vr_initialized;
+
+    float *buf_a,*buf_b;
+} ChainInst;
+
+static void vl_lock_noop(void*p){(void)p;}
+static int vl_lock_true(void*p){(void)p;return 1;}
+static int vl_initex_true(void*p,unsigned a,unsigned b){(void)p;(void)a;(void)b;return 1;}
+static void vl_piat(Sp11PeImage*i,uint64_t va,void*f){*(uintptr_t*)sp11_pe_ptr_for_va(i,va)=(uintptr_t)f;}
+static void vl_patch_runtime(Sp11PeImage*i){
+    vl_piat(i,0x1801070E0ULL,vl_lock_noop);vl_piat(i,0x1801070E8ULL,vl_lock_noop);
+    vl_piat(i,0x180107190ULL,vl_lock_noop);vl_piat(i,0x180107198ULL,vl_lock_true);
+    vl_piat(i,0x180107248ULL,vl_lock_noop);vl_piat(i,0x180107250ULL,vl_initex_true);
+}
+static void vl_w32(void*p,size_t o,uint32_t v){memcpy((char*)p+o,&v,4);}
+static void vl_w64(void*p,size_t o,uint64_t v){memcpy((char*)p+o,&v,8);}
+static uint64_t vl_r64(void*p,size_t o){uint64_t v;memcpy(&v,(char*)p+o,8);return v;}
+
+static const char *chain_vlldp_path(void){
+    const char *p=getenv("SP11_VLLDP_DLL"); return p&&*p?p:SP11_CHAIN_DEFAULT_VLLDP_DLL;
+}
+static const char *chain_vr_path(void){
+    const char *p=getenv("SP11_VR_DLL"); return p&&*p?p:SP11_CHAIN_DEFAULT_VR_DLL;
+}
+
+static int vl_reset(ChainInst *p){
+    memset(p->vl_core_arena,0,VL_CORE_ARENA_SIZE); memset(p->vl_sched,0,VL_SCHED_SIZE);
+    memset(p->vl_inner,0,VL_INNER_SIZE); memset(p->vl_inner_in,0,0x800); memset(p->vl_inner_out,0,0x800);
+    uint8_t *core=p->vl_core_ctor(256,48000,2,0,p->vl_core_arena); if(!core)return -1;
+    uint32_t empty[2]={0,0};
+    int32_t g0[6]={20,0,32767,10,20,0}; const int32_t *gp[1]={g0};
+    static const int32_t ao[40]={
+      -16,18,16,30,16,-32,-16,-32,-16,-32,-48,-62,-64,-64,-16,-16,-16,16,80,48,
+      0,32,32,45,16,0,-16,-16,-16,0,-32,-38,-48,-48,0,0,0,32,96,64};
+    static const int32_t high[20]={-74,-112,-192,-237,-238,-226,-157,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    static const int32_t low[20]={-266,-304,-384,-429,-430,-418,-349,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192};
+    static const int32_t isolated[20]={1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    int32_t stress[8]={216,216,0,0,0,0,0,0},bass[5]={0};
+    p->vl_pid5(core,empty);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_AO_ENABLE_VA))(core,1);
+    ((VlArrayCountFn)sp11_pe_ptr_for_va(&p->vl_img,VL_AO_GAINS_VA))(core,ao,40);
+    p->vl_pid17(core,1,gp);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_TARGET_POWER_VA))(core,-80);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_PEAK_LEVEL_VA))(core,0);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_POSTGAIN_VA))(core,0);
+    p->vl_pid22(core,8,stress);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_REG_SLOPE_VA))(core,14);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_REG_OVERDRIVE_VA))(core,0);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_REG_TIMBRE_VA))(core,12);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_REG_SPKDIST_VA))(core,1);
+    ((VlArrayPair20Fn)sp11_pe_ptr_for_va(&p->vl_img,VL_REG_TUNE_VA))(core,high,low);
+    ((VlArray20Fn)sp11_pe_ptr_for_va(&p->vl_img,VL_REG_ISO_VA))(core,isolated);
+    p->vl_pid31(core,bass);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_SYSTEM_GAIN_VA))(core,0);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_NOISE_GATE_EN_VA))(core,0);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_NOISE_GATE_TH_VA))(core,-1440);
+    p->vl_apply(core,2);
+    uint64_t aux_owner=vl_r64(core,0xca0); if(!aux_owner)return -2; void *aux=(void*)(uintptr_t)(aux_owner+8);
+    p->vl_fmt[0]=48000;p->vl_fmt[1]=2;p->vl_fmt[2]=2;p->vl_fmt[3]=2;
+    vl_w64(p->vl_inner,0x00,(uintptr_t)sp11_pe_ptr_for_va(&p->vl_img,VL_INNER_VTABLE_VA));
+    vl_w64(p->vl_inner,0x08,(uintptr_t)p->vl_fmt);vl_w64(p->vl_inner,0x10,(uintptr_t)p->vl_inner_in);
+    vl_w64(p->vl_inner,0x18,(uintptr_t)p->vl_inner_out);vl_w32(p->vl_inner,0x20,0);
+    vl_w64(p->vl_inner,0x28,(uintptr_t)core);vl_w64(p->vl_inner,0x30,(uintptr_t)aux);
+    vl_w32(p->vl_inner,0x38,176);vl_w32(p->vl_inner,0x3c,256);vl_w32(p->vl_inner,0x40,2);
+    vl_w32(p->vl_inner,0x50,0);vl_w32(p->vl_inner,0x54,0);vl_w32(p->vl_inner,0xa8,2);
+    vl_w64(p->vl_inner,0x158,(uintptr_t)core);vl_w32(p->vl_inner,0x160,0);
+    vl_w32(p->vl_sched,0,3);
+    return p->vl_sched_init(p->vl_sched,p->vl_inner,432,1,1024,2,2,0)?0:-3;
+}
+
+typedef void (*VrScalarHandlerFn)(void*,int);
+static void vr_scalar(ChainInst *p,void *core,uint64_t va,int value){
+    ((VrScalarHandlerFn)sp11_pe_ptr_for_va(&p->vr_img,va))(core,value);
+}
+typedef void (*VrOutputModeFn)(void*,uint32_t,uint32_t,const int32_t*);
+typedef int (*VrBandGridFn)(void*,void*,uint32_t,const int32_t*,uint32_t);
+typedef int (*VrBandTargetFn)(void*,void*,const int32_t*,int32_t,int32_t);
+typedef void (*VrRegTuneFn)(void*,uint32_t,const int32_t*,const int32_t*,const int32_t*,const int32_t*);
+#define VR_OUTPUT_MODE_VA      0x180032320ULL
+#define VR_BAND_GRID_VA        0x18004C560ULL
+#define VR_BAND_TARGET_VA      0x18004C8E8ULL
+#define VR_REG_TUNING_VA       0x1800463C0ULL
+static int vr_apply_dynamic_complex(ChainInst *p,void *core){
+    const char *disable=getenv("SP11_VR_COMPLEX_PROFILE");
+    if(disable && (!strcmp(disable,"0") || !strcasecmp(disable,"off") || !strcasecmp(disable,"false"))) return 0;
+    const char *parts=getenv("SP11_VR_COMPLEX_PARTS");
+    int do_output=!parts || strstr(parts,"output");
+    int do_ieq=!parts || strstr(parts,"ieq");
+    int do_reg=!parts || strstr(parts,"reg");
+    static const int32_t centers[20]={47,141,234,328,469,656,844,1031,1313,1688,2250,3000,3750,4688,5813,7125,9000,11250,13875,19688};
+    static const int32_t ieq[20]={157,167,218,218,203,188,192,192,205,213,218,209,193,159,134,97,71,22,-90,-283};
+    static const int32_t reg_lo[20]={-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192,-192};
+    static const int32_t reg_hi[20]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    static const int32_t reg_iso[20]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    static const int32_t mix[16]={16384,0,0,16384,11583,11583,8192,8192,16384,0,0,16384,16384,0,0,16384};
+    if(do_output){
+        ((VrOutputModeFn)sp11_pe_ptr_for_va(&p->vr_img,VR_OUTPUT_MODE_VA))(core,11,2,mix);
+    }
+    if(do_ieq){
+        void *layout=(void*)(uintptr_t)q(core,0x28); if(!layout)return -1;
+        void *freqmap=(void*)(uintptr_t)q(layout,0x48); uint32_t nmap=d(layout,0x0c);
+        if(!freqmap || !nmap)return -2;
+        int gr=((VrBandGridFn)sp11_pe_ptr_for_va(&p->vr_img,VR_BAND_GRID_VA))((uint8_t*)core+0x754,freqmap,nmap,centers,20);
+        if(gr!=2){
+            int tr=((VrBandTargetFn)sp11_pe_ptr_for_va(&p->vr_img,VR_BAND_TARGET_VA))((uint8_t*)core+0x754,(uint8_t*)core+0x704,ieq,-480,480);
+            if(tr)wd(core,0x6fc,1);
+        }
+        if(d(core,0x6fc))wd(core,0x1278,1);
+    }
+    if(do_reg){
+        ((VrRegTuneFn)sp11_pe_ptr_for_va(&p->vr_img,VR_REG_TUNING_VA))((uint8_t*)core+0xdc0,20,centers,reg_lo,reg_hi,reg_iso);
+        if(d(core,0xdcc))wd(core,0x1278,1);
+    }
+    return 0;
+}
+
+static int vr_apply_dynamic_scalars(ChainInst *p,uint8_t *inner){
+    const char *disable=getenv("SP11_VR_DYNAMIC_PROFILE");
+    if(disable && (!strcmp(disable,"0") || !strcasecmp(disable,"off") || !strcasecmp(disable,"false"))) return 0;
+    void *core=(void*)(uintptr_t)q(inner,0x130); if(!core)return -1;
+    vr_scalar(p,core,VR_H_LEVELER_ENABLE,1);
+    vr_scalar(p,core,VR_H_LEVELER_AMOUNT,5);
+    vr_scalar(p,core,VR_H_LEVELER_IN,-320);
+    vr_scalar(p,core,VR_H_LEVELER_OUT,-320);
+    vr_scalar(p,core,VR_H_LEVELER_DRC,1);
+    vr_scalar(p,core,VR_H_REG_ENABLE,1);
+    vr_scalar(p,core,VR_H_REG_SPKDIST,0);
+    vr_scalar(p,core,VR_H_REG_OVERDRIVE,0);
+    vr_scalar(p,core,VR_H_REG_RELAX,96);
+    vr_scalar(p,core,VR_H_REG_TIMBRE,12);
+    /* Remaining exact scalar values from dynamic/tuning-cp. */
+    vr_scalar(p,core,VR_H_DIALOG_ENABLE,1);
+    vr_scalar(p,core,VR_H_DIALOG_AMOUNT,5);
+    vr_scalar(p,core,VR_H_DIALOG_DUCK,0);
+    vr_scalar(p,core,VR_H_IEQ_ENABLE,1);
+    vr_scalar(p,core,VR_H_IEQ_AMOUNT,10);
+    vr_scalar(p,core,VR_H_MI_DIALOG,1);
+    vr_scalar(p,core,VR_H_MI_LEVELER,1);
+    vr_scalar(p,core,VR_H_MI_IEQ,1);
+    vr_scalar(p,core,VR_H_MI_SURR_COMP,1);
+    vr_scalar(p,core,VR_H_MI_VIRT,1);
+    vr_scalar(p,core,VR_H_SURROUND_BOOST,96);
+    vr_scalar(p,core,VR_H_SURROUND_DEC,1);
+    vr_scalar(p,core,VR_H_VIRT_FRONT,10);
+    vr_scalar(p,core,VR_H_VIRT_HEIGHT,10);
+    vr_scalar(p,core,VR_H_VIRT_SURROUND,10);
+    vr_scalar(p,core,VR_H_VOLMAX_BOOST,96);
+    return vr_apply_dynamic_complex(p,core);
+}
+
+static int vr_build(ChainInst *p){
+    if(p->vr_initialized && p->vr_deinit){
+        p->vr_deinit(p->vr_outer+VR_INNER_OFF);
+        p->vr_initialized=0;
+    }
+    memset(p->vr_outer,0,VR_OUTER_SIZE);
+    ((OuterCtorFn)sp11_pe_ptr_for_va(&p->vr_img,VR_OUTER_CTOR_VA))(p->vr_outer);
+    finish_outer_factory_vtables(&p->vr_img,p->vr_outer);
+    uint8_t *inner=(uint8_t*)(uintptr_t)q(p->vr_outer,VR_INNER_PTR_OFF);
+    if(inner!=p->vr_outer+VR_INNER_OFF)return -1;
+    /* Resource shim has no Windows module context; point it at this instance's
+       immutable copy while InitLibrary consumes it. Audio processing does not
+       consult the resource API afterwards. */
+    g_resource_data=p->vr_resource;
+    if(init_outer_inner(&p->vr_img,p->vr_outer,p->vr_cfg))return -2;
+    if(vr_apply_dynamic_scalars(p,inner))return -5;
+    uint32_t window,stride,enabled; dump_inner_tuple(&p->vr_img,inner,&window,&stride,&enabled);
+    if(window!=768||stride!=1024||enabled!=1)return -3;
+    if(!((TransInitFn)sp11_pe_ptr_for_va(&p->vr_img,VR_TRANS_INIT_VA))
+       (p->vr_outer+VR_TRANS_OFF,inner,window,enabled,stride,2,2,0))return -4;
+    p->vr_initialized=1;
+    return 0;
+}
+
+static int chain_alloc(ChainInst *p){
+    if(posix_memalign(&p->vl_core_arena,64,VL_CORE_ARENA_SIZE)||
+       posix_memalign(&p->vl_sched,64,VL_SCHED_SIZE)||posix_memalign(&p->vl_inner,64,VL_INNER_SIZE)||
+       posix_memalign(&p->vl_inner_in,64,0x800)||posix_memalign(&p->vl_inner_out,64,0x800)||
+       posix_memalign((void**)&p->vr_outer,64,VR_OUTER_SIZE)||
+       posix_memalign((void**)&p->buf_a,64,RT_CHUNK_FRAMES*2*sizeof(float))||
+       posix_memalign((void**)&p->buf_b,64,RT_CHUNK_FRAMES*2*sizeof(float))) return -1;
+    return 0;
+}
+
+static void chain_free_mem(ChainInst *p){
+    free(p->buf_b);free(p->buf_a);free(p->vr_outer);free(p->vl_inner_out);free(p->vl_inner_in);
+    free(p->vl_inner);free(p->vl_sched);free(p->vl_core_arena);
+}
+
+static LADSPA_Handle chain_instantiate(const LADSPA_Descriptor*d,unsigned long rate){
+    (void)d;if(rate!=48000)return NULL;
+    ChainInst *p=calloc(1,sizeof(*p));if(!p)return NULL;
+    if(chain_alloc(p)){chain_free_mem(p);free(p);return NULL;}
+
+    if(sp11_pe_load(&p->vl_img,chain_vlldp_path())) goto fail;
+    p->vl_loaded=1;
+    vl_patch_runtime(&p->vl_img);
+    p->vl_core_ctor=(VlCoreCtorFn)sp11_pe_ptr_for_va(&p->vl_img,VL_CORE_CTOR_VA);
+    p->vl_pid5=(VlPid5Fn)sp11_pe_ptr_for_va(&p->vl_img,VL_PID5_VA);p->vl_pid17=(VlPid17Fn)sp11_pe_ptr_for_va(&p->vl_img,VL_PID17_VA);
+    p->vl_pid22=(VlPid22Fn)sp11_pe_ptr_for_va(&p->vl_img,VL_PID22_VA);p->vl_pid31=(VlPid31Fn)sp11_pe_ptr_for_va(&p->vl_img,VL_PID31_VA);
+    p->vl_apply=(VlApplyFn)sp11_pe_ptr_for_va(&p->vl_img,VL_APPLY_VA);p->vl_sched_init=(VlSchedInitFn)sp11_pe_ptr_for_va(&p->vl_img,VL_SCHED_INIT_VA);p->vl_sched_run=(VlSchedRunFn)sp11_pe_ptr_for_va(&p->vl_img,VL_SCHED_RUN_VA);
+    if(vl_reset(p))goto fail;
+
+    if(init_dll(&p->vr_img,chain_vr_path())) goto fail;
+    p->vr_loaded=1;
+    memcpy(p->vr_resource,sp11_pe_ptr_for_va(&p->vr_img,VR_RESOURCE_VA),VR_RESOURCE_SIZE);
+    p->vr_hot=(OuterHotFn)sp11_pe_ptr_for_va(&p->vr_img,VR_OUTER_HOT_VA);
+    p->vr_deinit=(VrDeinitFn)sp11_pe_ptr_for_va(&p->vr_img,VR_DEINIT_VA);
+    if(vr_build(p))goto fail;
+    p->ready=1;return p;
+fail:
+    if(p->vr_initialized&&p->vr_deinit)p->vr_deinit(p->vr_outer+VR_INNER_OFF);
+    if(p->vr_loaded) sp11_pe_unload(&p->vr_img);
+    if(p->vl_loaded) sp11_pe_unload(&p->vl_img);
+    chain_free_mem(p);free(p);return NULL;
+}
+
+static void chain_connect(LADSPA_Handle h,unsigned long port,LADSPA_Data *d){ChainInst*p=h;if(port<PORT_COUNT)p->ports[port]=d;}
+static void chain_activate(LADSPA_Handle h){
+    ChainInst*p=h;
+    /* Activation is outside the realtime run callback, so rebuilding the two
+       persistent states here is safe and gives deterministic cold startup. */
+    p->ready=(vl_reset(p)==0 && vr_build(p)==0);
+}
+
+static void chain_run(LADSPA_Handle h,unsigned long n){
+    ChainInst*p=h;const float*il=p->ports[0],*ir=p->ports[1];float*ol=p->ports[2],*or=p->ports[3];
+    if(!il||!ir||!ol||!or)return;
+    if(!p->ready){for(unsigned long i=0;i<n;i++){ol[i]=il[i];or[i]=ir[i];}return;}
+    int dry=p->ports[4]&&*p->ports[4]>.5f;
+    unsigned long pos=0;
+    while(pos<n){
+        uint32_t take=(uint32_t)((n-pos)>RT_CHUNK_FRAMES?RT_CHUNK_FRAMES:(n-pos));
+        for(uint32_t i=0;i<take;i++){p->buf_a[2*i]=il[pos+i];p->buf_a[2*i+1]=ir[pos+i];p->buf_b[2*i]=p->buf_b[2*i+1]=0.0f;}
+        VlConnProp vip={p->buf_a,take,1,SP11_SIG,0},vop={p->buf_b,take,0,SP11_SIG,0};VlConnProp *vipa=&vip,*vopa=&vop;
+        p->vl_sched_run(p->vl_sched,1,&vipa,1,&vopa,NULL);
+        if(vop.flag==2)memset(p->buf_b,0,(size_t)take*2*sizeof(float));
+
+        Conn ri={p->buf_b,take,vop.flag?vop.flag:1},ro={p->buf_a,0,0};Conn *rip=&ri,*rop=&ro;
+        p->vr_hot(p->vr_outer+VR_RT_OFF,1,&rip,1,&rop,NULL);
+        if(ro.flags==2)memset(p->buf_a,0,(size_t)take*2*sizeof(float));
+        for(uint32_t i=0;i<take;i++){
+            if(dry){ol[pos+i]=il[pos+i];or[pos+i]=ir[pos+i];}
+            else {ol[pos+i]=p->buf_a[2*i];or[pos+i]=p->buf_a[2*i+1];}
+        }
+        pos+=take;
+    }
+}
+
+static void chain_cleanup(LADSPA_Handle h){
+    ChainInst*p=h;if(!p)return;
+    if(p->vr_initialized&&p->vr_deinit)p->vr_deinit(p->vr_outer+VR_INNER_OFF);
+    if(p->vr_loaded) sp11_pe_unload(&p->vr_img);
+    if(p->vl_loaded) sp11_pe_unload(&p->vl_img);
+    chain_free_mem(p);free(p);
+}
+
+static LADSPA_PortDescriptor pd[PORT_COUNT];static const char*pn[PORT_COUNT];static LADSPA_PortRangeHint ph[PORT_COUNT];static LADSPA_Descriptor desc;
+const LADSPA_Descriptor *ladspa_descriptor(unsigned long i){
+    if(i)return NULL;
+    pd[0]=pd[1]=LADSPA_PORT_INPUT|LADSPA_PORT_AUDIO;pd[2]=pd[3]=LADSPA_PORT_OUTPUT|LADSPA_PORT_AUDIO;pd[4]=LADSPA_PORT_INPUT|LADSPA_PORT_CONTROL;
+    pn[0]="Input L";pn[1]="Input R";pn[2]="Output L";pn[3]="Output R";pn[4]="Bypass";
+    memset(ph,0,sizeof(ph));ph[4].HintDescriptor=LADSPA_HINT_TOGGLED|LADSPA_HINT_DEFAULT_0;
+    memset(&desc,0,sizeof(desc));desc.UniqueID=0x53503157;desc.Label="sp11_dolby_windows_chain";desc.Name="SP11 Exact Windows Dolby VLLDP+VR";
+    desc.Maker="sp11 re project";desc.Copyright="research bridge; original Dolby DLLs supplied separately";
+    desc.PortCount=PORT_COUNT;desc.PortDescriptors=pd;desc.PortNames=pn;desc.PortRangeHints=ph;
+    desc.instantiate=chain_instantiate;desc.connect_port=chain_connect;desc.activate=chain_activate;desc.run=chain_run;desc.cleanup=chain_cleanup;
+    return &desc;
+}

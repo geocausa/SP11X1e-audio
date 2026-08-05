@@ -11,7 +11,7 @@ typedef struct { uint8_t *base; size_t size; uint64_t image_base; int64_t delta;
 static inline uint16_t sp11_rd16(const uint8_t *p){return (uint16_t)(p[0]|(p[1]<<8));}
 static inline uint32_t sp11_rd32(const uint8_t *p){return (uint32_t)(p[0]|(p[1]<<8)|(p[2]<<16)|((uint32_t)p[3]<<24));}
 static inline uint64_t sp11_rd64(const uint8_t *p){return (uint64_t)sp11_rd32(p)|((uint64_t)sp11_rd32(p+4)<<32);}
-static int sp11_pe_load(Sp11PeImage *img, const char *dll_path){
+static int sp11_pe_load_at(Sp11PeImage *img, const char *dll_path, uintptr_t requested_base){
     memset(img,0,sizeof(*img));
     FILE *f=fopen(dll_path,"rb");
     if(!f){fprintf(stderr,"[pe] cannot open %s\n",dll_path);return -1;}
@@ -36,8 +36,15 @@ static int sp11_pe_load(Sp11PeImage *img, const char *dll_path){
     uint64_t image_base=sp11_rd64(opt+24);
     uint32_t reloc_rva=sp11_rd32(opt+112+5*8);
     uint32_t reloc_size=sp11_rd32(opt+112+5*8+4);
-    void *mapped=mmap(NULL,size_of_image,PROT_READ|PROT_WRITE|PROT_EXEC,MAP_PRIVATE|MAP_ANONYMOUS,-1,0);
+    int map_flags=MAP_PRIVATE|MAP_ANONYMOUS;
+#ifdef MAP_FIXED_NOREPLACE
+    if(requested_base) map_flags|=MAP_FIXED_NOREPLACE;
+#else
+    if(requested_base) map_flags|=0x100000; /* Linux MAP_FIXED_NOREPLACE */
+#endif
+    void *mapped=mmap(requested_base?(void*)requested_base:NULL,size_of_image,PROT_READ|PROT_WRITE|PROT_EXEC,map_flags,-1,0);
     if(mapped==MAP_FAILED){free(raw);return -8;}
+    if(requested_base && (uintptr_t)mapped!=requested_base){munmap(mapped,size_of_image);free(raw);return -10;}
     memset(mapped,0,size_of_image);
     uint8_t *base=(uint8_t*)mapped;
     memcpy(base,raw,size_of_headers);
@@ -80,6 +87,9 @@ static int sp11_pe_load(Sp11PeImage *img, const char *dll_path){
     }
     img->base=base; img->size=size_of_image; img->image_base=image_base; img->delta=delta;
     return 0;
+}
+static int sp11_pe_load(Sp11PeImage *img, const char *dll_path){
+    return sp11_pe_load_at(img,dll_path,0);
 }
 static inline void *sp11_pe_ptr_for_va(const Sp11PeImage *img,uint64_t va){return (void*)(img->base+(va-img->image_base));}
 static inline uint64_t sp11_pe_read_u64_va(const Sp11PeImage *img,uint64_t va){return sp11_rd64((const uint8_t*)sp11_pe_ptr_for_va(img,va));}
