@@ -6,7 +6,8 @@ DROPIN_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/filter-chain.service.
 PROFILE_DROPIN="$DROPIN_DIR/sp11-dolby-profile.conf"
 
 node_id() {
-  wpctl status -n | grep "$1" | head -1 | grep -oE '[0-9]+\.' | head -1 | tr -d '.'
+  wpctl status -n | grep "$1" | grep -vE '^[[:space:]]*0\. Audio/Sink' \
+    | head -1 | grep -oE '[0-9]+\.' | head -1 | tr -d '.'
 }
 normalize_profile() {
   case "${1:-}" in
@@ -43,6 +44,25 @@ select_dolby_default() {
   D=$(node_id 'effect_input.sp11_windows_dolby')
   wpctl set-default "$D"
 }
+snapshot_dolby_volume() {
+  OLD_D=$(node_id 'effect_input.sp11_windows_dolby' || true)
+  OLD_VOL=0.10
+  OLD_MUTED=0
+  if [ -n "$OLD_D" ]; then
+    LINE=$(wpctl get-volume "$OLD_D" 2>/dev/null || true)
+    V=$(printf '%s\n' "$LINE" | awk '{print $2}')
+    case "$V" in
+      ''|*[!0-9.]*) ;;
+      *) OLD_VOL=$V ;;
+    esac
+    case "$LINE" in *MUTED*) OLD_MUTED=1 ;; esac
+  fi
+}
+restore_dolby_volume() {
+  D=$(node_id 'effect_input.sp11_windows_dolby')
+  wpctl set-volume "$D" "$OLD_VOL"
+  if [ "$OLD_MUTED" -eq 1 ]; then wpctl set-mute "$D" 1; fi
+}
 set_profile() {
   P=$(normalize_profile "$1") || {
     echo "Unknown profile '$1'." >&2
@@ -57,9 +77,12 @@ set_profile() {
 Environment=SP11_DOLBY_PROFILE=$P
 EOD
   mv "$PROFILE_DROPIN.tmp" "$PROFILE_DROPIN"
+  snapshot_dolby_volume
   systemctl --user daemon-reload
+  systemctl --user reset-failed filter-chain.service 2>/dev/null || true
   systemctl --user restart filter-chain.service
   sleep 1
+  restore_dolby_volume
   select_dolby_default
   echo "SP11 Windows Dolby profile: $P"
   status
@@ -76,8 +99,11 @@ case "${1:-status}" in
     set_profile "$1"
     ;;
   on|dolby)
+    snapshot_dolby_volume
+    systemctl --user reset-failed filter-chain.service 2>/dev/null || true
     systemctl --user start filter-chain.service
     sleep 1
+    restore_dolby_volume
     select_dolby_default
     echo "SP11 Windows Dolby ($(current_profile)) is now the default output."
     status
@@ -89,8 +115,11 @@ case "${1:-status}" in
     status
     ;;
   restart)
+    snapshot_dolby_volume
+    systemctl --user reset-failed filter-chain.service 2>/dev/null || true
     systemctl --user restart filter-chain.service
     sleep 1
+    restore_dolby_volume
     select_dolby_default
     echo "Dolby host restarted ($(current_profile)) and restored as default."
     status
