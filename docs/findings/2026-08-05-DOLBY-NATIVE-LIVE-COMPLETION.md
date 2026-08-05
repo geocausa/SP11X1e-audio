@@ -279,12 +279,19 @@ session, so the configuration is persistent across normal restarts/logins.
 
 ## Remaining scope
 
-The persistent Windows-hot speaker chain and its Dynamic profile are now live on
-Linux. Remaining work is enhancement rather than a blocker for this path:
+The persistent Windows-hot speaker chain is live on Linux and the seven static
+SP11 speaker profile families (Dynamic, Movie, Music, Game, Voice, Online
+Course, Personalize) are selectable through the original Windows DSP code. The
+profile implementation and live-switch validation are recorded in
+`2026-08-05-DOLBY-NATIVE-PROFILES.md`. Remaining work is parity validation and
+optional feature completion rather than a blocker for the speaker path:
 
-1. expose Movie/Music/Game/Voice/Personalize as selectable Linux profiles;
-2. capture a purpose-built same-stimulus Windows Dynamic loopback for final
-   waveform-level parity scoring of the complete endpoint;
-3. continue investigating modern ASAR/AIDE only for modes where hardware traps
+1. obtain or recover a purpose-built, proven-profile Windows loopback using the
+   same deterministic stimulus for final waveform/transfer-function parity;
+2. bind the still-unproven Movie/Music `speaker-peq-enable` and partial
+   virtualizer-enable controls only if evidence shows they materially alter this
+   SP11 speaker path;
+3. add the user-custom GEQ layer for the three Personalize slots if desired;
+4. continue investigating modern ASAR/AIDE only for modes where hardware traps
    prove those stages execute; do not assume them into the steady-state speaker
    chain without new live evidence.
