@@ -105,3 +105,24 @@ Detail:
 - `21d5638` — evidence ledger + AudioEng/AudioLimiter live-ETW evidence, pushed to origin.
 - `c73e282` — canonical topology/index/production-manifest consolidation.
 - This live-VR-core + decoded-AudioLimiter result is the next evidence checkpoint.
+
+## AudioLimiter ETW graph-correlation increment
+
+A deeper parse of the saved Microsoft-Windows-Audio provider trace confirms the
+AudioLimiter CLSID is not a one-off registration artifact. In the same
+`audiodg.exe` process (`PID 0x3460`) that is constructing the SP11 render graph,
+the AudioLimiter CLSID
+
+```text
+{d69e0717-dd4b-4b25-997a-da813833b8ac}
+```
+
+appears repeatedly in paired Start/Stop engine events with stable object
+addresses across graph/state transitions. One parsed trace contains 144 limiter
+rows. This strengthens the claim from “class present” to “real audio-engine
+object repeatedly instantiated/operated in audiodg.”
+
+This still does **not** establish the exact ordering relative to VLLDP/VR or
+prove that the May known-input speaker stream passes through this object. Those
+remain the next discriminator; do not promote CAudioLimiter to proven missing
+waveform stage until ordering/stream association and replay close the oracle.
