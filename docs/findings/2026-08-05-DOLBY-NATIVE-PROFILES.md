@@ -148,10 +148,17 @@ only to the private local bundle:
 ~/.local/lib/sp11-dolby/DolbyAPOVR.dll
 ```
 
-The installed host SHA-256 is:
+The pre-GEQ self-contained profile host SHA-256 was:
 
 ```text
 49eb13d0f6be940ee5759954082e809b6f56a22b9135df0c012f506fd10aed63
+```
+
+After adding the original Personalize GEQ path, the installed production host
+SHA-256 is:
+
+```text
+230932e53734c0fc0749eb54c8b8db462c739d7a7bf32cd937be4cb635d9be2b
 ```
 
 `deploy/dolby/build-production.sh` verifies the two known SP11 Dolby DLL hashes
@@ -272,5 +279,8 @@ was visible in Dolby Access, but that early capture predates the corrected
 obvious state JSON/log files. Do not infer the curve from VLLDP `+0xC0C`: GEQ is
 applied later in the VR stage.
 
-The implementation is therefore complete for arbitrary Custom GEQ data; only
-the exact historical Custom1 band values remain an evidence-recovery problem.
+The implementation is therefore complete for arbitrary Custom GEQ data. The
+exhaustive historical-recovery pass is documented in
+`2026-08-05-CUSTOM1-GEQ-FORENSIC-RECOVERY.md`; the exact June Custom1 values
+remain unavailable from currently accessible evidence, but this does not block
+new or recreated Custom curves.
