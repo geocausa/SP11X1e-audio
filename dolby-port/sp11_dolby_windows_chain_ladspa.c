@@ -429,9 +429,15 @@ fail:
 
 static void chain_connect(LADSPA_Handle h,unsigned long port,LADSPA_Data *d){ChainInst*p=h;if(port<PORT_COUNT)p->ports[port]=d;}
 static void chain_activate(LADSPA_Handle h){
-    ChainInst*p=h;
-    /* Activation is outside the realtime run callback, so rebuilding the two
-       persistent states here is safe and gives deterministic cold startup. */
+    ChainInst *p=h;
+    if(!p)return;
+    /* PipeWire filter-chain calls LADSPA activate() from graph reset when the
+       playback stream enters PAUSED. Windows CApoBase::Reset is a no-op for
+       both shipped VLLDP150 and VR APOs, so rebuilding here incorrectly drops
+       minutes-long adaptive Leveler/regulator history on every idle transition.
+       Instantiation (and service/profile recreation) remains the cold-start
+       boundary. Only recover here if construction was not ready. */
+    if(p->ready)return;
     p->ready=(vl_reset(p)==0 && vr_build(p)==0);
 }
 

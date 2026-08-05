@@ -176,3 +176,25 @@ waveform stage until ordering/stream association and replay close the oracle.
   the persistent long-memory state.
 - Correct parity work should reproduce Windows lifecycle/history semantics,
   not hard-code the captured Leveler float.
+
+### 2026-08-05 — PipeWire idle reset was erasing Dolby adaptive history
+
+- PipeWire 1.6.2 (`95da54a482b68475958bbc3fa572a9c20df0df74`)
+  handles filter-chain playback `PAUSED` by calling graph `reset()`; filter-graph
+  reset calls LADSPA `deactivate()`/`activate()` on the existing instance.
+- The SP11 Dolby node is passive and was observed live at idle as capture
+  `suspended` / playback `idle`.
+- Pre-fix `chain_activate()` rebuilt both VLLDP and VR, while original Windows
+  VLLDP/VR `CApoBase::Reset` methods are no-op success returns and DAX3 forwards
+  Reset to the inner APO.
+- Read-only live-process inspection found the installed idle Linux VR Leveler
+  state exactly at its constructor value `0.8019793033599854`, confirming the
+  reset occurred in production rather than only in source theory.
+- Fresh original Music can naturally reach `0.819313228` under dense music and
+  `0.825634718` under medium pink noise; after two minutes of silence the dense
+  Music state remains `0.816630960`.
+- The lifecycle-fixed candidate preserves an already-ready instance on repeated
+  LADSPA `activate()`. Dedicated 70-second warm/reset regression: pre-fix all
+  288000 probe samples differ; fixed candidate is bit-identical (`diff=0`).
+- All seven cold-start profile hashes and Dynamic/Music chunk-invariance remain
+  unchanged. This is an evidence-backed lifecycle parity fix, not new tuning.

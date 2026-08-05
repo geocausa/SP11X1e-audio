@@ -93,7 +93,7 @@ position and contribution to the recovered nonlinear waveform are still open.
 | DAX runtime volume feedback | A/C: decompiled live service path + endpoint object | Not yet continuously coupled to Linux endpoint volume | **Real runtime layer; parity work remains** |
 | Named Bass Enhancer | A: 33/33 direct reads = 0; live DAX map = `0` | Off | **Proven off in recovered states** |
 | Named Virtual Bass / extraction / modeler | A/C: live Music map values `0`; native setter probes | Off; exact off-block probes bit-identical | **Off in recovered state; not explanation for current residual** |
-| Leveler / DRC / regulator / VolMax | A: live DAX map; B: output/ablation behavior | Original VR/VLLDP processing | **Active and acoustically important** |
+| Leveler / DRC / regulator / VolMax | A: live DAX/core state; B: output/ablation + lifecycle regression | Original VR/VLLDP processing; repeated LADSPA activate now preserves state | **Active, acoustically important, long-memory lifecycle reproduced** |
 | SurfaceAPO media EQ | C: REV_0D MEDIA/MOVIE/default nodes disabled/identity | Not separately emulated | **Likely no-op for captured media mode** |
 | Modern ASAR/AIDE DAPVR | A: tested ordinary-stereo cores hardware-cold | Not in production chain | **Cold for tested mode; mode-dependent open elsewhere** |
 | `AudioEng!CAudioLimiter` | A: real audiodg ETW; C: exact ARM64 state machine decoded | Offline exact oracle decoded; not deployed | **Proven live final limiter; unity gain / inactive attack in both June snapshots; not source of normal loudness** |
@@ -206,15 +206,22 @@ this final limiter rather than created by it alone.
 
 ### Full VR state replay / localized lifecycle gap
 
-The complete June VR outer allocation is retained and now replays at its exact
-Windows heap VA with the VR DLL loaded at its exact captured ASLR base. Under
-identical continuous 997-Hz input, the captured Music state settles around
-0.12005 RMS while a fresh reconstructed Music state settles around 0.15354 RMS.
-Exact-address hybrid transplants localize most of this persistent difference to
-the live VR core plus one dependent 1-KiB arena block at
-`outer+0x1F1430` (`core+0x23C28`). The outer DAX/FIFO wrapper is not the cause.
-This is a real unresolved VR lifecycle/state difference despite 34/34 stable
-Music profile-scalar parity.
+The complete June VR outer allocation is retained and replays at its exact
+Windows heap VA with the VR DLL loaded at its exact captured ASLR base. The
+persistent Windows-vs-fresh Music difference has now been localized into the VR
+**Volume Leveler / DRC adaptive-history path**, not a missing static profile.
+The dominant long-memory arena float is `outer+0x1F1768`: captured Windows
+`0.814902425`, fresh Music `0.801979303`. Hardware watchpoints caught original
+Dolby `FUN_18006A2D0` updating it with a hysteretic attack/release recurrence.
+Fresh original-code Music naturally reaches/exceeds that state under ordinary
+music/noise and retains it for minutes through silence.
+
+A Linux host-lifecycle mismatch was then proven: PipeWire filter-chain PAUSED
+reset calls LADSPA `activate()` again, while pre-fix `activate()` rebuilt VLLDP
+and VR from cold. Original Windows VLLDP/VR `CApoBase::Reset` methods are no-op
+success returns. A fixed candidate preserves healthy state on repeated
+activation; a 70-second warm/reset A/B changes all 288000 probe samples pre-fix
+and zero samples after the fix. Cold-start profile hashes are unchanged.
 
 ## Runtime switching model
 
@@ -250,8 +257,10 @@ parity.
    live value with VLLDP limiter state.
 3. Resolve the July Movie-vs-Music ambiguity from an independent retained state
    source if possible.
-4. Reproduce the complete DAX runtime gain-feedback lifecycle, not only static
-   profile initialization.
+4. Resolve profile-switch lifecycle semantics: the Linux helper currently
+   recreates the filter service/state on profile change, while Windows may
+   preserve or selectively reset adaptive history in-place. Ordinary idle/PAUSED
+   Reset state preservation is now reproduced.
 5. Obtain or reconstruct a state-pinned same-stimulus Windows oracle for final
    waveform certification.
 6. Close the one unsupported lower calibration record and protection telemetry
