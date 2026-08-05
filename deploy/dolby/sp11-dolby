@@ -5,6 +5,7 @@ PROFILE_FILE="$PROFILE_DIR/profile"
 GEQ_FILE="$PROFILE_DIR/geq"
 DROPIN_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/filter-chain.service.d"
 PROFILE_DROPIN="$DROPIN_DIR/sp11-dolby-profile.conf"
+CONTROL_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/sp11-dolby-profile.control"
 
 node_id() {
   wpctl status -n | grep "$1" | grep -vE '^[[:space:]]*0\. Audio/Sink' \
@@ -36,6 +37,15 @@ profile_name_from_index() {
     *) return 1 ;;
   esac
 }
+profile_code() {
+  I=$(profile_index "$1") || return 1
+  echo $((I + 1))
+}
+profile_name_from_code() {
+  C=$1
+  [ "$C" -ge 1 ] 2>/dev/null && [ "$C" -le 7 ] 2>/dev/null || return 1
+  profile_name_from_index $((C - 1))
+}
 current_profile() {
   if [ -s "$PROFILE_FILE" ]; then cat "$PROFILE_FILE"; else echo dynamic; fi
 }
@@ -57,28 +67,53 @@ actual_profile() {
   systemctl --user show filter-chain.service -p Environment --value 2>/dev/null \
     | tr ' ' '\n' | sed -n 's/^SP11_DOLBY_PROFILE=//p' | tail -1
 }
-runtime_profile_index() {
-  D=$(node_id 'effect_input.sp11_windows_dolby' || true)
-  [ -n "$D" ] || return 1
-  pw-cli enum-params "$D" Props 2>/dev/null | awk '
-    /String "dolby:Profile"/ { found=1; next }
-    found && ($1=="Float" || $1=="Int") { printf "%d\n", $2; exit }'
+runtime_control_state() {
+  [ -r "$CONTROL_FILE" ] || return 1
+  set -- $(od -An -tu1 -N2 "$CONTROL_FILE" 2>/dev/null)
+  [ "$#" -ge 2 ] || return 1
+  printf '%s %s\n' "$1" "$2"
 }
 runtime_profile() {
-  I=$(runtime_profile_index || true)
-  case "$I" in
-    0|1|2|3|4|5|6) profile_name_from_index "$I" ;;
+  STATE=$(runtime_control_state || true)
+  set -- $STATE
+  APPLIED=${2:-0}
+  case "$APPLIED" in
+    1|2|3|4|5|6|7) profile_name_from_code "$APPLIED" ;;
     *) actual_profile ;;
   esac
+}
+runtime_pending_profile() {
+  STATE=$(runtime_control_state || true)
+  set -- $STATE
+  REQUEST=${1:-0}; APPLIED=${2:-0}
+  case "$REQUEST" in
+    1|2|3|4|5|6|7)
+      [ "$REQUEST" = "$APPLIED" ] || profile_name_from_code "$REQUEST"
+      ;;
+  esac
+}
+write_runtime_profile_code() {
+  C=$1
+  [ -w "$CONTROL_FILE" ] || return 1
+  OCT=$(printf '%03o' "$C")
+  printf "\$OCT" | dd of="$CONTROL_FILE" bs=1 count=1 conv=notrunc status=none 2>/dev/null
 }
 set_runtime_profile() {
   P=$1
   D=$(node_id 'effect_input.sp11_windows_dolby' || true)
   [ -n "$D" ] || return 1
-  I=$(profile_index "$P") || return 1
-  pw-cli set-param "$D" Props "{ params = [ \"dolby:Profile\" $I.0 ] }" >/dev/null 2>&1 || return 1
-  GOT=$(runtime_profile_index || true)
-  [ "$GOT" = "$I" ]
+  C=$(profile_code "$P") || return 1
+  write_runtime_profile_code "$C" || return 1
+  # If audio is already flowing the plugin acknowledges within a callback.
+  # If idle, leave the request queued; it is applied before the first future
+  # audio block and therefore still preserves the existing algorithm state.
+  N=0
+  while [ "$N" -lt 10 ]; do
+    STATE=$(runtime_control_state || true); set -- $STATE; APPLIED=${2:-0}
+    [ "$APPLIED" = "$C" ] && return 0
+    N=$((N + 1)); sleep 0.02
+  done
+  return 3
 }
 status() {
   D=$(node_id 'effect_input.sp11_windows_dolby' || true)
@@ -86,7 +121,12 @@ status() {
   DEF=$(wpctl status -n | awk '/Default Configured Devices:/{p=1;next} p && /Audio\/Sink/{print $0;exit}')
   WANT=$(current_profile)
   LIVE=$(runtime_profile || true)
-  echo "Profile: ${WANT}${LIVE:+ (live: $LIVE)}"
+  PENDING=$(runtime_pending_profile || true)
+  if [ -n "$PENDING" ]; then
+    echo "Profile: $WANT (live: ${LIVE:-unknown}; pending: $PENDING)"
+  else
+    echo "Profile: ${WANT}${LIVE:+ (live: $LIVE)}"
+  fi
   G=$(current_geq)
   if [ "$G" = off ]; then echo "Custom GEQ: off"; else echo "Custom GEQ: saved (20 bands; active with personalize)"; fi
   echo "Default: ${DEF:-unknown}"
@@ -138,6 +178,14 @@ set_profile() {
     echo "SP11 Windows Dolby profile: $P (retuned in place)"
     status
     return 0
+  else
+    RC=$?
+    if [ "$RC" -eq 3 ]; then
+      select_dolby_default
+      echo "SP11 Windows Dolby profile: $P (queued in place; applies on next audio block)"
+      status
+      return 0
+    fi
   fi
 
   snapshot_dolby_volume

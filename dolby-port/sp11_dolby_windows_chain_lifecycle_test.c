@@ -26,7 +26,7 @@ static int run_block(const LADSPA_Descriptor*d,LADSPA_Handle h,const float *x,un
     return 0;
 }
 
-int main(int ac,char **av){
+int main(int ac,char **av){setenv("SP11_DOLBY_CONTROL_PATH","off",1);
     const char *so=ac>1?av[1]:"./sp11_dolby_windows_chain.so";
     void *lib=dlopen(so,RTLD_NOW|RTLD_LOCAL); if(!lib){fprintf(stderr,"dlopen: %s\n",dlerror());return 2;}
     DescFn df=(DescFn)dlsym(lib,"ladspa_descriptor"); const LADSPA_Descriptor *d=df?df(0):NULL; if(!d)return 3;

@@ -20,7 +20,7 @@ static int run(const LADSPA_Descriptor*d,const float*il,const float*ir,float*out
  size_t bad=0;for(size_t i=0;i<n;i++){out[2*i]=ol[i];out[2*i+1]=or[i];if(!isfinite(ol[i])||!isfinite(or[i]))bad++;}
  if(d->cleanup)d->cleanup(h);free(ol);free(or);return bad?-3:0;
 }
-int main(int ac,char**av){const char*so=ac>1?av[1]:"./sp11_dolby_windows_chain.so";size_t n=ac>2?strtoull(av[2],0,0):200000;void*lib=dlopen(so,RTLD_NOW|RTLD_LOCAL);if(!lib){fprintf(stderr,"dlopen: %s\n",dlerror());return 2;}DescFn df=(DescFn)dlsym(lib,"ladspa_descriptor");const LADSPA_Descriptor*d=df?df(0):0;if(!d)return 3;
+int main(int ac,char**av){setenv("SP11_DOLBY_CONTROL_PATH","off",1);const char*so=ac>1?av[1]:"./sp11_dolby_windows_chain.so";size_t n=ac>2?strtoull(av[2],0,0):200000;void*lib=dlopen(so,RTLD_NOW|RTLD_LOCAL);if(!lib){fprintf(stderr,"dlopen: %s\n",dlerror());return 2;}DescFn df=(DescFn)dlsym(lib,"ladspa_descriptor");const LADSPA_Descriptor*d=df?df(0):0;if(!d)return 3;
  float*il=malloc(n*4),*ir=malloc(n*4),*ref=calloc(2*n,4),*out=calloc(2*n,4);if(!il||!ir||!ref||!out)return 4;make_input(il,ir,n);
  static const unsigned p1[]={1},p64[]={64},p480[]={480},p1024[]={1024},podd[]={127,353},pmix[]={31,257,509,17,1024,3,480,65};Pattern pats[]={{p1,1,"1"},{p64,1,"64"},{p480,1,"480"},{p1024,1,"1024"},{podd,2,"127/353"},{pmix,8,"mixed"}};
  if(run(d,il,ir,ref,n,&pats[0]))return 5;printf("reference hash=%016"PRIx64"\n",fnv1a(ref,2*n*4));int fail=0;

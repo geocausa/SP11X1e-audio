@@ -42,6 +42,13 @@ static int apply_control_without_audio(ChainInst *p,float *profile){
     chain_run(p,0);
     return 0;
 }
+static int request_profile(ChainInst *p,float *profile,ChainProfile wanted){
+    if(!p->profile_control)return -1;
+    uint8_t code=(uint8_t)wanted+1u;
+    __atomic_store_n(p->profile_control,code,__ATOMIC_RELEASE);
+    if(apply_control_without_audio(p,profile))return -2;
+    return __atomic_load_n(p->profile_control+1,__ATOMIC_ACQUIRE)==code?0:-3;
+}
 
 int main(void){
     const char *home=getenv("HOME");char vl[512],vr[512];
@@ -50,9 +57,11 @@ int main(void){
     snprintf(vr,sizeof(vr),"%s/.local/lib/sp11-dolby/DolbyAPOVR.dll",home);
     setenv("SP11_VLLDP_DLL",vl,1);setenv("SP11_VR_DLL",vr,1);
     setenv("SP11_DOLBY_PROFILE","dynamic",1);setenv("SP11_DOLBY_GEQ","off",1);
+    char ctl[160];snprintf(ctl,sizeof(ctl),"/tmp/sp11-dolby-profile-lifecycle-%ld.control",(long)getpid());
+    unlink(ctl);setenv("SP11_DOLBY_CONTROL_PATH",ctl,1);
 
     ChainInst *p=(ChainInst*)chain_instantiate(NULL,48000);if(!p)return 3;
-    float profile=-1.0f;
+    float profile=0.0f;
     const size_t state_off=0x1F1768u;
     float initial;memcpy(&initial,p->vr_outer+state_off,4);
     if(process(p,&profile,12ULL*48000ULL))return 4;
@@ -64,8 +73,7 @@ int main(void){
     void *vl_core_before=(void*)(uintptr_t)vl_r64(p->vl_inner,0x28);
     int amount_before=(int)d(vr_core_before,0x6d4);
 
-    profile=(float)CHAIN_PROFILE_MUSIC;
-    apply_control_without_audio(p,&profile);
+    if(request_profile(p,&profile,CHAIN_PROFILE_MUSIC))return 6;
 
     uint8_t *inner_after=(uint8_t*)(uintptr_t)q(p->vr_outer,VR_INNER_PTR_OFF);
     void *vr_core_after=(void*)(uintptr_t)q(inner_after,0x130);
@@ -85,8 +93,8 @@ int main(void){
         CHAIN_PROFILE_VOICE,CHAIN_PROFILE_ONLINECOURSE,CHAIN_PROFILE_PERSONALIZE,CHAIN_PROFILE_DYNAMIC,CHAIN_PROFILE_MUSIC};
     int sweep_ok=1;
     for(size_t i=0;i<sizeof(sweep)/sizeof(sweep[0]);i++){
-        float before;memcpy(&before,p->vr_outer+state_off,4);profile=(float)sweep[i];
-        apply_control_without_audio(p,&profile);
+        float before;memcpy(&before,p->vr_outer+state_off,4);
+        if(request_profile(p,&profile,sweep[i]))return 7;
         float after;memcpy(&after,p->vr_outer+state_off,4);
         uint8_t *ii=(uint8_t*)(uintptr_t)q(p->vr_outer,VR_INNER_PTR_OFF);
         void *vc=(void*)(uintptr_t)q(ii,0x130),*lc=(void*)(uintptr_t)vl_r64(p->vl_inner,0x28);
@@ -97,7 +105,7 @@ int main(void){
                chain_profiles[sweep[i]].name,bitsf(after),amount,one?"PASS":"FAIL");
         if(!one)sweep_ok=0;
     }
-    profile=(float)CHAIN_PROFILE_MUSIC;
+    profile=0.0f;
 
     printf("initial_long_memory=%.9f bits=%08"PRIx32"\n",initial,bitsf(initial));
     printf("warmed_long_memory=%.9f bits=%08"PRIx32"\n",warm,bitsf(warm));
@@ -113,15 +121,14 @@ int main(void){
     float after_audio;memcpy(&after_audio,p->vr_outer+state_off,4);
     printf("music_after_1s_long_memory=%.9f bits=%08"PRIx32"\n",after_audio,bitsf(after_audio));
 
-    profile=(float)CHAIN_PROFILE_DYNAMIC;
     float before_return;memcpy(&before_return,p->vr_outer+state_off,4);
-    apply_control_without_audio(p,&profile);
+    if(request_profile(p,&profile,CHAIN_PROFILE_DYNAMIC))return 8;
     float after_return;memcpy(&after_return,p->vr_outer+state_off,4);
     int return_preserved=bitsf(before_return)==bitsf(after_return) && p->profile==CHAIN_PROFILE_DYNAMIC;
     printf("return_dynamic_long_memory_before=%.9f after=%.9f preserved=%s\n",
            before_return,after_return,return_preserved?"YES":"NO");
 
-    chain_cleanup(p);
+    chain_cleanup(p);unlink(ctl);
     int ok=identity&&state_preserved&&profile_applied&&sweep_ok&&return_preserved;
     printf("PROFILE_LIFECYCLE_RESULT %s\n",ok?"PASS":"FAIL");
     return ok?0:20;

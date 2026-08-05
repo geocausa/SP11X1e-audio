@@ -8,14 +8,18 @@ The LADSPA bridge executes the original SP11 Windows render order:
 
 Profiles are `dynamic`, `movie`, `music`, `game`, `voice`, `onlinecourse`, or
 `personalize`. `SP11_DOLBY_PROFILE` remains the cold-start/default source, while
-the production LADSPA bridge also exposes a `Profile` control (`-1` = keep the
-startup profile, `0..6` = the seven profiles). The helper persists the selection
-in `~/.config/sp11-dolby/profile` and the systemd drop-in for the next cold
-start, then changes `dolby:Profile` on the existing PipeWire filter node. The
+the production LADSPA bridge also exposes a `Profile` control (`0` = keep the
+startup profile, `1..7` = the seven profiles). PipeWire 1.6.2 exposes these
+custom graph controls as initialization state rather than a writable live API,
+so the helper's production runtime path uses a two-byte mapped control file in
+`$XDG_RUNTIME_DIR`: requested profile + plugin-applied acknowledgement. The
+audio callback only reads/writes the mapped bytes; it performs no filesystem
+I/O. The helper persists the selection in `~/.config/sp11-dolby/profile` and the
+systemd drop-in for the next cold start, then requests an in-place retune. The
 bridge applies only profile-dependent original Dolby setters; VLLDP/VR are not
 reconstructed and adaptive history is preserved. A dedicated-service restart
 is retained only as a compatibility fallback for an older plugin or missing
-live node.
+live control file.
 
 `sp11-dolby off` selects the separate transparent bypass sink; it does not
 uninstall or mutate the Dolby processor.

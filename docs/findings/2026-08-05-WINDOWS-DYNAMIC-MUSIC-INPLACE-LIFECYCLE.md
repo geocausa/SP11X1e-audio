@@ -230,9 +230,9 @@ reset whose Windows analogue also resets DSP state.
 The production bridge now exposes a sixth LADSPA port:
 
 ```text
-Profile   integer -1..6
--1        preserve SP11_DOLBY_PROFILE startup selection
-0..6      Dynamic, Movie, Music, Game, Voice, OnlineCourse, Personalize
+Profile   integer 0..7
+0         preserve SP11_DOLBY_PROFILE startup selection
+1..7      Dynamic, Movie, Music, Game, Voice, OnlineCourse, Personalize
 ```
 
 At a control change the existing instance compares old/new profile structures.
@@ -245,9 +245,9 @@ called.
 
 A dedicated source-level lifecycle regression warms Dynamic for 12 seconds,
 records the exact VLLDP core, VR outer/inner/core pointers and the proved VR
-long-memory float at `outer+0x1F1768`, changes the LADSPA Profile control to
-Music with a zero-frame control cycle, and checks the state before any new audio
-is processed. Result:
+long-memory float at `outer+0x1F1768`, writes the mapped runtime request for
+Music and executes a zero-frame control cycle, and checks both the plugin
+acknowledgement and state before any new audio is processed. Result:
 
 ```text
 initial long memory    0.801979303  bits 3f4d4e84
@@ -262,8 +262,12 @@ state preserved       YES
 PROFILE_LIFECYCLE_RESULT PASS
 ```
 
-After one second of Music audio the state evolves normally, and an in-place
-return to Dynamic again preserves the exact instantaneous long-memory bits.
+The same mapped request/ack path is swept across Movie, Music, Game, Voice,
+OnlineCourse, Personalize, Dynamic and back to Music. Every transition preserves
+the exact long-memory bits and all VLLDP/VR object pointers while the expected
+profile-specific leveler amount changes. After one second of Music audio the
+state evolves normally, and an in-place return to Dynamic again preserves the
+exact instantaneous long-memory bits.
 
 The candidate also passes the existing regressions:
 
@@ -274,9 +278,28 @@ old installed Dynamic hash  01ec0adc40a8905b
 new candidate Dynamic hash  01ec0adc40a8905b
 ```
 
-PipeWire runtime-control feasibility was independently checked on the live host
-using the pre-existing Bypass control with a no-op `false -> false` write.
-`pw-cli set-param ... Props` updated the LADSPA control without changing the
-filter service PID, `NRestarts`, sink volume, or default sink. The deployment
-helper therefore uses the same PipeWire Props mechanism for `dolby:Profile` and
-keeps the old service restart only as a fallback.
+The first live rollout exposed an important PipeWire-host detail before any
+profile was exercised. PipeWire 1.6.2 correctly publishes the custom LADSPA
+controls and their ranges in `PropInfo`, but external `pw-cli set-param ... Props`
+writes do not mutate the filter graph's control values; even a real Bypass
+`false -> true` request reads back unchanged. This matches the PipeWire
+Filter-Chain contract, which documents node `control = { ... }` values as the
+**initial values** for control ports rather than a general writable runtime
+interface.
+
+The production runtime path therefore uses a two-byte user-runtime control map:
+
+```text
+$XDG_RUNTIME_DIR/sp11-dolby-profile.control
+byte 0  requested code: 0 none/startup, 1..7 profiles
+byte 1  plugin-applied acknowledgement
+```
+
+The file is opened/truncated/mapped once during plugin instantiation. The audio
+callback performs only atomic byte loads/stores on the mapping; no open/read/
+write/stat or allocation occurs in the real-time path. The helper writes byte 0
+without truncating the file. If audio is active, byte 1 acknowledges the retune
+immediately; if idle, the request remains queued and is applied before the first
+future audio block. The LADSPA `Profile` port remains as a secondary/future
+control surface, with non-negative `0 = startup` encoding so a host default
+cannot override a non-Dynamic cold-start profile.

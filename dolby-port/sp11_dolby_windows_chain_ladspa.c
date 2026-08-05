@@ -10,10 +10,13 @@
 #define _GNU_SOURCE
 #include "sp11_vlldp_pe_loader.h"
 #include <ladspa.h>
+#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #define SP11_VR_OUTER_NO_MAIN
@@ -161,6 +164,9 @@ typedef struct {
     int vl_loaded,vr_loaded,ready;
     ChainProfile profile;
     int last_profile_request;
+    int profile_control_fd;
+    volatile uint8_t *profile_control;
+    char profile_control_path[384];
 
     void *vl_core_arena,*vl_sched,*vl_inner,*vl_inner_in,*vl_inner_out;
     uint32_t vl_fmt[8];
@@ -429,10 +435,49 @@ static int chain_apply_profile_inplace(ChainInst *p,ChainProfile next){
     return 0;
 }
 
-static int chain_profile_control(const LADSPA_Data *v){
-    if(!v || *v!=*v || *v<-.5f)return -1;
-    int n=(int)(*v+.5f);
-    return n>=0 && n<CHAIN_PROFILE_COUNT?n:-1;
+#define PROFILE_CONTROL_BYTES 2u
+#define PROFILE_CONTROL_NONE  0u
+
+static int chain_profile_code_from_port(const LADSPA_Data *v){
+    if(!v || *v!=*v)return PROFILE_CONTROL_NONE;
+    int code=(int)(*v+.5f);
+    return code>=1 && code<=CHAIN_PROFILE_COUNT?code:(int)PROFILE_CONTROL_NONE;
+}
+
+static int chain_profile_control_open(ChainInst *p){
+    const char *override=getenv("SP11_DOLBY_CONTROL_PATH");
+    if(override && *override){
+        if(!strcasecmp(override,"off") || !strcasecmp(override,"none") || !strcmp(override,"0"))return 1;
+        if(snprintf(p->profile_control_path,sizeof(p->profile_control_path),"%s",override)>=(int)sizeof(p->profile_control_path))return -1;
+    } else {
+        const char *runtime=getenv("XDG_RUNTIME_DIR");
+        if(runtime && *runtime){
+            if(snprintf(p->profile_control_path,sizeof(p->profile_control_path),"%s/sp11-dolby-profile.control",runtime)>=(int)sizeof(p->profile_control_path))return -1;
+        } else if(snprintf(p->profile_control_path,sizeof(p->profile_control_path),"/run/user/%lu/sp11-dolby-profile.control",(unsigned long)getuid())>=(int)sizeof(p->profile_control_path)) return -1;
+    }
+    int fd=open(p->profile_control_path,O_RDWR|O_CREAT|O_CLOEXEC,0600);
+    if(fd<0)return -2;
+    if(fchmod(fd,0600) || ftruncate(fd,PROFILE_CONTROL_BYTES)){close(fd);return -3;}
+    const uint8_t initial[PROFILE_CONTROL_BYTES]={0,0};
+    if(pwrite(fd,initial,sizeof(initial),0)!=(ssize_t)sizeof(initial)){close(fd);return -4;}
+    void *map=mmap(NULL,PROFILE_CONTROL_BYTES,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+    if(map==MAP_FAILED){close(fd);return -5;}
+    p->profile_control_fd=fd;
+    p->profile_control=(volatile uint8_t*)map;
+    return 0;
+}
+
+static int chain_requested_profile(ChainInst *p,uint8_t *code_out){
+    uint8_t code=PROFILE_CONTROL_NONE;
+    if(p->profile_control)code=__atomic_load_n(p->profile_control,__ATOMIC_ACQUIRE);
+    if(code<1 || code>CHAIN_PROFILE_COUNT)code=(uint8_t)chain_profile_code_from_port(p->ports[PORT_PROFILE]);
+    if(code_out)*code_out=code;
+    return code>=1 && code<=CHAIN_PROFILE_COUNT?(int)code-1:-1;
+}
+
+static void chain_ack_profile(ChainInst *p,uint8_t code){
+    if(p->profile_control && code>=1 && code<=CHAIN_PROFILE_COUNT)
+        __atomic_store_n(p->profile_control+1,code,__ATOMIC_RELEASE);
 }
 
 static int vr_build(ChainInst *p){
@@ -470,6 +515,9 @@ static int chain_alloc(ChainInst *p){
 }
 
 static void chain_free_mem(ChainInst *p){
+    if(p->profile_control){munmap((void*)p->profile_control,PROFILE_CONTROL_BYTES);p->profile_control=NULL;}
+    if(p->profile_control_fd>=0){close(p->profile_control_fd);p->profile_control_fd=-1;}
+    if(p->profile_control_path[0])unlink(p->profile_control_path);
     free(p->buf_b);free(p->buf_a);free(p->vr_outer);free(p->vl_inner_out);free(p->vl_inner_in);
     free(p->vl_inner);free(p->vl_sched);free(p->vl_core_arena);
 }
@@ -479,6 +527,9 @@ static LADSPA_Handle chain_instantiate(const LADSPA_Descriptor*d,unsigned long r
     ChainInst *p=calloc(1,sizeof(*p));if(!p)return NULL;
     p->profile=chain_profile_from_env();
     p->last_profile_request=-2;
+    p->profile_control_fd=-1;
+    int control_rc=chain_profile_control_open(p);
+    if(control_rc<0)fprintf(stderr,"sp11-dolby: runtime profile control unavailable; LADSPA startup control only\n");
     if(chain_alloc(p)){chain_free_mem(p);free(p);return NULL;}
 
     if(sp11_pe_load(&p->vl_img,chain_vlldp_path())) goto fail;
@@ -522,11 +573,15 @@ static void chain_run(LADSPA_Handle h,unsigned long n){
     ChainInst*p=h;const float*il=p->ports[0],*ir=p->ports[1];float*ol=p->ports[2],*or=p->ports[3];
     if(!il||!ir||!ol||!or)return;
     if(!p->ready){for(unsigned long i=0;i<n;i++){ol[i]=il[i];or[i]=ir[i];}return;}
-    int requested=chain_profile_control(p->ports[PORT_PROFILE]);
+    uint8_t profile_code=PROFILE_CONTROL_NONE;
+    int requested=chain_requested_profile(p,&profile_code);
     if(requested>=0 && requested!=(int)p->profile && requested!=p->last_profile_request){
         p->last_profile_request=requested;
-        (void)chain_apply_profile_inplace(p,(ChainProfile)requested);
-    } else if(requested==(int)p->profile) p->last_profile_request=requested;
+        if(chain_apply_profile_inplace(p,(ChainProfile)requested)==0)chain_ack_profile(p,profile_code);
+    } else if(requested==(int)p->profile){
+        p->last_profile_request=requested;
+        chain_ack_profile(p,profile_code);
+    }
     int dry=p->ports[PORT_BYPASS]&&*p->ports[PORT_BYPASS]>.5f;
     unsigned long pos=0;
     while(pos<n){
@@ -562,8 +617,8 @@ const LADSPA_Descriptor *ladspa_descriptor(unsigned long i){
     pd[PORT_BYPASS]=pd[PORT_PROFILE]=LADSPA_PORT_INPUT|LADSPA_PORT_CONTROL;
     pn[0]="Input L";pn[1]="Input R";pn[2]="Output L";pn[3]="Output R";pn[PORT_BYPASS]="Bypass";pn[PORT_PROFILE]="Profile";
     memset(ph,0,sizeof(ph));ph[PORT_BYPASS].HintDescriptor=LADSPA_HINT_TOGGLED|LADSPA_HINT_DEFAULT_0;
-    ph[PORT_PROFILE].HintDescriptor=LADSPA_HINT_BOUNDED_BELOW|LADSPA_HINT_BOUNDED_ABOVE|LADSPA_HINT_INTEGER|LADSPA_HINT_DEFAULT_MINIMUM;
-    ph[PORT_PROFILE].LowerBound=-1.0f;ph[PORT_PROFILE].UpperBound=(float)(CHAIN_PROFILE_COUNT-1);
+    ph[PORT_PROFILE].HintDescriptor=LADSPA_HINT_BOUNDED_BELOW|LADSPA_HINT_BOUNDED_ABOVE|LADSPA_HINT_INTEGER|LADSPA_HINT_DEFAULT_0;
+    ph[PORT_PROFILE].LowerBound=0.0f;ph[PORT_PROFILE].UpperBound=(float)CHAIN_PROFILE_COUNT;
     memset(&desc,0,sizeof(desc));desc.UniqueID=0x53503157;desc.Label="sp11_dolby_windows_chain";desc.Name="SP11 Exact Windows Dolby VLLDP+VR";
     desc.Maker="sp11 re project";desc.Copyright="research bridge; original Dolby DLLs supplied separately";
     desc.PortCount=PORT_COUNT;desc.PortDescriptors=pd;desc.PortNames=pn;desc.PortRangeHints=ph;
