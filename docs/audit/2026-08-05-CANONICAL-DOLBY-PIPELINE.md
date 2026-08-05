@@ -174,8 +174,12 @@ Linux Music replay matching all `34/34` stable scalar discriminators.
 
 The two Windows core snapshots also expose large evolving history/state regions,
 while a stable but different `core+0xB48..0xC38` tuning table was experimentally
-copied into Linux and produced bit-identical audio. This shifts the remaining
-parity target from static profile reconstruction toward live history/state.
+copied into Linux and produced bit-identical audio. Subsequent A/B work traced
+the `core+0x120` discrepancy to the output-mode setter; omitting it is
+bit-transparent for Music. Transplanting the two large live Windows VR history
+arrays makes the candidate quieter and slightly less Windows-like, so the
+specific June VR history snapshot does not explain the missing pre-limiter
+drive. The next comparison target moves upstream to live VLLDP state.
 
 Detail: `docs/findings/2026-08-05-AUDIOENG-LIMITER-AND-LIVE-VR-CORE.md`.
 

@@ -291,3 +291,63 @@ regions that differ between a real Windows Music core and the exact Linux Music
 core after processing**, especially the compact state around `core+0x120..0x13C`
 and the dynamic state near `core+0x5E0`, before moving deeper into the large
 history arrays.
+
+## 9. Output-mode state discrepancy is real but dormant for Music
+
+A stable structural mismatch around `core+0x120..0x13C` was traced to the
+persistent VR `output-mode` complex setter (`VR_OUT_MODE_VA 0x180032F70`).
+Applying that setter is solely responsible for changing the replay core from
+the constructor-zero state to:
+
+```text
+core+0x120  2
+core+0x128  1
+core+0x130  1.0f
+core+0x13C  1.0f
+```
+
+The live June Music core retains zeros in those locations. Blindly zeroing the
+fields after configuration is invalid and can silence/crash processing because
+it leaves the associated structure internally inconsistent.
+
+The correct lifecycle test is to omit the output-mode setter entirely. For the
+Music profile, doing so produces **bit-identical output** to the normal replay
+for the full 29.45-second deterministic stimulus. Thus this structural
+lifecycle difference is dormant for the captured Music case and does not
+explain the missing loud-bass behavior.
+
+Dynamic/Movie do change when this setter is omitted, so the conclusion is
+profile-specific and must not be generalized beyond Music.
+
+## 10. Live Windows VR history transplant does not restore the missing drive
+
+The two largest regions changing between the live Windows VR snapshots are
+float/history arrays:
+
+```text
+core+0x3A98..0x4398   576 float words
+core+0x43B8..0x4CB8   576 float words
+```
+
+They contain finite small floats and no pointer-like qwords. These arrays were
+copied exactly from the first live Windows Music core into an otherwise clean
+Linux Music core before processing. A second test also copied the small live
+float state at `+0x654..0x668` and `+0x990`.
+
+Result:
+
+```text
+base Music RMS             0.3233544
+Windows-large-history RMS  0.2936351
+base waveform corr         ~0.960598
+history-seeded corr        ~0.959223
+```
+
+At the loud 75-Hz steps the transplanted history makes the candidate slightly
+**quieter**, not louder; H3/H5 remain around the same weak levels. The small
+state transplant alone is bit-identical to baseline.
+
+Therefore these recovered VR history arrays are acoustically active, but the
+specific June snapshot does not explain the Windows oracle's extra 2--3 dB of
+pre-limiter drive or its strong odd-harmonic onset. This significantly lowers
+"missing VR warm history" as the primary explanation for that residual.

@@ -35,6 +35,13 @@ not accidentally convert a useful hypothesis into folklore.
 - Warm Dolby history changes the oracle match materially (Movie reaches about
   0.9674 correlation after two prior full passes) but does not by itself explain
   the missing loud-level nonlinear signature.
+- The live-vs-replay VR `output-mode` core-state difference was traced to the
+  output-mode setter; omitting that setter is bit-transparent for Music, so it
+  is not the missing Music residual.
+- Transplanting the two large evolving history arrays from the live Windows
+  Music VR core into the Linux Music core makes the known-input candidate
+  quieter and slightly worsens correlation. The recovered June VR history is
+  active state but does not restore the missing pre-limiter drive.
 
 Primary detail record:
 
