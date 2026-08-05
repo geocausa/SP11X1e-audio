@@ -179,7 +179,14 @@ the `core+0x120` discrepancy to the output-mode setter; omitting it is
 bit-transparent for Music. Transplanting the two large live Windows VR history
 arrays makes the candidate quieter and slightly less Windows-like, so the
 specific June VR history snapshot does not explain the missing pre-limiter
-drive. The next comparison target moves upstream to live VLLDP state.
+drive. The same June dumps now also yield the unique live VLLDP wrapper, real staging
+audio and full main state. Stable VLLDP profile discriminators are 18/18 for
+the Movie/Music family; the sibling VR core resolves the complete chain to
+Music. After pointer relocation and Windows `CRITICAL_SECTION` bookkeeping are
+excluded, the only stable VLLDP tuning mismatch is a disabled sliding-bass
+block. Reproducing its exact Windows values through original setters is
+bit-identical, closing that discrepancy as dormant. Detail:
+`docs/findings/2026-08-05-LIVE-VLLDP-CORE-RECOVERY.md`.
 
 Detail: `docs/findings/2026-08-05-AUDIOENG-LIMITER-AND-LIVE-VR-CORE.md`.
 

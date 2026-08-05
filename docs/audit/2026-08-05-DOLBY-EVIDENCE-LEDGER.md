@@ -42,6 +42,15 @@ not accidentally convert a useful hypothesis into folklore.
   Music VR core into the Linux Music core makes the known-input candidate
   quieter and slightly worsens correlation. The recovered June VR history is
   active state but does not restore the missing pre-limiter drive.
+- The same June `audiodg.exe` dumps contain the unique live VLLDP wrapper,
+  staging buffers and full main state. Its 18/18 stable profile discriminators
+  identify the Movie/Music VLLDP family; the sibling live VR core resolves the
+  complete chain to Music.
+- After pointer relocation and Windows lock bookkeeping are excluded, the only
+  stable VLLDP tuning mismatch is a disabled sliding-bass block. Windows uses
+  enable=0, boundary=6, attack=712 ms, release=500 ms, max=52, min=0 and a zero
+  curve. Applying these exact values through original setters is bit-identical
+  to baseline in Dynamic/Movie/Music and across the full Music known-input.
 
 Primary detail record:
 
