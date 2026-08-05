@@ -288,10 +288,7 @@ optional feature completion rather than a blocker for the speaker path:
 
 1. obtain or recover a purpose-built, proven-profile Windows loopback using the
    same deterministic stimulus for final waveform/transfer-function parity;
-2. bind the still-unproven Movie/Music `speaker-peq-enable` and partial
-   virtualizer-enable controls only if evidence shows they materially alter this
-   SP11 speaker path;
-3. add the user-custom GEQ layer for the three Personalize slots if desired;
-4. continue investigating modern ASAR/AIDE only for modes where hardware traps
+2. add the user-custom GEQ layer for the three Personalize slots if desired;
+3. continue investigating modern ASAR/AIDE only for modes where hardware traps
    prove those stages execute; do not assume them into the steady-state speaker
    chain without new live evidence.

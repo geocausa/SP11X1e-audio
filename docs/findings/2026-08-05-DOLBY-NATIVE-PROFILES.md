@@ -159,3 +159,57 @@ before building and embeds only those private bundle paths. Two independent
 builds produced the same host SHA-256 above. Dynamic retained its existing
 200,000-frame reference hash `01ec0adc40a8905b`, and all seven profile smoke
 tests passed before the self-contained host was installed.
+
+## Resolved: partial virtualizer flags are not separate DSP controls here
+
+The OEM XML contains two additional keys:
+
+```text
+output-mode-partial-surround-virtualizer-enable
+output-mode-partial-height-virtualizer-enable
+```
+
+Across every SP11 profile they are perfectly redundant with the existing
+`output-mode/processing_mode` setting:
+
+```text
+processing_mode 11 -> partial surround=1, partial height=1
+processing_mode  1 -> partial surround=0, partial height=0
+```
+
+There is no profile in the OEM table where either boolean varies independently.
+`DolbyAPOVR.dll` contains parameter strings for `output-mode:processing_mode`,
+`output-mode:num_output_channels`, and `output-mode:mix_matrix`, but no
+`partial-surround` or `partial-height` parameter string.
+
+The three recovered callers of the real `dap_vr_output_mode_set` at
+`0x180032320` likewise pass only processing mode, output-channel count, and the
+matrix. The setter itself derives/normalizes mode and channel geometry, stores
+the resulting output state and Q14-derived matrix, and marks the DSP state
+dirty. No separate partial-virtualizer argument exists in that boundary.
+
+For this SP11 tuning these XML booleans are therefore upstream policy metadata
+that mirrors mode selection, not an omitted independent write in the native
+bridge.
+
+## Resolved for this endpoint: `speaker-peq-enable`
+
+The SP11 XML changes `speaker-peq-enable` from 1 in Dynamic-family profiles to
+0 in Movie/Music, but `speaker-peq-filters` is empty in every profile.
+
+The live Windows Dynamic -> Music+IEQ-Off capture provides the stronger runtime
+check. Between these two profiles:
+
+- `child1+0x580..+0x778` VLLDP config dump: byte-for-byte identical;
+- `child1+0x1080` tail dump: byte-for-byte identical;
+- endpoint FX state dump: identical;
+- the static/runtime changes in `child1+0xdf0..+0xef0` are the known
+  four-group Movie/Music compressor layout now reproduced by the native bridge;
+- the remaining `+0xc00..+0xc58` changes are live/history gain state.
+
+`DolbyAPOvlldp150.dll` also has no independently registered
+`speaker-peq-enable` scalar handler, while its active Render Speakers PID 5
+`vlldp-filter-config` payload is empty. Consequently there is no missing PEQ
+filter graph or separate VLLDP setter to reproduce for this endpoint/profile
+set. If a future OEM tuning provides non-empty `speaker-peq-filters`/PID 5,
+that would be a different configuration and should be decoded separately.
