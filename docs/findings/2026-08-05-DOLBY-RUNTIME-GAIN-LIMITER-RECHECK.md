@@ -205,3 +205,90 @@ limiter/maximizer state problem, not by blindly enabling the named Virtual Bass
 flag. The next target is the DAX/VLLDP multiband-compressor limiter path,
 including the `mb_compressor_limiter_gain` control/name and the already decoded
 frequency-aware VLLDP limiter whose threshold is near full scale.
+
+## Warm-history replay result
+
+The Windows oracle was captured from an already-running audio graph, while the
+Linux comparison normally starts both original Dolby engines from fresh
+constructor state. Replaying the complete known-input stimulus repeatedly through
+the same persistent Linux instance proves that warm state matters, but does not
+close the loud-level nonlinear residual.
+
+Using the final pass of repeated Movie runs and the same fixed Windows alignment,
+correlation evolves as follows:
+
+```text
+Movie, first pass       0.9636339
+Movie, after 1 pass     0.9614184
+Movie, after 2 passes   0.9673675   <- best tested warm state
+Movie, after 4 passes   0.9625741
+```
+
+Thus slow history can move the waveform match materially (best tested Movie
+correlation ~0.9674), but prior spectral checks on the same warm outputs still
+do not reproduce the Windows H3/H5 onset at the loudest 75-Hz steps. Warm state
+is therefore part of parity, not a sufficient explanation for the missing
+ceiling/nonlinearity.
+
+## Windows AudioEng AudioLimiter lead
+
+A new candidate exists outside the Dolby DLLs themselves.
+
+The exact current Windows ARM64 `Windows/System32/AudioEng.dll` from the preserved
+SP11 Windows partition has SHA-256:
+
+```text
+1e2cc764cae6ebfb6985d8503bb83a36022852fbbf1841c377c5ad2fa2d6795b
+```
+
+Static strings in this binary include the concrete class name:
+
+```text
+CAudioLimiter
+```
+
+The associated AudioLimiter CLSID identified during static analysis is:
+
+```text
+{d69e0717-dd4b-4b25-997a-da813833b8ac}
+```
+
+Most importantly, this CLSID occurs in real `Microsoft-Windows-Audio` ETW from
+`audiodg.exe`, not only in static registration data. Evidence source:
+
+```text
+Research_Hub_Audio/evidence/software_only_audio_state_20260610_232621/
+    silent_audio_provider_only_events.csv
+SHA-256:
+9622d267ea210ddaee9125bcc1f0bb4b887dd50974803729fde8fe23524e1e09
+```
+
+Representative records include repeated Start/Stop pairs for the same object
+address and AudioLimiter CLSID, for example:
+
+```text
+line 343: Microsoft-Windows-Audio Start event 164 ...
+          object 0x1F87067D9F0
+          {d69e0717-dd4b-4b25-997a-da813833b8ac}
+line 344: matching Stop event 165 for the same object/CLSID
+
+line 404: Microsoft-Windows-Audio Start event 166 ...
+          object 0x1F87067D9F0
+          {d69e0717-dd4b-4b25-997a-da813833b8ac}
+line 406: matching Stop event 167 for the same object/CLSID
+```
+
+The same object/CLSID recurs throughout this provider-only trace across multiple
+graph/state transitions.
+
+This is **strong evidence that the Windows audio engine constructs/operates an
+AudioLimiter component in the real audiodg graph**, but it is not yet proof of
+its exact ordering relative to Dolby or proof that it processes the particular
+speaker samples used by the May digital oracle. Those two points remain the
+next verification target. It must not yet be promoted from "high-value live
+candidate" to "proven missing processor".
+
+This candidate is attractive because the Windows oracle's near-full-scale odd
+harmonics are compatible with a symmetric limiter/soft-saturation regime and
+because the current Linux parity chain ends at the Dolby output rather than
+replaying an AudioEng limiter stage.
