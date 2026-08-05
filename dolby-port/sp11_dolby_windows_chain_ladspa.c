@@ -68,6 +68,7 @@
 #define VR_H_DIALOG_DUCK      0x180032610ULL
 #define VR_H_IEQ_ENABLE       0x18003D0B0ULL
 #define VR_H_IEQ_AMOUNT       0x18003D240ULL
+#define VR_H_GEQ_ENABLE       0x180032780ULL
 #define VR_H_MI_DIALOG        0x18003CB20ULL
 #define VR_H_MI_LEVELER       0x18003CAC0ULL
 #define VR_H_MI_IEQ           0x18003CA60ULL
@@ -266,6 +267,36 @@ typedef void (*VrRegTuneFn)(void*,uint32_t,const int32_t*,const int32_t*,const i
 #define VR_BAND_GRID_VA        0x18004C560ULL
 #define VR_BAND_TARGET_VA      0x18004C8E8ULL
 #define VR_REG_TUNING_VA       0x1800463C0ULL
+static int vr_parse_geq(int32_t target[20]){
+    const char *v=getenv("SP11_DOLBY_GEQ");
+    if(!v || !*v || !strcasecmp(v,"off") || !strcasecmp(v,"flat")) return 0;
+    for(int i=0;i<20;i++){
+        char *end=NULL; long x=strtol(v,&end,10);
+        if(end==v || x < -192 || x > 192) return -1;
+        target[i]=(int32_t)x;
+        if(i<19){ if(*end!=',') return -1; v=end+1; }
+        else { while(*end==' '||*end=='\t')end++; if(*end!='\0')return -1; }
+    }
+    return 1;
+}
+
+static int vr_apply_geq(ChainInst *p,void *core){
+    int32_t target[20]; int have=vr_parse_geq(target);
+    if(have<0){fprintf(stderr,"sp11-dolby: invalid SP11_DOLBY_GEQ; GEQ disabled\n");vr_scalar(p,core,VR_H_GEQ_ENABLE,0);return 0;}
+    if(!have){vr_scalar(p,core,VR_H_GEQ_ENABLE,0);return 0;}
+    void *layout=(void*)(uintptr_t)q(core,0x28); if(!layout)return -2;
+    void *freqmap=(void*)(uintptr_t)q(layout,0x48); uint32_t nmap=d(layout,0x0c);
+    if(!freqmap || !nmap)return -3;
+    int gr=((VrBandGridFn)sp11_pe_ptr_for_va(&p->vr_img,VR_BAND_GRID_VA))((uint8_t*)core+0xaa4,freqmap,nmap,vr_centers,20);
+    if(gr!=2){
+        int tr=((VrBandTargetFn)sp11_pe_ptr_for_va(&p->vr_img,VR_BAND_TARGET_VA))((uint8_t*)core+0xaa4,(uint8_t*)core+0xa50,target,-576,576);
+        if(tr)wd(core,0xaa0,1);
+    }
+    if(d(core,0xaa0))wd(core,0x1278,1);
+    vr_scalar(p,core,VR_H_GEQ_ENABLE,1);
+    return 0;
+}
+
 static int vr_apply_profile_complex(ChainInst *p,void *core,const ChainProfileCfg *pc){
     const char *disable=getenv("SP11_VR_COMPLEX_PROFILE");
     if(disable && (!strcmp(disable,"0") || !strcasecmp(disable,"off") || !strcasecmp(disable,"false"))) return 0;
@@ -312,6 +343,8 @@ static int vr_apply_profile(ChainInst *p,uint8_t *inner){
     vr_scalar(p,core,VR_H_DIALOG_DUCK,0);
     vr_scalar(p,core,VR_H_IEQ_ENABLE,pc->ieq_enable);
     vr_scalar(p,core,VR_H_IEQ_AMOUNT,pc->ieq_amount);
+    if(p->profile==CHAIN_PROFILE_PERSONALIZE){ if(vr_apply_geq(p,core)<0)return -2; }
+    else vr_scalar(p,core,VR_H_GEQ_ENABLE,0);
     vr_scalar(p,core,VR_H_MI_DIALOG,pc->mi_steering);
     vr_scalar(p,core,VR_H_MI_LEVELER,pc->mi_steering);
     vr_scalar(p,core,VR_H_MI_IEQ,pc->mi_steering);

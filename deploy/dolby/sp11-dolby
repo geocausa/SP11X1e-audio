@@ -2,6 +2,7 @@
 set -eu
 PROFILE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/sp11-dolby"
 PROFILE_FILE="$PROFILE_DIR/profile"
+GEQ_FILE="$PROFILE_DIR/geq"
 DROPIN_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/filter-chain.service.d"
 PROFILE_DROPIN="$DROPIN_DIR/sp11-dolby-profile.conf"
 
@@ -24,6 +25,20 @@ normalize_profile() {
 current_profile() {
   if [ -s "$PROFILE_FILE" ]; then cat "$PROFILE_FILE"; else echo dynamic; fi
 }
+current_geq() {
+  if [ -s "$GEQ_FILE" ]; then cat "$GEQ_FILE"; else echo off; fi
+}
+write_dropin() {
+  P=$(current_profile)
+  G=$(current_geq)
+  mkdir -p "$DROPIN_DIR"
+  cat > "$PROFILE_DROPIN.tmp" <<EOD
+[Service]
+Environment=SP11_DOLBY_PROFILE=$P
+Environment=SP11_DOLBY_GEQ=$G
+EOD
+  mv "$PROFILE_DROPIN.tmp" "$PROFILE_DROPIN"
+}
 actual_profile() {
   systemctl --user show filter-chain.service -p Environment --value 2>/dev/null \
     | tr ' ' '\n' | sed -n 's/^SP11_DOLBY_PROFILE=//p' | tail -1
@@ -35,6 +50,8 @@ status() {
   WANT=$(current_profile)
   LIVE=$(actual_profile || true)
   echo "Profile: ${WANT}${LIVE:+ (host: $LIVE)}"
+  G=$(current_geq)
+  if [ "$G" = off ]; then echo "Custom GEQ: off"; else echo "Custom GEQ: saved (20 bands; active with personalize)"; fi
   echo "Default: ${DEF:-unknown}"
   if [ -n "$D" ]; then printf 'Dolby:  '; wpctl get-volume "$D"; else echo 'Dolby:  unavailable'; fi
   if [ -n "$B" ]; then printf 'Bypass: '; wpctl get-volume "$B"; else echo 'Bypass: unavailable'; fi
@@ -72,11 +89,7 @@ set_profile() {
   mkdir -p "$PROFILE_DIR" "$DROPIN_DIR"
   printf '%s\n' "$P" > "$PROFILE_FILE.tmp"
   mv "$PROFILE_FILE.tmp" "$PROFILE_FILE"
-  cat > "$PROFILE_DROPIN.tmp" <<EOD
-[Service]
-Environment=SP11_DOLBY_PROFILE=$P
-EOD
-  mv "$PROFILE_DROPIN.tmp" "$PROFILE_DROPIN"
+  write_dropin
   snapshot_dolby_volume
   systemctl --user daemon-reload
   systemctl --user reset-failed filter-chain.service 2>/dev/null || true
@@ -88,12 +101,56 @@ EOD
   status
 }
 
+set_geq() {
+  MODE=${1:-show}
+  case "$MODE" in
+    show)
+      current_geq
+      return 0
+      ;;
+    off|flat|reset)
+      G=off
+      ;;
+    set)
+      shift
+      [ "$#" -eq 20 ] || { echo 'GEQ needs exactly 20 integer bands.' >&2; exit 2; }
+      G=
+      for V in "$@"; do
+        awk -v v="$V" 'BEGIN{exit !(v ~ /^-?[0-9]+$/ && v >= -192 && v <= 192)}' || {
+          echo "Invalid GEQ value '$V'; allowed range is -192..192." >&2; exit 2;
+        }
+        if [ -z "$G" ]; then G=$V; else G="$G,$V"; fi
+      done
+      ;;
+    *)
+      echo 'Usage: sp11-dolby geq [show|off|reset|set <20 values -192..192>]' >&2
+      exit 2
+      ;;
+  esac
+  mkdir -p "$PROFILE_DIR"
+  printf '%s\n' "$G" > "$GEQ_FILE.tmp"
+  mv "$GEQ_FILE.tmp" "$GEQ_FILE"
+  write_dropin
+  snapshot_dolby_volume
+  systemctl --user daemon-reload
+  systemctl --user reset-failed filter-chain.service 2>/dev/null || true
+  systemctl --user restart filter-chain.service
+  sleep 1
+  restore_dolby_volume
+  select_dolby_default
+  if [ "$G" = off ]; then echo 'SP11 Custom GEQ disabled.'; else echo 'SP11 Custom GEQ saved; it is active in the Personalize profile.'; fi
+  status
+}
+
 case "${1:-status}" in
   status)
     status
     ;;
   profile)
     if [ "$#" -eq 1 ]; then current_profile; else set_profile "$2"; fi
+    ;;
+  geq)
+    if [ "$#" -eq 1 ]; then set_geq show; else shift; set_geq "$@"; fi
     ;;
   dynamic|movie|music|game|gaming|voice|onlinecourse|online-course|course|personalize|personalized|custom|custom1|custom2|custom3)
     set_profile "$1"
@@ -125,7 +182,7 @@ case "${1:-status}" in
     status
     ;;
   *)
-    echo 'Usage: sp11-dolby [status|on|off|restart|profile [NAME]|dynamic|movie|music|game|voice|onlinecourse|personalize]' >&2
+    echo 'Usage: sp11-dolby [status|on|off|restart|profile [NAME]|geq [show|off|set ...]|dynamic|movie|music|game|voice|onlinecourse|personalize]' >&2
     exit 2
     ;;
 esac

@@ -213,3 +213,64 @@ check. Between these two profiles:
 filter graph or separate VLLDP setter to reproduce for this endpoint/profile
 set. If a future OEM tuning provides non-empty `speaker-peq-filters`/PID 5,
 that would be a different configuration and should be decoded separately.
+
+## Personalize / Custom graphic EQ
+
+The remaining user-editable GEQ path has now been recovered from the verified
+`DolbyAPOVR.dll` itself.
+
+Ghidra string/xref analysis identifies the original scalar handler:
+
+```text
+graphic-equalizer-enable -> 0x180032780
+```
+
+It stores the normalized enable state at `dap_vr_state_s+0xA4C` and marks both
+the GEQ block (`+0xAA0`) and global DSP state (`+0x1278`) dirty.
+
+The original 20-band run-time path uses the same proven Dolby band-grid and
+target-building functions already used for IEQ, but on the GEQ state block:
+
+```text
+band grid   FUN_18004C560: core+0xAA4
+band target FUN_18004C8E8: core+0xAA4 -> core+0xA50
+limits      -576 .. +576
+```
+
+DAX3's public Custom-EQ API exposes the narrower user range `-192..+192`, so the
+Linux helper accepts exactly 20 integer values in that range and passes them
+without speculative rescaling. The standard SP11 20 band centers are used.
+
+The plugin reads `SP11_DOLBY_GEQ` only at state construction. GEQ is applied
+only when the selected profile is `personalize`; other profiles explicitly keep
+GEQ disabled even if a saved Custom curve exists. Missing/`off`/`flat` data
+means GEQ disabled. Invalid environment data also fails safe to GEQ disabled
+instead of aborting the audio host.
+
+Regression tests with GEQ absent preserve every established profile hash. A
+non-flat 20-band test curve changed only the Personalize output and remained
+bit-identical across 1, 64, 480, 1024, 127/353 and mixed host chunks.
+
+The deployment helper adds:
+
+```text
+sp11-dolby geq                 # show saved curve/off
+sp11-dolby geq reset           # disable/reset
+sp11-dolby geq set <20 ints>   # each -192..192
+```
+
+The saved curve persists in `~/.config/sp11-dolby/geq` and is carried through
+profile switches. An isolated fake-home/fake-systemd test verified persistence,
+drop-in generation and reset behavior before live deployment.
+
+### Historical Custom1 data gap
+
+The 2026-06-12 Custom1 capture proves a user-edited high-bass/high-treble curve
+was visible in Dolby Access, but that early capture predates the corrected
+20-value `GetGEQLevels` RPC recorder. The old probe mistakenly treated opnum 17
+(`GetGEQLevels`) as a scalar, so no numeric 20-band array was preserved in the
+obvious state JSON/log files. Do not infer the curve from VLLDP `+0xC0C`: GEQ is
+applied later in the VR stage.
+
+The implementation is therefore complete for arbitrary Custom GEQ data; only
+the exact historical Custom1 band values remain an evidence-recovery problem.
