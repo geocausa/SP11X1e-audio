@@ -49,12 +49,24 @@ bass-extraction      = disabled
 sliding-bass         = disabled
 ```
 
-The persistent Windows-hot speaker path instead derives its bass/loudness
-character primarily from the original VLLDP leveler/regulator plus the VR
-profile processing already ported and running on Linux.
+The current Linux production host also leaves the original `DolbyApoVr`
+bass-enhancer/extraction controls at their constructor defaults (off).
+
+A later August-runtime recheck adds an important qualification: the exact
+persistent-VR bass-enable byte was not sampled during the 2026-08-04 KDNET
+YouTube session, so static XML alone must not be described as direct runtime
+proof. See `2026-08-05-AUGUST-BASS-RUNTIME-RECHECK.md`.
+
+That recheck traces the modern spectral harmonic synthesizer's internal-speaker
+route underneath the DABS entry that was hardware-cold in August, strongly
+ruling out the decoded modern "fake bass" generator for that tested speaker
+condition. The subjectively strong bass remains consistent with the persistent
+hot VLLDP leveler/regulator plus VR dynamics.
 
 Therefore adding synthetic/virtual bass to the production Windows-replica
-chain would be an enhancement, not a parity fix.
+chain is not currently justified as a parity fix. The one remaining historical
+uncertainty is the ordinary persistent `DolbyApoVr` bass-enable bit, which can
+be closed with one DAX getter or live-core read on a future Windows run.
 
 ## 4. Current policy
 

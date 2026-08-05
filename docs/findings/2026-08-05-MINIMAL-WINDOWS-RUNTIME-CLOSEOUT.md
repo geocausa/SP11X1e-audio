@@ -40,6 +40,22 @@ That closes modern ASAR as a steady per-buffer speaker-stage for that condition.
 If OAR/crossfade fires, capture registers/object pointers at entry and add only
 that proven branch to the parity target.
 
+
+## Bass-state one-line closeout
+
+The 2026-08-04 internal-speaker call graph now strongly rules out the modern
+ASAR spectral harmonic synthesizer, but the persistent `DolbyApoVr` ordinary
+Bass Enhancer enable byte was never read during that exact YouTube session.
+While Dynamic playback is steady, record either:
+
+```text
+DAX GetBassEnhancerEnable (RPC opnum 15)
+```
+
+or the persistent `DolbyApoVr` inner-core `core+0xC90` value. Expected from the
+OEM profile, constructor defaults and June live captures is `0`. This is a
+separate question from the modern ASAR virtual-bass/harmonic path.
+
 ## Exact waveform oracle, same boot if desired
 
 For final endpoint-level waveform scoring, play the existing deterministic
