@@ -141,3 +141,20 @@ This still does **not** establish the exact ordering relative to VLLDP/VR or
 prove that the May known-input speaker stream passes through this object. Those
 remain the next discriminator; do not promote CAudioLimiter to proven missing
 waveform stage until ordering/stream association and replay close the oracle.
+
+### 2026-08-05 — May-19 deterministic capture-pack recheck
+
+- The endpoint Dolby registry families `{5510c7ab...}` and `{f112024a...}` do
+  **not** track active profile: a controlled Dynamic->Music switch leaves both
+  families byte-identical. Historical endpoint registry values must not be used
+  alone to label a live capture Dynamic/Movie/Music.
+- Current original-code Dynamic/Movie/Music replay of the twelve May-19 paired
+  Windows stimuli gives about 1.05/0.90/0.96 dB mean absolute RMS error
+  respectively; the exact capture profile remains unproven.
+- Adding decoded `AudioEng!CAudioLimiter` slightly worsens pack-wide RMS error,
+  reinforcing its role as a safety ceiling rather than the missing loudness
+  generator.
+- A steady -18 dBFS 75-Hz Windows capture preserves the source H3/H5 at roughly
+  -83/-90 dBc. The very large odd-harmonic signature appears only near the loud
+  ceiling, not as a continuously enabled Virtual Bass process.
+- `VR core+0x5E0` is a dormant/lazy output-mode cache flag, not missing gain.
