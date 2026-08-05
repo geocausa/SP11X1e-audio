@@ -137,3 +137,25 @@ Two deployment-only edge cases were found and fixed during this test:
 The live-node lookup also excludes WirePlumber's configured-default pseudo row
 (`0. Audio/Sink`) so an absent filter sink cannot be mistaken for a real node.
 
+
+## Self-contained production build
+
+The live profile-capable host was rebuilt with its default DLL paths pointing
+only to the private local bundle:
+
+```text
+~/.local/lib/sp11-dolby/DolbyAPOvlldp150.dll
+~/.local/lib/sp11-dolby/DolbyAPOVR.dll
+```
+
+The installed host SHA-256 is:
+
+```text
+49eb13d0f6be940ee5759954082e809b6f56a22b9135df0c012f506fd10aed63
+```
+
+`deploy/dolby/build-production.sh` verifies the two known SP11 Dolby DLL hashes
+before building and embeds only those private bundle paths. Two independent
+builds produced the same host SHA-256 above. Dynamic retained its existing
+200,000-frame reference hash `01ec0adc40a8905b`, and all seven profile smoke
+tests passed before the self-contained host was installed.

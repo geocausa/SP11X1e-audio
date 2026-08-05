@@ -15,3 +15,10 @@ profile rebuild.
 
 `sp11-dolby off` selects the separate transparent bypass sink; it does not
 uninstall or mutate the Dolby processor.
+
+## Rebuild
+
+`build-production.sh` builds the host with its default DLL paths pointing at
+the private `~/.local/lib/sp11-dolby/` bundle. Before compiling, it verifies the
+exact SP11 VLLDP150 and VR SHA-256 hashes. The script intentionally fails rather
+than silently running against a different Dolby binary revision.

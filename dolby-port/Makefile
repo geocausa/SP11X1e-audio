@@ -93,3 +93,7 @@ guardrail-check:
 	python3 $(GUARDRAIL_CHECK) --manifest $(CHAIN_MANIFEST) --prototype sp11_vlldp_v19.c --handoff HANDOFF.md --fun18001de90-helper sp11_vlldp_fun18001de90.h
 
 check: contract-check native-bridge-check full-chain-seed-check exact-plugin-smoke guardrail-check
+
+.PHONY: windows-chain-production
+windows-chain-production:
+	../deploy/dolby/build-production.sh $(CURDIR)/sp11_dolby_windows_chain.production.so
