@@ -108,8 +108,10 @@ Detail:
 
 - Which upstream Music runtime/history state drives the Windows 75-Hz signal
   hard enough to reach the decoded AudioEng limiter.
-- Exact semantics of DAX `vlldp-limiter-gain` / low-level
-  `mb_compressor_limiter_gain` (setter vs status/readback vs both).
+- DAX `vlldp-limiter-gain` is proved bidirectional Get/Set (`0x850` ->
+  internal `0x2A` -> low-level `mb_compressor_limiter_gain`). Remaining
+  question: live value semantics (configured vs evolving state) and correlation
+  to VLLDP limiter state.
 - Exact trigger behind the July Firefox/YouTube Movie/Music-family VLLDP state:
   profile switching, graph/content state, or another runtime policy.
 - Remaining lifecycle/history state needed for exact cold/warm Windows parity.

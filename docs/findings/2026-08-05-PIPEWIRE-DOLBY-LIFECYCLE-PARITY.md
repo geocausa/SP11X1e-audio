@@ -233,3 +233,19 @@ restarts the filter-chain service when changing profile, which intentionally
 creates fresh DSP state. Windows may preserve or selectively reset more history
 across an in-place profile switch. That should be investigated independently;
 it does not block this PAUSED/reset fix.
+
+## Live rollout verification
+
+After the offline A/B regression above was repeated from the clean worktree, the
+validated lifecycle-fixed build was installed as the live SP11 Dolby plugin:
+
+```text
+~/.local/lib/sp11-dolby/sp11_dolby_windows_chain.so
+SHA-256 cad1c0f0d1cfd6abeedbb3ed4c59ac910f77dc501feb6c178cb4152e43f5006c
+```
+
+The previous production binary (`230932e5...`) was preserved as a local backup.
+The dedicated `sp11-dolby restart` path preserved Dynamic / GEQ-off, Dolby sink
+volume `0.13`, bypass volume `0.18`, and the Dolby default sink. The restarted
+`filter-chain.service` was active/running with `NRestarts=0`. The Windows NTFS
+partition remained unmounted.
