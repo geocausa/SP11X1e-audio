@@ -96,7 +96,7 @@ position and contribution to the recovered nonlinear waveform are still open.
 | Leveler / DRC / regulator / VolMax | A: live DAX map; B: output/ablation behavior | Original VR/VLLDP processing | **Active and acoustically important** |
 | SurfaceAPO media EQ | C: REV_0D MEDIA/MOVIE/default nodes disabled/identity | Not separately emulated | **Likely no-op for captured media mode** |
 | Modern ASAR/AIDE DAPVR | A: tested ordinary-stereo cores hardware-cold | Not in production chain | **Cold for tested mode; mode-dependent open elsewhere** |
-| `AudioEng!CAudioLimiter` | A: real audiodg Microsoft-Windows-Audio Start/Stop ETW; C: exact AudioEng binary/class | Not reproduced | **Strong live candidate; exact role OPEN** |
+| `AudioEng!CAudioLimiter` | A: real audiodg ETW; C: exact ARM64 state machine decoded | Offline exact oracle decoded; not deployed | **Proven live final limiter; not sufficient to close 75-Hz residual** |
 | Qualcomm lower graph | A: KD/QGPR live graph | Reconstructed protected graph | **High topology confidence** |
 | VOL_CTRL gain/mute | A: parameter IDs and live writes | Present | **Known control, not mystery limiter** |
 | MSIIR stages | A/C: live graph + ACDB | Loaded in protected graph | **Static-stage confidence high** |
@@ -159,6 +159,35 @@ history explains part of the mismatch but not this nonlinear signature.
 This residual is the current parity target. Do not hide it with guessed EQ or a
 hand-written bass enhancer.
 
+
+## June full audiodg dump: live VR source-of-truth
+
+The June-8 full `audiodg.exe` process dumps retain the actual live
+`DolbyApoVr` wrapper and core. A unique relocated `LibWrapperVr` vtable pointer
+resolves the object at `0x2453913C2F0` and core at `0x245391DD808`; its fill
+advances `96 -> 160` across the two captures.
+
+Direct core reads prove Bass Enhancer and Bass Extraction are OFF in the actual
+sample-processing core. Comparing all seven replayed profiles against stable
+profile-discriminating fields identifies the live core as **Music**, with the
+Linux Music replay matching all `34/34` stable scalar discriminators.
+
+The two Windows core snapshots also expose large evolving history/state regions,
+while a stable but different `core+0xB48..0xC38` tuning table was experimentally
+copied into Linux and produced bit-identical audio. This shifts the remaining
+parity target from static profile reconstruction toward live history/state.
+
+Detail: `docs/findings/2026-08-05-AUDIOENG-LIMITER-AND-LIVE-VR-CORE.md`.
+
+## AudioEng limiter closure
+
+The Windows `CAudioLimiter` is now decoded as a linked stereo look-ahead limiter
+with a 0.985 ceiling, 64-frame look-ahead at 48 kHz, and exponential release.
+An exact offline replay slightly improves whole-waveform correlation but does
+not touch the loud 75-Hz oracle segments because the current Dolby output is
+below threshold there. The missing gain/nonlinearity is therefore upstream of
+this final limiter rather than created by it alone.
+
 ## Runtime switching model
 
 Windows has more than one kind of state change:
@@ -186,8 +215,8 @@ parity.
 
 ## Current open questions, in priority order
 
-1. Resolve `AudioEng!CAudioLimiter` graph position, state and algorithm for the
-   captured speaker stream; replay it against the 75-Hz oracle.
+1. Resolve the upstream Windows Music runtime/history state that drives loud
+   75-Hz material several dB harder before the now-decoded AudioEng limiter.
 2. Finish semantics of DAX `vlldp-limiter-gain` /
    `mb_compressor_limiter_gain` (control vs status/readback) and correlate any
    live value with VLLDP limiter state.

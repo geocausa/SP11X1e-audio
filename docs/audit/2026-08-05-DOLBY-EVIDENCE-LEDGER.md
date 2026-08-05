@@ -40,7 +40,7 @@ Primary detail record:
 
 `docs/findings/2026-08-05-DOLBY-RUNTIME-GAIN-LIMITER-RECHECK.md`
 
-## Strong live candidate — not yet proven as missing stage
+## AudioEng limiter — live and decoded, but not the missing stage by itself
 
 Windows `AudioEng.dll` contains `CAudioLimiter` and the AudioLimiter CLSID
 `{d69e0717-dd4b-4b25-997a-da813833b8ac}` appears repeatedly in real
@@ -56,14 +56,27 @@ silent_audio_provider_only_events.csv SHA-256
 9622d267ea210ddaee9125bcc1f0bb4b887dd50974803729fde8fe23524e1e09
 ```
 
-This proves a real AudioLimiter component is constructed/operated by the Windows
-audio engine in the captured audiodg graph. Still open: exact graph position,
-which stream(s) it processes, and whether replaying it closes the 75-Hz oracle.
+The real limiter state machine is now decoded: linked stereo peak detection,
+0.985 ceiling, 64-frame look-ahead at 48 kHz, attack ramp and exponential
+release. Exact offline replay engages on some stimulus regions but leaves the
+critical loud 75-Hz steps untouched because the current Dolby candidate reaches
+those steps below threshold. Therefore AudioLimiter is real and relevant, but
+the missing gain/nonlinearity is upstream.
+
+A second major source-of-truth recovery comes from the June full `audiodg.exe`
+minidumps. They contain the unique live `LibWrapperVr` object at
+`0x2453913C2F0` and core at `0x245391DD808`. Direct core reads give Bass Enhancer
+and Bass Extraction OFF. Stable profile discrimination identifies Music and the
+Linux Music replay matches 34/34 stable scalar discriminators. Large core
+history regions evolve between the two Windows snapshots.
+
+Detail:
+`docs/findings/2026-08-05-AUDIOENG-LIMITER-AND-LIVE-VR-CORE.md`
 
 ## Open high-value questions
 
-- Exact `CAudioLimiter` algorithm/state and ordering relative to VLLDP/VR.
-- Whether the Windows May oracle traverses that limiter before WASAPI loopback.
+- Which upstream Music runtime/history state drives the Windows 75-Hz signal
+  hard enough to reach the decoded AudioEng limiter.
 - Exact semantics of DAX `vlldp-limiter-gain` / low-level
   `mb_compressor_limiter_gain` (setter vs status/readback vs both).
 - Exact trigger behind the July Firefox/YouTube Movie/Music-family VLLDP state:
@@ -74,5 +87,5 @@ which stream(s) it processes, and whether replaying it closes the 75-Hz oracle.
 
 - `5563376` — runtime Dolby gain/limiter recheck, pushed to origin.
 - `21d5638` — evidence ledger + AudioEng/AudioLimiter live-ETW evidence, pushed to origin.
-- The canonical topology/index/production-manifest consolidation is maintained
-  by the next repository-organization checkpoint.
+- `c73e282` — canonical topology/index/production-manifest consolidation.
+- This live-VR-core + decoded-AudioLimiter result is the next evidence checkpoint.
