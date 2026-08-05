@@ -59,6 +59,11 @@ not accidentally convert a useful hypothesis into folklore.
 - The live AudioEng limiter state was recovered from its exact initialization
   signature. At both June snapshots current gain is 1.0 and attack-left is 0;
   it is instantiated but not actively limiting at those instants.
+- The original VLLDP final limiter is independently live in the same June Music
+  snapshots. Its ceiling is ~0.9999 and its peak/envelope histories differ, but
+  nested current/previous/target gain are all exactly 1.0 in both snapshots.
+  The old wrapper `+0x7C0` apparent state jump is also closed as endpoint-volume
+  postgain feedback after correcting wrapper-vs-DSP-state offset origin.
 
 Primary detail record:
 
@@ -108,10 +113,10 @@ Detail:
 
 - Which upstream Music runtime/history state drives the Windows 75-Hz signal
   hard enough to reach the decoded AudioEng limiter.
-- DAX `vlldp-limiter-gain` is proved bidirectional Get/Set (`0x850` ->
-  internal `0x2A` -> low-level `mb_compressor_limiter_gain`). Remaining
-  question: live value semantics (configured vs evolving state) and correlation
-  to VLLDP limiter state.
+- DAX `vlldp-limiter-gain` identity and generic public Get/Set routing are proved
+  (`0x850` -> `0x2A` -> `mb_compressor_limiter_gain`). `0x2A` groups with
+  telemetry/info parameters in the backend getter. Remaining question: exact
+  exported field/units and whether backend Set is semantically accepted/useful.
 - Exact trigger behind the July Firefox/YouTube Movie/Music-family VLLDP state:
   profile switching, graph/content state, or another runtime policy.
 - Remaining lifecycle/history state needed for exact cold/warm Windows parity.

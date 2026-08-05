@@ -206,6 +206,21 @@ flag. The next target is the DAX/VLLDP multiband-compressor limiter path,
 including the `mb_compressor_limiter_gain` control/name and the already decoded
 frequency-aware VLLDP limiter whose threshold is near full scale.
 
+### Direct June Music VLLDP limiter-state closure
+
+Subsequent full-minidump recovery resolves the final VLLDP limiter state directly.
+For both June-8 Music snapshots the same limiter object is live at
+`0x0000024539691B60`; its ceiling is `0.9998999834`. Its peak/envelope history
+changes materially, but current gain, previous/ramp gain and target gain are all
+exactly `1.0` in both snapshots. Thus this limiter is active state but is **not
+attenuating** at either captured instant.
+
+A separate offset-origin correction closes an apparent old history lead: live
+wrapper `+0x7C0` is embedded DSP-state `+0x658`; the changing high float is
+DSP `+0x65C` scaled endpoint postgain (`-1200/2080` at 0% mute and `-385/2080`
+at 20%), not limiter history. Full evidence:
+`2026-08-05-VLLDP-POSTGAIN-AND-LIMITER-STATE-CORRECTION.md`.
+
 ## Warm-history replay result
 
 The Windows oracle was captured from an already-running audio graph, while the

@@ -1,11 +1,15 @@
-# DAX `vlldp-limiter-gain` — bidirectional Get/Set mapping proved
+# DAX `vlldp-limiter-gain` — public routing and low-level identity
 
 Date: 2026-08-05
 
 ## Scope
 
-This closes the control-vs-readback half of the open DAX/VLLDP limiter question
-without changing the live audio path.
+This proves the public descriptor identity plus generic getter/setter routing for
+the open DAX/VLLDP limiter question without changing the live audio path. Later
+backend analysis (preserved in
+`2026-08-05-VLLDP-POSTGAIN-AND-LIMITER-STATE-CORRECTION.md`) narrows the intended
+semantics toward runtime/readback information; generic setter routing alone must
+not be promoted to proof that the backend accepts a writable production control.
 
 Exact SP11 control DLL:
 
@@ -57,12 +61,11 @@ lookup, rejects unsupported IDs, and then calls the low-level getter
 `FUN_1800187D0` with the descriptor internal index. Its diagnostic strings
 identify this path as `DspController::GetParameter`.
 
-Therefore:
-
-**`vlldp-limiter-gain` is definitely bidirectional Get/Set capable.**
-
-It is neither a decorative name nor a status-only/setter-only API surface in
-`Dax3DapControl.dll`.
+Therefore the **public control layer exposes both generic Get and generic Set
+routing** for `vlldp-limiter-gain`. It is not a decorative string. This statement
+is deliberately about the front-end routing: later analysis shows `0x2A` grouped
+with telemetry/info parameters inside `CDolbyDspVlldp::GetModuleParam`, so backend
+semantic writability is not yet proved.
 
 ## Low-level identity
 
@@ -92,11 +95,14 @@ Do not infer a magic production value from this result.
 
 Still unresolved:
 
-- the exact units/range/meaning of the value;
-- whether the returned live value is a static configured gain, evolving
-  runtime state, or a value with mixed semantics;
-- the live Windows value under a state-pinned Music run;
-- how that live value correlates with the VLLDP compressor/limiter state and
-  the remaining 75-Hz parity residual.
+- the exact exported units/range/scaling of the value;
+- the exact backend field used to produce the `0x2A` readback;
+- whether a Set request for `0x2A` is accepted/meaningful at the backend;
+- the exact linkage, if any, between `0x2A` and the nested final-limiter current
+  gain at VLLDP limiter-state `+0x78`.
+
+Fresh preserved-state work does prove that the real final VLLDP limiter is live
+but has current/previous/target gain `1.0` in both June-8 Music snapshots. See
+`2026-08-05-VLLDP-POSTGAIN-AND-LIMITER-STATE-CORRECTION.md`.
 
 No live Linux Dolby parameter was changed during this analysis.

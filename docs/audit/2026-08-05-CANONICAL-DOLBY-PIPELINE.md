@@ -252,12 +252,13 @@ parity.
 
 1. Resolve the upstream Windows Music runtime/history state that drives loud
    75-Hz material several dB harder before the now-decoded AudioEng limiter.
-2. DAX `vlldp-limiter-gain` is now statically proved bidirectional Get/Set:
-   public ID `0x850` maps through the shared DSP descriptor table to internal
-   index `0x2A`, which closes directly to low-level
-   `mb_compressor_limiter_gain`. Finish the remaining live value semantics
-   (configured vs evolving state) and correlate a state-pinned value with
-   VLLDP limiter state.
+2. DAX `vlldp-limiter-gain` public identity and generic Get/Set routing are
+   proved: `0x850` -> internal `0x2A` -> `mb_compressor_limiter_gain`. Fresh
+   backend analysis groups `0x2A` with telemetry/info parameters, while direct
+   June Music limiter recovery finds its real nested current/previous/target
+   gains all at `1.0` despite changing envelope history. Finish the exact `0x2A`
+   exported-field/units linkage and backend Set semantics; do not treat generic
+   front-end Set routing as proof of a writable production knob.
 3. Resolve the July Movie-vs-Music ambiguity from an independent retained state
    source if possible.
 4. Resolve profile-switch lifecycle semantics: the Linux helper currently
