@@ -208,16 +208,23 @@ The June DAX3API process dumps also contain private copies of the string
 parameter-descriptor/name pool (adjacent to names such as `vlldp-peak-level`
 and `vlldp-system-gain`). They are not a cached numeric limiter value.
 
-So the corrected status is:
+So the corrected status, after the Aug-6 telemetry A/B, is:
 
 ```text
-public identity / getter routing     proved
-public generic setter routing        proved
-intended runtime/readback character  strongly supported
-backend semantic writability         not yet proved
-exact exported units/scaling         not yet proved
-exact linkage to nested +0x78 gain   not yet proved
+public identity / getter routing             proved
+public generic setter routing                proved
+runtime/readback character                   strongly supported
+software MB-compressor gain telemetry        proved
+same as nested final-limiter +0x78 gain      ruled out behaviorally
+backend semantic writability                 not proved
+exact DAX-to-software buffer/units linkage   not directly proved
 ```
+
+The decisive Aug-6 test sampled the software VLLDP's live 20-element
+multiband-gain vector for all 2,945 blocks with `peak=0` and `peak=-48`: every
+row was bit-identical while the separate final limiter changed from unity to
+active attenuation. Detail:
+`2026-08-06-MAY-RUNTIME-STATE-AND-VLLDP-TELEMETRY-CLOSURE.md`.
 
 ## Consequence for parity work
 
@@ -227,6 +234,8 @@ for the remaining loud 75-Hz parity residual:
 - hidden adaptive state at old `wrapper+0x7C0`; or
 - a final VLLDP limiter already pulling gain below unity.
 
-The dominant unresolved work remains the upstream Music/VR lifecycle/history
-state that changes pre-limiter drive, plus exact `0x2A` backend/readback
-semantics if that path can be statically closed from the existing corpus.
+The dominant unresolved work remains provenance-backed state that changes
+pre-final-limiter drive inside the original chain. `0x2A` is demoted from the
+parity-critical search: without a source-of-truth Windows write, its remaining
+backend-Set/cross-component-buffer details do not justify treating it as a
+production control.

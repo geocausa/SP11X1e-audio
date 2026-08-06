@@ -230,12 +230,16 @@ Detail:
   Surface APO mode delta supplies the remaining presentation difference once
   generic HRTF, VirtualSurround, matching-stereo ASAR, and the original VR
   stereo virtualizer are excluded.
-- Which upstream Music runtime/history state drives the Windows 75-Hz signal
-  hard enough to reach the decoded AudioEng limiter.
-- DAX `vlldp-limiter-gain` identity and generic public Get/Set routing are proved
-  (`0x850` -> `0x2A` -> `mb_compressor_limiter_gain`). `0x2A` groups with
-  telemetry/info parameters in the backend getter. Remaining question: exact
-  exported field/units and whether backend Set is semantically accepted/useful.
+- Which provenance-backed original-VLLDP multiband/compressor state can raise
+  the current May-replay loud-end envelope by roughly 2.5 dB before the normal
+  final limiter while preserving the quieter staircase transfer law.
+- May-18 active profile and endpoint volume are unrecovered from the current
+  corpus; reopen only if a new historical artifact appears or use a future
+  state-pinned Windows same-stimulus capture.
+- DAX `0x850 -> 0x2A -> mb_compressor_limiter_gain` remains an extended
+  readback/info family. The software VLLDP exposes live multiband gain telemetry
+  that is bit-identical across peak=0/-48 while the separate final limiter
+  attenuation changes, ruling out `0x850` as that scalar final-limiter gain.
 - Exact trigger behind the July Firefox/YouTube Movie/Music-family VLLDP state:
   profile switching, graph/content state, or another runtime policy.
 - Remaining lifecycle/history state needed for exact cold/warm Windows parity.

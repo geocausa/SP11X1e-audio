@@ -528,22 +528,29 @@ docs/findings/2026-08-06-VLLDP-PEAK-LEVEL-LIMITER-CEILING.md
 
 Resume here first.
 
-### Priority A — recover May-18 contemporaneous state provenance
+### Priority A — trace provenance-backed pre-final-limiter drive inside VLLDP
 
-The `peak-level` mechanism itself is closed enough to demote. Resume with the
-historical May oracle's still-unproven runtime context:
-
-1. recover any independent evidence for the May-18 active DAX profile;
-2. recover or bound the May endpoint master volume / VLLDP postgain;
-3. keep the capture labelled `historical exact-stimulus oracle with unproven contemporaneous profile/state` until provenance exists;
-4. do not choose Movie/Dynamic merely because a waveform score is better.
-
-### Priority B — find provenance-backed upstream drive into the normal VLLDP limiter
+The current corpus no longer has a useful May profile/volume provenance route:
+the nearest May registry snapshot lacks both values, the matching preprocess
+trace did not survive the archive or read-only Windows filesystem, and current
+PowerShell history does not retain the capture command context. Keep the capture
+labelled `historical exact-stimulus oracle with unproven contemporaneous profile/state`
+and do not spend another cycle on that recovery unless a new artifact appears.
 
 The diagnostic `-3 dB` ceiling proves the original final VLLDP limiter can make
-the missing H3/H5 shape. Since real SP11 evidence says `peak-level=0`, search for
-another real state/input that raises **pre-limiter drive** enough to engage that
-normal ceiling while preserving the observed seven-step transfer law.
+the missing H3/H5 shape. With real `peak-level=0`, Movie + postgain `-385` leaves
+that limiter exactly at unity for the entire stimulus; the final-tone envelope
+peaks near `-2.47 dBFS`. Search for a **source-backed VLLDP multiband/compressor
+state** capable of adding roughly 2.5 dB of loud-end pre-limiter drive while
+preserving the quieter transfer law.
+
+### Priority B — keep telemetry/control boundaries strict
+
+DAX `0x850 -> 0x2A -> mb_compressor_limiter_gain` is demoted from the missing-
+control search. The software VLLDP's live 20-element multiband gain vector is
+bit-identical across all 2,945 blocks when only peak=0/-48 changes, even though
+the separate final limiter changes from unity to attenuation. Generic front-end
+Set routing is not evidence for a production knob.
 
 Keep already-proved constraints:
 
@@ -553,9 +560,15 @@ Keep already-proved constraints:
 - AudioEng only supplies the final 0.985 ceiling;
 - no guessed saturation, EQ, fake bass or negative peak setting.
 
-Useful next discriminators include profile-dependent VLLDP compressor/leveler
-state, retained May DAX runtime maps, or any direct historical state capable of
-changing drive before `FUN_180024510`.
+Useful next discriminators are exact profile-dependent VLLDP compressor state,
+multiband telemetry/state transitions, and any direct retained runtime state
+capable of changing drive before `FUN_180024510`.
+
+Primary continuation detail:
+
+```text
+docs/findings/2026-08-06-MAY-RUNTIME-STATE-AND-VLLDP-TELEMETRY-CLOSURE.md
+```
 
 ### Priority C — keep endpoint postgain in all May oracle work
 
@@ -582,9 +595,9 @@ Do not spend new cycles on:
 
 ## 18. Other still-open items after the peak-level investigation
 
-1. Exact May-18 active profile remains unlabeled. Waveform scoring makes Movie/Dynamic families useful candidates, but provenance is not proof.
-2. May master volume is unknown.
-3. `mb_compressor_limiter_gain` / public `0x850` backend semantics/readback linkage is not fully closed.
+1. Exact May-18 active profile remains unlabeled and May master volume remains unknown; current retained/live artifacts were exhausted without recovering them. Reopen only if a new historical artifact appears.
+2. The missing loud-end pre-final-limiter drive/state inside original VLLDP remains unresolved; current Movie/postgain `-385` replay has about 2.47 dB final-limiter headroom.
+3. `mb_compressor_limiter_gain` / public `0x850` is separated from the scalar final limiter and demoted to telemetry/readback; backend Set semantics remain unproved but are not a production target without a Windows write.
 4. A purpose-built future Windows same-stimulus capture with profile, DAX state, Spatial state and endpoint volume recorded simultaneously remains the cleanest final certification oracle.
 5. Lower Qualcomm/AudioReach protection/calibration should only be revisited if it can affect WASAPI loopback or feed a control decision upstream; a purely downstream speaker mute cannot explain loopback PCM.
 6. Exact historical Custom1 GEQ remains unrecovered unless old artifacts resurface.

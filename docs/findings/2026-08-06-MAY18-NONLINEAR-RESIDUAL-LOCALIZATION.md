@@ -276,13 +276,18 @@ It is not a Surface speaker-protection state.
 The original `peak-level` tasks are closed by
 `2026-08-06-VLLDP-PEAK-LEVEL-LIMITER-CEILING.md`.
 
-Resume instead with:
+Subsequent Aug-6 work exhausted the surviving May profile/endpoint-volume
+provenance paths without recovering either value. Do not repeat that search
+unless a new historical artifact appears. Resume instead with:
 
-1. recover independent May-18 active-profile provenance if any survives;
-2. recover or bound May endpoint volume / VLLDP postgain;
-3. search for provenance-backed upstream state that can drive the normal
-   `peak-level=0` VLLDP final limiter into the May loud nonlinear regime;
+1. trace provenance-backed original-VLLDP multiband/compressor state that can
+   raise loud-end pre-final-limiter drive while preserving quieter steps;
+2. keep realistic endpoint postgain in every May-oracle comparison;
+3. use the measured ~2.47 dB normal final-limiter headroom as a quantitative
+   constraint, not as permission to add fitted broadband gain;
 4. keep the negative peak experiment diagnostic only.
+
+Detail: `2026-08-06-MAY-RUNTIME-STATE-AND-VLLDP-TELEMETRY-CLOSURE.md`.
 
 Do not reopen the May hard-mute theory, generic stereo HRTF, DAX3 SRC, warm June
 VR history, VLLDP sliding bass, simple AudioEng clipping or nonzero system gain

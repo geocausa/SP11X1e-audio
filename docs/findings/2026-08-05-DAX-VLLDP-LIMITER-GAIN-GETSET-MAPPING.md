@@ -89,20 +89,35 @@ vlldp-limiter-gain  public ID 0x850
                     low-level name mb_compressor_limiter_gain
 ```
 
-## What is NOT yet proved
+## Aug-6 semantic closure
 
-Do not infer a magic production value from this result.
+Do not infer a magic production value from the generic public Set route.
 
-Still unresolved:
+Later exact software-VLLDP analysis found a separate live multiband-compressor
+telemetry path: `FUN_180021E80` emits a 20-element integer gain vector copied to
+`core+0xB60..0xBAC`, alongside a compressor-information matrix. The combined
+getter `FUN_18001E868` exports those datasets with values clamped to
+`[-2080,0]`; internal production scaling for the 20-vector is `4160.0`.
 
-- the exact exported units/range/scaling of the value;
-- the exact backend field used to produce the `0x2A` readback;
-- whether a Set request for `0x2A` is accepted/meaningful at the backend;
-- the exact linkage, if any, between `0x2A` and the nested final-limiter current
-  gain at VLLDP limiter-state `+0x78`.
+A complete 2,945-block A/B then changed only `peak-level` from `0` to `-48`.
+The separate final VLLDP limiter went from unity to active attenuation, while
+the entire 20-element compressor gain vector remained **bit-identical on every
+block**. Therefore `mb_compressor_limiter_gain` must not be interpreted as the
+nested scalar final-limiter `+0x78` gain or as the missing final-limiter ceiling.
 
-Fresh preserved-state work does prove that the real final VLLDP limiter is live
-but has current/previous/target gain `1.0` in both June-8 Music snapshots. See
-`2026-08-05-VLLDP-POSTGAIN-AND-LIMITER-STATE-CORRECTION.md`.
+The exact DAX identity/routing remains:
+
+```text
+public 0x850 -> internal 0x2A -> mb_compressor_limiter_gain
+```
+
+and `0x2A` remains in the special extended readback/info family. There is no
+direct cross-DLL pointer edge proving that DAX `0x2A` reads the software APO's
+specific `B60` buffer, so the exact public exported field/units should not be
+overstated. Backend semantic writability also remains unproved. Neither gap is
+a production-parity reason to write `0x850` without source-of-truth Windows
+evidence.
+
+See `2026-08-06-MAY-RUNTIME-STATE-AND-VLLDP-TELEMETRY-CLOSURE.md`.
 
 No live Linux Dolby parameter was changed during this analysis.

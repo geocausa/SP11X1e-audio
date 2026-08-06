@@ -302,23 +302,27 @@ parity.
 
 ## Current open questions, in priority order
 
-1. Resolve the May-18 contemporaneous profile and endpoint-volume state from
-   independent retained evidence if possible. Keep realistic VLLDP postgain in
-   every oracle comparison, and search for other provenance-backed upstream
-   state capable of driving the normal `peak-level=0` VLLDP final limiter into
-   the observed loud nonlinear regime. Do not fit a negative peak ceiling.
-2. DAX `vlldp-limiter-gain` public identity and generic Get/Set routing are
-   proved: `0x850` -> internal `0x2A` -> `mb_compressor_limiter_gain`. Fresh
-   backend analysis groups `0x2A` with telemetry/info parameters, while direct
-   June Music limiter recovery finds its real nested current/previous/target
-   gains all at `1.0` despite changing envelope history. Finish the exact `0x2A`
-   exported-field/units linkage and backend Set semantics; do not treat generic
-   front-end Set routing as proof of a writable production knob.
-3. Resolve the July Movie-vs-Music ambiguity from an independent retained state
+1. Trace provenance-backed **pre-final-limiter drive/state inside the original
+   VLLDP multiband/compressor path**. In the current Movie/postgain `-385` replay
+   the normal `peak-level=0` final limiter stays exactly at unity and its loud
+   envelope peaks near `-2.47 dBFS`; a real same-limiter explanation therefore
+   needs roughly 2.5 dB additional loud-end drive without breaking the quieter
+   staircase transfer law. Do not fit broadband gain or a negative peak ceiling.
+2. Treat May-18 active profile and endpoint master volume as unrecovered with
+   the current corpus. The nearest registry snapshot, recovered archive, live
+   read-only NTFS trace directory and surviving PowerShell history do not supply
+   those values. Reopen only if a new historical artifact appears.
+3. DAX `0x850 -> 0x2A -> mb_compressor_limiter_gain` is a readback/telemetry
+   family, not the scalar final VLLDP limiter gain. A 2,945-block A/B leaves the
+   software multiband gain vector bit-identical while the separate final limiter
+   changes from unity to attenuation. Do not use generic Set routing as a
+   production knob without a source-of-truth Windows write.
+4. Resolve the July Movie-vs-Music ambiguity from an independent retained state
    source if possible.
-4. Obtain or reconstruct a state-pinned same-stimulus Windows oracle for final
+5. Obtain a state-pinned same-stimulus Windows oracle with profile, endpoint
+   volume, Spatial state and DAX/VLLDP runtime state captured together for final
    waveform certification.
-5. Close the one unsupported lower calibration record and protection telemetry
+6. Close the one unsupported lower calibration record and protection telemetry
    only if they prove acoustically/materially relevant.
 
 ## Change-control rule

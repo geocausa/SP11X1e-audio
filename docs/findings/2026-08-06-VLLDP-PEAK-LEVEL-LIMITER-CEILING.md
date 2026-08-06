@@ -359,7 +359,11 @@ Therefore:
 DO NOT deploy peak-level=-48 or any other fitted negative value.
 ```
 
-The May residual remains real, but the next search should move to provenance of
-the May profile/endpoint-volume state and to other **upstream drive/state capable
-of making the normal 0 dB VLLDP limiter engage**, rather than treating
-`peak-level` itself as the missing dynamic control.
+The May residual remains real. Subsequent Aug-6 work exhausted the currently
+surviving May profile/endpoint-volume provenance without recovering either
+value, measured roughly 2.47 dB of headroom before the normal peak=0 VLLDP final
+limiter, and separated DAX `0x850` multiband telemetry from that scalar limiter.
+The active search therefore moves to **provenance-backed pre-final-limiter
+multiband/compressor drive/state** rather than treating `peak-level` or generic
+DAX limiter-gain routing as the missing control. See
+`2026-08-06-MAY-RUNTIME-STATE-AND-VLLDP-TELEMETRY-CLOSURE.md`.

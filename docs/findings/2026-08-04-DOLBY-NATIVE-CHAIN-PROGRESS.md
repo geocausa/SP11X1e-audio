@@ -96,17 +96,26 @@ appearance.
 
 ### Exact scalar mapping recovered
 
-For the old orchestrator call to `FUN_180021e80`, the captured Windows mapping
-is:
+For the old orchestrator call to `FUN_180021e80`, the captured Windows scalar
+values were:
 
 ```text
-scalar9  = child1+0xddc = 0
-scalar10 = child1+0xc60 = -5.5208571e-09   (live top scalar)
-scalar11 = child1+0x0d0 = -0.0307692308
+scalar9  = 0
+scalar10 = -5.5208571e-09
+scalar11 = -0.0307692308
 ```
 
+**Aug-6 provenance correction:** the scalar10 value was numerically correct but
+the source-field label `child1+0xC60` was not. Exact current-DLL process code
+loads `core+0xC5C` (normally literal `1.0` returned by the final limiter),
+converts it through `FUN_1800247C0`, multiplies by `0.046312306...`, passes that
+derived value into `FUN_180021E80`, and only afterward writes the same derived
+value to `core+0xC60` as readback. `C60` is therefore not the scalar's source or
+a free runtime drive control. See
+`2026-08-06-MAY-RUNTIME-STATE-AND-VLLDP-TELEMETRY-CLOSURE.md`.
+
 The live bridge had been passing `runtime[1] = -0.262019...` as scalar10.
-That is not the same field.
+That is not the same value/path.
 
 A temporary instrumentation patch is preserved in:
 
