@@ -329,3 +329,122 @@ be queued before LADSPA instantiation and is applied/acknowledged before the
 first future audio block. A dedicated regression precreates `{Music,0}`, then
 instantiates a Dynamic-start plugin and verifies the first zero-frame process
 cycle becomes `{Music,Music}` without reconstruction.
+
+## Final live rollout — SP11 Linux
+
+Final deployed bridge:
+
+```text
+commit
+178c3befb5abd87b1fd5cf112db33afe90080dd3
+
+~/.local/lib/sp11-dolby/sp11_dolby_windows_chain.so
+SHA-256 9cd10d29d987f1f946dc0879c92652b83497dfd7f30dfec0514eea949624ab3c
+```
+
+The dedicated Dolby host was deliberately reloaded once to load the new port
+and mapped-control implementation. After reload:
+
+```text
+filter-chain.service MainPID 309524
+NRestarts                    0
+profile startup              Dynamic
+GEQ                          off
+Dolby sink volume            0.13
+bypass sink volume           0.18
+default sink                 effect_input.sp11_windows_dolby
+Windows NTFS                 unmounted
+```
+
+### Fresh-idle pre-instantiation queue
+
+The service was restarted into a completely idle state. As expected from the
+lazy Filter-Chain behavior, the runtime control file did not yet exist.
+
+With no audio stream and no LADSPA DSP instance yet, the helper requested Music:
+
+```text
+request / applied = 3 / 0
+MainPID           = 309524
+NRestarts         = 0
+status            = live Dynamic; pending Music
+```
+
+A low-level test stream was then started. During its first active processing
+interval:
+
+```text
+request / applied = 3 / 3
+MainPID           = 309524
+NRestarts         = 0
+status            = live Music
+```
+
+The reverse transition was then queued while idle:
+
+```text
+request / applied = 1 / 3
+```
+
+and the next first audio interval acknowledged:
+
+```text
+request / applied = 1 / 1
+status            = live Dynamic
+```
+
+No host restart occurred in either direction. Volumes/default were unchanged.
+This validates the pre-instantiation queue path on the actual PipeWire host, not
+just in the source-level harness.
+
+### Continuous active-stream profile switching
+
+A stronger test kept one six-second low-level stereo stream open throughout both
+profile changes. The stream began in Dynamic. While that same stream was
+actively processing:
+
+```text
+Dynamic -> Music
+request / applied = 3 / 3
+MainPID           = 309524
+NRestarts         = 0
+
+Music -> Dynamic
+request / applied = 1 / 1
+MainPID           = 309524
+NRestarts         = 0
+```
+
+The helper reported `retuned in place` for both active-stream transitions.
+There was no service restart, no default-sink change, no volume change, and no
+warning/error in the service journal during the test. The persisted profile was
+returned to Dynamic and GEQ remained off.
+
+This is the decisive production proof that the Linux profile control now
+changes the running Dolby algorithm configuration without reconstructing the
+host process. Combined with the source-level pointer/long-memory regression, it
+closes the Dynamic/Music profile-lifecycle mismatch.
+
+### Deployment rollback artifact
+
+One intermediate deployment validation intentionally triggered automatic
+rollback after an assertion failed. That rollback script used `cp -f` to restore
+the plugin pathname **before** stopping the process that had the replacement
+ELF mapped. The subsequent stop logged a one-off SIGSEGV. This is a deployment
+procedure artifact: truncating/replacing the inode backing a currently mapped
+shared object can corrupt executable pages.
+
+The rollback path was immediately corrected to install a temporary file and
+atomically `rename(2)` it over the pathname, leaving the running process's old
+inode intact until systemd stops it. All later candidate loads, idle queue
+validation, and continuous-stream profile changes completed with no service
+warnings/errors and `NRestarts=0`. Do not use the earlier rollback SIGSEGV as
+DSP-stability evidence.
+
+Rollback bundles retained on the host include:
+
+```text
+~/.local/state/sp11-dolby/backups/20260805T234738Z-pre-live-profile-control/
+~/.local/state/sp11-dolby/backups/20260805T235641Z-pre-shared-profile-control/
+~/.local/state/sp11-dolby/backups/20260806T000332Z-pre-profile-v2/
+```
