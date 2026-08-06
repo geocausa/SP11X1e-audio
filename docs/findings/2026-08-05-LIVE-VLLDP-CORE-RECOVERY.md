@@ -228,6 +228,15 @@ Future work should focus on state-matched processing/lifecycle or other upstream
 actors, not on blindly enabling VLLDP sliding bass or the named VR Bass
 Enhancer/Virtual Bass controls.
 
+> **Aug-6 nested-state continuation:** the main-state overlay below covered the
+> first `0x4000` bytes of the VLLDP core, but the deterministic constructor places
+> the nested multiband-compressor object referenced by `core+0x650` at
+> `core+0x4F30`, outside that overlay. Both authentic June compressor objects were
+> later extracted separately and transplanted into fresh Music while preserving
+> local DLL pointers. Conservative changing-word and full non-pointer transplants
+> are bit-identical to baseline for the complete known-input render. See
+> `2026-08-06-VLLDP-MB-COMPRESSOR-INPUT-AND-WARM-STATE-CLOSURE.md`.
+
 ## Full captured-state replay at the original Windows addresses
 
 The older orchestrator replay infrastructure was adapted to the June full-dump

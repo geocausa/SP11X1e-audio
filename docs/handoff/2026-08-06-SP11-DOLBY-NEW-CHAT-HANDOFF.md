@@ -528,47 +528,52 @@ docs/findings/2026-08-06-VLLDP-PEAK-LEVEL-LIMITER-CEILING.md
 
 Resume here first.
 
-### Priority A — trace provenance-backed pre-final-limiter drive inside VLLDP
+### Priority A — localize the residual inside original VLLDP sample processing
 
-The current corpus no longer has a useful May profile/volume provenance route:
-the nearest May registry snapshot lacks both values, the matching preprocess
-trace did not survive the archive or read-only Windows filesystem, and current
-PowerShell history does not retain the capture command context. Keep the capture
-labelled `historical exact-stimulus oracle with unproven contemporaneous profile/state`
-and do not spend another cycle on that recovery unless a new artifact appears.
+The public/control-state search around `FUN_180021E80` is now substantially
+closed. Exact inputs are mapped to source-backed controls: peak-level,
+endpoint-volume postgain, regulator timbre, overdrive, distortion slope, stress,
+exact MB-compressor profile tuning, and upstream `VlldpSystemGain` (shipped/live
+zero). Do not sweep these again without new provenance.
 
-The diagnostic `-3 dB` ceiling proves the original final VLLDP limiter can make
-the missing H3/H5 shape. With real `peak-level=0`, Movie + postgain `-385` leaves
-that limiter exactly at unity for the entire stimulus; the final-tone envelope
-peaks near `-2.47 dBFS`. Search for a **source-backed VLLDP multiband/compressor
-state** capable of adding roughly 2.5 dB of loud-end pre-limiter drive while
-preserving the quieter transfer law.
+The older `0x4000` June warm-core replay omitted one real nested object:
+`core+0x650` points to the MB-compressor object at deterministic `core+0x4F30`.
+Both exact June compressor snapshots were recovered from the full audiodg dumps.
+A conservative authentic changed-word transplant and a full `0x80..0x8CF`
+non-pointer transplant are each **bit-identical** to fresh Music for the complete
+known-input render. Nested June compressor history is therefore closed too.
 
-### Priority B — keep telemetry/control boundaries strict
+Resume by instrumenting original VLLDP at sample-domain boundaries:
 
-DAX `0x850 -> 0x2A -> mb_compressor_limiter_gain` is demoted from the missing-
-control search. The software VLLDP's live 20-element multiband gain vector is
-bit-identical across all 2,945 blocks when only peak=0/-48 changes, even though
-the separate final limiter changes from unity to attenuation. Generic front-end
-Set routing is not evidence for a production knob.
+1. waveform/peak immediately before `FUN_180021E80`;
+2. waveform/peak immediately after `FUN_180021E80`;
+3. waveform/peak immediately before final limiter `FUN_180024510`;
+4. compare baseline, diagnostic peak=-48 and diagnostic system-gain drive only
+   as mechanistic discriminators, never as production settings.
 
-Keep already-proved constraints:
-
-- `VlldpSystemGain=0` in shipped/live evidence;
-- endpoint postgain is real and must be included;
-- June warm VR history does not create the onset;
-- AudioEng only supplies the final 0.985 ceiling;
-- no guessed saturation, EQ, fake bass or negative peak setting.
-
-Useful next discriminators are exact profile-dependent VLLDP compressor state,
-multiband telemetry/state transitions, and any direct retained runtime state
-capable of changing drive before `FUN_180024510`.
+The current Movie/postgain `-385`, peak=0 replay still reaches only about
+`-2.47 dBFS` at the final-limiter envelope and the limiter remains unity.
 
 Primary continuation detail:
 
 ```text
-docs/findings/2026-08-06-MAY-RUNTIME-STATE-AND-VLLDP-TELEMETRY-CLOSURE.md
+docs/findings/2026-08-06-VLLDP-MB-COMPRESSOR-INPUT-AND-WARM-STATE-CLOSURE.md
 ```
+
+### Priority B — keep telemetry/control boundaries strict
+
+DAX `0x850`, `core+0xC60`, peak-level fitting, nonzero `VlldpSystemGain`, and
+June nested compressor warm history are not missing production controls. Reopen
+only with new source-of-truth Windows evidence.
+
+Keep already-proved constraints:
+
+- May profile/master-volume provenance is absent from the current corpus;
+- endpoint postgain is real and must remain in May-oracle work;
+- June warm VR, top-level VLLDP and now nested MB-compressor histories do not
+  create the onset;
+- AudioEng only supplies the final 0.985 ceiling;
+- no guessed saturation, EQ, fake bass, broadband gain or negative peak setting.
 
 ### Priority C — keep endpoint postgain in all May oracle work
 
@@ -596,7 +601,7 @@ Do not spend new cycles on:
 ## 18. Other still-open items after the peak-level investigation
 
 1. Exact May-18 active profile remains unlabeled and May master volume remains unknown; current retained/live artifacts were exhausted without recovering them. Reopen only if a new historical artifact appears.
-2. The missing loud-end pre-final-limiter drive/state inside original VLLDP remains unresolved; current Movie/postgain `-385` replay has about 2.47 dB final-limiter headroom.
+2. The exact sample-domain stage responsible for the historical loud-end difference inside original VLLDP remains unresolved; all known public compressor inputs and June nested compressor warm state are now closed, while Movie/postgain `-385` still has about 2.47 dB final-limiter headroom.
 3. `mb_compressor_limiter_gain` / public `0x850` is separated from the scalar final limiter and demoted to telemetry/readback; backend Set semantics remain unproved but are not a production target without a Windows write.
 4. A purpose-built future Windows same-stimulus capture with profile, DAX state, Spatial state and endpoint volume recorded simultaneously remains the cleanest final certification oracle.
 5. Lower Qualcomm/AudioReach protection/calibration should only be revisited if it can affect WASAPI loopback or feed a control decision upstream; a purely downstream speaker mute cannot explain loopback PCM.

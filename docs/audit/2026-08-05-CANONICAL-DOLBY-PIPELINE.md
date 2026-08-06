@@ -302,12 +302,15 @@ parity.
 
 ## Current open questions, in priority order
 
-1. Trace provenance-backed **pre-final-limiter drive/state inside the original
-   VLLDP multiband/compressor path**. In the current Movie/postgain `-385` replay
-   the normal `peak-level=0` final limiter stays exactly at unity and its loud
-   envelope peaks near `-2.47 dBFS`; a real same-limiter explanation therefore
-   needs roughly 2.5 dB additional loud-end drive without breaking the quieter
-   staircase transfer law. Do not fit broadband gain or a negative peak ceiling.
+1. Localize the residual **within the original VLLDP signal path** rather than
+   searching for another public compressor knob. Every scalar/vector input to
+   `FUN_180021E80` is now source-backed (peak, endpoint postgain, timbre,
+   overdrive, distortion slope, stress, exact MB tuning, system gain), and the
+   previously omitted nested June compressor object at `core+0x4F30` is
+   bit-transparent under both conservative and full non-pointer warm-state
+   transplants. Measure the waveform immediately before/after `FUN_180021E80`
+   and before `FUN_180024510`. The current Movie/postgain `-385` replay still has
+   ~2.47 dB final-limiter headroom. Do not fit broadband gain or tuning.
 2. Treat May-18 active profile and endpoint master volume as unrecovered with
    the current corpus. The nearest registry snapshot, recovered archive, live
    read-only NTFS trace directory and surviving PowerShell history do not supply

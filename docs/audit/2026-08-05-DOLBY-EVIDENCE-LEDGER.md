@@ -56,6 +56,13 @@ not accidentally convert a useful hypothesis into folklore.
   is program-history ring-out (also present with zero input). After three
   repeated 997-Hz blocks, captured Windows-warm and fresh Music states converge
   to the same RMS/peak output to displayed precision.
+- Aug-6 nested-state correction: `core+0x650` points to a deterministic
+  multiband-compressor object at `core+0x4F30`, outside the older `0x4000` main
+  state overlay. Exact `0x8D0` compressor objects were extracted from both June
+  full audiodg dumps. A 72-word authentic changing-state transplant and a full
+  `0x80..0x8CF` non-pointer transplant are each bit-identical to fresh Music for
+  the complete 29.45-s known-input render. June nested compressor history is
+  therefore closed as the May residual.
 - The live AudioEng limiter state was recovered from its exact initialization
   signature. At both June snapshots current gain is 1.0 and attack-left is 0;
   it is instantiated but not actively limiting at those instants.
@@ -230,9 +237,10 @@ Detail:
   Surface APO mode delta supplies the remaining presentation difference once
   generic HRTF, VirtualSurround, matching-stereo ASAR, and the original VR
   stereo virtualizer are excluded.
-- Which provenance-backed original-VLLDP multiband/compressor state can raise
-  the current May-replay loud-end envelope by roughly 2.5 dB before the normal
-  final limiter while preserving the quieter staircase transfer law.
+- Which sample-domain stage inside the original VLLDP path accounts for the
+  historical May loud-end difference. Public `FUN_180021E80` inputs and June
+  nested compressor history are now source-backed/closed; next discriminate the
+  signal immediately before/after the MB compressor and before the final limiter.
 - May-18 active profile and endpoint volume are unrecovered from the current
   corpus; reopen only if a new historical artifact appears or use a future
   state-pinned Windows same-stimulus capture.
