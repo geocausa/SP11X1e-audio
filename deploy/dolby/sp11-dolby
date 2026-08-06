@@ -64,6 +64,11 @@ EOD
   mv "$PROFILE_DROPIN.tmp" "$PROFILE_DROPIN"
 }
 actual_profile() {
+  PID=$(systemctl --user show filter-chain.service -p MainPID --value 2>/dev/null || true)
+  if [ -n "$PID" ] && [ "$PID" != 0 ] && [ -r "/proc/$PID/environ" ]; then
+    LIVE=$(tr '\0' '\n' < "/proc/$PID/environ" | sed -n 's/^SP11_DOLBY_PROFILE=//p' | tail -1)
+    [ -n "$LIVE" ] && { printf '%s\n' "$LIVE"; return 0; }
+  fi
   systemctl --user show filter-chain.service -p Environment --value 2>/dev/null \
     | tr ' ' '\n' | sed -n 's/^SP11_DOLBY_PROFILE=//p' | tail -1
 }
@@ -94,9 +99,20 @@ runtime_pending_profile() {
 }
 write_runtime_profile_code() {
   C=$1
-  [ -w "$CONTROL_FILE" ] || return 1
-  OCT=$(printf '%03o' "$C")
-  printf "\$OCT" | dd of="$CONTROL_FILE" bs=1 count=1 conv=notrunc status=none 2>/dev/null
+  python3 - "$CONTROL_FILE" "$C" <<'PYCTL'
+import os, sys
+path, code = sys.argv[1], int(sys.argv[2])
+if not 1 <= code <= 7:
+    raise SystemExit(2)
+fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+try:
+    os.fchmod(fd, 0o600)
+    if os.fstat(fd).st_size < 2:
+        os.ftruncate(fd, 2)
+    os.pwrite(fd, bytes((code,)), 0)
+finally:
+    os.close(fd)
+PYCTL
 }
 set_runtime_profile() {
   P=$1

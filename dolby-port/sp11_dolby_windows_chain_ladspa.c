@@ -457,11 +457,18 @@ static int chain_profile_control_open(ChainInst *p){
     }
     int fd=open(p->profile_control_path,O_RDWR|O_CREAT|O_CLOEXEC,0600);
     if(fd<0)return -2;
-    if(fchmod(fd,0600) || ftruncate(fd,PROFILE_CONTROL_BYTES)){close(fd);return -3;}
-    const uint8_t initial[PROFILE_CONTROL_BYTES]={0,0};
-    if(pwrite(fd,initial,sizeof(initial),0)!=(ssize_t)sizeof(initial)){close(fd);return -4;}
+    struct stat st;
+    if(fstat(fd,&st) || fchmod(fd,0600)){close(fd);return -3;}
+    int had_request_slot=st.st_size>0;
+    if(ftruncate(fd,PROFILE_CONTROL_BYTES)){close(fd);return -4;}
+    const uint8_t zero=0;
+    /* A helper may queue byte 0 before lazy LADSPA instantiation. Preserve it.
+     * Byte 1 belongs to the current instance and is always reset until the
+     * first process cycle applies/acknowledges the request. */
+    if(!had_request_slot && pwrite(fd,&zero,1,0)!=1){close(fd);return -5;}
+    if(pwrite(fd,&zero,1,1)!=1){close(fd);return -6;}
     void *map=mmap(NULL,PROFILE_CONTROL_BYTES,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
-    if(map==MAP_FAILED){close(fd);return -5;}
+    if(map==MAP_FAILED){close(fd);return -7;}
     p->profile_control_fd=fd;
     p->profile_control=(volatile uint8_t*)map;
     return 0;

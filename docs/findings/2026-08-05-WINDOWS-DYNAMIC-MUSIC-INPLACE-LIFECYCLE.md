@@ -303,3 +303,29 @@ immediately; if idle, the request remains queued and is applied before the first
 future audio block. The LADSPA `Profile` port remains as a secondary/future
 control surface, with non-negative `0 = startup` encoding so a host default
 cannot override a non-Dynamic cold-start profile.
+
+### Lazy-instantiation and control-plane corrections from live validation
+
+The first shared-control live validation exposed three host-side details before
+any non-Dynamic profile was actually applied:
+
+1. PipeWire can publish the LADSPA descriptor/PropInfo before creating the DSP
+   instance; the runtime control map therefore does not necessarily exist while
+   the sink is completely idle. A short stream causes instantiation and map
+   creation.
+2. The initial shell octal writer was wrong and wrote ASCII `$` (`36`) instead
+   of binary Music code `3`. The plugin correctly ignored code 36, so this did
+   not change DSP profile. The helper now uses Python `os.open` + `os.pwrite` to
+   write one exact binary byte without truncating a mapped file. It can also
+   create the two-byte map before lazy instantiation.
+3. `systemctl show ... Environment` reflects the reloaded unit configuration,
+   not necessarily the environment of the already-running process. Live status
+   now reads `/proc/$MainPID/environ` first and uses the unit environment only as
+   fallback.
+
+The plugin's mapping open path now preserves an already-queued request byte and
+resets only the per-instance acknowledgement byte. Therefore an idle request can
+be queued before LADSPA instantiation and is applied/acknowledged before the
+first future audio block. A dedicated regression precreates `{Music,0}`, then
+instantiates a Dynamic-start plugin and verifies the first zero-frame process
+cycle becomes `{Music,Music}` without reconstruction.

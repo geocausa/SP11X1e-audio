@@ -129,7 +129,29 @@ int main(void){
            before_return,after_return,return_preserved?"YES":"NO");
 
     chain_cleanup(p);unlink(ctl);
-    int ok=identity&&state_preserved&&profile_applied&&sweep_ok&&return_preserved;
+
+    /* PipeWire can instantiate the graph lazily. A request created by the
+     * helper before instantiate must survive open/ftruncate and be applied on
+     * the first process cycle. */
+    char ctl2[160];snprintf(ctl2,sizeof(ctl2),"/tmp/sp11-dolby-profile-prequeue-%ld.control",(long)getpid());
+    unlink(ctl2);int fd=open(ctl2,O_RDWR|O_CREAT|O_CLOEXEC,0600);
+    uint8_t queued[2]={(uint8_t)CHAIN_PROFILE_MUSIC+1u,0};
+    int prequeue_ok=0;
+    if(fd>=0 && ftruncate(fd,2)==0 && pwrite(fd,queued,2,0)==2){
+        close(fd);setenv("SP11_DOLBY_CONTROL_PATH",ctl2,1);setenv("SP11_DOLBY_PROFILE","dynamic",1);
+        ChainInst *qinst=(ChainInst*)chain_instantiate(NULL,48000);
+        if(qinst){
+            float sentinel=0.0f;apply_control_without_audio(qinst,&sentinel);
+            prequeue_ok=(qinst->profile==CHAIN_PROFILE_MUSIC && qinst->profile_control &&
+                __atomic_load_n(qinst->profile_control,__ATOMIC_ACQUIRE)==3 &&
+                __atomic_load_n(qinst->profile_control+1,__ATOMIC_ACQUIRE)==3);
+            chain_cleanup(qinst);
+        }
+    } else if(fd>=0) close(fd);
+    unlink(ctl2);
+    printf("preinstantiate_queue=%s\n",prequeue_ok?"PASS":"FAIL");
+
+    int ok=identity&&state_preserved&&profile_applied&&sweep_ok&&return_preserved&&prequeue_ok;
     printf("PROFILE_LIFECYCLE_RESULT %s\n",ok?"PASS":"FAIL");
     return ok?0:20;
 }
