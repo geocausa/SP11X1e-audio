@@ -1,6 +1,7 @@
 import math, wave
 from pathlib import Path
 import numpy as np
+from sp11_known_input_alignment import robust_loopback_lag
 
 IN=Path('/home/geoca/Documents/SP11-PROJECT/00-RE-archive/recovered-adata/ubi/Documents/SP11/AUDIO/dolby/windows-loopback-captures/sp11-known-input-stimulus-48k.wav')
 WIN=Path('/home/geoca/Documents/SP11-PROJECT/00-RE-archive/recovered-adata/ubi/Documents/SP11/AUDIO/dolby/windows-loopback-captures/known-input/windows-loopback-20260518-153312.wav')
@@ -12,11 +13,8 @@ def rw(p):
     return sr,x
 
 def align(inp,out,sr):
-    ref=inp[sr:sr*4]
-    target=out[:min(len(out),sr*8)]
-    step=16
-    corr=np.correlate(target[::step],ref[::step],mode='valid')
-    return int(np.argmax(corr))*step
+    lag, _corr = robust_loopback_lag(inp, out, sr)
+    return lag
 
 def rms(x): return math.sqrt(float(np.mean(x*x)))
 def db(x): return 20*math.log10(max(float(x),1e-15))

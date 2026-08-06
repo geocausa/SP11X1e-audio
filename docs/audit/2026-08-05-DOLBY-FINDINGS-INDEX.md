@@ -27,6 +27,7 @@ experiment trail. Read them according to the status below.
 | `2026-08-05-DOLBY-NATIVE-LIVE-COMPLETION.md` | **Current deployment history**, but final parity remains explicitly open. |
 | `2026-08-05-PIPELINE-COMPLETENESS-RECHECK.md` | **Current detailed completeness matrix.** |
 | `2026-08-05-DOLBY-RUNTIME-GAIN-LIMITER-RECHECK.md` | **Current investigation** of live DAX gain feedback, odd-harmonic residual and AudioEng limiter lead. |
+| `2026-08-06-MAY18-KNOWN-INPUT-ALIGNMENT-CORRECTION.md` | **Current correction** of the May-18 one-second periodic alignment error; recovers the second LFS loopback and restores the real loud `-6/-3 dBFS` nonlinear oracle. |
 | `2026-08-05-VLLDP-POSTGAIN-AND-LIMITER-STATE-CORRECTION.md` | **Current correction** closing the false wrapper `+0x7C0` history lead and recovering live nested VLLDP limiter gain state. |
 | `2026-08-05-WINDOWS-DYNAMIC-MUSIC-INPLACE-LIFECYCLE.md` | **Lifecycle proof** that Windows main-profile changes retune existing Dolby endpoints via parameter diffs while active VLLDP/VR processing continues. |
 | `2026-08-06-DAX3-WRAPPER-DIRECT-PROCESSING-PROOF.md` | **Hot-path elimination**: 639 live ETL stacks hit the equal-rate direct inner-call return site; DAX3 adds no sample-domain SRC/gain around VLLDP/VR on the speaker path. |

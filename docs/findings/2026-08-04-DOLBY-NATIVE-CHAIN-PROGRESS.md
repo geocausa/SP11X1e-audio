@@ -415,7 +415,11 @@ log sweep                    +13.71        +10.64       +3.07 dB
 75 Hz  -6 dBFS               +5.79         +4.51       +1.28 dB
 ```
 
-The Windows -3 dBFS row collapses to -51.51 dB gain and appears to be an anomaly/dropout in that capture; do not tune around it yet.
+> **2026-08-06 correction:** this row was an alignment artifact, not a dropout.
+> The periodic 1-kHz aligner locked one second late.  Robust alignment gives
+> `0.726333 s` for the first May run and proves that the true `-3 dBFS` tone is
+> present at the ceiling with strong H3/H5.  See
+> `2026-08-06-MAY18-KNOWN-INPUT-ALIGNMENT-CORRECTION.md`.
 
 The stateful replay is much more informative than fresh isolated tones. In particular, the quiet 75 Hz point moves from a +2.9 dB steady-state error to only +0.60 dB when replayed in the original sequence.
 
