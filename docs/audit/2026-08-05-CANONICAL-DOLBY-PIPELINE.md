@@ -190,13 +190,25 @@ VLLDP -> VR      ~0.963 correlation (cold Movie candidate)
 Therefore VR is acoustically material and the recovered order is independently
 supported by waveform behavior.
 
-The oracle also exposes a **real unresolved residual**. At loud 75-Hz steps,
-Windows reaches a repeatable near-full-scale ceiling and produces much stronger
-odd harmonics (especially H3/H5) than the current Linux VLLDP->VR output. Warm
-history explains part of the mismatch but not this nonlinear signature.
+The oracle also exposes a **real unresolved residual**. Correcting the historical
+one-second alignment-origin bug proves all seven staircase tones are present;
+there is no final hard mute. At the loud `-6/-3 dBFS` 75-Hz steps Windows
+reaches the AudioEng `0.985` ceiling and produces roughly `H3=-34 dBc` with
+`H5=-44..-42 dBc`, much stronger than the current Linux VLLDP->VR output.
 
-This residual is the current parity target. Do not hide it with guessed EQ or a
-hand-written bass enhancer.
+Fresh replay now separates amplitude transfer from waveform shape. Realistic
+VLLDP endpoint postgain (for example the preserved June `-385` state) can bring
+Movie's seven fundamental levels to about 0.15 dB RMS error, while the large
+odd-harmonic onset remains missing. Authentic June warm VR state moves the loud
+steps slightly quieter, not toward Windows. AudioEng supplies the final ceiling
+but does not manufacture the H3/H5. The highest-value mechanism probe is now
+VLLDP `peak-level`: its original `[-48,0]` setter at `FUN_18001D100` can
+selectively wake a May-like final-step odd-saturation branch, although all
+shipped/live evidence still has `peak-level=0`.
+
+This residual is the current parity target. Do not hide it with guessed EQ, a
+hand-written bass enhancer, fitted nonzero system gain, or an unsupported
+negative peak-level setting.
 
 
 ## June full audiodg dump: live VR source-of-truth
@@ -289,8 +301,11 @@ parity.
 
 ## Current open questions, in priority order
 
-1. Resolve the upstream Windows Music runtime/history state that drives loud
-   75-Hz material several dB harder before the now-decoded AudioEng limiter.
+1. Trace VLLDP `peak-level` staged field `core+0xDD4` through
+   `FUN_18001D280`, identify the derived nonlinear/limiter branch it controls,
+   and prove whether Windows/DAX ever writes a nonzero runtime value. In all
+   May-oracle comparisons, include the real endpoint-volume postgain dimension
+   instead of assuming VLLDP postgain 0.
 2. DAX `vlldp-limiter-gain` public identity and generic Get/Set routing are
    proved: `0x850` -> internal `0x2A` -> `mb_compressor_limiter_gain`. Fresh
    backend analysis groups `0x2A` with telemetry/info parameters, while direct

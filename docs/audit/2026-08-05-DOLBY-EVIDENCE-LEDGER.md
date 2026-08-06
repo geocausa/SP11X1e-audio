@@ -69,6 +69,41 @@ Primary detail record:
 
 `docs/findings/2026-08-05-DOLBY-RUNTIME-GAIN-LIMITER-RECHECK.md`
 
+## May-18 corrected nonlinear residual — 2026-08-06
+
+The May-18 apparent final hard mute is closed as a one-second alignment-origin
+error. With the corrected ~0.726 s lag all seven 75-Hz steps are present. The
+remaining oracle is a real loud-level odd-harmonic onset: the loud `-6/-3 dBFS`
+steps reach roughly `H3=-34 dBc` and `H5=-44..-42 dBc` while the source is mono.
+
+New original-code replay establishes these boundaries:
+
+- the Windows `CAudioLimiter` reproduces the exact 0.985 / ~-0.13 dBFS ceiling
+  but cannot create the missing harmonics;
+- authentic June warm VR state makes the May loud steps slightly quieter and
+  does not restore the H3/H5 onset;
+- realistic VLLDP endpoint-volume feedback is acoustically major. Movie with
+  `postgain=-385` matches the seven May fundamental levels to about 0.15 dB RMS
+  overall, while VR postgain alone is bit-inert for this stereo path;
+- pre-init versus runtime `set -> apply` of VLLDP postgain is bit-identical, so
+  lifecycle ordering is not the missing state;
+- nonzero `VlldpSystemGain` can force VLLDP itself into a May-like odd-saturation
+  regime, but all recovered SP11 config/live evidence has system gain zero and
+  exact input attenuation cancels the effect, proving it is ordinary gain into
+  the nonlinearity rather than independent protection metadata;
+- the strongest selective mechanism probe is `vlldp-peak-level`. Original
+  setter `FUN_18001D100` clamps `[-48,0]`, stores core `+0xDD4`, and marks
+  `+0x66C` dirty. A sufficiently negative diagnostic value leaves the first six
+  staircase steps effectively unchanged and makes the final step about
+  `H3=-32.74 dBc`, `H5=-42.41 dBc`, close to May Windows. Shipped REV_0D tuning
+  and preserved June live state both have `peak-level=0`, so this is mechanism
+  localization only, not a setting to deploy.
+
+The exact next target is `core+0xDD4 -> FUN_18001D280`: recover the derived
+field/processing branch and prove whether DAX/Windows ever writes a nonzero
+`vlldp-peak-level`. Detail:
+`docs/findings/2026-08-06-MAY18-NONLINEAR-RESIDUAL-LOCALIZATION.md`.
+
 ## AudioEng limiter — live and decoded, but not the missing stage by itself
 
 Windows `AudioEng.dll` contains `CAudioLimiter` and the AudioLimiter CLSID
