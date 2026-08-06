@@ -109,8 +109,37 @@ Detail:
   1-KiB arena block at `outer+0x1F1430` (`core+0x23C28`). This is now the
   highest-value unresolved VR lifecycle/state target.
 
+## Windows spatial / HRTF stereo-bypass closure — 2026-08-06
+
+- **A — direct runtime:** preserved June Music ETL stackwalks contain real
+  `DolbyHrtfEnc.dll` and `DolbyAudioProcessing.dll` execution, plus
+  `VirtualSurroundApo.dll` frames.
+- **C — exact shipped-code contract:** DAX3API serializes
+  `stereo_cp_bypass_mode=2` and `stereo_bypass_dap_dll=IsDaxEndpoint()`. On the
+  built-in DAX speaker endpoint the latter is one.
+- **C — exact spatial-DAP implementation:** `CDapVRModule::ConfigureRunTime`
+  writes explicit `stereo_bypass_dap_dll` to active-config byte `+0x9C`; if that
+  optional field is absent, CP-bypass mode 2 is the fallback value that sets the
+  same byte to one.
+- **C — exact interface identity:** HRTF queries GUID
+  `b5bb3cae-fd91-497d-8b83-2eddce0808db`; its vtable `+0x18` is
+  `CDolbyAudioProcessingModule::GetStereoBypassAllowed`, which returns the
+  active-config `+0x9C` byte.
+- **C — sample-path consequence:** HRTF `MixChannelBed` short-circuits its normal
+  channel-bed virtualization body when that cached stereo-bypass boolean is
+  nonzero and the stream configuration matches.
+- **Scope correction:** Dolby Access Personalized HRTF is a separate
+  headphone-oriented subsystem; do not add it to internal-speaker parity.
+
+Detail:
+`docs/findings/2026-08-06-WINDOWS-SPATIAL-STEREO-HRTF-BYPASS.md`
+
 ## Open high-value questions
 
+- Which stereo-hot psychoacoustic actor supplies the remaining Windows music
+  presentation once generic HRTF bed virtualization is excluded: VR
+  surround/virtualizer, `VirtualSurroundApo`, AdaptiveSpatialAudioRenderer, or a
+  mode-specific Surface/Microsoft path.
 - Which upstream Music runtime/history state drives the Windows 75-Hz signal
   hard enough to reach the decoded AudioEng limiter.
 - DAX `vlldp-limiter-gain` identity and generic public Get/Set routing are proved

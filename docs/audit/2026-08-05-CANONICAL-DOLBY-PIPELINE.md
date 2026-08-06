@@ -82,6 +82,22 @@ The diagram deliberately does not place `CAudioLimiter` before or after a
 specific APO callback. Its class is live in AudioEng ETW, but its exact graph
 position and contribution to the recovered nonlinear waveform are still open.
 
+### Conditional Windows spatial side graph
+
+Preserved June shared-mode Music traces additionally prove conditional execution
+of `DolbyHrtfEnc.dll`, `DolbyAudioProcessing.dll`, `VirtualSurroundApo.dll`, and
+AdaptiveSpatialAudioRenderer. This does **not** mean normal 2-channel speaker
+content is fully HRTF-virtualized: the exact DAX content-processing contract
+supplies `stereo_cp_bypass_mode=2` and `stereo_bypass_dap_dll=1`; DAPVR writes
+that to its active stereo-bypass byte, and HRTF's `MixChannelBed` takes its
+early-return bypass branch for matching stereo.
+
+Therefore generic HRTF/PHRTF must not be inserted into the canonical ordinary
+stereo chain. The remaining stereo psychoacoustic role of VR virtualizer,
+`VirtualSurroundApo`, ASAR, and mode-specific Surface/Microsoft behavior is
+still under audit. See
+`docs/findings/2026-08-06-WINDOWS-SPATIAL-STEREO-HRTF-BYPASS.md`.
+
 ## Actor confidence matrix
 
 | Actor / boundary | Evidence | Linux reproduction | Status |
@@ -96,6 +112,8 @@ position and contribution to the recovered nonlinear waveform are still open.
 | Leveler / DRC / regulator / VolMax | A: live DAX/core state; B: output/ablation + lifecycle regression | Original VR/VLLDP processing; repeated LADSPA activate now preserves state | **Active, acoustically important, long-memory lifecycle reproduced** |
 | SurfaceAPO media EQ | C: REV_0D MEDIA/MOVIE/default nodes disabled/identity | Not separately emulated | **Likely no-op for captured media mode** |
 | Modern ASAR/AIDE DAPVR | A: tested ordinary-stereo cores hardware-cold | Not in production chain | **Cold for tested mode; mode-dependent open elsewhere** |
+| Windows spatial `DolbyHrtfEnc` / `DolbyAudioProcessing` | A: June active Music ETL has real HRTF + spatial-DAP stack frames; C: exact stereo-bypass policy decoded | Not in production chain | **Conditional and genuinely hot when spatial graph is active; DAX speaker matching-stereo HRTF bed virtualization explicitly bypassed** |
+| `VirtualSurroundApo` / AdaptiveSpatialAudioRenderer | A: real Windows shared-mode initialization; June stack hits / recurring ASAR graph evidence | Not separately reproduced | **Stereo psychoacoustic role still open; now higher value than generic HRTF** |
 | `AudioEng!CAudioLimiter` | A: real audiodg ETW; C: exact ARM64 state machine decoded | Offline exact oracle decoded; not deployed | **Proven live final limiter; unity gain / inactive attack in both June snapshots; not source of normal loudness** |
 | Qualcomm lower graph | A: KD/QGPR live graph | Reconstructed protected graph | **High topology confidence** |
 | VOL_CTRL gain/mute | A: parameter IDs and live writes | Present | **Known control, not mystery limiter** |
