@@ -201,10 +201,11 @@ VLLDP endpoint postgain (for example the preserved June `-385` state) can bring
 Movie's seven fundamental levels to about 0.15 dB RMS error, while the large
 odd-harmonic onset remains missing. Authentic June warm VR state moves the loud
 steps slightly quieter, not toward Windows. AudioEng supplies the final ceiling
-but does not manufacture the H3/H5. The highest-value mechanism probe is now
-VLLDP `peak-level`: its original `[-48,0]` setter at `FUN_18001D100` can
-selectively wake a May-like final-step odd-saturation branch, although all
-shipped/live evidence still has `peak-level=0`.
+but does not manufacture the H3/H5. VLLDP `peak-level` is now decoded exactly:
+it is a `1/16 dB` final-VLLDP-limiter ceiling. Lowering it makes the May-like
+H3/H5 by engaging the original limiter, but VLLDP never self-updates the field,
+shipped/live state remains zero, and 93 preserved June DAX setter calls contain
+no public `0x842` write. Treat negative peak values only as a diagnostic probe.
 
 This residual is the current parity target. Do not hide it with guessed EQ, a
 hand-written bass enhancer, fitted nonzero system gain, or an unsupported
@@ -301,11 +302,11 @@ parity.
 
 ## Current open questions, in priority order
 
-1. Trace VLLDP `peak-level` staged field `core+0xDD4` through
-   `FUN_18001D280`, identify the derived nonlinear/limiter branch it controls,
-   and prove whether Windows/DAX ever writes a nonzero runtime value. In all
-   May-oracle comparisons, include the real endpoint-volume postgain dimension
-   instead of assuming VLLDP postgain 0.
+1. Resolve the May-18 contemporaneous profile and endpoint-volume state from
+   independent retained evidence if possible. Keep realistic VLLDP postgain in
+   every oracle comparison, and search for other provenance-backed upstream
+   state capable of driving the normal `peak-level=0` VLLDP final limiter into
+   the observed loud nonlinear regime. Do not fit a negative peak ceiling.
 2. DAX `vlldp-limiter-gain` public identity and generic Get/Set routing are
    proved: `0x850` -> internal `0x2A` -> `mb_compressor_limiter_gain`. Fresh
    backend analysis groups `0x2A` with telemetry/info parameters, while direct

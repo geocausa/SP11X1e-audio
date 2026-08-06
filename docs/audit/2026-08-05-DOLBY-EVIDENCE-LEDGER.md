@@ -91,18 +91,24 @@ New original-code replay establishes these boundaries:
   regime, but all recovered SP11 config/live evidence has system gain zero and
   exact input attenuation cancels the effect, proving it is ordinary gain into
   the nonlinearity rather than independent protection metadata;
-- the strongest selective mechanism probe is `vlldp-peak-level`. Original
-  setter `FUN_18001D100` clamps `[-48,0]`, stores core `+0xDD4`, and marks
-  `+0x66C` dirty. A sufficiently negative diagnostic value leaves the first six
-  staircase steps effectively unchanged and makes the final step about
-  `H3=-32.74 dBc`, `H5=-42.41 dBc`, close to May Windows. Shipped REV_0D tuning
-  and preserved June live state both have `peak-level=0`, so this is mechanism
-  localization only, not a setting to deploy.
+- `vlldp-peak-level` is now semantically closed. The only post-construction
+  writer is the public setter; `FUN_18001D280` converts the `[-48,0]` integer in
+  `1/16 dB` units to `core+0xDD8`, the ceiling passed to the original final
+  VLLDP limiter. A complete-output A/B proves the May-like `peak=-48` H3/H5 is
+  entirely the lowered `-3 dB` DD8 ceiling; the companion `DDC` change is
+  bit-transparent for this oracle and target-power `DE4` is mathematically
+  invariant to valid peak values.
+- DAX routing is exact: public `0x842 -> internal 0x21 -> peak_level`. Across 93
+  preserved June-5 `SetDapParam`/`SetDapVariantParam` calls, neighbouring VLLDP
+  IDs occur but `0x842` occurs zero times. Together with REV_0D tuning and June
+  live `core+0xDD4=0`, there is no source-of-truth evidence for a nonzero SP11
+  runtime peak write. The absence is bounded to the retained sessions, not a
+  proof about every historical May state.
 
-The exact next target is `core+0xDD4 -> FUN_18001D280`: recover the derived
-field/processing branch and prove whether DAX/Windows ever writes a nonzero
-`vlldp-peak-level`. Detail:
-`docs/findings/2026-08-06-MAY18-NONLINEAR-RESIDUAL-LOCALIZATION.md`.
+The next residual target is provenance of the May profile/endpoint-volume state
+and other upstream drive/state that could make the normal `peak-level=0` VLLDP
+limiter engage. Detail:
+`docs/findings/2026-08-06-VLLDP-PEAK-LEVEL-LIMITER-CEILING.md`.
 
 ## AudioEng limiter — live and decoded, but not the missing stage by itself
 

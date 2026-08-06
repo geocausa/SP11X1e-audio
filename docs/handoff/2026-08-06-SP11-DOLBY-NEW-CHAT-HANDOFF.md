@@ -473,49 +473,89 @@ peak-level = 0
 
 Therefore **do not change production to -48**. The experiment proves that this parameter activates exactly the kind of nonlinear branch we are missing, but it does not prove Windows used a negative value in May.
 
+## 16.1 Continuation closure — `peak-level` semantics/provenance
+
+The Aug-6 continuation completed the `core+0xDD4 -> FUN_18001D280` target.
+
+Exact result:
+
+```text
+peak-level is NOT a hidden nonlinear-mode selector.
+peak-level is a 1/16-dB final VLLDP limiter ceiling.
+```
+
+The only post-construction write to `core+0xDD4` is the public setter. The audio
+process never self-updates it from content or limiter telemetry.
+`FUN_18001D280` derives:
+
+```text
+core+0xDDC = peak_level / 2080
+core+0xDD8 = dB-to-linear ceiling, capped at 0.9998999834
+```
+
+and `core+0xDD8` is passed directly into the original final VLLDP limiter
+`FUN_180024510`. `peak=-48` therefore means a `-3 dB` limiter ceiling.
+
+A complete known-input isolation A/B with Movie + VLLDP postgain `-385` proved:
+
+```text
+peak=-48 + DD8 restored to 0.9999  == peak=0, bit-for-bit
+peak=0 + DD8 forced to -3 dB       == peak=-48, bit-for-bit
+```
+
+So the May-like H3/H5 from the negative-peak experiment comes entirely from
+lowering the final VLLDP limiter ceiling. The earlier apparent transition around
+`-36..-40` is just the waveform crossing that ceiling.
+
+DAX routing is exact:
+
+```text
+public 0x842 -> internal 0x21 -> low-level peak_level
+```
+
+Three preserved June-5 Frida setter traces contain 93 real DAX setter calls and
+17 distinct public IDs, including neighbouring VLLDP IDs, but contain **zero**
+`0x842` writes. Exact REV_0D tuning and June live VLLDP state also remain zero.
+There is currently no provenance for deploying a negative value.
+
+Primary detail:
+
+```text
+docs/findings/2026-08-06-VLLDP-PEAK-LEVEL-LIMITER-CEILING.md
+```
+
 ## 17. Exact resume point for the new chat
 
 Resume here first.
 
-### Priority A — trace `peak-level` through the VLLDP apply path
+### Priority A — recover May-18 contemporaneous state provenance
 
-Use the exact VLLDP binary/project and follow:
+The `peak-level` mechanism itself is closed enough to demote. Resume with the
+historical May oracle's still-unproven runtime context:
 
-```text
-setter: FUN_18001D100
-staged field: core/DSP +0xDD4
-dirty flag: +0x66C
-apply routine: FUN_18001D280
-```
+1. recover any independent evidence for the May-18 active DAX profile;
+2. recover or bound the May endpoint master volume / VLLDP postgain;
+3. keep the capture labelled `historical exact-stimulus oracle with unproven contemporaneous profile/state` until provenance exists;
+4. do not choose Movie/Dynamic merely because a waveform score is better.
 
-Determine exactly:
+### Priority B — find provenance-backed upstream drive into the normal VLLDP limiter
 
-1. every read of `+0xDD4`;
-2. how `FUN_18001D280` transforms/applies it;
-3. the nested object/field it ultimately controls;
-4. whether it changes a limiter threshold, compressor peak reference, level detector, or another derived coefficient;
-5. why negative values selectively wake the final-step odd-saturation branch.
+The diagnostic `-3 dB` ceiling proves the original final VLLDP limiter can make
+the missing H3/H5 shape. Since real SP11 evidence says `peak-level=0`, search for
+another real state/input that raises **pre-limiter drive** enough to engage that
+normal ceiling while preserving the observed seven-step transfer law.
 
-Use Ghidra temp projects under `/tmp`.
+Keep already-proved constraints:
 
-### Priority B — prove whether Windows ever writes nonzero `vlldp-peak-level`
+- `VlldpSystemGain=0` in shipped/live evidence;
+- endpoint postgain is real and must be included;
+- June warm VR history does not create the onset;
+- AudioEng only supplies the final 0.985 ceiling;
+- no guessed saturation, EQ, fake bass or negative peak setting.
 
-Trace the DAX public/internal parameter mapping for:
-
-```text
-vlldp-peak-level
-```
-
-Search:
-
-- DAX3API parameter-map construction;
-- runtime update paths;
-- ETL/provider payloads;
-- June/July DAX process dumps;
-- any live VLLDP state snapshots;
-- archived logs that may preserve May-18 runtime values.
-
-If every real Windows source remains zero, treat the peak-level experiment only as mechanism localization and move to the next runtime input that changes the same nested branch.
+Useful next discriminators include profile-dependent VLLDP compressor/leveler
+state, retained May DAX runtime maps, or any direct historical state capable of
+changing drive before `FUN_180024510`.
 
 ### Priority C — keep endpoint postgain in all May oracle work
 

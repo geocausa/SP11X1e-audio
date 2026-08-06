@@ -1,5 +1,13 @@
 # May-18 nonlinear residual localization — VLLDP runtime-gain and peak-level mechanism (2026-08-06)
 
+> **Continuation note (later 2026-08-06):** the `peak-level` mechanism and writer
+> provenance target from this finding has now been resolved. `peak-level` is a
+> `1/16 dB` final-VLLDP-limiter ceiling; the diagnostic May-like H3/H5 comes
+> entirely from lowering `core+0xDD8`, not from a hidden discrete mode. Preserved
+> runtime evidence contains no nonzero `0x842` write. See
+> `2026-08-06-VLLDP-PEAK-LEVEL-LIMITER-CEILING.md`. The historical measurements
+> below are retained as the experiment trail.
+
 ## Executive result
 
 The corrected May-18 75-Hz staircase no longer contains a hard mute; the final
@@ -265,15 +273,16 @@ It is not a Surface speaker-protection state.
 
 ## Next exact work
 
-1. Decompile/follow every read of VLLDP `core+0xDD4`.
-2. Trace its conversion in `FUN_18001D280`.
-3. Identify the nested destination/derived coefficient and processing branch.
-4. Trace DAX mapping/runtime writes for `vlldp-peak-level`.
-5. Search preserved DAX process dumps, ETL/provider payloads and logs for any
-   nonzero live value.
-6. If all real Windows state remains zero, keep the negative-value experiment
-   only as mechanism localization and search for the actual runtime input that
-   changes the same derived branch.
+The original `peak-level` tasks are closed by
+`2026-08-06-VLLDP-PEAK-LEVEL-LIMITER-CEILING.md`.
+
+Resume instead with:
+
+1. recover independent May-18 active-profile provenance if any survives;
+2. recover or bound May endpoint volume / VLLDP postgain;
+3. search for provenance-backed upstream state that can drive the normal
+   `peak-level=0` VLLDP final limiter into the May loud nonlinear regime;
+4. keep the negative peak experiment diagnostic only.
 
 Do not reopen the May hard-mute theory, generic stereo HRTF, DAX3 SRC, warm June
 VR history, VLLDP sliding bass, simple AudioEng clipping or nonzero system gain
