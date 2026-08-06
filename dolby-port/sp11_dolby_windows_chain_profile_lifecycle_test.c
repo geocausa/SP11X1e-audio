@@ -72,6 +72,7 @@ int main(void){
     void *vr_core_before=(void*)(uintptr_t)q(inner_before,0x130);
     void *vl_core_before=(void*)(uintptr_t)vl_r64(p->vl_inner,0x28);
     int amount_before=(int)d(vr_core_before,0x6d4);
+    int output_mode_before=(int)d(vr_core_before,0x118);
 
     if(request_profile(p,&profile,CHAIN_PROFILE_MUSIC))return 6;
 
@@ -80,11 +81,13 @@ int main(void){
     void *vl_core_after=(void*)(uintptr_t)vl_r64(p->vl_inner,0x28);
     float switched;memcpy(&switched,p->vr_outer+state_off,4);
     int amount_after=(int)d(vr_core_after,0x6d4);
+    int output_mode_after=(int)d(vr_core_after,0x118);
 
     int identity=(outer_before==p->vr_outer && inner_before==inner_after &&
                   vr_core_before==vr_core_after && vl_core_before==vl_core_after);
     int state_preserved=(bitsf(warm)==bitsf(switched));
     int profile_applied=(p->profile==CHAIN_PROFILE_MUSIC && amount_before==5 && amount_after==0);
+    int stereo_mode_ok=(output_mode_before==1 && output_mode_after==1);
 
     /* Exercise every recovered profile as a zero-audio parameter transaction.
      * None is allowed to reconstruct the Dolby objects or perturb the adaptive
@@ -98,11 +101,11 @@ int main(void){
         float after;memcpy(&after,p->vr_outer+state_off,4);
         uint8_t *ii=(uint8_t*)(uintptr_t)q(p->vr_outer,VR_INNER_PTR_OFF);
         void *vc=(void*)(uintptr_t)q(ii,0x130),*lc=(void*)(uintptr_t)vl_r64(p->vl_inner,0x28);
-        int amount=(int)d(vc,0x6d4);
+        int amount=(int)d(vc,0x6d4),output_mode=(int)d(vc,0x118);
         int one=(p->profile==sweep[i] && bitsf(before)==bitsf(after) && p->vr_outer==outer_before &&
-                 ii==inner_before && vc==vr_core_before && lc==vl_core_before && amount==chain_profiles[sweep[i]].leveler_amount);
-        printf("sweep_profile=%s state_bits=%08"PRIx32" amount=%d result=%s\n",
-               chain_profiles[sweep[i]].name,bitsf(after),amount,one?"PASS":"FAIL");
+                 ii==inner_before && vc==vr_core_before && lc==vl_core_before && amount==chain_profiles[sweep[i]].leveler_amount && output_mode==1);
+        printf("sweep_profile=%s state_bits=%08"PRIx32" amount=%d output_mode=%d result=%s\n",
+               chain_profiles[sweep[i]].name,bitsf(after),amount,output_mode,one?"PASS":"FAIL");
         if(!one)sweep_ok=0;
     }
     profile=0.0f;
@@ -114,6 +117,7 @@ int main(void){
     printf("vr_core_before=%p after=%p\n",vr_core_before,vr_core_after);
     printf("vl_core_before=%p after=%p\n",vl_core_before,vl_core_after);
     printf("leveler_amount_before=%d after=%d\n",amount_before,amount_after);
+    printf("output_mode_before=%d after=%d stereo_mode=%s\n",output_mode_before,output_mode_after,stereo_mode_ok?"PASS":"FAIL");
     printf("identity=%s state_preserved=%s profile_applied=%s\n",
            identity?"YES":"NO",state_preserved?"YES":"NO",profile_applied?"YES":"NO");
 
@@ -151,7 +155,7 @@ int main(void){
     unlink(ctl2);
     printf("preinstantiate_queue=%s\n",prequeue_ok?"PASS":"FAIL");
 
-    int ok=identity&&state_preserved&&profile_applied&&sweep_ok&&return_preserved&&prequeue_ok;
+    int ok=identity&&state_preserved&&profile_applied&&stereo_mode_ok&&sweep_ok&&return_preserved&&prequeue_ok;
     printf("PROFILE_LIFECYCLE_RESULT %s\n",ok?"PASS":"FAIL");
     return ok?0:20;
 }

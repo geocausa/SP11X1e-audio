@@ -31,6 +31,7 @@ experiment trail. Read them according to the status below.
 | `2026-08-05-WINDOWS-DYNAMIC-MUSIC-INPLACE-LIFECYCLE.md` | **Lifecycle proof** that Windows main-profile changes retune existing Dolby endpoints via parameter diffs while active VLLDP/VR processing continues. |
 | `2026-08-06-DAX3-WRAPPER-DIRECT-PROCESSING-PROOF.md` | **Hot-path elimination**: 639 live ETL stacks hit the equal-rate direct inner-call return site; DAX3 adds no sample-domain SRC/gain around VLLDP/VR on the speaker path. |
 | `2026-08-06-AUDIOENG-ASAR-STEREO-IDENTITY-PATH.md` | **Spatial-stereo closure**: exact June AudioEng/PDB + StackWalks prove ASAR delegates the matching stereo bed to DolbyHrtfEnc; DAX stereo bypass plus 48k->48k unity scale reduces that path to direct PCM copy. |
+| `2026-08-06-SP11-STEREO-VIRTUALIZER-BYPASS-PARITY.md` | **VR stereo-policy closure**: DAX per-profile bypass -> endpoint PID1 -> original DolbyAPOVR wrapper forces effective mode 1 on 2ch; Linux direct-core bridge corrected and independently validated against Windows side/mid geometry. |
 | `2026-08-05-AUGUST-BASS-RUNTIME-RECHECK.md` | **Current correction** separating named Bass Enhancer from other loudness/bass actors. |
 | `2026-08-05-FAKE-BASS-STATUS.md` | **Current terminology boundary** between old hand-written fake bass, decoded Dolby harmonic synth and actual production path. |
 | `2026-08-05-ASAR-STEADY-SPEAKER-BOUNDARY.md` | **Historical boundary** from pre-exact-AudioEng evidence; use the Aug-6 ASAR identity finding for matching stereo, while retaining this for experiment history. |

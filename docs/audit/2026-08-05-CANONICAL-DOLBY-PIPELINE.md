@@ -101,13 +101,23 @@ scale at 1.0, and HRTF `Process` copies that bed directly to output. The
 matching `VirtualSurroundApo` hot child calls are standard AudioMeter and
 AudioVolume rather than a hidden widening kernel.
 
-Therefore generic HRTF/PHRTF, an invented ASAR matrix, or a standalone
-VirtualSurround widening stage must not be inserted into the canonical
-ordinary-stereo chain. Remaining psychoacoustic work belongs primarily to the
-Windows-triggered Dolby profile/policy retune and any independently proved
-mode-specific Surface APO behavior. See
-`docs/findings/2026-08-06-WINDOWS-SPATIAL-STEREO-HRTF-BYPASS.md` and
-`docs/findings/2026-08-06-AUDIOENG-ASAR-STEREO-IDENTITY-PATH.md`.
+The remaining original-VR stereo policy is now closed as well. The SP11
+`msft_atmos` operator sets `bypass_stereo_virtualizer=true` for every profile;
+DAX3API writes it to endpoint PROPERTYKEY
+`{dc827e12-807b-4fbb-8e3c-6c62981dd3c9},1`, and the original DolbyAPOVR
+`LibWrapperDap2::UpdatePropertyKeys` forces `speaker_virtualizer_enable=0` for
+a 2-channel stream. Its final mode calculator therefore returns VR processing
+mode 1 even when raw profile XML requests mode 11. The direct-core Linux host
+now reproduces that wrapper policy.
+
+Therefore generic HRTF/PHRTF, an invented ASAR matrix, a standalone
+VirtualSurround widening stage, or raw mode-11 speaker virtualization must not
+be inserted into the canonical ordinary-stereo chain. Remaining profile
+changes are the proven non-virtualizer DAX/VR retunes plus any independently
+proved mode-specific Surface APO behavior. See
+`docs/findings/2026-08-06-WINDOWS-SPATIAL-STEREO-HRTF-BYPASS.md`,
+`docs/findings/2026-08-06-AUDIOENG-ASAR-STEREO-IDENTITY-PATH.md`, and
+`docs/findings/2026-08-06-SP11-STEREO-VIRTUALIZER-BYPASS-PARITY.md`.
 
 ## Actor confidence matrix
 
@@ -116,7 +126,7 @@ mode-specific Surface APO behavior. See
 | `DolbyDax3Apo` wrappers | A: August hardware-hot wrapper callbacks | Wrapper plumbing is not executed wholesale; inner native processors are hosted directly | Wrapper sample-rate/notification side paths substantially audited; no missing 48-kHz SRC effect found |
 | `DolbyAPOvlldp150` | A: hardware-hot scheduler/core; July live state page | Original ARM64 PE code, original 432 scheduler + 256 accumulator/core | **Proven hot / reproduced** |
 | `DolbyApoVr` | A: second persistent wrapper/core hot | Original ARM64 PE wrapper/core | **Proven hot / reproduced** |
-| DAX profile/config maps | A: RPC + DAX3API process memory | Profile setters reproduce recovered controls | **High confidence** |
+| DAX profile/config maps | A/C: RPC + DAX3API + exact DolbyAPOVR endpoint-policy reader | Profile setters reproduce recovered controls; 2ch effective output mode now honors per-profile stereo-virtualizer bypass | **High confidence; stereo wrapper policy closed** |
 | DAX runtime volume feedback | A/C: decompiled live service path + endpoint object | Not yet continuously coupled to Linux endpoint volume | **Real runtime layer; parity work remains** |
 | Named Bass Enhancer | A: 33/33 direct reads = 0; live DAX map = `0` | Off | **Proven off in recovered states** |
 | Named Virtual Bass / extraction / modeler | A/C: live Music map values `0`; native setter probes | Off; exact off-block probes bit-identical | **Off in recovered state; not explanation for current residual** |
@@ -290,13 +300,9 @@ parity.
    front-end Set routing as proof of a writable production knob.
 3. Resolve the July Movie-vs-Music ambiguity from an independent retained state
    source if possible.
-4. Resolve profile-switch lifecycle semantics: the Linux helper currently
-   recreates the filter service/state on profile change, while Windows may
-   preserve or selectively reset adaptive history in-place. Ordinary idle/PAUSED
-   Reset state preservation is now reproduced.
-5. Obtain or reconstruct a state-pinned same-stimulus Windows oracle for final
+4. Obtain or reconstruct a state-pinned same-stimulus Windows oracle for final
    waveform certification.
-6. Close the one unsupported lower calibration record and protection telemetry
+5. Close the one unsupported lower calibration record and protection telemetry
    only if they prove acoustically/materially relevant.
 
 ## Change-control rule

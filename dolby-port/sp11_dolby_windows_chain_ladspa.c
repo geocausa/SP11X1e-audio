@@ -158,6 +158,23 @@ static const ChainProfileCfg chain_profiles[CHAIN_PROFILE_COUNT]={
     [CHAIN_PROFILE_PERSONALIZE]={"personalize",1,3,1,10,0,10,0,48,1,10,10,10,96,11,0,vr_ieq_balanced},
 };
 
+/* The shipped msft_atmos operator policy sets bypass_stereo_virtualizer=true
+ * for every SP11 profile. DAX3API writes that per-profile boolean to endpoint
+ * PROPERTYKEY {dc827e12-807b-4fbb-8e3c-6c62981dd3c9},1. The original
+ * DolbyAPOVR LibWrapperDap2::UpdatePropertyKeys reads it and, for a 2-channel
+ * stream, clears speaker_virtualizer_enable before LibWrapperVr computes the
+ * final output mode. LibWrapperDap2::vfunction25 therefore returns mode 1 for
+ * ordinary stereo even when a profile's raw XML output_mode requests 11.
+ *
+ * This LADSPA endpoint is strictly two-channel, so its Windows-equivalent
+ * effective mode is always 1. Keep the raw profile output_mode above as the
+ * recovered tuning contract; do not feed it directly to the core unless this
+ * bridge gains a non-stereo path with the wrapper policy reproduced there. */
+static uint32_t vr_effective_stereo_output_mode(const ChainProfileCfg *pc){
+    (void)pc;
+    return 1u;
+}
+
 typedef struct {
     LADSPA_Data *ports[PORT_COUNT];
     Sp11PeImage vl_img,vr_img;
@@ -331,7 +348,7 @@ static int vr_apply_profile_complex(ChainInst *p,void *core,const ChainProfileCf
     int do_output=!parts || strstr(parts,"output");
     int do_ieq=!parts || strstr(parts,"ieq");
     int do_reg=!parts || strstr(parts,"reg");
-    if(do_output) ((VrOutputModeFn)sp11_pe_ptr_for_va(&p->vr_img,VR_OUTPUT_MODE_VA))(core,(uint32_t)pc->output_mode,2,vr_mix);
+    if(do_output) ((VrOutputModeFn)sp11_pe_ptr_for_va(&p->vr_img,VR_OUTPUT_MODE_VA))(core,vr_effective_stereo_output_mode(pc),2,vr_mix);
     if(do_ieq && vr_apply_ieq_curve(p,core,pc->ieq_curve))return -1;
     if(do_reg){
         ((VrRegTuneFn)sp11_pe_ptr_for_va(&p->vr_img,VR_REG_TUNING_VA))((uint8_t*)core+0xdc0,20,vr_centers,vr_reg_lo,vr_reg_hi,vr_reg_iso);
@@ -411,8 +428,9 @@ static int vr_retarget_profile(ChainInst *p,void *core,ChainProfile old_profile,
     const char *complex_disable=getenv("SP11_VR_COMPLEX_PROFILE");
     if(!(complex_disable && (!strcmp(complex_disable,"0") || !strcasecmp(complex_disable,"off") || !strcasecmp(complex_disable,"false")))){
         const char *parts=getenv("SP11_VR_COMPLEX_PARTS");
-        if(old->output_mode!=pc->output_mode && (!parts || strstr(parts,"output")))
-            ((VrOutputModeFn)sp11_pe_ptr_for_va(&p->vr_img,VR_OUTPUT_MODE_VA))(core,(uint32_t)pc->output_mode,2,vr_mix);
+        uint32_t old_mode=vr_effective_stereo_output_mode(old),new_mode=vr_effective_stereo_output_mode(pc);
+        if(old_mode!=new_mode && (!parts || strstr(parts,"output")))
+            ((VrOutputModeFn)sp11_pe_ptr_for_va(&p->vr_img,VR_OUTPUT_MODE_VA))(core,new_mode,2,vr_mix);
         if(old->ieq_curve!=pc->ieq_curve && (!parts || strstr(parts,"ieq")) && vr_apply_ieq_curve(p,core,pc->ieq_curve))return -3;
     }
     return 0;

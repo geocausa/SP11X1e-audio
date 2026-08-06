@@ -158,11 +158,37 @@ Detail:
 Detail:
 `docs/findings/2026-08-06-AUDIOENG-ASAR-STEREO-IDENTITY-PATH.md`
 
+## SP11 stereo-virtualizer endpoint-policy closure — 2026-08-06
+
+- **C — DAX control plane:** the active profile's
+  `bypass_stereo_virtualizer` boolean is written to endpoint PROPERTYKEY
+  `{dc827e12-807b-4fbb-8e3c-6c62981dd3c9},1`; historical audiodg traces read
+  value one on the internal speaker endpoint.
+- **C — exact original VR wrapper:** `LibWrapperDap2::UpdatePropertyKeys` reads
+  PID 1 and clears speaker-virtualizer working state when the configured stream
+  has two channels.
+- **C — exact final-mode calculation:** `LibWrapperDap2::vfunction25` returns
+  processing mode 1 when speaker-virtualizer-enable is zero. The direct native
+  core's raw mode-11 -> mode-6 mapping therefore must not be used for ordinary
+  SP11 stereo.
+- **B — executable A/B:** forcing effective mode 1 changes Dynamic/Movie but
+  leaves Music bit-identical, exactly as predicted from their raw modes.
+- **A/B — independent Windows waveform discriminator:** steady 75-Hz Windows
+  side/mid is ~-25.41 dB; corrected Movie/Music converge around -25.4 dB on the
+  loud steady steps, while the old Movie/Dynamic path was several dB too wide.
+- **B — regression:** all-profile in-place lifecycle, object identity, long-memory
+  preservation, prequeue behavior and block-size exactness pass; native core
+  `+0x118` is asserted equal to mode 1 across profile switches.
+
+Detail:
+`docs/findings/2026-08-06-SP11-STEREO-VIRTUALIZER-BYPASS-PARITY.md`
+
 ## Open high-value questions
 
-- Which Windows-triggered Dolby profile/policy change or independently proved
-  Surface APO mode delta supplies the remaining music presentation once generic
-  HRTF, VirtualSurround, and matching-stereo ASAR transforms are excluded.
+- Which non-virtualizer profile scalar/history state or independently proved
+  Surface APO mode delta supplies the remaining presentation difference once
+  generic HRTF, VirtualSurround, matching-stereo ASAR, and the original VR
+  stereo virtualizer are excluded.
 - Which upstream Music runtime/history state drives the Windows 75-Hz signal
   hard enough to reach the decoded AudioEng limiter.
 - DAX `vlldp-limiter-gain` identity and generic public Get/Set routing are proved
