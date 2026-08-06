@@ -134,12 +134,35 @@ Detail:
 Detail:
 `docs/findings/2026-08-06-WINDOWS-SPATIAL-STEREO-HRTF-BYPASS.md`
 
+## Exact June AudioEng / ASAR matching-stereo closure — 2026-08-06
+
+- **A — exact runtime identity:** June 12 ETL records `AudioEng.dll`
+  `SizeOfImage=0x306000`, checksum `0x2FA3E3` for active `audiodg.exe` PID
+  10260.
+- **C — exact recovered Microsoft image:** ARM64 `AudioEng.dll` SHA256
+  `944456ceb4cd7653afcee06e4c5a1bcf9dec9a2cf710f4f387adb19d3a5f8894`
+  has the same image size/checksum; matching Microsoft PDB GUID
+  `{DDE5CF55-C01D-FBE2-F3E3-CA104B95B33A}` was recovered from the symbol
+  service.
+- **A/C — exact hot path:** live PCs resolve to
+  `CAdaptiveSpatialAudioRenderer::APOProcess -> MainPluginRenderer::Process ->
+  AsarEncoderWrapper<IAsarEncoder2>::Process -> DolbyHrtfEnc`.
+- **C — exact sample behavior:** matching-stereo HRTF `MixChannelBed` stages
+  the original input pointer/count/scale. At the preserved 48-kHz -> 48-kHz
+  rate pair `MainPluginRenderer` leaves the bed scale at 1.0; HRTF `Process`
+  then copies the staged floats directly to output.
+- **C — VirtualSurround correction:** its dominant hot child calls resolve to
+  standard AudioMeter/AudioVolume; its ASAR sample-buffer callback is metadata
+  plumbing, not a second widening kernel.
+
+Detail:
+`docs/findings/2026-08-06-AUDIOENG-ASAR-STEREO-IDENTITY-PATH.md`
+
 ## Open high-value questions
 
-- Which stereo-hot psychoacoustic actor supplies the remaining Windows music
-  presentation once generic HRTF bed virtualization is excluded: VR
-  surround/virtualizer, `VirtualSurroundApo`, AdaptiveSpatialAudioRenderer, or a
-  mode-specific Surface/Microsoft path.
+- Which Windows-triggered Dolby profile/policy change or independently proved
+  Surface APO mode delta supplies the remaining music presentation once generic
+  HRTF, VirtualSurround, and matching-stereo ASAR transforms are excluded.
 - Which upstream Music runtime/history state drives the Windows 75-Hz signal
   hard enough to reach the decoded AudioEng limiter.
 - DAX `vlldp-limiter-gain` identity and generic public Get/Set routing are proved

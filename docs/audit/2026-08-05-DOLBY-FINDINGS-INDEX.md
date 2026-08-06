@@ -30,9 +30,10 @@ experiment trail. Read them according to the status below.
 | `2026-08-05-VLLDP-POSTGAIN-AND-LIMITER-STATE-CORRECTION.md` | **Current correction** closing the false wrapper `+0x7C0` history lead and recovering live nested VLLDP limiter gain state. |
 | `2026-08-05-WINDOWS-DYNAMIC-MUSIC-INPLACE-LIFECYCLE.md` | **Lifecycle proof** that Windows main-profile changes retune existing Dolby endpoints via parameter diffs while active VLLDP/VR processing continues. |
 | `2026-08-06-DAX3-WRAPPER-DIRECT-PROCESSING-PROOF.md` | **Hot-path elimination**: 639 live ETL stacks hit the equal-rate direct inner-call return site; DAX3 adds no sample-domain SRC/gain around VLLDP/VR on the speaker path. |
+| `2026-08-06-AUDIOENG-ASAR-STEREO-IDENTITY-PATH.md` | **Spatial-stereo closure**: exact June AudioEng/PDB + StackWalks prove ASAR delegates the matching stereo bed to DolbyHrtfEnc; DAX stereo bypass plus 48k->48k unity scale reduces that path to direct PCM copy. |
 | `2026-08-05-AUGUST-BASS-RUNTIME-RECHECK.md` | **Current correction** separating named Bass Enhancer from other loudness/bass actors. |
 | `2026-08-05-FAKE-BASS-STATUS.md` | **Current terminology boundary** between old hand-written fake bass, decoded Dolby harmonic synth and actual production path. |
-| `2026-08-05-ASAR-STEADY-SPEAKER-BOUNDARY.md` | **Current ordinary-stereo ASAR boundary**; do not generalize to spatial modes. |
+| `2026-08-05-ASAR-STEADY-SPEAKER-BOUNDARY.md` | **Historical boundary** from pre-exact-AudioEng evidence; use the Aug-6 ASAR identity finding for matching stereo, while retaining this for experiment history. |
 | `2026-08-05-WINDOWS-KNOWN-INPUT-CURRENT-CHAIN.md` | **Current historical waveform-oracle record.** |
 | `2026-08-05-CUSTOM1-GEQ-FORENSIC-RECOVERY.md` | **Closed forensic result** for missing historical Custom1 values. |
 | `2026-08-05-MINIMAL-WINDOWS-RUNTIME-CLOSEOUT.md` | **Future Windows runtime plan**, to be updated when targets are resolved. |
