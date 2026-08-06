@@ -29,6 +29,7 @@ experiment trail. Read them according to the status below.
 | `2026-08-05-DOLBY-RUNTIME-GAIN-LIMITER-RECHECK.md` | **Current investigation** of live DAX gain feedback, odd-harmonic residual and AudioEng limiter lead. |
 | `2026-08-05-VLLDP-POSTGAIN-AND-LIMITER-STATE-CORRECTION.md` | **Current correction** closing the false wrapper `+0x7C0` history lead and recovering live nested VLLDP limiter gain state. |
 | `2026-08-05-WINDOWS-DYNAMIC-MUSIC-INPLACE-LIFECYCLE.md` | **Lifecycle proof** that Windows main-profile changes retune existing Dolby endpoints via parameter diffs while active VLLDP/VR processing continues. |
+| `2026-08-06-DAX3-WRAPPER-DIRECT-PROCESSING-PROOF.md` | **Hot-path elimination**: 639 live ETL stacks hit the equal-rate direct inner-call return site; DAX3 adds no sample-domain SRC/gain around VLLDP/VR on the speaker path. |
 | `2026-08-05-AUGUST-BASS-RUNTIME-RECHECK.md` | **Current correction** separating named Bass Enhancer from other loudness/bass actors. |
 | `2026-08-05-FAKE-BASS-STATUS.md` | **Current terminology boundary** between old hand-written fake bass, decoded Dolby harmonic synth and actual production path. |
 | `2026-08-05-ASAR-STEADY-SPEAKER-BOUNDARY.md` | **Current ordinary-stereo ASAR boundary**; do not generalize to spatial modes. |
