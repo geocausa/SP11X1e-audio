@@ -49,23 +49,26 @@ Current production-source SHA-256 values:
 
 ```text
 sp11_dolby_windows_chain_ladspa.c
-  c72575789c114f0fd72d9f581a67b969fe371cd7d55c889d5d9de30ba8c11fc4
+  00665f171ff8854b2524aca341cc24649075c4cd09726e0ec032c90924cec009
 
 build-production.sh
   4d1f07f1c29a0b6ebb9bb51ac551bd0f337c77236fb7d1f9d97e10f318129be1
 
 sp11-dolby helper
-  5aae8cfdc75523822f29a62a274f98d23c4277a0c31414a1887504a1adb3a973
+  e169e00d012fb40837f1e9c4efd0513bb9883838d38e6e3eb3d51907807c698d
 ```
 
-A fresh rebuild during this consolidation produced:
+The current validated build and installed plugin are byte-identical at:
 
 ```text
-230932e53734c0fc0749eb54c8b8db462c739d7a7bf32cd937be4cb635d9be2b
+1e7cc8cb4ec441ee890b73bf90f738c64df88a03e953be502a60025515a3534a
 ```
 
-and was **byte-identical** to the installed
-`~/.local/lib/sp11-dolby/sp11_dolby_windows_chain.so`.
+This build includes the exact SP11 `bypass_stereo_virtualizer` endpoint-policy
+correction: the two-channel bridge preserves raw profile tuning but feeds the
+native VR core effective output mode 1, matching the original DolbyAPOVR
+wrapper behavior. See
+`docs/findings/2026-08-06-SP11-STEREO-VIRTUALIZER-BYPASS-PARITY.md`.
 
 ## Deployment files
 
@@ -77,14 +80,16 @@ deploy/dolby/build-production.sh
 deploy/dolby/README.md
 ```
 
-Current observed live state at manifest creation:
+Current observed live state after the 2026-08-06 stereo-bypass rollout:
 
 ```text
-profile       dynamic
-custom GEQ    off
-Dolby sink    0.10
-service       active/running
-NRestarts     0
+profile        dynamic
+custom GEQ     off
+Dolby sink     0.22
+bypass sink    0.53
+service PID    399447
+service        active/running
+NRestarts      0
 ```
 
 This state is an operator/deployment fact, not a claim that Dynamic matches the
@@ -116,6 +121,7 @@ These are high-value but are not installed as the product path:
 
 ```text
 sp11_dolby_windows_chain_plugin_test.c
+sp11_dolby_windows_chain_profile_lifecycle_test.c
 sp11_dolby_windows_chain_known_input.c
 sp11_vlldp_state_oracle.c
 sp11_vlldp_scheduler_replay.c

@@ -321,3 +321,50 @@ If the Linux bridge later gains a true multichannel/object path, this shortcut
 must not be generalized blindly. That path must reproduce the original wrapper
 policy and channel/layout-dependent mode calculation rather than forcing mode
 1 universally.
+
+## Live rollout verification — 2026-08-06
+
+After the source/evidence checkpoint was pushed, the validated production build
+was installed with an atomic temporary-file + rename replacement so the old
+mapped `.so` inode was never overwritten in place.
+
+Rollback snapshot:
+
+```text
+~/.local/state/sp11-dolby/backups/20260806T100420Z-pre-stereo-bypass/
+old plugin SHA256 9cd10d29d987f1f946dc0879c92652b83497dfd7f30dfec0514eea949624ab3c
+```
+
+Installed plugin:
+
+```text
+~/.local/lib/sp11-dolby/sp11_dolby_windows_chain.so
+SHA256 1e7cc8cb4ec441ee890b73bf90f738c64df88a03e953be502a60025515a3534a
+```
+
+The dedicated host was restarted once to map the new inode:
+
+```text
+old MainPID 309524
+new MainPID 399447
+ActiveState=active
+SubState=running
+NRestarts=0
+```
+
+A quiet six-second continuous stream then exercised the runtime control path.
+Music was first queued before lazy plugin instantiation and acknowledged on the
+first audio block (`3,0 -> 3,3`). Dynamic was requested while the same stream
+remained active and acknowledged in place (`1,1`). MainPID stayed 399447 across
+both profile transitions and `NRestarts` remained zero.
+
+Final operator state was preserved exactly:
+
+```text
+profile      Dynamic
+GEQ          off
+default sink Dolby
+Dolby volume 0.22
+bypass volume 0.53
+host         active/running
+```
