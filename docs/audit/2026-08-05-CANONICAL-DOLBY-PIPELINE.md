@@ -302,15 +302,16 @@ parity.
 
 ## Current open questions, in priority order
 
-1. Localize the residual **within the original VLLDP signal path** rather than
-   searching for another public compressor knob. Every scalar/vector input to
-   `FUN_180021E80` is now source-backed (peak, endpoint postgain, timbre,
-   overdrive, distortion slope, stress, exact MB tuning, system gain), and the
-   previously omitted nested June compressor object at `core+0x4F30` is
-   bit-transparent under both conservative and full non-pointer warm-state
-   transplants. Measure the waveform immediately before/after `FUN_180021E80`
-   and before `FUN_180024510`. The current Movie/postgain `-385` replay still has
-   ~2.47 dB final-limiter headroom. Do not fit broadband gain or tuning.
+1. The May nonlinear residual is now sample-domain localized: immediately
+   before the original final VLLDP limiter the baseline loud 75-Hz PCM is nearly
+   linear (`H3 ~ -98 dBc`); forcing a -3 dB peak ceiling leaves that input
+   bit-identical but makes the final limiter itself generate roughly
+   `H3=-35.65`, `H5=-45.42 dBc` before VR. Diagnostic system gain likewise stays
+   nearly linear upstream and creates strong odd harmonics only after driving
+   the normal limiter. All exact profiles and all meaningful nonpositive
+   endpoint-postgain states leave the real peak=0 limiter at gain 1.0 with a
+   maximum envelope plateau near -2.47 dBFS. No production retune is justified;
+   the remaining gap is historical Windows state provenance.
 2. Treat May-18 active profile and endpoint master volume as unrecovered with
    the current corpus. The nearest registry snapshot, recovered archive, live
    read-only NTFS trace directory and surviving PowerShell history do not supply

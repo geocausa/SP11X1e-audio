@@ -528,52 +528,42 @@ docs/findings/2026-08-06-VLLDP-PEAK-LEVEL-LIMITER-CEILING.md
 
 Resume here first.
 
-### Priority A — localize the residual inside original VLLDP sample processing
+### Priority A — preserve the final-limiter localization; do not retune from May fit
 
-The public/control-state search around `FUN_180021E80` is now substantially
-closed. Exact inputs are mapped to source-backed controls: peak-level,
-endpoint-volume postgain, regulator timbre, overdrive, distortion slope, stress,
-exact MB-compressor profile tuning, and upstream `VlldpSystemGain` (shipped/live
-zero). Do not sweep these again without new provenance.
+Direct offline debugger capture has now localized the mechanism. Immediately
+before `FUN_180024510`, the baseline final 75-Hz PCM is essentially linear
+(`mid H3 ~ -98.39 dBc`, `H5 ~ -103.29 dBc`). Peak=0 and peak=-48 inputs to the
+limiter are bit-identical. With the -3 dB ceiling, the original final limiter
+itself produces about `H3=-35.65`, `H5=-45.42 dBc` before VR.
 
-The older `0x4000` June warm-core replay omitted one real nested object:
-`core+0x650` points to the MB-compressor object at deterministic `core+0x4F30`.
-Both exact June compressor snapshots were recovered from the full audiodg dumps.
-A conservative authentic changed-word transplant and a full `0x80..0x8CF`
-non-pointer transplant are each **bit-identical** to fresh Music for the complete
-known-input render. Nested June compressor history is therefore closed too.
+A diagnostic `VlldpSystemGain=+120` remains almost linear before the limiter but
+produces the same strong odd family after it drives the normal 0-dB limiter.
+Therefore the historical May-like odd signature is not an undiscovered upstream
+saturation block; the original final VLLDP limiter is the proved mechanism.
 
-Resume by instrumenting original VLLDP at sample-domain boundaries:
-
-1. waveform/peak immediately before `FUN_180021E80`;
-2. waveform/peak immediately after `FUN_180021E80`;
-3. waveform/peak immediately before final limiter `FUN_180024510`;
-4. compare baseline, diagnostic peak=-48 and diagnostic system-gain drive only
-   as mechanistic discriminators, never as production settings.
-
-The current Movie/postgain `-385`, peak=0 replay still reaches only about
-`-2.47 dBFS` at the final-limiter envelope and the limiter remains unity.
+However source-of-truth SP11 state still says peak=0 and system-gain=0. All seven
+exact profiles and a broad nonpositive endpoint-postgain sweep leave the normal
+limiter at gain 1.0, with a maximum linked envelope plateau near `-2.47 dBFS`.
+Do not deploy fitted gain or a negative peak ceiling.
 
 Primary continuation detail:
 
 ```text
-docs/findings/2026-08-06-VLLDP-MB-COMPRESSOR-INPUT-AND-WARM-STATE-CLOSURE.md
+docs/findings/2026-08-06-VLLDP-FINAL-LIMITER-SAMPLE-DOMAIN-LOCALIZATION.md
 ```
 
-### Priority B — keep telemetry/control boundaries strict
+### Priority B — remaining gap is historical Windows state provenance
 
-DAX `0x850`, `core+0xC60`, peak-level fitting, nonzero `VlldpSystemGain`, and
-June nested compressor warm history are not missing production controls. Reopen
-only with new source-of-truth Windows evidence.
+The current corpus cannot establish which contemporaneous May state caused a
+limiter-like nonlinear result. Peak-level runtime writes are absent from the
+preserved June setter traces; May profile/master-volume state is unrecovered;
+endpoint postgain/profile choices cannot trigger the limiter in the current
+exact replay; June VLLDP/VR warm states are closed.
 
-Keep already-proved constraints:
-
-- May profile/master-volume provenance is absent from the current corpus;
-- endpoint postgain is real and must remain in May-oracle work;
-- June warm VR, top-level VLLDP and now nested MB-compressor histories do not
-  create the onset;
-- AudioEng only supplies the final 0.985 ceiling;
-- no guessed saturation, EQ, fake bass, broadband gain or negative peak setting.
+Do not spend another cycle sweeping public VLLDP controls. The clean next oracle
+is a future Windows same-stimulus capture with profile, endpoint volume,
+peak/system/postgain VLLDP state, Spatial state and loopback PCM recorded in the
+same session.
 
 ### Priority C — keep endpoint postgain in all May oracle work
 
@@ -601,7 +591,7 @@ Do not spend new cycles on:
 ## 18. Other still-open items after the peak-level investigation
 
 1. Exact May-18 active profile remains unlabeled and May master volume remains unknown; current retained/live artifacts were exhausted without recovering them. Reopen only if a new historical artifact appears.
-2. The exact sample-domain stage responsible for the historical loud-end difference inside original VLLDP remains unresolved; all known public compressor inputs and June nested compressor warm state are now closed, while Movie/postgain `-385` still has about 2.47 dB final-limiter headroom.
+2. The sample-domain mechanism is resolved to the original final VLLDP limiter, but the historical May state that would have engaged/lowered it is not retained; current exact state leaves about 2.47 dB of limiter headroom.
 3. `mb_compressor_limiter_gain` / public `0x850` is separated from the scalar final limiter and demoted to telemetry/readback; backend Set semantics remain unproved but are not a production target without a Windows write.
 4. A purpose-built future Windows same-stimulus capture with profile, DAX state, Spatial state and endpoint volume recorded simultaneously remains the cleanest final certification oracle.
 5. Lower Qualcomm/AudioReach protection/calibration should only be revisited if it can affect WASAPI loopback or feed a control decision upstream; a purely downstream speaker mute cannot explain loopback PCM.

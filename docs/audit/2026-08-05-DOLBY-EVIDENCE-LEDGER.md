@@ -63,6 +63,14 @@ not accidentally convert a useful hypothesis into folklore.
   `0x80..0x8CF` non-pointer transplant are each bit-identical to fresh Music for
   the complete 29.45-s known-input render. June nested compressor history is
   therefore closed as the May residual.
+- Direct GDB sample-domain capture at the original final-limiter call proves
+  baseline pre-limiter 75-Hz PCM is essentially linear (`mid H3=-98.39 dBc`,
+  `H5=-103.29 dBc`). Peak 0 and peak -48 pre-limiter captures are bit-identical;
+  after the -3 dB limiter the same PCM becomes `H3=-35.65`, `H5=-45.42 dBc`.
+  Diagnostic system gain is also nearly linear before the limiter and generates
+  the strong odd signature only after limiter engagement. A broad nonpositive
+  postgain sweep and all seven exact profiles leave the real peak=0 limiter at
+  unity, with envelope no higher than -2.47 dBFS.
 - The live AudioEng limiter state was recovered from its exact initialization
   signature. At both June snapshots current gain is 1.0 and attack-left is 0;
   it is instantiated but not actively limiting at those instants.
@@ -237,10 +245,10 @@ Detail:
   Surface APO mode delta supplies the remaining presentation difference once
   generic HRTF, VirtualSurround, matching-stereo ASAR, and the original VR
   stereo virtualizer are excluded.
-- Which sample-domain stage inside the original VLLDP path accounts for the
-  historical May loud-end difference. Public `FUN_180021E80` inputs and June
-  nested compressor history are now source-backed/closed; next discriminate the
-  signal immediately before/after the MB compressor and before the final limiter.
+- Historical May state provenance. The original final VLLDP limiter is now
+  directly proved as the mechanism capable of creating the odd signature, but
+  provenance-correct peak=0 replay never engages it; exact profiles, endpoint
+  postgain and retained June warm state cannot supply the missing drive.
 - May-18 active profile and endpoint volume are unrecovered from the current
   corpus; reopen only if a new historical artifact appears or use a future
   state-pinned Windows same-stimulus capture.
