@@ -8,10 +8,17 @@ transactions, its REV_0D ACDB, the shipped ARM64 Qualcomm drivers and controlled
 Linux tests. Kernel/DT, DSP topology, ALSA UCM and PipeWire policy are kept as
 separate layers so that an acoustic result is never mistaken for a driver fact.
 
-> **Project state (2026-08-02):** the protected, non-Dolby playback baseline is
-> booted and accepted. Dolby remains present only as an identity/bypass boundary.
-> This is research-quality hardware enablement, not an upstream-ready driver or
-> a general-purpose installation package.
+> **Project state (2026-08-08):** the protected, non-Dolby playback baseline
+> remains the accepted lower control. The original Windows ARM64
+> `DolbyAPOvlldp150 -> DolbyApoVr` path also executes on Linux as an experimental
+> overlay, but one-to-one Windows parity is **not** yet certified. A state-pinned
+> Aug-7 Windows run has now localized the remaining loud-75-Hz drive discrepancy
+> to **before the inner VLLDP DSP**: the live VLLDP input is ~3 dB hotter than the
+> deterministic source while normal production limiter controls are in force.
+> Start current Dolby work with
+> [`docs/audit/2026-08-08-DOLBY-INTEGRATION-STATUS.md`](docs/audit/2026-08-08-DOLBY-INTEGRATION-STATUS.md).
+> This remains research-quality hardware enablement, not an upstream-ready driver
+> or a general-purpose installation package.
 
 ## Current baseline
 
@@ -133,6 +140,7 @@ AI-generated analysis. This repository follows these rules:
 | [`docs/deployment/`](docs/deployment/) | Candidate identities, validation gates and outcomes |
 | [`artifacts/reviewed/`](artifacts/reviewed/) | Small reviewed records safe to version |
 | [`tools/`](tools/) | Capture, topology, ACDB and QGPR analysis utilities |
+| [`tools/dolby/`](tools/dolby/) | State-pinned Dolby oracle parser and discriminating matrix-stimulus generator |
 
 The accepted decision is documented in
 [`2026-08-01-audio-clean-baseline.md`](docs/deployment/2026-08-01-audio-clean-baseline.md).
@@ -140,6 +148,22 @@ The Windows/Linux start sequence is in
 [`2026-07-28-windows-linux-start-transaction-ledger.md`](docs/audit/2026-07-28-windows-linux-start-transaction-ledger.md).
 
 ## Reproducing the tracked analysis
+
+Analyze a local state-pinned Dolby capture without committing the raw WAV/DMP:
+
+```sh
+python tools/dolby/analyze_state_pinned_oracle.py \
+  --source-wav sp11-known-input-stimulus-48k.wav \
+  --loopback-wav windows-loopback-20260807-075900.wav \
+  --dump audiodg-2800-source27p5.dmp
+```
+
+Generate the next in-phase / left-only / anti-phase discriminator locally:
+
+```sh
+python tools/dolby/generate_stereo_matrix_probe.py diagnostic-stereo-matrix-75hz.wav
+```
+
 
 Lint and inventory a decoded or binary AudioReach topology:
 

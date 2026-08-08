@@ -12,5 +12,26 @@ artifacts/reviewed/windows-acdb-rev0d-root-protection-setcfg.json
 deploy/firmware/*.bin
 deploy/firmware/reference/
 
+# Vendor runtime binaries and state-pinned Windows evidence are supplied locally.
+# The repository carries hashes, parsers and generators instead of redistributing
+# third-party DLLs, process dumps or captured audio.
+*.dll
+*.dmp
+*.wav
+*.bundle
+/dolby-port/dll/
+/dolby-port/*.bin
+
 # Operator handoffs can contain transient debugger transport credentials.
+docs/handoff/
 docs/handoffs/
+
+# Dolby RE local build products. Source/probes are tracked; no-extension test
+# executables and locally built shared objects are reproducible artifacts.
+/dolby-port/*_test
+/dolby-port/*.so
+/dolby-port/sp11_*_probe
+/dolby-port/sp11_*_replay
+/dolby-port/sp11_*_oracle
+/dolby-port/sp11_dolby_windows_chain_known_input
+/dolby-port/sp11_vlldp_v8_contract_check

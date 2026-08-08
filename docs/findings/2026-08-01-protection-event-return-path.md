@@ -107,14 +107,94 @@ was therefore removed before the clean rebuild. Do not reintroduce this event
 ID through APM registration without new Windows call-site evidence that proves
 the exact destination, payload and registration mechanism.
 
-## Next step
+### 2026-08-01 correction: the Windows call site is now proven
 
-Keep the passive logger and decode any genuine unsolicited module event if one
-appears. Separately reverse the exact Windows registration call path before
-another Linux subscription attempt. The absence of a returned calibration
-event does not invalidate the independently proven active VI transport and
-accepted protection configuration, but it means adaptive persistence remains
-an open boundary.
+The earlier file offsets `0x79018`, `0x7901c`, `0x7cfa8`, and `0x7cfb8` were
+incorrectly carried into one analysis pass as image addresses. They are raw
+offsets in the PE `PAGEAR` section. For the hash-bound driver, `PAGEAR` has raw
+offset `0x21600` and image base address `0x14002d000`, producing these correct
+virtual addresses:
+
+| Raw offset | Virtual address | Value |
+|---:|---:|---:|
+| `0x79018` | `0x140084a18` | `0x0800138c` |
+| `0x7901c` | `0x140084a1c` | `0x08001511` |
+| `0x7cfa8` | `0x1400889a8` | `0x0800138c` |
+| `0x7cfb8` | `0x1400889b8` | `0x08001511` |
+
+Fresh Ghidra xrefs at those mapped addresses close both the receive and
+registration paths:
+
+- `FUN_140083d00` (`cbGslGraphfunc`) dispatches `0x0800138c` as
+  `EVENT_ID_SPv5_SPEAKER_DIAGNOSTICS` and `0x08001511` as
+  `EVENT_ID_VI_CALIBRATION`.
+- `FUN_140085270` (`AudioDspGraphOpen`) resolves tag `0x0401000b` with
+  `GetMidAndMiid`. `GetMidAndMiid` returns `{module_id, module_instance_id}`;
+  the driver uses the returned instance ID in a 16-byte
+  `GSL_CMD_REGISTER_CUSTOM_EVENT` request.
+- In ordinary speaker-protection mode, this code path prepares registration of
+  event `0x0800138c` on the **SP_VI tag instance** when the driver's hardware
+  event-registration flag is enabled. In the captured root this is SP_VI IID
+  `0x4024`, not SPv5 IID `0x4027`.
+- Windows registers `0x08001511` on that same SP_VI instance only when the
+  requested mode is calibration mode (`mode == 2`).
+
+Qualcomm's public GSL implementation closes the remaining translation layer.
+`gsl_graph_register_custom_event()` accepts the same 16-byte request used by
+the Windows call site, allocates opcode `APM_CMD_REGISTER_MODULE_EVENTS`
+(`0x0100100e`), copies the instance, event, registration flag, and optional
+configuration into `apm_module_register_events_t`, and sends it to SPF. This is
+the same 24-byte APM structure already implemented by Linux
+`q6apm_register_module_event()`; no Windows-only registration transport is
+missing.
+
+Therefore the first rejected Linux probe tested the wrong pair twice over:
+`0x4027:0x08001511` instead of the normal-playback Windows pair
+`0x4024:0x0800138c`. Its rejection says nothing about support for the actual
+Windows diagnostics subscription.
+
+The diagnostics event payload parser is also explicit: a leading `u32`
+speaker count followed by one `u32` condition per speaker. Condition `3`
+invokes the Windows DC-protection callback; condition `4` reports a speaker
+temperature overshoot. Other conditions are logged and ignored.
+
+Evidence:
+
+- `artifacts/offline-audit-20260729/qcadcm-protection-event-va-xrefs-20260801.txt`
+- `artifacts/offline-audit-20260729/qcadcm-getmidmiid-20260801.txt`
+- Qualcomm GSL `gsl/src/gsl_graph.c`, function
+  `gsl_graph_register_custom_event()`, graphservices commit
+  `8445aee939cb8b37d80eccf6b43baf778fef23c4`
+- `qcadcm8380.sys` SHA-256
+  `37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429`
+
+## 2026-08-02 isolated runtime result
+
+The corrected diagnostic kernel sent the exact APM registration structure for
+SP_VI `0x4024`, event `0x0800138c`, registration flag `1`, and zero event-config
+bytes. SPF rejected opcode `0x0100100e` with status `3` (`AR_EUNSUPPORTED`) on
+every protected graph open. The rejection was deliberately non-fatal; all
+protection configuration stages and `GRAPH_START` still succeeded.
+
+A complete search of the surviving live Windows QGPR captures found many
+successful `APM_CMD_REGISTER_MODULE_EVENTS` packets for pull, pause, and other
+modules, but no registration packet for `0x4024:0x0800138c`. The registration
+pair and transport are static-code proven, while its execution during the
+captured ordinary playback sessions is **not** live proven. The conditional
+hardware flag visible at the Windows call site explains why the code can be
+real without appearing in those traces.
+
+This changes the disposition:
+
+- keep the passive bounded module-event logger in the clean driver;
+- do not send the rejected diagnostics subscription by default;
+- do not treat its absence as a playback-parity failure;
+- revisit it only if a future Windows trace captures the registration or its
+  enabling hardware-policy state.
+
+The diagnostic boot emitted no unsolicited protection event. That is expected
+when no subscription was accepted and does not contradict the independently
+accepted SP/SP_VI configuration.
 
 ## Why this matters for the loudness work
 

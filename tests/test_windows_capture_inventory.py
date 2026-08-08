@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "artifacts" / "raw" / "windows-target-20260726"
 
 
+@unittest.skipUnless(RAW.is_dir(), "requires private Windows capture bundle under artifacts/raw")
 class WindowsCaptureInventoryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

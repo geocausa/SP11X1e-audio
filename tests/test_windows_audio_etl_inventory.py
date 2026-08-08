@@ -1,3 +1,4 @@
+import tempfile
 import unittest
 from datetime import timezone
 from pathlib import Path
@@ -9,11 +10,13 @@ from tools.windows_audio_etl_inventory import (
 )
 
 
-ROOT = Path(__file__).resolve().parents[1]
-RAW = ROOT / "artifacts" / "raw" / "windows-target-20260726"
-
-
 class WindowsAudioEtlInventoryTests(unittest.TestCase):
+    def _probe(self, body: str):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "probe.txt"
+            path.write_text(body, encoding="utf-8")
+            return parse_probe(path)
+
     def test_event_header_guid_byte_order_is_corrected(self):
         EventHeader = type("EventHeader", (), {})
         header = EventHeader()
@@ -26,10 +29,21 @@ class WindowsAudioEtlInventoryTests(unittest.TestCase):
         )
 
     def test_rejected_44100_probe_is_not_reported_as_started(self):
-        probe = parse_probe(
-            RAW
-            / "extra-capture"
-            / "scenario15_44100hz_resampling.txt"
+        probe = self._probe(
+            """Timestamp=2026-07-26T11:00:00+01:00
+Seconds=30
+Mode=shared
+Rate=44100
+Channels=2
+Format=S16_LE
+Raw=False
+IsFormatSupportedHr=0x88890008
+InitializeHr=0x88890008
+Started=0
+Stopped=0
+LoopTimedOut=False
+FramesWritten=0
+"""
         )
         self.assertEqual(probe["timestamp"].utcoffset().total_seconds(), 3600)
         self.assertEqual(
@@ -42,10 +56,22 @@ class WindowsAudioEtlInventoryTests(unittest.TestCase):
         self.assertEqual(probe["frames_written"], 0)
 
     def test_shared_raw_probe_is_complete(self):
-        probe = parse_probe(
-            RAW
-            / "SP11-PARITY-OUTPUT"
-            / "scenario20_shared_raw.txt"
+        probe = self._probe(
+            """Timestamp=2026-07-26T12:00:00+01:00
+Seconds=30
+Mode=shared
+Rate=48000
+Channels=2
+Format=FLOAT32
+Raw=True
+IsFormatSupportedHr=0x00000000
+SetClientPropertiesRawHr=0x00000000
+InitializeHr=0x00000000
+Started=1
+Stopped=1
+LoopTimedOut=False
+FramesWritten=1440000
+"""
         )
         self.assertTrue(probe["raw"])
         self.assertTrue(probe["format_supported"])

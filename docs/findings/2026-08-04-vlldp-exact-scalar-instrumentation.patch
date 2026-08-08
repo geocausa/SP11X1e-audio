@@ -1,0 +1,30 @@
+diff --git a/dolby-port/sp11_vlldp_exact.c b/dolby-port/sp11_vlldp_exact.c
+index 8f886f8..3d67882 100644
+--- a/dolby-port/sp11_vlldp_exact.c
++++ b/dolby-port/sp11_vlldp_exact.c
+@@ -96,6 +96,7 @@ typedef struct {
+     /* input accumulator (one frame) */
+     float acc_l[FRAME], acc_r[FRAME];
+     int   acc_n;
++    unsigned debug_frame;
+     /* output FIFO (holds up to 2 frames) */
+     float fifo_l[2*FRAME], fifo_r[2*FRAME];
+     int   fifo_head, fifo_tail;   /* [head,tail) valid; tail-head = count */
+@@ -247,8 +248,16 @@ static void process_frame(SP11 *p)
+     int32_t export_count[1] = {0};
+     p->leveler(p->opt_state, p->side_a, p->side_b, p->mask, p->runtime,
+                &in_desc, &out_desc, CHANNELS,
+-               0.0f, p->runtime[1], 0.0f, p->p12,
++               0.0f, 0.0f, -0.0307692308f, p->p12,
+                b60, side_scratch, export_count);
++    if (p->debug_frame < 4 || p->debug_frame == 10 || p->debug_frame == 100 || p->debug_frame == 1000) {
++        fprintf(stderr, "DBG frame=%u b60[0]=%d b60[7]=%d b60[9]=%d b60[12]=%d b60[19]=%d outdelta9L=%g outdelta9R=%g export=%d\n",
++                p->debug_frame, b60[0], b60[7], b60[9], b60[12], b60[19],
++                phase6_b0[9]-p->base0[9], phase6_b1[9]-p->base1[9], export_count[0]);
++        fprintf(stderr, "DBGcorr frame=%u corr0=%d corr7=%d corr9=%d corr12=%d corr19=%d corr9f=%g\n",
++                p->debug_frame, side_scratch[0], side_scratch[7], side_scratch[9], side_scratch[12], side_scratch[19], side_scratch[9]/2080.0f);
++    }
++    p->debug_frame++;
+     float b60_source[BANDS], bbc[BANDS]; int32_t c0c[BANDS];
+     for (int b = 0; b < BANDS; b++)
+         b60_source[b] = (float)b60[b] / 2080.0f;
