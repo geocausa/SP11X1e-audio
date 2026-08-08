@@ -162,3 +162,26 @@ If that matches, the missing Windows stage is reproduced with the original Dolby
 ## Operational note
 
 No reboot, custom driver, kernel work, or PPL modification is required for the next step. Continue in SP11 userland from the saved dumps, private Dolby DLLs, public AudioEng symbols, and this branch.
+
+## Explicit sidequest: locate any real psychoacoustic stage
+
+Keep a parallel watch for a **concrete psychoacoustic DSP stage** while building the SP11 Windows harness. Do not assume one exists, and do not treat the word "psychoacoustic" in our notes as evidence by itself.
+
+Current evidence status as of this checkpoint:
+
+- A recursive textual search finds `psychoacoustic` mainly in our own findings/notes, not as a named OEM component.
+- A fresh ASCII/UTF-16 string scan across the preserved private Dolby DLL set found **no literal hits** for `psycho`, `psychoacoustic`, `perceptual`, `masking`, `critical band`, `Bark`, `virtual bass`, `loudness`, or `hearing`.
+- `VirtualSurroundApo.dll` has been decompiled far enough to show its recurring real-time path is an ASAR client/stager. It moves/normalizes 48-kHz float buffers and updates ASAR sample-buffer metadata; the sampled callback does **not** perform HRTF convolution, matrixing, filtering, or other hidden psychoacoustic PCM DSP.
+- `AudioEng!ASAR::AsarEncoderWrapper<IAsarEncoder2>` delegates `MixChannelBed` and `Process` directly to the Dolby interface. There is **no AudioEng psychoacoustic PCM routine between those calls**.
+- On the captured matching two-channel DAX-speaker path, `DolbyHrtfEnc` is explicitly in stereo-bypass mode and, at 48 kHz -> 48 kHz with unity bed scale, its `Process` path copies the staged stereo bed directly. Therefore ordinary matching stereo is not hiding a generic HRTF/crossfeed stage there.
+- The old Chebyshev "fake bass" code in our Linux prototype is only an inferred experiment and is **not** OEM parity. Windows measurements also argue against a continuously active large harmonic-bass generator at ordinary level; the strong odd-harmonic behavior appears level/ceiling dependent.
+
+The currently plausible places for a real audible psychoacoustic difference are therefore **policy/profile dependent rather than a named hidden PCM kernel**. Highest-value candidates to keep checking are:
+
+1. original Dolby VR / surround / virtualizer controls and their live Windows state;
+2. `msft_atmos` policy/profile retuning (notably Spatial OFF -> Music vs Spatial ON -> Movie behavior already observed);
+3. any independently proven Surface APO EFX/SFX delta in MEDIA/Spatial/Atmos modes;
+4. `AdaptiveSpatialAudioRenderer` and object/multichannel paths, where ASAR remains active even though matching ordinary stereo was closed to unity copy;
+5. any binary function whose measured output shows masking, harmonic synthesis, frequency-dependent widening, loudness-dependent coloration, or other perceptual behavior even if the implementation never uses the word "psychoacoustic".
+
+Treat this as a sidequest during harness work: whenever a new actor/function is encountered, check whether it actually transforms samples and whether the transform survives controlled A/B measurement. Only promote it to "psychoacoustic stage" after concrete code-path + output evidence.
