@@ -63,11 +63,27 @@ constraints:
    `-3 dBFS`.
 8. The decoded 480 -> 256 inner adapter is a direct copy and therefore cannot
    create that ~3 dB increase.
+9. Fresh Aug-8 normal-shared dumps prove the pre-VLLDP transfer is not a fixed
+   gain: 75-Hz inputs 0.10/0.25/0.50/0.70 reach approximately
+   0.320/0.528/0.99987/0.99987 at VLLDP staging, while 0.25 at 997 Hz reaches
+   approximately 0.5229.
+10. The ordinary ASAR stereo channel bed is still a unity bypass path, but
+    VirtualSurround simultaneously submits the same input media as a spatial
+    object.
+11. `DolbyHrtfEnc::Process` preserves already-produced encoded/object output and
+    merges the staged bed into it. Thus current normal shared mode is
+    structurally `encoded/object contribution + unity stereo bed` rather than
+    whole-path identity.
+12. The original `Dolby.DolbyAtmosForSpeakersEncoder` and
+    `Dolby.DolbyAudioProcessingModule` can both be activated successfully in an
+    isolated native ARM64 Windows process. The fresh speaker encoder exposes the
+    same `IAsarEncoder2` subobject/vtable family as the live AudioEng graph.
 
-The detailed Aug-7 evidence is:
+Detailed evidence:
 
 ```text
 docs/findings/2026-08-07-STATE-PINNED-DYNAMIC-VLLDP-PRELIMITER-DRIVE.md
+docs/findings/2026-08-08-ASAR-DUAL-LANE-PRE-VLLDP-CLOSURE.md
 ```
 
 ## What is not proved
@@ -85,28 +101,30 @@ Do not encode those hypotheses into production defaults.
 
 ## Remaining decisive experiment
 
-The cloud is now narrow enough for a single discriminating capture rather than
-more broad reverse engineering.
+The earlier stereo-matrix probe is no longer the primary blocker. Aug-8 closed a
+stronger mechanism: normal shared mode carries a unity channel bed plus a
+VirtualSurround object lane, and the HRTF encoder merges them.
 
-Generate the tracked diagnostic matrix stimulus locally:
-
-```sh
-python tools/dolby/generate_stereo_matrix_probe.py diagnostic-stereo-matrix-75hz.wav
-```
-
-Run the three cases through a fresh Windows Dynamic graph while preserving
-endpoint/profile state:
+The next discriminating experiment is therefore to run the original ASAR vendor
+pair outside AudioEng using the now-successful activation path:
 
 ```text
-in-phase     L=+x, R=+x
-left-only    L=+x, R=0
-anti-phase   L=+x, R=-x
+Dolby.DolbyAtmosForSpeakersEncoder
+  + Dolby.DolbyAudioProcessingModule
+  -> bind encoder engine
+  -> initialize 48-kHz stereo contract
+  -> submit controlled object samples + unity channel bed
+  -> IAsarEncoder2::Process
 ```
 
-For each case capture the sample values immediately before and after the
-remaining outer-wrapper boundary, plus the inner staging buffer. The observed
-ratios identify the actual 2x2 matrix. Only then should Linux production code be
-changed.
+Compare that isolated output directly with the state-pinned Windows VLLDP-input
+oracle at 75 Hz amplitudes 0.10/0.25/0.50/0.70 and at 997 Hz/0.25. If it matches,
+the missing pre-VLLDP operation has been reproduced with original vendor code.
+Only after that should Linux production integration change.
+
+The in-phase/left-only/anti-phase diagnostic remains useful as a secondary
+geometry check, but a fitted 2x2 matrix is no longer the leading production
+model.
 
 ## Repository/publication policy
 
@@ -139,9 +157,16 @@ A Dolby code change is ready for `main` only if:
 
 ## Current engineering decision
 
-The Aug-5/6 source/research body is valuable and should be integrated after
-publication cleanup. The Aug-7 result changes the next technical target but does
-**not** justify a production DSP gain change yet.
+The integrated VLLDP -> VR host remains the validated production experiment;
+**do not add a fixed pre-gain** to compensate for the remaining Windows parity
+gap.
 
-The next code-changing milestone is exact recovery of the outer/upstream stereo
-matrix (or other operation) responsible for the observed pre-VLLDP ~3 dB drive.
+Aug-8 moves the parity target from an unknown outer-wrapper gain/matrix to a
+specific original-code mechanism: the normal-shared ASAR encoder receives both a
+unity stereo bed and a VirtualSurround object lane and merges them before VLLDP.
+The vendor speaker encoder and companion DAP module can now be instantiated in
+isolation.
+
+The next code-changing milestone is successful isolated execution of that exact
+vendor ASAR pair against the measured Windows pre-VLLDP oracle. Until that gate
+passes, production source should not approximate the object lane.
