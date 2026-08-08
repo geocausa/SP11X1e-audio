@@ -367,3 +367,118 @@ vendor DLL payloads or process dumps.
 
 The next engineering work should continue from the isolated original encoder
 activation, not from fitted gain experiments.
+
+## Offline activation ABI closure after tool-session recovery
+
+The remaining encoder-plumbing calls are now identified directly from the SP11
+ARM64 binaries plus Microsoft `AudioEng.dll` public symbols.
+
+### Encoder interfaces
+
+A fresh `Dolby.DolbyAtmosForSpeakersEncoder` object answers these relevant QIs:
+
+```text
+IID deff1192-f581-4d77-9c1b-3e596b0ca989
+  object offset +0x10
+  vtable RVA 0x19E88
+  slot +0x18 / index 3 -> DolbyHrtfEnc.dll+0x5110
+  = CDolbyHrtfEncoderPlugin::Initialize
+
+IID dc57ddb4-e086-49ec-b13d-eccdd512990c
+IID 54151d15-066e-441c-81e7-d894d8a0abc7
+  both alias object offset +0x18
+  vtable RVA 0x199D8
+  slot +0x18 / index 3 -> DolbyHrtfEnc.dll+0x4DE0
+  = CDolbyHrtfEncoderPlugin::SetEncoderEngine
+  slot +0x20 / index 4 -> DolbyHrtfEnc.dll+0x4F60
+  = copies/caches the APO initialization context used by Initialize
+
+IID 98f37dac-d0b6-49f5-896a-aa4d169a4c48
+  object offset +0x28
+  vtable RVA 0x19AC8
+  slot +0x18 / index 3 -> DolbyHrtfEnc.dll+0x4D60
+  = stores an additional IUnknown dependency
+```
+
+`SetEncoderEngine` takes an IUnknown-like engine object and QIs it for two DAP
+module interfaces. On this SP11 build the embedded IIDs are:
+
+```text
+ed52ac8d-2018-4d17-9fb2-e7eb4870ee4e
+2b2e53bc-651b-4a90-8f64-38531c154fda
+```
+
+The fresh `Dolby.DolbyAudioProcessingModule` object rejects the first IID but
+accepts `2b2e53bc-651b-4a90-8f64-38531c154fda` at object offset `+0x08`, so the
+original HRTF `SetEncoderEngine` call can bind the fresh original DAP module
+without a surrogate interface.
+
+The DAP object also accepts the previously closed stereo-bypass interface:
+
+```text
+b5bb3cae-fd91-497d-8b83-2eddce0808db
+  object offset +0x10
+  vtable RVA 0x3128D0
+  slot +0x18 / index 3 -> DolbyAudioProcessing.dll+0x1A160
+  = CDolbyAudioProcessingModule::GetStereoBypassAllowed
+```
+
+### Exact AudioEng wrapper contract
+
+Microsoft symbols expose the full wrapper signature:
+
+```cpp
+ASAR::AsarEncoderWrapper<IAsarEncoder2>::Initialize(
+    IUnknown *,
+    IUnknown *,
+    IUnknown *,
+    APOInitSystemEffects3 const *,
+    unsigned int,
+    unsigned int,
+    AudioObjectType,
+    GUID const &,
+    unsigned int,
+    unsigned long,
+    ISpatialAudioPositionMapper *,
+    GUID const &,
+    IUnknown *);
+```
+
+The wrapper performs the original plumbing before invoking the vendor
+`IAsarEncoder2::Initialize`:
+
+1. QI the encoder for `98f37dac-d0b6-49f5-896a-aa4d169a4c48` and pass the
+   wrapper's third IUnknown to that interface's slot 3;
+2. prefer the encoder interface family `fa1d346f...`, then `dc57ddb4...`, then
+   `54151d15...`; the SP11 Dolby speaker encoder selects `dc57ddb4...`;
+3. on that selected interface, pass the APO initialization context through slot
+   4 when present;
+4. pass the wrapper's second IUnknown through slot 3, which is the recovered
+   `CDolbyHrtfEncoderPlugin::SetEncoderEngine` call;
+5. call `IAsarEncoder2::Initialize` at vtable slot 3.
+
+The ARM64 call setup closes the argument projection from the 13-argument
+AudioEng wrapper to Dolby's eight explicit `Initialize` arguments. With wrapper
+arguments numbered 1..13 after `this`, Dolby receives:
+
+```text
+Dolby Initialize arg1 <- wrapper arg5   (unsigned int)
+Dolby Initialize arg2 <- wrapper arg6   (unsigned int)
+Dolby Initialize arg3 <- wrapper arg7   (AudioObjectType)
+Dolby Initialize arg4 <- wrapper arg9   (unsigned int)
+Dolby Initialize arg5 <- wrapper arg10  (unsigned long)
+Dolby Initialize arg6 <- wrapper arg11  (ISpatialAudioPositionMapper *)
+Dolby Initialize arg7 <- wrapper arg12  (GUID const &)
+Dolby Initialize arg8 <- wrapper arg13  (IUnknown *)
+```
+
+`MainPluginRenderer::Initialize` also exposes the live sources for those wrapper
+arguments. In particular wrapper arg6 is obtained by converting the active
+format/sample-rate field at `status+0x108`, and the same call constructs the
+object-type mask and forwards the live GUID/runtime-parameter fields rather than
+inventing replacement values.
+
+This removes the previous ABI guesswork. The next isolated harness should copy
+this wrapper call order exactly, then submit the already mapped bed/object calls
+and compare `IAsarEncoder2::Process` output against the measured pre-VLLDP
+oracle.

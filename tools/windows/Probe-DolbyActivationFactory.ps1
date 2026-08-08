@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Mandatory = $true)]
     [string]$DllPath,
 
@@ -6,7 +6,9 @@ param(
     [string[]]$ClassName,
 
     [int]$ObjectScanBytes = 256,
-    [int]$VtableSlots = 14
+    [int]$VtableSlots = 14,
+
+    [string[]]$InterfaceId = @()
 )
 
 $ErrorActionPreference = 'Stop'
@@ -107,6 +109,28 @@ try {
 
             if ($hrActivate -lt 0 -or $instance -eq [IntPtr]::Zero) { continue }
 
+            foreach ($iidText in $InterfaceId) {
+                $iid = [Guid]$iidText
+                $qi = [IntPtr]::Zero
+                try {
+                    $hrQi = [Runtime.InteropServices.Marshal]::QueryInterface($instance, [ref]$iid, [ref]$qi)
+                    if ($hrQi -lt 0 -or $qi -eq [IntPtr]::Zero) {
+                        Write-Output ("  QI {0} hr=0x{1:X8} ptr=0x0" -f $iid, ([uint64]([int64]$hrQi -band 0xFFFFFFFFL)))
+                        continue
+                    }
+                    $qiu = [uint64]$qi.ToInt64()
+                    $instu = [uint64]$instance.ToInt64()
+                    $delta = [int64]($qiu - $instu)
+                    $qivt = [Runtime.InteropServices.Marshal]::ReadIntPtr($qi)
+                    $qivtu = [uint64]$qivt.ToInt64()
+                    $qirva = if ($qivtu -ge $base -and $qivtu -lt $end) { $qivtu - $base } else { [uint64]0 }
+                    Write-Output ("  QI {0} hr=0x{1:X8} ptr=0x{2:X} delta={3} vtable=0x{4:X} rva=0x{5:X}" -f $iid, ([uint64]([int64]$hrQi -band 0xFFFFFFFFL)), $qiu, $delta, $qivtu, $qirva)
+                }
+                finally {
+                    if ($qi -ne [IntPtr]::Zero) { [void][Runtime.InteropServices.Marshal]::Release($qi) }
+                }
+            }
+
             for ($off = 0; $off -lt $ObjectScanBytes; $off += [IntPtr]::Size) {
                 $candidate = [Runtime.InteropServices.Marshal]::ReadIntPtr($instance, $off)
                 $u = [BitConverter]::ToUInt64([BitConverter]::GetBytes($candidate.ToInt64()), 0)
@@ -134,3 +158,6 @@ try {
 finally {
     [void][DolbyActivation.Native]::FreeLibrary($module)
 }
+
+
+
