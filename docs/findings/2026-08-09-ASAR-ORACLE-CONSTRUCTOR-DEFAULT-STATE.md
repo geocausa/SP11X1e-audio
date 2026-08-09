@@ -1025,3 +1025,40 @@ The renderer destructor identifies object `+0x210` as `CComPtr<IXAPOHrtfParamete
 Therefore the normal Windows speaker path passes **NULL** for this private HRTF dependency, causing the wrapper to skip the IID-98 slot-3 setter. The Linux harness, which also skips that setter, is correct. This is not the missing ASAR transfer.
 
 The Windows-created `ISpatialAudioPositionMapper` remains non-causal for the current static FL/FR objects: original HRTF `SetAudioObject` consults the mapper only for positional/non-static objects. The current oracle uses static front-left/front-right object types.
+
+## Atmos-for-Monitors PID3 branch closed from frozen Windows object state
+
+The previously missing property-store request with raw GUID bytes
+`8659b970e39e434bacb2de7aeb1a9509`, PID 3 resolves to property GUID
+`{70B95986-9EE3-4B43-ACB2-DE7AEB1A9509}` and originates from
+`CDolbyAudioProcessingModule::RefreshAtmosForMonitorsStatus` (`FUN_180015578`).
+It is not a DSP tuning blob. Successful/non-empty lookup sets the DAP parent byte
+at `+0x738` to 1; failure/missing property sets it to 0. `FUN_1800157b0` then uses
+that byte only to select normal vs Atmos-for-Monitors property-key families.
+
+The unique live HRTF engine was recovered independently in each frozen minidump
+from the proved engine fingerprint (`+0x5c58=480`, `+0x5c5c=256`, `+0x64=8`,
+static mask 0x6), then followed through `engine+0x2c9a0` to the exact DAP
+interface:
+
+```text
+75-Hz oracle:
+  HRTF engine 0x1ec9270e000
+  DAP iface   0x1ec92687758
+
+997-Hz oracle:
+  HRTF engine 0x2161b722000
+  DAP iface   0x2161b713398
+```
+
+Direct dump reads give, in both cases:
+
+```text
+DAP iface +0x738 = 0
+```
+
+The surrounding fields also line up with the known live DAP object (`+0x538`
+points to the already-proved DAP-VR wrapper), removing base-offset ambiguity.
+Therefore the frozen Windows oracle is on the same normal/non-monitor key-family
+branch as the Linux harness. The missing PID3 property and Atmos-for-Monitors
+selection cannot explain the ASAR transfer mismatch.
