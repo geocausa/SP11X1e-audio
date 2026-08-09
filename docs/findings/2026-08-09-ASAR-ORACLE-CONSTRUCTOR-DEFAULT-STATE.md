@@ -932,3 +932,41 @@ Therefore the earlier `ca80a9c4...` replay is now proved to represent the fully 
 legitimately rejects the fully adjusted OEM Movie ASAR runtime state as the state that generated the Aug-8 Windows pre-VLLDP oracle (`~0.528 / ~0.523`).
 
 The important remaining question is therefore which runtime state actually preceded the later pending Dynamic update; this should be resolved from the Aug-8 profile/update chronology or by testing only the remaining chronology-supported OEM factories, not by broad parameter fitting.
+
+## Stock OEM sparse-profile family closed with exact Windows stereo policy
+
+The remaining stock `DahpConfigurationParameters` base factories were reconstructed from the OEM native constructors and serialized through the original DAX3API serializer. Each was then combined only with the independently proved Windows Spatial stereo policy:
+
+```text
+stereo_cp_bypass_mode = 2
+stereo_bypass_dap_dll = true
+```
+
+No normal/full DAX profile tables were added. All four resulting sparse payloads are 348 bytes.
+
+Private payload identities:
+
+```text
+Dynamic  SHA256 6abbda98219caa0b147823c806a3304be410d4de098999d0280210d64e79964a
+Music    SHA256 1cbc969011212c64c4f55eff75781f33dea353870c2b8f89851df8cb13e4cf61
+Game     SHA256 c618cd9c15d7961ee886fb7ed756943d89e07057896285b48afcb482f465aff3
+Voice    SHA256 bf40ebe06d752f7699ba62ae1f8ade13b5779067a28ef9b717b92db2eb450fb6
+```
+
+Original-DLL Linux-hosted two-point results:
+
+```text
+                  75 Hz / 0.25    997 Hz / 0.25
+Dynamic              ~0.6740          ~0.2948
+Music                ~0.4932          ~0.3316
+Game                 ~0.4837          ~0.2516
+Voice                ~0.3819          ~0.2708
+Movie + stereo       ~0.6462          ~0.2858
+Windows oracle        ~0.5280          ~0.5229
+```
+
+All initialize successfully and all reproduce the observed Windows HRTF `StereoBypassMode=1`. None reproduces the broadband Windows transfer. Music is the closest 75-Hz stock candidate but remains far too low at 997 Hz; the others show the same wrong frequency split or are lower still.
+
+Therefore the missing Aug-8 effective state is **not explained by selecting another stock OEM base DAHP profile plus the correct Spatial stereo-bypass policy**. The stock-profile hypothesis is closed as a family for Dynamic, Movie, Music, Game, and Voice.
+
+This reinforces the prior race/core result: the remaining target is persistent/resolved algorithm state or another structural lifecycle input, not a mislabeled stock profile.
