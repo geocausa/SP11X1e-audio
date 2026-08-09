@@ -1098,3 +1098,66 @@ The remaining genuine harness-only intervention is the diagnostic NOP at
 predicate guarded by that instruction: explain why the unmodified Linux-hosted original DLL does
 not naturally enter the same runtime-parameter-map path even though the resulting HRTF/DAP config
 and module personality match Windows.
+
+## Native DABS path closure: the license-map force branch is DAHP-only
+
+The diagnostic NOP previously used at `DolbyAudioProcessing.dll+0x17a1c` is now understood
+exactly. `ApplyModuleParams` enters the runtime-parameter-map lookup only when all of these are true:
+
+```text
+runtime_params_object != NULL
+DAP parent +0x2c == 0
+module == DAP-VR
+```
+
+For the SP11 two-speaker encoder, frozen Windows and Linux both have `DAP+0x2c == 1` after
+`ConfigureEncoder`, i.e. DABS/speaker personality. Therefore Windows does **not** take the
+`dahp_v2_1_1_*` license-map branch for this speaker instance. The NOP was a useful diagnostic but
+is not a parity requirement and must not be carried into production.
+
+For the real DABS speaker path with Atmos-for-Monitors disabled, the original DLL selects the
+endpoint property-store family:
+
+```text
+init    {1b4dab55-b1fb-4d8c-8317-f2d4a96efbb8}, PID 4
+runtime {1b4dab55-b1fb-4d8c-8317-f2d4a96efbb8}, PID 5
+```
+
+This validates the property-store route used by the unmodified Linux-hosted original DLL.
+
+## Object descriptor and 19-slot topology causality closure
+
+AudioEng's `SanitizeAndCopySpatialObjectProperties` copies a valid 0x20/0xb4 HRTF object
+property structure essentially intact. `CASARSampleBuffer::GetObjectProperties` returns the
+stored descriptor pointer directly (`this + 0x20 + index*0xb4`) and does not rewrite its flags.
+The VirtualSurround writer initializes the static-object descriptors with flags=1.
+
+The older Linux harnesses changed that field from 1 on the first block to 2 on subsequent blocks.
+A controlled replay of the exact Aug-8 DABS PID-5 fixture with flags held at 1 for every block
+produced the same measured PCM as the old 1->2 sequence at all five tested points. The flag
+transition is therefore not causal for the current steady-state mismatch.
+
+A second controlled replay preserved the frozen Windows HRTF initialization (`mask/channel state
+0x6`) but issued all 19 static `SetAudioObject` calls on every pass. FL/FR carried the signal and
+the other 17 object buffers were explicitly zero. The five-point output was again identical to
+the two-call FL/FR-only replay. Silent static object slots therefore do not account for the
+missing transfer.
+
+## Exact 3 s silence + 9 s tone history does not recover the oracle
+
+The Aug-8 DABS PID-5 cold-start replay was extended from 2 seconds to the oracle capture history:
+3 seconds of silence followed by 9 seconds of tone, with the same original HRTF/DAP binaries and
+native DABS property-store path.
+
+```text
+75 Hz, 0.25:  last_peak ~0.577020
+997 Hz, 0.25: last_peak ~0.380019
+```
+
+Targets remain approximately 0.528 and 0.523 respectively. The longer history moves 75 Hz only
+slightly toward the target while moving 997 Hz farther away. The mismatch is therefore not a
+simple warm-up/convergence-duration artifact.
+
+The remaining target is the DABS state that existed before the later Dynamic-like pending update,
+not the license-map transport, silent object topology, descriptor flag lifecycle, or capture
+warm-up duration.
