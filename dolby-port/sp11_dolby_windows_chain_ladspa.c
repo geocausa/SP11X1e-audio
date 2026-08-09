@@ -1,7 +1,10 @@
 /*
  * SP11 exact live Dolby chain bridge.
  *
- * Proven Windows render order on SP11: DolbyAPOvlldp150 -> DolbyApoVr.
+ * Proven Aug-8 sample dependency on SP11: DolbyApoVr -> DolbyAPOvlldp150.
+ * Earlier hardware traps observed VLLDP then VR callback invocation order, but
+ * did not establish buffer ownership. Full-memory buffer provenance and exact
+ * captured-state replays prove VR output feeds VLLDP input.
  * Both stages execute the original shipped ARM64 PE code.  Linux replaces
  * only small Windows runtime/locking/resource plumbing.  The audio callback
  * performs no dynamic allocation and slices arbitrary host buffers into a
@@ -612,13 +615,16 @@ static void chain_run(LADSPA_Handle h,unsigned long n){
     while(pos<n){
         uint32_t take=(uint32_t)((n-pos)>RT_CHUNK_FRAMES?RT_CHUNK_FRAMES:(n-pos));
         for(uint32_t i=0;i<take;i++){p->buf_a[2*i]=il[pos+i];p->buf_a[2*i+1]=ir[pos+i];p->buf_b[2*i]=p->buf_b[2*i+1]=0.0f;}
-        VlConnProp vip={p->buf_a,take,1,SP11_SIG,0},vop={p->buf_b,take,0,SP11_SIG,0};VlConnProp *vipa=&vip,*vopa=&vop;
-        p->vl_sched_run(p->vl_sched,1,&vipa,1,&vopa,NULL);
-        if(vop.flag==2)memset(p->buf_b,0,(size_t)take*2*sizeof(float));
-
-        Conn ri={p->buf_b,take,vop.flag?vop.flag:1},ro={p->buf_a,0,0};Conn *rip=&ri,*rop=&ro;
+        /* Sample dependency proved from Aug-8 full-memory captures:
+         * source -> DolbyApoVr -> DolbyAPOvlldp150.  The older VLLDP/VR
+         * hardware-breakpoint ordering is scheduler invocation order only. */
+        Conn ri={p->buf_a,take,1},ro={p->buf_b,0,0};Conn *rip=&ri,*rop=&ro;
         p->vr_hot(p->vr_outer+VR_RT_OFF,1,&rip,1,&rop,NULL);
-        if(ro.flags==2)memset(p->buf_a,0,(size_t)take*2*sizeof(float));
+        if(ro.flags==2)memset(p->buf_b,0,(size_t)take*2*sizeof(float));
+
+        VlConnProp vip={p->buf_b,take,ro.flags?ro.flags:1,SP11_SIG,0},vop={p->buf_a,take,0,SP11_SIG,0};VlConnProp *vipa=&vip,*vopa=&vop;
+        p->vl_sched_run(p->vl_sched,1,&vipa,1,&vopa,NULL);
+        if(vop.flag==2)memset(p->buf_a,0,(size_t)take*2*sizeof(float));
         for(uint32_t i=0;i<take;i++){
             if(dry){ol[pos+i]=il[pos+i];or[pos+i]=ir[pos+i];}
             else {ol[pos+i]=p->buf_a[2*i];or[pos+i]=p->buf_a[2*i+1];}
