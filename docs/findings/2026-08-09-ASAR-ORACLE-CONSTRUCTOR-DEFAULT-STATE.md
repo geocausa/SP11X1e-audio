@@ -1062,3 +1062,39 @@ points to the already-proved DAP-VR wrapper), removing base-offset ambiguity.
 Therefore the frozen Windows oracle is on the same normal/non-monitor key-family
 branch as the Linux harness. The missing PID3 property and Atmos-for-Monitors
 selection cannot explain the ASAR transfer mismatch.
+
+## 2026-08-09 correction: DAP module personality is not a Windows/Linux mismatch
+
+A late comparison initially appeared to show frozen Windows `DAP+0x2c = 1` while Linux had
+`DAP+0x2c = 0`. That comparison mixed lifecycle phases. `CDolbyAudioProcessingModule::ConfigureEncoder`
+copies the first DWORD of HRTF's 0x20-byte configuration block into `DAP+0x2c`; an earlier Linux
+trace observed the field before this copy.
+
+A passing Linux run using the original HRTF and DAP binaries was instrumented after HRTF
+`Initialize`. It matches both frozen Windows oracle dumps exactly:
+
+```text
+HRTF internal GUID @ engine + 0x5937*8
+  Windows 75 Hz: 64e5814cefc8d94a9f2c9ef995533790
+  Windows 997Hz: 64e5814cefc8d94a9f2c9ef995533790
+  Linux:         64e5814cefc8d94a9f2c9ef995533790
+
+HRTF -> DAP ConfigureEncoder 0x20-byte block as eight u32 values
+  Windows 75 Hz: 1,256,2,3,17,2,128,8
+  Windows 997Hz: 1,256,2,3,17,2,128,8
+  Linux:         1,256,2,3,17,2,128,8
+
+DAP+0x2c after ConfigureEncoder
+  Windows: 1
+  Linux:   1
+```
+
+Therefore the DAP DAHP/DABS personality selector is already at Windows parity. The private
+activation factory is not the current gap, and no alternative factory should be pursued on this
+evidence.
+
+The remaining genuine harness-only intervention is the diagnostic NOP at
+`DolbyAudioProcessing.dll+0x17a1c` used by the successful license-map path. The next target is the
+predicate guarded by that instruction: explain why the unmodified Linux-hosted original DLL does
+not naturally enter the same runtime-parameter-map path even though the resulting HRTF/DAP config
+and module personality match Windows.
