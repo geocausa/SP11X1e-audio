@@ -22,6 +22,7 @@ import os
 import struct
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -155,10 +156,23 @@ def describe(gain: float, muted: bool, postgain: int) -> str:
     return f"linear_gain={gain:.9g} endpoint_db={db_text} postgain={postgain} muted={'yes' if muted else 'no'}"
 
 
-def sync_value(entries: Any, node_name: str, control: Path, dry_run: bool, last: int | None) -> int | None:
+def settled_node_volume(pw_dump: str, node_name: str, delay_ms: int) -> tuple[float, bool] | None:
+    if delay_ms > 0:
+        time.sleep(delay_ms / 1000.0)
+    cp = subprocess.run([pw_dump], check=True, stdout=subprocess.PIPE, text=True)
+    return extract_node_volume(json.loads(cp.stdout), node_name)
+
+
+def sync_value(entries: Any, node_name: str, control: Path, dry_run: bool, last: int | None,
+               pw_dump: str = "pw-dump", settle_ms: int = 0) -> int | None:
     state = extract_node_volume(entries, node_name)
     if state is None:
         return last
+    if settle_ms:
+        # Node creation is commonly announced at unity before WirePlumber
+        # restores the saved endpoint volume. Confirm the settled Props before
+        # changing Dolby so no audio block can observe that transient unity.
+        state = settled_node_volume(pw_dump, node_name, settle_ms) or state
     gain, muted = state
     value = postgain_from_linear_gain(gain, muted)
     if value == last:
@@ -190,7 +204,7 @@ def run_monitor(args: argparse.Namespace) -> int:
     last: int | None = None
     try:
         for value in iter_json_stream(proc.stdout.fileno()):
-            last = sync_value(value, args.node, args.control, args.dry_run, last)
+            last = sync_value(value, args.node, args.control, args.dry_run, last, args.pw_dump, args.settle_ms)
     finally:
         if proc.poll() is None:
             proc.terminate()
@@ -204,6 +218,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--control", type=Path, default=default_control_path())
     p.add_argument("--pw-dump", default="pw-dump")
     p.add_argument("--once", action="store_true", help="read one pw-dump snapshot and exit")
+    p.add_argument("--settle-ms", type=int, default=200, help="confirm changed node Props after this many milliseconds (monitor mode)")
     p.add_argument("--dry-run", action="store_true", help="print conversion without writing the control page")
     return p
 

@@ -98,7 +98,20 @@ int main(void){
     unlink(ctl2);
     printf("preinstantiate_postgain_queue=%s runtime_page_survives_cleanup=%s\n",
            pre_ok?"PASS":"FAIL",page_survived?"PASS":"FAIL");
-    int ok=first_ok&&zero_ok&&pre_ok&&page_survived;
+
+    char ctl3[160];snprintf(ctl3,sizeof(ctl3),"/tmp/sp11-dolby-postgain-safe-default-%ld.control",(long)getpid());
+    unlink(ctl3);setenv("SP11_DOLBY_CONTROL_PATH",ctl3,1);
+    ChainInst *safe=(ChainInst*)chain_instantiate(NULL,48000);int safe_default_ok=0;
+    if(safe){
+        void *sc=(void*)(uintptr_t)vl_r64(safe->vl_inner,0x28);
+        safe_default_ok=(safe->current_postgain==POSTGAIN_CONTROL_MIN &&
+            *(int32_t*)((uint8_t*)sc+0xbb0)==POSTGAIN_CONTROL_MIN &&
+            *(int32_t*)((uint8_t*)sc+0xbb4)==POSTGAIN_CONTROL_MIN);
+        chain_cleanup(safe);
+    }
+    unlink(ctl3);
+    printf("unknown_endpoint_volume_safe_default=%s\n",safe_default_ok?"PASS":"FAIL");
+    int ok=first_ok&&zero_ok&&pre_ok&&page_survived&&safe_default_ok;
     printf("POSTGAIN_CONTROL_RESULT %s\n",ok?"PASS":"FAIL");
     return ok?0:20;
 }

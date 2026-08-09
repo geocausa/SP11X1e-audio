@@ -68,3 +68,14 @@ def test_control_update_preserves_plugin_ack(tmp_path):
     assert data[:2] == bytes((5, 5))
     assert struct.unpack_from("<i", data, mod.POSTGAIN_REQUEST_OFF)[0] == -385
     assert struct.unpack_from("<i", data, mod.POSTGAIN_ACK_OFF)[0] == -423
+
+def test_monitor_uses_settled_snapshot_not_transient_unity(tmp_path, monkeypatch):
+    transient = [{"info": {"props": {"node.name": mod.DEFAULT_NODE}, "params": {"Props": [
+        {"mute": False, "channelVolumes": [1.0, 1.0]},
+    ]}}}]
+    monkeypatch.setattr(mod, "settled_node_volume", lambda *_args, **_kwargs: (0.003908, False))
+    path = tmp_path / "control"
+    out = mod.sync_value(transient, mod.DEFAULT_NODE, path, False, None, "pw-dump", 200)
+    assert out == mod.postgain_from_linear_gain(0.003908)
+    req, _ack = mod.read_control_postgain(path)
+    assert req == out

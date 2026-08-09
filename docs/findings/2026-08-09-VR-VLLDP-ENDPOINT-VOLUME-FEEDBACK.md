@@ -177,3 +177,37 @@ SHA-256 28192b3a90323b05f8fe1609522b3d7b0f53b8710ba1f7db5f34bb1e02368be3
 analyseplugin PASS
 1,000,000-frame determinism PASS
 ```
+
+## Cold-start volume-race hardening
+
+A live no-stream restart exposed the normal WirePlumber creation sequence: a
+new virtual sink is briefly announced at unity before its persisted volume is
+restored. The first deployment saw the monitor log  followed by the
+correct ; no audio was active, but production must not depend on that
+race.
+
+Two defenses now close it:
+
+1. With runtime control enabled, a new plugin instance honors any prequeued
+   postgain immediately. If no endpoint-volume request is known yet, it starts
+   at the recovered SP11 minimum (, -75 dB) rather than 0. Offline
+   research with runtime control explicitly disabled retains postgain 0.
+2. The PipeWire monitor confirms changed node Props after a 200-ms settle
+   interval before writing Dolby. A unit test explicitly feeds a transient
+   unity event and verifies the settled raw gain  is the value used.
+
+Regression additions:
+
+```text
+unknown_endpoint_volume_safe_default=PASS
+volume-sync tests: 7 passed
+PROFILE_LIFECYCLE_RESULT PASS
+POSTGAIN_CONTROL_RESULT PASS
+1,000,000-frame determinism PASS
+```
+
+Final safety-hardened production artifact:
+
+```text
+SHA-256 f8c21ddc66af748310caef86f5087f3c991c6de5899cab571906d77375fe9b3b
+```

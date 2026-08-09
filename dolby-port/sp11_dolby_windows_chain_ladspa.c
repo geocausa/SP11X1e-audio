@@ -598,6 +598,15 @@ static LADSPA_Handle chain_instantiate(const LADSPA_Descriptor*d,unsigned long r
     p->profile_control_fd=-1;
     int control_rc=chain_profile_control_open(p);
     if(control_rc<0)fprintf(stderr,"sp11-dolby: runtime profile control unavailable; LADSPA startup control only\n");
+    /* With the production runtime control enabled, never begin a new endpoint
+     * at postgain 0 while WirePlumber is still restoring its saved volume.
+     * Honor an already queued request; otherwise start at the recovered SP11
+     * minimum (-75 dB) until the volume monitor supplies the real endpoint
+     * attenuation. Offline/control-disabled research keeps the historical 0. */
+    if(control_rc==0){
+        int32_t queued_postgain=0;
+        p->current_postgain=chain_requested_postgain(p,&queued_postgain)?queued_postgain:POSTGAIN_CONTROL_MIN;
+    }
     if(chain_alloc(p)){chain_free_mem(p);free(p);return NULL;}
 
     if(sp11_pe_load(&p->vl_img,chain_vlldp_path())) goto fail;
