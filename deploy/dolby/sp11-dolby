@@ -97,6 +97,61 @@ runtime_pending_profile() {
       ;;
   esac
 }
+runtime_postgain_state() {
+  [ -r "$CONTROL_FILE" ] || return 1
+  python3 - "$CONTROL_FILE" <<'PYPGSTATE'
+import struct, sys
+path=sys.argv[1]
+try:
+    data=open(path,'rb').read()
+except OSError:
+    raise SystemExit(1)
+if len(data) < 12:
+    raise SystemExit(1)
+req=struct.unpack_from('<i',data,4)[0]
+ack=struct.unpack_from('<i',data,8)[0]
+print(req,ack)
+PYPGSTATE
+}
+postgain_db() {
+  awk -v p="$1" 'BEGIN{printf "%.3f", p/16.0}'
+}
+write_runtime_postgain() {
+  V=$1
+  python3 - "$CONTROL_FILE" "$V" <<'PYPG'
+import os, struct, sys
+path, value = sys.argv[1], int(sys.argv[2])
+if not -1200 <= value <= 0:
+    raise SystemExit(2)
+size=12; none=-(1<<31)
+fd=os.open(path, os.O_RDWR|os.O_CREAT|os.O_CLOEXEC, 0o600)
+try:
+    os.fchmod(fd,0o600)
+    old=os.fstat(fd).st_size
+    if old < size:
+        os.ftruncate(fd,size)
+        if old < 8:
+            os.pwrite(fd,struct.pack('<i',none),4)
+        if old < 12:
+            os.pwrite(fd,struct.pack('<i',none),8)
+    os.pwrite(fd,struct.pack('<i',value),4)
+finally:
+    os.close(fd)
+PYPG
+}
+set_runtime_postgain() {
+  V=$1
+  case "$V" in ''|*[!0-9-]*) return 2 ;; esac
+  [ "$V" -ge -1200 ] 2>/dev/null && [ "$V" -le 0 ] 2>/dev/null || return 2
+  write_runtime_postgain "$V" || return 1
+  N=0
+  while [ "$N" -lt 10 ]; do
+    STATE=$(runtime_postgain_state || true); set -- $STATE; APPLIED=${2:--2147483648}
+    [ "$APPLIED" = "$V" ] && return 0
+    N=$((N + 1)); sleep 0.02
+  done
+  return 3
+}
 write_runtime_profile_code() {
   C=$1
   python3 - "$CONTROL_FILE" "$C" <<'PYCTL'
@@ -145,6 +200,18 @@ status() {
   fi
   G=$(current_geq)
   if [ "$G" = off ]; then echo "Custom GEQ: off"; else echo "Custom GEQ: saved (20 bands; active with personalize)"; fi
+  PG=$(runtime_postgain_state || true); set -- $PG
+  PGREQ=${1:--2147483648}; PGACK=${2:--2147483648}
+  if [ "$PGACK" -ge -1200 ] 2>/dev/null && [ "$PGACK" -le 0 ] 2>/dev/null; then
+    if [ "$PGREQ" != "$PGACK" ] && [ "$PGREQ" -ge -1200 ] 2>/dev/null && [ "$PGREQ" -le 0 ] 2>/dev/null; then
+      echo "VLLDP endpoint postgain: $PGACK ($(postgain_db "$PGACK") dB; pending $PGREQ / $(postgain_db "$PGREQ") dB)"
+    else
+      echo "VLLDP endpoint postgain: $PGACK ($(postgain_db "$PGACK") dB)"
+    fi
+  else
+    echo "VLLDP endpoint postgain: unavailable"
+  fi
+  printf 'Volume sync: '; systemctl --user is-active sp11-dolby-volume-sync.service 2>/dev/null || true
   echo "Default: ${DEF:-unknown}"
   if [ -n "$D" ]; then printf 'Dolby:  '; wpctl get-volume "$D"; else echo 'Dolby:  unavailable'; fi
   if [ -n "$B" ]; then printf 'Bypass: '; wpctl get-volume "$B"; else echo 'Bypass: unavailable'; fi
@@ -265,6 +332,23 @@ case "${1:-status}" in
   geq)
     if [ "$#" -eq 1 ]; then set_geq show; else shift; set_geq "$@"; fi
     ;;
+  postgain)
+    if [ "$#" -eq 1 ]; then
+      PG=$(runtime_postgain_state || true); set -- $PG
+      echo "request=${1:--2147483648} applied=${2:--2147483648}"
+    else
+      set_runtime_postgain "$2" || {
+        RC=$?
+        if [ "$RC" -eq 3 ]; then echo "VLLDP postgain $2 queued; applies on next audio block."
+        else echo 'postgain must be an integer from -1200 to 0.' >&2; exit "$RC"; fi
+      }
+    fi
+    ;;
+  sync-volume)
+    SCRIPT="${SP11_DOLBY_VOLUME_SYNC:-$HOME/.local/bin/sp11-dolby-volume-sync}"
+    [ -x "$SCRIPT" ] || { echo "Missing volume-sync helper: $SCRIPT" >&2; exit 2; }
+    "$SCRIPT" --once --control "$CONTROL_FILE"
+    ;;
   dynamic|movie|music|game|gaming|voice|onlinecourse|online-course|course|personalize|personalized|custom|custom1|custom2|custom3)
     set_profile "$1"
     ;;
@@ -295,7 +379,7 @@ case "${1:-status}" in
     status
     ;;
   *)
-    echo 'Usage: sp11-dolby [status|on|off|restart|profile [NAME]|geq [show|off|set ...]|dynamic|movie|music|game|voice|onlinecourse|personalize]' >&2
+    echo 'Usage: sp11-dolby [status|on|off|restart|profile [NAME]|postgain [VALUE]|sync-volume|geq [show|off|set ...]|dynamic|movie|music|game|voice|onlinecourse|personalize]' >&2
     exit 2
     ;;
 esac

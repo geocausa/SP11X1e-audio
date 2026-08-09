@@ -102,7 +102,7 @@ guardrail-check:
 
 check: contract-check native-bridge-check full-chain-seed-check exact-plugin-smoke guardrail-check
 
-.PHONY: windows-chain-production windows-chain-profile-lifecycle-check
+.PHONY: windows-chain-production windows-chain-profile-lifecycle-check windows-chain-postgain-control-check
 windows-chain-production:
 	../deploy/dolby/build-production.sh $(CURDIR)/sp11_dolby_windows_chain.production.so
 
@@ -111,3 +111,9 @@ windows-chain-profile-lifecycle-check: CFLAGS = -O2 -Wall -Wextra
 windows-chain-profile-lifecycle-check: sp11_dolby_windows_chain_profile_lifecycle_test.c sp11_dolby_windows_chain_ladspa.c
 	$(CC) $(CFLAGS) -o sp11_dolby_windows_chain_profile_lifecycle_test sp11_dolby_windows_chain_profile_lifecycle_test.c -ldl -lm
 	./sp11_dolby_windows_chain_profile_lifecycle_test
+
+windows-chain-postgain-control-check: CC = gcc
+windows-chain-postgain-control-check: CFLAGS = -O2 -Wall -Wextra
+windows-chain-postgain-control-check: sp11_dolby_windows_chain_postgain_control_test.c sp11_dolby_windows_chain_ladspa.c
+	$(CC) $(CFLAGS) -o sp11_dolby_windows_chain_postgain_control_test sp11_dolby_windows_chain_postgain_control_test.c -ldl -lm
+	./sp11_dolby_windows_chain_postgain_control_test

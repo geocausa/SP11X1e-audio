@@ -184,6 +184,8 @@ typedef struct {
     int vl_loaded,vr_loaded,ready;
     ChainProfile profile;
     int last_profile_request;
+    int current_postgain;
+    int last_postgain_request;
     int profile_control_fd;
     volatile uint8_t *profile_control;
     char profile_control_path[384];
@@ -263,7 +265,7 @@ static int vl_reset(ChainInst *p){
     vl_apply_profile_fields(p,core,pc);
     ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_TARGET_POWER_VA))(core,-80);
     ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_PEAK_LEVEL_VA))(core,0);
-    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_POSTGAIN_VA))(core,0);
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_POSTGAIN_VA))(core,p->current_postgain);
     p->vl_pid22(core,8,stress);
     ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_REG_SLOPE_VA))(core,14);
     ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_REG_OVERDRIVE_VA))(core,0);
@@ -456,8 +458,13 @@ static int chain_apply_profile_inplace(ChainInst *p,ChainProfile next){
     return 0;
 }
 
-#define PROFILE_CONTROL_BYTES 2u
-#define PROFILE_CONTROL_NONE  0u
+#define PROFILE_CONTROL_BYTES          12u
+#define PROFILE_CONTROL_NONE           0u
+#define POSTGAIN_CONTROL_REQUEST_OFF   4u
+#define POSTGAIN_CONTROL_ACK_OFF       8u
+#define POSTGAIN_CONTROL_NONE          INT32_MIN
+#define POSTGAIN_CONTROL_MIN          -1200
+#define POSTGAIN_CONTROL_MAX              0
 
 static int chain_profile_code_from_port(const LADSPA_Data *v){
     if(!v || *v!=*v)return PROFILE_CONTROL_NONE;
@@ -480,14 +487,18 @@ static int chain_profile_control_open(ChainInst *p){
     if(fd<0)return -2;
     struct stat st;
     if(fstat(fd,&st) || fchmod(fd,0600)){close(fd);return -3;}
-    int had_request_slot=st.st_size>0;
+    int had_profile_request=st.st_size>0;
+    int had_postgain_request=st.st_size>=(off_t)(POSTGAIN_CONTROL_REQUEST_OFF+sizeof(int32_t));
     if(ftruncate(fd,PROFILE_CONTROL_BYTES)){close(fd);return -4;}
     const uint8_t zero=0;
-    /* A helper may queue byte 0 before lazy LADSPA instantiation. Preserve it.
-     * Byte 1 belongs to the current instance and is always reset until the
-     * first process cycle applies/acknowledges the request. */
-    if(!had_request_slot && pwrite(fd,&zero,1,0)!=1){close(fd);return -5;}
+    const int32_t postgain_none=POSTGAIN_CONTROL_NONE;
+    /* Helpers may queue profile/postgain before lazy LADSPA instantiation.
+     * Preserve request slots that already existed. Ack slots belong to the
+     * current plugin instance and are always reset until the first callback. */
+    if(!had_profile_request && pwrite(fd,&zero,1,0)!=1){close(fd);return -5;}
     if(pwrite(fd,&zero,1,1)!=1){close(fd);return -6;}
+    if(!had_postgain_request && pwrite(fd,&postgain_none,sizeof(postgain_none),POSTGAIN_CONTROL_REQUEST_OFF)!=(ssize_t)sizeof(postgain_none)){close(fd);return -8;}
+    if(pwrite(fd,&postgain_none,sizeof(postgain_none),POSTGAIN_CONTROL_ACK_OFF)!=(ssize_t)sizeof(postgain_none)){close(fd);return -9;}
     void *map=mmap(NULL,PROFILE_CONTROL_BYTES,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
     if(map==MAP_FAILED){close(fd);return -7;}
     p->profile_control_fd=fd;
@@ -506,6 +517,31 @@ static int chain_requested_profile(ChainInst *p,uint8_t *code_out){
 static void chain_ack_profile(ChainInst *p,uint8_t code){
     if(p->profile_control && code>=1 && code<=CHAIN_PROFILE_COUNT)
         __atomic_store_n(p->profile_control+1,code,__ATOMIC_RELEASE);
+}
+
+static int chain_requested_postgain(ChainInst *p,int32_t *value_out){
+    if(!p->profile_control)return 0;
+    volatile int32_t *slot=(volatile int32_t*)(p->profile_control+POSTGAIN_CONTROL_REQUEST_OFF);
+    int32_t value=__atomic_load_n(slot,__ATOMIC_ACQUIRE);
+    if(value<POSTGAIN_CONTROL_MIN || value>POSTGAIN_CONTROL_MAX)return 0;
+    if(value_out)*value_out=value;
+    return 1;
+}
+
+static void chain_ack_postgain(ChainInst *p,int32_t value){
+    if(!p->profile_control)return;
+    volatile int32_t *slot=(volatile int32_t*)(p->profile_control+POSTGAIN_CONTROL_ACK_OFF);
+    __atomic_store_n(slot,value,__ATOMIC_RELEASE);
+}
+
+static int chain_apply_postgain_inplace(ChainInst *p,int32_t value){
+    if(value<POSTGAIN_CONTROL_MIN || value>POSTGAIN_CONTROL_MAX)return -1;
+    void *core=p->vl_inner?(void*)(uintptr_t)vl_r64(p->vl_inner,0x28):NULL;
+    if(!core)return -2;
+    ((VlScalarFn)sp11_pe_ptr_for_va(&p->vl_img,VL_POSTGAIN_VA))(core,value);
+    p->vl_apply(core,2);
+    p->current_postgain=value;
+    return 0;
 }
 
 static int vr_build(ChainInst *p){
@@ -555,6 +591,8 @@ static LADSPA_Handle chain_instantiate(const LADSPA_Descriptor*d,unsigned long r
     ChainInst *p=calloc(1,sizeof(*p));if(!p)return NULL;
     p->profile=chain_profile_from_env();
     p->last_profile_request=-2;
+    p->current_postgain=0;
+    p->last_postgain_request=INT32_MIN;
     p->profile_control_fd=-1;
     int control_rc=chain_profile_control_open(p);
     if(control_rc<0)fprintf(stderr,"sp11-dolby: runtime profile control unavailable; LADSPA startup control only\n");
@@ -609,6 +647,16 @@ static void chain_run(LADSPA_Handle h,unsigned long n){
     } else if(requested==(int)p->profile){
         p->last_profile_request=requested;
         chain_ack_profile(p,profile_code);
+    }
+    int32_t postgain_request=0;
+    if(chain_requested_postgain(p,&postgain_request)){
+        if(postgain_request!=p->current_postgain && postgain_request!=p->last_postgain_request){
+            p->last_postgain_request=postgain_request;
+            if(chain_apply_postgain_inplace(p,postgain_request)==0)chain_ack_postgain(p,postgain_request);
+        } else if(postgain_request==p->current_postgain){
+            p->last_postgain_request=postgain_request;
+            chain_ack_postgain(p,postgain_request);
+        }
     }
     int dry=p->ports[PORT_BYPASS]&&*p->ports[PORT_BYPASS]>.5f;
     unsigned long pos=0;
