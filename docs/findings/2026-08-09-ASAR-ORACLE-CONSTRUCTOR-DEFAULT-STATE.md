@@ -61,12 +61,17 @@ The later requested fields in the Windows dump remain consistent with a Dynamic 
 
 Removing PID-5 runtime profile application also removes the artificial low-frequency/high-frequency split seen in the earlier Linux replay.
 
-With the exact FL/FR static-object + unity-bed path and original Dolby DLLs, a 0.25 input gives approximately:
+A later cleanup found the first transfer probe in this section still contained exploratory post-initialize Dynamic setters. With those setters removed, the authentic no-PID-5 state (PID-4 init present, exact FL/FR static objects, unity bed, original Dolby DLLs) gives approximately:
 
 ```text
-75 Hz  : tail peak ~0.4569
-997 Hz : tail peak ~0.4587
+75 Hz  / 0.10 : tail peak ~0.1708
+75 Hz  / 0.25 : tail peak ~0.4270
+75 Hz  / 0.50 : tail peak ~0.8540
+75 Hz  / 0.70 : tail peak ~0.999869
+997 Hz / 0.25 : tail peak ~0.4273
 ```
+
+The clean result is still broadband and, importantly, reproduces the original Dolby near-full-scale ceiling. The remaining low/mid-level magnitude gap is larger than the earlier impure probe suggested.
 
 The Windows pre-VLLDP oracle is approximately:
 
@@ -75,7 +80,7 @@ The Windows pre-VLLDP oracle is approximately:
 997 Hz : ~0.5229
 ```
 
-So the original Dolby constructor/default state is correctly **broadband**, matching the qualitative Windows oracle behavior. The remaining discrepancy is now a substantially narrower broadband magnitude/history/staging problem (~14-15%), not a missing frequency-selective profile/EQ stage.
+So the original Dolby no-runtime-profile state is correctly **broadband**, matching the qualitative Windows oracle behavior. Exact Windows stimulus history (three seconds silence followed by nine seconds tone) leaves the 0.25 transfer essentially unchanged at ~0.427 for both 75 Hz and 997 Hz, so simple warm-up/history is ruled out. The remaining discrepancy is a broadband magnitude/staging or resolved-state problem, not a missing frequency-selective profile/EQ stage.
 
 ## Important correction to earlier interpretation
 
@@ -96,3 +101,24 @@ Replay the actual Windows stimulus history against the constructor/default state
 5. compare 75-Hz and 997-Hz steady transfer against the ~0.528 / ~0.5229 oracle.
 
 If the remaining magnitude does not close through authentic history, compare the constructor/default DAP-VR core and HRTF object engine against Windows before introducing any new parameter hypothesis.
+
+
+## PID-4 init payload closed byte-for-byte
+
+The frozen Windows DAP-VR wrapper retains its raw init-time payload at wrapper `+0x80` with the byte count at `+0x88`. Both the 75-Hz and 997-Hz steady dumps retain the same 13-byte payload:
+
+```text
+01 00 01 00 01 00 00 00 00 00 00 00 00
+```
+
+SHA-256:
+
+`b6be9fd91f09bab641f99db05d02b8f19fd93f64e5c0e6c425048c0357c5b168`
+
+This is byte-for-byte identical to the local DAHP PID-4 evidence blob used by the Linux-hosted original-DLL harness. Therefore the remaining parity gap is **not** caused by using the wrong PID-4 init bytes.
+
+Removing PID-4 entirely causes HRTF/DAP-VR initialization to fail (`0x80004005`), so a valid init-time payload is required. The Windows-only `IAudioDeviceModulesManager` is retained by `CDolbyAudioProcessingModule::Initialize`, but no reads of the retained manager pointer were found in `ConfigureEncoder` or `EncodeAudioData`; the ASAR shared-memory reader is initialized independently. This lowers the manager/CAPX path as the current audio-magnitude suspect.
+
+## Object gain chain closed
+
+`DolbyHrtfEnc!SetAudioObject` reads the static object type, flags and descriptor gain, then multiplies by an internal per-object factor at record `+0xC4`, the API scale and Dolby's internal `0.707945764` factor. In both Windows steady dumps the FL and FR records have descriptor gain `1.0`, internal factor `1.0`, static types `2` and `4`, and no positional mode. The Linux-hosted original DLL reports the same values. The remaining broadband lift is therefore not an unmodeled FL/FR object gain field.
