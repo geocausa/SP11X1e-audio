@@ -1,6 +1,7 @@
 [Unit]
 Description=SP11 Dolby endpoint-volume feedback
-After=pipewire.service wireplumber.service filter-chain.service
+After=pipewire.service wireplumber.service
+Before=filter-chain.service
 Wants=pipewire.service wireplumber.service
 
 [Service]

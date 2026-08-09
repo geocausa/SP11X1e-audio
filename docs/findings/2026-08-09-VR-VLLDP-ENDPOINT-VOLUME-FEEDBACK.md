@@ -146,7 +146,34 @@ analyseplugin                              PASS
 all chunk patterns                         bit-identical
 ```
 
+The runtime control page is preserved across filter-chain process restarts so an event-driven volume monitor can queue endpoint attenuation before a new Dolby instance is created; the per-user runtime directory still removes it at logout.
+
 The installed plugin remains untouched at this checkpoint.  Live deployment
 must install the corrected plugin and volume-sync helper/service together so
 there is no interval where the corrected stage order runs with postgain stuck
 at zero.
+
+## Restart-safe control page follow-up
+
+The mapped control page is now deliberately retained across filter-chain
+process cleanup within the same user session. The runtime directory still
+clears it at logout. This closes a cold-restart race: the volume monitor may
+prequeue postgain before a new plugin instance maps the page, and plugin cleanup
+will not erase that request.
+
+Regression:
+
+```text
+preinstantiate_postgain_queue=PASS
+runtime_page_survives_cleanup=PASS
+PROFILE_LIFECYCLE_RESULT PASS
+POSTGAIN_CONTROL_RESULT PASS
+```
+
+Final staged production artifact after this lifecycle fix:
+
+```text
+SHA-256 28192b3a90323b05f8fe1609522b3d7b0f53b8710ba1f7db5f34bb1e02368be3
+analyseplugin PASS
+1,000,000-frame determinism PASS
+```

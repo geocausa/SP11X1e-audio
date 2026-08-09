@@ -92,9 +92,13 @@ int main(void){
             }
         } else close(fd);
     }
+    /* cleanup must not unlink the runtime page: the monitor may have queued
+     * state for the next filter-chain instance before restart. */
+    int page_survived=access(ctl2,F_OK)==0;
     unlink(ctl2);
-    printf("preinstantiate_postgain_queue=%s\n",pre_ok?"PASS":"FAIL");
-    int ok=first_ok&&zero_ok&&pre_ok;
+    printf("preinstantiate_postgain_queue=%s runtime_page_survives_cleanup=%s\n",
+           pre_ok?"PASS":"FAIL",page_survived?"PASS":"FAIL");
+    int ok=first_ok&&zero_ok&&pre_ok&&page_survived;
     printf("POSTGAIN_CONTROL_RESULT %s\n",ok?"PASS":"FAIL");
     return ok?0:20;
 }

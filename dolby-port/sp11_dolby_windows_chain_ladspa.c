@@ -581,7 +581,9 @@ static int chain_alloc(ChainInst *p){
 static void chain_free_mem(ChainInst *p){
     if(p->profile_control){munmap((void*)p->profile_control,PROFILE_CONTROL_BYTES);p->profile_control=NULL;}
     if(p->profile_control_fd>=0){close(p->profile_control_fd);p->profile_control_fd=-1;}
-    if(p->profile_control_path[0])unlink(p->profile_control_path);
+    /* Keep the control page across filter-chain restarts.  It lives in the
+     * per-user runtime directory (cleared at logout) and may already contain
+     * a profile/postgain request queued by helpers before the next instance. */
     free(p->buf_b);free(p->buf_a);free(p->vr_outer);free(p->vl_inner_out);free(p->vl_inner_in);
     free(p->vl_inner);free(p->vl_sched);free(p->vl_core_arena);
 }

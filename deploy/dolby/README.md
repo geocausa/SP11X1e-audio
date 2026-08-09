@@ -84,4 +84,8 @@ deploy/dolby/sp11-dolby-volume-sync.service
 `sp11-dolby postgain` shows the raw request/applied values.
 `sp11-dolby sync-volume` performs one manual volume->postgain synchronization.
 The long-running user service is event-driven by PipeWire updates rather than a
-tight polling loop.
+tight polling loop. The runtime control page is intentionally preserved across
+filter-chain restarts (and naturally disappears at user logout), so a volume
+request can be queued before a new Dolby instance is created. The service is
+ordered before `filter-chain.service` at login and remains subscribed while the
+Dolby node is recreated.
