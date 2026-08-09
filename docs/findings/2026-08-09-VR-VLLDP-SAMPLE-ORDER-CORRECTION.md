@@ -72,3 +72,34 @@ switching, realtime chunk independence, or determinism.
 This commit corrects the research/source bridge only.  Do not replace the live
 installed plugin solely from this commit; deployment should follow a separate
 fresh-build/hash/graph smoke-test checkpoint.
+
+## Production-build offline gate
+
+The corrected source was built through the repository production build script
+against the hash-gated private DLL bundle:
+
+```text
+corrected production .so SHA-256
+c5cfe341b44b4b7085ede38fbc0cfbd20e8920d459ba0898f02701c3bbc7d440
+```
+
+`analyseplugin` accepts the artifact and reports the expected six LADSPA ports
+(Input L/R, Output L/R, Bypass, Profile).  The actual production-built `.so`
+then passed the same one-million-frame chunk-independence test:
+
+```text
+reference hash=131e8cf1cf8594a5
+64        diff=0
+480       diff=0
+1024      diff=0
+127/353   diff=0
+mixed     diff=0
+PLUGIN_RESULT PASS
+```
+
+The currently installed plugin was deliberately left untouched during this
+offline gate.  Its pre-correction SHA-256 remains:
+
+```text
+1e7cc8cb4ec441ee890b73bf90f738c64df88a03e953be502a60025515a3534a
+```
