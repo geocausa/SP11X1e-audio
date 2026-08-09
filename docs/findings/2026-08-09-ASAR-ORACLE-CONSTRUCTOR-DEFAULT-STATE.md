@@ -1161,3 +1161,69 @@ simple warm-up/convergence-duration artifact.
 The remaining target is the DABS state that existed before the later Dynamic-like pending update,
 not the license-map transport, silent object topology, descriptor flag lifecycle, or capture
 warm-up duration.
+
+## DAP-VR Prepare lifecycle mismatch is real on the frozen oracle core
+
+The apparent `DAP-VR` core discrepancy around `+0x80/+0x84/+0x88/+0xd0` was investigated as a
+lifecycle issue rather than patched.
+
+`FUN_180046FA0` (`CDapVRModule::Prepare` core helper) overwrites the constructor tuple:
+
+```text
+constructor: core+0x80/+0x84/+0x88 = 0 / 288 / 384
+Prepare:     core+0x80/+0x84/+0x88 = 1 / 128 / 192
+```
+
+Prepare calls `FUN_180047F08`, and that function is the **only** setter found for `core+0xd0`.
+It stores Prepare's metadata-context argument directly into `core+0xd0`. There is no separate
+end-of-pass cleanup caller that restores `+0xd0` to NULL; the only direct zero write is in the
+core constructor itself.
+
+The exact frozen Windows HRTF-linked core has in both oracle dumps:
+
+```text
+core+0x80 = 0
+core+0x84 = 288
+core+0x88 = 384
+core+0xd0 = NULL
+```
+
+By contrast, Linux original-Dolby processing calls Prepare and leaves the core at
+`1 / 128 / 192` with non-NULL `+0xd0`.
+
+The later pending Dynamic update does not explain the Windows constructor-pristine state. A
+controlled post-audio replay of the exact Aug-8 runtime update through the original Dolby setter
+left the existing Linux core prepared (`1 / 128 / 192`, non-NULL `+0xd0`); it did not recreate or
+reset the core to constructor state.
+
+## Native DABS minimal stereo policy is not the oracle state
+
+A 60-byte sparse runtime payload carrying only the proven Windows stereo policy was replayed via
+the **native DABS endpoint PID-5 path**, without the DAHP license-map force patch. It naturally
+produces `StereoBypass=1` inside Dolby, so this test does not rely on manually changing the HRTF
+bypass byte.
+
+Five-point transfer:
+
+```text
+75 Hz 0.10 -> ~0.152766
+75 Hz 0.25 -> ~0.381914
+75 Hz 0.50 -> ~0.763828
+75 Hz 0.70 -> ~1.069359
+997 Hz 0.25 -> ~0.270804
+```
+
+After audio, the DAP-VR core is prepared:
+
+```text
+core+0x80/+0x84/+0x88 = 1 / 128 / 192
+core+0xd0 = non-NULL
+```
+
+Thus merely reproducing the public `StereoBypass=1` policy does not reproduce the frozen Windows
+processing lifecycle. The current high-value gap is now the **processing branch/contract** that
+causes Windows's HRTF-linked DAP-VR core to remain constructor-pristine while the Linux direct
+HRTF harness enters DAP-VR Prepare.
+
+The next step is to compare the exact `DolbyHrtfEnc::Process` and AudioEng wrapper call contract,
+not to patch the DAP core fields.
