@@ -866,3 +866,69 @@ The exact pending Dynamic result therefore comes from the broader OEM adjustment
 ### Important correction to the earlier Movie negative
 
 The earlier Movie-family negative replay used a normal/full DAX runtime blob, not the newly recovered sparse `DahpConfigurationParameters` ASAR representation. It rejects that old full-profile fixture as the hidden Aug-8 initial state, but it does **not** reject the authentic OEM ASAR Movie object. Because SP11 operator policy states `internal_speaker + spatial_audio=true -> default profile Movie`, the real sparse/adjusted ASAR Movie path must now be reconstructed and tested before Movie can be closed.
+
+## OEM-adjusted Movie serialization proved; Movie rejection is now legitimate
+
+The base-profile factory mapping can be identified by its control fingerprints as:
+
+```text
+profile 0  Movie
+profile 1  Music
+profile 2  Game
+profile 3  Voice
+profile 5  Dynamic
+0x2c..2e   custom family
+```
+
+Direct decompile diff between the sparse Movie factory `FUN_1804495c8` and sparse Dynamic `FUN_180448f20` shows Movie changes only five booleans from the base Dynamic object:
+
+```text
+MI->IEQ steering                 off
+MI->DV-leveler steering          off
+MI->surround-compressor steering off
+IEQ enable                       off
+regulator enable                 off
+```
+
+The exact sparse Movie object serializes to:
+
+```text
+bytes   348
+SHA256  3cdc60a6dbc7a04f6a26c8a48334f0f9c68e4fde764a9c2e1c0804a2e28b7214
+```
+
+Private original-DLL license-map replay succeeds but is still not the Windows oracle:
+
+```text
+HRTF StereoBypassMode = 0
+75 Hz  / 0.25 -> ~0.870967
+997 Hz / 0.25 -> ~0.608100
+```
+
+The preserved 2641-byte `ca80a9c4...` Movie-family blob was then compared to a regenerated normal Movie DAX serialization. Its seven meaningful byte differences have now been decoded exactly:
+
+```text
+serialized offset 0x4C3 -> dialog enhancer enable = false
+serialized tail          -> stereo CP bypass mode = 2
+                            stereo DAP-DLL bypass = true
+                            volume-leveler DRC = unset
+```
+
+Regenerating normal Movie with precisely those four policy changes produces a 2628-byte payload:
+
+```text
+SHA256 d0266e59b86a32a702b23b1e712bc4d5c3850976092d1295d0acf60b80d53a6f
+```
+
+Its **entire 2628-byte meaningful prefix matches `ca80a9c4...` byte-for-byte**. The remaining 13 bytes in the preserved 2641-byte fixture are all zero padding.
+
+Therefore the earlier `ca80a9c4...` replay is now proved to represent the fully OEM-adjusted Movie-family DAHP runtime serialization, not an arbitrary generic Movie fixture. Its prior 3-second-silence + 9-second-tone result:
+
+```text
+75 Hz  / 0.25 -> ~0.584278
+997 Hz / 0.25 -> ~0.400485
+```
+
+legitimately rejects the fully adjusted OEM Movie ASAR runtime state as the state that generated the Aug-8 Windows pre-VLLDP oracle (`~0.528 / ~0.523`).
+
+The important remaining question is therefore which runtime state actually preceded the later pending Dynamic update; this should be resolved from the Aug-8 profile/update chronology or by testing only the remaining chronology-supported OEM factories, not by broad parameter fitting.
