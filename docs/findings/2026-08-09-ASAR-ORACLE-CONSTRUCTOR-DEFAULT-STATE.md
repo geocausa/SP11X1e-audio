@@ -1324,3 +1324,51 @@ audible effect reduces to the stereo-bed combination policy.
 
 The remaining path to reproduce is the real Windows property-change notification/reconfiguration
 lifecycle, not another scalar/profile fit.
+
+## Native Windows property-change notification replay is now exact
+
+The DAP notification interface was identified directly on the live object:
+
+```text
+DAP object +0x20  -> IAudioProcessingObjectNotifications subobject
+vtable slot 3     -> GetApoNotificationRegistrationInfo, RVA 0x16AA0
+vtable slot 4     -> HandleNotification, RVA 0x16D30
+```
+
+`GetApoNotificationRegistrationInfo` returns one 0x20-byte registration descriptor with
+notification type `3`, endpoint identity and the original DAP property-notification GUID. The
+Linux host was extended only with missing Win32 plumbing required by this path (`CoTaskMemAlloc`,
+`CoTaskMemFree`, `IMMDevice::GetId`, `CompareStringOrdinal`). No DSP path was patched.
+
+After steady no-PID-5 audio was produced, the fake endpoint property store was updated with the
+exact frozen Aug-8 PID-5 payload (`92936e72...`). A notification was built from **Dolby's own
+returned registration descriptor**, with the same endpoint, property store and the DABS PID-5
+PROPERTYKEY, then delivered through the original `HandleNotification` method.
+
+The real DAP path succeeds end-to-end:
+
+```text
+registration: HRESULT 0, count 1, type 3
+endpoint IDs: compared equal through IMMDevice::GetId / CompareStringOrdinal
+property store: PID 5 read, 2641-byte payload returned
+DAP-VR wrapper: caches 2641-byte payload
+DAP-VR core: dirty -> 1
+```
+
+Crucially, before versus after the native notification:
+
+```text
+wrapper pointer: unchanged
+core pointer:    unchanged
+core tuple:      1 / 128 / 192 -> 1 / 128 / 192
+core +0xd0:      remains non-NULL
+```
+
+No `Prepare` occurs and no DAP-VR core reconstruction/reset occurs. Previously produced PCM is
+unchanged, reproducing the same asynchronous race semantics as the earlier direct Runtime
+`SetParams` test, now through the actual Windows notification contract.
+
+Therefore the frozen Windows constructor-pristine DAP-VR core cannot be explained by the later
+PID-5 property notification. The remaining discrepancy must lie in the audio-time
+`EncodeAudioData` branch/state used before that notification, or in which internal module path
+produced the object contribution during the oracle block.
