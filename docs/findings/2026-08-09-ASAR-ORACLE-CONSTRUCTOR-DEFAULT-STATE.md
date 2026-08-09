@@ -230,3 +230,117 @@ effective: mode=1, channels=0, matrix=absent
 ```
 
 So the Windows mode-11 matrix is another part of the later asynchronous DAX update waiting for the next `Prepare`; it did **not** generate the retained oracle PCM. The effective output mode used by the preceding Windows block is mode 1, matching Linux. Do not apply the pending mode-11 state as an oracle recipe.
+
+## HRTF Initialize contract correction: Windows passes 480, inner Dolby quantum remains 256
+
+A direct decompilation of the original `DolbyHrtfEnc.dll` `IAsarEncoder2::Initialize` path and comparison against both frozen Windows HRTF engine instances correct an earlier interpretation of the first Initialize argument.
+
+The live Windows engine state in both the 75-Hz and 997-Hz oracle dumps is:
+
+```text
+engine +0x5C58 = 480   // input sample count per object supplied at Initialize
+engine +0x5C5C = 256   // normalized inner Dolby processing quantum
+engine +0x64   = 8     // derived ConfigureEncoder value for a non-integral 480/256 relation
+```
+
+The original engine constructor stores the first explicit Initialize argument at `+0x5C58`. It then normalizes the inner processing quantum to 256. Assembly around `0x180008B98..0x180008BC0` tests the low byte of the 480-sample outer count and writes derived value `8`; an exact 256-sample outer count instead derives `1`.
+
+Therefore the correct Windows contract is:
+
+```text
+IAsarEncoder2::Initialize(480, 48000, ...)
+outer/object host domain = 480 frames
+inner Dolby engine quantum = 256 frames
+```
+
+The remaining topology is also byte/field exact between Windows and the corrected Linux-hosted original DLL:
+
+```text
+output channels             = 2
+internal output channels    = 2
+static object mask          = 0x6   // FL + FR
+object-derived mask         = 0x3
+```
+
+There is no hidden wider static-object initialization mask in the live stereo path.
+
+### Corrected 480/480 host contract does not close the amplitude gap
+
+When the Linux harness is corrected to Initialize with 480 and then submit successive 480-frame FL/FR object + unity-bed host blocks, the original HRTF encoder runs stably. Its internal quantum remains 256 and derived field `+0x64` becomes the Windows value 8.
+
+The steady no-runtime-profile transfer remains:
+
+```text
+75 Hz  / 0.10 -> ~0.170807
+75 Hz  / 0.25 -> ~0.427018
+75 Hz  / 0.50 -> ~0.854035
+75 Hz  / 0.70 -> ~0.999869
+997 Hz / 0.25 -> ~0.427297
+```
+
+So the host/inner quantum contract is now correct but is not the missing Windows ~0.523 low/mid-level lift.
+
+## Exact Aug-8 runtime blob recovered from the frozen Windows DAP-VR wrapper
+
+The DAP-VR wrapper caches its runtime property payload at wrapper `+0x90`, with the byte count in the low 32 bits of `+0x98`. The 75-Hz and 997-Hz oracle dumps contain the same 2641-byte payload.
+
+Private fixture identity:
+
+```text
+bytes   2641
+SHA256  92936e727fe85b0fd37bf3ef515a7496851eea311342e7e8e10f0431264c1b89
+```
+
+This is **not** the earlier lab `dahp_5.blob` (`ca80a9c4...`), so that older local blob must not be treated as the Aug-8 oracle runtime fixture.
+
+The first 2624 bytes of the actual Windows blob differ from the regenerated OEM Dynamic serializer output in only seven bytes; its final 17 bytes are zero padding. It differs materially more from the regenerated Movie payload. Therefore the runtime update cached in both frozen oracle instances is Dynamic-family state, with a small set of live policy/stereo overrides.
+
+Do not commit the proprietary/raw blob; retain only its hash and derived schema facts.
+
+## Exact asynchronous runtime-race replay
+
+The Windows dump timing model was reproduced directly on Linux using the original DLLs:
+
+1. construct the no-runtime-profile engine with the corrected 480/480 contract;
+2. process the steady tone;
+3. after the final audio `Process`, deliver the exact 2641-byte Windows runtime blob through the original DAP-VR Runtime `SetParams` entry;
+4. do **not** call `Prepare` or process another audio block;
+5. dump the DAP-VR state.
+
+The runtime callback succeeds while the already-produced PCM is unchanged:
+
+```text
+75 Hz  / 0.25 -> ~0.427018
+997 Hz / 0.25 -> ~0.427297
+```
+
+This reproduces the proven Windows ordering:
+
+```text
+last audio block uses old effective state
+        -> asynchronous Dynamic SetParams arrives
+        -> requested fields + dirty bits change
+        -> no following Prepare yet
+```
+
+Comparing Windows to Linux before this race left roughly 467 stable, plausibly meaningful 32-bit differences in the first 16 KiB of the processing state. Replaying the exact pending Dynamic update after audio reduces that set to roughly 241 while leaving the PCM unchanged. This is strong confirmation that a large fraction of the earlier core diff was merely the pending update footprint rather than the state that generated the oracle audio.
+
+## Effective scalar controls used by the oracle block match the neutral Linux state
+
+The original setter/commit code separates requested and effective fields. Re-reading those pairs after the race closure shows the controls that actually processed the retained Windows block match the no-runtime-profile Linux engine:
+
+```text
+output processing mode       effective 1     on both
+output matrix                effectively absent on both
+VolMax boost                 effective 0.06923077 on both
+volume leveler enable        effective 0     on both
+volume leveler amount        effective 7     on both
+IEQ enable                   effective 0     on both
+IEQ amount                   effective 0.625 on both
+dialog enable/amount         effective 0 / 0 on both
+surround boost               effective 0.04615385 on both
+```
+
+The Windows-visible Dynamic values such as mode 11, leveler enable/amount 1/5, IEQ enable, and VolMax 96-equivalent belong to the newer requested state and were waiting for the next commit.
+
+The residual ~0.427 -> ~0.523 difference is therefore no longer credibly explained by one of these obvious scalar controls. The remaining target is persistent/structural algorithm state that survives while those effective controls remain equal.
