@@ -344,3 +344,86 @@ surround boost               effective 0.04615385 on both
 The Windows-visible Dynamic values such as mode 11, leveler enable/amount 1/5, IEQ enable, and VolMax 96-equivalent belong to the newer requested state and were waiting for the next commit.
 
 The residual ~0.427 -> ~0.523 difference is therefore no longer credibly explained by one of these obvious scalar controls. The remaining target is persistent/structural algorithm state that survives while those effective controls remain equal.
+
+## Exact HRTF -> DAP object identity is now proved
+
+The live HRTF engine retains the actual DAP Module2 interface at `engine + 0x2C9A0`.
+Following that pointer in both frozen Windows oracle dumps leads to the exact DAP-VR wrapper/core already under analysis; this is not a stray Dolby instance found by heap scanning.
+
+```text
+75-Hz dump:
+HRTF engine              0x1ec9270e000
+stored DAP Module2       0x1ec92687758
+DAP +0x538 wrapper       0x1ec926761e0
+wrapper +0x60 core       0x1ec946e0000
+
+997-Hz dump:
+HRTF engine              0x2161b722000
+stored DAP Module2       0x2161b713398
+DAP +0x538 wrapper       0x2161b675420
+wrapper +0x60 core       0x2161d6e0000
+```
+
+On Linux the DAP-VR wrapper's `+0x50` and `+0x60` fields alias the same processing-core pointer, matching Windows. The object comparison is therefore valid end-to-end from the live HRTF encoder.
+
+## Linked Windows DAP core remains constructor-pristine at the per-block descriptor fields
+
+The exact HRTF-linked Windows DAP core has, in both steady dumps:
+
+```text
+core +0x80 = 0
+core +0x84 = 288
+core +0x88 = 384
+```
+
+Those are the literal constants written by the DAP-VR core constructor `FUN_180046020`:
+
+```text
++0x80/+0x84 <- 0x12000000000  // 0, 288 in the relevant 32-bit views
++0x88       <- 0x180          // 384
+```
+
+No second writer of that exact tuple was found. The normal DAP-VR `Prepare` path `FUN_180046FA0` instead leaves Linux with the per-block descriptor state `1 / 128 / 192`; the downstream DAP-VR `Process` wrapper reads those fields but does not restore them to the constructor tuple.
+
+This discrepancy is therefore real on the exact DAP instance bound to HRTF. Merely enabling HRTF stereo-bypass does not explain it: Linux variants with bypass disabled or enabled all execute `Prepare` and retain `1 / 128 / 192` after processing.
+
+## Dolby final Initialize dependency identified: Spatial Audio License Server runtime parameters
+
+The final explicit Dolby `IAsarEncoder2::Initialize` argument was previously passed as `NULL` by the Linux harness. Microsoft public symbols and the exact frozen `AudioEng.dll` call setup now identify its source.
+
+`ASAR::MainPluginRenderer::Initialize` calls:
+
+```cpp
+ASAR::MainPluginRenderer::GetSpatialAudioLicenseServerRuntimeParameters(
+    IUnknown *,
+    APOInitSystemEffects3 const *,
+    GUID const &,
+    PCWSTR,
+    IUnknown **out);
+```
+
+The returned `IUnknown*` is the value forwarded as wrapper argument 13 and therefore as Dolby Initialize argument 8. This is distinct from `MainPluginRenderer::Initialize`'s own incoming final `IUnknown*`, which is forwarded through the separate HRTF dependency interface (`98f37dac...`).
+
+Thus the Linux harness is still missing a genuine Windows object: the **Spatial Audio License Server runtime-parameters object**.
+
+## DAP Module2 consumes that object during ConfigureEncoder
+
+The live DAP Module2 interface vtable maps slot 4 to `DolbyAudioProcessing.dll` RVA `0x17DF0`, `CDolbyAudioProcessingModule::ConfigureEncoder`.
+
+That function forwards its final argument into `ApplyModuleParams` twice for DAP-VR:
+
+```text
+ApplyModuleParams(DAP_VR, Inittime, runtime_params_object)
+ApplyModuleParams(DAP_VR, Runtime,  runtime_params_object)
+```
+
+Decompilation of `ApplyModuleParams` (`FUN_1800175B8`) proves this object is an actual parameter source, not a logging or license-check ornament. For DAP-VR it queries the object for interface GUID `DAT_180324678`, then asks that interface for named runtime parameters:
+
+```text
+dahp.v2.1.1.init_time_params
+dahp.v2.1.1.run_time_params
+```
+
+The returned parameter object exposes a method at vtable `+0xD0` which yields a raw byte buffer and length; those bytes are passed directly into the original DAP-VR `SetParams` implementation and then freed with `CoTaskMemFree`.
+
+This is now the highest-value unclosed Windows/Linux initialization difference. The next step is to resolve the queried interface GUID and Microsoft provider object, recover what parameter source Windows supplies, and emulate only the actually used contract on Linux before drawing further conclusions from DAP-VR state.
