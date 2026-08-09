@@ -718,3 +718,82 @@ This proves that the ASAR DAHP runtime payload consumed through the Spatial Audi
 A second native cluster around `0x18057C000..0x18057E4xx` is the corresponding `WriteAllAsarParametersForAllEndpoints` / per-endpoint path. It contains the same DAHP/DABS/DAFM object split and is the current upstream lead for recovering the producer of `dahpRuntimeParams`.
 
 Next: trace where the state-machine fields holding `dahpRuntimeParams` are populated before the per-endpoint property-store loop, then recover the parameter-builder/profile object that supplies those bytes.
+
+## OEM DAHP ASAR producer and base-profile factory table recovered
+
+Ghidra analysis of the preserved OEM native image resolved the async wrapper/caller chain around the ASAR writer.
+
+The combined per-endpoint writer state machine `FUN_18057daf8` is started by `FUN_18046a810`. The wrapper itself receives only two top-level objects; `dahpRuntimeParams` is **not** a direct wrapper argument. It is produced inside the async body.
+
+Inside `FUN_18057daf8`, the DAHP path awaits a service operation, then `FUN_1808a4c30` unpacks the returned four-item bundle as:
+
+```text
+state byte +0x38  DAHP init params
+state byte +0x40  DAFM/DAHP VLLDP init params
+state byte +0x48  DAHP runtime params
+state byte +0x50  DAFM/DAHP VLLDP runtime params
+```
+
+A parallel four-item bundle supplies DABS and DAFM/DABS objects at `+0x58..+0x70`.
+
+The pair writer `FUN_18046be58(parent, endpoint, key, initObj, runtimeObj)` does not construct the parameter contents. It converts the already-created init/runtime objects into the endpoint/property-store representation, batches the non-null values, and writes them. Therefore the real payload producer is the DAHP configuration service upstream of this function.
+
+Frozen OEM strings and native xrefs identify that producer family as:
+
+```text
+Dolby.Common\AudioConfiguration\Managers\DahpConfigurationParameters.cs
+GetBaseInitTimeParams
+GetBaseRunTimeParams
+Base DAHP init-time parameters for {0} profile requested
+Base DAHP runtime parameters for {0} profile requested
+```
+
+Native functions:
+
+```text
+FUN_18044b778(profile)  base DAHP init-time parameters
+FUN_18044b8fc(profile)  base DAHP runtime parameters
+```
+
+`FUN_18044b8fc` performs a lookup in a static profile->factory dictionary and invokes the selected factory delegate. Its static constructor is `FUN_18044bba8`, which installs the following mapping:
+
+```text
+profile 5      -> FUN_180448f20
+profile 0      -> FUN_1804495c8
+profile 1      -> FUN_180449f00
+profile 2      -> FUN_18044a500
+profile 3      -> FUN_18044aba8
+profile 0x2c   -> FUN_18044b190
+profile 0x2d   -> FUN_18044b190
+profile 0x2e   -> FUN_18044b190
+```
+
+Profile ID 5 is positively identified as the SP11 **Dynamic** base DAHP runtime factory. `FUN_180448f20` creates a dedicated DAHP parameter object whose constants match the recovered SP11 Dynamic settings, including:
+
+```text
+volume-leveler amount          5
+volume-leveler in target      -320
+volume-leveler out target     -320
+regulator relaxation           96
+regulator timbre preservation  12
+surround boost                 96
+bass cutoff                   200
+bass width                     16
+regulator enable                1
+```
+
+along with the corresponding steering/enable flags and other profile fields.
+
+This is important because the OEM ASAR service starts from a dedicated `DahpConfigurationParameters` object and only later serializes/adjusts it. The previously generated "full Dynamic" DAX blob was assembled from the normal DAX transaction surface and included large nested tables. It must not be assumed byte-identical to the ASAR service serialization merely because the visible scalar tuning values match.
+
+The OEM runtime adjustment pipeline is also now localized by exact native log xrefs:
+
+```text
+FUN_180484128  -> "DAX RPC params loaded"
+FUN_180487c98  -> bypass mode disabled / skip virtualization
+FUN_180489e98  -> adjusted for current profile settings
+FUN_180488150  -> stereo processing bypass disabled
+FUN_18048ae1c  -> test params loaded
+```
+
+Next: recover the serialization of the `DahpConfigurationParameters` object (especially Dynamic ID 5), determine the exact sparse ASAR byte array after the applicable runtime adjustments, and feed that exact array through the already-working Linux Spatial Audio License Server map.
