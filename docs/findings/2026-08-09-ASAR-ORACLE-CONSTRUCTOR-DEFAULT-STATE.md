@@ -517,3 +517,80 @@ With the corrected 480-frame HRTF host contract and the license-server map activ
 This is clearly not the Windows pre-VLLDP oracle (`~0.320 / ~0.528 / ~1.0 / ~1.0 / ~0.523`). Therefore the real Windows Spatial Audio License Server runtime map contains additional state beyond the two stereo-bypass fields, or an equivalent earlier policy transaction establishes additional DAP state before the frozen oracle block.
 
 Do not fit the remaining difference. The next task is to recover or reconstruct the **actual initial license-server runtime byte array** from preserved Windows/OEM spatial-policy evidence and feed it through this now-working map boundary.
+
+## License-runtime candidate comparison at the authentic ConfigureEncoder boundary
+
+The SP11 OEM Microsoft Atmos operator policy independently constrains the expected license-runtime state family:
+
+```text
+internal_speaker + spatial_audio=false -> default profile Music
+internal_speaker + spatial_audio=true  -> default profile Movie
+bypass_stereo_virtualizer             -> true for all listed profiles
+full_dsp_support                       -> false
+audio_director_mode                    -> redirected
+dahp_auto_enablement                   -> true
+```
+
+Source identity is the preserved Surface SP11 `operator_settings_msft_atmos.json`; no vendor payload is copied into Git.
+
+Four private runtime payload candidates were then supplied **through the working Spatial Audio License Server IMap boundary during original Dolby ConfigureEncoder**, using the exact 13-byte init payload and corrected 480-frame HRTF contract. The only private diagnostic remains the narrowly scoped DAP-VR fallback-gate patch documented above.
+
+### 1. Preserved older Movie-family / spatial-policy blob
+
+```text
+bytes   2641
+SHA256  ca80a9c4106b694cb741aa9033074acbd14d8dc7595108d49e0c9af23f606fcd
+HRTF stereo bypass = 1
+```
+
+Two-second steady results:
+
+```text
+75 Hz  / 0.25  last ~0.577453   max ~0.649368
+997 Hz / 0.25  last ~0.413158   max ~0.500921
+```
+
+This is substantially closer to the Aug-8 oracle than the minimal two-field stereo-policy map, especially because the 997-Hz transient reaches ~0.501 before decaying.
+
+### 2. Regenerated OEM Movie payload
+
+```text
+bytes   2624
+SHA256  b4c72f73e3e874e7c709f620504f269cff2f4fd377c490d57bb77a4284553088
+HRTF stereo bypass = 0 in this serialized candidate
+```
+
+```text
+75 Hz  / 0.25  last ~0.969796   max ~0.999869
+997 Hz / 0.25  last ~0.959614   max ~0.961940
+```
+
+### 3. Regenerated OEM Dynamic payload
+
+```text
+bytes   2624
+SHA256  35bce8df538d1932da548f494ea74f974b5552059f8fe13adf58f89f2aaf3a99
+HRTF stereo bypass = 0 in this serialized candidate
+```
+
+```text
+75 Hz  / 0.25  last ~0.981941   max ~0.999869
+997 Hz / 0.25  last ~0.984895   max ~0.999869
+```
+
+### 4. Exact later Dynamic blob cached in the Aug-8 Windows dump
+
+```text
+bytes   2641
+SHA256  92936e727fe85b0fd37bf3ef515a7496851eea311342e7e8e10f0431264c1b89
+HRTF stereo bypass = 1
+```
+
+```text
+75 Hz  / 0.25  last ~0.593719   max ~0.727569
+997 Hz / 0.25  last ~0.432413   max ~0.618467
+```
+
+None is yet the Windows steady oracle (`~0.528` / `~0.523`), so no candidate is promoted as the recovered license-server runtime array.
+
+The useful narrowing is that the **older Movie-family spatial-policy state is the closest authentic-boundary candidate so far** and agrees with the independent OEM rule that internal-speaker Spatial ON defaults to Movie. Its 997-Hz path also shows history dependence: it passes near the Windows target before settling lower. The next test therefore uses the exact Windows probe history rather than another static tuning guess: 3 seconds silence followed by 9 seconds of tone at 48 kHz / 480-frame host blocks.
