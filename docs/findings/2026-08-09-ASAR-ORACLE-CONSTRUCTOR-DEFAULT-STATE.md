@@ -1446,3 +1446,47 @@ state, but at least one additional effective-state difference remains.
 A preliminary 4-coefficient attempt is invalid and should not be used: mode 11 expects eight input
 channels and therefore sixteen matrix entries. Only the byte-exact 8->2 vendor-setter result above
 is authoritative.
+
+## Correction: output mode 11 is requested/pending, not effective oracle state
+
+The byte-exact reconstruction above correctly identifies the **requested** Windows output-mode
+state and the original vendor setter, but a post-audio core comparison exposes a critical
+requested/current mirror that changes its interpretation.
+
+The DAP-VR core keeps paired fields:
+
+```text
+requested                         effective/current
+core+0x118 processing mode        core+0x11c processing mode
+core+0x120 output channel count   core+0x124 output channel count
+core+0x128 matrix-present         core+0x12c matrix-present
+```
+
+Frozen Windows, identically in both oracle dumps:
+
+```text
+requested: 11 / 2 / 1
+current:    1 / 0 / 0
+```
+
+No-PID-5 Linux before any artificial output-mode setter:
+
+```text
+requested: 1 / 0 / 0
+current:    1 / 0 / 0
+```
+
+When the original `dap_vr_output_mode_set(11,2,matrix)` is invoked on Linux, only the requested
+side is changed initially and dirty is set. On the subsequent original-Dolby audio/commit path,
+the current side advances to `11 / 2 / 1`. The frozen Windows current side **has not advanced**.
+
+Therefore mode 11 + the 8->2 matrix belongs to the same pending runtime update family already seen
+for other Dynamic-like requested fields. It did not generate the retained oracle PCM.
+
+The measured transfer change from ~0.427 to ~0.457 is a valid causal result for committing that
+pending state, but it is **not** an oracle-parity improvement and must not be used as the Windows
+pre-update recipe. The authoritative effective output-mode state for the oracle remains the
+constructor/no-PID-5 state `1 / 0 / 0`.
+
+This correction reinforces the broader conclusion that requested fields in the frozen core must
+never be treated as effective state without checking their current mirror.
