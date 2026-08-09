@@ -1227,3 +1227,45 @@ HRTF harness enters DAP-VR Prepare.
 
 The next step is to compare the exact `DolbyHrtfEnc::Process` and AudioEng wrapper call contract,
 not to patch the DAP core fields.
+
+## Causal localization: the non-unity lane is generated inside DAP Module2 EncodeAudioData
+
+A diagnostic A/B replaced only the live DAP Module2 vtable slot 5
+(`CDolbyAudioProcessingModule::EncodeAudioData`, RVA `0x1A2C0`) after successful original HRTF/DAP
+initialization. The replacement returns success without touching the in-place PCM buffer. This is
+strictly a localization probe; it is not a candidate implementation or production patch.
+
+With the native DABS minimal stereo-policy PID-5 state (`StereoBypass=1` naturally reported by
+Dolby), replacing only `EncodeAudioData` collapses the complete HRTF output to exact unity input:
+
+```text
+75 Hz / 0.10 -> 0.100000001, last_diff=0
+75 Hz / 0.25 -> 0.250000000, last_diff=0
+75 Hz / 0.50 -> 0.500000000, last_diff=0
+75 Hz / 0.70 -> 0.699999988, last_diff=0
+997Hz / 0.25 -> 0.250000000, last_diff=0
+```
+
+With the no-PID-5/default state (`StereoBypass=0`), the same DAP Encode no-op causes the output to
+be exactly zero for all tested points.
+
+Therefore, for the bypass=1 speaker configuration relevant to the Windows oracle:
+
+```text
+final HRTF output = unity channel bed + contribution produced by DAP Module2 EncodeAudioData
+```
+
+No additional non-unity gain remains in HRTF or AudioEng when DAP Encode is removed. This is a
+stronger localization than memory-field correlation: the missing Windows/Linux transfer is now
+specifically inside the original DAP Module2 encode path/state (or the exact metadata/state fed to
+that path), not in outer HRTF mixing, object descriptor IDs/flags, silent object slots, Microsoft
+ASAR, or the lower VLLDP/VR chain.
+
+The frozen Windows constructor-pristine DAP-VR core must therefore be interpreted cautiously. The
+no-op A/B proves DAP Module2 is the only source of the non-unity contribution in the analogous
+bypass=1 path, so constructor-looking head fields in the post-block dump do not by themselves prove
+that DAP was unused for the preceding audio.
+
+Next: wrap the original `EncodeAudioData` rather than replacing it, measure its in-place PCM before
+and after the real call, and snapshot the DAP-VR core tuple/metadata state immediately before and
+after each Encode invocation.
