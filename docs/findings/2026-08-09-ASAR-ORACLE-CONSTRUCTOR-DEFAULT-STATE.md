@@ -594,3 +594,78 @@ HRTF stereo bypass = 1
 None is yet the Windows steady oracle (`~0.528` / `~0.523`), so no candidate is promoted as the recovered license-server runtime array.
 
 The useful narrowing is that the **older Movie-family spatial-policy state is the closest authentic-boundary candidate so far** and agrees with the independent OEM rule that internal-speaker Spatial ON defaults to Movie. Its 997-Hz path also shows history dependence: it passes near the Windows target before settling lower. The next test therefore uses the exact Windows probe history rather than another static tuning guess: 3 seconds silence followed by 9 seconds of tone at 48 kHz / 480-frame host blocks.
+
+## Post-0eb0ff0 closure: Movie-family history rejected; OEM ASAR writer located
+
+The closest preserved Movie-family runtime candidate was rerun with the same host-history shape as the frozen Windows oracle: 1200 x 480-frame calls at 48 kHz, with the first 300 blocks (3 s) silent and the following 900 blocks (9 s) carrying the test tone.
+
+Steady results after the full 12-second history were:
+
+```text
+75 Hz / 0.10  last ~0.301042
+75 Hz / 0.25  last ~0.584278
+75 Hz / 0.50  last ~1.115344
+75 Hz / 0.70  last ~1.521108
+997 Hz / 0.25 last ~0.400485
+```
+
+These do not reproduce the Windows pre-VLLDP oracle (`~0.320 / ~0.528 / ~1.0 / ~1.0 / ~0.523`). The earlier transient near 0.50 was therefore not the steady Windows state.
+
+A second diagnostic reproduced the Aug-8 race shape: start from that Movie-family license state, process the 3 s silence + 9 s tone, deliver the exact later Aug-8 Dynamic runtime blob after the final audio block, then dump DAP-VR memory without another Prepare. This made the stable core-state comparison worse: roughly 362 meaningful stable 32-bit differences versus roughly 241 from the neutral-start race replay. This rejects the preserved Movie-family runtime blob as the hidden Aug-8 initial state despite the independent OEM default-profile rule.
+
+The provider registration was also recovered from the preserved Windows registry:
+
+```text
+CLSID {354ff91b-5e49-4bdc-a8e6-1cb6c6877182}
+SpatialAudioLicenseServerInteractiveUser
+C:\Windows\System32\SpatialAudioLicenseSrv.exe SpatialAudioLicenseServerInteractiveUser
+```
+
+The preserved Surface Dolby OEM client then exposed the more important implementation trail. `DolbyAccessOEM.dll` contains explicit native/.NET-Native metadata strings for:
+
+```text
+WriteAsarInitParametersForAllEndpoints
+WriteAsarInitParametersForEndpoint
+WriteAsarRuntimeParametersForAllEndpoints
+WriteAllAsarParametersForEndpoint
+WriteAllAsarParametersForAllEndpoints
+GetBaseInitTimeParams
+_movieRunTimeParams
+_musicRunTimeParams
+_dynamicRunTimeParams
+```
+
+and runtime-parameter names for headphone, home-theater, and built-in-speaker Spatial Audio paths. This is direct evidence that the Dolby OEM service writes dedicated **ASAR runtime parameters** into the Windows property/runtime-parameter path; they are not necessarily identical to the ordinary full DAX profile blobs.
+
+The exact OEM binary used for this evidence is private and not published. Public identity only:
+
+```text
+DolbyAccessOEM.dll SHA256 be4fce2a9cc2b24849ba6b2f8558f2c7d652df543eba7da882f58c59ae88ef19
+ARM64 PE32+
+CodeView PDB: DolbyAccessOEM.pdb
+PDB GUID: 9B8926F2-367B-4B84-BDA0-A3F5E0C977F0
+PDB age: 1
+```
+
+The matching OEM PDB is not present on Microsoft's public symbol server (404 for the exact CodeView identity), so the continuation must recover the writer from the preserved native image.
+
+Unique UTF-16 anchor recovered in `DolbyAccessOEM.dll`:
+
+```text
+"WriteAsarRuntimeParametersForAllEndpoints dahpKey:{0}, dabsKey:{1} isMonitor:{2} audioendpoint{3}"
+file offset 0x1b394fc
+RVA         0x1b3b6fc
+VA          0x181b3b6fc
+```
+
+Additional unique anchors:
+
+```text
+"Runtime parameters for ASAR written to Property Store for endpoint "
+RVA 0x1b15484
+
+"Writing runtime parameters for ASAR to Property Store for all endpoints"
+RVA 0x1b3beec
+```
+
+Full serialized candidate blobs are not embedded verbatim in the OEM DLL; the ASAR payload is built at runtime. Therefore the next engineering step is to use these string anchors to recover the native ARM64 writer/state-machine path and determine exactly how the built-in-speaker ASAR runtime byte array is constructed. Feed that recovered array through the already-working Linux Spatial Audio License Server `IMap<String,Object>` harness rather than curve-fitting DAP controls.
