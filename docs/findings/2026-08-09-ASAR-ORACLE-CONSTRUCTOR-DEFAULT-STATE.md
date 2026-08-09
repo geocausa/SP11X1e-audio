@@ -1490,3 +1490,47 @@ constructor/no-PID-5 state `1 / 0 / 0`.
 
 This correction reinforces the broader conclusion that requested fields in the frozen core must
 never be treated as effective state without checking their current mirror.
+
+## Effective/current DAP-VR runtime state matches no-PID-5 Linux
+
+To avoid confusing requested/pending values with the state that actually generated audio,
+`FUN_1800484F0` (the original DAP-VR commit routine) was used as the authoritative map of
+requested -> current fields.
+
+Every explicit current mirror checked in both frozen Windows oracle cores matches the no-PID-5
+Linux core, including:
+
+```text
+output mode/current matrix state       1 / 0 / 0
+leveler enable/current                 0
+leveler amount/current                 7
+leveler DRC/current                    1
+output/input targets/current           identical
+volume/surround helper current fields  identical
+all 0x1874..0x1890 -> 0x185c..0x188c mirrors identical
+0x36c4 -> 0x36c0 current               identical
+```
+
+The block helpers called by the same commit function were also decoded and compared:
+
+`FUN_1800494A0(core+0x750, gate)` maintains five requested/current enable pairs. Windows has
+several newly requested enables set to 1, while **all five current values remain 0**, exactly like
+no-PID-5 Linux.
+
+`FUN_180048FB8(core+0x6F8)` maintains eight additional requested/current pairs. The current side
+of all eight is identical Windows <-> no-PID-5 Linux. Representative examples:
+
+```text
+requested boost-like float: Windows 0.046153847 vs Linux 0.069230773
+current float:               both    0.069230773
+requested in/out targets:    identical
+current in/out targets:      identical
+```
+
+Frozen Windows still has dirty/pending markers (`core+0x13b0=1`, `core+0x6f8=1`) while Linux
+no-PID-5 is clean, explaining why requested fields differ without changing the retained PCM.
+
+This closes the known runtime-control family as the source of the ~0.427 -> ~0.523 broadband
+gap: the **effective/current DAP-VR control state already matches**. The remaining search should
+focus on the audio-time stream/metadata/context supplied to `EncodeAudioData`, or another
+non-runtime-control initialization difference, rather than committing pending profile values.
