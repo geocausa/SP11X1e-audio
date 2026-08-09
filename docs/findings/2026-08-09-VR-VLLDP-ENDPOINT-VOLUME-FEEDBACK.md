@@ -182,19 +182,19 @@ analyseplugin PASS
 
 A live no-stream restart exposed the normal WirePlumber creation sequence: a
 new virtual sink is briefly announced at unity before its persisted volume is
-restored. The first deployment saw the monitor log  followed by the
-correct ; no audio was active, but production must not depend on that
+restored. The first deployment saw the monitor log `postgain=0` followed by the
+correct `postgain=-771`; no audio was active, but production must not depend on that
 race.
 
 Two defenses now close it:
 
 1. With runtime control enabled, a new plugin instance honors any prequeued
    postgain immediately. If no endpoint-volume request is known yet, it starts
-   at the recovered SP11 minimum (, -75 dB) rather than 0. Offline
+   at the recovered SP11 minimum (`-1200`, -75 dB) rather than 0. Offline
    research with runtime control explicitly disabled retains postgain 0.
 2. The PipeWire monitor confirms changed node Props after a 200-ms settle
    interval before writing Dolby. A unit test explicitly feeds a transient
-   unity event and verifies the settled raw gain  is the value used.
+   unity event and verifies the settled raw gain `0.003908` is the value used.
 
 Regression additions:
 
