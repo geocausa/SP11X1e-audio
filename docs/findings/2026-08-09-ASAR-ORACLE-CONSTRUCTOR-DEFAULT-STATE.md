@@ -165,3 +165,68 @@ The frozen object/encoded staging buffers themselves are cleared after consumpti
 The strongest remaining structural difference is now the host scheduling history rather than a missing tuning scalar. The standalone Linux harness currently submits successive 256-frame object/bed blocks directly, while the live Windows path presents 480-frame ASAR host work around the 256-frame Dolby engine and retains carry state.
 
 Next experiment: reproduce the exact 480-frame host cadence around the original 256-frame HRTF/DAP engine, preserving the same carry/accumulator semantics, then rerun the five-point pre-VLLDP oracle. Do not fit an external gain or clamp.
+
+## Quantum grouping and AudioEng Process ABI closed
+
+A direct capacity sweep against the original HRTF encoder proves that its callable `Process` boundary is quantized in whole 256-frame engine blocks. Repeated 256- and 512-frame calls are valid; arbitrary 128/192/224/288/320/384/448/480-frame calls are not a stable consecutive-call contract. In particular, a direct 480-frame experiment can complete the first call but fails on the next call, so the live `480`/`448` state seen inside HRTF must not be interpreted as AudioEng handing arbitrary 480-frame blocks directly to `IAsarEncoder2`.
+
+The exact Windows `AudioEng.dll` wrapper was then read directly from the frozen dump at `AsarEncoderWrapper<IAsarEncoder2>::Process` RVA `0x13AB0`. Its ARM64 code performs:
+
+```text
+ldr x0, [x0,#8]
+mov w1, w2
+mov x2, x3
+mov x3, x4
+... call IAsarEncoder2 vtable +0x38
+```
+
+Therefore the public wrapper's `(frames, byte_capacity, output, produced)` signature deliberately discards `frames` and shifts the remaining arguments before entering Dolby. The Linux harness's direct Dolby call `(byte_capacity, output, produced)` is ABI-correct.
+
+An explicit no-PID-5 A/B also compares equal-duration 256-frame and 512-frame Dolby calls. Their steady transfer converges to float-noise equivalence:
+
+```text
+                 256-frame             512-frame
+75 Hz / 0.10     ~0.17080705           ~0.17080706
+75 Hz / 0.25     ~0.42701766           ~0.42701766
+75 Hz / 0.50     ~0.85403532           ~0.85403532
+75 Hz / 0.70     ~0.99986947           ~0.99986947
+997 Hz / 0.25    ~0.42729273           ~0.42729670
+```
+
+Thus whole-quantum grouping does not create the missing Windows low/mid-level lift. The 480->256 scheduler is real structural state, but it is not the present amplitude root cause.
+
+## Effective output mode also matches
+
+The original DAP-VR output-mode setter `FUN_180046DD0` writes requested state at:
+
+```text
++0x118 requested processing mode
++0x120 requested output-channel count
++0x128 requested matrix-present flag
++0x130... requested matrix
++0x13B0 global dirty flag
+```
+
+The commit pass `FUN_1800484F0` proves the corresponding current/effective fields are:
+
+```text
++0x11C effective processing mode
++0x124 effective output-channel count
++0x12C effective matrix-present flag
+```
+
+Both frozen Windows oracle dumps have:
+
+```text
+requested: mode=11, channels=2, matrix=present, dirty=1
+effective: mode=1,  channels=0, matrix=absent
+```
+
+The clean Linux no-PID-5 engine has and retains:
+
+```text
+requested: mode=1, channels=0, matrix=absent, dirty=0
+effective: mode=1, channels=0, matrix=absent
+```
+
+So the Windows mode-11 matrix is another part of the later asynchronous DAX update waiting for the next `Prepare`; it did **not** generate the retained oracle PCM. The effective output mode used by the preceding Windows block is mode 1, matching Linux. Do not apply the pending mode-11 state as an oracle recipe.
