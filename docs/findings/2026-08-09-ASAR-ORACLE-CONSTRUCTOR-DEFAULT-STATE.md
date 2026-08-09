@@ -669,3 +669,52 @@ RVA 0x1b3beec
 ```
 
 Full serialized candidate blobs are not embedded verbatim in the OEM DLL; the ASAR payload is built at runtime. Therefore the next engineering step is to use these string anchors to recover the native ARM64 writer/state-machine path and determine exactly how the built-in-speaker ASAR runtime byte array is constructed. Feed that recovered array through the already-working Linux Spatial Audio License Server `IMap<String,Object>` harness rather than curve-fitting DAP controls.
+
+## Native DolbyAccessOEM ASAR writer localized
+
+The preserved `DolbyAccessOEM.dll` is a native ARM64 .NET-Native image. PE section-name truncation matters: the managed native code section is `.textMan`, not `.textManaged`. Direct ARM64 disassembly of that section resolved the previously found managed string objects into executable xrefs.
+
+The async state-machine body for the all-endpoint ASAR runtime writer begins at:
+
+```text
+0x180581738
+```
+
+The exact method-name/log anchors are referenced inside that function:
+
+```text
+0x1805817A8 -> "WriteAsarRuntimeParametersForAllEndpoints"
+0x1805817BC -> "Writing runtime parameters for ASAR to Property Store for all endpoints"
+0x180581D48 -> "Runtime parameters for ASAR written to Property Store for endpoint "
+0x180581D6C -> "WriteAsarRuntimeParametersForAllEndpoints dahpKey:{0}, dabsKey:{1} isMonitor:{2} audioendpoint{3}"
+```
+
+The same async state machine repeats its post-await logging material around `0x180581FC4`, `0x180582258`, and `0x18058240C`; these are continuation states, not separate writer implementations.
+
+Most important, the frozen managed strings loaded by the writer explicitly distinguish four runtime objects:
+
+```text
+dahpRuntimeParams
+ dabsRuntimeParams
+ dafm dahpVlldpRuntimeParams
+ dafm dabsVlldpRuntimeParams
+```
+
+and the combined init+runtime writer similarly distinguishes:
+
+```text
+dahpRuntimeParams
+ dahpInitParams
+ dabsRuntimeParams
+ dabsInitParams
+ dafm dahpVlldpRuntimeParams
+ dafm dahpVlldpInitParams
+ dafm dabsVlldpRuntimeParams
+ dafm dabsVlldpInitParams
+```
+
+This proves that the ASAR DAHP runtime payload consumed through the Spatial Audio runtime-parameter service is **not the same object as the downstream DAFM/VLLDP runtime payload**. Treating the normal VLLDP/DAX profile blob as the ASAR license-server payload is therefore structurally wrong unless an explicit equality is later proved.
+
+A second native cluster around `0x18057C000..0x18057E4xx` is the corresponding `WriteAllAsarParametersForAllEndpoints` / per-endpoint path. It contains the same DAHP/DABS/DAFM object split and is the current upstream lead for recovering the producer of `dahpRuntimeParams`.
+
+Next: trace where the state-machine fields holding `dahpRuntimeParams` are populated before the per-endpoint property-store loop, then recover the parameter-builder/profile object that supplies those bytes.
