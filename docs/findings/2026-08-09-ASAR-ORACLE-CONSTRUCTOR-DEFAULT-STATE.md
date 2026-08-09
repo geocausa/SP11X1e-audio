@@ -427,3 +427,93 @@ dahp.v2.1.1.run_time_params
 The returned parameter object exposes a method at vtable `+0xD0` which yields a raw byte buffer and length; those bytes are passed directly into the original DAP-VR `SetParams` implementation and then freed with `CoTaskMemFree`.
 
 This is now the highest-value unclosed Windows/Linux initialization difference. The next step is to resolve the queried interface GUID and Microsoft provider object, recover what parameter source Windows supplies, and emulate only the actually used contract on Linux before drawing further conclusions from DAP-VR state.
+
+## Spatial Audio License Server runtime-map contract executed on Linux
+
+The missing final HRTF Initialize dependency has now been exercised through the original Dolby code rather than approximated after initialization.
+
+Microsoft public symbols identify the provider family as `ISpatialAudioLicenseServer` and the interactive-user class as:
+
+```text
+CLSID_SpatialAudioLicenseServerInteractiveUser
+354ff91b-5e49-4bdc-a8e6-1cb6c6877182
+
+IID used by AudioEng for ISpatialAudioLicenseServer
+cdc99663-5f31-45ee-89fa-a4a0d64f6d1c
+```
+
+The object returned to Dolby is queried for WinRT `IMap<String,Object>` IID:
+
+```text
+1b0d3570-0877-5ec2-8a2c-3b9539506aca
+```
+
+The raw DAP assembly confirms a normal COM/WinRT call chain:
+
+```text
+runtime->QueryInterface(IMap<String,Object>)
+map->Lookup(HSTRING key)
+property_value->GetUInt8Array(...)
+DAP-VR SetParams(byte_array, length, phase)
+```
+
+The exact UTF-16 key names in the shipped binary are underscore-separated, not the dotted form suggested by the decompiler labels:
+
+```text
+dahp_v2_1_1_init_time_params
+dahp_v2_1_1_run_time_params
+```
+
+A small private Linux shim was built with only the WinRT pieces Dolby actually calls:
+
+- `WindowsCreateStringReference` / raw HSTRING access;
+- `IMap<String,Object>::QueryInterface` and `Lookup`;
+- `IPropertyValue::GetUInt8Array` at vtable `+0xD0`;
+- `CoTaskMemFree` ownership handoff.
+
+The HRTF `ConfigureEncoder` vtable was instrumented and proves the runtime-map object arrives unchanged at the original DAP Module2 call.
+
+### Minimal license-runtime stereo policy fixture
+
+Using the original `DAX3API.exe` serializer, a runtime payload containing only the two already-observed stereo policy fields was generated:
+
+```text
+stereo_cp_bypass_mode = 2
+stereo_bypass_dap_dll = 1
+```
+
+Private serialized fixture identity:
+
+```text
+bytes   60
+SHA256  503179df262071fda176b4a1345510abc377dafa24037e56f5ea62e5fe9a582f
+```
+
+The raw fixture remains private and is not committed.
+
+The runtime-map test supplies:
+
+```text
+init_time_params -> exact 13-byte Windows PID-4 bytes
+run_time_params  -> 60-byte minimal stereo-policy payload
+```
+
+The original Dolby code successfully fetches both arrays through the WinRT map and initializes HRTF with the Windows-observed stereo bypass mode enabled.
+
+One private diagnostic branch patch is currently required to enter the DAP-VR map fallback after the fake property-store miss; the null-object guard remains intact so AIDE's legitimate null runtime object still follows its normal path. This gate discrepancy is a harness/control-state issue still under investigation and must not be promoted to production behavior.
+
+### Minimal license policy is not the missing oracle transfer
+
+With the corrected 480-frame HRTF host contract and the license-server map active, the original DLLs produce approximately:
+
+```text
+75 Hz  / 0.10 -> 0.152766
+75 Hz  / 0.25 -> 0.381914
+75 Hz  / 0.50 -> 0.763828
+75 Hz  / 0.70 -> 1.069359
+997 Hz / 0.25 -> 0.270804
+```
+
+This is clearly not the Windows pre-VLLDP oracle (`~0.320 / ~0.528 / ~1.0 / ~1.0 / ~0.523`). Therefore the real Windows Spatial Audio License Server runtime map contains additional state beyond the two stereo-bypass fields, or an equivalent earlier policy transaction establishes additional DAP state before the frozen oracle block.
+
+Do not fit the remaining difference. The next task is to recover or reconstruct the **actual initial license-server runtime byte array** from preserved Windows/OEM spatial-policy evidence and feed it through this now-working map boundary.
