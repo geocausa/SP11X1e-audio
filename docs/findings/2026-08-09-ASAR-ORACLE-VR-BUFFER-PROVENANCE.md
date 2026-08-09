@@ -129,3 +129,70 @@ Thus the old hardware-trap observation `VLLDP callback then VR callback` must be
 scheduler invocation order only.  Its own 2026-08-04 finding explicitly warned that sample-buffer
 ownership/order was still unconfirmed.  The newly proved buffer direction and waveform identity
 support the sample dependency `VR output -> VLLDP input` for the Aug-8 graph.
+
+## Exact captured VLLDP replay proves VR -> VLLDP sample dependency
+
+The Aug-8 VLLDP wrapper, staging buffers, core, limiter and aux state all reside inside one
+contiguous captured heap range in each dump:
+
+```text
+75 Hz:  0x1ec94560000 + 0x17f000
+997 Hz: 0x2161d560000 + 0x17f000
+```
+
+All important wrapper pointers remain inside that range, so the exact state can be mapped back at
+the original Windows address while loading the exact VLLDP PE at the captured ASLR base.
+
+A first naive replay fed the complete 256-frame captured VR output to a VLLDP wrapper whose internal
+FIFO was already partially filled.  It reproduced the frozen output peak exactly but not waveform
+phase, revealing the expected accumulator-state mismatch.
+
+The fill values explain the previously observed byte-identical VR/VLLDP overlap exactly:
+
+```text
+75 Hz:  VLLDP fill = 32 frames  -> 64 interleaved floats shared byte-for-byte
+997 Hz: VLLDP fill = 160 frames -> 320 interleaved floats shared byte-for-byte
+```
+
+The correct replay therefore preserves the captured VLLDP staging prefix and feeds only the
+unconsumed remainder of the captured VR output:
+
+```text
+75 Hz:  feed frames 32..255  (224 remaining frames)
+997 Hz: feed frames 160..255 (96 remaining frames)
+```
+
+Calling the original vendor VLLDP wrapper process at RVA `0x033640` then produces the frozen Windows
+VLLDP output **bit-for-bit**:
+
+```text
+75 Hz
+  exact output floats: 512 / 512
+  RMSE:                0
+  max difference:      0
+  peak:                0.583327293
+
+997 Hz
+  exact output floats: 512 / 512
+  RMSE:                0
+  max difference:      0
+  peak:                0.467548966
+```
+
+This closes buffer ownership and data flow for the captured graph.  The older hardware breakpoint
+finding `VLLDP callback -> VR callback` remains valid as **scheduler invocation order**, but it is not
+sample dependency.  Its own original note explicitly warned that sample-buffer ownership/order had
+not yet been established.
+
+For the Aug-8 graph, direct buffer provenance plus exact original-code replays prove:
+
+```text
+source tone
+   -> DolbyApoVr / LibWrapperVr
+      0.25 -> ~0.528 / ~0.523
+   -> DolbyAPOvlldp150
+      captured FIFO continuation -> frozen VLLDP output bit-for-bit
+```
+
+This also names the upstream actor left open in the 2026-08-07 state-pinned VLLDP finding: the
+several-dB drive already present at VLLDP input is produced by the external Dolby VR stage.
