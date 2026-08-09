@@ -196,3 +196,69 @@ source tone
 
 This also names the upstream actor left open in the 2026-08-07 state-pinned VLLDP finding: the
 several-dB drive already present at VLLDP input is produced by the external Dolby VR stage.
+
+## Upstream AudioEng graph provenance after the VR/VLLDP closure
+
+Further frozen-dump graph work traced the untouched `0.25` stereo tone upstream from the external
+VR input into Microsoft Audio Engine objects using the exact `audiodg.exe` and private `AUDIODG.pdb`
+loaded in Ghidra.
+
+The important class identities are now established from original Microsoft symbols:
+
+```text
+raw client/source side:
+  CCrossProcessServerInputEndpoint<StaticControlData_V1, VolatileControlData_V0, ControlData_V1>
+
+Audio Engine connection transport:
+  CConnectionNode
+  CDeviceGraphConnectionBuffer
+
+private spatial APO hosting path:
+  CPrivateAPO
+    -> CSystemEffectWrapper
+       -> AudioEng!CAdaptiveSpatialAudioRenderer
+          -> ASAR::MainPluginRenderer
+```
+
+`CConnectionNode::CreateConnection` proves that each node owns a realtime connection-property block
+at `node+0x68`; its first qword is the aligned PCM backing address.  The frozen graph contains 18
+live `CConnectionNode` objects.  The unity source waveform is present at the same ring-buffer offset
+on consecutive 2-channel/48-kHz float connections, including:
+
+```text
+handle 3: PCM base 0x2161c58d300, tone at +0xA00
+handle 4: PCM base 0x2161af86140, tone at +0xA00
+handle 5: same PCM base as handle 4
+```
+
+The exact AudioEng PDB also confirms the live ASAR object identity:
+
+```text
+ASAR::MainPluginRenderer live object = 0x2161c018580
+MainPluginRenderer vtable RVA        = 0x1ED6A8
+```
+
+Its sole owner reference leads to the live `CAdaptiveSpatialAudioRenderer`.  The active renderer is
+not in the APO memcpy-bypass path: `CAdaptiveSpatialAudioRenderer::APOProcess` delegates to the
+renderer stored at `this+0x130` when active, and the frozen object contains the live
+`ASAR::MainPluginRenderer` there through the RT-interface layout.
+
+The audiodg hosting wrapper is also identified exactly:
+
+```text
+CPrivateAPO -> embedded CSystemEffectWrapper interface bank
+            -> cached CAdaptiveSpatialAudioRenderer interfaces
+            -> active MainPluginRenderer
+```
+
+`CSystemEffectWrapper::APOProcess` itself only forwards the realtime call to the underlying AudioEng
+RT interface; it does not modify PCM.
+
+### Remaining narrow proof
+
+The last unresolved upstream item is to map the active spatial APO graph node's realtime
+`APO_CONNECTION_PROPERTY` arrays back to the exact `CConnectionNode` input/output handles.  The
+current evidence strongly suggests that the active ASAR stereo path preserves the 0.25 signal and
+that the large ~0.52 lift occurs only in external DolbyApoVr, but that final handle-to-ASAR-edge
+mapping should be completed before declaring the ASAR stereo path bit-exact unity from graph
+provenance alone.
