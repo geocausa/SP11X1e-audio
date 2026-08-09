@@ -1534,3 +1534,46 @@ This closes the known runtime-control family as the source of the ~0.427 -> ~0.5
 gap: the **effective/current DAP-VR control state already matches**. The remaining search should
 focus on the audio-time stream/metadata/context supplied to `EncodeAudioData`, or another
 non-runtime-control initialization difference, rather than committing pending profile values.
+
+## HRTF/ASAR Reset cannot explain the constructor-pristine frozen DAP core
+
+AudioEng public symbols and decompilation identify the reset chain:
+
+```text
+MainPluginRenderer::Reset
+  -> AsarEncoderWrapper<...>::Reset
+     -> underlying IAsarEncoder vtable +0x40
+```
+
+For the original SP11 HRTF `IAsarEncoder2` vtable, +0x40 is slot 8, RVA `0x46F0`.
+That method immediately calls `FUN_180005820`, which simply returns the static HRESULT stored at
+`DAT_180005828`.
+
+The exact constant is:
+
+```text
+0x80004001 = E_NOTIMPL
+```
+
+A controlled Linux original-Dolby replay called HRTF slot 8 after 200 processed blocks. Before
+and after Reset:
+
+```text
+DAP-VR core tuple  1 / 128 / 192 -> 1 / 128 / 192
+core +0xd0          non-NULL      -> same non-NULL pointer
+HRTF metadata state unchanged
+block counters unchanged
+```
+
+AudioEng `CAdaptiveSpatialAudioRenderer::UnlockForProcess` itself only clears its lock flag and
+does not invoke a Dolby reset.
+
+Therefore a normal AudioEng Reset/Unlock cannot transform a prepared DAP-VR core into the frozen
+Windows constructor state `0 / 288 / 384, +0xd0=NULL`. Any explanation based on post-stream reset
+is closed.
+
+The remaining structurally plausible explanation for a constructor-pristine DAP object in a dump
+that also contains previously processed oracle PCM is **instance/lifecycle replacement**: the
+HRTF/DAP instance linked from the frozen `MainPluginRenderer` may have been created or reconfigured
+after the retained PCM was produced. That hypothesis must be tested from object ownership,
+allocation/generation state and renderer lifecycle evidence rather than inferred from timestamps.
