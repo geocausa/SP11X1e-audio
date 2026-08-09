@@ -970,3 +970,58 @@ All initialize successfully and all reproduce the observed Windows HRTF `StereoB
 Therefore the missing Aug-8 effective state is **not explained by selecting another stock OEM base DAHP profile plus the correct Spatial stereo-bypass policy**. The stock-profile hypothesis is closed as a family for Dynamic, Movie, Music, Game, and Voice.
 
 This reinforces the prior race/core result: the remaining target is persistent/resolved algorithm state or another structural lifecycle input, not a mislabeled stock profile.
+
+## Stable DAP-core residual banks shown non-causal; AudioEng private HRTF dependency is null
+
+After replaying the exact pending-Dynamic race, the frozen Windows vs Linux DAP-VR context still contains large stable memory differences. Several visually prominent regions were tested as **localization-only causality probes** by copying the stable Windows numeric bytes into the Linux original-Dolby context before processing, one region at a time. No pointer-bearing regions were transplanted.
+
+Tested regions included:
+
+```text
++0x310..+0x6cf
++0x894..+0x8e3
++0x934..+0x983
++0x9dc..+0xa2f
++0xc2c..+0xc7b
++0xccc..+0xd1b
++0xd74..+0xdc7
++0xea8..+0xeef
++0x102c..+0x107b
++0x10d4..+0x1123
++0x1558..+0x158b
++0x1688..+0x16bb
++0x17b8..+0x17eb
++0x1818..+0x1847
++0x39f0..+0x3c3b
+```
+
+The probe used the original Windows Dolby DLLs on Linux with the Spatial stereo-bypass service state active. For every region, both 75 Hz / 0.25 and 997 Hz / 0.25 outputs were unchanged from baseline to float-print precision. This includes the entire ~960-byte `+0x310` bank and the repeated 20-word packed coefficient banks.
+
+This agrees with static gating evidence. For example, the original processing code reads the `+0x310` bank only when the effective matrix/feature gate at `+0x12c` is nonzero; both frozen Windows and Linux race states have `+0x12c = 0`. The mapped regulator high/low/isolation coefficient stores also match, while the differing IEQ bank is disabled by the effective IEQ gate in both captures.
+
+Conclusion: the conspicuous stable DAP-core residual banks are historical/dormant state, not the source of the captured PCM mismatch. They should not be fitted or copied into production.
+
+### `IXAPOHrtfParameters` dependency closure
+
+The exact AudioEng wrapper first QIs the encoder for IID `98f37dac-d0b6-49f5-896a-aa4d169a4c48` and, when non-null, forwards an additional `IUnknown*` through slot 3. Microsoft symbols identify the interface as `IXAPOHrtfParameters`.
+
+Tracing this argument upward gives:
+
+```text
+AsarEncoderWrapper::Initialize private-HRTF arg
+  <- MainPluginRenderer::Initialize final IUnknown*
+  <- MainPluginRenderer::Create final IUnknown*
+  <- CAdaptiveSpatialAudioRenderer::LockForProcess
+```
+
+`LockForProcess` is entered through an interface subobject at object-base `+0x10`. Its apparent `param_1+0x200` load therefore resolves to **renderer object +0x210**.
+
+The renderer destructor identifies object `+0x210` as `CComPtr<IXAPOHrtfParameters>`. Full decompilation of all `CAdaptiveSpatialAudioRenderer` methods shows:
+
+- constructor initializes object `+0x210 = NULL`;
+- no renderer method writes a non-null value to `+0x210`;
+- the field is only read for telemetry and released by the destructor.
+
+Therefore the normal Windows speaker path passes **NULL** for this private HRTF dependency, causing the wrapper to skip the IID-98 slot-3 setter. The Linux harness, which also skips that setter, is correct. This is not the missing ASAR transfer.
+
+The Windows-created `ISpatialAudioPositionMapper` remains non-causal for the current static FL/FR objects: original HRTF `SetAudioObject` consults the mapper only for positional/non-static objects. The current oracle uses static front-left/front-right object types.
