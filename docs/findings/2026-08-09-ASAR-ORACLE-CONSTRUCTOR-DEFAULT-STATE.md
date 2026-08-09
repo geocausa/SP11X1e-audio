@@ -797,3 +797,72 @@ FUN_18048ae1c  -> test params loaded
 ```
 
 Next: recover the serialization of the `DahpConfigurationParameters` object (especially Dynamic ID 5), determine the exact sparse ASAR byte array after the applicable runtime adjustments, and feed that exact array through the already-working Linux Spatial Audio License Server map.
+
+## Exact sparse OEM ASAR Dynamic serialization and Aug-8 Dynamic delta decoded
+
+The recovered `FUN_180448f20` Dynamic `DahpConfigurationParameters` object maps one-for-one onto the private DAX3API serializer state layout. Reconstructing exactly that object — preserving the distinction between nullable-zero and truly absent nested objects — produces a **348-byte** DAHP runtime payload:
+
+```text
+bytes   348
+SHA256  7f4bd94703ca47d774925fa9749ce3242160f16bf5550351629463acbee4ddad
+```
+
+This is dramatically smaller than the previously generated 2624-byte normal/full Dynamic DAX transaction. The real base ASAR Dynamic object does not contain the output matrix, process-optimizer table, audio-optimizer table, regulator tuning table, or GEQ table that were present in the earlier full-profile experiment.
+
+Private Linux license-map replay of this 348-byte payload through the original Windows DLLs succeeds end-to-end (`IMap -> IPropertyValue -> GetUInt8Array -> DAP SetParams`) but is not the final Windows state:
+
+```text
+HRTF StereoBypassMode = 0
+75 Hz  / 0.25 -> ~0.921603
+997 Hz / 0.25 -> ~0.649384
+```
+
+Therefore at least one OEM runtime adjustment follows the base profile factory before the Windows license-server payload is finalized.
+
+The exact 2641-byte Aug-8 pending Dynamic blob was then compared against controlled DAX3API serializations. Its previously unexplained seven-byte delta from the regenerated normal Dynamic transaction is now fully decoded semantically.
+
+Controlled serializer experiments prove:
+
+```text
+serialized offset 0x3FB -> mi2dialog_enhancer_steering_enable = false
+serialized tail          -> stereo_cp_bypass_mode = 2
+                            stereo_bypass_dap_dll = true
+                            volume_leveler_drc_enable = unset/absent
+```
+
+Using normal Dynamic state plus:
+
+```text
+MI->dialog steering  false
+stereo CP bypass     2
+stereo DAP-DLL bypass true
+leveler DRC          unset
+```
+
+produces a 2628-byte meaningful serialization that matches the first 2628 bytes of the 2641-byte Windows blob **byte-for-byte**. The remaining 13 Windows bytes are all zero padding.
+
+This also explains the frozen Windows HRTF `StereoBypassMode=1`: the later pending Dynamic array contains the authentic stereo-policy combination `CP mode 2 + DAP-DLL bypass true`.
+
+The relevant OEM adjustment implementations are now localized:
+
+```text
+FUN_180484128  DaxRpcParametersAdjustment
+FUN_180487c98  SkipVirtualizationAdjustment
+FUN_180489e98  ProfileParametersAdjustment
+FUN_180488150  StereoBypassAdjustment
+FUN_18048ae1c  TestParametersAdjustment
+```
+
+Important semantics from the original code:
+
+- DAX-RPC adjustment preserves already-present stereo fields and only supplies defaults when absent;
+- SkipVirtualization selects CP bypass mode 0 or 1 based on policy state;
+- StereoBypassAdjustment explicitly sets CP bypass mode 2 and DAP-DLL bypass false;
+- ProfileParametersAdjustment modifies current-profile fields including MI/IEQ/GEQ-related state;
+- TestParametersAdjustment replaces parameters only when test parameters are configured.
+
+The exact pending Dynamic result therefore comes from the broader OEM adjustment pipeline, not merely one scalar stereo setter.
+
+### Important correction to the earlier Movie negative
+
+The earlier Movie-family negative replay used a normal/full DAX runtime blob, not the newly recovered sparse `DahpConfigurationParameters` ASAR representation. It rejects that old full-profile fixture as the hidden Aug-8 initial state, but it does **not** reject the authentic OEM ASAR Movie object. Because SP11 operator policy states `internal_speaker + spatial_audio=true -> default profile Movie`, the real sparse/adjusted ASAR Movie path must now be reconstructed and tested before Movie can be closed.
