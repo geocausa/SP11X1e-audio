@@ -1372,3 +1372,77 @@ Therefore the frozen Windows constructor-pristine DAP-VR core cannot be explaine
 PID-5 property notification. The remaining discrepancy must lie in the audio-time
 `EncodeAudioData` branch/state used before that notification, or in which internal module path
 produced the object contribution during the oracle block.
+
+## Windows effective DAP-VR output mode recovered exactly
+
+A previously overlooked stable scalar region in the frozen Windows DAP-VR core was decoded using
+the original DLL rather than treated as anonymous memory.
+
+`FUN_180046DD0` is the implementation behind the original runtime log:
+
+```text
+dap_vr_output_mode_set: processing_mode = %d,
+                        nb_output_channels = %d,
+                        p_mix_matrix = {...}
+```
+
+It controls:
+
+```text
+core+0x118  processing mode
+core+0x120  output channel count when a matrix is supplied
+core+0x128  mix-matrix-present flag
+core+0x130  internal float mix matrix
+core+0x13b0 dirty flag
+```
+
+The no-PID-5 Linux baseline had:
+
+```text
+mode=1, output_channels=0, matrix_present=0
+```
+
+Both frozen Windows oracle cores have:
+
+```text
+mode=11, output_channels=2, matrix_present=1
+```
+
+`FUN_180045EB0(11)` proves processing mode 11 has eight input channels. The 16 frozen float
+coefficients form an 8->2 matrix. Mapping the setter's input permutation with unique Q14 test
+values recovered the exact vendor input array:
+
+```text
+Q14 interleaved input to dap_vr_output_mode_set:
+16384, 0,
+0,     16384,
+11583, 11583,
+8192,  8192,
+16384, 0,
+0,     16384,
+16384, 0,
+0,     16384
+```
+
+After calling **the original vendor function** `DolbyAudioProcessing.dll+0x46DD0` with
+`(mode=11, output_channels=2, matrix)` on the no-PID-5 core, the entire region
+`core+0x118..0x16f` matches the frozen Windows core byte-for-byte (`region_match=1`).
+
+This state is causal but not sufficient for full oracle parity. Five-point transfer becomes:
+
+```text
+75 Hz 0.10 -> ~0.184727
+75 Hz 0.25 -> ~0.457164
+75 Hz 0.50 -> ~0.911669
+75 Hz 0.70 -> ~0.999869
+997Hz 0.25 -> ~0.452701
+```
+
+Compared with the no-PID-5 baseline (~0.427 at both 75/997 for 0.25), the exact Windows output
+mode moves the broadband response materially toward the oracle (~0.528/~0.523) while preserving
+the high-level ceiling. It is therefore a genuine piece of the pre-update Windows effective DAP
+state, but at least one additional effective-state difference remains.
+
+A preliminary 4-coefficient attempt is invalid and should not be used: mode 11 expects eight input
+channels and therefore sixteen matrix entries. Only the byte-exact 8->2 vendor-setter result above
+is authoritative.
