@@ -1269,3 +1269,58 @@ that DAP was unused for the preceding audio.
 Next: wrap the original `EncodeAudioData` rather than replacing it, measure its in-place PCM before
 and after the real call, and snapshot the DAP-VR core tuple/metadata state immediately before and
 after each Encode invocation.
+
+## Transparent Encode trace and object-only lane measurement
+
+The diagnostic no-op was replaced by a transparent wrapper around the **original** Module2
+`EncodeAudioData`. The wrapper calls the original function unchanged and only records the in-place
+PCM and DAP-VR core state before/after the call.
+
+For native DABS minimal stereo policy (`StereoBypass=1`), DAP reports:
+
+```text
+parent frame count +0x198 = 256
+parent channels   +0xb0  = 2
+PCM inspected per Encode = 512 float samples
+```
+
+The first Encode invocation is the exact lifecycle transition:
+
+```text
+before: core +0x80/+0x84/+0x88 = 0 / 288 / 384, +0xd0 = NULL
+after:  core +0x80/+0x84/+0x88 = 1 / 128 / 192, +0xd0 != NULL
+```
+
+Every subsequent observed Encode keeps the prepared tuple. This directly proves that a normal
+original-DLL Module2 Encode prepares the DAP-VR core on its first audio invocation.
+
+At steady 0.25 input, representative in-place DAP PCM peaks are approximately:
+
+```text
+75 Hz  -> ~0.1684..0.1770 depending on the internal 480/256 buffer phase
+997 Hz -> ~0.1771
+```
+
+A complementary object-only replay omitted `MixChannelBed` while preserving the original DAP
+Encode and static FL/FR object calls. Its steady output is:
+
+```text
+75 Hz  / 0.10 -> ~0.0707997
+75 Hz  / 0.25 -> ~0.1769993
+75 Hz  / 0.50 -> ~0.3539987
+75 Hz  / 0.70 -> ~0.4955981
+997 Hz / 0.25 -> ~0.1770882
+```
+
+The isolated object lane is therefore approximately 0.708 times input over these points, very
+close to the independently recovered HRTF static-object scale constant `0.707945764`. The strange
+full-output transfer is caused by phase/vector combination of the unity bed and the DAP-generated
+object lane, not by an outer scalar multiplier.
+
+Finally, the older no-PID-5 state with only the HRTF stereo-bypass byte forced to 1 produces the
+same five-point full-output curve as the native 60-byte minimal stereo-policy PID-5 state. Thus the
+minimal stereo-policy payload does not supply the missing oracle DSP transfer; for these tests its
+audible effect reduces to the stereo-bed combination policy.
+
+The remaining path to reproduce is the real Windows property-change notification/reconfiguration
+lifecycle, not another scalar/profile fit.
