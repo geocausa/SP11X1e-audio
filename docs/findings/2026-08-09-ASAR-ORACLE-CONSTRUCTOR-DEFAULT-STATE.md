@@ -122,3 +122,46 @@ Removing PID-4 entirely causes HRTF/DAP-VR initialization to fail (`0x80004005`)
 ## Object gain chain closed
 
 `DolbyHrtfEnc!SetAudioObject` reads the static object type, flags and descriptor gain, then multiplies by an internal per-object factor at record `+0xC4`, the API scale and Dolby's internal `0.707945764` factor. In both Windows steady dumps the FL and FR records have descriptor gain `1.0`, internal factor `1.0`, static types `2` and `4`, and no positional mode. The Linux-hosted original DLL reports the same values. The remaining broadband lift is therefore not an unmodeled FL/FR object gain field.
+
+## Post-a099b75 closures
+
+### Media Intelligence lane is not the missing broadband lift
+
+A controlled original-DLL Linux A/B nulled the live AIDE/OAR lane after successful HRTF/DAP initialization, leaving the same FL/FR static-object input and unity bed. The resulting transfer was bit-for-bit unchanged from the clean no-PID-5 baseline:
+
+```text
+75 Hz  / 0.10 : tail peak ~0.170807
+75 Hz  / 0.25 : tail peak ~0.427018
+75 Hz  / 0.50 : tail peak ~0.854035
+997 Hz / 0.25 : tail peak ~0.427293
+```
+
+Therefore the missing ~0.427 -> ~0.523 broadband lift is not produced by the OAR/AIDE Media Intelligence lane in this stereo path.
+
+### Microsoft ASAR adds no post-HRTF gain
+
+The preserved public-symbol/disassembly closure remains valid: `ASAR::MainPluginRenderer::Process` delegates the channel bed through `MixChannelBed` and the final block through `IAsarEncoder2::Process`. At 48 kHz -> 48 kHz the bed scale remains unity. No Microsoft sample-domain gain stage exists between Dolby HRTF output and the ASAR output buffer.
+
+Together with the proved HRTF object-gain chain, the remaining broadband lift must be created inside the original Dolby encoded/object-processing state or by the exact scheduling/state history feeding that state, not by an outer ASAR scalar.
+
+### Live HRTF block-domain state pinned
+
+The live Windows HRTF engine in both the 75-Hz and 997-Hz steady dumps retains the same structural values:
+
+```text
+engine +0x5C58 = 480   // outer/live input-domain frames
+engine +0x5C5C = 256   // inner Dolby processing quantum
+engine +0x2C8C8 = 448  // retained carry/fill state at dump time
+engine +0x2C8D8 = 2    // input channels
+engine +0x2C8DC = 2    // output channels
+```
+
+This does **not** invalidate the recovered `IAsarEncoder2::Initialize(256, 48000, ...)` contract. Instead it proves two simultaneous domains: a 480-frame Windows Audio/ASAR host cadence around a 256-frame Dolby inner quantum, with persistent carry state.
+
+The frozen object/encoded staging buffers themselves are cleared after consumption, so the last object PCM cannot be recovered directly from the dumps. Their retained scheduler metadata is still sufficient to establish the 480 -> 256 adaptation boundary.
+
+### Remaining target
+
+The strongest remaining structural difference is now the host scheduling history rather than a missing tuning scalar. The standalone Linux harness currently submits successive 256-frame object/bed blocks directly, while the live Windows path presents 480-frame ASAR host work around the 256-frame Dolby engine and retains carry state.
+
+Next experiment: reproduce the exact 480-frame host cadence around the original 256-frame HRTF/DAP engine, preserving the same carry/accumulator semantics, then rerun the five-point pre-VLLDP oracle. Do not fit an external gain or clamp.
