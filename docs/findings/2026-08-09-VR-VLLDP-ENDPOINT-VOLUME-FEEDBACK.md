@@ -211,3 +211,47 @@ Final safety-hardened production artifact:
 ```text
 SHA-256 f8c21ddc66af748310caef86f5087f3c991c6de5899cab571906d77375fe9b3b
 ```
+
+
+## Live deployment checkpoint — no audio playback
+
+The safety-hardened build was deployed only after the Audio Streams subsection
+was confirmed empty. No test tone or physical audio stream was opened.
+
+Rollback backups:
+
+```text
+~/.local/state/sp11-dolby/backups/20260809T172601Z
+  original installed plugin SHA-256
+  1e7cc8cb4ec441ee890b73bf90f738c64df88a03e953be502a60025515a3534a
+
+~/.local/state/sp11-dolby/backups/20260809T173201Z
+  intermediate plugin SHA-256
+  28192b3a90323b05f8fe1609522b3d7b0f53b8710ba1f7db5f34bb1e02368be3
+```
+
+Final live plugin:
+
+```text
+SHA-256 f8c21ddc66af748310caef86f5087f3c991c6de5899cab571906d77375fe9b3b
+filter-chain.service                active
+sp11-dolby-volume-sync.service     active + enabled
+default configured sink            effect_input.sp11_windows_dolby
+sink UI volume                     0.16
+raw PipeWire channelVolumes        0.003908 / 0.003908
+postgain request                   -771
+```
+
+The first non-hardened restart had shown the normal WirePlumber creation
+transient (`postgain=0` followed by `-771`) while no stream existed. After the
+cold-start hardening, the monitor was restarted and the filter-chain recreated
+again. Its journal contained only the settled value:
+
+```text
+linear_gain=0.003908 endpoint_db=-48.161 postgain=-771 muted=no
+```
+
+The acknowledgement remains `INT32_MIN` while the graph is suspended because
+no audio callback has run. This is intentional: the request is already mapped
+and the production callback applies it before processing the first future audio
+block. The helper reports this state as **pending**, rather than unavailable.

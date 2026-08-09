@@ -208,6 +208,8 @@ status() {
     else
       echo "VLLDP endpoint postgain: $PGACK ($(postgain_db "$PGACK") dB)"
     fi
+  elif [ "$PGREQ" -ge -1200 ] 2>/dev/null && [ "$PGREQ" -le 0 ] 2>/dev/null; then
+    echo "VLLDP endpoint postgain: pending $PGREQ ($(postgain_db "$PGREQ") dB; applies before next audio block)"
   else
     echo "VLLDP endpoint postgain: unavailable"
   fi
