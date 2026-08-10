@@ -1,0 +1,68 @@
+{
+  "capture": {
+    "date_local": "2026-08-10",
+    "timezone": "Europe/London",
+    "boundary": "qcadcm common GPR SET_CFG plus mapped OOB host payload",
+    "qcadcm_rva_common_submit": "0x53958",
+    "qcadcm_rva_oob_hook": "0x5aa34",
+    "gpr_opcode_filter": "0x01001006",
+    "physical_mmio_debugger_access": false
+  },
+  "driver_hashes": {
+    "qcadcm8380.sys": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+    "qcaucd8380.sys": "bd0c8276c51fc7a020c616e904dd613b6ccf187ec3e1fe6f94c2c811c8adc8bf"
+  },
+  "set_cfg": {
+    "submission_count": 74,
+    "unique_header_count_including_zero": 19,
+    "cps_iid_0x402b_observed": false,
+    "headers": [
+      {"iid":"0x00004001","pid":"0x08001016","size":"0x04","count":4},
+      {"iid":"0x00004024","pid":"0x080011f4","size":"0x18","count":4},
+      {"iid":"0x00004024","pid":"0x080011f5","size":"0x18","count":4},
+      {"iid":"0x00004024","pid":"0x080011f6","size":"0x2c","count":4},
+      {"iid":"0x00004024","pid":"0x080011ff","size":"0x08","count":4},
+      {"iid":"0x00004026","pid":"0x08001017","size":"0x0c","count":4},
+      {"iid":"0x00004027","pid":"0x080011e8","size":"0x44","count":4},
+      {"iid":"0x00004027","pid":"0x080011e9","size":"0x08","count":4},
+      {"iid":"0x0000402c","pid":"0x0800101f","size":"0x18","count":4},
+      {"iid":"0x00004157","pid":"0x08001017","size":"0x0c","count":4},
+      {"iid":"0x0000465f","pid":"0x08001008","size":"0x1e","count":4},
+      {"iid":"0x00004660","pid":"0x0800100c","size":"0x1e","count":4},
+      {"iid":"0x0000466a","pid":"0x08001024","size":"0x10","count":4},
+      {"iid":"0x0000466b","pid":"0x0800102e","size":"0x00","count":3},
+      {"iid":"0x0000466b","pid":"0x0800102f","size":"0x00","count":3},
+      {"iid":"0x0000489e","pid":"0x08001020","size":"0x1c","count":4},
+      {"iid":"0x00004a63","pid":"0x08001038","size":"0x68","count":4},
+      {"iid":"0x00004a63","pid":"0x08001039","size":"0x68","count":4}
+    ]
+  },
+  "param_0x08001259_search": {
+    "buffers_searched": 135,
+    "minimum_size": "0x10",
+    "maximum_size": "0x28e0",
+    "size_counts": {
+      "0x10":16,"0x18":14,"0x20":7,"0x28":21,"0x30":21,"0x40":14,
+      "0x78":14,"0xd8":7,"0x530":7,"0x760":7,"0x28e0":7
+    },
+    "matches": 0
+  },
+  "oob_graph_open": {
+    "captures": 3,
+    "total_size": "0xb18",
+    "split": ["0xac8","0x50"],
+    "intent_id_cps_0x08001537_present": true,
+    "param_0x08001259_present": false,
+    "param_0x08001254_present": false
+  },
+  "raw_log": {
+    "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\QCADCM_DMA_CFG_20260810_2119BST_2448_2026-08-10_21-19-15-709.log",
+    "size_bytes": 151696,
+    "sha256": "43722caee559a04f6d3729d1d2a6a8ae7c18966a6a60fcd474289f383d9d7900"
+  },
+  "interpretation": {
+    "transport_semantics_already_available_via_qcaucd_per_slave_dp6": true,
+    "literal_0x08001259_observed_on_qcadcm_graph_path": false,
+    "next_boundary": "query/event/response or private inter-component path"
+  }
+}
