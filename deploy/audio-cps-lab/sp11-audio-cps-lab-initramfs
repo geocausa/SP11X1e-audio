@@ -1,0 +1,79 @@
+#!/bin/sh
+# Build-time-only hook for the isolated SP11 CPS feedback boot.
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+prereqs) prereqs; exit 0 ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+[ "${version:-}" = "7.1.5-sp11-audio-clean+" ] || exit 0
+[ "${SP11_AUDIO_CPS_LAB_INITRAMFS:-}" = "1" ] || exit 0
+
+artifact_dir=/home/geoca/Documents/SP11-PROJECT/05-audio-integration/artifacts/audio-cps-lab-candidate-20260810
+observe_dir=/home/geoca/Documents/SP11-PROJECT/05-audio-integration/artifacts/audio-observe-candidate-20260810
+
+install_replacement()
+{
+	module=$1
+	candidate=$2
+	expected=$3
+
+	[ -f "$candidate" ] || {
+		echo "SP11 CPS-Lab module is missing: $candidate" >&2
+		exit 1
+	}
+	[ "$(sha256sum "$candidate" | awk '{print $1}')" = "$expected" ] || {
+		echo "SP11 CPS-Lab hash mismatch: $candidate" >&2
+		exit 1
+	}
+
+	source_path=$(modinfo -k "$version" -n "$module")
+	case "$source_path" in
+	/lib/*) archive_path=/usr$source_path ;;
+	/*) archive_path=$source_path ;;
+	*)
+		echo "unexpected $module path: $source_path" >&2
+		exit 1
+	;;
+	esac
+
+	destination=$DESTDIR$archive_path
+	install -d "$(dirname "$destination")"
+	install -m 0644 "$candidate" "$destination"
+	force_load "$module"
+
+	[ "$(sha256sum "$destination" | awk '{print $1}')" = "$expected" ] || {
+		echo "embedded SP11 CPS-Lab hash mismatch: $module" >&2
+		exit 1
+	}
+}
+
+install_replacement soundwire-qcom \
+	"$artifact_dir/soundwire-qcom.ko.zst" \
+	b4524693a5458c5e672d248da6d77c8dad7abed6dcbec31e81c55225de65ae0f
+install_replacement snd-soc-wsa884x \
+	"$artifact_dir/snd-soc-wsa884x.ko.zst" \
+	3106227bac14fb342eb6adf841f52c81e9b33e846ccfe4698e9753f39d8bf78b
+install_replacement snd-soc-lpass-wsa-macro \
+	"$artifact_dir/snd-soc-lpass-wsa-macro.ko.zst" \
+	44e352cb610cf8fc122140efb02c25a4865707b709459cc22c58ea3f6db3bce3
+install_replacement snd-q6apm \
+	"$observe_dir/snd-q6apm.ko.zst" \
+	c1523746a091801b7d40b1dccfe6da8dbf1d257d79e7e80c0574369aff512193
+install_replacement q6apm-lpass-dais \
+	"$artifact_dir/q6apm-lpass-dais.ko.zst" \
+	f842b8be5b78192597da6a1adbd2144895a0ce558c8dad3ab194addcea39f5b2
+install_replacement snd-soc-x1e80100 \
+	"$artifact_dir/snd-soc-x1e80100.ko.zst" \
+	55766f4880eb0c4d36aecd0fbb16187e0c99a023eca8b6feb79f1e6565f20e36
+
+topology=$artifact_dir/X1E80100-Microsoft-Surface-Pro-11-CPS-Lab-tplg.bin
+topology_expected=f385a5d83127cf8f83dab0cbc86f418514f9c8839f2da6aac97e3e2ee782d121
+topology_destination=$DESTDIR/usr/lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-CPS-Lab-tplg.bin
+[ "$(sha256sum "$topology" | awk '{print $1}')" = "$topology_expected" ] || exit 1
+install -d "$(dirname "$topology_destination")"
+install -m 0644 "$topology" "$topology_destination"
+[ "$(sha256sum "$topology_destination" | awk '{print $1}')" = "$topology_expected" ] || exit 1

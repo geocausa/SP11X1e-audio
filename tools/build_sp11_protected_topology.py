@@ -2,8 +2,9 @@
 """Build the evidence-locked Surface Pro 11 protected playback topology.
 
 The generated topology is deliberately narrow: one 48 kHz, S16_LE, stereo
-frontend; one integrated Windows-equivalent AudioReach graph; and the WSA RX0
-backend.  It does not reproduce any of the discarded T14s/quad-graph guesses.
+frontend; one integrated Windows-equivalent AudioReach graph; the WSA RX0
+backend; and the WSA TX0/TX1 VI and CPS protection sidechains.  It does not
+reproduce any of the discarded T14s/quad-graph guesses.
 """
 
 from __future__ import annotations
@@ -18,6 +19,7 @@ from pathlib import Path
 GRAPH_ID = 0
 PLAYBACK_BACKEND_ID = 105  # WSA_CODEC_DMA_RX_0
 VI_BACKEND_ID = 106  # WSA_CODEC_DMA_TX_0
+CPS_BACKEND_ID = 108  # WSA_CODEC_DMA_TX_1
 
 RAW_TYPES = {
     "graph-calibration": 0x53503101,
@@ -173,6 +175,8 @@ def module_tuple(module: dict, outgoing: list[dict]) -> str:
         module_lines.append(f"token263 {PLAYBACK_BACKEND_ID}")
     elif iid == 0x4026:
         module_lines.append(f"token263 {VI_BACKEND_ID}")
+    elif iid == 0x402B:
+        module_lines.append(f"token263 {CPS_BACKEND_ID}")
 
     def block(number: int, lines: list[str]) -> str:
         body = "\n".join(f"\t\t\t\t{line}" for line in lines)
@@ -397,6 +401,12 @@ def render(model: dict, admitted: list[dict], stage_payloads: dict, control: byt
             f"{widget_name(by_iid[sp_iid])}'",
             "\t\t\t'WSA_CODEC_DMA_TX_0 Protection, , "
             f"{widget_name(by_iid[0x4026])}'",
+            # CPS is a second DAPM-only sidechain.  The Windows data
+            # path from 402b through the CPS router remains unchanged.
+            f"\t\t\t'{widget_name(by_iid[0x402B])}, , "
+            f"{widget_name(by_iid[sp_iid])}'",
+            "\t\t\t'WSA_CODEC_DMA_TX_1 Protection, , "
+            f"{widget_name(by_iid[0x402B])}'",
             "\t\t]",
             "\t}",
             "}",
