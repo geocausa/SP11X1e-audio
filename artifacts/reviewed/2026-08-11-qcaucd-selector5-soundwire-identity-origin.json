@@ -1,0 +1,125 @@
+{
+  "date": "2026-08-11",
+  "platform": "Surface Pro 11 Windows",
+  "driver": {
+    "name": "qcaucd8380.sys",
+    "sha256": "bd0c8276c51fc7a020c616e904dd613b6ccf187ec3e1fe6f94c2c811c8adc8bf"
+  },
+  "result": {
+    "selector5_origin_closed": true,
+    "selector5_external_cps_payload_required_by_immediate_hlos_chain": false,
+    "constructor_rva": "0x31430",
+    "registration_writer_rva": "0x21a40",
+    "template_consumer_rva": "0x3ec58",
+    "literal_param_id_0x08001259_observed": false
+  },
+  "identity_classification": {
+    "comparison": "(identity_byte & mask_byte) == mask_byte for six bytes",
+    "selector4_mask": {
+      "rva": "0x12ef0",
+      "bytes": "20 02 17 02 02 00",
+      "constructor_class": "0x40000",
+      "descriptor_selector": 4
+    },
+    "selector5_mask": {
+      "rva": "0x12ef8",
+      "bytes": "20 02 17 02 04 00",
+      "constructor_class": "0x50000",
+      "descriptor_qword_rva": "0x31b30",
+      "descriptor_qword": "0x0000000100000005",
+      "descriptor_selector_dword_at_plus_0x0c": 5,
+      "adjacent_dword_at_plus_0x10": 1
+    }
+  },
+  "sp11_speakers": [
+    {
+      "side": "left",
+      "identity": "0x0000000402170220",
+      "low6_little_endian": "20 02 17 02 04 00",
+      "selector4_mask_match": false,
+      "selector5_mask_match": true,
+      "logical_device": 2
+    },
+    {
+      "side": "right",
+      "identity": "0x0000000402170221",
+      "low6_little_endian": "21 02 17 02 04 00",
+      "selector4_mask_match": false,
+      "selector5_mask_match": true,
+      "logical_device": 1
+    }
+  ],
+  "chain": [
+    "WSA8845 SoundWire identity",
+    "FUN_140031430 identity-family classifier",
+    "descriptor selector 5 / class 0x50000",
+    "FUN_140021a40 BSS runtime registration",
+    "FUN_140022e80 lookup objects class 2 subtype 5..8",
+    "FUN_14003ec58 selector-5 table base 0x15b70",
+    "FUN_14003df18 apply",
+    "FUN_14003bf40 dataport programmer",
+    "FUN_14003ac60 per-slave command primitive",
+    "observed DP6 writes"
+  ],
+  "bss_caveat": {
+    "runtime_registration_region": "RVA 0x177xx..0x17cxx uninitialized tail of .data",
+    "on_disk_bytes_valid_evidence": false,
+    "writers": ["FUN_140022c20", "FUN_140022b68", "FUN_140022cf8", "FUN_140021a40"],
+    "publisher": "FUN_140022df0"
+  },
+  "registration_bridge": {
+    "registration_writer_rva": "0x21a40",
+    "lookup_class_for_soundwire_objects": 2,
+    "lookup_subtypes": [5, 6, 7, 8],
+    "registered_object_pointer": "incoming registration object + 8",
+    "note": "lookup subtype 5..8 is distinct from the secondary descriptor template selector 5"
+  },
+  "template_selection": {
+    "consumer_rva": "0x3ec58",
+    "selector4_table_base_rva": "0x15c60",
+    "selector5_table_base_rva": "0x15b70",
+    "selector5_templates": {
+      "master_port_13_rva": "0x15c40",
+      "master_port_14_rva": "0x15c50"
+    }
+  },
+  "evidence": {
+    "classifier_summary": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcaucd-selector5-identity-classifier.txt",
+      "size_bytes": 1044,
+      "sha256": "ffd82125dc2ab015d15fc166f5bf61e1b497e4a797fcebe60166601be59efae5"
+    },
+    "constructor_decompile": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcaucd-slave-constructor-selector.txt",
+      "size_bytes": 12355,
+      "sha256": "325ff4dc7cf08d1c838021ee2907b86f08dd7ac58fa4770de18f9a4d99f9a8b3"
+    },
+    "bss_registration_writers": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcaucd-bss-registration-writers.txt",
+      "size_bytes": 68530,
+      "sha256": "3bc90a000c9263a045393a313abb39b7cc1176add833f79e0920bda1f7438712"
+    },
+    "registration_callback_callers": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcaucd-registration-callback-callers.txt",
+      "size_bytes": 10821,
+      "sha256": "59777e3509ca81068971f0d2ab1b00e5c30742ec51e478a4d908e959048b7630"
+    },
+    "registration_init_path": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcaucd-registration-init-path.txt",
+      "size_bytes": 14127,
+      "sha256": "bc51557c6f213667f433f60cebeb6282aa6fda9ba1719a65ca504012ceb51667"
+    }
+  },
+  "safety": {
+    "new_kd_session_used": false,
+    "physical_mmio_debugger_reads": false,
+    "mmio_writes": false,
+    "dsp_writes": false,
+    "driver_state_writes": false
+  },
+  "next": {
+    "repeat_windows_selector_or_dp6_runtime_trace": false,
+    "windows_hlos_chain_sufficient_for_linux_parity": true,
+    "linux_parity": "Review/implement normal SoundWire/WSA configuration for slave DP6 on both speakers, mask 0x03, left OffsetCtrl1 0, right OffsetCtrl1 25, 24 kHz / 800-clock timing, with port ordering consistent with master port 13 left and port 14 right. Do not use physical-MMIO workarounds."
+  }
+}

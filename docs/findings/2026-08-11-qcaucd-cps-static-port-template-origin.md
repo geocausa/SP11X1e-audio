@@ -72,12 +72,13 @@ The routine's table selection is:
 - controller index 2 or 3, selector value 4 -> base RVA `0x15c60`;
 - controller index 2 or 3, selector value 5 -> base RVA `0x15b70`.
 
-The exact semantic name of selector values 4 and 5 is not yet proven, so they
-remain numeric in this finding. The current SP11 WSA runtime is consistent with
-the selector-5 branch because only that table carries the exact active master
-port 13/14 -> slave DP6 templates observed at runtime; the selector-4 table has
-those entries disabled/zeroed. This is an inference from static/runtime parity,
-not a direct read of the selector field.
+Follow-up static analysis has now proven the selector-5 origin; see
+`docs/findings/2026-08-11-qcaucd-selector5-soundwire-identity-origin.md`.
+`FUN_140031430` classifies the WSA8845 SoundWire identity family using mask
+`20 02 17 02 04 00`, creates class `0x50000`, and writes selector dword `5`
+to the secondary descriptor at `+0x0c`. Thus selector 5 is no longer merely an
+inference from template/runtime parity; it is a local qcaucd identity-family
+classification result.
 
 ## CPS template bytes
 

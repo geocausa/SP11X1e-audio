@@ -240,6 +240,8 @@ Read these before repeating any experiment:
 - `artifacts/reviewed/2026-08-11-qcaucd-dp6-private-boundary-runtime.json`
 - `docs/findings/2026-08-11-qcaucd-cps-static-port-template-origin.md`
 - `artifacts/reviewed/2026-08-11-qcaucd-cps-static-port-template-origin.json`
+- `docs/findings/2026-08-11-qcaucd-selector5-soundwire-identity-origin.md`
+- `artifacts/reviewed/2026-08-11-qcaucd-selector5-soundwire-identity-origin.json`
 
 ## Raw KD evidence on SP7 (outside Git)
 
@@ -393,6 +395,31 @@ Reviewed static-origin closure:
 
 No additional KD session was needed for this finding and none is justified merely to re-observe these template bytes.
 
-**Updated next strict-Windows decision:** the immediate qcaucd/HLOS origin of the exact DP6 geometry is now closed. Do not repeat qcadcm, template-copy, dataport, slave-command, or physical-FIFO traces. If archaeology continues, restrict it to a genuinely higher semantic path that chooses selector value 5 or the master-port request descriptors from an external CPS/DSP/ACDB contract; stay static first and only return to KD for a new narrow read-only payload boundary. Otherwise move to Linux parity using the established values.
+### Selector-5 semantic origin closure (2026-08-11 00:35 BST)
+
+The previously open selector question is now closed statically without another KD session.
+
+BSS xrefs first established that the `0x177xx..0x17cxx` registration arrays are runtime-populated and must **not** be read from the on-disk image. `FUN_140021a40` populates the later SoundWire registration slots; `FUN_140022e80` subsequently resolves lookup class `2`, subtype `5..8` objects from those runtime entries.
+
+The secondary descriptor consumed by `FUN_14003ec58` is created earlier by `FUN_140031430` (RVA `0x31430`). That constructor classifies six SoundWire identity bytes using initialized `.rdata` masks:
+
+- selector-4 family mask RVA `0x12ef0`: `20 02 17 02 02 00`;
+- selector-5 family mask RVA `0x12ef8`: `20 02 17 02 04 00`.
+
+Comparison is bytewise `(identity & mask) == mask`. Both SP11 WSA8845 identities match the selector-5 mask:
+
+- left `0x0000000402170220` -> LE low6 `20 02 17 02 04 00`;
+- right `0x0000000402170221` -> LE low6 `21 02 17 02 04 00`; first byte still matches mask `0x20` because the distinguishing low bit is intentionally ignored.
+
+On that branch `FUN_140031430` changes the registration object class to `0x50000` and writes the initialized qword at RVA `0x31b30`, `0x0000000100000005`, to secondary descriptor `+0x0c`. Therefore descriptor `+0x0c` dword is literally selector **5** (adjacent `+0x10` dword `1`). `FUN_14003ec58` later reads that selector and chooses table base `0x15b70`, whose port-13/14 CPS templates were already proven above.
+
+Reviewed closure:
+
+- `docs/findings/2026-08-11-qcaucd-selector5-soundwire-identity-origin.md`
+- `artifacts/reviewed/2026-08-11-qcaucd-selector5-soundwire-identity-origin.json`
+
+This means selector `5` is a local qcaucd SoundWire-family classification result, not an unresolved external CPS/ACDB selector. The immediate Windows HLOS chain needed for parity is now closed from WSA identity -> selector 5 -> static CPS templates -> dataport programmer -> per-slave DP6 commands.
+
+**Updated next decision:** do not reopen KD or repeat qcadcm/registration/template/dataport/FIFO tracing for this objective. Move to Linux parity implementation/review using the established normal SoundWire/WSA paths and proven values: both WSA slave DP6 masks `0x03`, left OffsetCtrl1 `0`, right OffsetCtrl1 `25`, 24 kHz / 800-clock timing, with master-port/template ordering consistent with port 13 left and port 14 right. Preserve the absence of public `0x08001259` as a Windows-build implementation observation, not a Linux prerequisite.
 
 End of transfer handoff.
