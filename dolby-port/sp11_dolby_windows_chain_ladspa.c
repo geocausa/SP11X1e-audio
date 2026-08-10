@@ -12,6 +12,7 @@
  */
 #define _GNU_SOURCE
 #include "sp11_vlldp_pe_loader.h"
+#include "sp11_audioeng_limiter.h"
 #include <ladspa.h>
 #include <fcntl.h>
 #include <stdint.h>
@@ -204,6 +205,7 @@ typedef struct {
     int vr_initialized;
 
     float *buf_a,*buf_b;
+    Sp11AudioEngLimiter audioeng_limiter;
 } ChainInst;
 
 static void vl_lock_noop(void*p){(void)p;}
@@ -596,6 +598,7 @@ static LADSPA_Handle chain_instantiate(const LADSPA_Descriptor*d,unsigned long r
     p->current_postgain=0;
     p->last_postgain_request=INT32_MIN;
     p->profile_control_fd=-1;
+    sp11_audioeng_limiter_init(&p->audioeng_limiter);
     int control_rc=chain_profile_control_open(p);
     if(control_rc<0)fprintf(stderr,"sp11-dolby: runtime profile control unavailable; LADSPA startup control only\n");
     /* With the production runtime control enabled, never begin a new endpoint
@@ -685,8 +688,10 @@ static void chain_run(LADSPA_Handle h,unsigned long n){
         p->vl_sched_run(p->vl_sched,1,&vipa,1,&vopa,NULL);
         if(vop.flag==2)memset(p->buf_a,0,(size_t)take*2*sizeof(float));
         for(uint32_t i=0;i<take;i++){
+            float limited_l,limited_r;
+            sp11_audioeng_limiter_process_frame(&p->audioeng_limiter,p->buf_a[2*i],p->buf_a[2*i+1],&limited_l,&limited_r);
             if(dry){ol[pos+i]=il[pos+i];or[pos+i]=ir[pos+i];}
-            else {ol[pos+i]=p->buf_a[2*i];or[pos+i]=p->buf_a[2*i+1];}
+            else {ol[pos+i]=limited_l;or[pos+i]=limited_r;}
         }
         pos+=take;
     }
