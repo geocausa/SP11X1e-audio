@@ -472,3 +472,64 @@ The production consequence is simple: the existing Linux `VR -> VLLDP` stereo ch
 only stages that are transparent for these frozen blocks.  Full HRTF/object hosting remains relevant
 for genuine spatial/object streams, but ordinary stereo does not require routing duplicate FL/FR
 objects through HRTF to match Windows.
+
+## VirtualSurround live-state closure: the 19 static slots are dormant for the frozen stereo oracle
+
+The exact `VirtualSurroundApo.dll` and Microsoft PDB were restored and applied in Ghidra.  The live
+`CVirtualSurround` and `CASARSampleBuffer` objects were then located by their exact vtables in both
+full-memory dumps.
+
+`CVirtualSurround::APOProcess` only calls `WriteSamplesToASARBuffer` when both conditions are true:
+
+```text
+CASARSampleBuffer pointer != NULL
+ASAR-output mode field (CVirtualSurround +0xE0) is 1 or 2
+```
+
+For both frozen ordinary-stereo runs the live state is instead:
+
+```text
+75 Hz
+  CVirtualSurround              0x1ec9216c020
+  initialized +0xDC             1
+  ASAR-output mode +0xE0        0
+  CASARSampleBuffer             0x1ec92896fe0
+
+997 Hz
+  CVirtualSurround              0x2161b120970
+  initialized +0xDC             1
+  ASAR-output mode +0xE0        0
+  CASARSampleBuffer             0x2161b8f22d0
+```
+
+The corresponding `CASARSampleBuffer` state is identical in both dumps:
+
+```text
+sample backing +0x18            NULL
+retained object count +0xD7C    19
+object frame count +0xD80       0
+flags +0xD90..+0xD93            01 00 00 00
+all 19 descriptors              all-zero, stride 0xB4
+```
+
+The PDB-backed accessors prove the layout:
+
+```text
+GetObjectProperties      -> this + 0x20 + index*0xB4
+GetObjectSampleBuffer    -> backing + frame_count*index*4
+ProcessComplete          -> clears ready flag +0xD93
+EnableASAROutput         -> allocates backing and populates descriptors
+```
+
+Because `CVirtualSurround +0xE0 == 0`, the realtime ordinary-stereo `APOProcess` path does **not**
+call `WriteSamplesToASARBuffer`.  It takes the ordinary PCM copy/output path, exactly matching the
+AudioEng graph result that VirtualSurround h4->h5 is byte-identical at 0.25 input.
+
+Therefore the retained count `19` is capability/topology bookkeeping in these snapshots, not proof
+that 19 spatial objects (or FL/FR object duplicates) are carrying the stereo PCM.  The earlier
+research interpretation that ordinary stereo simultaneously flowed as a unity bed plus active FL/FR
+objects is superseded for the Aug-8 oracle runs.
+
+This removes the last structural contradiction with the exact HRTF bed-only parity result:
+ordinary stereo is dry/unity through the ASAR/HRTF bed path, while explicit object injection remains
+a separate test path relevant to genuine spatial/object content.

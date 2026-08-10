@@ -144,11 +144,15 @@ Important corrections:
 
 - the embedded `CASARSampleBuffer` seen between processing passes can look reset/unconfigured;
   AudioEng re-arms it per pass;
-- VirtualSurround exposes **19 static ASAR object slots**, not merely one object;
+- VirtualSurround can expose **19 static ASAR object slots**, not merely one object;
 - the static object type mapping covers the complete Windows spatial speaker/object set;
-- stereo media is deinterleaved into the appropriate static object buffers while AudioEng also
-  carries the unity stereo bed;
-- AudioEng sanitizes/copies the object properties before calling the Dolby encoder.
+- **correction from the Aug-8 full-memory graph closure:** in the frozen ordinary-stereo runs,
+  VirtualSurround's ASAR-object output mode is disabled (`e0=0`), the `CASARSampleBuffer` has no
+  backing allocation or frame count, and all 19 retained descriptors are zero.  The earlier
+  interpretation that the same stereo PCM was simultaneously active in FL/FR object buffers does
+  not describe these oracle runs;
+- when object output is genuinely active, AudioEng sanitizes/copies the object properties before
+  calling the Dolby encoder.
 
 The HRTF static-object setter chooses internal state from the descriptor `type`; the exploratory
 "slot index" argument does not cause FL/FR static objects to overwrite each other.
@@ -176,9 +180,10 @@ other static objects silent), before profile correction:
 997 Hz 0.25 -> 0.295857
 ```
 
-The 75 Hz / 0.25 point is within about 0.6% of the Windows oracle, strongly supporting the
-recovered bed + static-object topology. The whole curve does not yet match, so no fitted gain or
-manual limiter should be introduced.
+This replay remains useful as an explicit HRTF object-path probe, but the later full-memory
+CAPONode closure proves it is **not** the ordinary-stereo Windows oracle topology.  The old
+`~0.528/~0.523` target is produced by Dolby SFX before ASAR, while frozen stereo ASAR itself is
+bit-exact unity.  Therefore this 19-object curve must not be used as a stereo parity target.
 
 ## Concrete live-state mismatch found
 
