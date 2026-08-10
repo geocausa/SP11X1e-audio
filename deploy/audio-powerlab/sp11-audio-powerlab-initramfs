@@ -1,0 +1,75 @@
+#!/bin/sh
+# Build-time-only hook for the isolated SP11 PBR/CPS/power telemetry boot.
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+prereqs) prereqs; exit 0 ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+[ "${version:-}" = "7.1.5-sp11-audio-clean+" ] || exit 0
+[ "${SP11_AUDIO_POWERLAB_INITRAMFS:-}" = "1" ] || exit 0
+
+artifact_dir=/home/geoca/Documents/SP11-PROJECT/05-audio-integration/artifacts/audio-powerlab-candidate-20260810
+observe_dir=/home/geoca/Documents/SP11-PROJECT/05-audio-integration/artifacts/audio-observe-candidate-20260810
+
+install_replacement()
+{
+	module=$1
+	candidate=$2
+	expected=$3
+
+	[ -f "$candidate" ] || {
+		echo "SP11 power-lab module is missing: $candidate" >&2
+		exit 1
+	}
+	[ "$(sha256sum "$candidate" | awk '{print $1}')" = "$expected" ] || {
+		echo "SP11 power-lab hash mismatch: $candidate" >&2
+		exit 1
+	}
+
+	source_path=$(modinfo -k "$version" -n "$module")
+	case "$source_path" in
+	/lib/*) archive_path=/usr$source_path ;;
+	/*) archive_path=$source_path ;;
+	*)
+		echo "unexpected $module path: $source_path" >&2
+		exit 1
+	;;
+	esac
+
+	destination=$DESTDIR$archive_path
+	install -d "$(dirname "$destination")"
+	install -m 0644 "$candidate" "$destination"
+	force_load "$module"
+
+	[ "$(sha256sum "$destination" | awk '{print $1}')" = "$expected" ] || {
+		echo "embedded SP11 power-lab hash mismatch: $module" >&2
+		exit 1
+	}
+}
+
+install_replacement soundwire-qcom \
+	"$artifact_dir/soundwire-qcom.ko.zst" \
+	68137df872ab28204dd53196e1a82744156598968e069ca2962ce8b45d991d85
+install_replacement snd-soc-wsa884x \
+	"$artifact_dir/snd-soc-wsa884x.ko.zst" \
+	68ef789e982d6cd04eec1bec668faf475a8bd127deaafdeae7f571b59ea4857b
+install_replacement snd-q6apm \
+	"$observe_dir/snd-q6apm.ko.zst" \
+	c1523746a091801b7d40b1dccfe6da8dbf1d257d79e7e80c0574369aff512193
+
+# MAX34417 is new to this kernel's module set. Copy it before mkinitramfs runs
+# its final depmod, then request it in /conf/modules without consulting the
+# host module index (where it intentionally does not exist).
+max_candidate=$artifact_dir/max34417.ko
+max_expected=e8ca34e221e65d054d6e48331cf7762e48a3af988a87ff2a928181ed03efbdbb
+max_destination=$DESTDIR/usr/lib/modules/$version/kernel/drivers/hwmon/max34417.ko
+[ -f "$max_candidate" ] || exit 1
+[ "$(sha256sum "$max_candidate" | awk '{print $1}')" = "$max_expected" ] || exit 1
+install -d "$(dirname "$max_destination")"
+install -m 0644 "$max_candidate" "$max_destination"
+echo max34417 >>"$DESTDIR/conf/modules"
+[ "$(sha256sum "$max_destination" | awk '{print $1}')" = "$max_expected" ] || exit 1
