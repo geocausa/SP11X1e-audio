@@ -184,3 +184,49 @@ improves waveform correlation/residual SNR and moves the endpoint peak from the 
 to essentially the exact Windows AudioEng ~0.9859 ceiling.
 
 This makes the limiter a supported production-parity stage rather than a cosmetic safety clamp.
+
+## Live deployment
+
+The exact limiter build was deployed to the user-space SP11 PipeWire Dolby bundle only after the
+native `wpctl` Audio/Streams section confirmed zero active playback streams.  No playback/test sound
+was opened for deployment validation.
+
+Rollback snapshot:
+
+```text
+~/.local/state/sp11-dolby/backups/20260810T031912+0100-audioeng-limiter/
+```
+
+The snapshot contains the prior plugin, PipeWire config, helper, volume-sync executable/service and
+shared control page.  The prior plugin SHA-256 is:
+
+```text
+f8c21ddc66af748310caef86f5087f3c991c6de5899cab571906d77375fe9b3b
+```
+
+Installed production plugin:
+
+```text
+~/.local/lib/sp11-dolby/sp11_dolby_windows_chain.so
+SHA-256 ef4d995216b3ba5ae55189a7d5032a402968e308f18e2f780959788e21179d31
+inode   11059250
+```
+
+`filter-chain.service` PID 35898 was verified to map that exact inode after restart.
+Post-deployment health:
+
+```text
+filter-chain.service             active / enabled
+sp11-dolby-volume-sync.service  active / enabled
+pipewire.service                 active
+pipewire-pulse.service           active
+wireplumber.service              active
+profile                          dynamic
+sink UI volume                   0.06
+VLLDP postgain request           -1150 (-71.875 dB)
+VLLDP postgain ack               -1150
+Audio/Streams                    empty
+```
+
+The endpoint volume and control-page request/ack survived the restart unchanged.  The hardened
+volume-sync service produced no transient unity/postgain-0 event during this deployment.
