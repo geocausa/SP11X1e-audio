@@ -1,0 +1,87 @@
+{
+  "date": "2026-08-10",
+  "platform": "Surface Pro 11 Windows",
+  "driver": {
+    "name": "qcaucd8380.sys",
+    "sha256": "bd0c8276c51fc7a020c616e904dd613b6ccf187ec3e1fe6f94c2c811c8adc8bf"
+  },
+  "result": {
+    "new_private_boundary_identified": true,
+    "generic_soundwire_slave_register_abstraction": true,
+    "static_fixed_dp6_caller_proven": false,
+    "literal_param_id_0x08001259_found": false,
+    "recommended_runtime_boundary": "qcaucd slave-register write helper filtered to 0x0600..0x063f"
+  },
+  "boundaries": [
+    {
+      "rva": "0x31188",
+      "ghidra_name": "FUN_140031188",
+      "role": "direct SoundWire slave-register write helper",
+      "arguments": {"x0": "slave/device context", "w1": "register", "x2": "value"}
+    },
+    {
+      "rva": "0x31298",
+      "ghidra_name": "FUN_140031298",
+      "role": "direct SoundWire slave-register read helper",
+      "arguments": {"x0": "slave/device context", "w1": "register", "x2": "destination pointer"}
+    },
+    {
+      "rva": "0x25810",
+      "ghidra_name": "FUN_140025810",
+      "role": "generic register-write abstraction",
+      "class_0x10000_path": "register | 0x3000 -> FUN_140031188",
+      "other_path": "raw register -> FUN_14003e850"
+    },
+    {
+      "rva": "0x20bc0",
+      "ghidra_name": "FUN_140020bc0",
+      "role": "generic register-read abstraction",
+      "class_0x10000_path": "register | 0x3000 -> FUN_140031298",
+      "other_path": "raw register -> FUN_14003ea00"
+    },
+    {
+      "rva": "0x31430",
+      "ghidra_name": "FUN_140031430",
+      "role": "per-slave state setup; reads 0x3401..0x3404 and selects controller/device context"
+    }
+  ],
+  "known_windows_dp6_layout": {
+    "left": {"identity": "0x0000000402170220", "logical_device": 2, "channel_enable": "0x03", "offset1": "0x00"},
+    "right": {"identity": "0x0000000402170221", "logical_device": 1, "channel_enable": "0x03", "offset1": "0x19"}
+  },
+  "static_evidence": {
+    "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcaucd-slave-helper-all-callers.txt",
+    "size_bytes": 51424,
+    "sha256": "518e27c2beb08ab583303b67412e300bcdac209545970479a1d9c73b68258489"
+  },
+  "runtime_attempt": {
+    "status": "attach rejected before breakpoint arming because KD kernel view was internally inconsistent",
+    "kd_lm_loaded_modules": ["nt"],
+    "qcaucd_resolved_by_kd": false,
+    "drvobj_result": "object-manager state unreadable; qcaucd object not resolved",
+    "independent_target_state": "PiSlave online; qcaucd Running; Qualcomm Aqstic media devices present/OK",
+    "breakpoints_armed": 0,
+    "raw_log": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\QCAUCD_SLAVE_HELPER_20260810_2353BST.log",
+      "size_bytes": 4997,
+      "sha256": "a29c75ca651a37af4aca2f9c83dc19b268010c02fd9fe9c43ac5fda2a9a3d0f7"
+    }
+  },
+  "safety": {
+    "single_kd_owner_verified_before_attach": true,
+    "physical_mmio_debugger_reads": false,
+    "mmio_writes": false,
+    "dsp_writes": false,
+    "slave_register_writes": false,
+    "driver_state_writes": false,
+    "clean_detach_sequence": ["bc *", ".logclose", "qd"],
+    "kd_owner_verified_absent_after_detach": true
+  },
+  "next": {
+    "require_coherent_kd_module_view": true,
+    "trace_write_rva": "0x31188",
+    "register_filter": "0x0600..0x063f",
+    "mode": "read-only logging breakpoint with immediate gc",
+    "question": "Does protected speaker playback send the known per-slave DP6 assignments through this private qcaucd boundary?"
+  }
+}

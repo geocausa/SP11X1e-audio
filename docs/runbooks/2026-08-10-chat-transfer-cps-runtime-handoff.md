@@ -323,4 +323,25 @@ Use this exact idea (paths are sufficient; no need to paste this whole file into
 
 > Continue my Surface Pro 11 CPS/SoundWire reverse-engineering session. SP7 is the KDNET host, SP11 Windows is the target, and PiMaster can access both. First, on SP7 read `C:\Users\SurfacePro7\Documents\SP11X1e-audio-engineering\docs\runbooks\2026-08-10-chat-transfer-cps-runtime-handoff.md` in full. Treat it and the Git branch as the source of truth. Verify Git status/HEAD and verify no existing kd/WinDbg owner before doing anything. Preserve the debugger safety rules exactly, do not use direct physical MMIO reads, and commit/push every worthwhile discovery. Then continue from the recommended next decision rather than repeating closed experiments.
 
+## Post-transfer continuation checkpoint (2026-08-10 23:58 BST)
+
+The first strict-Windows continuation found the genuinely new private boundary requested above:
+
+- `qcaucd8380.sys` direct slave write helper: RVA `0x31188` (`FUN_140031188`), register in argument 1, value in argument 2;
+- direct slave read helper: RVA `0x31298` (`FUN_140031298`);
+- generic write abstraction: RVA `0x25810` (`FUN_140025810`), which can route a raw register into the lower SoundWire command path rather than only fixed WSA telemetry;
+- generic read abstraction: RVA `0x20bc0` (`FUN_140020bc0`), with the matching lower SoundWire read path;
+- per-slave setup function RVA `0x31430` reads slave identity/state registers `0x3401..0x3404`.
+
+Reviewed result:
+
+- `docs/findings/2026-08-10-qcaucd-slave-register-private-boundary.md`
+- `artifacts/reviewed/2026-08-10-qcaucd-slave-register-private-boundary.json`
+
+This supersedes only the earlier narrow statement that reviewed qcaucd routines did not expose a slave-register boundary. It does **not** prove a static DP6 caller or a literal `0x08001259` path.
+
+A first runtime attempt was intentionally abandoned before arming any breakpoint because KD produced an internally inconsistent kernel view (`lm` showed only `nt`, while SP11 PiSlave independently reported `qcaucd` Running and the Qualcomm audio stack healthy). `!drvobj qcaucd 2` also failed to read normal object-manager state. No physical MMIO read, MMIO write, DSP write, slave-register write, or driver-state write was performed. The session ended with `bc *`, `.logclose`, `qd`, and `kd.exe` was verified absent.
+
+**Updated next strict-Windows decision:** on a future coherent KD attach, resolve the fresh qcaucd image base and use a bounded read-only logging breakpoint on RVA `0x31188`, filtered to slave registers `0x0600..0x063f`, with immediate `gc`. The exact question is whether normal protected speaker playback sends the already-known left/right DP6 assignments through this private qcaucd boundary. Do not return to the closed qcadcm searches first, and do not replace this with debugger physical-MMIO reads.
+
 End of transfer handoff.
