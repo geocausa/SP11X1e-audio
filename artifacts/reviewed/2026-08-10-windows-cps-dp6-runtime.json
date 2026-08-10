@@ -1,0 +1,166 @@
+{
+    "schema":  "sp11-windows-cps-dp6-runtime-v1",
+    "date":  "2026-08-10",
+    "scenario":  "CPS_DP6_SLAVES_20260810_2007BST",
+    "evidence_class":  "runtime-observed-with-source-backed-decoding",
+    "debugger":  {
+                     "host":  "SP7",
+                     "target":  "SP11 Windows ARM64",
+                     "debugger":  "kd.exe",
+                     "classic_windbg_concurrent":  false,
+                     "direct_physical_mmio_reads_in_successful_session":  false,
+                     "clean_detach":  true,
+                     "breakpoints_cleared":  true
+                 },
+    "drivers":  {
+                    "qcadcm8380":  {
+                                       "sha256":  "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429"
+                                   },
+                    "qcaucd8380":  {
+                                       "sha256":  "bd0c8276c51fc7a020c616e904dd613b6ccf187ec3e1fe6f94c2c811c8adc8bf",
+                                       "helper_rva":  "0x1bf80"
+                                   }
+                },
+    "evidence":  {
+                     "raw_log":  {
+                                     "path":  "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\CPS_DP6_SLAVES_20260810_2007BST_25f4_2026-08-10_20-07-15-660.log",
+                                     "size_bytes":  48229,
+                                     "sha256":  "A6BBF3574E6CAAF5FDB0FC46EC4BAD0106321AF90CCE91FBEB4F2015B60B66EB"
+                                 },
+                     "decoded_extract":  {
+                                             "path":  "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\CPS_DP6_SLAVES_20260810_2007BST-extract.txt",
+                                             "size_bytes":  4182,
+                                             "sha256":  "D262B3842F9D4620E26DF495EA016412C419010FC24321825978F126ED0662EF"
+                                         },
+                     "prior_master_enumerator_log":  {
+                                                         "path":  "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\CPS_SWR_RUNTIME_20260810_1909Z_2d7c_2026-08-10_19-09-12-880.log",
+                                                         "sha256":  "EE8CB66EB3D7A44BF7FE4AADD61F04BB29BA85520DF5E15E5DED95D2C1B3DC36"
+                                                     }
+                 },
+    "command_fifo":  {
+                         "physical_address":  "0x06b15020",
+                         "packing":  "reg | (cmd_id \u003c\u003c 16) | (logical_dev \u003c\u003c 20) | (data \u003c\u003c 24)",
+                         "decoded_write_count":  328
+                     },
+    "master_port13":  {
+                          "port":  13,
+                          "endpoint_rate_hz":  24000,
+                          "channel_mask":  "0x3",
+                          "observed_writes":  {
+                                                  "0x06b11d24":  [
+                                                                     "0x0000001f"
+                                                                 ],
+                                                  "0x06b11d2c":  [
+                                                                     "0x00000018"
+                                                                 ],
+                                                  "0x06b11d34":  [
+                                                                     "0x000000ff"
+                                                                 ],
+                                                  "0x06b11d38":  [
+                                                                     "0x00000000"
+                                                                 ],
+                                                  "0x06b11d3c":  [
+                                                                     "0x00000003"
+                                                                 ],
+                                                  "0x06b11d54":  [
+                                                                     "0x00000003"
+                                                                 ],
+                                                  "0x06b11d64":  [
+                                                                     "0x00ff001f",
+                                                                     "0x0300001f"
+                                                                 ],
+                                                  "0x06b11d74":  [
+                                                                     "0x000000ff"
+                                                                 ],
+                                                  "0x06b11d78":  [
+                                                                     "0x00000000"
+                                                                 ],
+                                                  "0x06b11d7c":  [
+                                                                     "0x00000003"
+                                                                 ]
+                                              },
+                          "current_bank_snapshot_in_successful_session":  false,
+                          "note":  "Successful no-physical-read session observed slave DP6 bank-1 programming but did not directly read master current-bank status."
+                      },
+    "slaves":  [
+                   {
+                       "logical_device":  1,
+                       "identity":  "0x0000000402170221",
+                       "source_crosscheck_name":  "SpkrRight",
+                       "data_port":  6,
+                       "role_at_wsa8845":  "sink",
+                       "programmed_bank":  1,
+                       "channel_enable":  "0x03",
+                       "sample_ctrl1":  "0x1f",
+                       "sample_ctrl2":  "0x03",
+                       "sample_interval_clocks":  800,
+                       "rate_hz":  24000,
+                       "offset_ctrl1":  "0x19",
+                       "offset_ctrl2_write_observed":  false,
+                       "hctrl":  "0xff",
+                       "block_ctrl1":  "0x18",
+                       "block_ctrl2_write_observed":  false,
+                       "block_ctrl3":  "0x00",
+                       "teardown_channel_enable_bank0":  "0x00",
+                       "teardown_channel_enable_bank1":  "0x00",
+                       "repeat_count":  3
+                   },
+                   {
+                       "logical_device":  2,
+                       "identity":  "0x0000000402170220",
+                       "source_crosscheck_name":  "SpkrLeft",
+                       "data_port":  6,
+                       "role_at_wsa8845":  "sink",
+                       "programmed_bank":  1,
+                       "channel_enable":  "0x03",
+                       "sample_ctrl1":  "0x1f",
+                       "sample_ctrl2":  "0x03",
+                       "sample_interval_clocks":  800,
+                       "rate_hz":  24000,
+                       "offset_ctrl1":  "0x00",
+                       "offset_ctrl2_write_observed":  false,
+                       "hctrl":  "0xff",
+                       "block_ctrl1":  "0x18",
+                       "block_ctrl2_write_observed":  false,
+                       "block_ctrl3":  "0x00",
+                       "teardown_channel_enable_bank0":  "0x00",
+                       "teardown_channel_enable_bank1":  "0x00",
+                       "repeat_count":  3
+                   }
+               ],
+    "interpretation":  {
+                           "windows_split_masks_0x1_0x2":  false,
+                           "both_slaves_native_channel_mask":  "0x3",
+                           "per_speaker_distinction":  "DP6 OffsetCtrl1",
+                           "left_offset":  0,
+                           "right_offset":  25,
+                           "statement":  "Windows programs native CPS DP6 channel mask 0x3 on both WSA8845 slaves; left/right are differentiated by DP6 OffsetCtrl1 0/25."
+                       },
+    "source_crosschecks":  [
+                               {
+                                   "project":  "Qualcomm Android kernel",
+                                   "path":  "drivers/soundwire/swr-wcd-ctrl.c",
+                                   "use":  "logical device mapping and SWR command packing"
+                               },
+                               {
+                                   "project":  "Linux kernel",
+                                   "path":  "include/linux/soundwire/sdw_registers.h",
+                                   "use":  "SoundWire DP register addressing"
+                               },
+                               {
+                                   "project":  "Linux kernel",
+                                   "path":  "sound/soc/codecs/wsa884x.c",
+                                   "use":  "WSA884x CPS is data port 6, default mask 0x3, sink port"
+                               },
+                               {
+                                   "project":  "Qualcomm audio devicetree",
+                                   "path":  "kernel/msm-extra/audio-devicetree/kalama-audio-overlay.dtsi",
+                                   "use":  "master port 13 CPS mask 0x3; 02170220 left offset0; 02170221 right offset25"
+                               }
+                           ],
+    "remaining_gaps":  {
+                           "param_0x08001259_captured":  false,
+                           "current_bank_status_idle_active_poststop_captured_in_successful_session":  false,
+                           "note":  "Transport-level per-slave DP6 is resolved; strict literal handoff snapshot gate remains partial because unsafe direct physical reads were not repeated."
+                       }
+}

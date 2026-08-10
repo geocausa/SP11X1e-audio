@@ -3,10 +3,12 @@
 Date: 2026-08-10 (Europe/London)
 
 > **Status: transport candidate rejected.** The split-mask design below was
-> tested and caused SoundWire bus clashes. It must not be deployed. See
-> `docs/deployment/2026-08-10-audio-cps-lab-candidate.md` for the runtime result
-> and `docs/findings/2026-08-10-qcslimbus-max34417-cps-closure.md` for the
-> repository-wide closure and the exact missing Windows runtime evidence.
+> tested and caused SoundWire bus clashes. It must not be deployed. Windows
+> runtime tracing has since resolved the replacement transport: both WSA8845
+> CPS DP6 ports use native ChannelEnable `0x3`; left/right are distinguished by
+> DP6 OffsetCtrl1 `0` / `25`. See
+> `docs/findings/2026-08-10-windows-cps-dp6-runtime-capture.md` for the captured
+> bytes, identity binding, and remaining strict handoff gaps.
 
 ## Result
 
