@@ -1,0 +1,41 @@
+{
+  "date": "2026-08-10",
+  "target": "Surface Pro 11 Windows ARM64",
+  "scenario": "forced Windows speaker playback via C:\\Windows\\Media\\Alarm01.wav",
+  "driver": {
+    "name": "qcadcm8380.sys",
+    "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+    "runtime_base": "0xfffff801da5b0000"
+  },
+  "boundary": {
+    "static_va": "0x140060d68",
+    "rva": "0x00060d68",
+    "runtime_va": "0xfffff801da610d68",
+    "interpretation": "gsl_set_tagged_custom_config(graph, tag, payload, size)",
+    "observation": "read-only logging breakpoint; first 16 bytes of each payload only"
+  },
+  "records": [
+    {"tag":"0x04000001","size":"0x2e","head_dwords":["0x00000000","0x0800100c","0x0000001e","0x00000000"],"param_id":"0x0800100c"},
+    {"tag":"0x04000003","size":"0x2e","head_dwords":["0x00000000","0x08001008","0x0000001e","0x00000000"],"param_id":"0x08001008"},
+    {"tag":"0x04000005","size":"0x2e","head_dwords":["0x00000000","0x08001008","0x0000001e","0x00000000"],"param_id":"0x08001008"},
+    {"tag":"0x04000007","size":"0x20","head_dwords":["0x00000000","0x08001024","0x00000010","0x00000000"],"param_id":"0x08001024"},
+    {"tag":"0x0400000a","size":"0x20","head_dwords":["0x00000000","0x08001024","0x00000010","0x00000000"],"param_id":"0x08001024"},
+    {"tag":"0x04000029","size":"0x16","head_dwords":["0x00000000","0x08001130","0x00000006","0x00000000"],"param_id":"0x08001130"},
+    {"tag":"0x0401000a","size":"0x18","head_dwords":["0x00000000","0x080011e9","0x00000008","0x00000000"],"param_id":"0x080011e9"},
+    {"tag":"0x0401000b","size":"0x28","head_dwords":["0x00000000","0x080011f5","0x00000018","0x00000000"],"param_id":"0x080011f5"},
+    {"tag":"0x0401000b","size":"0x28","head_dwords":["0x00000000","0x080011f4","0x00000018","0x00000000"],"param_id":"0x080011f4"},
+    {"tag":"0x0401000b","size":"0x18","head_dwords":["0x00000000","0x080011ff","0x00000008","0x00000000"],"param_id":"0x080011ff"}
+  ],
+  "cps_lpass_hw_intf_cfg": {
+    "param_id": "0x08001259",
+    "observed_on_this_boundary": false,
+    "scope": "one forced speaker playback cycle"
+  },
+  "raw_log": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\QCADCM_DMA_CFG_20260810_2119BST_2448_2026-08-10_21-19-15-709.log",
+  "safety": {
+    "physical_mmio_debugger_reads": false,
+    "mmio_writes": false,
+    "dsp_or_driver_state_writes": false,
+    "classic_windbg_concurrent": false
+  }
+}
