@@ -1,22 +1,34 @@
 # SP11 CPS-Lab one-shot boot
 
-This entry replaces the failed CPS-in-playback experiment with the recovered
-Windows transport shape while keeping `sp11-audio-clean` as the persistent
-GRUB default.
+> **Rejected / do not boot as a transport candidate.** The installed CPS-Lab
+> used split CPS masks `0x1` / `0x2`; runtime testing produced SoundWire bus
+> clashes. Windows runtime capture on 2026-08-10 subsequently disproved that
+> allocation model.
 
-- 48 kHz DAI 0: speaker render plus the transport-clean PBR sink lane.
-- 8 kHz DAI 1: established two-channel V/I feedback on WSA TX0.
-- 24 kHz DAI 2: two-channel CPS feedback on WSA TX1.
-- Left/right CPS sources use masks `0x1`/`0x2`, coalescing shared SoundWire
-  master port 13 to mask `0x3`.
-- The card uses a unique CPS-Lab topology filename.  The clean topology is not
-  replaced.
+The historical entry remains documented so the failed experiment is
+reproducible and cannot be mistaken for the clean fallback.
 
-The candidate intentionally omits MAX34417.  The preceding power-lab boot
-proved that all five firmware-described addresses NACK on this hardware, so it
-is not part of the audio-protection path being tested here.
+The rejected candidate used:
 
-The first boot must establish no SoundWire bus clash, 48/8/24 kHz stream
-preparation, topology backend ID 108 on CODEC_DMA_SOURCE `0x402b`, and stable
-playback/protection telemetry.  This remains an experiment, not a claim that
-CPS behaviour or sustained maximum-volume operation is proven safe.
+- 48 kHz DAI 0: speaker render plus the transport-clean PBR sink lane;
+- 8 kHz DAI 1: established two-channel V/I feedback on WSA TX0;
+- 24 kHz DAI 2: two-channel CPS path on WSA TX1;
+- **incorrect** left/right CPS masks `0x1` / `0x2` on SoundWire DP6;
+- a unique CPS-Lab topology filename, leaving the clean topology untouched.
+
+The Windows capture now shows the replacement transport shape:
+
+- both WSA8845 CPS DP6 ports retain native ChannelEnable `0x3`;
+- `0x0000000402170220` / left uses DP6 OffsetCtrl1 `0`;
+- `0x0000000402170221` / right uses DP6 OffsetCtrl1 `25` (`0x19`);
+- the sample interval is 800 clocks / 24 kHz;
+- CPS is WSA data port 6, paired with master port 13.
+
+See
+`docs/findings/2026-08-10-windows-cps-dp6-runtime-capture.md` for the observed
+Windows command bytes and the distinction between direct evidence and
+source-backed interpretation.
+
+Do not promote or reuse this installed split-mask boot. A replacement candidate
+must be rebuilt from the clean baseline using the normal SoundWire/WSA port
+parameter path and must preserve `sp11-audio-clean` as the recovery entry.

@@ -2,6 +2,12 @@
 
 Date: 2026-08-10 (Europe/London)
 
+> **Superseded transport model.** This candidate remains rejected. A later
+> Windows runtime capture proved that both WSA8845 CPS DP6 ports use native
+> ChannelEnable `0x3`, with OffsetCtrl1 `0` on `...0220` / left and `25` on
+> `...0221` / right. See
+> `docs/findings/2026-08-10-windows-cps-dp6-runtime-capture.md`.
+
 ## Deployment state
 
 The isolated GRUB entry `sp11-audio-cps-lab` is installed.  Persistent GRUB
