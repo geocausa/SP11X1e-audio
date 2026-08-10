@@ -93,4 +93,27 @@ The active persistent KD log for this follow-up is:
 
 `C:\Users\SurfacePro7\Documents\KDNET\Codex\CPS_EVT_20260810_2249BST_167c_2026-08-10_22-49-44-527.log`
 
-The log remains outside Git pending final closure/hash and the normal secret/privacy review.
+The session closed cleanly with all breakpoints cleared, `.logclose`, and `qd`.
+
+- final size: 385,126 bytes
+- SHA-256: `1cb1e8c1d4ca1bfafa26c759897ff958ec48cb5fb86aa3b51b261f42b17eb337`
+- zero literal `59 12 00 08` byte rows were present in the closed raw log.
+
+The log remains outside Git pending the normal secret/privacy review.
+
+## Full GET_CFG bodies captured before detach
+
+A final response-body breakpoint captured two successful GET_CFG responses end-to-end and searched each complete packet for `0x08001259`:
+
+- IID `0x4027`, PID `0x080011e8`, parameter size `0x44`, total GPR packet size `0x74`;
+- IID `0x4024`, PID `0x080011f6`, parameter size `0x2c`, total GPR packet size `0x5c`.
+
+Neither complete response contained `0x08001259`. These full-body captures remove the remaining uncertainty created by the earlier header-only GET_CFG logging.
+
+## Static follow-up: two misleading paths eliminated
+
+Static Ghidra analysis identified qcadcm RVA `0x5c5d8` as `gsl_command_hw_rsc_custom_config` and its sole high-level caller as `AudioHwRscIoctl`. The calls service generic hardware-core enable/disable, clock enable/disable, and GPIO configuration. The speaker-protection registration case in the same ioctl does not use this custom-resource command. Therefore the observed `0x0100100f` / `0x01001010` hardware-resource traffic is not the missing CPS SoundWire LPASS configuration path.
+
+A second tempting name, `SetDpHwIfCfg`, was also resolved statically. It patches a tagged record with `mst_idx`, `dptx_idx`, and `channel_allocation`, then sends it with `gsl_set_tagged_custom_config`. Its compared parameter constant is `0x08001154`. Those fields identify DisplayPort audio, not SoundWire data-port 6. It must not be confused with the WSA8845 SoundWire DP6 transport recovered from qcaucd.
+
+These eliminations further concentrate the authoritative Windows CPS transport evidence in qcaucd rather than qcadcm.

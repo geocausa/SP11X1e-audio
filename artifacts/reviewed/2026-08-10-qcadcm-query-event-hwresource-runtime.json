@@ -14,31 +14,50 @@
   "boundaries": [
     {"rva": "0x53958", "role": "common GPR transmit / SET_CFG"},
     {"rva": "0x572d0", "role": "GPR receive"},
-    {"rva": "0x53644", "role": "GET_CFG response completion"},
-    {"rva": "0x5c5d8", "role": "hardware-resource command"},
-    {"rva": "0x5c470", "role": "hardware-resource response"},
-    {"rva": "0x83d00", "role": "graph-event delivery"}
+    {"rva": "0x53644", "role": "GET_CFG response completion inside gsl_send_spf_cmd"},
+    {"rva": "0x5c5d8", "role": "gsl_command_hw_rsc_custom_config"},
+    {"rva": "0x5c470", "role": "gsl_hw_rsc_mgr_gpr_callback"},
+    {"rva": "0x83d00", "role": "graph-event delivery / cbGslGraphfunc"}
   ],
   "hardware_resource": {
     "request_opcodes": ["0x0100100f", "0x01001010"],
     "response_opcodes": ["0x02001002", "0x02001003"],
-    "observed_request_payload_sizes": ["0x14", "0x18", "0x24", "0x48"]
+    "observed_request_payload_sizes": ["0x14", "0x18", "0x24", "0x48"],
+    "static_classification": "generic AudioHwRscIoctl core/clock/GPIO path; not CPS SoundWire configuration"
   },
-  "getcfg_responses": [
+  "getcfg_responses_header_inventory": [
     {"packet_size": "0x34", "target_iid": "0x0000466b", "count": 2},
     {"packet_size": "0x44", "target_iid": "0x0000466b", "count": 2},
     {"packet_size": "0x5c", "target_iid": "0x00004024", "count": 1},
     {"packet_size": "0x74", "target_iid": "0x00004027", "count": 2}
   ],
+  "getcfg_full_bodies": [
+    {"target_iid": "0x00004027", "pid": "0x080011e8", "parameter_size": "0x44", "packet_size": "0x74", "status": 0, "contains_0x08001259": false},
+    {"target_iid": "0x00004024", "pid": "0x080011f6", "parameter_size": "0x2c", "packet_size": "0x5c", "status": 0, "contains_0x08001259": false}
+  ],
   "graph_events_first_counted_interval": [
     {"iid": "0x00004660", "event_id": "0x0800101c", "payload_size": "0x4", "count": 2144},
     {"iid": "0x0000466b", "event_id": "0x08001043", "payload_size": "0x0", "count": 1}
+  ],
+  "static_false_leads": [
+    {
+      "name": "SetDpHwIfCfg",
+      "classification": "DisplayPort audio, not SoundWire data port",
+      "fields": ["mst_idx", "dptx_idx", "channel_allocation"],
+      "compared_pid": "0x08001154"
+    }
   ],
   "safety": {
     "physical_mmio_debugger_reads": false,
     "mmio_writes": false,
     "dsp_writes": false,
-    "single_kd_owner": true
+    "single_kd_owner": true,
+    "clean_detach": true
   },
-  "raw_log": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\CPS_EVT_20260810_2249BST_167c_2026-08-10_22-49-44-527.log"
+  "raw_log": {
+    "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\CPS_EVT_20260810_2249BST_167c_2026-08-10_22-49-44-527.log",
+    "size_bytes": 385126,
+    "sha256": "1cb1e8c1d4ca1bfafa26c759897ff958ec48cb5fb86aa3b51b261f42b17eb337",
+    "literal_59_12_00_08_rows": 0
+  }
 }
