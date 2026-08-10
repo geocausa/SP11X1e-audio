@@ -47,6 +47,20 @@ Replace only the falsified per-amplifier SoundWire allocation.
 The crucial rule is that **both slaves keep mask `0x3`**. The left/right timing
 separation is OffsetCtrl1 `0` / `25`; do not reintroduce `0x1` / `0x2` masks.
 
+Follow-up qcaucd static review corrected one earlier interpretation: Windows
+software state slot 14 is **not** physical master port 14. `FUN_14003bf40`
+skips its master/controller programming block when the slot index is `0x0e`
+but still emits the second slave-DP6 command set. The physical CPS transport is
+one shared master port 13: slot 13 programs that master plus the left slave;
+slot 14 is the right-slave-only companion. See
+`docs/findings/2026-08-11-qcaucd-slot14-shared-master13-correction.md`.
+
+The existing Phase91 DTB independently agrees with this model. WSA configures
+13 master ports total, its 13th static port entry carries `sinterval=0x031f`
+(800 clocks), Offset1 `0`, HStart/HStop `0x0f/0x0f`, WordLength `0x18`, and
+both speaker `qcom,port-mapping` arrays terminate at shared master port 13.
+Therefore **do not add a physical master port 14** to the Linux candidate.
+
 At the WSA8845 side CPS DP6 is a SoundWire sink. The LPASS/AFE CPS endpoint is
 the transmitting side of this path.
 
@@ -62,8 +76,7 @@ The preferred implementation order is:
 2. retain the dedicated 24 kHz CPS/TX1 backend work from kernel source commit
    `23aa077` only where it is still applicable;
 3. remove the split-mask override from the rejected candidate;
-4. add board-specific WSA8845 DP6 port parameters keyed to the two slave
-   identities, with OffsetCtrl1 `0` / `25` and native mask `0x3`;
+4. preserve the existing shared master-port-13 mappings and add/restore only the board-specific **per-slave WSA8845 DP6** parameters keyed to the two slave identities, with OffsetCtrl1 `0` / `25` and native mask `0x3`;
 5. preserve the existing 48 kHz render/PBR and 8 kHz VISENSE paths unchanged;
 6. build a new uniquely named DTB/topology/initrd/GRUB entry rather than
    replacing `sp11-audio-clean` or the historical rejected CPS-Lab artifacts.
@@ -74,7 +87,7 @@ Before arming any one-shot boot, require all of the following:
 
 - source diff reviewed against the accepted clean baseline;
 - no remaining CPS split-mask `0x1` / `0x2` override;
-- DTB decode binds both WSA identities and shows the intended CPS DP6 params;
+- DTB decode preserves both speaker CPS mappings to shared master port 13 (no physical port 14) and, where the exact local driver consumes board data, shows the intended per-slave DP6 parameter selection;
 - CPS DAI prepares at 24 kHz and still maps to TX1/backend 108 in build-time
   topology inspection;
 - kernel/module build and MODPOST pass;
@@ -91,7 +104,7 @@ passes, use one isolated `grub-reboot` candidate. Acceptance requires:
 - DAI 0 / 1 / 2 prepare at 48 / 8 / 24 kHz;
 - both CPS DP6 ports are present with mask `0x3`;
 - left/right offset parameters are `0` / `25`;
-- master port 13 coalesces without SoundWire bus-clash alerts;
+- both WSA slave DP6 endpoints coalesce on shared physical master port 13 without SoundWire bus-clash alerts;
 - protected playback completes without XRUN, PA fault/recovery, or SoundWire
   retry exhaustion;
 - the TX1 CPS backend is active in the protected graph;
@@ -102,6 +115,13 @@ passes, use one isolated `grub-reboot` candidate. Acceptance requires:
 
 The kernel source tree used to produce commit `23aa077` is not present on the
 currently connected SP7, SP11 Windows, or Fedora helper. The SP11 Linux client
-is currently offline. Therefore this plan is deliberately source-ready but not
-implemented or armed yet; guessing a patch against a different kernel tree
-would recreate the evidence problem that caused the rejected candidate.
+is currently offline. The authenticated GitHub account was also checked across
+owned, collaborator, and organization-member repositories; no accessible
+repository contains the exact `23aa077` SP11 kernel lineage, and global commit
+search did not recover the private/local commit.
+
+Therefore this plan is deliberately source-ready but not implemented or armed
+yet. Guessing a patch against a different kernel tree would recreate the
+evidence problem that caused the rejected candidate. Safe work before source
+recovery is limited to artifact/DTB/topology validation and requirements
+capture.

@@ -1,0 +1,49 @@
+{
+  "date": "2026-08-11",
+  "finding": "qcaucd state slot 14 is a slave-only companion; CPS uses one physical master port 13",
+  "qcaucd": {
+    "programmer_rva": "0x3bf40",
+    "slot14_master_block_skipped": true,
+    "slot13": {
+      "entry_rva": "0x15c40",
+      "physical_master_port": 13,
+      "logical_device": 2,
+      "side": "left",
+      "slave_dp6_mask": "0x03",
+      "slave_offset1": "0x00"
+    },
+    "slot14": {
+      "entry_rva": "0x15c50",
+      "physical_master_port": null,
+      "logical_device": 1,
+      "side": "right",
+      "slave_dp6_mask": "0x03",
+      "slave_offset1": "0x19"
+    }
+  },
+  "linux_phase91": {
+    "dtb_sha256": "3a3a1530c23690b7b765a47fadc40730356a405e85b8e5a03ddedeb3e0462231",
+    "wsa_master_ports": 13,
+    "port13_sinterval_register": "0x031f",
+    "port13_interval_clocks": 800,
+    "port13_offset1": "0x00",
+    "left_port_mapping": [1, 2, 3, 7, 10, 13],
+    "right_port_mapping": [4, 5, 6, 7, 11, 13],
+    "cps_enabled_on_both_speakers": true
+  },
+  "linux_driver_indexing": {
+    "repository": "torvalds/linux",
+    "commit": "d58772d8520c7ef247c4b95c9bd76d3a25da9ff5",
+    "path": "drivers/soundwire/qcom.c",
+    "rule": "property element i populates pconfig[i + 1]"
+  },
+  "parity_target": {
+    "shared_physical_master_port": 13,
+    "both_slave_dp6_masks": "0x03",
+    "left_offset1": 0,
+    "right_offset1": 25,
+    "rate_hz": 24000,
+    "interval_clocks": 800,
+    "split_masks_rejected": true
+  }
+}

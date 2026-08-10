@@ -60,7 +60,7 @@ descriptor pointer, reads descriptor `+0x0c`, and selects:
 - value `5` -> table base RVA `0x15b70`.
 
 The selector-5 table is the one already proven to contain the exact SP11 CPS
-port-13/port-14 -> slave-DP6 templates with OffsetCtrl1 `0x00` / `0x19`.
+state-slot-13/14 -> slave-DP6 templates with OffsetCtrl1 `0x00` / `0x19`. Follow-up review proves slot 14 is a slave-only companion and not physical master port 14; both speakers share physical CPS master port 13.
 
 Thus the full immediate Windows HLOS chain is now:
 
@@ -220,5 +220,5 @@ SoundWire/WSA configuration paths:
 - left OffsetCtrl1 `0`;
 - right OffsetCtrl1 `25`;
 - 24 kHz / 800-clock timing;
-- master-port/template ordering consistent with port 13 left and port 14 right;
+- one shared physical master port 13; qcaucd state slot 13 carries left-slave DP6 and master-port programming, while state slot 14 is the right-slave-only companion;
 - no physical-MMIO programming workaround.

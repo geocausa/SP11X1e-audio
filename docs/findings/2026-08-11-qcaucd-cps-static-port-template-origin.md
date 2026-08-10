@@ -7,7 +7,7 @@ Date: 2026-08-11 (Europe/London)
 The next strict-Windows layer above the already-closed qcaucd DP6 command path
 has been identified statically.
 
-`qcaucd8380.sys` contains fixed 16-byte per-master-port SoundWire templates.
+`qcaucd8380.sys` contains fixed 16-byte per-state-slot SoundWire templates. Follow-up review of `FUN_14003bf40` proved that software slot 14 is a slave-only companion slot rather than physical master port 14; see `docs/findings/2026-08-11-qcaucd-slot14-shared-master13-correction.md`.
 The port-configuration entry routine `FUN_14003ec58` (RVA `0x3ec58`) selects
 one of these tables, copies a template into the controller's live per-port state,
 overwrites the slave-ID placeholder with the discovered logical SoundWire
@@ -19,11 +19,8 @@ For controller indices 2/3 when the selector at `param_1[1] + 0xc` is `5`, the
 static table at RVA `0x15b70` contains two consecutive entries that encode the
 Surface Pro 11 speaker CPS schedule directly:
 
-- master port 13 / table RVA `0x15c40` -> slave DP6, channel mask `0x03`,
-  sample controls `0x1f 0x03`, OffsetCtrl1 `0x00`, packed HCtrl nibbles
-  `0x0f/0x0f`, BlockCtrl1 `0x18`, BlockCtrl3 `0x00`;
-- master port 14 / table RVA `0x15c50` -> the same slave DP6 configuration,
-  except OffsetCtrl1 is `0x19`.
+- state slot 13 / table RVA `0x15c40` -> physical master-port-13 programming plus left-slave DP6, channel mask `0x03`, sample controls `0x1f 0x03`, OffsetCtrl1 `0x00`, packed HCtrl nibbles `0x0f/0x0f`, BlockCtrl1 `0x18`, BlockCtrl3 `0x00`;
+- state slot 14 / table RVA `0x15c50` -> right-slave DP6 companion configuration with the same shape except OffsetCtrl1 `0x19`; `FUN_14003bf40` explicitly skips its master-port programming block when the loop index is `0x0e`, so this is not physical master port 14.
 
 These two templates are byte-for-byte consistent with the live `+0x3ac60`
 DP6 capture. The runtime ordering additionally matches the established device
@@ -56,12 +53,12 @@ The routine validates a requested port, chooses a template table from the
 controller index and a selector field, then performs these state writes before
 calling the normal apply path:
 
-1. chooses template entry `table_base + master_port * 0x10`;
+1. chooses template entry `table_base + state_slot * 0x10`;
 2. copies template bytes 0..2 to live state offsets `+0x18..+0x1a`;
 3. copies template bytes 4..15 to live state offsets `+0x1c..+0x27`;
 4. overwrites live state `+0x1a` with `*(byte *)(*param_1 + 1)`, the discovered
    logical SoundWire slave ID used later by `FUN_14003bf40`;
-5. marks the selected master port pending at the controller-state bitmap/array;
+5. marks the selected software state slot pending at the controller-state bitmap/array;
 6. calls `FUN_14003df18`, which invokes the already-reviewed data-port
    programmer `FUN_14003bf40`.
 
@@ -84,7 +81,7 @@ classification result.
 
 Selector-5 table base: RVA `0x15b70`.
 
-### Master port 13
+### State slot 13 (physical master port 13 + left slave)
 
 Entry RVA `0x15c40`:
 
@@ -92,7 +89,7 @@ Entry RVA `0x15c40`:
 0d 06 00 00 03 00 1f 03 00 ff 0f 0f 18 00 ff ff
 ```
 
-### Master port 14
+### State slot 14 (right-slave companion; no physical master port 14)
 
 Entry RVA `0x15c50`:
 
@@ -103,9 +100,9 @@ Entry RVA `0x15c50`:
 The field interpretation is established by following each copied byte through
 `FUN_14003bf40` to `FUN_14003ac60`:
 
-| Template byte | Runtime role in the apply path | Port 13 | Port 14 |
+| Template byte | Runtime role in the apply path | Slot 13 | Slot 14 |
 |---:|---|---:|---:|
-| 0 | master-port/template index | `0x0d` | `0x0e` |
+| 0 | software state-slot/template index | `0x0d` | `0x0e` |
 | 1 | slave data-port number | `0x06` | `0x06` |
 | 2 | placeholder overwritten by logical slave ID | `0x00` | `0x00` |
 | 3 | not copied by `FUN_14003ec58` | `0x00` | `0x00` |
@@ -133,17 +130,21 @@ The runtime closure at `FUN_14003ac60` observed, in order:
   `0603=18`, `0637=00`;
 - logical device 1: the same sequence with `0634=19`.
 
-`FUN_14003bf40` iterates master-port state in ascending port order. Combining
-that control flow with the selector-5 table therefore maps:
+`FUN_14003bf40` iterates software state slots `1..14`. For slots other than
+`0x0e` it first programs the corresponding physical master-port state, then
+emits the slave data-port commands. Slot `0x0e` is special: it skips the entire
+master-port programming block but still emits its slave commands. Combining
+that control flow with the selector-5 table and runtime command order maps:
 
-- master port 13 template -> logical device 2 / left WSA8845
+- state slot 13 -> physical master port 13 plus logical device 2 / left WSA8845
   `0x0000000402170220`;
-- master port 14 template -> logical device 1 / right WSA8845
-  `0x0000000402170221`.
+- state slot 14 -> slave-only companion for logical device 1 / right WSA8845
+  `0x0000000402170221`, sharing the CPS transport programmed by slot 13.
 
-The left/right association is a cross-check between static iteration order and
-runtime command order. The logical-device identities themselves remain grounded
-in the earlier Windows slave enumeration finding.
+The left/right association is a cross-check between static slot iteration order
+and runtime command order. The logical-device identities themselves remain
+grounded in the earlier Windows slave enumeration finding. The physical CPS
+master-port model remains the earlier runtime result: shared master port 13.
 
 ## Higher caller layer
 
@@ -187,8 +188,10 @@ Port-template entry callers:
 ## Updated decision
 
 The immediate HLOS origin of the exact CPS DP6 values is now closed: qcaucd
-static selector-5 templates for master ports 13/14 feed the live state and then
-the already-observed per-slave command path.
+selector-5 state slots 13/14 feed the live state and then the already-observed
+per-slave command path. Slot 13 owns the physical master-port-13 programming;
+slot 14 is a slave-only companion and must not be interpreted as physical
+master port 14.
 
 If strict Windows archaeology continues, the only remaining worthwhile question
 is whether a **higher semantic control path** chooses selector value 5 or the

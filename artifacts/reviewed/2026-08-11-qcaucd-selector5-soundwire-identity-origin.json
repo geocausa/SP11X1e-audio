@@ -120,6 +120,6 @@
   "next": {
     "repeat_windows_selector_or_dp6_runtime_trace": false,
     "windows_hlos_chain_sufficient_for_linux_parity": true,
-    "linux_parity": "Review/implement normal SoundWire/WSA configuration for slave DP6 on both speakers, mask 0x03, left OffsetCtrl1 0, right OffsetCtrl1 25, 24 kHz / 800-clock timing, with port ordering consistent with master port 13 left and port 14 right. Do not use physical-MMIO workarounds."
+    "linux_parity": "Review/implement normal SoundWire/WSA configuration with one shared physical master port 13 and slave DP6 on both speakers: mask 0x03, left OffsetCtrl1 0, right OffsetCtrl1 25, 24 kHz / 800-clock timing. qcaucd state slot 14 is a right-slave-only companion, not physical master port 14. Do not use physical-MMIO workarounds."
   }
 }

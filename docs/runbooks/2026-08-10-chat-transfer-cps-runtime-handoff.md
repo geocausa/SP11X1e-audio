@@ -242,6 +242,8 @@ Read these before repeating any experiment:
 - `artifacts/reviewed/2026-08-11-qcaucd-cps-static-port-template-origin.json`
 - `docs/findings/2026-08-11-qcaucd-selector5-soundwire-identity-origin.md`
 - `artifacts/reviewed/2026-08-11-qcaucd-selector5-soundwire-identity-origin.json`
+- `docs/findings/2026-08-11-qcaucd-slot14-shared-master13-correction.md`
+- `artifacts/reviewed/2026-08-11-qcaucd-slot14-shared-master13-correction.json`
 
 ## Raw KD evidence on SP7 (outside Git)
 
@@ -377,16 +379,16 @@ The successful session ended with `bc *`, `.logclose`, `qd`; afterward SP7 had z
 
 The immediate HLOS source of the exact WSA DP6 values is now also closed statically above `FUN_14003bf40`.
 
-`FUN_14003ec58` (RVA `0x3ec58`) selects a fixed 16-byte per-master-port template, copies it into the live controller port-state block, overwrites the slave-ID placeholder with the discovered logical SoundWire device number, marks that port pending, and calls the `+0x3df18 -> +0x3bf40 -> +0x3ac60` apply chain.
+`FUN_14003ec58` (RVA `0x3ec58`) selects a fixed 16-byte per-state-slot template, copies it into the live controller port-state block, overwrites the slave-ID placeholder with the discovered logical SoundWire device number, marks that slot pending, and calls the `+0x3df18 -> +0x3bf40 -> +0x3ac60` apply chain.
 
 For controller indices 2/3 with selector value 5, table base RVA `0x15b70` contains the exact speaker CPS templates:
 
-- master port 13, entry RVA `0x15c40`: `0d 06 00 00 03 00 1f 03 00 ff 0f 0f 18 00 ff ff`;
-- master port 14, entry RVA `0x15c50`: `0e 06 00 00 03 00 1f 03 19 ff 0f 0f 18 00 ff ff`.
+- state slot 13, entry RVA `0x15c40`: `0d 06 00 00 03 00 1f 03 00 ff 0f 0f 18 00 ff ff`; this slot also programs physical master port 13;
+- state slot 14, entry RVA `0x15c50`: `0e 06 00 00 03 00 1f 03 19 ff 0f 0f 18 00 ff ff`; `FUN_14003bf40` skips master-port programming for loop index `0x0e`, so this is a right-slave-only companion slot, not physical master port 14.
 
-Both target slave DP6. They encode ChannelEnable `03`, SampleCtrl1 `1f`, SampleCtrl2 `03`, HCtrl nibbles `0f/0f` -> `ff`, BlockCtrl1 `18`, BlockCtrl3 `00`; only OffsetCtrl1 differs (`00` vs `19`). The selector-4 table has master-port 13/14 entries disabled, so the current SP11 runtime is consistent with the selector-5 branch. That selector-5 statement is an inference from exact static/runtime parity; the selector field itself was not read at runtime.
+Both target slave DP6. They encode ChannelEnable `03`, SampleCtrl1 `1f`, SampleCtrl2 `03`, HCtrl nibbles `0f/0f` -> `ff`, BlockCtrl1 `18`, BlockCtrl3 `00`; only OffsetCtrl1 differs (`00` vs `19`). The selector-4 table has the corresponding state-slot 13/14 entries disabled, so the current SP11 runtime is consistent with the selector-5 branch.
 
-Because `FUN_14003bf40` iterates master-port state in ascending order and the successful live trace produced logical device 2 / Offset `00` before logical device 1 / Offset `19`, the static/runtime binding is master port 13 -> left logical device 2 and master port 14 -> right logical device 1.
+Crucial follow-up: `FUN_14003bf40` iterates software state slots 1..14 but wraps its physical master-port programming block in `if (uVar10 != 0xe)`. Slot 13 therefore programs physical master port 13 plus logical device 2 / Offset `00`; slot 14 skips physical master programming and emits only logical device 1 / Offset `19` slave commands. The Windows physical CPS transport remains one shared master port 13.
 
 Reviewed static-origin closure:
 
@@ -411,7 +413,7 @@ Comparison is bytewise `(identity & mask) == mask`. Both SP11 WSA8845 identities
 - left `0x0000000402170220` -> LE low6 `20 02 17 02 04 00`;
 - right `0x0000000402170221` -> LE low6 `21 02 17 02 04 00`; first byte still matches mask `0x20` because the distinguishing low bit is intentionally ignored.
 
-On that branch `FUN_140031430` changes the registration object class to `0x50000` and writes the initialized qword at RVA `0x31b30`, `0x0000000100000005`, to secondary descriptor `+0x0c`. Therefore descriptor `+0x0c` dword is literally selector **5** (adjacent `+0x10` dword `1`). `FUN_14003ec58` later reads that selector and chooses table base `0x15b70`, whose port-13/14 CPS templates were already proven above.
+On that branch `FUN_140031430` changes the registration object class to `0x50000` and writes the initialized qword at RVA `0x31b30`, `0x0000000100000005`, to secondary descriptor `+0x0c`. Therefore descriptor `+0x0c` dword is literally selector **5** (adjacent `+0x10` dword `1`). `FUN_14003ec58` later reads that selector and chooses table base `0x15b70`, whose state-slot-13/14 CPS templates were already proven above; only slot 13 corresponds to physical master port 13, while slot 14 is the second-slave companion.
 
 Reviewed closure:
 
@@ -420,6 +422,6 @@ Reviewed closure:
 
 This means selector `5` is a local qcaucd SoundWire-family classification result, not an unresolved external CPS/ACDB selector. The immediate Windows HLOS chain needed for parity is now closed from WSA identity -> selector 5 -> static CPS templates -> dataport programmer -> per-slave DP6 commands.
 
-**Updated next decision:** do not reopen KD or repeat qcadcm/registration/template/dataport/FIFO tracing for this objective. Move to Linux parity implementation/review using the established normal SoundWire/WSA paths and proven values: both WSA slave DP6 masks `0x03`, left OffsetCtrl1 `0`, right OffsetCtrl1 `25`, 24 kHz / 800-clock timing, with master-port/template ordering consistent with port 13 left and port 14 right. Preserve the absence of public `0x08001259` as a Windows-build implementation observation, not a Linux prerequisite.
+**Updated next decision:** do not reopen KD or repeat qcadcm/registration/template/dataport/FIFO tracing for this objective. Move to Linux parity implementation/review using one shared physical WSA master port 13 at 24 kHz / 800 clocks and two WSA slave DP6 endpoints: both masks `0x03`, left OffsetCtrl1 `0`, right OffsetCtrl1 `25`. qcaucd state slot 14 is a right-slave-only companion, not physical master port 14. Preserve the absence of public `0x08001259` as a Windows-build implementation observation, not a Linux prerequisite. The exact local kernel tree containing `23aa077` is still required before source changes; do not guess a patch against another tree.
 
 End of transfer handoff.

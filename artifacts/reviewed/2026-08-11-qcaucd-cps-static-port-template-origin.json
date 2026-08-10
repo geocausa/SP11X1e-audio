@@ -22,7 +22,8 @@
   ],
   "selector5_cps_templates": [
     {
-      "master_port": 13,
+      "state_slot": 13,
+      "physical_master_port": 13,
       "entry_rva": "0x15c40",
       "bytes": "0d 06 00 00 03 00 1f 03 00 ff 0f 0f 18 00 ff ff",
       "slave_port": 6,
@@ -39,11 +40,13 @@
         "logical_device": 2,
         "side": "left",
         "identity": "0x0000000402170220",
-        "binding_basis": "static ascending master-port iteration cross-checked with runtime command order"
+        "binding_basis": "static ascending state-slot iteration cross-checked with runtime command order; slot 13 also programs physical master port 13"
       }
     },
     {
-      "master_port": 14,
+      "state_slot": 14,
+      "physical_master_port": null,
+      "role": "right-slave-only companion state; physical master programming is skipped for slot 0x0e",
       "entry_rva": "0x15c50",
       "bytes": "0e 06 00 00 03 00 1f 03 19 ff 0f 0f 18 00 ff ff",
       "slave_port": 6,
@@ -60,22 +63,22 @@
         "logical_device": 1,
         "side": "right",
         "identity": "0x0000000402170221",
-        "binding_basis": "static ascending master-port iteration cross-checked with runtime command order"
+        "binding_basis": "static ascending state-slot iteration cross-checked with runtime command order; slot 14 skips physical master programming and emits right-slave DP6 only"
       }
     }
   ],
   "template_copy_contract": {
     "function_rva": "0x3ec58",
     "ghidra_name": "FUN_14003ec58",
-    "entry_address_formula": "table_base + master_port * 0x10",
+    "entry_address_formula": "table_base + state_slot * 0x10",
     "copy_0": "template bytes 0..2 -> live per-port state +0x18..+0x1a",
     "copy_1": "template bytes 4..15 -> live per-port state +0x1c..+0x27",
     "logical_device_patch": "live state +0x1a overwritten with discovered logical SoundWire slave ID",
-    "pending_state": "selected master port marked pending before apply",
+    "pending_state": "selected software state slot marked pending before apply",
     "apply_chain": ["FUN_14003df18", "FUN_14003bf40", "FUN_14003ac60"]
   },
   "field_map": [
-    {"byte": 0, "role": "master-port/template index"},
+    {"byte": 0, "role": "software state-slot/template index; slot 14 is not physical master port 14"},
     {"byte": 1, "role": "slave data-port number"},
     {"byte": 2, "role": "placeholder overwritten by logical slave ID"},
     {"byte": 3, "role": "not copied by FUN_14003ec58"},
@@ -134,7 +137,7 @@
   },
   "next": {
     "repeat_dp6_runtime_trace": false,
-    "strict_windows_archaeology": "Only continue statically toward a higher semantic control path that chooses selector value 5 or the master-port request descriptors from an external CPS/DSP/ACDB contract.",
-    "linux_parity": "Use normal SoundWire/WSA port configuration preserving DP6 mask 0x03, left OffsetCtrl1 0, right OffsetCtrl1 25, and established 24 kHz / 800-clock timing."
+    "strict_windows_archaeology": "Selector-5 origin is closed separately; no additional Windows runtime trace is required for Linux parity.",
+    "linux_parity": "Use one shared physical master port 13 and normal SoundWire/WSA per-slave DP6 configuration: mask 0x03 on both speakers, left OffsetCtrl1 0, right OffsetCtrl1 25, 24 kHz / 800-clock timing. State slot 14 is not physical master port 14."
   }
 }
