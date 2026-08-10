@@ -262,3 +262,100 @@ current evidence strongly suggests that the active ASAR stereo path preserves th
 that the large ~0.52 lift occurs only in external DolbyApoVr, but that final handle-to-ASAR-edge
 mapping should be completed before declaring the ASAR stereo path bit-exact unity from graph
 provenance alone.
+
+## AudioEng CAPONode closure: ASAR is bit-exact unity on the frozen stereo blocks
+
+The Windows system partition retained the two original full-memory dumps.  They can be mounted
+read-only from Linux and analyzed without rebooting Windows.  Microsoft `AudioDG.pdb` symbols show
+that `CAPONode` keeps its committed connection lists at:
+
+```text
+CAPONode +0x38  current input CConnectionNode* array
+CAPONode +0x58  current output CConnectionNode* array
+CAPONode +0xB8  current input APO_CONNECTION_PROPERTY* array
+CAPONode +0xD8  current output APO_CONNECTION_PROPERTY* array
+```
+
+`CAudioProcessor::AddAPOInputConnection` / `AddAPOOutputConnection` and
+`CAPONode::CommitConnections` prove the direction of those lists.  This removes the last need to
+infer ASAR direction from waveform timing.
+
+The live CAPONode carrying the Adaptive Spatial Audio Renderer GUID
+`{5bbc2c71-dec2-4ba3-961a-36f37d1cc8a5}` resolves as follows:
+
+```text
+75 Hz dump
+  CAPONode     0x1ec931268c0
+  input        handle 10, PCM 0x1ec93f2a1c0, 480 frames
+  output       handle 11, PCM 0x1ec93f2b200, 480 frames
+  input peak   0.527793050
+  output peak  0.527793050
+  comparison   960 / 960 float32 samples byte-identical
+  RMSE         0
+  max diff     0
+
+997 Hz dump
+  CAPONode     0x2161a6d68c0
+  input        handle 10, PCM 0x2161af8a1c0, 480 frames
+  output       handle 11, PCM 0x2161af8b200, 480 frames
+  input peak   0.522895157
+  output peak  0.522895157
+  comparison   960 / 960 float32 samples byte-identical
+  RMSE         0
+  max diff     0
+```
+
+Therefore the state-pinned Windows ASAR node is **bit-exact unity for these steady stereo blocks**.
+The several-dB `0.25 -> ~0.52` lift is already present at ASAR input; it is not generated inside
+ASAR/HRTF/DAP for this path.
+
+This also refines the earlier buffer-provenance statement.  Byte identity between captured VR output
+and VLLDP input did not prove that the two components were directly adjacent.  The AudioEng graph
+contains a transparent ASAR edge between the boosted signal and the downstream Dolby DAX MFX edge.
+
+## Exact downstream AudioEng graph edges
+
+The same CAPONode method was applied to other GUIDs already identified from Windows ETW.  Both dumps
+produce the same connection topology:
+
+```text
+Adaptive Spatial Audio Renderer
+  handle 10 -> handle 11
+  exact PCM copy for the frozen stereo block
+
+Dolby DAX MFX
+  handle 11 -> handle 12
+  75 Hz:  0.527793050 -> 0.583327830
+  997 Hz: 0.522895157 -> 0.467585027
+
+Surface render MFX
+  handle 12 -> handle 13
+  same peak on both sides
+
+AudioLimiter
+  handle 13 -> handle 14
+  same peak on both sides for these non-limiting blocks
+
+AudioFormatConvert
+  handle 14 -> handle 15
+```
+
+The Dolby DAX MFX edge is therefore the graph edge whose output matches the independently recovered
+VLLDP output staging.  For the state-pinned stereo oracle, the proven downstream dependency is:
+
+```text
+... -> VR-produced ~0.52 signal
+    -> Adaptive Spatial Audio Renderer (handle 10 -> 11, bit-exact unity)
+    -> Dolby DAX MFX / VLLDP (handle 11 -> 12)
+    -> Surface render MFX
+    -> AudioLimiter
+    -> AudioFormatConvert
+```
+
+The upstream producer of handle 10 still needs to be named from the graph, but the ASAR parity target
+is now closed: reproducing `~0.528/~0.523` inside HRTF was the wrong target.  For these frozen stereo
+blocks Windows ASAR preserves its input exactly.
+
+A reusable dump-side checker was added as `tools/analyze_windows_apo_graph.py`.  It parses the
+Memory64 stream directly, so it does not depend on third-party minidump libraries recognizing the
+Windows ARM64 architecture enum.
