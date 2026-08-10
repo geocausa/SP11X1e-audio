@@ -1,0 +1,44 @@
+{
+  "date": "2026-08-10",
+  "platform": "Surface Pro 11 Windows",
+  "driver": {
+    "name": "qcadcm8380.sys",
+    "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429"
+  },
+  "result": {
+    "literal_param_id_0x08001259_seen": false,
+    "literal_intent_id_0x08001537_seen_at_followup_boundaries": false,
+    "cps_source_iid_0x402b_seen_in_getcfg_responses": false,
+    "handoff_transport_equivalent_already_closed_by_qcaucd_dp6_capture": true
+  },
+  "boundaries": [
+    {"rva": "0x53958", "role": "common GPR transmit / SET_CFG"},
+    {"rva": "0x572d0", "role": "GPR receive"},
+    {"rva": "0x53644", "role": "GET_CFG response completion"},
+    {"rva": "0x5c5d8", "role": "hardware-resource command"},
+    {"rva": "0x5c470", "role": "hardware-resource response"},
+    {"rva": "0x83d00", "role": "graph-event delivery"}
+  ],
+  "hardware_resource": {
+    "request_opcodes": ["0x0100100f", "0x01001010"],
+    "response_opcodes": ["0x02001002", "0x02001003"],
+    "observed_request_payload_sizes": ["0x14", "0x18", "0x24", "0x48"]
+  },
+  "getcfg_responses": [
+    {"packet_size": "0x34", "target_iid": "0x0000466b", "count": 2},
+    {"packet_size": "0x44", "target_iid": "0x0000466b", "count": 2},
+    {"packet_size": "0x5c", "target_iid": "0x00004024", "count": 1},
+    {"packet_size": "0x74", "target_iid": "0x00004027", "count": 2}
+  ],
+  "graph_events_first_counted_interval": [
+    {"iid": "0x00004660", "event_id": "0x0800101c", "payload_size": "0x4", "count": 2144},
+    {"iid": "0x0000466b", "event_id": "0x08001043", "payload_size": "0x0", "count": 1}
+  ],
+  "safety": {
+    "physical_mmio_debugger_reads": false,
+    "mmio_writes": false,
+    "dsp_writes": false,
+    "single_kd_owner": true
+  },
+  "raw_log": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\CPS_EVT_20260810_2249BST_167c_2026-08-10_22-49-44-527.log"
+}
