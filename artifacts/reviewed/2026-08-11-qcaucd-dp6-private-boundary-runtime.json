@@ -1,0 +1,116 @@
+{
+  "date": "2026-08-11",
+  "platform": "Surface Pro 11 Windows",
+  "driver": {
+    "name": "qcaucd8380.sys",
+    "sha256": "bd0c8276c51fc7a020c616e904dd613b6ccf187ec3e1fe6f94c2c811c8adc8bf"
+  },
+  "result": {
+    "private_dp6_boundary_closed": true,
+    "dataport_programmer_rva": "0x3bf40",
+    "slave_command_write_rva": "0x3ac60",
+    "literal_param_id_0x08001259_observed": false,
+    "dp6_write_hits": 18,
+    "controller_index": 2
+  },
+  "runtime_base": {
+    "source": "NtQuerySystemInformation(SystemModuleInformation) on SP11",
+    "base": "0xfffff80329b70000",
+    "size": "0x5d000",
+    "load_order_index": 237,
+    "kd_lm_trusted": false,
+    "live_rva_validation_by_kernel_virtual_disassembly": true
+  },
+  "boundaries": {
+    "dataport_programmer": {
+      "rva": "0x3bf40",
+      "ghidra_name": "FUN_14003bf40",
+      "role": "iterate enabled SoundWire data ports, construct per-port slave register addresses, and call the direct slave command primitive"
+    },
+    "slave_command_write": {
+      "rva": "0x3ac60",
+      "ghidra_name": "FUN_14003ac60",
+      "live_va": "0xfffff80329baac60",
+      "arguments": {
+        "w0_low_byte": "logical SoundWire slave device number",
+        "x1_low_32_bits": "slave register address",
+        "x1_bits_32_39": "byte value",
+        "w2": "controller/index context"
+      }
+    }
+  },
+  "negative_witnesses": [
+    {
+      "rva": "0x31188",
+      "ghidra_name": "FUN_140031188",
+      "scenario": "one internal-speaker Alarm01.wav playback cycle",
+      "dp6_hits": 0
+    },
+    {
+      "rva": "0x3e850",
+      "ghidra_name": "FUN_14003e850",
+      "scenario": "one internal-speaker Alarm01.wav playback cycle",
+      "dp6_hits": 0
+    }
+  ],
+  "stimulus": {
+    "default_multimedia_render": "internal Qualcomm Speakers",
+    "file": "C:\\Windows\\Media\\Alarm01.wav",
+    "method": "System.Media.SoundPlayer.PlaySync()"
+  },
+  "dp6_writes": [
+    {"n": 1, "logical_device": 2, "register": "0x0630", "value": "0x03", "controller_index": 2, "packed": "0xfffff80300000630"},
+    {"n": 2, "logical_device": 2, "register": "0x0632", "value": "0x1f", "controller_index": 2, "packed": "0xfffff81f00000632"},
+    {"n": 3, "logical_device": 2, "register": "0x0633", "value": "0x03", "controller_index": 2, "packed": "0xfffff80300000633"},
+    {"n": 4, "logical_device": 2, "register": "0x0634", "value": "0x00", "controller_index": 2, "packed": "0xfffff80000000634"},
+    {"n": 5, "logical_device": 2, "register": "0x0636", "value": "0xff", "controller_index": 2, "packed": "0xfffff8ff00000636"},
+    {"n": 6, "logical_device": 2, "register": "0x0603", "value": "0x18", "controller_index": 2, "packed": "0xfffff81800000603"},
+    {"n": 7, "logical_device": 2, "register": "0x0637", "value": "0x00", "controller_index": 2, "packed": "0xfffff80000000637"},
+    {"n": 8, "logical_device": 1, "register": "0x0630", "value": "0x03", "controller_index": 2, "packed": "0xfffff80300000630"},
+    {"n": 9, "logical_device": 1, "register": "0x0632", "value": "0x1f", "controller_index": 2, "packed": "0xfffff81f00000632"},
+    {"n": 10, "logical_device": 1, "register": "0x0633", "value": "0x03", "controller_index": 2, "packed": "0xfffff80300000633"},
+    {"n": 11, "logical_device": 1, "register": "0x0634", "value": "0x19", "controller_index": 2, "packed": "0xfffff81900000634"},
+    {"n": 12, "logical_device": 1, "register": "0x0636", "value": "0xff", "controller_index": 2, "packed": "0xfffff8ff00000636"},
+    {"n": 13, "logical_device": 1, "register": "0x0603", "value": "0x18", "controller_index": 2, "packed": "0xfffff81800000603"},
+    {"n": 14, "logical_device": 1, "register": "0x0637", "value": "0x00", "controller_index": 2, "packed": "0xfffff80000000637"},
+    {"n": 15, "logical_device": 2, "register": "0x0620", "value": "0x00", "controller_index": 2, "packed": "0xfffff80000000620"},
+    {"n": 16, "logical_device": 1, "register": "0x0620", "value": "0x00", "controller_index": 2, "packed": "0xfffff80000000620"},
+    {"n": 17, "logical_device": 2, "register": "0x0630", "value": "0x00", "controller_index": 2, "packed": "0x0000000000000630"},
+    {"n": 18, "logical_device": 1, "register": "0x0630", "value": "0x00", "controller_index": 2, "packed": "0x0000000000000630"}
+  ],
+  "speaker_binding": {
+    "logical_device_2": {"identity": "0x0000000402170220", "side": "left", "active_channel_enable": "0x03", "offset_ctrl1": "0x00"},
+    "logical_device_1": {"identity": "0x0000000402170221", "side": "right", "active_channel_enable": "0x03", "offset_ctrl1": "0x19"}
+  },
+  "observed_absent_registers": ["0x0631", "0x0635"],
+  "evidence": {
+    "runtime_log": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\QCAUCD_DP6_HELPER_20260811_0001BST.log",
+      "size_bytes": 14257,
+      "sha256": "34c6bd115cb83b0a747f9bd4e4120fa1b53ff6171514d78f159162225cebe568",
+      "note": "Ignore the raw breakpoint val= text; decode the authoritative packed x1 value using (packed >> 32) & 0xff."
+    },
+    "dataport_programmer_decompile": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcaucd-3bf40.txt",
+      "size_bytes": 9925,
+      "sha256": "984e58423bcd56bfe3b2937e620ef223c8da46c8b5b7d26f2669facb09e5998c"
+    }
+  },
+  "safety": {
+    "single_kd_owner": true,
+    "physical_mmio_debugger_reads": false,
+    "mmio_writes": false,
+    "dsp_writes": false,
+    "slave_register_writes_by_debugger": false,
+    "driver_state_writes": false,
+    "kernel_virtual_disassembly_only_for_rva_validation": true,
+    "clean_detach_sequence": ["bc *", ".logclose", "qd"],
+    "kd_owner_verified_absent_after_detach": true,
+    "running_pimaster_jobs_after_detach": 0
+  },
+  "next": {
+    "repeat_private_dp6_playback_trace": false,
+    "strict_windows_archaeology": "If the semantic origin of the missing public 0x08001259 contract is still required, analyze callers/state population above FUN_14003bf40 rather than repeating qcadcm or lower DP6 traces.",
+    "linux_parity": "Preserve WSA DP6 mask 0x03 on both speakers, left Offset1 0, right Offset1 25, interval 800 clocks / 24 kHz, through normal SoundWire/WSA port-parameter paths."
+  }
+}

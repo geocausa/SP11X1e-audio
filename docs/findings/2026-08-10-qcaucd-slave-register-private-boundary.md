@@ -2,6 +2,25 @@
 
 Date: 2026-08-10 (Europe/London)
 
+## Follow-up closure — 2026-08-11
+
+The runtime recommendation in this checkpoint has now been superseded by
+`docs/findings/2026-08-11-qcaucd-dp6-private-boundary-runtime.md`.
+
+A validated read-only playback trace produced zero DP6-range hits at both
+`FUN_140031188` (RVA `0x31188`) and the generic lower wrapper
+`FUN_14003e850` (RVA `0x3e850`). Fresh static analysis then identified
+`FUN_14003bf40` (RVA `0x3bf40`) as the actual SoundWire data-port programmer;
+it constructs the per-port slave-register addresses and calls
+`FUN_14003ac60` (RVA `0x3ac60`) directly. A breakpoint at `+0x3ac60`
+captured all 18 expected DP6 setup/teardown writes in one speaker playback
+cycle, including both active masks `0x03` and the left/right OffsetCtrl1 values
+`0x00` / `0x19`.
+
+Do not repeat the `+0x31188` recommendation below. The private DP6 programming
+boundary is closed at `+0x3bf40 -> +0x3ac60`; any further strict-Windows
+archaeology should move above `+0x3bf40` into the caller/state-population path.
+
 ## Result
 
 A new private boundary below the already-closed qcadcm layers has been recovered

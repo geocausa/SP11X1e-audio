@@ -236,6 +236,8 @@ Read these before repeating any experiment:
 - `docs/findings/2026-08-10-windows-audio-driverstore-cps-id-sweep.md`
 - `artifacts/reviewed/2026-08-10-windows-audio-driverstore-cps-id-sweep.json`
 - `docs/runbooks/2026-08-10-kd-mcp-cps-soundwire-runtime-handoff.md`
+- `docs/findings/2026-08-11-qcaucd-dp6-private-boundary-runtime.md`
+- `artifacts/reviewed/2026-08-11-qcaucd-dp6-private-boundary-runtime.json`
 
 ## Raw KD evidence on SP7 (outside Git)
 
@@ -323,25 +325,50 @@ Use this exact idea (paths are sufficient; no need to paste this whole file into
 
 > Continue my Surface Pro 11 CPS/SoundWire reverse-engineering session. SP7 is the KDNET host, SP11 Windows is the target, and PiMaster can access both. First, on SP7 read `C:\Users\SurfacePro7\Documents\SP11X1e-audio-engineering\docs\runbooks\2026-08-10-chat-transfer-cps-runtime-handoff.md` in full. Treat it and the Git branch as the source of truth. Verify Git status/HEAD and verify no existing kd/WinDbg owner before doing anything. Preserve the debugger safety rules exactly, do not use direct physical MMIO reads, and commit/push every worthwhile discovery. Then continue from the recommended next decision rather than repeating closed experiments.
 
-## Post-transfer continuation checkpoint (2026-08-10 23:58 BST)
+## Post-transfer continuation checkpoint (2026-08-11 00:12 BST)
 
-The first strict-Windows continuation found the genuinely new private boundary requested above:
+The first strict-Windows continuation found and then runtime-closed the genuinely new private qcaucd SoundWire data-port boundary requested above.
 
-- `qcaucd8380.sys` direct slave write helper: RVA `0x31188` (`FUN_140031188`), register in argument 1, value in argument 2;
-- direct slave read helper: RVA `0x31298` (`FUN_140031298`);
-- generic write abstraction: RVA `0x25810` (`FUN_140025810`), which can route a raw register into the lower SoundWire command path rather than only fixed WSA telemetry;
-- generic read abstraction: RVA `0x20bc0` (`FUN_140020bc0`), with the matching lower SoundWire read path;
-- per-slave setup function RVA `0x31430` reads slave identity/state registers `0x3401..0x3404`.
+Initial static work recovered the generic qcaucd slave-register helpers (`+0x31188`, `+0x31298`, `+0x25810`, `+0x20bc0`). Follow-up runtime showed that the speaker DP6 configuration bypasses the two plausible write wrappers tested during ordinary playback:
 
-Reviewed result:
+- `FUN_140031188` / RVA `0x31188`: zero DP6-range hits;
+- `FUN_14003e850` / RVA `0x3e850`: zero DP6-range hits.
 
-- `docs/findings/2026-08-10-qcaucd-slave-register-private-boundary.md`
-- `artifacts/reviewed/2026-08-10-qcaucd-slave-register-private-boundary.json`
+Fresh Ghidra analysis then identified the actual dataport path:
 
-This supersedes only the earlier narrow statement that reviewed qcaucd routines did not expose a slave-register boundary. It does **not** prove a static DP6 caller or a literal `0x08001259` path.
+- `FUN_14003bf40` / RVA `0x3bf40`: SoundWire data-port programmer; constructs per-port slave register addresses (`port * 0x100 + 0x20`, `+0x22`, `+0x23`, `+0x24`, `+0x25`, `+0x26`, `+0x03`, plus associated bank controls);
+- `FUN_14003ac60` / RVA `0x3ac60`: direct slave-command primitive called by that programmer.
 
-A first runtime attempt was intentionally abandoned before arming any breakpoint because KD produced an internally inconsistent kernel view (`lm` showed only `nt`, while SP11 PiSlave independently reported `qcaucd` Running and the Qualcomm audio stack healthy). `!drvobj qcaucd 2` also failed to read normal object-manager state. No physical MMIO read, MMIO write, DSP write, slave-register write, or driver-state write was performed. The session ended with `bc *`, `.logclose`, `qd`, and `kd.exe` was verified absent.
+KD's `lm` loader walk remained broken on this boot, so qcaucd's live base was recovered independently and read-only with `NtQuerySystemInformation(SystemModuleInformation)` on SP11: base `0xfffff80329b70000`, size `0x5d000`. The computed RVAs were then validated by normal kernel virtual disassembly in KD before any breakpoint was armed. No physical address was read.
 
-**Updated next strict-Windows decision:** on a future coherent KD attach, resolve the fresh qcaucd image base and use a bounded read-only logging breakpoint on RVA `0x31188`, filtered to slave registers `0x0600..0x063f`, with immediate `gc`. The exact question is whether normal protected speaker playback sends the already-known left/right DP6 assignments through this private qcaucd boundary. Do not return to the closed qcadcm searches first, and do not replace this with debugger physical-MMIO reads.
+At live `qcaucd+0x3ac60` (`0xfffff80329baac60`), the entry instructions validated the static argument contract: logical slave device from `w0`, register from low 32 bits of `x1`, value from bits 32..39 of `x1`, controller/index from `w2`.
+
+One synchronous `C:\Windows\Media\Alarm01.wav` cycle through the independently confirmed internal Qualcomm `Speakers` endpoint produced 18 DP6-range writes. Decoding the authoritative packed `x1` argument reproduced the established Windows layout exactly:
+
+- logical device 2 / left `0x0000000402170220`: `0630=03`, `0632=1f`, `0633=03`, `0634=00`, `0636=ff`, `0603=18`, `0637=00`;
+- logical device 1 / right `0x0000000402170221`: same values except `0634=19`;
+- teardown: both devices `0620=00`, then both `0630=00`;
+- controller/index `2` for all 18 rows;
+- no `0631` or `0635` write observed.
+
+The raw KD `val=` text in this capture is not authoritative because of pseudo-register formatting; the reviewed values are decoded from `packed` as `(packed >> 32) & 0xff`.
+
+Reviewed closure:
+
+- `docs/findings/2026-08-11-qcaucd-dp6-private-boundary-runtime.md`
+- `artifacts/reviewed/2026-08-11-qcaucd-dp6-private-boundary-runtime.json`
+
+Raw evidence outside Git:
+
+- `C:\Users\SurfacePro7\Documents\KDNET\Codex\QCAUCD_DP6_HELPER_20260811_0001BST.log`
+  - size 14,257
+  - SHA-256 `34C6BD115CB83B0A747F9BD4E4120FA1B53FF6171514D78F159162225CEBE568`
+- `C:\Users\SurfacePro7\Documents\KDNET\Codex\qcaucd-3bf40.txt`
+  - size 9,925
+  - SHA-256 `984E58423BCD56BFE3B2937E620EF223C8DA46C8B5B7D26F2669FACB09E5998C`
+
+The successful session ended with `bc *`, `.logclose`, `qd`; afterward SP7 had zero `kd` processes and zero running PiMaster jobs. No direct debugger physical-MMIO read, MMIO write, DSP write, SoundWire slave-register write, or arbitrary driver-state write was performed.
+
+**Updated next strict-Windows decision:** do not repeat qcadcm, `+0x31188`, `+0x3e850`, `+0x3ac60`, or physical-FIFO playback traces. The private Windows DP6 programming path is closed at `+0x3bf40 -> +0x3ac60`. If the semantic origin of the missing public `0x08001259` contract is still required, move **above `FUN_14003bf40`** and statically identify the caller/state-population path that fills its per-port configuration structure. Only return to KD if that static work exposes a new, narrow, read-only semantic boundary. Otherwise, move the project forward using the established Windows parity target on Linux.
 
 End of transfer handoff.

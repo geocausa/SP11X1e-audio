@@ -10,7 +10,7 @@
     "generic_soundwire_slave_register_abstraction": true,
     "static_fixed_dp6_caller_proven": false,
     "literal_param_id_0x08001259_found": false,
-    "recommended_runtime_boundary": "qcaucd slave-register write helper filtered to 0x0600..0x063f"
+    "recommended_runtime_boundary": "superseded by 2026-08-11 qcaucd DP6 private-boundary runtime closure"
   },
   "boundaries": [
     {
@@ -67,6 +67,16 @@
       "sha256": "a29c75ca651a37af4aca2f9c83dc19b268010c02fd9fe9c43ac5fda2a9a3d0f7"
     }
   },
+  "followup_2026_08_11": {
+    "reviewed_finding": "docs/findings/2026-08-11-qcaucd-dp6-private-boundary-runtime.md",
+    "reviewed_artifact": "artifacts/reviewed/2026-08-11-qcaucd-dp6-private-boundary-runtime.json",
+    "rva_0x31188_dp6_hits": 0,
+    "rva_0x3e850_dp6_hits": 0,
+    "dataport_programmer_rva": "0x3bf40",
+    "direct_slave_command_rva": "0x3ac60",
+    "direct_slave_command_dp6_hits": 18,
+    "private_dp6_boundary_closed": true
+  },
   "safety": {
     "single_kd_owner_verified_before_attach": true,
     "physical_mmio_debugger_reads": false,
@@ -78,10 +88,8 @@
     "kd_owner_verified_absent_after_detach": true
   },
   "next": {
-    "require_coherent_kd_module_view": true,
-    "trace_write_rva": "0x31188",
-    "register_filter": "0x0600..0x063f",
-    "mode": "read-only logging breakpoint with immediate gc",
-    "question": "Does protected speaker playback send the known per-slave DP6 assignments through this private qcaucd boundary?"
+    "status": "superseded",
+    "do_not_repeat_trace_write_rva": "0x31188",
+    "current_decision": "If literal semantic-origin archaeology continues, analyze callers/state population above FUN_14003bf40; otherwise move to Linux parity implementation."
   }
 }
