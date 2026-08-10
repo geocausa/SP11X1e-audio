@@ -1,0 +1,134 @@
+{
+  "date": "2026-08-11",
+  "platform": "Surface Pro 11 Windows",
+  "driver": {
+    "name": "qcaucd8380.sys",
+    "sha256": "bd0c8276c51fc7a020c616e904dd613b6ccf187ec3e1fe6f94c2c811c8adc8bf"
+  },
+  "result": {
+    "immediate_hlos_dp6_value_origin_closed": true,
+    "state_population_rva": "0x3ec58",
+    "apply_rva": "0x3df18",
+    "dataport_programmer_rva": "0x3bf40",
+    "slave_command_rva": "0x3ac60",
+    "selector5_table_base_rva": "0x15b70",
+    "literal_param_id_0x08001259_observed": false
+  },
+  "table_selection": [
+    {"controller_index": 0, "table_base_rva": "0x15d50"},
+    {"controller_index": 1, "table_base_rva": "0x15a80"},
+    {"controller_index": "2_or_3", "selector": 4, "table_base_rva": "0x15c60"},
+    {"controller_index": "2_or_3", "selector": 5, "table_base_rva": "0x15b70"}
+  ],
+  "selector5_cps_templates": [
+    {
+      "master_port": 13,
+      "entry_rva": "0x15c40",
+      "bytes": "0d 06 00 00 03 00 1f 03 00 ff 0f 0f 18 00 ff ff",
+      "slave_port": 6,
+      "channel_enable": "0x03",
+      "sample_ctrl1": "0x1f",
+      "sample_ctrl2": "0x03",
+      "offset_ctrl1": "0x00",
+      "hctrl_high_nibble": "0x0f",
+      "hctrl_low_nibble": "0x0f",
+      "hctrl_combined": "0xff",
+      "block_ctrl1": "0x18",
+      "block_ctrl3": "0x00",
+      "runtime_binding": {
+        "logical_device": 2,
+        "side": "left",
+        "identity": "0x0000000402170220",
+        "binding_basis": "static ascending master-port iteration cross-checked with runtime command order"
+      }
+    },
+    {
+      "master_port": 14,
+      "entry_rva": "0x15c50",
+      "bytes": "0e 06 00 00 03 00 1f 03 19 ff 0f 0f 18 00 ff ff",
+      "slave_port": 6,
+      "channel_enable": "0x03",
+      "sample_ctrl1": "0x1f",
+      "sample_ctrl2": "0x03",
+      "offset_ctrl1": "0x19",
+      "hctrl_high_nibble": "0x0f",
+      "hctrl_low_nibble": "0x0f",
+      "hctrl_combined": "0xff",
+      "block_ctrl1": "0x18",
+      "block_ctrl3": "0x00",
+      "runtime_binding": {
+        "logical_device": 1,
+        "side": "right",
+        "identity": "0x0000000402170221",
+        "binding_basis": "static ascending master-port iteration cross-checked with runtime command order"
+      }
+    }
+  ],
+  "template_copy_contract": {
+    "function_rva": "0x3ec58",
+    "ghidra_name": "FUN_14003ec58",
+    "entry_address_formula": "table_base + master_port * 0x10",
+    "copy_0": "template bytes 0..2 -> live per-port state +0x18..+0x1a",
+    "copy_1": "template bytes 4..15 -> live per-port state +0x1c..+0x27",
+    "logical_device_patch": "live state +0x1a overwritten with discovered logical SoundWire slave ID",
+    "pending_state": "selected master port marked pending before apply",
+    "apply_chain": ["FUN_14003df18", "FUN_14003bf40", "FUN_14003ac60"]
+  },
+  "field_map": [
+    {"byte": 0, "role": "master-port/template index"},
+    {"byte": 1, "role": "slave data-port number"},
+    {"byte": 2, "role": "placeholder overwritten by logical slave ID"},
+    {"byte": 3, "role": "not copied by FUN_14003ec58"},
+    {"byte": 4, "role": "DP ChannelEnable / channel mask"},
+    {"byte": 5, "role": "adjacent port-state byte; no direct DP6 write identified in closed trace"},
+    {"byte": 6, "role": "DP SampleCtrl1 / 0x0632"},
+    {"byte": 7, "role": "DP SampleCtrl2 / 0x0633"},
+    {"byte": 8, "role": "DP OffsetCtrl1 / 0x0634"},
+    {"byte": 9, "role": "optional DP OffsetCtrl2; 0xff suppresses write"},
+    {"byte": 10, "role": "HCtrl high nibble"},
+    {"byte": 11, "role": "HCtrl low nibble"},
+    {"byte": 12, "role": "DP BlockCtrl1 / 0x0603"},
+    {"byte": 13, "role": "DP BlockCtrl3 / 0x0637"},
+    {"byte": 14, "role": "optional DP control; 0xff suppresses write"},
+    {"byte": 15, "role": "optional DP control; 0xff suppresses write"}
+  ],
+  "inference": {
+    "current_sp11_uses_selector5_branch": true,
+    "basis": "selector-5 master-port 13/14 entries uniquely reproduce the observed active WSA DP6 schedule while selector-4 entries 13/14 are disabled",
+    "direct_selector_field_runtime_read": false
+  },
+  "evidence": {
+    "port_templates": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcaucd-port-templates.txt",
+      "size_bytes": 4463,
+      "sha256": "5d81834f2c9efdd92fa54ff07f22fcde394cfd3781ea25ab022903e8dd15f4ed"
+    },
+    "dataport_programmer_callers": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcaucd-dataport-programmer-callers.txt",
+      "size_bytes": 4532,
+      "sha256": "196f14664d80dd1d49aa8493072a6ff78478f80f9d35b5c185bea916efe83555"
+    },
+    "dataport_apply_callers": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcaucd-dataport-apply-callers.txt",
+      "size_bytes": 38891,
+      "sha256": "30565acaa19e8ad8c46733bce24ba6e6334ff161d6ecb9b76f8cd0f52c817010"
+    },
+    "port_template_entry_callers": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcaucd-port-template-entry-callers.txt",
+      "size_bytes": 32193,
+      "sha256": "d3612012ed7f2c714c75c079567a4ae8aaa43250360fa8ad5ae33e70bb690316"
+    }
+  },
+  "safety": {
+    "new_kd_session_used_for_this_finding": false,
+    "physical_mmio_debugger_reads": false,
+    "mmio_writes": false,
+    "dsp_writes": false,
+    "driver_state_writes": false
+  },
+  "next": {
+    "repeat_dp6_runtime_trace": false,
+    "strict_windows_archaeology": "Only continue statically toward a higher semantic control path that chooses selector value 5 or the master-port request descriptors from an external CPS/DSP/ACDB contract.",
+    "linux_parity": "Use normal SoundWire/WSA port configuration preserving DP6 mask 0x03, left OffsetCtrl1 0, right OffsetCtrl1 25, and established 24 kHz / 800-clock timing."
+  }
+}

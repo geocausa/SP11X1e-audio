@@ -2,6 +2,15 @@
 
 Date: 2026-08-11 (Europe/London)
 
+## Follow-up static origin closure
+
+The recommendation below to move above `FUN_14003bf40` has now been completed.
+See `docs/findings/2026-08-11-qcaucd-cps-static-port-template-origin.md`.
+`FUN_14003ec58` copies fixed qcaucd per-master-port templates into live state;
+the selector-5 table contains the exact port-13/14 -> slave-DP6 CPS geometry,
+including OffsetCtrl1 `0x00` / `0x19`. Do not repeat the DP6 runtime trace to
+answer that state-origin question.
+
 ## Result
 
 The strict-Windows private-boundary question below qcadcm is now closed at a

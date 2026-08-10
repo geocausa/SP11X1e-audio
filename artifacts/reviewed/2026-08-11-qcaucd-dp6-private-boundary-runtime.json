@@ -108,9 +108,18 @@
     "kd_owner_verified_absent_after_detach": true,
     "running_pimaster_jobs_after_detach": 0
   },
+  "followup_static_origin": {
+    "status": "completed",
+    "reviewed_finding": "docs/findings/2026-08-11-qcaucd-cps-static-port-template-origin.md",
+    "reviewed_artifact": "artifacts/reviewed/2026-08-11-qcaucd-cps-static-port-template-origin.json",
+    "state_population_rva": "0x3ec58",
+    "selector5_table_base_rva": "0x15b70",
+    "master_port_13_entry_rva": "0x15c40",
+    "master_port_14_entry_rva": "0x15c50"
+  },
   "next": {
     "repeat_private_dp6_playback_trace": false,
-    "strict_windows_archaeology": "If the semantic origin of the missing public 0x08001259 contract is still required, analyze callers/state population above FUN_14003bf40 rather than repeating qcadcm or lower DP6 traces.",
+    "strict_windows_archaeology": "State population above FUN_14003bf40 is now closed. Continue only toward a genuinely higher semantic control path that chooses selector value 5 or the master-port request descriptors from an external CPS/DSP/ACDB contract.",
     "linux_parity": "Preserve WSA DP6 mask 0x03 on both speakers, left Offset1 0, right Offset1 25, interval 800 clocks / 24 kHz, through normal SoundWire/WSA port-parameter paths."
   }
 }

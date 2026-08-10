@@ -238,6 +238,8 @@ Read these before repeating any experiment:
 - `docs/runbooks/2026-08-10-kd-mcp-cps-soundwire-runtime-handoff.md`
 - `docs/findings/2026-08-11-qcaucd-dp6-private-boundary-runtime.md`
 - `artifacts/reviewed/2026-08-11-qcaucd-dp6-private-boundary-runtime.json`
+- `docs/findings/2026-08-11-qcaucd-cps-static-port-template-origin.md`
+- `artifacts/reviewed/2026-08-11-qcaucd-cps-static-port-template-origin.json`
 
 ## Raw KD evidence on SP7 (outside Git)
 
@@ -369,6 +371,28 @@ Raw evidence outside Git:
 
 The successful session ended with `bc *`, `.logclose`, `qd`; afterward SP7 had zero `kd` processes and zero running PiMaster jobs. No direct debugger physical-MMIO read, MMIO write, DSP write, SoundWire slave-register write, or arbitrary driver-state write was performed.
 
-**Updated next strict-Windows decision:** do not repeat qcadcm, `+0x31188`, `+0x3e850`, `+0x3ac60`, or physical-FIFO playback traces. The private Windows DP6 programming path is closed at `+0x3bf40 -> +0x3ac60`. If the semantic origin of the missing public `0x08001259` contract is still required, move **above `FUN_14003bf40`** and statically identify the caller/state-population path that fills its per-port configuration structure. Only return to KD if that static work exposes a new, narrow, read-only semantic boundary. Otherwise, move the project forward using the established Windows parity target on Linux.
+### Further static origin closure (2026-08-11 00:24 BST)
+
+The immediate HLOS source of the exact WSA DP6 values is now also closed statically above `FUN_14003bf40`.
+
+`FUN_14003ec58` (RVA `0x3ec58`) selects a fixed 16-byte per-master-port template, copies it into the live controller port-state block, overwrites the slave-ID placeholder with the discovered logical SoundWire device number, marks that port pending, and calls the `+0x3df18 -> +0x3bf40 -> +0x3ac60` apply chain.
+
+For controller indices 2/3 with selector value 5, table base RVA `0x15b70` contains the exact speaker CPS templates:
+
+- master port 13, entry RVA `0x15c40`: `0d 06 00 00 03 00 1f 03 00 ff 0f 0f 18 00 ff ff`;
+- master port 14, entry RVA `0x15c50`: `0e 06 00 00 03 00 1f 03 19 ff 0f 0f 18 00 ff ff`.
+
+Both target slave DP6. They encode ChannelEnable `03`, SampleCtrl1 `1f`, SampleCtrl2 `03`, HCtrl nibbles `0f/0f` -> `ff`, BlockCtrl1 `18`, BlockCtrl3 `00`; only OffsetCtrl1 differs (`00` vs `19`). The selector-4 table has master-port 13/14 entries disabled, so the current SP11 runtime is consistent with the selector-5 branch. That selector-5 statement is an inference from exact static/runtime parity; the selector field itself was not read at runtime.
+
+Because `FUN_14003bf40` iterates master-port state in ascending order and the successful live trace produced logical device 2 / Offset `00` before logical device 1 / Offset `19`, the static/runtime binding is master port 13 -> left logical device 2 and master port 14 -> right logical device 1.
+
+Reviewed static-origin closure:
+
+- `docs/findings/2026-08-11-qcaucd-cps-static-port-template-origin.md`
+- `artifacts/reviewed/2026-08-11-qcaucd-cps-static-port-template-origin.json`
+
+No additional KD session was needed for this finding and none is justified merely to re-observe these template bytes.
+
+**Updated next strict-Windows decision:** the immediate qcaucd/HLOS origin of the exact DP6 geometry is now closed. Do not repeat qcadcm, template-copy, dataport, slave-command, or physical-FIFO traces. If archaeology continues, restrict it to a genuinely higher semantic path that chooses selector value 5 or the master-port request descriptors from an external CPS/DSP/ACDB contract; stay static first and only return to KD for a new narrow read-only payload boundary. Otherwise move to Linux parity using the established values.
 
 End of transfer handoff.
