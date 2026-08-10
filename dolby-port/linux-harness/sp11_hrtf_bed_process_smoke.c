@@ -225,22 +225,22 @@ __asm__(
 static int32_t hqi(void*o,const HGuid*g,void**out){void**v=*(void***)o;return ((int32_t(*)(void*,const HGuid*,void**))v[0])(o,g,out);}
 
 int main(int ac,char**av){
- hs(); if(ac<3){fprintf(stderr,"usage: %s DAP.dll HRTF.dll\n",av[0]);return 2;}
+ hs(); if(ac<3){fprintf(stderr,"usage: %s DAP.dll HRTF.dll [freq_hz] [amplitude]\n",av[0]);return 2;}
  /* DAP */ Sp11PeImage img; if(sp11_pe_load(&img,av[1]))return 3; g_res_data=sp11_pe_ptr_for_va(&img,RESOURCE_VA);g_module_handle=img.base;patch_known(&img);WinTlsCtx wt;setup_win_tls(&img,&wt);install_minimal_format_map(&img);fake_com_init();
  void*dap=NULL;int32_t hr=((ParentFactoryFn)sp11_pe_ptr_for_va(&img,PARENT_FACTORY_VA))(NULL,&dap);fprintf(stderr,"DAP factory hr=%#x obj=%p\n",(unsigned)hr,dap);if(hr<0||!dap)return 4;
  /* HRTF */ Sp11PeImage hi;if(sp11_pe_load(&hi,av[2]))return 5;patch_hrtf(&hi);uint32_t flags=1;void*fac=NULL,*hinst=NULL;typedef int32_t(*FC)(uint32_t*,void*,const HGuid*,void**);FC fc=(FC)(hi.base+0x3c10);hr=fc(&flags,hi.base+0x19fa8,(const HGuid*)(hi.base+0x1a150),&fac);fprintf(stderr,"HRTF factory hr=%#x fac=%p\n",(unsigned)hr,fac);if(hr<0||!fac)return 6;void**fvt=*(void***)fac;hr=((int32_t(*)(void*,void**))fvt[6])(fac,&hinst);fprintf(stderr,"HRTF activate hr=%#x obj=%p\n",(unsigned)hr,hinst);if(hr<0||!hinst)return 7;
  HGuid setupid={0xdc57ddb4,0xe086,0x49ec,{0xb1,0x3d,0xec,0xcd,0xd5,0x12,0x99,0x0c}}, asarid={0xdeff1192,0xf581,0x4d77,{0x9c,0x1b,0x3e,0x59,0x6b,0x0c,0xa9,0x89}};void*setup=NULL,*asar=NULL;hr=hqi(hinst,&setupid,&setup);if(hr<0)return 8;hr=hqi(hinst,&asarid,&asar);if(hr<0)return 9;
  void**sv=*(void***)setup; hr=(int32_t)sp11_win_call4(sv[3],wt.teb,(uint64_t)setup,(uint64_t)dap,0,0);fprintf(stderr,"SetEncoderEngine hr=%#x\n",(unsigned)hr);if(hr<0)return 10;
  typedef struct{uint64_t q[10];}Apo3;Apo3 ctx;memset(&ctx,0,sizeof(ctx));ctx.q[0]=0x50;ctx.q[3]=(uint64_t)(uintptr_t)&g_endpoint;ctx.q[5]=(uint64_t)(uintptr_t)&g_collection;hr=(int32_t)sp11_win_call4(sv[4],wt.teb,(uint64_t)setup,(uint64_t)&ctx,0,0);fprintf(stderr,"HRTF SetAPOContext hr=%#x\n",(unsigned)hr);if(hr<0)return 11;
- HGuid zero={0};void**avt=*(void***)asar;fprintf(stderr,"calling real IAsarEncoder2::Initialize rva=%#llx with 256/48000/objectmask0/stereo\n",(unsigned long long)((uint8_t*)avt[3]-hi.base));
- uint64_t r=sp11_win_call9(avt[3],wt.teb,(uint64_t)asar,256,48000,0,2,3,0,(uint64_t)&zero,0);hr=(int32_t)r;
+ HGuid zero={0};void**avt=*(void***)asar;fprintf(stderr,"calling real IAsarEncoder2::Initialize rva=%#llx with 480/48000/objectmask0/stereo\n",(unsigned long long)((uint8_t*)avt[3]-hi.base));
+ uint64_t r=sp11_win_call9(avt[3],wt.teb,(uint64_t)asar,480,48000,0,2,3,0,(uint64_t)&zero,0);hr=(int32_t)r;
  fprintf(stderr,"HRTF Initialize hr=%#x stereoBypass=%u engine=%p\n",(unsigned)hr,*((uint8_t*)hinst+0x58),*(void**)((uint8_t*)hinst+0x60));
  uint8_t*dapi=(uint8_t*)dap+8;fprintf(stderr,"DAP after HRTF phase=%u ready=%u dapvr=%p aide=%p oar=%p vlldp=%p frame=%u total=%u\n",dapi[0x2e0],dapi[0x2e1],*(void**)(dapi+0x538),*(void**)(dapi+0x648),*(void**)(dapi+0x690),*(void**)(dapi+0x740),*(uint32_t*)(dapi+0x30),*(uint32_t*)(dapi+0x4c));
  if(hr<0){fprintf(stderr,"HRTF_FULL_INIT_RESULT FAIL\n");return 12;} fprintf(stderr,"HRTF_FULL_INIT_RESULT PASS\n");
  /* Bed-only real-time smoke: exact stereo-bypass path must reproduce input. */
- enum{N=256}; float in[N*2],outpcm[N*2]; for(unsigned i=0;i<N;i++){float x=.25f*sinf((float)(2.0*M_PI*75.0*i/48000.0));in[2*i]=x;in[2*i+1]=x;outpcm[2*i]=outpcm[2*i+1]=123.0f;}
+ enum{N=480}; double test_freq=(ac>3)?strtod(av[3],NULL):75.0; double test_amp=(ac>4)?strtod(av[4],NULL):0.25; float in[N*2],outpcm[N*2]; for(unsigned i=0;i<N;i++){float x=(float)test_amp*sinf((float)(2.0*M_PI*test_freq*i/48000.0));in[2*i]=x;in[2*i+1]=x;outpcm[2*i]=outpcm[2*i+1]=123.0f;}
  uint64_t mr=sp11_win_call_mix(avt[6],wt.teb,asar,in,N,2,1.0f,0);fprintf(stderr,"MixChannelBed hr=%#x staged_ptr=%p staged_count=%u scale=%g\n",(unsigned)(uint32_t)mr,*(void**)((uint8_t*)hinst+0x48),*(uint32_t*)((uint8_t*)hinst+0x50),*(float*)((uint8_t*)hinst+0x54));
  uint32_t produced=0;uint32_t cap=sizeof(outpcm);uint64_t pr=sp11_win_call4(avt[7],wt.teb,(uint64_t)asar,cap,(uint64_t)outpcm,(uint64_t)&produced);float md=0,pk=0;for(unsigned i=0;i<N*2;i++){float d=fabsf(outpcm[i]-in[i]);if(d>md)md=d;float a=fabsf(outpcm[i]);if(a>pk)pk=a;}
- fprintf(stderr,"Process hr=%#x produced=%u cap=%u peak=%.9f maxdiff_vs_input=%.9g first=[%.9f %.9f %.9f %.9f]\n",(unsigned)(uint32_t)pr,produced,cap,pk,md,outpcm[0],outpcm[1],outpcm[2],outpcm[3]);
+ fprintf(stderr,"Process freq=%.3f amp=%.6f hr=%#x produced=%u cap=%u peak=%.9f maxdiff_vs_input=%.9g first=[%.9f %.9f %.9f %.9f]\n",test_freq,test_amp,(unsigned)(uint32_t)pr,produced,cap,pk,md,outpcm[0],outpcm[1],outpcm[2],outpcm[3]);
  if((int32_t)mr<0||(int32_t)pr<0||produced!=cap||md>1e-7f){fprintf(stderr,"BED_PROCESS_RESULT FAIL\n");return 13;}fprintf(stderr,"BED_PROCESS_RESULT PASS\n");return 0;
 }

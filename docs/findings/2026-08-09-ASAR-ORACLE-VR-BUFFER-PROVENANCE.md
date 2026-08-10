@@ -423,3 +423,52 @@ ownership, rather than that transient zero buffer, defines the edge direction.
 `tools/analyze_windows_apo_graph.py` now includes these upstream system/Dolby APO GUIDs and supports
 multi-input/multi-output CAPONodes, so it reconstructs this graph directly from either full-memory
 dump.
+
+## Correct Windows stereo contract closes the former HRTF transfer mismatch
+
+The graph closure changes the interpretation of the earlier five-point HRTF experiments.  Those
+experiments supplied the same ordinary stereo tone twice: once through `MixChannelBed` and again as
+active FL/FR spatial-object buffers.  That is a useful object-path probe, but it is not the frozen
+Windows ordinary-stereo graph contract.
+
+The bed-only harness was updated to the exact Windows host geometry:
+
+```text
+IAsarEncoder2::Initialize input frames = 480
+host MixChannelBed frames              = 480
+host Process capacity                  = 480 stereo frames
+internal Dolby quantum                 = 256
+object mask                            = 0 for this bed-only check
+```
+
+The private test fixture was reconstructed locally from the frozen 997-Hz dump and was not committed:
+
+```text
+PID4 SHA256  b6be9fd91f09bab641f99db05d02b8f19fd93f64e5c0e6c425048c0357c5b168
+PID5 SHA256  92936e727fe85b0fd37bf3ef515a7496851eea311342e7e8e10f0431264c1b89
+PID5 bytes   2641
+```
+
+With original `DolbyHrtfEnc.dll` + original `DolbyAudioProcessing.dll`, Dolby naturally reports
+`StereoBypass=1`.  The complete old five-point set is then bit-exact identity:
+
+```text
+75 Hz / 0.10  peak 0.100000001  maxdiff 0
+75 Hz / 0.25  peak 0.250000000  maxdiff 0
+75 Hz / 0.50  peak 0.500000000  maxdiff 0
+75 Hz / 0.70  peak 0.699999988  maxdiff 0
+997Hz / 0.25  peak 0.249998659  maxdiff 0
+```
+
+Each call returns the full 3840-byte 480-frame stereo block and `BED_PROCESS_RESULT PASS`.
+
+This agrees exactly with the AudioEng CAPONode evidence: ASAR h10->h11 preserves all 960 float32
+samples byte-for-byte in both frozen steady-tone dumps.  Therefore the prior `~0.427` / object-lane
+curves must not be used as ordinary-stereo ASAR parity targets.  They characterize the explicit
+spatial-object lane created by the research harness when FL/FR objects are injected in addition to
+the unity bed.
+
+The production consequence is simple: the existing Linux `VR -> VLLDP` stereo chain already omits
+only stages that are transparent for these frozen blocks.  Full HRTF/object hosting remains relevant
+for genuine spatial/object streams, but ordinary stereo does not require routing duplicate FL/FR
+objects through HRTF to match Windows.
