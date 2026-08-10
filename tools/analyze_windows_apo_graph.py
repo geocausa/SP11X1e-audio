@@ -17,6 +17,13 @@ from pathlib import Path
 MEMORY64_LIST_STREAM = 9
 
 APO_GUIDS = {
+    "audio_cleanup": "0f92ff8d-2f19-4b9a-b9dd-3efc2b3becec",
+    "virtual_surround": "4be8a061-c73b-4f23-8114-317aae3e8698",
+    "dolby_dax_sfx": "0ebd8605-17bb-4ae7-ad76-e86f99a425e9",
+    "audio_meter": "3dc09436-7d83-4ba0-addc-cd47f996c5ba",
+    "audio_volume": "06587e71-f043-403a-bf49-cb591ba6e103",
+    "audio_constrictor": "07252659-bb6b-4b79-b78b-623f6699a579",
+    "audio_mixer": "12dd4dbb-532b-4fce-8653-74cdb9c8fe5a",
     "adaptive_spatial": "5bbc2c71-dec2-4ba3-961a-36f37d1cc8a5",
     "dolby_dax_mfx": "0ebd8606-17bb-4ae7-ad76-e86f99a425e9",
     "surface_render_mfx": "34d30cd8-370e-4229-85be-3346c594c805",
@@ -121,17 +128,28 @@ def find_apo_edges(dump: Memory64Dump) -> list[dict]:
             caponode = guid_address - 0x138
             try:
                 raw = dump.read(caponode, 0x1C0)
-                inputs = _array_values(dump, raw, 0x38)
-                outputs = _array_values(dump, raw, 0x58)
-                if len(inputs) != 1 or len(outputs) != 1:
+                inputs = [_connection(dump, item) for item in _array_values(dump, raw, 0x38)]
+                outputs = [_connection(dump, item) for item in _array_values(dump, raw, 0x58)]
+                if not inputs or not outputs:
                     continue
-                input_conn = _connection(dump, inputs[0])
-                output_conn = _connection(dump, outputs[0])
-                if not input_conn["handle"] or not output_conn["handle"]:
+                if any(not item["handle"] for item in inputs + outputs):
                     continue
-                frames = min(input_conn["frames"], output_conn["frames"])
-                input_peak, input_raw = _pcm_stats(dump, input_conn["pcm"], frames)
-                output_peak, output_raw = _pcm_stats(dump, output_conn["pcm"], frames)
+                input_peaks = []
+                output_peaks = []
+                for item in inputs:
+                    peak, _ = _pcm_stats(dump, item["pcm"], item["frames"])
+                    input_peaks.append(peak)
+                for item in outputs:
+                    peak, _ = _pcm_stats(dump, item["pcm"], item["frames"])
+                    output_peaks.append(peak)
+                exact_pcm = None
+                compared_floats = 0
+                if len(inputs) == 1 and len(outputs) == 1:
+                    frames = min(inputs[0]["frames"], outputs[0]["frames"])
+                    _, input_raw = _pcm_stats(dump, inputs[0]["pcm"], frames)
+                    _, output_raw = _pcm_stats(dump, outputs[0]["pcm"], frames)
+                    exact_pcm = input_raw == output_raw
+                    compared_floats = frames * 2
             except (ValueError, struct.error):
                 continue
             edges.append(
@@ -139,12 +157,12 @@ def find_apo_edges(dump: Memory64Dump) -> list[dict]:
                     "name": name,
                     "guid": guid_text,
                     "caponode": caponode,
-                    "input": input_conn,
-                    "output": output_conn,
-                    "input_peak": input_peak,
-                    "output_peak": output_peak,
-                    "exact_pcm": input_raw == output_raw,
-                    "compared_floats": frames * 2,
+                    "inputs": inputs,
+                    "outputs": outputs,
+                    "input_peaks": input_peaks,
+                    "output_peaks": output_peaks,
+                    "exact_pcm": exact_pcm,
+                    "compared_floats": compared_floats,
                 }
             )
     return edges
@@ -159,14 +177,17 @@ def main() -> None:
         try:
             print(f"DUMP {path}")
             for edge in find_apo_edges(dump):
-                i, o = edge["input"], edge["output"]
+                ins, outs = edge["inputs"], edge["outputs"]
+                input_handles = ",".join(f"h{item['handle']}" for item in ins)
+                output_handles = ",".join(f"h{item['handle']}" for item in outs)
+                input_peaks = ",".join(f"{peak:.9f}" for peak in edge["input_peaks"])
+                output_peaks = ",".join(f"{peak:.9f}" for peak in edge["output_peaks"])
+                exact = "n/a" if edge["exact_pcm"] is None else str(edge["exact_pcm"]).lower()
                 print(
                     f"  {edge['name']:20s} "
-                    f"h{i['handle']} -> h{o['handle']} "
-                    f"frames={i['frames']}/{o['frames']} "
-                    f"peak={edge['input_peak']:.9f}->{edge['output_peak']:.9f} "
-                    f"exact_pcm={str(edge['exact_pcm']).lower()} "
-                    f"caponode={edge['caponode']:#x}"
+                    f"{input_handles} -> {output_handles} "
+                    f"peak={input_peaks}->{output_peaks} "
+                    f"exact_pcm={exact} caponode={edge['caponode']:#x}"
                 )
         finally:
             dump.close()

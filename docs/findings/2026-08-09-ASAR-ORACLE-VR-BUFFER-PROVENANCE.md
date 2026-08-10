@@ -359,3 +359,67 @@ blocks Windows ASAR preserves its input exactly.
 A reusable dump-side checker was added as `tools/analyze_windows_apo_graph.py`.  It parses the
 Memory64 stream directly, so it does not depend on third-party minidump libraries recognizing the
 Windows ARM64 architecture enum.
+
+## Full upstream AudioEng edge walk identifies the lift as Dolby SFX
+
+Walking the committed `CAPONode` output lists upstream from ASAR handle 10 removes the remaining
+ambiguity about where the `0.25 -> ~0.52` transformation enters the AudioEng graph.
+
+The SP11's own `dax3_ext_qc.inf` identifies the active V2 Dolby classes explicitly:
+
+```text
+{0EBD8605-17BB-4AE7-AD76-E86F99A425E9} = FX_DolbyAPO_WrapperSFX_CLSID_V2
+{0EBD8606-17BB-4AE7-AD76-E86F99A425E9} = FX_DolbyAPO_WrapperMFX_CLSID_V2
+```
+
+Microsoft system APO CLSIDs in the same edge walk identify AudioCleanup, VirtualSurround,
+AudioMeter, CAudioVolume, AudioConstrictor and AudioMixer.  The resulting frozen 997-Hz graph is:
+
+```text
+external/source connection -> h3
+AudioCleanup                 h3 -> h4
+VirtualSurround              h4 -> h5
+Dolby DAX SFX V2             h5 -> h6
+AudioMeter                   h6 -> h7
+CAudioVolume                 h7 -> h8
+AudioConstrictor             h8 -> h9
+AudioMixer                   h9 -> h1,h2
+AudioMixer                   h1,h2 -> h10
+Adaptive Spatial Renderer    h10 -> h11
+Dolby DAX MFX V2             h11 -> h12
+Surface render MFX           h12 -> h13
+AudioLimiter                 h13 -> h14
+AudioFormatConvert           h14 -> h15
+```
+
+The same topology is present in the independent 75-Hz dump.
+
+The decisive per-edge amplitudes are:
+
+```text
+997 Hz
+  VirtualSurround h4 -> h5 : 0.250000000 -> 0.250000000, byte-identical
+  Dolby SFX       h5 -> h6 : 0.250000000 -> 0.522895157
+  ASAR            h10->h11 : 0.522895157 -> 0.522895157, byte-identical
+  Dolby MFX       h11->h12 : 0.522895157 -> 0.467585027
+
+75 Hz
+  VirtualSurround h4 -> h5 : 0.250000000 -> 0.250000000, byte-identical
+  Dolby SFX       h5 -> h6 : 0.250000000 -> 0.527793050
+  ASAR            h10->h11 : 0.527793050 -> 0.527793050, byte-identical
+  Dolby MFX       h11->h12 : 0.527793050 -> 0.583327830
+```
+
+Thus the graph-level producer of the old `~0.528/~0.523` oracle is the **Dolby DAX SFX V2 edge**,
+not ASAR and not Microsoft's VirtualSurround APO.  This is consistent with the independent
+captured-state proof that `LibWrapperVr` inside the Dolby processing stack accepts the raw 0.25 tone
+and produces the same ~0.52 values.
+
+The h3 input staging is zero in the frozen snapshot while AudioCleanup h4 already contains the raw
+tone.  That must not be interpreted as AudioCleanup synthesizing the tone: h3 is the external/source
+connection and its transient backing has been consumed/cleared at the capture instant.  Graph
+ownership, rather than that transient zero buffer, defines the edge direction.
+
+`tools/analyze_windows_apo_graph.py` now includes these upstream system/Dolby APO GUIDs and supports
+multi-input/multi-output CAPONodes, so it reconstructs this graph directly from either full-memory
+dump.
