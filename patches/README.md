@@ -4,6 +4,22 @@ Files in this directory are evidence-backed candidates for offline review
 and build validation.  They are not automatically applied to the live
 kernel, boot files, ALSA UCM configuration, or speaker controls.
 
+## `0031-ASoC-qcom-add-bounded-SP11-protection-readback-probe.patch`
+
+Observation-only successor to the rejected combined diagnostic kernels. It
+adds a writable module selector that defaults to zero. Values 1 through 6 send
+exactly one read-only GET_CFG after the next protected graph start and then
+self-clear. A rejected query is logged but cannot fail playback.
+
+The patch changes no topology frame, calibration, event registration, GPIO,
+codec control, or SoundWire port selection. The 2026-08-10 one-shot boot used
+the accepted clean kernel/DTB/topology and returned immediate `AR_EUNSUPPORTED`
+for all six newer public API IDs. That is negative API-version evidence, not a
+protection or playback failure.
+
+See
+[`2026-08-10-protection-pbr-cps-per-speaker-closure.md`](../docs/findings/2026-08-10-protection-pbr-cps-per-speaker-closure.md).
+
 ## `0025-sp11-finalize-clean-protected-playback.patch`
 
 Exact export of kernel source commit

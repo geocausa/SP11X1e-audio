@@ -1,0 +1,49 @@
+#!/bin/sh
+# Build-time-only hook for the SP11 protection observation initramfs.
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+prereqs) prereqs; exit 0 ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+[ "${version:-}" = "7.1.5-sp11-audio-clean+" ] || exit 0
+[ "${SP11_AUDIO_OBSERVE_INITRAMFS:-}" = "1" ] || exit 0
+
+candidate=/home/geoca/Documents/SP11-PROJECT/05-audio-integration/artifacts/audio-observe-candidate-20260810/snd-q6apm.ko.zst
+expected=c1523746a091801b7d40b1dccfe6da8dbf1d257d79e7e80c0574369aff512193
+
+[ -f "$candidate" ] || {
+	echo "SP11 observe module is missing: $candidate" >&2
+	exit 1
+}
+[ "$(sha256sum "$candidate" | awk '{print $1}')" = "$expected" ] || {
+	echo "SP11 observe module hash mismatch" >&2
+	exit 1
+}
+
+# Seed the replacement before initramfs-tools performs its deferred module
+# copy. dracut-install is invoked with -o, so it will retain this exact file
+# while adding q6apm's dependencies later.
+source_path=$(modinfo -k "$version" -n snd-q6apm)
+case "$source_path" in
+/lib/*) archive_path=/usr$source_path ;;
+/*) archive_path=$source_path ;;
+*)
+	echo "unexpected snd-q6apm module path: $source_path" >&2
+	exit 1
+;;
+esac
+destination=$DESTDIR$archive_path
+install -d "$(dirname "$destination")"
+install -m 0644 "$candidate" "$destination"
+
+# Arrange for the observation module to bind before switch_root.
+force_load snd-q6apm
+
+[ "$(sha256sum "$destination" | awk '{print $1}')" = "$expected" ] || {
+	echo "embedded SP11 observe module hash mismatch" >&2
+	exit 1
+}

@@ -1,0 +1,19 @@
+● sp11-dolby-volume-sync.service - SP11 Dolby endpoint-volume feedback
+     Loaded: loaded (/home/geoca/.config/systemd/user/sp11-dolby-volume-sync.service; enabled; preset: enabled)
+     Active: active (running) since Mon 2026-08-10 08:14:16 BST; 29min ago
+ Invocation: 2f9ee40f0ed445bea00ddbeb8e36b76e
+   Main PID: 1691 (python3)
+      Tasks: 3 (limit: 17821)
+     Memory: 16.5M (peak: 23.8M)
+        CPU: 1.648s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/sp11-dolby-volume-sync.service
+             ├─1691 python3 /home/geoca/.local/bin/sp11-dolby-volume-sync
+             └─1773 pw-dump -m
+
+Aug 10 08:14:16 SP11X1e systemd[1632]: Started sp11-dolby-volume-sync.service - SP11 Dolby endpoint-volume feedback.
+Aug 10 08:14:17 SP11X1e sp11-dolby-volume-sync[1691]: linear_gain=1 endpoint_db=0.000 postgain=0 muted=no
+Aug 10 08:14:17 SP11X1e sp11-dolby-volume-sync[1691]: linear_gain=0.00096 endpoint_db=-60.355 postgain=-966 muted=no
+Aug 10 08:40:01 SP11X1e sp11-dolby-volume-sync[1691]: linear_gain=0.011366 endpoint_db=-38.888 postgain=-622 muted=no
+Aug 10 08:40:03 SP11X1e sp11-dolby-volume-sync[1691]: linear_gain=0.019774 endpoint_db=-34.078 postgain=-545 muted=no
+Aug 10 08:40:04 SP11X1e sp11-dolby-volume-sync[1691]: linear_gain=0.006694 endpoint_db=-43.486 postgain=-696 muted=no
+Aug 10 08:41:34 SP11X1e sp11-dolby-volume-sync[1691]: linear_gain=0.091125 endpoint_db=-20.807 postgain=-333 muted=no

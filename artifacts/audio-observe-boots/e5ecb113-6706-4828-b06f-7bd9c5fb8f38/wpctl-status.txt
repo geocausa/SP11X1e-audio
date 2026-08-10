@@ -1,0 +1,48 @@
+PipeWire 'pipewire-0' [1.6.2, geoca@SP11X1e, cookie:4147766600]
+ └─ Clients:
+        34. pipewire                            [1.6.2, geoca@SP11X1e, pid:1689]
+        35. WirePlumber                         [1.6.2, geoca@SP11X1e, pid:1688]
+        36. pipewire                            [1.6.2, geoca@SP11X1e, pid:1692]
+        37. pipewire                            [1.6.2, geoca@SP11X1e, pid:1665]
+        45. pw-dump                             [1.6.2, geoca@SP11X1e, pid:1773]
+        47. WirePlumber [export]                [1.6.2, geoca@SP11X1e, pid:1688]
+        79. GNOME Volume Control Media Keys     [1.6.2, geoca@SP11X1e, pid:2161]
+        80. gnome-shell                         [1.6.2, geoca@SP11X1e, pid:1863]
+        81. GNOME Shell Volume Control          [1.6.2, geoca@SP11X1e, pid:1863]
+        82. xdg-desktop-portal                  [1.6.2, geoca@SP11X1e, pid:2750]
+        83. Mutter                              [1.6.2, geoca@SP11X1e, pid:1863]
+        84. wpctl                               [1.6.2, geoca@SP11X1e, pid:9239]
+
+Audio
+ ├─ Devices:
+ │      55. Built-in Audio                      [alsa]
+ │  
+ ├─ Sinks:
+ │      67. Built-in Audio Speaker playback     [vol: 1.00]
+ │  
+ ├─ Sources:
+ │  
+ ├─ Filters:
+ │    - filter-chain-1692-8                                         
+ │  *   38. effect_input.sp11_windows_dolby                              [Audio/Sink]
+ │      39. effect_output.sp11_windows_dolby                             [Stream/Output/Audio]
+ │    - filter-chain-1665-30                                        
+ │      41. effect_input.sp11_dolby_bypass                               [Audio/Sink]
+ │      42. effect_output.sp11_dolby_bypass                              [Stream/Output/Audio]
+ │  
+ └─ Streams:
+
+Video
+ ├─ Devices:
+ │  
+ ├─ Sinks:
+ │  
+ ├─ Sources:
+ │  
+ ├─ Filters:
+ │  
+ └─ Streams:
+
+Settings
+ └─ Default Configured Devices:
+         0. Audio/Sink    effect_input.sp11_windows_dolby

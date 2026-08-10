@@ -1,0 +1,129 @@
+From 1cd082df0aa488595c4a2515520ba0ba8d6cd121 Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Mon, 10 Aug 2026 08:44:13 +0100
+Subject: [PATCH] ASoC: qcom: add bounded SP11 protection readback probes
+
+---
+ sound/soc/qcom/qdsp6/audioreach.c | 53 +++++++++++++++++++++++++++++++
+ sound/soc/qcom/qdsp6/audioreach.h |  2 ++
+ sound/soc/qcom/qdsp6/q6apm.c      | 13 ++++++++
+ 3 files changed, 68 insertions(+)
+
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+index 7aaf84d..34af721 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1107,6 +1107,59 @@ static int audioreach_send_get_cfg(struct q6apm_graph *graph, u32 iid,
+ 		graph, pkt, APM_CMD_RSP_GET_CFG);
+ }
+ 
++/*
++ * Read-only protection observations from the public AudioReach SP/SPVI API.
++ *
++ * Each invocation sends exactly one GET_CFG.  The operator selects a probe
++ * through snd_q6apm.sp11_protection_probe and starts a new playback graph.
++ * Keeping the requests separate makes a rejection attributable and prevents
++ * an unsupported diagnostic from changing graph construction or startup.
++ */
++int audioreach_sp11_probe_protection(struct q6apm_graph *graph,
++				     unsigned int probe)
++{
++	static const struct {
++		u32 iid;
++		u32 param_id;
++		u32 param_size;
++		const char *name;
++	} probes[] = {
++		{ 0x4027, 0x08001b4e, 8, "SP library version" },
++		{ 0x4027, 0x08001b48, 16, "SP feature statistics" },
++		{ 0x4027, 0x08001b49, 36, "SP per-speaker TMax/XMax" },
++		{ 0x4024, 0x08001b5e, 12, "SPVI per-speaker condition" },
++		{ 0x4027, 0x08001b3f, 252, "SP CPS battery/temperature statistics" },
++		{ 0x4027, 0x08001b46, 272, "SP thermal/coil statistics" },
++	};
++	const typeof(*probes) *selected;
++	int ret;
++
++	if (!audioreach_graph_has_protected_calibration(graph->info))
++		return -ENODEV;
++	if (!probe || probe > ARRAY_SIZE(probes))
++		return -EINVAL;
++
++	selected = &probes[probe - 1];
++	dev_info(graph->dev,
++		 "SP11 protection probe %u begin: %s iid=%#x param=%#x size=%u\n",
++		 probe, selected->name, selected->iid, selected->param_id,
++		 selected->param_size);
++	ret = audioreach_send_get_cfg(graph, selected->iid,
++				      selected->param_id,
++				      selected->param_size);
++	if (ret)
++		dev_warn(graph->dev,
++			 "SP11 protection probe %u unsupported/rejected: %s (%d)\n",
++			 probe, selected->name, ret);
++	else
++		dev_info(graph->dev,
++			 "SP11 protection probe %u accepted: %s\n",
++			 probe, selected->name);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(audioreach_sp11_probe_protection);
++
+ static const u8 *audioreach_stage_frame(
+ 	const struct audioreach_module_priv_data *stage, unsigned int index)
+ {
+diff --git a/sound/soc/qcom/qdsp6/audioreach.h b/sound/soc/qcom/qdsp6/audioreach.h
+index eee60c1..f1cb000 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.h
++++ b/sound/soc/qcom/qdsp6/audioreach.h
+@@ -920,6 +920,8 @@ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph);
+ bool audioreach_graph_has_protected_calibration(
+ 	const struct audioreach_graph_info *info);
+ int audioreach_configure_protection(struct q6apm_graph *graph);
++int audioreach_sp11_probe_protection(struct q6apm_graph *graph,
++				     unsigned int probe);
+ int audioreach_shared_memory_send_eos(struct q6apm_graph *graph);
+ int audioreach_gain_set_vol_ctrl(struct q6apm *apm,
+ 				 const struct audioreach_module *module, int vol);
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+index f4a19b5..c5a1778 100644
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -34,6 +34,10 @@ struct apm_graph_mgmt_cmd {
+ 
+ static struct q6apm *g_apm;
+ static bool sp11_vi_ready;
++static int sp11_protection_probe;
++module_param_named(sp11_protection_probe, sp11_protection_probe, int, 0644);
++MODULE_PARM_DESC(sp11_protection_probe,
++		 "one read-only SP/SPVI GET_CFG probe on the next protected graph start (0=off, 1..6)");
+ 
+ void q6apm_sp11_set_vi_ready(bool ready)
+ {
+@@ -1389,6 +1393,7 @@ EXPORT_SYMBOL_GPL(q6apm_graph_prepare);
+ int q6apm_graph_start(struct q6apm_graph *graph)
+ {
+ 	struct audioreach_graph *ar_graph = graph->ar_graph;
++	unsigned int probe;
+ 	int ret = 0;
+ 
+ 	if (ar_graph->start_count == 0) {
+@@ -1397,6 +1402,14 @@ int q6apm_graph_start(struct q6apm_graph *graph)
+ 		if (!ret && graph->pull_mode)
+ 			dev_info(graph->dev,
+ 				 "SP11 stage GRAPH_START accepted\n");
++
++		probe = READ_ONCE(sp11_protection_probe);
++		if (!ret && probe &&
++		    audioreach_graph_has_protected_calibration(graph->info)) {
++			/* Diagnostic failure is evidence, never a playback failure. */
++			audioreach_sp11_probe_protection(graph, probe);
++			WRITE_ONCE(sp11_protection_probe, 0);
++		}
+ 	}
+ 
+ 	if (!ret)
+-- 
+2.53.0
+

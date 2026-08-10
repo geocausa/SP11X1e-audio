@@ -1,0 +1,431 @@
+[
+  {
+    "accepted": true,
+    "body_hex": "80bb00001000000002000000010000001f00000000000000e8030000010000007800010001000d00d426010008000000000000080400000000000000d007000028000000",
+    "decoded": {
+      "bits_per_sample": 16,
+      "feature_flags": {
+        "dc_prediction": true,
+        "feedback_dc": true,
+        "feedback_excursion": true,
+        "notch_high_pass": true,
+        "thermal": true
+      },
+      "features": 31,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 48000
+    },
+    "iid": "0x00004027",
+    "module_error": 0,
+    "name": "SP static configuration",
+    "param_id": "0x080011e8",
+    "param_size": 68,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "02000000401f000028000000e8030000010000000000000000000000080000000000000000000000c8000000",
+    "decoded": {
+      "dc_detection_enabled": false,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 8000,
+      "warmup_time_ms": 200
+    },
+    "iid": "0x00004024",
+    "module_error": 0,
+    "name": "SPVI static configuration",
+    "param_id": "0x080011f6",
+    "param_size": 44,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "80bb00001000000002000000010000001f00000000000000e8030000010000007800010001000d00d426010008000000000000080400000000000000d007000028000000",
+    "decoded": {
+      "bits_per_sample": 16,
+      "feature_flags": {
+        "dc_prediction": true,
+        "feedback_dc": true,
+        "feedback_excursion": true,
+        "notch_high_pass": true,
+        "thermal": true
+      },
+      "features": 31,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 48000
+    },
+    "iid": "0x00004027",
+    "module_error": 0,
+    "name": "SP static configuration",
+    "param_id": "0x080011e8",
+    "param_size": 68,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "02000000401f000028000000e8030000010000000000000000000000080000000000000000000000c8000000",
+    "decoded": {
+      "dc_detection_enabled": false,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 8000,
+      "warmup_time_ms": 200
+    },
+    "iid": "0x00004024",
+    "module_error": 0,
+    "name": "SPVI static configuration",
+    "param_id": "0x080011f6",
+    "param_size": 44,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "80bb00001000000002000000010000001f00000000000000e8030000010000007800010001000d00d426010008000000000000080400000000000000d007000028000000",
+    "decoded": {
+      "bits_per_sample": 16,
+      "feature_flags": {
+        "dc_prediction": true,
+        "feedback_dc": true,
+        "feedback_excursion": true,
+        "notch_high_pass": true,
+        "thermal": true
+      },
+      "features": 31,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 48000
+    },
+    "iid": "0x00004027",
+    "module_error": 0,
+    "name": "SP static configuration",
+    "param_id": "0x080011e8",
+    "param_size": 68,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "02000000401f000028000000e8030000010000000000000000000000080000000000000000000000c8000000",
+    "decoded": {
+      "dc_detection_enabled": false,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 8000,
+      "warmup_time_ms": 200
+    },
+    "iid": "0x00004024",
+    "module_error": 0,
+    "name": "SPVI static configuration",
+    "param_id": "0x080011f6",
+    "param_size": 44,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "80bb00001000000002000000010000001f00000000000000e8030000010000007800010001000d00d426010008000000000000080400000000000000d007000028000000",
+    "decoded": {
+      "bits_per_sample": 16,
+      "feature_flags": {
+        "dc_prediction": true,
+        "feedback_dc": true,
+        "feedback_excursion": true,
+        "notch_high_pass": true,
+        "thermal": true
+      },
+      "features": 31,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 48000
+    },
+    "iid": "0x00004027",
+    "module_error": 0,
+    "name": "SP static configuration",
+    "param_id": "0x080011e8",
+    "param_size": 68,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "02000000401f000028000000e8030000010000000000000000000000080000000000000000000000c8000000",
+    "decoded": {
+      "dc_detection_enabled": false,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 8000,
+      "warmup_time_ms": 200
+    },
+    "iid": "0x00004024",
+    "module_error": 0,
+    "name": "SPVI static configuration",
+    "param_id": "0x080011f6",
+    "param_size": 44,
+    "status": 0
+  },
+  {
+    "accepted": false,
+    "body_hex": "0000000000000000",
+    "iid": "0x00004027",
+    "module_error": 3,
+    "name": "SP library version",
+    "param_id": "0x08001b4e",
+    "param_size": 8,
+    "status": 3
+  },
+  {
+    "accepted": true,
+    "body_hex": "80bb00001000000002000000010000001f00000000000000e8030000010000007800010001000d00d426010008000000000000080400000000000000d007000028000000",
+    "decoded": {
+      "bits_per_sample": 16,
+      "feature_flags": {
+        "dc_prediction": true,
+        "feedback_dc": true,
+        "feedback_excursion": true,
+        "notch_high_pass": true,
+        "thermal": true
+      },
+      "features": 31,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 48000
+    },
+    "iid": "0x00004027",
+    "module_error": 0,
+    "name": "SP static configuration",
+    "param_id": "0x080011e8",
+    "param_size": 68,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "02000000401f000028000000e8030000010000000000000000000000080000000000000000000000c8000000",
+    "decoded": {
+      "dc_detection_enabled": false,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 8000,
+      "warmup_time_ms": 200
+    },
+    "iid": "0x00004024",
+    "module_error": 0,
+    "name": "SPVI static configuration",
+    "param_id": "0x080011f6",
+    "param_size": 44,
+    "status": 0
+  },
+  {
+    "accepted": false,
+    "body_hex": "00000000000000000000000000000000",
+    "iid": "0x00004027",
+    "module_error": 3,
+    "name": "SP feature statistics",
+    "param_id": "0x08001b48",
+    "param_size": 16,
+    "status": 3
+  },
+  {
+    "accepted": true,
+    "body_hex": "80bb00001000000002000000010000001f00000000000000e8030000010000007800010001000d00d426010008000000000000080400000000000000d007000028000000",
+    "decoded": {
+      "bits_per_sample": 16,
+      "feature_flags": {
+        "dc_prediction": true,
+        "feedback_dc": true,
+        "feedback_excursion": true,
+        "notch_high_pass": true,
+        "thermal": true
+      },
+      "features": 31,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 48000
+    },
+    "iid": "0x00004027",
+    "module_error": 0,
+    "name": "SP static configuration",
+    "param_id": "0x080011e8",
+    "param_size": 68,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "02000000401f000028000000e8030000010000000000000000000000080000000000000000000000c8000000",
+    "decoded": {
+      "dc_detection_enabled": false,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 8000,
+      "warmup_time_ms": 200
+    },
+    "iid": "0x00004024",
+    "module_error": 0,
+    "name": "SPVI static configuration",
+    "param_id": "0x080011f6",
+    "param_size": 44,
+    "status": 0
+  },
+  {
+    "accepted": false,
+    "body_hex": "000000000000000000000000000000000000000000000000000000000000000000000000",
+    "iid": "0x00004027",
+    "module_error": 3,
+    "name": "SP per-speaker TMax/XMax",
+    "param_id": "0x08001b49",
+    "param_size": 36,
+    "status": 3
+  },
+  {
+    "accepted": true,
+    "body_hex": "80bb00001000000002000000010000001f00000000000000e8030000010000007800010001000d00d426010008000000000000080400000000000000d007000028000000",
+    "decoded": {
+      "bits_per_sample": 16,
+      "feature_flags": {
+        "dc_prediction": true,
+        "feedback_dc": true,
+        "feedback_excursion": true,
+        "notch_high_pass": true,
+        "thermal": true
+      },
+      "features": 31,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 48000
+    },
+    "iid": "0x00004027",
+    "module_error": 0,
+    "name": "SP static configuration",
+    "param_id": "0x080011e8",
+    "param_size": 68,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "02000000401f000028000000e8030000010000000000000000000000080000000000000000000000c8000000",
+    "decoded": {
+      "dc_detection_enabled": false,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 8000,
+      "warmup_time_ms": 200
+    },
+    "iid": "0x00004024",
+    "module_error": 0,
+    "name": "SPVI static configuration",
+    "param_id": "0x080011f6",
+    "param_size": 44,
+    "status": 0
+  },
+  {
+    "accepted": false,
+    "body_hex": "000000000000000000000000",
+    "iid": "0x00004024",
+    "module_error": 3,
+    "name": "SPVI per-speaker condition",
+    "param_id": "0x08001b5e",
+    "param_size": 12,
+    "status": 3
+  },
+  {
+    "accepted": true,
+    "body_hex": "80bb00001000000002000000010000001f00000000000000e8030000010000007800010001000d00d426010008000000000000080400000000000000d007000028000000",
+    "decoded": {
+      "bits_per_sample": 16,
+      "feature_flags": {
+        "dc_prediction": true,
+        "feedback_dc": true,
+        "feedback_excursion": true,
+        "notch_high_pass": true,
+        "thermal": true
+      },
+      "features": 31,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 48000
+    },
+    "iid": "0x00004027",
+    "module_error": 0,
+    "name": "SP static configuration",
+    "param_id": "0x080011e8",
+    "param_size": 68,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "02000000401f000028000000e8030000010000000000000000000000080000000000000000000000c8000000",
+    "decoded": {
+      "dc_detection_enabled": false,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 8000,
+      "warmup_time_ms": 200
+    },
+    "iid": "0x00004024",
+    "module_error": 0,
+    "name": "SPVI static configuration",
+    "param_id": "0x080011f6",
+    "param_size": 44,
+    "status": 0
+  },
+  {
+    "accepted": false,
+    "body_hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "iid": "0x00004027",
+    "module_error": 3,
+    "name": "SP CPS statistics",
+    "param_id": "0x08001b3f",
+    "param_size": 252,
+    "status": 3
+  },
+  {
+    "accepted": true,
+    "body_hex": "80bb00001000000002000000010000001f00000000000000e8030000010000007800010001000d00d426010008000000000000080400000000000000d007000028000000",
+    "decoded": {
+      "bits_per_sample": 16,
+      "feature_flags": {
+        "dc_prediction": true,
+        "feedback_dc": true,
+        "feedback_excursion": true,
+        "notch_high_pass": true,
+        "thermal": true
+      },
+      "features": 31,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 48000
+    },
+    "iid": "0x00004027",
+    "module_error": 0,
+    "name": "SP static configuration",
+    "param_id": "0x080011e8",
+    "param_size": 68,
+    "status": 0
+  },
+  {
+    "accepted": true,
+    "body_hex": "02000000401f000028000000e8030000010000000000000000000000080000000000000000000000c8000000",
+    "decoded": {
+      "dc_detection_enabled": false,
+      "num_speakers": 2,
+      "pilot_frequency_hz": 40,
+      "sampling_rate_hz": 8000,
+      "warmup_time_ms": 200
+    },
+    "iid": "0x00004024",
+    "module_error": 0,
+    "name": "SPVI static configuration",
+    "param_id": "0x080011f6",
+    "param_size": 44,
+    "status": 0
+  },
+  {
+    "accepted": false,
+    "body_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "iid": "0x00004027",
+    "module_error": 3,
+    "name": "SP thermal statistics",
+    "param_id": "0x08001b46",
+    "param_size": 272,
+    "status": 3
+  }
+]
