@@ -1,0 +1,3574 @@
+{
+  "decoded_binary": true,
+  "graphs": [],
+  "issues": [],
+  "module_count": 29,
+  "modules": [
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096385,
+      "container_instance_id_hex": "0xe0000001",
+      "data_refs": [
+        "sp11.sal.4001:tuple0"
+      ],
+      "decoded_line": 14,
+      "destination_input_port": 2,
+      "destination_instance_id": 16428,
+      "destination_instance_id_hex": "0x0000402c",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16385,
+      "instance_id_hex": "0x00004001",
+      "issues": [],
+      "max_input_ports": 10,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x0000402c",
+          "source_instance_id": "0x00004001",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444624,
+      "module_id_hex": "0x07001010",
+      "module_label": "SAL",
+      "name": "sp11.sal.4001",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 16385,
+      "source_instance_id_hex": "0x00004001",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096385
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 4
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444624
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16385
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 10
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 16385
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16428
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096385,
+      "container_instance_id_hex": "0xe0000001",
+      "data_refs": [
+        "sp11.splitter.4002:tuple0"
+      ],
+      "decoded_line": 20,
+      "destination_input_port": 2,
+      "destination_instance_id": 16387,
+      "destination_instance_id_hex": "0x00004003",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16386,
+      "instance_id_hex": "0x00004002",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 7,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004003",
+          "source_instance_id": "0x00004002",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444625,
+      "module_id_hex": "0x07001011",
+      "module_label": "SPLITTER",
+      "name": "sp11.splitter.4002",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 16386,
+      "source_instance_id_hex": "0x00004002",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096385
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 4
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444625
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16386
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 7
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 16386
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16387
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096385,
+      "container_instance_id_hex": "0xe0000001",
+      "data_refs": [
+        "sp11.data_logging.4003:tuple0"
+      ],
+      "decoded_line": 26,
+      "destination_input_port": 2,
+      "destination_instance_id": 16727,
+      "destination_instance_id_hex": "0x00004157",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16387,
+      "instance_id_hex": "0x00004003",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004157",
+          "source_instance_id": "0x00004003",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444634,
+      "module_id_hex": "0x0700101a",
+      "module_label": "DATA_LOGGING",
+      "name": "sp11.data_logging.4003",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 16387,
+      "source_instance_id_hex": "0x00004003",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096385
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 4
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444634
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16387
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 16387
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16727
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "buffer"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096385,
+      "container_instance_id_hex": "0xe0000001",
+      "data_refs": [
+        "sp11.speaker_protection.4027:data0"
+      ],
+      "decoded_line": 32,
+      "destination_input_port": 2,
+      "destination_instance_id": 16386,
+      "destination_instance_id_hex": "0x00004002",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16423,
+      "instance_id_hex": "0x00004027",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004002",
+          "source_instance_id": "0x00004027",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444834,
+      "module_id_hex": "0x070010e2",
+      "module_label": "SPEAKER_PROTECTION",
+      "name": "sp11.speaker_protection.4027",
+      "payloads": [
+        {
+          "data_size": 1888,
+          "offset": 204,
+          "sha256": "46e7226971935e611e14ea7213e8656f0aa5bc28549f15f32ba5cfceb4357c71",
+          "size": 1888,
+          "type": "0x53503103"
+        },
+        {
+          "data_size": 128,
+          "offset": 2108,
+          "sha256": "7c0ed43dd6b7e93e6550f09d0a5c0b2267f53c798d8ebfb96a95fec2843de3a4",
+          "size": 128,
+          "type": "0x53503106"
+        },
+        {
+          "data_size": 148,
+          "offset": 2252,
+          "sha256": "692b316f89ced0aab7a3163f5cd9453ba3b6dc462b299da5f465ac3971d6527d",
+          "size": 148,
+          "type": "0x08001061"
+        }
+      ],
+      "representation": [
+        "raw_bytes"
+      ],
+      "source_instance_id": 16423,
+      "source_instance_id_hex": "0x00004027",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096385
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 4
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "105": {
+          "name": null,
+          "value": 4294967295
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444834
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16423
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 16423
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16386
+        },
+        "262": {
+          "name": null,
+          "value": 1
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096385,
+      "container_instance_id_hex": "0xe0000001",
+      "data_refs": [
+        "sp11.chmixer.402c:tuple0"
+      ],
+      "decoded_line": 38,
+      "destination_input_port": 2,
+      "destination_instance_id": 16423,
+      "destination_instance_id_hex": "0x00004027",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16428,
+      "instance_id_hex": "0x0000402c",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004027",
+          "source_instance_id": "0x0000402c",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444627,
+      "module_id_hex": "0x07001013",
+      "module_label": "CHMIXER",
+      "name": "sp11.chmixer.402c",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 16428,
+      "source_instance_id_hex": "0x0000402c",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096385
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 4
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444627
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16428
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 16428
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16423
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096385,
+      "container_instance_id_hex": "0xe0000001",
+      "data_refs": [
+        "sp11.codec_dma_sink.4157:tuple0"
+      ],
+      "decoded_line": 44,
+      "destination_input_port": null,
+      "destination_instance_id": null,
+      "destination_instance_id_hex": null,
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16727,
+      "instance_id_hex": "0x00004157",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 0,
+      "module_connections": [],
+      "module_id": 117444643,
+      "module_id_hex": "0x07001023",
+      "module_label": "CODEC_DMA_SINK",
+      "name": "sp11.codec_dma_sink.4157",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": null,
+      "source_instance_id_hex": null,
+      "source_output_port": null,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096385
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 4
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444643
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16727
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 0
+        },
+        "263": {
+          "name": null,
+          "value": 105
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "aif_out"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096389,
+      "container_instance_id_hex": "0xe0000005",
+      "data_refs": [
+        "sp11.data_logging.402a:tuple0"
+      ],
+      "decoded_line": 51,
+      "destination_input_port": 2,
+      "destination_instance_id": 16425,
+      "destination_instance_id_hex": "0x00004029",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16426,
+      "instance_id_hex": "0x0000402a",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004029",
+          "source_instance_id": "0x0000402a",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444634,
+      "module_id_hex": "0x0700101a",
+      "module_label": "DATA_LOGGING",
+      "name": "sp11.data_logging.402a",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 16426,
+      "source_instance_id_hex": "0x0000402a",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096389
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 2048
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444634
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16426
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 16426
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16425
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "buffer"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096389,
+      "container_instance_id_hex": "0xe0000005",
+      "data_refs": [
+        "sp11.codec_dma_source.402b:tuple0"
+      ],
+      "decoded_line": 57,
+      "destination_input_port": 2,
+      "destination_instance_id": 16426,
+      "destination_instance_id_hex": "0x0000402a",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16427,
+      "instance_id_hex": "0x0000402b",
+      "issues": [],
+      "max_input_ports": 0,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x0000402a",
+          "source_instance_id": "0x0000402b",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444644,
+      "module_id_hex": "0x07001024",
+      "module_label": "CODEC_DMA_SOURCE",
+      "name": "sp11.codec_dma_source.402b",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 16427,
+      "source_instance_id_hex": "0x0000402b",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096389
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 2048
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444644
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16427
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 0
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 16427
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16426
+        },
+        "263": {
+          "name": null,
+          "value": 108
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096390,
+      "container_instance_id_hex": "0xe0000006",
+      "data_refs": [
+        "sp11.unknown_0xe4.4028:tuple0"
+      ],
+      "decoded_line": 63,
+      "destination_input_port": null,
+      "destination_instance_id": null,
+      "destination_instance_id_hex": null,
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16424,
+      "instance_id_hex": "0x00004028",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 0,
+      "module_connections": [],
+      "module_id": 117444836,
+      "module_id_hex": "0x070010e4",
+      "module_label": "UNKNOWN",
+      "name": "sp11.unknown_0xe4.4028",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": null,
+      "source_instance_id_hex": null,
+      "source_output_port": null,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096390
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 2048
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444836
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16424
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 0
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096390,
+      "container_instance_id_hex": "0xe0000006",
+      "data_refs": [
+        "sp11.mux_demux.4029:tuple0"
+      ],
+      "decoded_line": 69,
+      "destination_input_port": 2,
+      "destination_instance_id": 16424,
+      "destination_instance_id_hex": "0x00004028",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16425,
+      "instance_id_hex": "0x00004029",
+      "issues": [],
+      "max_input_ports": 2,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004028",
+          "source_instance_id": "0x00004029",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444760,
+      "module_id_hex": "0x07001098",
+      "module_label": "MUX_DEMUX",
+      "name": "sp11.mux_demux.4029",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 16425,
+      "source_instance_id_hex": "0x00004029",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096390
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 2048
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444760
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16425
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 2
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 16425
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16424
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096391,
+      "container_instance_id_hex": "0xe0000007",
+      "data_refs": [
+        "sp11.speaker_protection_vi.402:data0"
+      ],
+      "decoded_line": 75,
+      "destination_input_port": null,
+      "destination_instance_id": null,
+      "destination_instance_id_hex": null,
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16420,
+      "instance_id_hex": "0x00004024",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [],
+      "module_id": 117444835,
+      "module_id_hex": "0x070010e3",
+      "module_label": "SPEAKER_PROTECTION_VI",
+      "name": "sp11.speaker_protection_vi.4024",
+      "payloads": [
+        {
+          "data_size": 1328,
+          "offset": 172,
+          "sha256": "2a356727c7ed42f85eb86870b9ac2f29ea196d5e81c77d9e0753e593c9a2bc02",
+          "size": 1328,
+          "type": "0x53503104"
+        },
+        {
+          "data_size": 64,
+          "offset": 1516,
+          "sha256": "0658b257f4086e5f9f29ae58cf9f0101547c77d1f4035411d891021870595f35",
+          "size": 64,
+          "type": "0x53503105"
+        }
+      ],
+      "representation": [
+        "raw_bytes"
+      ],
+      "source_instance_id": null,
+      "source_instance_id_hex": null,
+      "source_output_port": null,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096391
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 4294967295
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "105": {
+          "name": null,
+          "value": 4294967295
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444835
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16420
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "262": {
+          "name": null,
+          "value": 1
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096391,
+      "container_instance_id_hex": "0xe0000007",
+      "data_refs": [
+        "sp11.data_logging.4025:tuple0"
+      ],
+      "decoded_line": 81,
+      "destination_input_port": 2,
+      "destination_instance_id": 16420,
+      "destination_instance_id_hex": "0x00004024",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16421,
+      "instance_id_hex": "0x00004025",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004024",
+          "source_instance_id": "0x00004025",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444634,
+      "module_id_hex": "0x0700101a",
+      "module_label": "DATA_LOGGING",
+      "name": "sp11.data_logging.4025",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 16421,
+      "source_instance_id_hex": "0x00004025",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096391
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444634
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16421
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 16421
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16420
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "buffer"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096391,
+      "container_instance_id_hex": "0xe0000007",
+      "data_refs": [
+        "sp11.codec_dma_source.4026:tuple0"
+      ],
+      "decoded_line": 87,
+      "destination_input_port": 2,
+      "destination_instance_id": 16421,
+      "destination_instance_id_hex": "0x00004025",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16422,
+      "instance_id_hex": "0x00004026",
+      "issues": [],
+      "max_input_ports": 0,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004025",
+          "source_instance_id": "0x00004026",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444644,
+      "module_id_hex": "0x07001024",
+      "module_label": "CODEC_DMA_SOURCE",
+      "name": "sp11.codec_dma_source.4026",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 16422,
+      "source_instance_id_hex": "0x00004026",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790017,
+      "subgraph_instance_id_hex": "0xb0000001",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096391
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790017
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444644
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16422
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 0
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 16422
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16421
+        },
+        "263": {
+          "name": null,
+          "value": 106
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096460,
+      "container_instance_id_hex": "0xe000004c",
+      "data_refs": [
+        "sp11.data_logging.465c:tuple0"
+      ],
+      "decoded_line": 93,
+      "destination_input_port": 2,
+      "destination_instance_id": 18015,
+      "destination_instance_id_hex": "0x0000465f",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18012,
+      "instance_id_hex": "0x0000465c",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x0000465f",
+          "source_instance_id": "0x0000465c",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444634,
+      "module_id_hex": "0x0700101a",
+      "module_label": "DATA_LOGGING",
+      "name": "sp11.data_logging.465c",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18012,
+      "source_instance_id_hex": "0x0000465c",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790142,
+      "subgraph_instance_id_hex": "0xb000007e",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096460
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790142
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444634
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18012
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18012
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18015
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "buffer"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096460,
+      "container_instance_id_hex": "0xe000004c",
+      "data_refs": [
+        "sp11.pcm_cnv.465f:tuple0"
+      ],
+      "decoded_line": 99,
+      "destination_input_port": 2,
+      "destination_instance_id": 18019,
+      "destination_instance_id_hex": "0x00004663",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18015,
+      "instance_id_hex": "0x0000465f",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004663",
+          "source_instance_id": "0x0000465f",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444611,
+      "module_id_hex": "0x07001003",
+      "module_label": "PCM_CNV",
+      "name": "sp11.pcm_cnv.465f",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18015,
+      "source_instance_id_hex": "0x0000465f",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790142,
+      "subgraph_instance_id_hex": "0xb000007e",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096460
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790142
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444611
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18015
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18015
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18019
+        },
+        "252": {
+          "name": null,
+          "value": 3
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096460,
+      "container_instance_id_hex": "0xe000004c",
+      "data_refs": [
+        "sp11.sh_mem_pull_mode.4660:data0"
+      ],
+      "decoded_line": 105,
+      "destination_input_port": 2,
+      "destination_instance_id": 18012,
+      "destination_instance_id_hex": "0x0000465c",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18016,
+      "instance_id_hex": "0x00004660",
+      "issues": [],
+      "max_input_ports": 0,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x0000465c",
+          "source_instance_id": "0x00004660",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444614,
+      "module_id_hex": "0x07001006",
+      "module_label": "SH_MEM_PULL_MODE",
+      "name": "sp11.sh_mem_pull_mode.4660",
+      "payloads": [
+        {
+          "data_size": 10464,
+          "offset": 196,
+          "sha256": "61f0c7e36c6180a2c31b01b1cd31e1f1f6ed9b70a67068fceef6ebbd5378b47f",
+          "size": 10464,
+          "type": "0x53503101"
+        },
+        {
+          "data_size": 64,
+          "offset": 10676,
+          "sha256": "2cf9b42331d85b1baea16ef340284bd77cfb80943e61e27f7366f43822cc09da",
+          "size": 64,
+          "type": "0x53503102"
+        }
+      ],
+      "representation": [
+        "raw_bytes"
+      ],
+      "source_instance_id": 18016,
+      "source_instance_id_hex": "0x00004660",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790142,
+      "subgraph_instance_id_hex": "0xb000007e",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096460
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "105": {
+          "name": null,
+          "value": 4294967295
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790142
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444614
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18016
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 0
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18016
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18012
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "aif_in"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096460,
+      "container_instance_id_hex": "0xe000004c",
+      "data_refs": [
+        "sp11.swr_sink.4662:tuple0"
+      ],
+      "decoded_line": 112,
+      "destination_input_port": 2,
+      "destination_instance_id": 18020,
+      "destination_instance_id_hex": "0x00004664",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18018,
+      "instance_id_hex": "0x00004662",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004664",
+          "source_instance_id": "0x00004662",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444759,
+      "module_id_hex": "0x07001097",
+      "module_label": "SWR_SINK",
+      "name": "sp11.swr_sink.4662",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18018,
+      "source_instance_id_hex": "0x00004662",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790142,
+      "subgraph_instance_id_hex": "0xb000007e",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096460
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790142
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444759
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18018
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18018
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18020
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096460,
+      "container_instance_id_hex": "0xe000004c",
+      "data_refs": [
+        "sp11.vol_ctrl.4663:tuple0"
+      ],
+      "decoded_line": 118,
+      "destination_input_port": 2,
+      "destination_instance_id": 18018,
+      "destination_instance_id_hex": "0x00004662",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18019,
+      "instance_id_hex": "0x00004663",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004662",
+          "source_instance_id": "0x00004663",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444635,
+      "module_id_hex": "0x0700101b",
+      "module_label": "VOL_CTRL",
+      "name": "sp11.vol_ctrl.4663",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18019,
+      "source_instance_id_hex": "0x00004663",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790142,
+      "subgraph_instance_id_hex": "0xb000007e",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096460
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790142
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444635
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18019
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18019
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18018
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096460,
+      "container_instance_id_hex": "0xe000004c",
+      "data_refs": [
+        "sp11.popless_equalizer.4664:tuple0"
+      ],
+      "decoded_line": 124,
+      "destination_input_port": 2,
+      "destination_instance_id": 18025,
+      "destination_instance_id_hex": "0x00004669",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18020,
+      "instance_id_hex": "0x00004664",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004669",
+          "source_instance_id": "0x00004664",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444677,
+      "module_id_hex": "0x07001045",
+      "module_label": "POPLESS_EQUALIZER",
+      "name": "sp11.popless_equalizer.4664",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18020,
+      "source_instance_id_hex": "0x00004664",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790142,
+      "subgraph_instance_id_hex": "0xb000007e",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096460
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790142
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444677
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18020
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18020
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18025
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096460,
+      "container_instance_id_hex": "0xe000004c",
+      "data_refs": [
+        "sp11.vol_ctrl.4669:tuple0"
+      ],
+      "decoded_line": 130,
+      "destination_input_port": 2,
+      "destination_instance_id": 18026,
+      "destination_instance_id_hex": "0x0000466a",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18025,
+      "instance_id_hex": "0x00004669",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x0000466a",
+          "source_instance_id": "0x00004669",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444635,
+      "module_id_hex": "0x0700101b",
+      "module_label": "VOL_CTRL",
+      "name": "sp11.vol_ctrl.4669",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18025,
+      "source_instance_id_hex": "0x00004669",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790142,
+      "subgraph_instance_id_hex": "0xb000007e",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096460
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790142
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444635
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18025
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18025
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18026
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096460,
+      "container_instance_id_hex": "0xe000004c",
+      "data_refs": [
+        "sp11.mfc.466a:tuple0"
+      ],
+      "decoded_line": 136,
+      "destination_input_port": 2,
+      "destination_instance_id": 18027,
+      "destination_instance_id_hex": "0x0000466b",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18026,
+      "instance_id_hex": "0x0000466a",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x0000466b",
+          "source_instance_id": "0x0000466a",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444629,
+      "module_id_hex": "0x07001015",
+      "module_label": "MFC",
+      "name": "sp11.mfc.466a",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18026,
+      "source_instance_id_hex": "0x0000466a",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790142,
+      "subgraph_instance_id_hex": "0xb000007e",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096460
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790142
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444629
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18026
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18026
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18027
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096460,
+      "container_instance_id_hex": "0xe000004c",
+      "data_refs": [
+        "sp11.soft_pause.466b:tuple0"
+      ],
+      "decoded_line": 142,
+      "destination_input_port": 2,
+      "destination_instance_id": 16683,
+      "destination_instance_id_hex": "0x0000412b",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18027,
+      "instance_id_hex": "0x0000466b",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x0000412b",
+          "source_instance_id": "0x0000466b",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444633,
+      "module_id_hex": "0x07001019",
+      "module_label": "SOFT_PAUSE",
+      "name": "sp11.soft_pause.466b",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18027,
+      "source_instance_id_hex": "0x0000466b",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790142,
+      "subgraph_instance_id_hex": "0xb000007e",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096460
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790142
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444633
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18027
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18027
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16683
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096486,
+      "container_instance_id_hex": "0xe0000066",
+      "data_refs": [
+        "sp11.spr.412b:tuple0"
+      ],
+      "decoded_line": 148,
+      "destination_input_port": 2,
+      "destination_instance_id": 18409,
+      "destination_instance_id_hex": "0x000047e9",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 16683,
+      "instance_id_hex": "0x0000412b",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 2,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x000047e9",
+          "source_instance_id": "0x0000412b",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444658,
+      "module_id_hex": "0x07001032",
+      "module_label": "SPR",
+      "name": "sp11.spr.412b",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 16683,
+      "source_instance_id_hex": "0x0000412b",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790142,
+      "subgraph_instance_id_hex": "0xb000007e",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096486
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553473
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 1024
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790142
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444658
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 16683
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 2
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 16683
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18409
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096660,
+      "container_instance_id_hex": "0xe0000114",
+      "data_refs": [
+        "sp11.swr_sink.4675:tuple0"
+      ],
+      "decoded_line": 154,
+      "destination_input_port": 2,
+      "destination_instance_id": 18590,
+      "destination_instance_id_hex": "0x0000489e",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18037,
+      "instance_id_hex": "0x00004675",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x0000489e",
+          "source_instance_id": "0x00004675",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444759,
+      "module_id_hex": "0x07001097",
+      "module_label": "SWR_SINK",
+      "name": "sp11.swr_sink.4675",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18037,
+      "source_instance_id_hex": "0x00004675",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790143,
+      "subgraph_instance_id_hex": "0xb000007f",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096660
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790143
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444759
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18037
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18037
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18590
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096660,
+      "container_instance_id_hex": "0xe0000114",
+      "data_refs": [
+        "sp11.data_logging.467a:tuple0"
+      ],
+      "decoded_line": 160,
+      "destination_input_port": 12,
+      "destination_instance_id": 16385,
+      "destination_instance_id_hex": "0x00004001",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18042,
+      "instance_id_hex": "0x0000467a",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 12,
+          "destination_instance_id": "0x00004001",
+          "source_instance_id": "0x0000467a",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444634,
+      "module_id_hex": "0x0700101a",
+      "module_label": "DATA_LOGGING",
+      "name": "sp11.data_logging.467a",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18042,
+      "source_instance_id_hex": "0x0000467a",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790143,
+      "subgraph_instance_id_hex": "0xb000007f",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096660
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790143
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444634
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18042
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 12
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18042
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 16385
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "buffer"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096660,
+      "container_instance_id_hex": "0xe0000114",
+      "data_refs": [
+        "sp11.data_logging.47e9:tuple0"
+      ],
+      "decoded_line": 166,
+      "destination_input_port": 2,
+      "destination_instance_id": 19043,
+      "destination_instance_id_hex": "0x00004a63",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18409,
+      "instance_id_hex": "0x000047e9",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004a63",
+          "source_instance_id": "0x000047e9",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444634,
+      "module_id_hex": "0x0700101a",
+      "module_label": "DATA_LOGGING",
+      "name": "sp11.data_logging.47e9",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18409,
+      "source_instance_id_hex": "0x000047e9",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790143,
+      "subgraph_instance_id_hex": "0xb000007f",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096660
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790143
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444634
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18409
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18409
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 19043
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "buffer"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096660,
+      "container_instance_id_hex": "0xe0000114",
+      "data_refs": [
+        "sp11.msiir.489e:tuple0"
+      ],
+      "decoded_line": 172,
+      "destination_input_port": 2,
+      "destination_instance_id": 18593,
+      "destination_instance_id_hex": "0x000048a1",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18590,
+      "instance_id_hex": "0x0000489e",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x000048a1",
+          "source_instance_id": "0x0000489e",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444628,
+      "module_id_hex": "0x07001014",
+      "module_label": "MSIIR",
+      "name": "sp11.msiir.489e",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18590,
+      "source_instance_id_hex": "0x0000489e",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790143,
+      "subgraph_instance_id_hex": "0xb000007f",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096660
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790143
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444628
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18590
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18590
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18593
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096660,
+      "container_instance_id_hex": "0xe0000114",
+      "data_refs": [
+        "sp11.msiir.48a1:tuple0"
+      ],
+      "decoded_line": 178,
+      "destination_input_port": 2,
+      "destination_instance_id": 18042,
+      "destination_instance_id_hex": "0x0000467a",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 18593,
+      "instance_id_hex": "0x000048a1",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x0000467a",
+          "source_instance_id": "0x000048a1",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444628,
+      "module_id_hex": "0x07001014",
+      "module_label": "MSIIR",
+      "name": "sp11.msiir.48a1",
+      "payloads": [],
+      "representation": [
+        "vendor_tuple"
+      ],
+      "source_instance_id": 18593,
+      "source_instance_id_hex": "0x000048a1",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790143,
+      "subgraph_instance_id_hex": "0xb000007f",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096660
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790143
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444628
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 18593
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 18593
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18042
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    },
+    {
+      "connected_in_dapm_graph": false,
+      "container_instance_id": 3758096660,
+      "container_instance_id_hex": "0xe0000114",
+      "data_refs": [
+        "sp11.vol_ctrl.4a63:data0"
+      ],
+      "decoded_line": 184,
+      "destination_input_port": 2,
+      "destination_instance_id": 18037,
+      "destination_instance_id_hex": "0x00004675",
+      "id_conventions": {
+        "container_allocator_range": false,
+        "module_allocator_range": false,
+        "subgraph_allocator_range": false
+      },
+      "instance_id": 19043,
+      "instance_id_hex": "0x00004a63",
+      "issues": [],
+      "max_input_ports": 1,
+      "max_output_ports": 1,
+      "module_connections": [
+        {
+          "destination_input_port": 2,
+          "destination_instance_id": "0x00004675",
+          "source_instance_id": "0x00004a63",
+          "source_output_port": 1
+        }
+      ],
+      "module_id": 117444635,
+      "module_id_hex": "0x0700101b",
+      "module_label": "VOL_CTRL",
+      "name": "sp11.vol_ctrl.4a63",
+      "payloads": [
+        {
+          "data_size": 120,
+          "offset": 196,
+          "sha256": "220442a4c851b4d24fcd57aad6fa3fc68ee02b3c658ff706438ea5cae3b882dc",
+          "size": 120,
+          "type": "0x53503107"
+        },
+        {
+          "data_size": 216,
+          "offset": 332,
+          "sha256": "2d4d97e21bf92425a3e0d27847237e6f0c3cb66479fb67245756d2aa3257abd1",
+          "size": 216,
+          "type": "0x53503108"
+        },
+        {
+          "data_size": 120,
+          "offset": 564,
+          "sha256": "502acfd71df56b781847a11de32a7f66c98732a9319db151b8b59f718b5e718b",
+          "size": 120,
+          "type": "0x53503109"
+        },
+        {
+          "data_size": 40,
+          "offset": 700,
+          "sha256": "9135c70c6649568ea9f8360b8a6ab77d3b2a7292b03a836e05f974e9afb35819",
+          "size": 40,
+          "type": "0x5350310a"
+        }
+      ],
+      "representation": [
+        "raw_bytes"
+      ],
+      "source_instance_id": 19043,
+      "source_instance_id_hex": "0x00004a63",
+      "source_output_port": 1,
+      "subgraph_instance_id": 2952790143,
+      "subgraph_instance_id_hex": "0xb000007f",
+      "tokens": {
+        "1": {
+          "name": "graph_index",
+          "value": 0
+        },
+        "100": {
+          "name": "container_instance_id",
+          "value": 3758096660
+        },
+        "101": {
+          "name": "container_capability_id",
+          "value": 184553472
+        },
+        "102": {
+          "name": "container_stack_size",
+          "value": 4096
+        },
+        "103": {
+          "name": "container_graph_position",
+          "value": 1
+        },
+        "104": {
+          "name": "container_processor_domain",
+          "value": 2
+        },
+        "105": {
+          "name": null,
+          "value": 4294967295
+        },
+        "106": {
+          "name": null,
+          "value": 1
+        },
+        "2": {
+          "name": "subgraph_instance_id",
+          "value": 2952790143
+        },
+        "200": {
+          "name": "module_id",
+          "value": 117444635
+        },
+        "201": {
+          "name": "module_instance_id",
+          "value": 19043
+        },
+        "202": {
+          "name": "module_max_input_ports",
+          "value": 1
+        },
+        "203": {
+          "name": "module_max_output_ports",
+          "value": 1
+        },
+        "206": {
+          "name": "source_output_port_0",
+          "value": 1
+        },
+        "207": {
+          "name": "destination_input_port_0",
+          "value": 2
+        },
+        "208": {
+          "name": "source_instance_id",
+          "value": 19043
+        },
+        "209": {
+          "name": "destination_instance_id_0",
+          "value": 18037
+        },
+        "3": {
+          "name": "subgraph_perf_mode",
+          "value": 2
+        },
+        "4": {
+          "name": "subgraph_direction",
+          "value": 2
+        },
+        "5": {
+          "name": "subgraph_scenario_id",
+          "value": 1
+        }
+      },
+      "type": "src"
+    }
+  ],
+  "raw_byte_module_count": 4,
+  "source": "/home/geoca/Documents/SP11-PROJECT/05-audio-integration/artifacts/cps-lab-candidate-20260810/X1E80100-Microsoft-Surface-Pro-11-CPS-Lab-tplg.bin",
+  "source_sha256": "f385a5d83127cf8f83dab0cbc86f418514f9c8839f2da6aac97e3e2ee782d121",
+  "widget_count": 30
+}

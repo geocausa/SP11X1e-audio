@@ -9,6 +9,9 @@ __pycache__/
 artifacts/raw/
 artifacts/topology-recovery/
 artifacts/reviewed/windows-acdb-rev0d-root-protection-setcfg.json
+# Reproducible one-shot boot bundle. It contains a >100 MB initrd and rebuilt
+# kernel modules; reviewed topology inventories and hashes are tracked instead.
+artifacts/audio-cps-lab-candidate-20260810/
 deploy/firmware/*.bin
 deploy/firmware/reference/
 

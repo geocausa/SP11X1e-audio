@@ -2,6 +2,12 @@
 
 Date: 2026-08-10 (Europe/London)
 
+> **Status: transport candidate rejected.** The split-mask design below was
+> tested and caused SoundWire bus clashes. It must not be deployed. See
+> `docs/deployment/2026-08-10-audio-cps-lab-candidate.md` for the runtime result
+> and `docs/findings/2026-08-10-qcslimbus-max34417-cps-closure.md` for the
+> repository-wide closure and the exact missing Windows runtime evidence.
+
 ## Result
 
 CPS is not another lane in the 48 kHz speaker playback stream.  The recovered
