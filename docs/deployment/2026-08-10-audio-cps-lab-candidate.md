@@ -54,3 +54,34 @@ candidate must show no SoundWire bus clash, DAI 0/1/2 at 48/8/24 kHz, CPS
 port-6 masks 1 and 2 coalesced on master port 13, the TX1 backend active in
 DAPM, stable protected playback, and no PA fault/recovery or XRUN.  Any failure
 falls back automatically to the saved clean entry on the following reboot.
+
+## Runtime result: rejected
+
+The corrected candidate booted at `2026-08-10 11:25:57+01:00` and registered
+the ALSA card. DAI 0, DAI 1, and DAI 2 prepared at 48 kHz, 8 kHz, and 24 kHz
+respectively. Both CPS slave ports appeared on DAI 2, the DSP accepted graph
+start and the reconstructed SP/SPVI calibration sequence, and a controlled
+stereo playback pass completed at 60% through the Windows-Dolby sink.
+
+The acceptance gate nevertheless failed: enabling the left/right CPS ports
+with split masks `0x1`/`0x2` caused repeated WSA SoundWire bus-clash alerts and
+alert-read retry exhaustion at stream start and teardown. No candidate is to
+be promoted from this boot.
+
+A live-only codec module made CPS switchable so the physical transport could
+be isolated without another kernel boot:
+
+- left CPS alone with mask `0x1` still clashed, disproving a simple collision
+  between two simultaneously active slaves;
+- left CPS alone with the codec's native mask `0x3` completed playback with no
+  bus-clash or retry message in that test window;
+- a later right-only test was contaminated by retained controller error state;
+  attempting to reset the WSA controller showed that its remove path does not
+  release the IRQ mapping, so an in-place rebind fails with `-EINVAL`.
+
+The split-mask reconstruction is therefore falsified. The next candidate must
+not guess another per-speaker mask. It first needs evidence for the Windows
+slave transport parameters—especially whether CPS is sourced by one amplifier,
+or whether the two slaves use distinct offsets/master data ports while each
+retains native mask `0x3`. The live-only source changes were discarded; the
+saved clean GRUB entry remains the recovery boot.
