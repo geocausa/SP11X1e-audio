@@ -60,6 +60,9 @@ install_replacement snd-soc-wsa884x \
 install_replacement snd-soc-lpass-wsa-macro \
 	"$artifact_dir/snd-soc-lpass-wsa-macro.ko.zst" \
 	44e352cb610cf8fc122140efb02c25a4865707b709459cc22c58ea3f6db3bce3
+install_replacement snd-q6dsp-common \
+	"$artifact_dir/snd-q6dsp-common.ko.zst" \
+	91c133cd030a23c7c075c480b19c2a77480570025f0616c85de60cd062e58b30
 install_replacement snd-q6apm \
 	"$observe_dir/snd-q6apm.ko.zst" \
 	c1523746a091801b7d40b1dccfe6da8dbf1d257d79e7e80c0574369aff512193
