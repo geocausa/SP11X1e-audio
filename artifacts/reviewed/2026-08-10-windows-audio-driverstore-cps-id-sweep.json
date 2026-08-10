@@ -1,0 +1,43 @@
+{
+  "date": "2026-08-10",
+  "scope": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Claude\\AUDIO\\SP11-WINDOWS-AUDIO\\driverstore",
+  "aligned_dword_results": {
+    "0x08001259": {
+      "files": 0,
+      "occurrences": 0
+    },
+    "0x08001254": {
+      "files": 0,
+      "occurrences": 0
+    },
+    "0x08001537": {
+      "files": 1,
+      "occurrences": 1,
+      "path": "surfacepro_ext_adsp8380.inf_arm64_3cc952aaca3564ae\\qcadsp8380.mbn",
+      "offset": "0x12fd6ac"
+    },
+    "0x08001063": {
+      "files": 1,
+      "occurrences": 1,
+      "path": "qcadcm8380.inf_arm64_f5fba49e0720d715\\qcadcm8380.sys",
+      "offset": "0x5bac4"
+    }
+  },
+  "unaligned_false_positives": [
+    {
+      "value": "0x08001259",
+      "file": "DolbyAPOVR.dll",
+      "offset": "0x2c3c61",
+      "offset_mod_4": 1,
+      "section": ".pdata"
+    },
+    {
+      "value": "0x08001254",
+      "file": "DolbyDax3Apo.dll",
+      "offset": "0x12d745",
+      "offset_mod_4": 1,
+      "section": ".pdata"
+    }
+  ],
+  "conclusion": "No normal aligned representation of the public CPS LPASS parameter IDs exists in the captured Windows audio driverstore; qcaucd runtime SoundWire programming remains the authoritative equivalent transport evidence."
+}
