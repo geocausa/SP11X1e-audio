@@ -1,0 +1,494 @@
+From 4a29626c912649b3c417bf64b28786f40168be61 Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Tue, 11 Aug 2026 18:53:54 +0100
+Subject: [PATCH] ASoC: qcom: add SP11 Windows-parity CPS transport
+
+---
+ .../bindings/sound/qcom,wsa8840.yaml          | 16 +++-
+ .../boot/dts/qcom/x1-microsoft-denali.dtsi    | 29 +++++++-
+ drivers/soundwire/qcom.c                      |  4 +-
+ sound/soc/codecs/lpass-wsa-macro.c            | 36 +++++++++
+ sound/soc/codecs/wsa884x.c                    | 74 +++++++++++++++----
+ sound/soc/qcom/qdsp6/audioreach.c             |  8 +-
+ sound/soc/qcom/qdsp6/q6apm.c                  | 13 ++++
+ sound/soc/qcom/qdsp6/q6apm.h                  |  2 +
+ sound/soc/qcom/x1e80100.c                     | 17 +++++
+ 9 files changed, 179 insertions(+), 20 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml b/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml
+index bf7398c..244d88f 100644
+--- a/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml
++++ b/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml
+@@ -40,12 +40,24 @@ properties:
+     minItems: 6
+     maxItems: 6
+ 
++  qcom,enable-cps:
++    type: boolean
++    description: Enable the dedicated CPS SoundWire source DAI on data port 6.
++
++  qcom,cps-offset1:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    maximum: 255
++    description: |
++      Slave-only SoundWire DP6 OffsetCtrl1 override for CPS. This does not
++      change the physical master-port schedule selected by qcom,port-mapping.
++
+   '#sound-dai-cells':
+     enum: [0, 1]
+     description: |
+       Zero selects the legacy single speaker-playback DAI. With one cell,
+-      DAI 0 is speaker playback and DAI 1 is the render-coupled VISENSE
+-      protection-feedback sidechain.
++      DAI 0 is speaker playback, DAI 1 is the render-coupled VISENSE
++      protection-feedback sidechain, and DAI 2 is the dedicated CPS feedback
++      sidechain when qcom,enable-cps is present.
+ 
+   vdd-1p8-supply: true
+   vdd-io-supply: true
+diff --git a/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi b/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
+index 492f708..6a3a7c7 100644
+--- a/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
++++ b/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
+@@ -308,7 +308,7 @@ vreg_wcn_1p9: regulator-wcn-1p9 {
+ 
+ 	sound {
+ 		compatible = "qcom,x1e80100-sndcard";
+-		model = "X1E80100-Microsoft-Surface-Pro-11";
++		model = "X1E80100-Microsoft-Surface-Pro-11-CPS-Parity-V2";
+ 		audio-routing = "SpkrLeft IN", "WSA WSA_SPK1 OUT",
+ 				"SpkrRight IN", "WSA WSA_SPK2 OUT",
+ 				"VA DMIC0", "vdd-micb",
+@@ -353,6 +353,29 @@ platform {
+ 			};
+ 		};
+ 
++		wsa-cps-dai-link {
++			link-name = "WSA CPS Protection";
++
++			/*
++			 * Dedicated CPS sidechain: both WSA8845 DP6 sources share
++			 * physical SoundWire master port 13.  swr0 DAI 10 is only
++			 * the independent ASoC/SoundWire stream handle; qcom,port-mapping
++			 * below remains authoritative for the physical master ports.
++			 */
++			codec {
++				sound-dai = <&left_spkr 2>, <&right_spkr 2>,
++					    <&swr0 10>, <&lpass_wsamacro 4>;
++			};
++
++			cpu {
++				sound-dai = <&q6apmbedai WSA_CODEC_DMA_TX_1>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
+ 		va-dai-link {
+ 			link-name = "VA Capture";
+ 
+@@ -1114,6 +1137,8 @@ left_spkr: speaker@0,0 {
+ 		vdd-1p8-supply = <&vreg_l15b_1p8>;
+ 		vdd-io-supply = <&vreg_l12b_1p2>;
+ 		qcom,port-mapping = <1 2 3 7 10 13>;
++		qcom,enable-cps;
++		qcom,cps-offset1 = <0>;
+ 	};
+ 
+ 	/* WSA8845, Right Speaker */
+@@ -1126,6 +1151,8 @@ right_spkr: speaker@0,1 {
+ 		vdd-1p8-supply = <&vreg_l15b_1p8>;
+ 		vdd-io-supply = <&vreg_l12b_1p2>;
+ 		qcom,port-mapping = <4 5 6 7 11 13>;
++		qcom,enable-cps;
++		qcom,cps-offset1 = <25>;
+ 	};
+ };
+ 
+diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
+index 514a6d8..70669af 100644
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -1408,6 +1408,7 @@ static int qcom_swrm_register_dais(struct qcom_swrm_ctrl *ctrl)
+ 				.channels_min = 1,
+ 				.channels_max = 1,
+ 				.rates = SNDRV_PCM_RATE_8000 |
++					 SNDRV_PCM_RATE_24000 |
+ 					 SNDRV_PCM_RATE_48000,
+ 				.formats = SNDRV_PCM_FMTBIT_S16_LE |
+ 					   SNDRV_PCM_FMTBIT_S32_LE,
+@@ -1423,7 +1424,8 @@ static int qcom_swrm_register_dais(struct qcom_swrm_ctrl *ctrl)
+ 		stream->channels_max = 1;
+ 		stream->rates = i < ctrl->num_dout_ports ?
+ 				SNDRV_PCM_RATE_48000 :
+-				SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_48000;
++				SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_24000 |
++				SNDRV_PCM_RATE_48000;
+ 		stream->formats = i < ctrl->num_dout_ports ?
+ 				SNDRV_PCM_FMTBIT_S16_LE :
+ 				SNDRV_PCM_FMTBIT_S16_LE |
+diff --git a/sound/soc/codecs/lpass-wsa-macro.c b/sound/soc/codecs/lpass-wsa-macro.c
+index 1323c37..eec7fba 100644
+--- a/sound/soc/codecs/lpass-wsa-macro.c
++++ b/sound/soc/codecs/lpass-wsa-macro.c
+@@ -373,6 +373,7 @@ enum {
+ 	WSA_MACRO_AIF_MIX1_PB,
+ 	WSA_MACRO_AIF_VI,
+ 	WSA_MACRO_AIF_ECHO,
++	WSA_MACRO_AIF_CPS,
+ 	WSA_MACRO_MAX_DAIS,
+ };
+ 
+@@ -1282,6 +1283,13 @@ static int wsa_macro_hw_params(struct snd_pcm_substream *substream,
+ 		return 0;
+ 	}
+ 
++	/* CPS is already framed by the WSA8845 SoundWire DP6 source.  This
++	 * logical macro endpoint only carries it to WSA_CODEC_DMA_TX_1 and must
++	 * not reprogram the VI sensing rate/state machine.
++	 */
++	if (dai->id == WSA_MACRO_AIF_CPS)
++		return 0;
++
+ 	switch (substream->stream) {
+ 	case SNDRV_PCM_STREAM_PLAYBACK:
+ 		ret = wsa_macro_set_interpolator_rate(dai, params_rate(params));
+@@ -1326,6 +1334,10 @@ static int wsa_macro_get_channel_map(const struct snd_soc_dai *dai,
+ 		*rx_slot = mask;
+ 		*rx_num = cnt;
+ 		break;
++	case WSA_MACRO_AIF_CPS:
++		*tx_num = 2;
++		*tx_slot = GENMASK(1, 0);
++		break;
+ 	case WSA_MACRO_AIF_ECHO:
+ 		val = snd_soc_component_read(component, CDC_WSA_RX_INP_MUX_RX_MIX_CFG0);
+ 		if (val & WSA_MACRO_EC_MIX_TX1_MASK) {
+@@ -1421,6 +1433,20 @@ static struct snd_soc_dai_driver wsa_macro_dai[] = {
+ 		},
+ 		.ops = &wsa_macro_dai_ops,
+ 	},
++	{
++		.name = "wsa_macro_cps",
++		.id = WSA_MACRO_AIF_CPS,
++		.playback = {
++			.stream_name = "WSA_AIF_CPS Protection",
++			.rates = SNDRV_PCM_RATE_24000,
++			.formats = SNDRV_PCM_FMTBIT_S32_LE,
++			.rate_max = 24000,
++			.rate_min = 24000,
++			.channels_min = 2,
++			.channels_max = 2,
++		},
++		.ops = &wsa_macro_dai_ops,
++	},
+ };
+ 
+ static void wsa_macro_mclk_enable(struct wsa_macro *wsa, bool mclk_enable)
+@@ -2333,6 +2359,9 @@ static const struct snd_soc_dapm_widget wsa_macro_dapm_widgets[] = {
+ 			      SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_POST_PMD),
+ 	SND_SOC_DAPM_AIF_OUT("WSA AIF_ECHO", "WSA_AIF_ECHO Capture", 0,
+ 			     SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("WSA AIF_CPS Protection",
++			    "WSA_AIF_CPS Protection", 0,
++			    SND_SOC_NOPM, 0, 0),
+ 
+ 	SND_SOC_DAPM_MIXER("WSA_AIF_VI Mixer", SND_SOC_NOPM, WSA_MACRO_AIF_VI,
+ 			   0, aif_vi_mixer, ARRAY_SIZE(aif_vi_mixer)),
+@@ -2395,6 +2424,7 @@ static const struct snd_soc_dapm_widget wsa_macro_dapm_widgets[] = {
+ 			     SND_SOC_DAPM_POST_PMD),
+ 
+ 	SND_SOC_DAPM_INPUT("VIINPUT_WSA"),
++	SND_SOC_DAPM_INPUT("CPSINPUT_WSA"),
+ 	SND_SOC_DAPM_OUTPUT("WSA_SPK1 OUT"),
+ 	SND_SOC_DAPM_OUTPUT("WSA_SPK2 OUT"),
+ 
+@@ -2436,6 +2466,12 @@ static const struct snd_soc_dapm_route wsa_audio_map[] = {
+ 	{"WSA AIF_VI", NULL, "WSA_AIF_VI Mixer"},
+ 	{"WSA AIF_VI", NULL, "WSA_MCLK"},
+ 
++	/* CPS feedback is a distinct transport from VI; only the shared macro
++	 * clock is required here.  DP6 framing is programmed by SoundWire.
++	 */
++	{"WSA AIF_CPS Protection", NULL, "CPSINPUT_WSA"},
++	{"WSA AIF_CPS Protection", NULL, "WSA_MCLK"},
++
+ 	{"WSA RX_MIX EC0_MUX", "RX_MIX_TX0", "WSA_RX INT0 SEC MIX"},
+ 	{"WSA RX_MIX EC1_MUX", "RX_MIX_TX0", "WSA_RX INT0 SEC MIX"},
+ 	{"WSA RX_MIX EC0_MUX", "RX_MIX_TX1", "WSA_RX INT1 SEC MIX"},
+diff --git a/sound/soc/codecs/wsa884x.c b/sound/soc/codecs/wsa884x.c
+index 69dd9c5..4dd850b 100644
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -741,7 +741,9 @@ struct wsa884x_priv {
+ 	struct device *dev;
+ 	struct regulator_bulk_data supplies[WSA884X_SUPPLIES_NUM];
+ 	struct sdw_slave *slave;
+-	struct sdw_stream_runtime *sruntime[2];
++	struct sdw_stream_runtime *sruntime[3];
++	u8 cps_offset1;
++	bool cps_enabled;
+ 	struct gpio_desc *sd_n;
+ 	struct reset_control *sd_reset;
+ 	bool port_prepared[WSA884X_MAX_SWR_PORTS];
+@@ -872,24 +874,28 @@ static struct sdw_dpn_prop wsa884x_sink_dpn_prop[] = {
+ 		.simple_ch_prep_sm = true,
+ 		.read_only_wordlength = true,
+ 	},
++};
++
++static struct sdw_dpn_prop wsa884x_source_dpn_prop[] = {
+ 	{
+-		.num = WSA884X_PORT_CPS + 1,
++		.num = WSA884X_PORT_VISENSE + 1,
+ 		.type = SDW_DPN_SIMPLE,
+ 		.min_ch = 1,
+ 		.max_ch = 1,
+ 		.simple_ch_prep_sm = true,
+ 		.read_only_wordlength = true,
+-	}
+-};
+-
+-static struct sdw_dpn_prop wsa884x_source_dpn_prop[] = {
++	},
+ 	{
+-		.num = WSA884X_PORT_VISENSE + 1,
++		.num = WSA884X_PORT_CPS + 1,
+ 		.type = SDW_DPN_SIMPLE,
+ 		.min_ch = 1,
+-		.max_ch = 1,
++		.max_ch = 2,
+ 		.simple_ch_prep_sm = true,
+ 		.read_only_wordlength = true,
++		.simple_transport_registers =
++			SDW_DPN_SIMPLE_TRANSPORT_BLOCKCTRL3 |
++			SDW_DPN_SIMPLE_TRANSPORT_SAMPLECTRL2 |
++			SDW_DPN_SIMPLE_TRANSPORT_HCTRL,
+ 	},
+ };
+ 
+@@ -2038,12 +2044,25 @@ static int wsa884x_hw_params(struct snd_pcm_substream *substream,
+ 			    i != WSA884X_PORT_COMP &&
+ 			    i != WSA884X_PORT_BOOST)
+ 				continue;
+-		} else if (i != WSA884X_PORT_VISENSE) {
++		} else if (dai->id == 1) {
++			if (i != WSA884X_PORT_VISENSE)
++				continue;
++		} else if (dai->id == 2) {
++			if (!wsa884x->cps_enabled || i != WSA884X_PORT_CPS)
++				continue;
++		} else {
+ 			continue;
+ 		}
+ 
+ 		selected_mask |= BIT(i);
+-		port_config[active_ports++] = wsa884x_pconfig[i];
++		port_config[active_ports] = wsa884x_pconfig[i];
++		if (i == WSA884X_PORT_CPS) {
++			port_config[active_ports].transport_params_override_mask =
++				SDW_PORT_CONFIG_OVERRIDE_OFFSET1;
++			port_config[active_ports].transport_params_override.offset1 =
++				wsa884x->cps_offset1;
++		}
++		active_ports++;
+ 	}
+ 
+ 	dev_info(dai->dev,
+@@ -2058,7 +2077,8 @@ static int wsa884x_hw_params(struct snd_pcm_substream *substream,
+ 
+ 	dev_info(dai->dev,
+ 		 "SP11 %s stream: rate=%u ports=%d direction=%s\n",
+-		 dai->id == 0 ? "speaker playback" : "VI feedback",
++		 dai->id == 0 ? "speaker playback" :
++		 dai->id == 1 ? "VI feedback" : "CPS feedback",
+ 		 sconfig.frame_rate, active_ports,
+ 		 sconfig.direction == SDW_DATA_DIR_TX ? "source" : "sink");
+ 	for (i = 0; i < active_ports; i++)
+@@ -2177,6 +2197,20 @@ static struct snd_soc_dai_driver wsa884x_dais[] = {
+ 		},
+ 		.ops = &wsa884x_dai_ops,
+ 	},
++	{
++		.name = "SPKR_CPS",
++		.id = 2,
++		.playback = {
++			.stream_name = "SPKR CPS Protection",
++			.rates = SNDRV_PCM_RATE_24000,
++			.formats = SNDRV_PCM_FMTBIT_S32_LE,
++			.rate_min = 24000,
++			.rate_max = 24000,
++			.channels_min = 1,
++			.channels_max = 1,
++		},
++		.ops = &wsa884x_dai_ops,
++	},
+ };
+ 
+ static int wsa884x_get_temp(struct wsa884x_priv *wsa884x, long *temp)
+@@ -2373,6 +2407,7 @@ static int wsa884x_probe(struct sdw_slave *pdev,
+ 	struct device *dev = &pdev->dev;
+ 	struct wsa884x_priv *wsa884x;
+ 	unsigned int i;
++	u32 cps_offset1;
+ 	int ret;
+ 
+ 	wsa884x = devm_kzalloc(dev, sizeof(*wsa884x), GFP_KERNEL);
+@@ -2412,6 +2447,18 @@ static int wsa884x_probe(struct sdw_slave *pdev,
+ 	wsa884x->slave = pdev;
+ 	wsa884x->dev = dev;
+ 	wsa884x->dev_mode = WSA884X_SPEAKER;
++	wsa884x->cps_enabled = device_property_read_bool(dev, "qcom,enable-cps");
++	if (wsa884x->cps_enabled) {
++		ret = device_property_read_u32(dev, "qcom,cps-offset1", &cps_offset1);
++		if (ret || cps_offset1 > U8_MAX)
++			return dev_err_probe(dev, ret ?: -ERANGE,
++					     "invalid qcom,cps-offset1\n");
++		wsa884x->cps_offset1 = cps_offset1;
++		/* The dedicated DT sidechain is active without requiring an
++		 * unreleased userspace mixer profile to know about CPS.
++		 */
++		wsa884x->port_enable[WSA884X_PORT_CPS] = true;
++	}
+ 	/*
+ 	 * Port map index starts with 0, however the data port for this codec
+ 	 * are from index 1
+@@ -2423,9 +2470,10 @@ static int wsa884x_probe(struct sdw_slave *pdev,
+ 	pdev->prop.sink_ports = BIT(WSA884X_PORT_DAC + 1) |
+ 				BIT(WSA884X_PORT_COMP + 1) |
+ 				BIT(WSA884X_PORT_BOOST + 1) |
+-				BIT(WSA884X_PORT_PBR + 1) |
+-				BIT(WSA884X_PORT_CPS + 1);
++				BIT(WSA884X_PORT_PBR + 1);
+ 	pdev->prop.source_ports = BIT(WSA884X_PORT_VISENSE + 1);
++	if (wsa884x->cps_enabled)
++		pdev->prop.source_ports |= BIT(WSA884X_PORT_CPS + 1);
+ 	pdev->prop.simple_clk_stop_capable = true;
+ 	pdev->prop.sink_dpn_prop = wsa884x_sink_dpn_prop;
+ 	pdev->prop.src_dpn_prop = wsa884x_source_dpn_prop;
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+index 7aaf84d..77cc8af 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1380,13 +1380,15 @@ int audioreach_configure_protection(struct q6apm_graph *graph)
+ 	if (ret)
+ 		goto out;
+ 
+-	if (!q6apm_sp11_vi_ready()) {
++	if (!q6apm_sp11_vi_ready() || !q6apm_sp11_cps_ready()) {
+ 		ret = audioreach_sp11_set_protection_enabled(graph, false);
+ 		audioreach_log_stage(graph, "SP/SPVI fail-safe bypass", ret);
+ 		if (ret)
+ 			goto out;
+ 		dev_warn(graph->dev,
+-			 "SP11 VI feedback is unavailable; speaker protection is bypassed\n");
++			 "SP11 protection feedback incomplete (VI=%s CPS=%s); speaker protection is bypassed\n",
++			 q6apm_sp11_vi_ready() ? "ready" : "missing",
++			 q6apm_sp11_cps_ready() ? "ready" : "missing");
+ 		goto volume_config;
+ 	}
+ 
+@@ -1436,7 +1438,7 @@ int audioreach_configure_protection(struct q6apm_graph *graph)
+ 	if (ret)
+ 		goto out;
+ 	ret = audioreach_sp11_set_protection_enabled(graph, true);
+-	audioreach_log_stage(graph, "SP/SPVI enabled with VI feedback", ret);
++	audioreach_log_stage(graph, "SP/SPVI enabled with VI+CPS feedback", ret);
+ 	if (ret)
+ 		goto out;
+ 
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+index f4a19b5..fd18f83 100644
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -34,6 +34,7 @@ struct apm_graph_mgmt_cmd {
+ 
+ static struct q6apm *g_apm;
+ static bool sp11_vi_ready;
++static bool sp11_cps_ready;
+ 
+ void q6apm_sp11_set_vi_ready(bool ready)
+ {
+@@ -47,6 +48,18 @@ bool q6apm_sp11_vi_ready(void)
+ }
+ EXPORT_SYMBOL_GPL(q6apm_sp11_vi_ready);
+ 
++void q6apm_sp11_set_cps_ready(bool ready)
++{
++	WRITE_ONCE(sp11_cps_ready, ready);
++}
++EXPORT_SYMBOL_GPL(q6apm_sp11_set_cps_ready);
++
++bool q6apm_sp11_cps_ready(void)
++{
++	return READ_ONCE(sp11_cps_ready);
++}
++EXPORT_SYMBOL_GPL(q6apm_sp11_cps_ready);
++
+ static int audioreach_graph_mgmt_cmd(struct audioreach_graph *graph,
+ 				     uint32_t opcode);
+ static int audioreach_graph_client_mgmt_cmd(struct q6apm_graph *graph,
+diff --git a/sound/soc/qcom/qdsp6/q6apm.h b/sound/soc/qcom/qdsp6/q6apm.h
+index 939fd6d..8bd8be4 100644
+--- a/sound/soc/qcom/qdsp6/q6apm.h
++++ b/sound/soc/qcom/qdsp6/q6apm.h
+@@ -181,6 +181,8 @@ int q6apm_graph_get_rx_shmem_module_iid(struct q6apm_graph *graph);
+ bool q6apm_is_adsp_ready(void);
+ void q6apm_sp11_set_vi_ready(bool ready);
+ bool q6apm_sp11_vi_ready(void);
++void q6apm_sp11_set_cps_ready(bool ready);
++bool q6apm_sp11_cps_ready(void);
+ 
+ int q6apm_enable_compress_module(struct device *dev, struct q6apm_graph *graph, bool en);
+ int q6apm_remove_initial_silence(struct device *dev, struct q6apm_graph *graph, uint32_t samples);
+diff --git a/sound/soc/qcom/x1e80100.c b/sound/soc/qcom/x1e80100.c
+index bb3643a..1c1acc9 100644
+--- a/sound/soc/qcom/x1e80100.c
++++ b/sound/soc/qcom/x1e80100.c
+@@ -108,6 +108,12 @@ static int x1e80100_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
+ 		snd_mask_none(format);
+ 		snd_mask_set_format(format, SNDRV_PCM_FORMAT_S32_LE);
+ 		break;
++	case WSA_CODEC_DMA_TX_1:
++		rate->min = rate->max = 24000;
++		channels->min = channels->max = 2;
++		snd_mask_none(format);
++		snd_mask_set_format(format, SNDRV_PCM_FORMAT_S32_LE);
++		break;
+ 	default:
+ 		break;
+ 	}
+@@ -166,6 +172,7 @@ static int x1e80100_snd_prepare(struct snd_pcm_substream *substream)
+ 			return ret;
+ 		break;
+ 	case WSA_CODEC_DMA_TX_0:
++	case WSA_CODEC_DMA_TX_1:
+ 		ret = x1e80100_snd_hw_map_channels(tx_slot, channels);
+ 		if (ret)
+ 			return ret;
+@@ -194,6 +201,14 @@ static int x1e80100_snd_prepare(struct snd_pcm_substream *substream)
+ 		if (ret)
+ 			return 0;
+ 	}
++	if (cpu_dai->id == WSA_CODEC_DMA_TX_1) {
++		q6apm_sp11_set_cps_ready(ret == 0);
++		dev_info(rtd->dev, "SP11 CPS feedback %s\n",
++			 ret ? "unavailable; protection will bypass" :
++			       "ready on WSA_CODEC_DMA_TX_1");
++		if (ret)
++			return 0;
++	}
+ 
+ 	return ret;
+ }
+@@ -206,6 +221,8 @@ static int x1e80100_snd_hw_free(struct snd_pcm_substream *substream)
+ 
+ 	if (cpu_dai->id == WSA_CODEC_DMA_TX_0)
+ 		q6apm_sp11_set_vi_ready(false);
++	else if (cpu_dai->id == WSA_CODEC_DMA_TX_1)
++		q6apm_sp11_set_cps_ready(false);
+ 
+ 	return qcom_snd_sdw_hw_free(substream, &data->stream_prepared[cpu_dai->id]);
+ }

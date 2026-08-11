@@ -8,9 +8,14 @@ transactions, its REV_0D ACDB, the shipped ARM64 Qualcomm drivers and controlled
 Linux tests. Kernel/DT, DSP topology, ALSA UCM and PipeWire policy are kept as
 separate layers so that an acoustic result is never mistaken for a driver fact.
 
-> **Project state (2026-08-08):** the protected, non-Dolby playback baseline
-> remains the accepted lower control. The original Windows ARM64
-> `DolbyAPOvlldp150 -> DolbyApoVr` path also executes on Linux as an experimental
+> **Project state (2026-08-11):** the protected, non-Dolby playback baseline
+> remains the accepted lower control. The isolated CPS V3 candidate now boots
+> the full platform, carries both per-amplifier CPS DP6 streams, starts the
+> VI+CPS graph and completes real playback; it is the operator-selected default.
+> A bounded live observer also proves distinct changing raw WSA telemetry and
+> the recovered PBR current policy on both active amplifiers. Local nonzero CPS
+> limiting action and calibrated physical telemetry remain unproven. The Windows ARM64
+> sample dependency `DolbyApoVr -> DolbyAPOvlldp150` also executes on Linux as an experimental
 > overlay, but one-to-one Windows parity is **not** yet certified. A state-pinned
 > Aug-7 Windows run has now localized the remaining loud-75-Hz drive discrepancy
 > to **before the inner VLLDP DSP**: the live VLLDP input is ~3 dB hotter than the
@@ -39,6 +44,16 @@ The accepted control is kernel `7.1.5-sp11-audio-clean+`, GRUB ID
 The baseline has the complete Ubuntu module catalogue and the required Phase91
 Wi-Fi, touch, GPI and SPI overrides. Exact installed hashes and the acceptance
 record are in [`deploy/audio-clean/README.md`](deploy/audio-clean/README.md).
+
+The deployed CPS V3 candidate is separately identified and rollback-safe. Its
+exact kernel, module, initramfs, DTB and runtime-observer evidence are in
+[`deploy/audio-cps-v3/DEPLOYMENT-PROVENANCE.md`](deploy/audio-cps-v3/DEPLOYMENT-PROVENANCE.md)
+and
+[`2026-08-11-linux-cps-v3-live-wsa-observation.md`](docs/findings/2026-08-11-linux-cps-v3-live-wsa-observation.md).
+Every fresh kernel bake must also pass `tools/verify_sp11_kernel_bake.py` with
+its final DTB. This guards both halves of the SP11 Wi-Fi continuity fix—the
+ath12k OF hook and the WCN7850 `disable-rfkill` board property—before a build
+can replace the connected development system.
 
 ```mermaid
 flowchart LR
@@ -99,10 +114,14 @@ closing the non-Dolby phase, the remaining evidence work is:
 
 1. Resolve Windows' separate amplifier-reset lifecycle against Linux's stable
    shared-reset arrangement.
-2. Decode post-start protection telemetry, including TMax/XMax readback, and
-   observe protection acting rather than only accepting configuration.
-3. Determine whether Windows actively uses the CPS hardware sidechain on this
-   exact machine.
+2. Recover calibrated protection telemetry or a passive record of actual
+   limiter intervention. Linux now has live per-amplifier raw ADC, temperature
+   and VBAT words, while known dynamic DSP-statistics IDs remain unsupported.
+3. Recover the exact Windows HLOS CPS payload/threshold semantics. A reviewed
+   Windows scalar scan plus every available Linux WSA884x source copy provides
+   no evidence that amplifier-local `CPS_CTL=0x00` is a missing HLOS write, so
+   that register is no longer a deployment blocker. Linux CPS DP6 transport
+   and DSP graph integration are already proven on this machine.
 4. Establish whether any genuine per-speaker calibration or hardware
    asymmetry exists. Device-tree left/right labels alone are not proof of the
    physical mapping.
@@ -189,6 +208,14 @@ Reconstruct the typed graph closure and decode the captured activation lists:
   --json windows-closure.json
 ./tools/qgpr_activation_inventory.py qgpr.decoded.csv windows-gkv.json \
   --json activations.json
+```
+
+Decode an armed CPS V3 live-observer journal without assigning physical units
+to the raw register words:
+
+```sh
+journalctl -b -o short-monotonic -g 'SP11 WSA live sample=' \
+  | ./tools/sp11_wsa_live_decode.py /dev/stdin --output wsa-live.json
 ```
 
 The repository intentionally does not offer a blind one-command installer for

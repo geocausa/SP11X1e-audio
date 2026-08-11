@@ -1,0 +1,117 @@
+From 223f3f1bc197bf18bf410b76b7dea635ee236c71 Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Tue, 11 Aug 2026 22:59:39 +0100
+Subject: [PATCH] ASoC: wsa884x: add bounded live status observer
+
+---
+ sound/soc/codecs/wsa884x.c | 57 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+
+diff --git a/sound/soc/codecs/wsa884x.c b/sound/soc/codecs/wsa884x.c
+index e5ee694..58c6123 100644
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -735,6 +735,12 @@
+ #define WSA884X_PA_RECOVERY_RETRIES	3
+ #define WSA884X_PA_RECOVERY_FAILURES	3
+ #define WSA884X_PA_HEALTH_INTERVAL_MS	100
++#define WSA884X_SP11_OBSERVE_MAX_SAMPLES	40
++
++static unsigned int sp11_observe_samples;
++module_param_named(sp11_observe_samples, sp11_observe_samples, uint, 0644);
++MODULE_PARM_DESC(sp11_observe_samples,
++		 "read-only 100 ms WSA status snapshots on each speaker start (0=off, max=40)");
+ 
+ struct wsa884x_priv {
+ 	struct regmap *regmap;
+@@ -759,6 +765,8 @@ struct wsa884x_priv {
+ 	bool pa_on;
+ 	struct delayed_work pa_health_work;
+ 	unsigned int pa_recovery_failures;
++	unsigned int observe_remaining;
++	unsigned int observe_sequence;
+ 	unsigned int supply_config;
+ };
+ 
+@@ -1744,8 +1752,29 @@ static void wsa884x_pa_health_work(struct work_struct *work)
+ 	struct wsa884x_priv *wsa884x =
+ 		container_of(to_delayed_work(work), struct wsa884x_priv,
+ 			     pa_health_work);
++	static const unsigned int observe_regs[] = {
++		WSA884X_PA_FSM_EN,
++		WSA884X_PA_FSM_STA0,
++		WSA884X_PA_FSM_STA1,
++		WSA884X_PA_FSM_ERR_COND0,
++		WSA884X_PA_FSM_ERR_COND1,
++		WSA884X_INTR_STATUS0,
++		WSA884X_INTR_STATUS1,
++		WSA884X_DOUT_MSB,
++		WSA884X_DOUT_LSB,
++		WSA884X_TEMP_DOUT_MSB,
++		WSA884X_TEMP_DOUT_LSB,
++		WSA884X_VBAT_DOUT_MSB,
++		WSA884X_VBAT_DOUT_LSB,
++		WSA884X_WAVG_STA,
++		WSA884X_CPS_CTL,
++		WSA884X_CURRENT_LIMIT,
++	};
++	unsigned int observe[ARRAY_SIZE(observe_regs)] = {};
+ 	unsigned int sta1 = 0;
++	unsigned long read_failures = 0;
+ 	bool rearm;
++	unsigned int i;
+ 	int ret;
+ 
+ 	ret = pm_runtime_resume_and_get(wsa884x->dev);
+@@ -1766,6 +1795,24 @@ static void wsa884x_pa_health_work(struct work_struct *work)
+ 			wsa884x->pa_recovery_failures = 0;
+ 	}
+ 
++	if (wsa884x->observe_remaining) {
++		for (i = 0; i < ARRAY_SIZE(observe_regs); i++) {
++			ret = regmap_read(wsa884x->regmap, observe_regs[i],
++					  &observe[i]);
++			if (ret)
++				read_failures |= BIT(i);
++		}
++
++		dev_info(wsa884x->dev,
++			 "SP11 WSA live sample=%u failed=%#lx pa=%02x sta=%02x/%02x err=%02x/%02x intr=%02x/%02x adc=%02x%02x temp=%02x%02x vbat=%02x%02x wavg=%02x cps=%02x ilim=%02x\n",
++			 wsa884x->observe_sequence++, read_failures,
++			 observe[0], observe[1], observe[2], observe[3], observe[4],
++			 observe[5], observe[6], observe[7], observe[8], observe[9],
++			 observe[10], observe[11], observe[12], observe[13],
++			 observe[14], observe[15]);
++		wsa884x->observe_remaining--;
++	}
++
+ out_unlock:
+ 	mutex_unlock(&wsa884x->sp_lock);
+ 	pm_runtime_mark_last_busy(wsa884x->dev);
+@@ -1962,7 +2009,16 @@ static int wsa884x_spkr_event(struct snd_soc_dapm_widget *w,
+ 		mutex_lock(&wsa884x->sp_lock);
+ 		wsa884x->pa_on = true;
+ 		wsa884x->pa_recovery_failures = 0;
++		wsa884x->observe_remaining = min_t(unsigned int,
++				READ_ONCE(sp11_observe_samples),
++				WSA884X_SP11_OBSERVE_MAX_SAMPLES);
++		wsa884x->observe_sequence = 0;
+ 		mutex_unlock(&wsa884x->sp_lock);
++		if (wsa884x->observe_remaining)
++			dev_info(wsa884x->dev,
++				 "SP11 WSA live observer armed: samples=%u interval=%u ms\n",
++				 wsa884x->observe_remaining,
++				 WSA884X_PA_HEALTH_INTERVAL_MS);
+ 
+ 		wsa884x_spkr_post_pmu(component, wsa884x);
+ 
+@@ -1976,6 +2032,7 @@ static int wsa884x_spkr_event(struct snd_soc_dapm_widget *w,
+ 	case SND_SOC_DAPM_PRE_PMD:
+ 		mutex_lock(&wsa884x->sp_lock);
+ 		wsa884x->pa_on = false;
++		wsa884x->observe_remaining = 0;
+ 		mutex_unlock(&wsa884x->sp_lock);
+ 		cancel_delayed_work_sync(&wsa884x->pa_health_work);
+ 
+-- 
+2.53.0

@@ -1,0 +1,75 @@
+{
+  "generated_local": "2026-08-11T19:05:00+01:00",
+  "state": "runtime_rejected_quarantined",
+  "kernel_release": "7.1.5-sp11-audio-clean+",
+  "accepted_source_base": "f102e3fa8c7e860f3a9ac3ba2043a5fd55242e44",
+  "candidate_source_commit": "826091400f088c1df0709f78b1d7e2b2d8d1fea7",
+  "exact_deployment_patch_sequence": [
+    {
+      "path": "patches/0032-soundwire-core-per-slave-transport-overrides.patch",
+      "sha256": "7518f929af15dafddf7d325d408f2dfc79c82d5c27393f4c7737e30f49a01196"
+    },
+    {
+      "path": "patches/0027-sp11-cps-windows-parity-v2-deployed.patch",
+      "sha256": "3796408cd06cbe7b820d9b6af17f14e0da26f454df622a67567cb2ba7fc9c79c"
+    },
+    {
+      "path": "patches/0040-sp11-cps-parity-v2-final-integration.patch",
+      "sha256": "e5057c4ffa241229e7bc4c4cd0e548f0f1ceaa03b4cfe693ea1a9bd114bb82bb"
+    }
+  ],
+  "grub": {
+    "entry_id": "sp11-audio-cps-parity-v2",
+    "persistent_default": "osprober-efi-2A36-6A1E",
+    "default_policy": "saved",
+    "selection_policy": "one-shot-only"
+  },
+  "boot_artifacts": {
+    "vmlinuz_sha256": "8d856ba606dcedd8bb8389a7524b52b0ad49145f3e3c902da45ee82d9ebeaf03",
+    "dtb_sha256": "341dfb733ef07d9b1bee02ee016e120fd6fb50a34762aaed4dac5131142953a6",
+    "initrd_sha256": "7fee8a265b2918f763da99164b722e1e750ed40b9b9fe51729b98ed932f394d8"
+  },
+  "topology": {
+    "filename": "X1E80100-Microsoft-Surface-Pro-11-CPS-Parity-V2-tplg.bin",
+    "sha256": "f385a5d83127cf8f83dab0cbc86f418514f9c8839f2da6aac97e3e2ee782d121"
+  },
+  "initramfs_replacements": {
+    "soundwire-bus.ko.zst": "477214b164b341e2a4a4b3548b1d5d5adf4268b518e4b7bd0723cc3208904580",
+    "soundwire-qcom.ko.zst": "24fabf172c73eb6bdd919da490503dc35f91879b042be89f8a138d275af9fe63",
+    "snd-soc-wsa884x.ko.zst": "1f09e00100a02d8be7a3e44ebf59822806e2607ff8f67d6dd4f41f031ea3e5e2",
+    "snd-soc-lpass-wsa-macro.ko.zst": "eae4cddeffdaf9038fb071b19b1281fada37c58321bea560089b1ee3fe543d1d",
+    "snd-q6dsp-common.ko.zst": "1eee68bfaa95d317c7f59de2e5a1bd56be4c1550c8692d1c24ff999305972a8b",
+    "snd-q6apm.ko.zst": "9f6581f55e2b6b81c45a1e9a9e84f130a5a8398370f00ecf4a34d94f7358ca54",
+    "q6apm-lpass-dais.ko.zst": "e8094ef36a076ebaf34273828a96784a7d795a00d48aa8775cc5f167dc4ddfa7",
+    "snd-soc-x1e80100.ko.zst": "d31402041c8bd85a9f150f764b0cf85396bbd3e77597cd2af5dc24f90b61bd46",
+    "max34417.ko.zst": "d8524397e5b72f85f0531402ef3431b116787c2fdb2d059ab96e7769e8852a46"
+  },
+  "validation": {
+    "focused_module_build_and_modpost": "pass (including W=1 final-delta rebuild)",
+    "transport_model_tests": "3/3 pass",
+    "dtb_build_and_decode": "pass",
+    "initramfs_extract_hash_match": "pass",
+    "grub_script_check": "pass",
+    "saved_windows_default_preserved": true,
+    "runtime": {
+      "result": "rejected_before_card_registration",
+      "boot_started_local": "2026-08-11T19:12:42+01:00",
+      "cause": "mixed SoundWire module ABI closure; accepted regmap-sdw.ko rejected rebuilt sdw_nread_no_pm and sdw_nwrite_no_pm symbol CRCs",
+      "downstream_failure": "snd-x1e80100 deferred: WSA Playback codec DAI not found",
+      "wifi_observation": "ath12k and WCN7850 firmware loaded but rfkill reported hard blocked",
+      "quarantine": "GRUB generator /etc/grub.d/57_sp11_audio_cps_parity_v2 made non-executable and generated entry removed",
+      "recovery": {
+        "entry": "sp11-audio-clean",
+        "boot_started_local": "2026-08-11T19:54:59+01:00",
+        "alsa_card_registered": true,
+        "wifi_hard_blocked": false,
+        "wifi_connected": "GEOCA",
+        "pipewire_speaker_present": true,
+        "dolby_default_sink_present": true,
+        "short_playback_completed_without_audio_or_xrun_error": true,
+        "persistent_windows_default_preserved": true
+      },
+      "required_before_retest": "rebuild and verify the complete SoundWire provider/consumer symbol-CRC closure, including regmap-sdw"
+    }
+  }
+}

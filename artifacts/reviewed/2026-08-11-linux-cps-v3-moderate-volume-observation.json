@@ -1,0 +1,58 @@
+{
+  "date": "2026-08-11",
+  "capture": {
+    "start": "2026-08-11T23:26:30.452458+01:00",
+    "end": "2026-08-11T23:26:31.688502+01:00",
+    "boot_id": "1a37e1b4-93b7-4239-8aee-5e048119bbba",
+    "kernel": "7.1.5-sp11-cps-v3+",
+    "playback": "/usr/share/sounds/alsa/Front_Center.wav",
+    "pipewire_default_sink": "effect_input.sp11_windows_dolby",
+    "temporary_volume": 0.30,
+    "restored_volume": 0.11,
+    "playback_exit_status": 0
+  },
+  "transport": {
+    "render_hz": 48000,
+    "visense_hz": 8000,
+    "cps_hz": 24000,
+    "cps_slave_port": 6,
+    "cps_channel_mask_both_amplifiers": "0x03",
+    "sp_spvi_vi_cps_graph_accepted": true,
+    "graph_start_accepted": true
+  },
+  "summary": {
+    "sample_count": 24,
+    "samples_per_amplifier": 12,
+    "failed_read_masks": ["0x0"],
+    "pa_values": ["0x01"],
+    "status_values": ["0x2f/0x00"],
+    "error_values": ["0x00/0x00"],
+    "interrupt_values": ["0x00/0x00"],
+    "current_limit_values": ["0x44"],
+    "cps_control_values": ["0x00"],
+    "wavg_values": ["0x00"],
+    "amplifier_0": {
+      "adc_min": "0x72e0",
+      "adc_max": "0xc3e0",
+      "adc_unique_count": 8,
+      "temperature_values": ["0x7300"],
+      "vbat_values": ["0xc2c0", "0xc300"]
+    },
+    "amplifier_1": {
+      "adc_min": "0x7020",
+      "adc_max": "0xc3e0",
+      "adc_unique_count": 5,
+      "temperature_values": ["0x7080"],
+      "vbat_values": ["0xc2c0", "0xc300"]
+    }
+  },
+  "result": {
+    "accepted": true,
+    "xrun_observed": false,
+    "bus_clash_observed": false,
+    "pa_fault_observed": false,
+    "protection_transport_fault_observed": false,
+    "nonzero_limiter_action_proven": false
+  },
+  "units_note": "ADC, temperature and VBAT values are uncalibrated raw WSA8845 register words."
+}

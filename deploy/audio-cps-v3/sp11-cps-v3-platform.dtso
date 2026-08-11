@@ -1,0 +1,70 @@
+/dts-v1/;
+/plugin/;
+
+/*
+ * Restore the two proven SP11 platform additions on top of the CPS audio DTB.
+ *
+ * The Phase91 block is kept equivalent to the reviewed portable touchscreen
+ * overlay. The PCI property is present in the accepted audio-clean DTB and is
+ * required because the Surface firmware reports the WCN7850 RF-kill GPIO with
+ * the wrong polarity for this machine. The WCN7850 has no persistent public
+ * address, so provide the same locally-administered address previously applied
+ * by the boot-time BlueZ workaround. Bluetooth DT addresses are little-endian.
+ */
+
+&gpi_dma1 {
+	status = "okay";
+};
+
+&i2c10 {
+	status = "disabled";
+};
+
+&tlmm {
+	g6ts_qspi_data23: g6ts-qspi-data23-state {
+		pins = "gpio49", "gpio50";
+		function = "qup1_se2";
+		drive-strength = <6>;
+		bias-disable;
+	};
+};
+
+&spi10 {
+	status = "okay";
+	qcom,biosref-qspi;
+	qcom,enable-gsi-dma;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	dmas = <&gpi_dma1 0 2 4>, <&gpi_dma1 1 2 4>;
+	dma-names = "tx", "rx";
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&qup_spi10_data_clk>, <&qup_spi10_cs>,
+		    <&g6ts_qspi_data23>;
+
+	touchscreen@0 {
+		compatible = "microsoft,mshw0485";
+		reg = <0>;
+		spi-max-frequency = <40000000>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <51 8>;
+		interrupt-gpios = <&tlmm 51 1>;
+
+		power-gpios = <&tlmm 64 0>;
+		reset-gpios = <&tlmm 48 0>;
+	};
+};
+
+&pcie4_port0 {
+	wifi@0 {
+		disable-rfkill;
+	};
+};
+
+&uart14 {
+	bluetooth {
+		local-bd-address = [30 ea 42 3a 99 02];
+	};
+};

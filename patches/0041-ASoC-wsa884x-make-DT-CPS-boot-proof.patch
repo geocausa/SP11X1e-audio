@@ -1,0 +1,65 @@
+From 4c5c85f79eeea420dae020ec0c5c9b05099ddf78 Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Tue, 11 Aug 2026 22:12:41 +0100
+Subject: [PATCH] ASoC: wsa884x: make DT CPS boot-proof
+
+---
+ sound/soc/codecs/wsa884x.c | 28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
+
+diff --git a/sound/soc/codecs/wsa884x.c b/sound/soc/codecs/wsa884x.c
+index 456893c..e5ee694 100644
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -1871,6 +1871,20 @@ static int wsa884x_set_swr_port(struct snd_kcontrol *kcontrol,
+ 	struct soc_mixer_control *mixer = (struct soc_mixer_control *)kcontrol->private_value;
+ 	int portidx = mixer->reg;
+ 
++	/*
++	 * A DT-enabled CPS path is part of the board wiring, not an optional
++	 * userspace route.  In particular, alsa-restore may replay an older
++	 * control state that predates CPS support and otherwise disable port 6
++	 * after probe.  Keep the firmware-selected sidechain enabled.
++	 */
++	if (portidx == WSA884X_PORT_CPS && wsa884x->cps_enabled) {
++		if (wsa884x->port_enable[portidx])
++			return 0;
++
++		wsa884x->port_enable[portidx] = true;
++		return 1;
++	}
++
+ 	if (ucontrol->value.integer.value[0]) {
+ 		if (wsa884x->port_enable[portidx])
+ 			return 0;
+@@ -2450,9 +2464,17 @@ static int wsa884x_probe(struct sdw_slave *pdev,
+ 	wsa884x->slave = pdev;
+ 	wsa884x->dev = dev;
+ 	wsa884x->dev_mode = WSA884X_SPEAKER;
+-	wsa884x->cps_enabled = device_property_read_bool(dev, "qcom,enable-cps");
++	/*
++	 * SoundWire supplies its own primary firmware node for the slave device,
++	 * so the generic device-property helpers do not reach the codec's OF
++	 * child node.  Port mapping below already uses dev->of_node directly;
++	 * read the adjacent CPS properties from that same authoritative node.
++	 */
++	wsa884x->cps_enabled =
++		of_property_read_bool(dev->of_node, "qcom,enable-cps");
+ 	if (wsa884x->cps_enabled) {
+-		ret = device_property_read_u32(dev, "qcom,cps-offset1", &cps_offset1);
++		ret = of_property_read_u32(dev->of_node, "qcom,cps-offset1",
++					   &cps_offset1);
+ 		if (ret || cps_offset1 > U8_MAX)
+ 			return dev_err_probe(dev, ret ?: -ERANGE,
+ 					     "invalid qcom,cps-offset1\n");
+@@ -2461,6 +2483,8 @@ static int wsa884x_probe(struct sdw_slave *pdev,
+ 		 * unreleased userspace mixer profile to know about CPS.
+ 		 */
+ 		wsa884x->port_enable[WSA884X_PORT_CPS] = true;
++		dev_info(dev, "SP11 CPS enabled with offset1=%u\n",
++			 wsa884x->cps_offset1);
+ 	}
+ 	/*
+ 	 * Port map index starts with 0, however the data port for this codec
+-- 
+2.53.0

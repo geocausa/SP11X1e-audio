@@ -1,0 +1,27 @@
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Subject: [PATCH] wifi: ath12k: honor DT disable-rfkill
+
+The SP11 firmware reports the WCN7850 RF-kill GPIO with the wrong polarity,
+leaving Wi-Fi hard-blocked. Allow board DT to suppress that unusable hardware
+RF-kill path, matching the existing ACPI disable-rfkill policy.
+
+This hook and the matching board property are required bake inputs: losing
+either one disconnects the machine after boot and prevents remote development.
+
+---
+ drivers/net/wireless/ath/ath12k/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/wireless/ath/ath12k/core.c b/drivers/net/wireless/ath/ath12k/core.c
+index 980a12fb2c6e..18f9489a1233 100644
+--- a/drivers/net/wireless/ath/ath12k/core.c
++++ b/drivers/net/wireless/ath/ath12k/core.c
+@@ -80,6 +80,9 @@ static int ath12k_core_rfkill_config(struct ath12k_base *ab)
+ 	if (ath12k_acpi_get_disable_rfkill(ab))
+ 		return 0;
+ 
++	if (of_property_read_bool(ab->dev->of_node, "disable-rfkill"))
++		return 0;
++
+	for (i = 0; i < ab->num_radios; i++) {
+		ar = ab->pdevs[i].ar;
