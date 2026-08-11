@@ -23,9 +23,9 @@ interpretation, clear every breakpoint, and detach with `qd`.
 
 ## Current Linux result: accepted
 
-The one-shot entry `sp11-audio-cps-v3` booted successfully on
-`7.1.5-sp11-cps-v3+`. Windows remains the persistent GRUB default and the
-one-shot selector cleared after boot.
+The entry `sp11-audio-cps-v3` booted successfully on
+`7.1.5-sp11-cps-v3+`. It is now the persistent GRUB default at the operator's
+explicit request; Windows remains available in the menu.
 
 The exact codec follow-up is patch
 `patches/0041-ASoC-wsa884x-make-DT-CPS-boot-proof.patch`, produced from local kernel
@@ -50,14 +50,25 @@ Runtime evidence then proved:
   success, with zero DAI2-selection failures.
 
 The signed codec hash is
-`039588e2b0033057bfa8b95af408c7504b29ec8ea4fcfc9925a664356449917f`.
+`ccc9a4d1a3e0cc34e4761a0b4ddaebbbc152b822bb4f579dd512374e9fe4251e`.
 The deployed initramfs hash is
-`4a48cc2aea277954e3712480b31a15316c928659c90c54dce0650d63664a9928`.
+`8504076a0f40926eee09233451b078d32da1fbb72bb52d4556bec528bd6e6153`.
 The full installed tree passed 7,886-module/327,477-import CRC closure; the
 extracted initramfs passed 2,910-module/128,311-import closure.
 
 The earlier `sp11-audio-cps-parity-v2` mixed-ABI candidate remains rejected and
 must not be booted. Its history is not evidence against the final V3 result.
+
+Patch `0042-ASoC-wsa884x-add-bounded-live-status-observer.patch` adds a
+default-off, read-only, 40-sample maximum observer to the existing 100 ms PA
+health worker. Linux captured 12 samples from each amplifier during playback:
+24/24 reads succeeded, both PAs stayed active, all fault/interrupt bytes were
+zero, and the two amplifiers returned distinct changing raw ADC, temperature
+and VBAT words. Both live `CURRENT_LIMIT` registers were `0x44`, proving the
+PBR-enabled 2-cell current policy. Both local `CPS_CTL` registers remained
+zero even though CPS DP6 and the DSP VI+CPS graph were active. Read
+`docs/findings/2026-08-11-linux-cps-v3-live-wsa-observation.md` and its reviewed
+JSON artifact before the KD session.
 
 ## What is still unknown
 
@@ -68,10 +79,14 @@ These are now evidence-quality questions, not Linux audio blockers:
    qcaucd runtime object. Resolve the packed VBAT/temperature register
    addresses for both amplifiers plus the LPASS SoundWire write-command,
    read-command and read-FIFO physical addresses.
-2. **CPS thresholds and useful telemetry.** Determine whether Windows sends
+2. **CPS thresholds and calibrated/action telemetry.** Linux now captures
+   distinct live per-amplifier raw ADC, temperature and VBAT words, but not
+   their calibrated physical units or a nonzero limiter action. Determine
+   whether Windows sends
    `PARAM_ID_CPS_LPASS_SWR_THRESHOLDS_CFG` (`0x08001254`) at runtime and find a
-   passive response/event carrying actual per-amplifier CPS measurements or
-   protection state. Do not provoke thermal, over-current or speaker faults.
+   passive response/event or object which explains `CPS_CTL=0x00`, calibrated
+   CPS measurements, or protection state. Do not provoke thermal, over-current
+   or speaker faults.
 3. **PBR DP4 transport.** Linux has the recovered 2S PBR policy, 0x11 current
    limit and 15-step thresholds, and PBR affects amplifier register policy.
    It has not proved whether Windows also schedules WSA8845 sink DP4 as a

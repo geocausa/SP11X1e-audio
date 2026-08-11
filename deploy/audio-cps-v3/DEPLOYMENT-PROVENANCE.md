@@ -10,11 +10,12 @@ release, module directory, initramfs, DTB, `/boot` bundle, and GRUB entry ID.
 - Kernel source branch: `agent/cps-windows-parity-v2-20260811`
 - Kernel transport base commit: `826091400f088c1df0709f78b1d7e2b2d8d1fea7`
 - Kernel runtime-fix commit: `4c5c85f` (published as patch `0041`)
+- Kernel live-observer commit: `223f3f1` (published as patch `0042`)
 - Source worktree: `02-kernel/sp11-audio-powerlab-src-20260810`
 - Build directory: `02-kernel/build-cps-v3-20260811`
 - GRUB entry ID: `sp11-audio-cps-v3`
-- Persistent GRUB default at deployment time: Windows
-  (`osprober-efi-2A36-6A1E`)
+- Persistent GRUB default: `sp11-audio-cps-v3` (changed from Windows at the
+  operator's explicit request after the accepted runtime boots)
 
 The build config differs from the accepted audio-clean config only in
 `CONFIG_LOCALVERSION`, changed from `-sp11-audio-clean` to `-sp11-cps-v3`.
@@ -31,7 +32,9 @@ The build config differs from the accepted audio-clean config only in
   `1f333a13c0d59d1f0ca1de31ae75534c350adab3f7caa03d5aec4f45265f44ab`
 - Final composite OLED/Phase91/Wi-Fi/CPS DTB:
   `126911f321badad1b33c8bad50ad460b4f6e03f8f9851ce4b532988bed1e2241`
-- Current force-on initramfs:
+- Current live-observer initramfs:
+  `8504076a0f40926eee09233451b078d32da1fbb72bb52d4556bec528bd6e6153`
+- Force-on initramfs retained as pre-live-observer rollback:
   `4a48cc2aea277954e3712480b31a15316c928659c90c54dce0650d63664a9928`
 - OF-property-fix initramfs retained as pre-force-on rollback:
   `265f4ba7897d663108b616bdfdf28a39f41eedf0040f6c818adf6e6e0c51a177`
@@ -43,7 +46,9 @@ The build config differs from the accepted audio-clean config only in
   `b8975af9f2f33b4d798d5133fd42ac95f9bac5c4c16af3300dbbe4ecce7a257d`
 - Reviewed CPS topology:
   `f385a5d83127cf8f83dab0cbc86f418514f9c8839f2da6aac97e3e2ee782d121`
-- Current force-on signed `snd-soc-wsa884x`:
+- Current live-observer signed `snd-soc-wsa884x`:
+  `ccc9a4d1a3e0cc34e4761a0b4ddaebbbc152b822bb4f579dd512374e9fe4251e`
+- Force-on `snd-soc-wsa884x` retained as pre-live-observer rollback:
   `039588e2b0033057bfa8b95af408c7504b29ec8ea4fcfc9925a664356449917f`
 - OF-property-fix `snd-soc-wsa884x` retained as pre-force-on rollback:
   `04c850bc3e6917472b02ea1a244e17329569db93fd53249f6864d7bb209610e5`
@@ -69,7 +74,7 @@ The build config differs from the accepted audio-clean config only in
 - Force-on extracted initramfs: 2,910 modules and zero missing symbols or CRC
   mismatches across 128,311 versioned imports. Its embedded WSA884x module is
   byte-for-byte identical to the installed signed module.
-- CPS review suite: 79 tests, 76 passed and 3 skipped only because the private
+- CPS review suite: 96 tests, 93 passed and 3 skipped only because the private
   Windows capture bundle is not present.
 
 ## Included platform paths
@@ -110,8 +115,19 @@ wiring and does not permit a stale userspace control restore to disable it. The
 replacement module and initramfs passed the full installed and extracted CRC
 closure gates.
 
+The next boot loaded the bounded live-observer module with srcversion
+`E084BC31719EE85BB8DEABD`. Its default-zero parameter leaves normal playback
+unchanged. A deliberately armed 12-sample playback captured 24/24 successful
+register sets across the two amplifiers: both PAs active, no fault or interrupt,
+distinct changing raw ADC/temperature/VBAT words, and `CURRENT_LIMIT=0x44` on
+both sides. That register proves the recovered PBR-enabled 2-cell policy was
+live. `CPS_CTL` remained zero, so CPS DP6/DSP transport is accepted while local
+CPS register engagement remains an evidence question. See
+`docs/findings/2026-08-11-linux-cps-v3-live-wsa-observation.md`.
+
 ## Rollback model
 
-Windows remains the persistent GRUB default. The candidate is selected only by
-`grub-reboot sp11-audio-cps-v3`; after that one boot, GRUB automatically returns
-to Windows. The accepted Linux audio-clean bundle and entry remain untouched.
+The operator made `sp11-audio-cps-v3` the persistent GRUB default after its
+runtime acceptance. Windows and the accepted Linux audio-clean entry remain
+available as independent menu entries. The observer is default-off and its
+pre-observer module and initramfs are retained in the V3 boot bundle.
