@@ -1,0 +1,167 @@
+{
+  "date": "2026-08-11",
+  "purpose": "live comparison of Surface Pro 11 Windows speaker processing modes and audiodg/Dolby hosting",
+  "result": {
+    "same_audiodg_process_for_all_controlled_tests": true,
+    "audiodg_pid_decimal": 5312,
+    "audiodg_pid_hex": "0x14c0",
+    "two_audiodg_streams_supported_by_evidence": false,
+    "model": "multiple processing-mode graph alternatives hosted by one observed audiodg process",
+    "system_sound_label_equals_notification_mode": false,
+    "explicit_alerts_selects_notification": true,
+    "explicit_alerts_executes_dolby_dax3_wrapper": true,
+    "alert_inner_vlldp_vr_order_reproven": false
+  },
+  "hash_gate": {
+    "qcadcm8380_sys": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+    "qcaudminiport8380_sys": "79b26804d05332304c736c4e03e942db6a07ea886a2b07f3a4ff5947d1d05531",
+    "DolbyDax3Apo_dll": "6ea1702c0f86766e45c2e248e169022e3d71eaa3c655b3fca159b4dd59f18d87",
+    "DolbyAPOvlldp150_dll": "a2553ff7b013b5a248e50bdcae46d08405e393c0085073975214d035cedf02c1",
+    "DolbyApoVr_dll": "1d74477ea0dae66961a21bf6bc3ce0d8062836fc4dd96b59c14de11257f5eecc"
+  },
+  "live_module_state": {
+    "qcaudminiport_base": "0xfffff8003e680000",
+    "mode_translator_rva": "0x94080",
+    "mode_translator_live": "0xfffff8003e714080",
+    "DolbyDax3Apo_base": "0x00007ff98d050000",
+    "DolbyDax3Apo_APOProcess_rva": "0xcd000",
+    "DolbyDax3Apo_APOProcess_live": "0x00007ff98d11d000",
+    "DolbyAPOvlldp150_base": "0x00007ff96e1e0000",
+    "DolbyAPOvlldp150_inner_rva": "0x105050",
+    "DolbyAPOvlldp150_inner_live": "0x00007ff96e2e5050"
+  },
+  "source_backed_mode_mapping": [
+    {"miniport_flag": "0x01", "mode": "DEFAULT", "qcadcm_enum": 2, "gkv": 2},
+    {"miniport_flag": "0x02", "mode": "RAW", "qcadcm_enum": 1, "gkv": 1},
+    {"miniport_flag": "0x04", "mode": "COMMUNICATIONS", "qcadcm_enum": 4, "gkv": 6},
+    {"miniport_flag": "0x08", "mode": "SPEECH", "qcadcm_enum": 3, "gkv": 5},
+    {"miniport_flag": "0x0a", "mode": "NOTIFICATION", "qcadcm_enum": 7, "gkv": 7},
+    {"miniport_flag": "0x14", "mode": "MEDIA", "qcadcm_enum": 6, "gkv": 4},
+    {"miniport_flag": "0x28", "mode": "MOVIE", "qcadcm_enum": 5, "gkv": 3}
+  ],
+  "controlled_tests": [
+    {
+      "stimulus": "Win32 PlaySound Windows Notify System Generic.wav with SND_SYSTEM",
+      "live_flag": "0x01",
+      "selected_mode": "DEFAULT",
+      "gkv": 2,
+      "audiodg_pid": 5312
+    },
+    {
+      "stimulus": "WinRT MediaPlayer AudioCategory=Alerts",
+      "live_flag": "0x0a",
+      "selected_mode": "NOTIFICATION",
+      "gkv": 7,
+      "audiodg_pid": 5312,
+      "dax3_wrapper_hit": true
+    },
+    {
+      "stimulus": "WinRT MediaPlayer AudioCategory=Media",
+      "live_flag": "0x01",
+      "selected_mode": "DEFAULT",
+      "gkv": 2,
+      "audiodg_pid": 5312
+    },
+    {
+      "stimulus": "WinRT MediaPlayer AudioCategory=Movie",
+      "live_flag": "0x01",
+      "selected_mode": "DEFAULT",
+      "gkv": 2,
+      "audiodg_pid": 5312
+    }
+  ],
+  "default_graph_gkv2": [
+    "SH_MEM_PULL 4660",
+    "LOGGER 465c",
+    "PCM_CNV 465f",
+    "VOL 4663",
+    "SWR_SINK 4662",
+    "POPLESS_EQ 4664",
+    "VOL 4669",
+    "MFC 466a",
+    "SOFT_PAUSE 466b",
+    "SPR 412b",
+    "LOGGER 47e9",
+    "VOL 4a63",
+    "SWR_SINK 4675",
+    "MSIIR 489e",
+    "MSIIR 48a1",
+    "LOGGER 467a",
+    "root SAL 4001:12"
+  ],
+  "notification_graph_gkv7": [
+    "SH_MEM_PULL 469e",
+    "LOGGER 469a",
+    "PCM_CNV 469d",
+    "VOL 46a1",
+    "SWR_SINK 46a0",
+    "POPLESS_EQ 46a2",
+    "VOL 46a7",
+    "MFC 46a8",
+    "SOFT_PAUSE 46a9",
+    "SPR 4137",
+    "LOGGER 47ed",
+    "VOL 4a5f",
+    "SWR_SINK 46b3",
+    "MSIIR 48a8",
+    "MSIIR 48a9",
+    "LOGGER 46b8",
+    "root SAL 4001:18"
+  ],
+  "shared_root": {
+    "chain": ["SAL 4001", "CHMIXER 402c", "SPEAKER_PROTECTION 4027", "SPLITTER 4002", "LOGGER 4003", "CODEC_DMA_SINK 4157"],
+    "endpoint": {"lpaif": "WSA", "interface_index": 1, "sample_rate_hz": 48000, "bit_width": 16, "channels": 2, "active_mask": "0x3"}
+  },
+  "side_paths": {
+    "vi": {
+      "chain": ["CODEC_DMA_SOURCE 4026", "LOGGER 4025", "SP_VI 4024"],
+      "control_to": "SPEAKER_PROTECTION 4027 via INTENT_ID_SP",
+      "endpoint": {"lpaif": "WSA", "interface_index": 1, "sample_rate_hz": 8000, "bit_width": 32, "channels": 2, "active_mask": "0x3"}
+    },
+    "cps": {
+      "chain": ["CODEC_DMA_SOURCE 402b", "LOGGER 402a", "MUX_DEMUX 4029", "CPS_DATA_ROUTER_V5 4028"],
+      "control_to": "SPEAKER_PROTECTION 4027 via INTENT_ID_CPS",
+      "endpoint": {"lpaif": "WSA", "interface_index": 3, "sample_rate_hz": 24000, "bit_width": 32, "channels": 2, "active_mask": "0x3"},
+      "soundwire": {
+        "physical_master_port": 13,
+        "left": {"identity": "0x0000000402170220", "logical_device": 2, "dp": 6, "channel_enable": "0x03", "offset1": 0},
+        "right": {"identity": "0x0000000402170221", "logical_device": 1, "dp": 6, "channel_enable": "0x03", "offset1": 25},
+        "sample_interval_clocks": 800,
+        "sample_ctrl1": "0x1f",
+        "sample_ctrl2": "0x03",
+        "hctrl": "0xff",
+        "block_ctrl1": "0x18",
+        "block_ctrl3": "0x00"
+      }
+    }
+  },
+  "raw_evidence": [
+    {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\SP11_RENDER_MODES_20260811_0808BST.log",
+      "size": 2592,
+      "sha256": "39f987688377b65a9d729b3b5d990b2654f93c08706ef9ec5dba35e3e43aae55"
+    },
+    {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\SP11_ALERT_DOLBY_20260811_0823BST.log",
+      "size": 2987,
+      "sha256": "f66b129d662b79b6c3ed6825e8a63a1d4250f744e1d5800241ec350b699572e7"
+    }
+  ],
+  "debugger_safety": {
+    "physical_mmio_reads": false,
+    "mmio_writes": false,
+    "dsp_writes": false,
+    "driver_state_writes": false,
+    "three_concurrent_hardware_breakpoints_failed": true,
+    "future_rule": "do not arm three concurrent hardware execution breakpoints; use one narrow user-mode execution breakpoint at a time",
+    "post_session_kd_processes": 0,
+    "post_session_windbg_processes": 0,
+    "post_session_running_debugger_jobs": 0
+  },
+  "unclaimed": [
+    "complete AudioReach graph bodies for RAW, COMMUNICATIONS, SPEECH, MEDIA and MOVIE",
+    "that MEDIA/MOVIE Qualcomm modes are unreachable",
+    "alert-specific VLLDP/VR inner callback order",
+    "copying CPS DP6 transport parameters onto ordinary render transport"
+  ]
+}
