@@ -1,0 +1,188 @@
+{
+  "admitted_link_count": 3,
+  "admitted_links": [
+    {
+      "baseline_disposition": "admitted",
+      "parameter_offset": "0x00000490",
+      "peer_1_control_port": "0x80000000",
+      "peer_1_iid": "0x00004024",
+      "peer_1_subgraphs": [
+        "0xb0000001"
+      ],
+      "peer_2_control_port": "0x80000000",
+      "peer_2_iid": "0x00004027",
+      "peer_2_subgraphs": [
+        "0xb0000001"
+      ],
+      "properties": [
+        {
+          "intent_ids": [
+            "0x08001204"
+          ],
+          "intent_names": [
+            "INTENT_ID_SP"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "0100000004120008",
+          "value_u32": [
+            "0x00000001",
+            "0x08001204"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "internal"
+    },
+    {
+      "baseline_disposition": "admitted",
+      "parameter_offset": "0x00000490",
+      "peer_1_control_port": "0x80000000",
+      "peer_1_iid": "0x00004028",
+      "peer_1_subgraphs": [
+        "0xb0000001"
+      ],
+      "peer_2_control_port": "0x80000001",
+      "peer_2_iid": "0x00004027",
+      "peer_2_subgraphs": [
+        "0xb0000001"
+      ],
+      "properties": [
+        {
+          "intent_ids": [
+            "0x08001537"
+          ],
+          "intent_names": [
+            "INTENT_ID_CPS"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "0100000037150008",
+          "value_u32": [
+            "0x00000001",
+            "0x08001537"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "internal"
+    },
+    {
+      "baseline_disposition": "admitted",
+      "parameter_offset": "0x00000a80",
+      "peer_1_control_port": "0x80000000",
+      "peer_1_iid": "0x000046a2",
+      "peer_1_subgraphs": [
+        "0xb0000082"
+      ],
+      "peer_2_control_port": "0x80000000",
+      "peer_2_iid": "0x000046a1",
+      "peer_2_subgraphs": [
+        "0xb0000082"
+      ],
+      "properties": [
+        {
+          "intent_ids": [
+            "0x08001118"
+          ],
+          "intent_names": [
+            "INTENT_ID_P_EQ_VOL_HEADROOM"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "0100000018110008",
+          "value_u32": [
+            "0x00000001",
+            "0x08001118"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "internal"
+    }
+  ],
+  "evidence_class": "derived only from reviewed structural-model links explicitly admitted to the Linux baseline",
+  "excluded_link_count": 1,
+  "excluded_links": [
+    {
+      "baseline_disposition": "declared_speaker_loopback_dependency",
+      "parameter_offset": "0x00000490",
+      "peer_1_control_port": "0x80000007",
+      "peer_1_iid": "0x00004157",
+      "peer_1_subgraphs": [
+        "0xb0000001"
+      ],
+      "peer_2_control_port": "0xc0000001",
+      "peer_2_iid": "0x000040df",
+      "peer_2_subgraphs": [],
+      "peer_identity": "RATE_ADAPTED_TIMER in subgraph 0xb0000045",
+      "properties": [
+        {
+          "intent_ids": [
+            "0x080010c2"
+          ],
+          "intent_names": [
+            "INTENT_ID_TIMER_DRIFT_INFO"
+          ],
+          "property_id": "0x08001062",
+          "size": 8,
+          "value_hex": "01000000c2100008",
+          "value_u32": [
+            "0x00000001",
+            "0x080010c2"
+          ]
+        },
+        {
+          "heap_id": "0x00000001",
+          "property_id": "0x0800136f",
+          "size": 4,
+          "value_hex": "01000000",
+          "value_u32": [
+            "0x00000001"
+          ]
+        }
+      ],
+      "property_count": 2,
+      "scope": "external_peer_2"
+    }
+  ],
+  "format": "SP11 admitted render control-link topology data",
+  "format_version": 1,
+  "mode": "NOTIFICATION",
+  "payload_hex": "030000002440000000000080274000000000008002000000621000080800000001000000041200086f13000804000000010000002840000000000080274000000100008002000000621000080800000001000000371500086f1300080400000001000000a246000000000080a14600000000008002000000621000080800000001000000181100086f1300080400000001000000",
+  "payload_sha256": "46341ee100bd157cf61883e5e1b71e73e0581bf8b4f08372ddd8ae77794ab7e1",
+  "payload_size": 148,
+  "source": "C:\\Users\\SurfacePro7\\Documents\\SP11X1e-audio-engineering\\artifacts\\reviewed\\windows-notification-speaker-structural-model.json",
+  "source_sha256": "5a26b7da644c3b147e677292561850b484b434bf4181d22e60df66eac4c9f311",
+  "topology_private_hex": "94000000611000080000000000000000030000002440000000000080274000000000008002000000621000080800000001000000041200086f13000804000000010000002840000000000080274000000100008002000000621000080800000001000000371500086f1300080400000001000000a246000000000080a14600000000008002000000621000080800000001000000181100086f1300080400000001000000",
+  "topology_private_sha256": "6a7fbf32a8af2feab483f82966c6232348ca3b3de19a192dc99594fc0e1d8fd1",
+  "topology_private_size": 164,
+  "topology_private_type": "0x08001061"
+}

@@ -97,3 +97,30 @@ def test_backend_and_frontend_tuple_directions_are_distinct():
     frontend = MODULE.simple_tuple("MultiMedia1", 0xB0000001, 0, 2)
     assert "token4 1" in backend
     assert "token4 2" in frontend
+
+
+def test_notification_pcm_converter_uses_windows_internal_layout():
+    module = {
+        "iid": "0x469d",
+        "module_id": "0x07001003",
+        "module_name": "PCM_CNV",
+        "subgraph_id": "0xb0000082",
+        "container_id": "0xe0000120",
+        "properties": {"max_input_ports": 1, "max_output_ports": 1},
+    }
+    rendered = MODULE.module_tuple(module, [])
+    assert "token252 3" in rendered
+
+
+def test_notification_container_properties_are_evidence_locked():
+    assert MODULE.CONTAINERS[0xE0000046] == (0x0B001001, 4096, 0xFFFFFFFF, 0xFFFFFFFF, 1)
+    assert MODULE.CONTAINERS[0xE0000120] == (0x0B001001, 4096, 1, 0xFFFFFFFF, 1)
+    assert MODULE.CONTAINERS[0xE0000071] == (0x0B001001, 1024, 0xFFFFFFFF, 0xFFFFFFFF, 1)
+
+
+def test_family_frontend_and_volume_iids_are_distinct():
+    assert MODULE.FAMILY_CONFIG["DEFAULT"]["frontend_iid"] == 0x4660
+    assert MODULE.FAMILY_CONFIG["DEFAULT"]["volume_iid"] == 0x4A63
+    assert MODULE.FAMILY_CONFIG["NOTIFICATION"]["frontend_iid"] == 0x469E
+    assert MODULE.FAMILY_CONFIG["NOTIFICATION"]["volume_iid"] == 0x4A5F
+    assert MODULE.FAMILY_CONFIG["NOTIFICATION"]["root_sal_port"] == 18

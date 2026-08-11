@@ -66,11 +66,31 @@ CONTAINERS = {
     0xE000004C: (0x0B001000, 4096, 1, 0xFFFFFFFF, 1),
     0xE0000066: (0x0B001001, 1024, 0xFFFFFFFF, 0xFFFFFFFF, 1),
     0xE0000114: (0x0B001000, 4096, 1, 0xFFFFFFFF, 1),
+    # NOTIFICATION-family containers, decoded from the reviewed Windows
+    # 0x82/0x83 GRAPH_OPEN container-config parameters.
+    0xE0000046: (0x0B001001, 4096, 0xFFFFFFFF, 0xFFFFFFFF, 1),
+    0xE0000120: (0x0B001001, 4096, 1, 0xFFFFFFFF, 1),
+    0xE0000071: (0x0B001001, 1024, 0xFFFFFFFF, 0xFFFFFFFF, 1),
 }
 
 WIDGET_TYPES = {
     "DATA_LOGGING": "buffer",
     "VOL_CTRL": "src",
+}
+
+FAMILY_CONFIG = {
+    "DEFAULT": {
+        "frontend_iid": 0x4660,
+        "pcm_cnv_iid": 0x465F,
+        "volume_iid": 0x4A63,
+        "root_sal_port": 12,
+    },
+    "NOTIFICATION": {
+        "frontend_iid": 0x469E,
+        "pcm_cnv_iid": 0x469D,
+        "volume_iid": 0x4A5F,
+        "root_sal_port": 18,
+    },
 }
 
 
@@ -105,6 +125,11 @@ def load_inputs(model_path: Path, stages_dir: Path, control_path: Path):
     )
     control = json.loads(control_path.read_text(encoding="utf-8"))
 
+    mode = model.get("mode", "DEFAULT").upper()
+    if mode not in FAMILY_CONFIG:
+        raise ValueError(f"unsupported render family {mode!r}")
+    family = FAMILY_CONFIG[mode]
+
     if len(model["modules"]) != 29:
         raise ValueError("canonical model no longer has exactly 29 modules")
     admitted = [
@@ -113,9 +138,16 @@ def load_inputs(model_path: Path, stages_dir: Path, control_path: Path):
     ]
     if len(admitted) != 26:
         raise ValueError("canonical model no longer has exactly 26 admitted edges")
-    if control["record_blocks"][0]["link_count"] != 3:
-        raise ValueError("reviewed baseline control-link block is not three links")
+    if control.get("admitted_link_count") != 3:
+        raise ValueError("reviewed Linux baseline must contain exactly three admitted control links")
+    if control.get("excluded_link_count") != 1:
+        raise ValueError("reviewed model must retain exactly one excluded external control dependency")
+    if control.get("mode", "").upper() != mode:
+        raise ValueError("control-link artifact mode does not match structural model")
 
+    stage_mode = manifest.get("render_mode", "DEFAULT").upper()
+    if stage_mode != mode:
+        raise ValueError("calibration-stage mode does not match structural model")
     stage_payloads = {}
     for name, raw_type in RAW_TYPES.items():
         payload = (stages_dir / f"{name}.bin").read_bytes()
@@ -124,12 +156,13 @@ def load_inputs(model_path: Path, stages_dir: Path, control_path: Path):
             raise ValueError(f"{name} size differs from its manifest")
         stage_payloads[name] = private_data(raw_type, payload)
 
-    # Record zero contains SP<->SPVI, CPS<->SP, and EQ<->VOL.  Record two is
-    # the captured external timer-drift peer and is intentionally not admitted.
-    control_payload = bytes.fromhex(
-        control["record_blocks"][0]["topology_private_hex"]
-    )
-    return model, admitted, stage_payloads, control_payload
+    # Serialize only links that the reviewed structural model explicitly admits
+    # to the Linux baseline: SP<->SPVI, CPS<->SP, and the family-local
+    # EQ<->VOL headroom link.  The external timer-drift dependency is retained
+    # in evidence but deliberately excluded until its speaker-loopback peer is
+    # implemented.
+    control_payload = bytes.fromhex(control["topology_private_hex"])
+    return model, admitted, stage_payloads, control_payload, family
 
 
 def module_tuple(module: dict, outgoing: list[dict]) -> str:
@@ -169,7 +202,7 @@ def module_tuple(module: dict, outgoing: list[dict]) -> str:
     # interleaving value 3 (PCM_DEINTERLEAVED_UNPACKED).  Leaving the token
     # absent zero-initializes audioreach_module::interleave_type and produces
     # a PARAM_ID_PCM_OUTPUT_FORMAT_CFG frame that the DSP rejects.
-    if iid == 0x465F:
+    if iid in {0x465F, 0x469D}:
         module_lines.append("token252 3")
     if iid == 0x4157:
         module_lines.append(f"token263 {PLAYBACK_BACKEND_ID}")
@@ -225,7 +258,7 @@ def simple_tuple(name: str, sgid: int, graph_id: int, direction: int) -> str:
     )
 
 
-def render(model: dict, admitted: list[dict], stage_payloads: dict, control: bytes) -> str:
+def render(model: dict, admitted: list[dict], stage_payloads: dict, control: bytes, family: dict) -> str:
     modules = model["modules"]
     by_iid = {integer(module["iid"]): module for module in modules}
     outgoing = defaultdict(list)
@@ -235,10 +268,10 @@ def render(model: dict, admitted: list[dict], stage_payloads: dict, control: byt
         edges.sort(key=lambda edge: integer(edge["source_port"]))
 
     stage_names = {
-        0x4660: ("graph-calibration", "render-endpoint-calibration"),
+        family["frontend_iid"]: ("graph-calibration", "render-endpoint-calibration"),
         0x4027: ("sp-tag-calibration", "protection-dynamic", "control-links"),
         0x4024: ("spvi-tag-calibration", "vi-endpoint-calibration"),
-        0x4A63: (
+        family["volume_iid"]: (
             "volume-gain",
             "volume-filter-calibration",
             "volume-mute",
@@ -250,7 +283,7 @@ def render(model: dict, admitted: list[dict], stage_payloads: dict, control: byt
 
     lines = [
         "# Generated by tools/build_sp11_protected_topology.py.",
-        "# Evidence-locked Windows default-speaker graph; Dolby remains outside scope.",
+        f"# Evidence-locked Windows {model.get('mode', 'DEFAULT')} speaker graph; Dolby remains outside scope.",
         "",
         "SectionControlMixer {",
         "\t'MultiMedia1' {",
@@ -274,7 +307,7 @@ def render(model: dict, admitted: list[dict], stage_payloads: dict, control: byt
         name = widget_name(module)
         widget_type = WIDGET_TYPES.get(module["module_name"], "src")
         stream = None
-        if iid == 0x4660:
+        if iid == family["frontend_iid"]:
             widget_type = "aif_in"
             stream = "MultiMedia1 Playback"
         elif iid == 0x4157:

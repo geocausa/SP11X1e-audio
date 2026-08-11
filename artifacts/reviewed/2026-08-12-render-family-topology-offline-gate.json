@@ -1,0 +1,108 @@
+{
+  "alsa_gate": {
+    "alsatplg_version": "1.2.16 / libasound 1.2.16.1 / libatopology 1.2.16.1",
+    "default_compile_exit": 0,
+    "default_decode_exit": 0,
+    "expected_external_endpoint_diagnostics": [
+      "WSA_CODEC_DMA_RX_0 Playback",
+      "WSA_CODEC_DMA_TX_0 Protection",
+      "WSA_CODEC_DMA_TX_1 Protection"
+    ],
+    "host": "macbook fedora helper",
+    "note": "These streams are kernel/codec DAI endpoints outside the topology widget namespace; alsatplg emitted diagnostics but compiled/decoded with exit 0, matching the intentional external-boundary design.",
+    "notification_compile_exit": 0,
+    "notification_decode_exit": 0
+  },
+  "audible_test_performed": false,
+  "date": "2026-08-12",
+  "default_control_correction": {
+    "corrected_admitted_link_count": 3,
+    "corrected_admitted_payload_sha256": "5014748ab564e8a44fa55a8e8bc09e813d7e87fef2ee8bba9811decb02ee58cc",
+    "corrected_semantics": [
+      "SP_VI<->SP",
+      "CPS<->SP",
+      "POPLESS_EQ 0x4664<->VOL_CTRL 0x4663"
+    ],
+    "excluded_dependency": "CODEC_DMA_SINK 0x4157 <-> external RATE_ADAPTED_TIMER 0x40df / INTENT_ID_TIMER_DRIFT_INFO",
+    "missing_in_old_generator": "POPLESS_EQ 0x4664 <-> VOL_CTRL 0x4663, INTENT_ID_P_EQ_VOL_HEADROOM 0x08001118",
+    "old_generator_input_payload_sha256": "06d19ed6a84dc956529fa90a462ba827f2db65dae04ecf450aed28efd40008be",
+    "old_generator_link_count": 3,
+    "old_generator_semantics": [
+      "SP_VI<->SP",
+      "CPS<->SP",
+      "external CODEC_DMA_SINK<->RATE_ADAPTED_TIMER drift"
+    ]
+  },
+  "deployment_performed": false,
+  "generated": {
+    "default_conf": {
+      "bytes": 93616,
+      "sha256": "906b9366bc63267a657d97d7e11588a7c95d92821ffe53eb5a3abfeebfe13b8a"
+    },
+    "default_tplg": {
+      "bytes": 30208,
+      "sha256": "ebdbfb209b2874bcbdcdcdd91cd59a7aa34c409240deeaf8e28054e1f84b931c"
+    },
+    "notification_conf": {
+      "bytes": 93675,
+      "sha256": "d60d31b790e50a4889f61e0976385dea29a3758391c9a8fdd6f5b7f241a0d2dc"
+    },
+    "notification_tplg": {
+      "bytes": 30208,
+      "sha256": "dd6a8378f43fb2ffda7bce1ce52831644948a3a392136b4165bb82f42e09ea40"
+    }
+  },
+  "notification_containers": {
+    "0xe0000046": {
+      "capability": "0x0b001001",
+      "graph_position": "0xffffffff",
+      "heap": 1,
+      "parent": "0xffffffff",
+      "stack": 4096
+    },
+    "0xe0000071": {
+      "capability": "0x0b001001",
+      "graph_position": "0xffffffff",
+      "heap": 1,
+      "parent": "0xffffffff",
+      "stack": 1024
+    },
+    "0xe0000120": {
+      "capability": "0x0b001001",
+      "graph_position": 1,
+      "heap": 1,
+      "parent": "0xffffffff",
+      "stack": 4096
+    }
+  },
+  "notification_control": {
+    "admitted_link_count": 3,
+    "payload_sha256": "46341ee100bd157cf61883e5e1b71e73e0581bf8b4f08372ddd8ae77794ab7e1",
+    "semantics": [
+      "SP_VI<->SP",
+      "CPS<->SP",
+      "POPLESS_EQ 0x46a2<->VOL_CTRL 0x46a1"
+    ]
+  },
+  "remaining_gate": "Windows DEFAULT+NOTIFICATION simultaneous lifecycle/policy must be closed before deployment of the notification family.",
+  "repo_parser_gate": {
+    "default-corrected": {
+      "duplicate_iids": [],
+      "graph_edge_count": 32,
+      "inventory_source_sha256": "906b9366bc63267a657d97d7e11588a7c95d92821ffe53eb5a3abfeebfe13b8a",
+      "issues": [],
+      "module_definition_count": 25,
+      "widget_count": 30
+    },
+    "notification": {
+      "duplicate_iids": [],
+      "graph_edge_count": 32,
+      "inventory_source_sha256": "d60d31b790e50a4889f61e0976385dea29a3758391c9a8fdd6f5b7f241a0d2dc",
+      "issues": [],
+      "module_definition_count": 25,
+      "widget_count": 30
+    }
+  },
+  "scope": "offline DEFAULT control-link correction and exact NOTIFICATION topology build gate",
+  "source_git_head": "2b61df7"
+}
