@@ -64,6 +64,31 @@ Therefore **do not add a physical master port 14** to the Linux candidate.
 At the WSA8845 side CPS DP6 is a SoundWire sink. The LPASS/AFE CPS endpoint is
 the transmitting side of this path.
 
+## Source-level transport gaps to audit in `23aa077`
+
+A source review now pins the remaining Linux transport problem more precisely;
+see `docs/findings/2026-08-11-linux-cps-per-slave-transport-gap.md`.
+
+The tracked local lineage is based on the same upstream Qualcomm SoundWire
+`qcom.c` blob reviewed here. In that baseline, `qcom_swrm_compute_params()`
+derives each slave port's transport values from
+`ctrl->pconfig[slave->m_port_map[p_rt->num]]`. Since both SP11 WSA DP6 ports map
+to physical master port 13, both slave runtimes inherit master-port-13 Offset1
+`0`. There is no baseline representation for the Windows right-slave Offset1
+`25`.
+
+A second baseline issue is that WSA884x CPS DP6 is declared `SDW_DPN_SIMPLE`.
+Generic SoundWire core writes SampleCtrl1 and OffsetCtrl1 for SIMPLE ports but
+does not invoke the extended slave writer that emits SampleCtrl2, HCtrl and
+BlockCtrl3. Windows proves the CPS slaves receive `SampleCtrl2=0x03`,
+`HCtrl=0xff`, and `BlockCtrl3=0x00` for the 800-clock schedule.
+
+The exact local `23aa077` tree must therefore be audited for both behaviors
+before editing. Do not assume the missing commit retained them, and do not
+blindly change CPS DP6 from SIMPLE to FULL: a DPN-type change expands the set of
+slave registers generic core writes and needs capability/register-by-register
+review first.
+
 ## Implementation constraint
 
 Use the kernel's normal SoundWire / WSA8845 port-parameter mechanism. Do not
@@ -72,13 +97,20 @@ special case for the SP11.
 
 The preferred implementation order is:
 
-1. start from the accepted `sp11-audio-clean` kernel source lineage;
-2. retain the dedicated 24 kHz CPS/TX1 backend work from kernel source commit
-   `23aa077` only where it is still applicable;
-3. remove the split-mask override from the rejected candidate;
-4. preserve the existing shared master-port-13 mappings and add/restore only the board-specific **per-slave WSA8845 DP6** parameters keyed to the two slave identities, with OffsetCtrl1 `0` / `25` and native mask `0x3`;
-5. preserve the existing 48 kHz render/PBR and 8 kHz VISENSE paths unchanged;
-6. build a new uniquely named DTB/topology/initrd/GRUB entry rather than
+1. recover the exact accepted `sp11-audio-clean` / `23aa077` kernel source
+   lineage and inspect it before changing anything;
+2. audit `qcom_swrm_compute_params()`, WSA884x CPS DPN type/mask, and the
+   SoundWire SIMPLE/FULL slave-programming split against the source-level gaps
+   above;
+3. retain the dedicated 24 kHz CPS/TX1 backend work from `23aa077` only where
+   it is still applicable;
+4. remove the split-mask override from the rejected candidate;
+5. preserve the existing shared master-port-13 mappings and represent the
+   board-specific **per-slave WSA8845 DP6** distinction explicitly: native mask
+   `0x3` on both, OffsetCtrl1 `0` / `25`, plus the capability-correct slave-side
+   800-clock extended transport state proven by Windows;
+6. preserve the existing 48 kHz render/PBR and 8 kHz VISENSE paths unchanged;
+7. build a new uniquely named DTB/topology/initrd/GRUB entry rather than
    replacing `sp11-audio-clean` or the historical rejected CPS-Lab artifacts.
 
 ## No-boot validation gate

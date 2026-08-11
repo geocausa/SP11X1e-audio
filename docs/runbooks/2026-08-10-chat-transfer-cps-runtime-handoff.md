@@ -244,6 +244,8 @@ Read these before repeating any experiment:
 - `artifacts/reviewed/2026-08-11-qcaucd-selector5-soundwire-identity-origin.json`
 - `docs/findings/2026-08-11-qcaucd-slot14-shared-master13-correction.md`
 - `artifacts/reviewed/2026-08-11-qcaucd-slot14-shared-master13-correction.json`
+- `docs/findings/2026-08-11-linux-cps-per-slave-transport-gap.md`
+- `artifacts/reviewed/2026-08-11-linux-cps-per-slave-transport-gap.json`
 
 ## Raw KD evidence on SP7 (outside Git)
 
@@ -422,6 +424,23 @@ Reviewed closure:
 
 This means selector `5` is a local qcaucd SoundWire-family classification result, not an unresolved external CPS/ACDB selector. The immediate Windows HLOS chain needed for parity is now closed from WSA identity -> selector 5 -> static CPS templates -> dataport programmer -> per-slave DP6 commands.
 
-**Updated next decision:** do not reopen KD or repeat qcadcm/registration/template/dataport/FIFO tracing for this objective. Move to Linux parity implementation/review using one shared physical WSA master port 13 at 24 kHz / 800 clocks and two WSA slave DP6 endpoints: both masks `0x03`, left OffsetCtrl1 `0`, right OffsetCtrl1 `25`. qcaucd state slot 14 is a right-slave-only companion, not physical master port 14. Preserve the absence of public `0x08001259` as a Windows-build implementation observation, not a Linux prerequisite. The exact local kernel tree containing `23aa077` is still required before source changes; do not guess a patch against another tree.
+### Linux per-slave transport-gap closure (2026-08-11)
+
+Source review now explains why the remaining Linux candidate cannot be expressed by the baseline shared-master mapping alone.
+
+At the reviewed Qualcomm SoundWire baseline, `qcom_swrm_compute_params()` obtains each slave port's transport parameters from `ctrl->pconfig[slave->m_port_map[p_rt->num]]`. Because **both SP11 WSA8845 DP6 endpoints map to physical master port 13**, both slave runtimes inherit the same master-port-13 Offset1 `0`. Baseline code therefore has no representation for Windows' right-slave OffsetCtrl1 `25`.
+
+The tracked `patches/0020-sp11-audio-vi-cumulative.patch` is demonstrably based on the same upstream qcom.c blob (`3d8f5a81eff19511d80e33c76f54972691ccf530`) and does not touch `qcom_swrm_compute_params()`, so this behavior is proven for the tracked local lineage through that patch.
+
+A second source-level gap is WSA884x CPS DP6's `SDW_DPN_SIMPLE` declaration. Generic SoundWire core programs SampleCtrl1 and OffsetCtrl1 for SIMPLE ports but does not invoke the extended slave transport writer that emits SampleCtrl2, HCtrl and BlockCtrl3. Windows proves each CPS slave receives `SampleCtrl2=03`, `HCtrl=ff`, and `BlockCtrl3=00` for the 800-clock schedule. Do **not** blindly switch the DPN to FULL; first audit the exact local tree and every extra register that such a type change would make core program.
+
+Reviewed source-level finding:
+
+- `docs/findings/2026-08-11-linux-cps-per-slave-transport-gap.md`
+- `artifacts/reviewed/2026-08-11-linux-cps-per-slave-transport-gap.json`
+
+The exact CPS-Lab modules also were not recoverable from the searched SP7 local/ignored artifact locations: only earlier Phase91 module binaries were found, and their hashes differ from the recorded CPS-Lab hashes. Therefore `23aa077` remains an explicit unknown, not something to reconstruct from assumptions.
+
+**Updated next decision:** Windows archaeology is closed for the parity objective and KD should remain closed. Recover the exact kernel tree/source corresponding to `23aa077` (or the exact CPS-Lab binaries) before implementing. Once recovered, audit `qcom_swrm_compute_params()`, WSA884x CPS DPN type/mask, SoundWire SIMPLE/FULL slave programming, and the dedicated CPS backend changes. If the baseline gaps remain, implement an explicit per-slave DP6 distinction on shared master port 13—mask `0x03` both, Offset1 `0` left / `25` right—and a capability-correct normal SoundWire path for the 800-clock extended slave transport state. Do not invent master port 14, do not restore split masks, and do not use physical-MMIO or ad-hoc raw slave-register programming.
 
 End of transfer handoff.

@@ -1,0 +1,111 @@
+{
+  "date": "2026-08-11",
+  "finding": "Linux baseline loses the Windows per-slave CPS offset distinction and SIMPLE WSA DP6 skips extended slave transport programming",
+  "windows_parity_target": {
+    "physical_master_port": 13,
+    "shared_by_both_speakers": true,
+    "slave_dp": 6,
+    "left": {
+      "identity": "0x0000000402170220",
+      "logical_device": 2,
+      "channel_enable": "0x03",
+      "offset_ctrl1": 0
+    },
+    "right": {
+      "identity": "0x0000000402170221",
+      "logical_device": 1,
+      "channel_enable": "0x03",
+      "offset_ctrl1": 25
+    },
+    "sample_interval_clocks": 800,
+    "sample_ctrl1": "0x1f",
+    "sample_ctrl2": "0x03",
+    "hctrl": "0xff",
+    "block_ctrl3": "0x00"
+  },
+  "baseline_gap_1": {
+    "function": "qcom_swrm_compute_params",
+    "path": "drivers/soundwire/qcom.c",
+    "behavior": "slave transport parameters are copied from ctrl->pconfig[slave->m_port_map[p_rt->num]]",
+    "sp11_effect": "both WSA DP6 endpoints map to physical master port 13 and therefore inherit the same master-port-13 Offset1 value 0",
+    "can_represent_right_offset25_without_extra_logic": false
+  },
+  "baseline_gap_2": {
+    "wsa_cps_dpn_type": "SDW_DPN_SIMPLE",
+    "native_wsa_cps_ch_mask": "0x03",
+    "soundwire_core_basic_slave_writes": ["PortCtrl", "BlockCtrl1 if writable", "SampleCtrl1", "OffsetCtrl1"],
+    "extended_writer_called_for_simple": false,
+    "extended_full_dpn_writes": ["OffsetCtrl2", "BlockCtrl3", "SampleCtrl2", "HCtrl"],
+    "sp11_effect": "generic SIMPLE path does not itself emit Windows-observed slave DP6 SampleCtrl2=0x03, HCtrl=0xff or BlockCtrl3=0x00 for the 800-clock CPS interval"
+  },
+  "tracked_local_lineage": {
+    "patch": "patches/0020-sp11-audio-vi-cumulative.patch",
+    "patch_sha256": "2311438e938f6fc941fabfa2d4972fa3c799f2e6795654596030758d858a1e51",
+    "qcom_base_blob_prefix": "3d8f5a8",
+    "upstream_qcom_blob": "3d8f5a81eff19511d80e33c76f54972691ccf530",
+    "qcom_hunks_touch_compute_params": false,
+    "qcom_changes": ["stream allocation direction argument", "hw_params invocation", "DAI registration/rates"],
+    "conclusion": "tracked lineage through 0020 retains baseline qcom_swrm_compute_params behavior"
+  },
+  "rejected_cps_lab": {
+    "split_masks": ["0x01", "0x02"],
+    "result": "bus clash / alert retry exhaustion",
+    "left_only_mask_0x01": "still clashed",
+    "left_only_native_mask_0x03": "controlled test window completed without bus-clash/retry message",
+    "interpretation": "channel-mask splitting is not the Windows speaker-separation mechanism"
+  },
+  "exact_tree_gate": {
+    "required_local_commit": "23aa077",
+    "commit_subject": "ASoC: qcom: add dedicated SP11 CPS feedback backend",
+    "source_recovered": false,
+    "exact_cps_lab_modules_recovered_on_sp7": false,
+    "phase91_soundwire_qcom_sha256": "68137df872ab28204dd53196e1a82744156598968e069ca2962ce8b45d991d85",
+    "phase91_wsa884x_sha256": "68ef789e982d6cd04eec1bec668faf475a8bd127deaafdeae7f571b59ea4857b",
+    "cps_lab_soundwire_qcom_sha256": "b4524693a5458c5e672d248da6d77c8dad7abed6dcbec31e81c55225de65ae0f",
+    "cps_lab_wsa884x_sha256": "3106227bac14fb342eb6adf841f52c81e9b33e846ccfe4698e9753f39d8bf78b",
+    "do_not_assume_23aa077_transport_behavior": true
+  },
+  "primary_source_reference": {
+    "linux_commit": "d58772d8520c7ef247c4b95c9bd76d3a25da9ff5",
+    "qcom_c": {
+      "blob": "3d8f5a81eff19511d80e33c76f54972691ccf530",
+      "functions": ["qcom_swrm_compute_params", "qcom_swrm_transport_params"]
+    },
+    "stream_c": {
+      "blob": "5d20e95a1e23eb5cb78ea25386a04088ef1e3bea",
+      "functions": ["sdw_program_slave_port_params", "_sdw_program_slave_port_params"]
+    },
+    "wsa884x_c": {
+      "blob": "6c6b497657d0c8512c3356fde9f91868af0154bf",
+      "facts": ["CPS DP6 type SDW_DPN_SIMPLE", "CPS ch_mask 0x03", "qcom,port-mapping populates sdw_slave::m_port_map"]
+    }
+  },
+  "source_recovery_audit": [
+    "check qcom_swrm_compute_params for an existing per-slave CPS override",
+    "check WSA884x CPS DP6 type and native mask",
+    "check SoundWire SIMPLE/FULL programming split",
+    "inspect 23aa077 dedicated CPS backend for any transport-param changes"
+  ],
+  "requirements_if_gap_remains": {
+    "physical_master_port": 13,
+    "add_physical_master_port14": false,
+    "both_slave_dp6_masks": "0x03",
+    "left_offset1": 0,
+    "right_offset1": 25,
+    "slave_sample_interval_clocks": 800,
+    "slave_sample_ctrl2_required_value": "0x03",
+    "slave_hctrl_required_value": "0xff",
+    "slave_block_ctrl3_required_value": "0x00",
+    "direct_mmio_workaround": false,
+    "blind_simple_to_full_change_recommended": false
+  },
+  "safety": {
+    "kd_session": false,
+    "physical_mmio_access": false,
+    "soundwire_register_write": false,
+    "kernel_build": false,
+    "module_replacement": false,
+    "grub_change": false,
+    "reboot": false
+  }
+}
