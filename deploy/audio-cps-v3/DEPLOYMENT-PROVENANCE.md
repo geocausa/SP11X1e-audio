@@ -30,7 +30,9 @@ The build config differs from the accepted audio-clean config only in
   `b2b065caf2301b7b67daaa82718743d1fc73ab117c6399a9e9bb73e135ca8a70`
 - Compiled Phase91/Wi-Fi platform overlay:
   `1f333a13c0d59d1f0ca1de31ae75534c350adab3f7caa03d5aec4f45265f44ab`
-- Final composite OLED/Phase91/Wi-Fi/CPS DTB:
+- Final composite OLED/Phase91/Wi-Fi/Bluetooth/CPS DTB:
+  `7cd5fdd8ef59c46ca9a3661adacce0444893a6c26fca71c97eaa3070a88aab84`
+- Pre-Bluetooth-address composite DTB retained as rollback:
   `126911f321badad1b33c8bad50ad460b4f6e03f8f9851ce4b532988bed1e2241`
 - Current live-observer initramfs:
   `8504076a0f40926eee09233451b078d32da1fbb72bb52d4556bec528bd6e6153`
@@ -124,6 +126,17 @@ both sides. That register proves the recovered PBR-enabled 2-cell policy was
 live. `CPS_CTL` remained zero, so CPS DP6/DSP transport is accepted while local
 CPS register engagement remains an evidence question. See
 `docs/findings/2026-08-11-linux-cps-v3-live-wsa-observation.md`.
+
+That boot also exposed a pre-existing Bluetooth service race. The userspace
+workaround ran before the WCN7850's second firmware setup, saw Qualcomm's
+temporary `00:00:00:00:5A:AD` sentinel in the configured list, and exited. A
+manual daemon/fix/daemon sequence recovered the established public address
+`02:99:3A:42:EA:30` and powered the controller normally. The clean documented
+fix is now in the composite DTB as little-endian
+`local-bd-address = [30 ea 42 3a 99 02]`. Offline decompilation proved this is
+the only difference from the accepted composite DTB. The pre-address DTB is
+retained beside it for rollback; the next boot must confirm that the existing
+userspace service becomes a no-op before it is disabled.
 
 ## Rollback model
 

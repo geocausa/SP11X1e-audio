@@ -7,7 +7,9 @@
  * The Phase91 block is kept equivalent to the reviewed portable touchscreen
  * overlay. The PCI property is present in the accepted audio-clean DTB and is
  * required because the Surface firmware reports the WCN7850 RF-kill GPIO with
- * the wrong polarity for this machine.
+ * the wrong polarity for this machine. The WCN7850 has no persistent public
+ * address, so provide the same locally-administered address previously applied
+ * by the boot-time BlueZ workaround. Bluetooth DT addresses are little-endian.
  */
 
 &gpi_dma1 {
@@ -58,5 +60,11 @@
 &pcie4_port0 {
 	wifi@0 {
 		disable-rfkill;
+	};
+};
+
+&uart14 {
+	bluetooth {
+		local-bd-address = [30 ea 42 3a 99 02];
 	};
 };
