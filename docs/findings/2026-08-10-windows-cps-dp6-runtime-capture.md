@@ -177,9 +177,10 @@ SoundWire/WSA port-parameter path. Direct MMIO programming is neither necessary
 nor appropriate for that implementation.
 
 Also note the direction terminology: on the WSA8845 slave, CPS DP6 is a
-SoundWire sink. The LPASS/AFE endpoint transmits toward that sink. The previous
-document wording that described the amplifier CPS DP6 itself as a source should
-not be carried forward literally.
+SoundWire source. It feeds the LPASS/AFE CPS `CODEC_DMA_SOURCE` endpoint through
+WSA controller master port 13, which belongs to the controller's DIN range.
+The upstream WSA884x declaration that groups CPS with sink ports does not match
+this SP11 transport and must not be used to reverse the proven data direction.
 
 ## Remaining gap versus the strict KD handoff
 

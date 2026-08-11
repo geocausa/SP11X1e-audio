@@ -61,8 +61,10 @@ The existing Phase91 DTB independently agrees with this model. WSA configures
 both speaker `qcom,port-mapping` arrays terminate at shared master port 13.
 Therefore **do not add a physical master port 14** to the Linux candidate.
 
-At the WSA8845 side CPS DP6 is a SoundWire sink. The LPASS/AFE CPS endpoint is
-the transmitting side of this path.
+At the WSA8845 side CPS DP6 is a SoundWire source. It feeds the LPASS/AFE CPS
+`CODEC_DMA_SOURCE` endpoint through WSA controller master port 13, which is in
+the controller's DIN range. The candidate must therefore keep CPS on a
+slave-to-master SoundWire transport.
 
 ## Source-level transport gaps to audit in `23aa077`
 
@@ -143,24 +145,14 @@ passes, use one isolated `grub-reboot` candidate. Acceptance requires:
 - teardown is clean and the next normal boot still resolves to
   `sp11-audio-clean` unless the candidate is explicitly promoted later.
 
-## Current blocker
+## Blocker resolution
 
-The kernel source tree used to produce commit `23aa077` is not present on the
-currently connected SP7, SP11 Windows, or Fedora helper. The SP11 Linux client
-is currently offline. The authenticated GitHub account was also checked across
-owned, collaborator, and organization-member repositories; no accessible
-repository contains the exact `23aa077` SP11 kernel lineage, and global commit
-search did not recover the private/local commit.
+Resolved on 2026-08-11. The SP11 Linux filesystem and exact accepted kernel
+source lineage were recovered. The audited implementation is source commit
+`4a29626c912649b3c417bf64b28786f40168be61`; its reviewable patch is
+`patches/0027-sp11-cps-windows-parity-v2-deployed.patch`.
 
-Therefore this plan is deliberately source-ready but not implemented or armed
-yet. Guessing a patch against a different kernel tree would recreate the
-evidence problem that caused the rejected candidate. Safe work before source
-recovery is limited to artifact/DTB/topology validation and requirements
-capture.
-
-SP11 Windows read-only partition/EFI inspection confirms the offline Linux
-filesystem still exists as disk 0 partition 5 (~293.8 GB); EFI GRUB identifies
-it by filesystem UUID `33e842b7-0434-4749-b03a-299bdcdb8b9f`. It was not
-mounted from Windows. On the next normal SP11 Linux boot, follow
-`docs/runbooks/2026-08-11-sp11-linux-cps-source-recovery.md` before any audio
-experiment or source edit.
+The focused module/DTB build, initramfs extraction/hash verification, and GRUB
+syntax gate all passed. Deployment and runtime acceptance details now live in
+`docs/deployment/2026-08-11-audio-cps-parity-v2-deployment.md`. The historical
+split-mask CPS-Lab remains rejected.
