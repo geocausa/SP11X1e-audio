@@ -148,8 +148,9 @@ unchanged. A deliberately armed 12-sample playback captured 24/24 successful
 register sets across the two amplifiers: both PAs active, no fault or interrupt,
 distinct changing raw ADC/temperature/VBAT words, and `CURRENT_LIMIT=0x44` on
 both sides. That register proves the recovered PBR-enabled 2-cell policy was
-live. `CPS_CTL` remained zero, so CPS DP6/DSP transport is accepted while local
-CPS register engagement remains an evidence question. See
+live. `CPS_CTL` remained zero while CPS DP6/DSP transport was accepted. Later
+static review found no required Windows or Linux HLOS write to that register,
+so zero is not treated as a deployment gap. See
 `docs/findings/2026-08-11-linux-cps-v3-live-wsa-observation.md`.
 
 That boot also exposed a pre-existing Bluetooth service race. The userspace
@@ -174,6 +175,18 @@ default-sink volume returned zero at 23:21 BST on the same boot. Render, VI and
 CPS selected their 48/8/24 kHz ports on both amplifiers; SP/SPVI, endpoint
 calibration, VI+CPS enable and `GRAPH_START` were accepted with no XRUN, PA
 fault, SoundWire bus clash or DAI2-selection failure.
+
+A second bounded playback at 23:26 BST temporarily raised the Windows-Dolby
+default sink from 0.11 to 0.30, returned zero, and restored 0.11 afterward.
+All 24 observer reads succeeded; both PAs remained active; all fault and
+interrupt bytes stayed zero; ADC/VBAT words changed; and `CURRENT_LIMIT=0x44`
+remained live on both amplifiers. The same 48/8/24 kHz render/VI/CPS graph and
+DP6 mask `0x03` on both speakers were accepted without XRUN, PA fault or bus
+clash. A Ghidra scan of the shipped `qcaucd8380.sys` found no decoded scalar
+for WSA8845 `CPS_CTL` address `0x3468`, and every reviewed Linux WSA884x source
+copy only defines its reset default `0x00`. The zero live value is therefore
+not treated as a missing Linux write or deployment blocker; its undocumented
+semantics and actual limiter intervention remain evidence questions.
 
 ## Rollback model
 

@@ -1,0 +1,42 @@
+{
+  "date": "2026-08-11",
+  "driver": {
+    "name": "qcaucd8380.sys",
+    "sha256": "bd0c8276c51fc7a020c616e904dd613b6ccf187ec3e1fe6f94c2c811c8adc8bf"
+  },
+  "target": {
+    "codec": "WSA8845",
+    "register_name": "CPS_CTL",
+    "register_address": "0x3468",
+    "linux_reset_default": "0x00"
+  },
+  "method": {
+    "tool": "Ghidra 12.0.4 headless",
+    "project": "01-audio/build/ghidra-qcslimbus-audit/project/qcslimbus-audit",
+    "program": "qcaucd8380.sys",
+    "script": "01-audio/tools/ghidra/DumpScalarXrefs.java",
+    "decoded_instruction_operands_searched": [
+      "0x3468",
+      "0x68",
+      "0x3400",
+      "0x3000"
+    ]
+  },
+  "result": {
+    "decoded_scalar_0x3468_hits": 0,
+    "linux_wsa884x_driver_writes": 0,
+    "linux_wsa884x_occurrences_outside_live_observer": [
+      "register definition",
+      "regmap reset default 0x00"
+    ],
+    "windows_neighboring_fixed_codec_writes_present": true,
+    "required_linux_hlos_write_proven": false,
+    "deployment_blocker": false
+  },
+  "interpretation": "No reviewed Linux or Windows source/binary evidence requires an HLOS write to WSA8845 CPS_CTL. A live value of 0x00 therefore must not be treated as a missing Linux CPS enable. The undocumented bit semantics remain unknown, and this negative static result does not prove that no computed or firmware-internal access can ever occur.",
+  "safety": {
+    "live_codec_writes": false,
+    "debugger_writes": false,
+    "physical_mmio_reads": false
+  }
+}

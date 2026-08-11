@@ -60,16 +60,46 @@ scheduled as a SoundWire data sideband; playback still selected sink ports
 
 Both local `CPS_CTL` reads remained `0x00`. At the same time, both CPS DP6
 streams were selected at 24 kHz with mask `0x03`, and the DSP accepted the
-VI+CPS protected graph. Consequently the correct evidence boundary is:
+VI+CPS protected graph. A follow-up Ghidra scalar scan of the shipped Windows
+`qcaucd8380.sys` (SHA-256
+`bd0c8276c51fc7a020c616e904dd613b6ccf187ec3e1fe6f94c2c811c8adc8bf`)
+found no decoded `0x3468` instruction operand, despite the same codec setup
+path containing many fixed writes to neighboring WSA8845 registers. Every
+reviewed Linux WSA884x source copy likewise contains `CPS_CTL` only as a
+register definition and reset default `0x00`; none writes it.
+
+Consequently `CPS_CTL=0x00` is not evidence of a missing Linux enable and is
+not a deployment blocker. The correct evidence boundary is:
 
 - CPS transport and DSP graph integration are active;
-- the local amplifier `CPS_CTL` bit meaning or required HLOS programming is
-  unresolved;
+- no reviewed source or Windows binary evidence requires an HLOS write to the
+  local amplifier `CPS_CTL` register;
+- the register's undocumented bit meaning remains unknown;
 - this capture does not prove a nonzero local CPS limiting action.
 
 The zero WAVG value is recorded without interpretation. No fault was induced,
 and no thermal, over-current or speaker-protection limit was deliberately
 crossed.
+
+## Moderate-volume follow-up on the accepted boot
+
+At 23:26:30 BST on boot ID
+`1a37e1b4-93b7-4239-8aee-5e048119bbba`, the same bounded observer was armed
+for another 12 samples per amplifier and `Front_Center.wav` was played through
+the Windows-Dolby default sink at a temporary volume of 0.30. Playback returned
+zero and the sink was restored to 0.11 immediately afterward.
+
+All 24 reads again succeeded. Both PAs remained active at status
+`0x2f/0x00`; every error and interrupt byte remained zero; `CURRENT_LIMIT`
+remained `0x44`; and both ADC and VBAT words changed during playback. Render,
+VI and CPS selected 48/8/24 kHz respectively, both speakers used DP6 mask
+`0x03`, and the SP/SPVI VI+CPS graph plus `GRAPH_START` were accepted. No XRUN,
+bus clash or PA fault was observed. This is an accepted moderate-volume
+stability result, not proof that a protection limiter intervened.
+
+The reviewed summaries are
+`artifacts/reviewed/2026-08-11-linux-cps-v3-moderate-volume-observation.json`
+and `artifacts/reviewed/2026-08-11-qcaucd-cps-ctl-static-scan.json`.
 
 ## Observer design and reproduction
 
@@ -90,6 +120,7 @@ Linux no longer needs MAX34417 or another platform regulator observer for
 per-amplifier live WSA telemetry. The remaining Windows/KD questions are the
 exact CPS HLOS hardware-interface/threshold payload semantics, whether PBR DP4
 is scheduled by Windows, and acoustic binding of amplifier identity to the
-physical left/right speaker. Calibrated CPS gain, coil temperature, excursion
-and actual limiter intervention also remain unproven because this firmware
-rejects the known public dynamic DSP-statistics IDs.
+physical left/right speaker. `CPS_CTL=0x00` is no longer one of those blockers.
+Calibrated CPS gain, coil temperature, excursion and actual limiter
+intervention remain unproven because this firmware rejects the known public
+dynamic DSP-statistics IDs.

@@ -117,9 +117,11 @@ closing the non-Dolby phase, the remaining evidence work is:
 2. Recover calibrated protection telemetry or a passive record of actual
    limiter intervention. Linux now has live per-amplifier raw ADC, temperature
    and VBAT words, while known dynamic DSP-statistics IDs remain unsupported.
-3. Explain the amplifier-local `CPS_CTL=0x00` state and recover the exact
-   Windows HLOS CPS payload/threshold semantics. Linux CPS DP6 transport and
-   DSP graph integration are already proven on this machine.
+3. Recover the exact Windows HLOS CPS payload/threshold semantics. A reviewed
+   Windows scalar scan plus every available Linux WSA884x source copy provides
+   no evidence that amplifier-local `CPS_CTL=0x00` is a missing HLOS write, so
+   that register is no longer a deployment blocker. Linux CPS DP6 transport
+   and DSP graph integration are already proven on this machine.
 4. Establish whether any genuine per-speaker calibration or hardware
    asymmetry exists. Device-tree left/right labels alone are not proof of the
    physical mapping.

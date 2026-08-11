@@ -66,7 +66,10 @@ health worker. Linux captured 12 samples from each amplifier during playback:
 zero, and the two amplifiers returned distinct changing raw ADC, temperature
 and VBAT words. Both live `CURRENT_LIMIT` registers were `0x44`, proving the
 PBR-enabled 2-cell current policy. Both local `CPS_CTL` registers remained
-zero even though CPS DP6 and the DSP VI+CPS graph were active. Read
+zero even though CPS DP6 and the DSP VI+CPS graph were active. Subsequent
+static review found no `0x3468` scalar in the shipped `qcaucd8380.sys` and no
+Linux WSA884x write to that register, so zero is not a missing-Linux-write
+signal or a deployment blocker. Read
 `docs/findings/2026-08-11-linux-cps-v3-live-wsa-observation.md` and its reviewed
 JSON artifact before the KD session.
 
@@ -84,9 +87,10 @@ These are now evidence-quality questions, not Linux audio blockers:
    their calibrated physical units or a nonzero limiter action. Determine
    whether Windows sends
    `PARAM_ID_CPS_LPASS_SWR_THRESHOLDS_CFG` (`0x08001254`) at runtime and find a
-   passive response/event or object which explains `CPS_CTL=0x00`, calibrated
-   CPS measurements, or protection state. Do not provoke thermal, over-current
-   or speaker faults.
+   passive response/event or object which exposes calibrated CPS measurements
+   or protection state. Treat `CPS_CTL=0x00` only as an undocumented register
+   observation unless new Windows evidence proves otherwise. Do not provoke
+   thermal, over-current or speaker faults.
 3. **PBR DP4 transport.** Linux has the recovered 2S PBR policy, 0x11 current
    limit and 15-step thresholds, and PBR affects amplifier register policy.
    It has not proved whether Windows also schedules WSA8845 sink DP4 as a
