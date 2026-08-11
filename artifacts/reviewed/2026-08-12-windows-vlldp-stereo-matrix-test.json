@@ -1,0 +1,125 @@
+{
+  "date": "2026-08-12",
+  "scope": "Controlled low-volume Windows stereo-matrix discriminator at the live Dolby VLLDP input staging boundary",
+  "safety": {
+    "windows_endpoint_volume_scalar": 0.06,
+    "volume_verified_before_each_case": true,
+    "kdnet_used": false,
+    "physical_mmio_used": false,
+    "raw_dumps_committed": false
+  },
+  "target": {
+    "audiodg_pid": 11776,
+    "same_process_all_cases": true,
+    "active_dolby_profile_label": "Dynamic (resolved after capture from live VR core: leveler amount=5, enable=1, DRC=1; amount 5 is unique to Dynamic in the recovered seven-profile table)"
+  },
+  "stimulus": {
+    "sample_rate_hz": 48000,
+    "format": "PCM16 stereo",
+    "frequency_hz": 75.0,
+    "per_active_channel_amplitude": 0.25,
+    "layout": "2 s silence, 8 s steady probe, 2 s silence",
+    "cases": {
+      "in_phase": {
+        "relation": "L=+x, R=+x",
+        "sha256": "1ec9c86383dc4f77ee1340a9008dcf731a557a7ea9a91efe0e365e5e9a9c218f"
+      },
+      "left_only": {
+        "relation": "L=+x, R=0",
+        "sha256": "b49f03ca41457305473012f395c04f9a3958512b447ab9d79f50a5bbd1b27107"
+      },
+      "anti_phase": {
+        "relation": "L=+x, R=-x",
+        "sha256": "02b61a8104b144100bb4f41c5bbd73fe6f093f505e6e51dc090e248896289b77"
+      }
+    }
+  },
+  "capture": {
+    "method": "Sysinternals ProcDump 12.01 full audiodg minidump during isolated steady tone",
+    "capture_time_seconds_from_file_start": "3.52-3.54",
+    "dumps": {
+      "in_phase": {
+        "bytes": 117951820,
+        "sha256": "fbfe443f318fcd5e1a47851d8538ecf2dfcfe1bea96f820819baf4c5ef1b8d8d"
+      },
+      "left_only": {
+        "bytes": 118275118,
+        "sha256": "5f50be3f3b50e4c04c45a387b261193ad6bc94cdbb8993c7a35af2d4389a552c"
+      },
+      "anti_phase": {
+        "bytes": 118271208,
+        "sha256": "8a971a0a0dedb2b67d40a39341aa6b9d3ad70186742dbd9ca9c97dac870d4168"
+      }
+    },
+    "analyzer": {
+      "path": "tools/dolby/analyze_state_pinned_oracle.py",
+      "sha256": "7efa739f6bda519dc9eb678416f230e1e4c78059f3196272a32d093a5316f149"
+    }
+  },
+  "common_vlldp_object": {
+    "module_base": "0x7ffeda530000",
+    "vtable": "0x7ffeda63b9a8",
+    "wrapper": "0x16da868c1f8",
+    "core": "0x16da868c360",
+    "input_staging": "0x16da8695c64",
+    "output_staging": "0x16da8696464",
+    "final_limiter": "0x16da8691b60",
+    "block_frames": 256,
+    "system_gain": 0,
+    "postgain_applied": -658,
+    "postgain_staged": -658,
+    "peak_level": 0,
+    "limiter_ceiling": 0.9998999834060669,
+    "limiter_current_gain": 1.0,
+    "limiter_previous_gain": 1.0,
+    "limiter_target_gain": 1.0
+  },
+  "vlldp_input_staging": {
+    "in_phase": {
+      "fill_frames": 128,
+      "left_peak": 0.5349301695823669,
+      "left_rms": 0.3645417007597214,
+      "right_peak": 0.5349301695823669,
+      "right_rms": 0.3645417007597214
+    },
+    "left_only": {
+      "fill_frames": 192,
+      "left_peak": 0.5528902411460876,
+      "left_rms": 0.3770485607449569,
+      "right_peak": 6.3356947066495195e-06,
+      "right_rms": 4.490624807565356e-06
+    },
+    "anti_phase": {
+      "fill_frames": 32,
+      "left_peak": 0.5452863574028015,
+      "left_rms": 0.39943359885225876,
+      "right_peak": 0.5452863574028015,
+      "right_rms": 0.39943359778973075
+    }
+  },
+  "vlldp_output_staging": {
+    "in_phase": {
+      "left_peak": 0.5316861867904663,
+      "left_rms": 0.39218861378969283,
+      "right_peak": 0.5916091799736023,
+      "right_rms": 0.43541440116051017
+    },
+    "left_only": {
+      "left_peak": 0.5494824647903442,
+      "left_rms": 0.3522740955742556,
+      "right_peak": 6.708140517730499e-06,
+      "right_rms": 4.501030971200948e-06
+    },
+    "anti_phase": {
+      "left_peak": 0.5418703556060791,
+      "left_rms": 0.3470603474774796,
+      "right_peak": 0.602925717830658,
+      "right_rms": 0.3853973345111964
+    }
+  },
+  "conclusion": {
+    "hidden_pre_vlldp_stereo_sum_or_crossfeed": "falsified",
+    "reason": "Left-only remains isolated to the left channel at VLLDP input (right peak ~6.3e-6 versus left ~0.553), while anti-phase retains essentially the same per-channel magnitude as in-phase instead of cancelling or collapsing.",
+    "remaining_localization": "The pre-VLLDP drive increase is per-channel. Existing sample-order evidence makes the next boundary VR input versus VR output; this distinguishes gain generated inside VR from any pre-VR per-channel gain."
+  }
+}

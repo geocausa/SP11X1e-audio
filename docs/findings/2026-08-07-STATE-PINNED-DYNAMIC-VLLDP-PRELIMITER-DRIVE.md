@@ -34,9 +34,17 @@ missing ~3 dB of pre-limiter drive is therefore present **before the inner VLLDP
 DSP**.
 
 The decoded 480 -> 256 inner adapter is a literal copy into that staging buffer;
-it does not multiply or mix samples. The remaining localization boundary is now
-an outer VLLDP-wrapper / upstream Windows-graph operation, with a stereo matrix
-a primary hypothesis to test.
+it does not multiply or mix samples. The remaining localization boundary was
+therefore an outer VLLDP-wrapper / upstream Windows-graph operation.
+
+> **2026-08-12 follow-up:** the primary hidden-stereo-matrix hypothesis is now
+> disproved by a controlled three-case full-memory experiment at 6% Windows
+> endpoint volume. In-phase, left-only and anti-phase probes reach VLLDP input
+> with per-channel magnitudes near 0.54, while left-only produces only ~6e-6
+> peak in the silent right channel and anti-phase does not collapse. The missing
+> drive is therefore per-channel, not an `L+R`/crossfeed matrix. See
+> `2026-08-12-WINDOWS-VLLDP-STEREO-MATRIX-FALSIFICATION.md`. The next boundary
+> is VR input versus VR output.
 
 ## Evidence identity
 
@@ -205,8 +213,10 @@ The local Aug-7 work also created a diagnostic 75-Hz WAV with three cases:
 ```
 
 That is the correct discriminating experiment for a hidden stereo sum/matrix.
-The retained `loopback-only` attempt from that session is silent, so the matrix
-coefficients are **not yet proved**.
+The retained `loopback-only` attempt from that session was silent. The test was
+finally completed on 2026-08-12 with three isolated steady probes and full
+`audiodg.exe` dumps: the result **falsifies** a meaningful pre-VLLDP stereo
+sum/crossfeed. See `2026-08-12-WINDOWS-VLLDP-STEREO-MATRIX-FALSIFICATION.md`.
 
 The next state-pinned run should sample both sides of the remaining boundary for
 all three cases:
