@@ -50,6 +50,10 @@ exact kernel, module, initramfs, DTB and runtime-observer evidence are in
 [`deploy/audio-cps-v3/DEPLOYMENT-PROVENANCE.md`](deploy/audio-cps-v3/DEPLOYMENT-PROVENANCE.md)
 and
 [`2026-08-11-linux-cps-v3-live-wsa-observation.md`](docs/findings/2026-08-11-linux-cps-v3-live-wsa-observation.md).
+Every fresh kernel bake must also pass `tools/verify_sp11_kernel_bake.py` with
+its final DTB. This guards both halves of the SP11 Wi-Fi continuity fix—the
+ath12k OF hook and the WCN7850 `disable-rfkill` board property—before a build
+can replace the connected development system.
 
 ```mermaid
 flowchart LR

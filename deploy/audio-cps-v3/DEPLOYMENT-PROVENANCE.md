@@ -11,6 +11,7 @@ release, module directory, initramfs, DTB, `/boot` bundle, and GRUB entry ID.
 - Kernel transport base commit: `826091400f088c1df0709f78b1d7e2b2d8d1fea7`
 - Kernel runtime-fix commit: `4c5c85f` (published as patch `0041`)
 - Kernel live-observer commit: `223f3f1` (published as patch `0042`)
+- Kernel Wi-Fi DT commit: `11d875d` (published as patch `0044`)
 - Source worktree: `02-kernel/sp11-audio-powerlab-src-20260810`
 - Build directory: `02-kernel/build-cps-v3-20260811`
 - GRUB entry ID: `sp11-audio-cps-v3`
@@ -34,6 +35,8 @@ The build config differs from the accepted audio-clean config only in
   `7cd5fdd8ef59c46ca9a3661adacce0444893a6c26fca71c97eaa3070a88aab84`
 - Pre-Bluetooth-address composite DTB retained as rollback:
   `126911f321badad1b33c8bad50ad460b4f6e03f8f9851ce4b532988bed1e2241`
+- Fresh kernel-built OLED/CPS base DTB with baked-in Wi-Fi property:
+  `d10b36c73c3d1653bf5cb5ff1ac05c6763d0e0e3b3c510d136e389894d07bcbb`
 - Current live-observer initramfs:
   `8504076a0f40926eee09233451b078d32da1fbb72bb52d4556bec528bd6e6153`
 - Force-on initramfs retained as pre-live-observer rollback:
@@ -76,8 +79,30 @@ The build config differs from the accepted audio-clean config only in
 - Force-on extracted initramfs: 2,910 modules and zero missing symbols or CRC
   mismatches across 128,311 versioned imports. Its embedded WSA884x module is
   byte-for-byte identical to the installed signed module.
-- CPS review suite: 96 tests, 93 passed and 3 skipped only because the private
+- CPS review suite: 99 tests, 96 passed and 3 skipped only because the private
   Windows capture bundle is not present.
+
+## Mandatory Wi-Fi bake gate
+
+Wi-Fi continuity is a deployment prerequisite because losing the network also
+cuts off the development session. Every fresh kernel source must include both:
+
+1. patch `0043-wifi-ath12k-honor-DT-disable-rfkill.patch`, which makes
+   ath12k honor the OF boolean; and
+2. patch `0044-arm64-dts-qcom-disable-broken-SP11-WiFi-rfkill.patch`, which
+   places that boolean on the SP11 WCN7850 node.
+
+The platform overlay deliberately repeats the DT property, so a composite DTB
+also retains it when the audio-only base is used. Before installation, run:
+
+```sh
+./tools/verify_sp11_kernel_bake.py /path/to/linux-source \
+  --dtb /path/to/final-sp11.dtb
+```
+
+The gate rejects a missing driver hook, missing board property or final DTB
+without `/soc@0/pci@1c08000/pcie@0/wifi@0/disable-rfkill`. A DT-only fix is
+not sufficient: the ath12k driver half is equally mandatory.
 
 ## Included platform paths
 
@@ -137,6 +162,18 @@ fix is now in the composite DTB as little-endian
 the only difference from the accepted composite DTB. The pre-address DTB is
 retained beside it for rollback; the next boot must confirm that the existing
 userspace service becomes a no-op before it is disabled.
+
+Boot ID `1a37e1b4-93b7-4239-8aee-5e048119bbba` then confirmed the composite
+DTB again with Wi-Fi connected to `GEOCA`, no soft or hard RF-kill, both CPS
+switches on, left/right offsets 0/25, and the 48/8/24 kHz render/VI/CPS graph
+accepted. Bluetooth remains outside the audio acceptance gate at the
+operator's request; its existing workaround is left untouched.
+
+A direct `pw-play /usr/share/sounds/alsa/Front_Center.wav` at the existing 11%
+default-sink volume returned zero at 23:21 BST on the same boot. Render, VI and
+CPS selected their 48/8/24 kHz ports on both amplifiers; SP/SPVI, endpoint
+calibration, VI+CPS enable and `GRAPH_START` were accepted with no XRUN, PA
+fault, SoundWire bus clash or DAI2-selection failure.
 
 ## Rollback model
 
