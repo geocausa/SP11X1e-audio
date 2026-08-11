@@ -246,6 +246,8 @@ Read these before repeating any experiment:
 - `artifacts/reviewed/2026-08-11-qcaucd-slot14-shared-master13-correction.json`
 - `docs/findings/2026-08-11-linux-cps-per-slave-transport-gap.md`
 - `artifacts/reviewed/2026-08-11-linux-cps-per-slave-transport-gap.json`
+- `docs/runbooks/2026-08-11-sp11-linux-cps-source-recovery.md`
+- `artifacts/reviewed/2026-08-11-sp11-linux-cps-source-recovery-state.json`
 
 ## Raw KD evidence on SP7 (outside Git)
 
@@ -440,6 +442,8 @@ Reviewed source-level finding:
 - `artifacts/reviewed/2026-08-11-linux-cps-per-slave-transport-gap.json`
 
 The exact CPS-Lab modules also were not recoverable from the searched SP7 local/ignored artifact locations: only earlier Phase91 module binaries were found, and their hashes differ from the recorded CPS-Lab hashes. Therefore `23aa077` remains an explicit unknown, not something to reconstruct from assumptions.
+
+Read-only SP11 Windows partition/EFI inspection identified the offline Linux installation without mounting it: disk 0 partition 5 is the ~293.8 GB Linux filesystem, and EFI GRUB searches filesystem UUID `33e842b7-0434-4749-b03a-299bdcdb8b9f` with prefix `/boot/grub`. No source tree, `23aa077` metadata, or CPS-Lab binaries were found in SP11 Windows user storage or the mounted EFI volume. The Linux partition was deliberately left unmounted/unmodified. Use `docs/runbooks/2026-08-11-sp11-linux-cps-source-recovery.md` on the next normal Linux boot.
 
 **Updated next decision:** Windows archaeology is closed for the parity objective and KD should remain closed. Recover the exact kernel tree/source corresponding to `23aa077` (or the exact CPS-Lab binaries) before implementing. Once recovered, audit `qcom_swrm_compute_params()`, WSA884x CPS DPN type/mask, SoundWire SIMPLE/FULL slave programming, and the dedicated CPS backend changes. If the baseline gaps remain, implement an explicit per-slave DP6 distinction on shared master port 13—mask `0x03` both, Offset1 `0` left / `25` right—and a capability-correct normal SoundWire path for the 800-clock extended slave transport state. Do not invent master port 14, do not restore split masks, and do not use physical-MMIO or ad-hoc raw slave-register programming.
 

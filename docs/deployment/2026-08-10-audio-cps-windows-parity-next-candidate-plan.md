@@ -157,3 +157,10 @@ yet. Guessing a patch against a different kernel tree would recreate the
 evidence problem that caused the rejected candidate. Safe work before source
 recovery is limited to artifact/DTB/topology validation and requirements
 capture.
+
+SP11 Windows read-only partition/EFI inspection confirms the offline Linux
+filesystem still exists as disk 0 partition 5 (~293.8 GB); EFI GRUB identifies
+it by filesystem UUID `33e842b7-0434-4749-b03a-299bdcdb8b9f`. It was not
+mounted from Windows. On the next normal SP11 Linux boot, follow
+`docs/runbooks/2026-08-11-sp11-linux-cps-source-recovery.md` before any audio
+experiment or source edit.

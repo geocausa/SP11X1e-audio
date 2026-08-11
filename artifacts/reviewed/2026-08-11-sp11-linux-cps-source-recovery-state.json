@@ -1,0 +1,72 @@
+{
+  "date": "2026-08-11",
+  "purpose": "exact 23aa077 source or CPS-Lab binary recovery state",
+  "sp11_windows": {
+    "online": true,
+    "system_disk": {
+      "number": 0,
+      "friendly_name": "HFS512GEJ3X108N-SKhynix",
+      "partition_style": "GPT"
+    },
+    "linux_partition": {
+      "disk_number": 0,
+      "partition_number": 5,
+      "gpt_type": "0fc63daf-8483-4772-8e79-3d69d8477de4",
+      "size_bytes": 293778489344,
+      "windows_drive_letter": null,
+      "mounted_by_windows": false
+    },
+    "efi_partition": {
+      "disk_number": 0,
+      "partition_number": 1,
+      "drive_letter": "Z:",
+      "filesystem": "FAT32"
+    },
+    "efi_grub_cfg": {
+      "linux_filesystem_uuid": "33e842b7-0434-4749-b03a-299bdcdb8b9f",
+      "prefix": "/boot/grub",
+      "cmdline_snapshot": "efi=novamap clk_ignore_unused pd_ignore_unused arm64.nopauth module_blacklist=snd_sof_qcom_x1e,snd_soc_qcom_common,qc_adsp_pas"
+    },
+    "user_storage_search": {
+      "roots": ["C:\\Users\\Geoca", "C:\\Users\\Public", "Z:\\"],
+      "git_trees_found": 0,
+      "23aa077_text_matches": 0,
+      "exact_cps_lab_artifacts_found": false
+    },
+    "linux_partition_mount_attempted": false,
+    "linux_partition_modified": false
+  },
+  "sp11_linux": {
+    "pimaster_online": false,
+    "recovery_runbook": "docs/runbooks/2026-08-11-sp11-linux-cps-source-recovery.md"
+  },
+  "source": {
+    "required_commit": "23aa077",
+    "subject": "ASoC: qcom: add dedicated SP11 CPS feedback backend",
+    "recovered": false
+  },
+  "cps_lab_exact_hashes": {
+    "soundwire_qcom": "b4524693a5458c5e672d248da6d77c8dad7abed6dcbec31e81c55225de65ae0f",
+    "snd_soc_wsa884x": "3106227bac14fb342eb6adf841f52c81e9b33e846ccfe4698e9753f39d8bf78b",
+    "dtb": "ab72a157824291baafa4e3b37af45819097c19a02f25f45b9bc47fa6145060d4",
+    "initrd": "f2663cceb9fd8b7ab380b075c9a57c72a4b7431ce3827fab62f50ebef1914d61"
+  },
+  "sp7_search": {
+    "exact_cps_lab_modules_found": false,
+    "phase91_soundwire_qcom_found": true,
+    "phase91_soundwire_qcom_sha256": "68137df872ab28204dd53196e1a82744156598968e069ca2962ce8b45d991d85",
+    "phase91_wsa884x_found": true,
+    "phase91_wsa884x_sha256": "68ef789e982d6cd04eec1bec668faf475a8bd127deaafdeae7f571b59ea4857b"
+  },
+  "next": "When SP11 Linux is normally booted, recover source/commit first; if absent, recover exact CPS-Lab binaries/initrd by hash and perform offline binary comparison before patch design.",
+  "safety": {
+    "windows_linux_partition_mount": false,
+    "disk_write": false,
+    "grub_change": false,
+    "reboot": false,
+    "kernel_build": false,
+    "module_load_or_replace": false,
+    "kd_session": false,
+    "physical_mmio_access": false
+  }
+}
