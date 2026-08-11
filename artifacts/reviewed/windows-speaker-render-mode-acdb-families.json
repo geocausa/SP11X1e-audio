@@ -1,0 +1,171 @@
+{
+  "evidence_class": "static hash-pinned REV_0D ACDB lookup; live mode selection is tracked separately",
+  "format": "SP11 Windows speaker render-mode ACDB family inventory",
+  "format_version": 1,
+  "interpretation_guard": "Absence of an exact ACDB row does not prove the miniport cannot accept the processing-mode flag; it means there is no exact internal-speaker graph row for that six-key vector in REV_0D. RAW/MOVIE fallback or rejection requires live Windows evidence.",
+  "modes": [
+    {
+      "acdb_exact_row_present": false,
+      "mode": "RAW",
+      "qcadcm_processing_value": 1,
+      "qcaudminiport_flag": "0x02",
+      "speaker_key_vector": {
+        "0x01000001": "0x00000002",
+        "0x01000002": "0x00000001",
+        "0x01000003": "0x00000001",
+        "0x01000004": "0x00000002",
+        "0x01000005": "0x00000001",
+        "0x01000006": "0x00000001"
+      }
+    },
+    {
+      "acdb_exact_row_present": true,
+      "connection_count": 28,
+      "control_link_count_in_acdb_bundle": 0,
+      "mode": "DEFAULT",
+      "module_count": 29,
+      "pool_graph_bundle_sha256": "fc8de152cbc23e90cfed40cb6107d0d1799b848e4344960cfabc332b30e6652f",
+      "pool_offset": "0x0003d164",
+      "qcadcm_processing_value": 2,
+      "qcaudminiport_flag": "0x01",
+      "row_index": 27,
+      "speaker_key_vector": {
+        "0x01000001": "0x00000002",
+        "0x01000002": "0x00000002",
+        "0x01000003": "0x00000001",
+        "0x01000004": "0x00000002",
+        "0x01000005": "0x00000002",
+        "0x01000006": "0x00000001"
+      },
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb000007e",
+        "0xb000007f"
+      ]
+    },
+    {
+      "acdb_exact_row_present": true,
+      "connection_count": 28,
+      "control_link_count_in_acdb_bundle": 0,
+      "mode": "SPEECH",
+      "module_count": 29,
+      "pool_graph_bundle_sha256": "7eecaab3c9a0c4420ae0c6de3c83615d2a40da9c10441042cb6b0b6788742aff",
+      "pool_offset": "0x0003eca8",
+      "qcadcm_processing_value": 3,
+      "qcaudminiport_flag": "0x08",
+      "row_index": 31,
+      "speaker_key_vector": {
+        "0x01000001": "0x00000002",
+        "0x01000002": "0x00000003",
+        "0x01000003": "0x00000001",
+        "0x01000004": "0x00000002",
+        "0x01000005": "0x00000003",
+        "0x01000006": "0x00000001"
+      },
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb000007c",
+        "0xb000007d"
+      ]
+    },
+    {
+      "acdb_exact_row_present": true,
+      "connection_count": 28,
+      "control_link_count_in_acdb_bundle": 0,
+      "mode": "COMMUNICATIONS",
+      "module_count": 29,
+      "pool_graph_bundle_sha256": "1d7ebc0a16306d9161a25e73b283dc370a9097e8647544072885554da30b045d",
+      "pool_offset": "0x0003ffe8",
+      "qcadcm_processing_value": 4,
+      "qcaudminiport_flag": "0x04",
+      "row_index": 33,
+      "speaker_key_vector": {
+        "0x01000001": "0x00000002",
+        "0x01000002": "0x00000004",
+        "0x01000003": "0x00000001",
+        "0x01000004": "0x00000002",
+        "0x01000005": "0x00000004",
+        "0x01000006": "0x00000001"
+      },
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb000007a",
+        "0xb000007b"
+      ]
+    },
+    {
+      "acdb_exact_row_present": false,
+      "mode": "MOVIE",
+      "qcadcm_processing_value": 5,
+      "qcaudminiport_flag": "0x28",
+      "speaker_key_vector": {
+        "0x01000001": "0x00000002",
+        "0x01000002": "0x00000005",
+        "0x01000003": "0x00000001",
+        "0x01000004": "0x00000002",
+        "0x01000005": "0x00000005",
+        "0x01000006": "0x00000001"
+      }
+    },
+    {
+      "acdb_exact_row_present": true,
+      "connection_count": 28,
+      "control_link_count_in_acdb_bundle": 0,
+      "mode": "MEDIA",
+      "module_count": 29,
+      "pool_graph_bundle_sha256": "a398aed9a23457243fb46cbd1bc1c8d7fa07b3a6196590482ac87930241b73f6",
+      "pool_offset": "0x00041328",
+      "qcadcm_processing_value": 6,
+      "qcaudminiport_flag": "0x14",
+      "row_index": 35,
+      "speaker_key_vector": {
+        "0x01000001": "0x00000002",
+        "0x01000002": "0x00000006",
+        "0x01000003": "0x00000001",
+        "0x01000004": "0x00000002",
+        "0x01000005": "0x00000006",
+        "0x01000006": "0x00000001"
+      },
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb0000080",
+        "0xb0000081"
+      ]
+    },
+    {
+      "acdb_exact_row_present": true,
+      "connection_count": 28,
+      "control_link_count_in_acdb_bundle": 0,
+      "mode": "NOTIFICATION",
+      "module_count": 29,
+      "pool_graph_bundle_sha256": "1f7ba15ff4ff45de8e188c61ea536b84f6360bea63b77ca67102271137a643de",
+      "pool_offset": "0x00042668",
+      "qcadcm_processing_value": 7,
+      "qcaudminiport_flag": "0x0a",
+      "row_index": 38,
+      "speaker_key_vector": {
+        "0x01000001": "0x00000002",
+        "0x01000002": "0x00000007",
+        "0x01000003": "0x00000001",
+        "0x01000004": "0x00000002",
+        "0x01000005": "0x00000007",
+        "0x01000006": "0x00000001"
+      },
+      "subgraph_ids": [
+        "0xb0000001",
+        "0xb0000082",
+        "0xb0000083"
+      ]
+    }
+  ],
+  "six_key_schema": [
+    "0x01000001",
+    "0x01000002",
+    "0x01000003",
+    "0x01000004",
+    "0x01000005",
+    "0x01000006"
+  ],
+  "source": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Claude\\AUDIO\\SP11-WINDOWS-AUDIO\\driverstore\\surface_acsp8380.inf_arm64_f6524e4db745e12a\\REV_0D\\acdb_cal_0D.acdb",
+  "source_sha256": "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde"
+}

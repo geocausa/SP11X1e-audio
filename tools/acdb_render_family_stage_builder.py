@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Build SP11 protected-render calibration stages for DEFAULT or NOTIFICATION.
+"""Build SP11 protected-render calibration stages for reviewed speaker modes.
 
 DEFAULT delegates to the already accepted protection-stage builder and is used
-as a byte-for-byte regression oracle.  NOTIFICATION keeps the same root,
-endpoint, protection, VI/CPS and channel-mixer stages but resolves the exact
-0x82/0x83 family calibration from REV_0D and retargets the family-local output
-volume control to IID 0x4a5f.
+as a byte-for-byte regression oracle.  SPEECH, COMMUNICATIONS, MEDIA and
+NOTIFICATION keep the same root, endpoint, protection, VI/CPS and channel-mixer
+stages while resolving their exact family-local ACDB graph/calibration rows.
 """
 from __future__ import annotations
 
@@ -29,6 +28,27 @@ FAMILIES = {
         "volume_iid": 0x00004A63,
         "expected_graph_size": 10464,
         "expected_graph_sha256": "2a654ffa7a4467c93ecfc64f380974df0bccdd5c67959ba6ac7c59a008358ca1",
+    },
+    "speech": {
+        "subgraphs": (("root", 0xB0000001), ("render-family-0x7c", 0xB000007C), ("speaker-family-0x7d", 0xB000007D)),
+        "speaker_subgraph": 0xB000007D,
+        "volume_iid": 0x00004A62,
+        "expected_graph_size": 10464,
+        "expected_graph_sha256": "9d59bb40621a91c0ffeb012176f6da27814fbbd0e823090bd25aa6cc740cd6dc",
+    },
+    "communications": {
+        "subgraphs": (("root", 0xB0000001), ("render-family-0x7a", 0xB000007A), ("speaker-family-0x7b", 0xB000007B)),
+        "speaker_subgraph": 0xB000007B,
+        "volume_iid": 0x00004A61,
+        "expected_graph_size": 10464,
+        "expected_graph_sha256": "fd2c0c21a7f30dfc699c5f3b2fc3691f054c1b8ad69aa8d87c9bd91428fb8d51",
+    },
+    "media": {
+        "subgraphs": (("root", 0xB0000001), ("render-family-0x80", 0xB0000080), ("speaker-family-0x81", 0xB0000081)),
+        "speaker_subgraph": 0xB0000081,
+        "volume_iid": 0x00004A60,
+        "expected_graph_size": 10464,
+        "expected_graph_sha256": "db9223c7ac4e5d13446097158480db82d588e33fce4d0c0f9382583b716543c7",
     },
     "notification": {
         "subgraphs": (("root", 0xB0000001), ("render-family-0x82", 0xB0000082), ("speaker-family-0x83", 0xB0000083)),
@@ -101,9 +121,9 @@ def build_stages(data: bytes, mode: str, source: str = "<bytes>") -> tuple[dict[
             speaker_meta = meta
     graph_body = bytes(graph_body)
     if len(graph_body) != cfg["expected_graph_size"] or base.sha256(graph_body) != cfg["expected_graph_sha256"]:
-        raise ValueError("reviewed NOTIFICATION graph calibration changed")
+        raise ValueError(f"reviewed {mode.upper()} graph calibration changed")
     if speaker_meta is None:
-        raise ValueError("notification speaker calibration missing")
+        raise ValueError(f"{mode} speaker calibration missing")
     stages["graph-calibration"] = graph_body
 
     filter_body, filter_params = _volume_stage(chunks, speaker_meta, cfg["volume_iid"])
@@ -117,8 +137,10 @@ def build_stages(data: bytes, mode: str, source: str = "<bytes>") -> tuple[dict[
     metadata = copy.deepcopy(base_meta)
     metadata["format"] = "sp11-protected-render-calibration-stages"
     metadata["format_version"] = 2
-    metadata["render_mode"] = "NOTIFICATION"
-    metadata["render_family_subgraphs"] = ["0xb0000082", "0xb0000083"]
+    metadata["render_mode"] = mode.upper()
+    metadata["render_family_subgraphs"] = [
+        f"0x{sgid:08x}" for name, sgid in cfg["subgraphs"] if name != "root"
+    ]
     metadata["graph_groups"] = graph_groups
     metadata["stages"]["graph-calibration"] = {
         "parameter_count": sum(g["parameter_count"] for g in graph_groups),
@@ -131,7 +153,7 @@ def build_stages(data: bytes, mode: str, source: str = "<bytes>") -> tuple[dict[
         "serialized_sha256": base.sha256(stages["volume-gain"]),
     })
     metadata["stages"]["volume-filter-calibration"] = {
-        "evidence_source": "REV_0D ACDB subgraph 0x83 runtime CKV at volume step 30",
+        "evidence_source": f"REV_0D ACDB subgraph 0x{cfg['speaker_subgraph']:08x} runtime CKV at volume step 30",
         "parameters": filter_params,
         "parameter_count": len(filter_params),
         "serialized_size": len(filter_body),
