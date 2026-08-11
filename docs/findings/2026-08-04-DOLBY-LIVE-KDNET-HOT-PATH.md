@@ -361,7 +361,9 @@ not match these live derived wrapper objects: that offset contains UTF-16-like
 object data here. Do not apply the old base-class layout blindly to these two
 live wrapper variants.
 
-### Stable per-cycle order: VLLDP then VR
+### Historical per-cycle callback order: VLLDP then VR
+
+> **2026-08-11 follow-up:** this section records a valid historical callback-order observation from the Aug-4 session, but the order is **not universal**. Fresh KDNET captures on the same reviewed binaries show strict `VR -> VLLDP` outer-callback alternation for both a real Edge/YouTube DEFAULT stream and an isolated Alerts/NOTIFICATION stream on the current boot. Treat callback invocation order as session/configuration-dependent unless re-proven for the specific lifetime. The Aug-9 full-memory buffer-proven PCM sample dependency remains `source -> VR -> VLLDP`. See `docs/findings/2026-08-11-youtube-vs-alerts-dolby-kdnet.md`.
 
 A deliberately short dual hardware-marker run trapped the two exact inner
 callbacks simultaneously. 84 captured events alternated without reversal:

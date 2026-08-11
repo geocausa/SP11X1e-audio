@@ -114,11 +114,13 @@ wrapper 0x00000209396CB260 -> DolbyApoVr
 wrapper 0x00000209396C8860 -> DolbyAPOvlldp150
 ```
 
-with stable processing order:
+with the historical Aug-4 callback-marker order:
 
 ```text
 VLLDP -> VR
 ```
+
+A 2026-08-11 follow-up proves this callback order is not universal: fresh KDNET captures on the same reviewed binaries show strict `VR -> VLLDP` outer-callback alternation for both a real Edge/YouTube DEFAULT stream and an isolated Alerts/NOTIFICATION stream. The equal-rate direct-branch proof in this document remains valid; only the claim that one callback order is a fixed architectural invariant is retired. See `docs/findings/2026-08-11-youtube-vs-alerts-dolby-kdnet.md`.
 
 The ETL branch proof therefore applies to the same wrapper architecture already
 verified dynamically by KD.
