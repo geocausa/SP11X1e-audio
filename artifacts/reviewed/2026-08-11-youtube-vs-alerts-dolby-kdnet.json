@@ -1,0 +1,99 @@
+{
+  "date": "2026-08-11",
+  "target": "Surface Pro 11 Windows internal speakers",
+  "host": "Surface Pro 7 KDNET",
+  "conclusion": {
+    "youtube_processing_mode": "DEFAULT",
+    "youtube_qcaudminiport_flag": "0x01",
+    "youtube_qcadcm_enum": 2,
+    "youtube_gkv": 2,
+    "alerts_processing_mode": "NOTIFICATION",
+    "alerts_qcaudminiport_flag": "0x0a",
+    "alerts_qcadcm_enum": 7,
+    "alerts_gkv": 7,
+    "youtube_dolby_callback_order_current_boot": ["DolbyApoVr", "DolbyAPOvlldp150"],
+    "alerts_dolby_callback_order_current_boot": ["DolbyApoVr", "DolbyAPOvlldp150"],
+    "established_pcm_sample_dependency": ["source", "DolbyApoVr", "DolbyAPOvlldp150"],
+    "older_vlldp_then_vr_callback_observation_reclassified": "session/configuration-specific; not a fixed architectural invariant"
+  },
+  "audiodg": {
+    "pid_decimal": 3720,
+    "pid_hex": "0x0e88"
+  },
+  "live_module_bases": {
+    "DolbyDax3Apo.dll": "0x00007ff9b0ac0000",
+    "DolbyApoVr.dll": "0x00007ff98f500000",
+    "DolbyAPOvlldp150.dll": "0x00007ff997eb0000",
+    "DolbyAudioProcessing.dll": "0x00007ff989280000",
+    "DolbyHrtfEnc.dll": "0x00007ff9d98a0000",
+    "SurfaceAPO.dll": "0x00007ff98d260000"
+  },
+  "reviewed_binary_sha256": {
+    "qcaudminiport8380.sys": "79b26804d05332304c736c4e03e942db6a07ea886a2b07f3a4ff5947d1d05531",
+    "DolbyDax3Apo.dll": "6ea1702c0f86766e45c2e248e169022e3d71eaa3c655b3fca159b4dd59f18d87",
+    "DolbyApoVr.dll": "1d74477ea0dae66961a21bf6bc3ce0d8062836fc4dd96b59c14de11257f5eecc",
+    "DolbyAPOvlldp150.dll": "a2553ff7b013b5a248e50bdcae46d08405e393c0085073975214d035cedf02c1"
+  },
+  "runtime_addresses": {
+    "qcaudminiport_mode_translator": "0xfffff8003e714080",
+    "DolbyDax3Apo_APOProcess": "0x00007ff9b0b8d000",
+    "DolbyApoVr_outer_callback": "0x00007ff98f6d10c8",
+    "DolbyAPOvlldp150_outer_callback": "0x00007ff997fb5050",
+    "DolbyDax3Apo_direct_return": "0x00007ff9b0b8d664"
+  },
+  "youtube": {
+    "browser": "Microsoft Edge",
+    "fresh_mode_witness_video_id": "R_5xC-5BK88",
+    "dolby_pass_autoplay_video_id_observed_later": "W5TqjWz09IE",
+    "mode_hits": 1,
+    "mode_flag": "0x01",
+    "dax_wrapper_hits": 1,
+    "vr_hits": 16,
+    "vlldp_hits": 16,
+    "callback_events": 32,
+    "strict_alternation": true,
+    "first_callback": "DolbyApoVr",
+    "last_callback": "DolbyAPOvlldp150",
+    "common_return_address": "0x00007ff9b0b8d664"
+  },
+  "alerts": {
+    "stimulus": "WinRT MediaPlayer AudioCategory=Alerts, C:\\Windows\\Media\\Alarm01.wav",
+    "vr_hits": 946,
+    "vlldp_hits": 946,
+    "callback_events": 1892,
+    "strict_alternation": true,
+    "first_callback": "DolbyApoVr",
+    "last_callback": "DolbyAPOvlldp150",
+    "common_return_address": "0x00007ff9b0b8d664"
+  },
+  "raw_logs": {
+    "youtube_mode": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\SP11_YOUTUBE_MODE_20260811_0915BST.log",
+      "size": 1726,
+      "sha256": "e36a0e35644a410b62b04e48365f5e335a55affd4af1027cff9c74034475fc1c"
+    },
+    "youtube_dolby": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\SP11_YOUTUBE_DOLBY_20260811_0929BST.log",
+      "size": 4683,
+      "sha256": "0008db70b5ec982671be2b93cda3a602adc2aaf5b36bd629602eca63d4aa45bb"
+    },
+    "alerts_dolby": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\SP11_ALERTS_VR_VLL_20260811_0936BST.log",
+      "size": 79064,
+      "sha256": "bc257e6106ead25740ef1c75fa727a80b4b4117c6c910d7bc261293d98458f49"
+    }
+  },
+  "safety": {
+    "direct_physical_mmio_reads": 0,
+    "debugger_mmio_writes": 0,
+    "dsp_writes": 0,
+    "soundwire_register_writes": 0,
+    "max_simultaneous_hardware_execution_breakpoints": 2,
+    "closeout": ["bc *", ".logclose", "qd"]
+  },
+  "remaining": [
+    "Re-capture basic Win32 SND_SYSTEM inner VR/VLLDP sequence if useful once SP11 PiSlave reconnects.",
+    "Do not infer ordinary render SoundWire slave dataport/offset geometry from the separately proven CPS DP6 transport.",
+    "Complete AudioReach bodies for RAW/COMMUNICATIONS/SPEECH/MEDIA/MOVIE remain unproven."
+  ]
+}

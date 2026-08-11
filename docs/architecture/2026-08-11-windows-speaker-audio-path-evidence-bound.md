@@ -31,6 +31,7 @@ The controlled KDNET mode-selection result is:
 | WinRT `MediaPlayer`, `AudioCategory=Alerts` | `0x0a` | NOTIFICATION / GKV `7` | PID 5312 |
 | WinRT `MediaPlayer`, `AudioCategory=Media` | `0x01` | DEFAULT / GKV `2` | PID 5312 |
 | WinRT `MediaPlayer`, `AudioCategory=Movie` | `0x01` | DEFAULT / GKV `2` | PID 5312 |
+| Fresh Microsoft Edge / YouTube stereo-test stream after endpoint idle | `0x01` | DEFAULT / GKV `2` | PID 3720 |
 
 Therefore the correct model is **one observed audio-engine process hosting clients/sessions whose requested processing mode can select different downstream AudioReach render families**. Do not draw a separate “Media audiodg engine” and “System Sounds audiodg engine” unless a future capture proves distinct engine objects and their ownership.
 
@@ -58,11 +59,11 @@ Inside `audiodg.exe`, the persistent DAX3 wrapper is proven directly on the spea
 source PCM -> DolbyApoVr -> DolbyAPOvlldp150 -> downstream audio engine/kernel path
 ```
 
-This corrects the older inference from callback timing. The older hardware markers did observe callback invocation order `VLLDP -> VR`; that scheduler order is not the PCM sample-dependency order.
+This corrects the older inference from callback timing. The Aug-4 hardware markers historically observed callback invocation order `VLLDP -> VR`, but a fresh Aug-11 comparison now proves strict `VR -> VLLDP` outer-callback alternation for both a real Edge/YouTube DEFAULT stream and an isolated Alerts/NOTIFICATION stream on the current boot. Callback invocation order is therefore not a fixed architectural invariant; the byte-proven sample dependency `VR -> VLLDP` remains the stronger canonical sample-flow fact.
 
 The DAX3 wrapper takes its equal-rate direct branch and does not add sample-domain SRC/gain/mixing around those inner processors in the tested speaker path.
 
-For explicit Alerts/NOTIFICATION, KD proves the DAX3 wrapper executes in the same audiodg process. The alert-specific inner VR/VLLDP sequence was **not** independently re-captured; do not promote the normal-stereo inner dependency/order to an alert-specific claim.
+For explicit Alerts/NOTIFICATION, KD now proves the complete persistent Dolby execution boundary on the current boot: with YouTube closed, the isolated Alerts stream produced 946 `DolbyApoVr` outer-callback hits and 946 `DolbyAPOvlldp150` outer-callback hits in strict `VR -> VLLDP` alternation, all in the same `audiodg.exe` process and all returning through the DAX3 equal-rate direct-call site. This proves shared persistent Dolby cores across the current DEFAULT YouTube and NOTIFICATION Alerts paths; it does not by itself prove identical coefficients/state.
 
 `SurfaceAPO.dll`, modern `DolbyAudioProcessing.dll`/ASAR, and `DolbyHrtfEnc.dll` are observed module/lifetime facts. Their complete serial position and all hot inner stages are not fully closed, so they are not drawn as invented serial DSP blocks. No Dolby-specific module appears in the recovered AudioReach DSP graph bodies.
 
@@ -261,3 +262,5 @@ Therefore the canonical diagram must terminate normal PCM at `WSA interface 1 ->
 - `docs/findings/2026-08-11-qcaucd-cps-static-port-template-origin.md`
 - `docs/findings/2026-08-11-windows-render-mode-live-comparison.md`
 - `artifacts/reviewed/2026-08-11-windows-render-mode-live-comparison.json`
+- `docs/findings/2026-08-11-youtube-vs-alerts-dolby-kdnet.md`
+- `artifacts/reviewed/2026-08-11-youtube-vs-alerts-dolby-kdnet.json`

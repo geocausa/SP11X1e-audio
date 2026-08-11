@@ -26,7 +26,7 @@ Therefore:
 
 A second live probe also proves that the explicit Alerts/NOTIFICATION path does **not** simply bypass the persistent Dolby speaker APO stack: the known-hot `DolbyDax3Apo.dll` `APOProcess` wrapper at RVA `0xcd000` executed during the delayed Alerts playback in PID `0x14c0` = 5312.
 
-The alert-specific inner `DolbyAPOvlldp150.dll` / `DolbyApoVr.dll` callback sequence was not re-proven in this short probe. The established normal-stereo evidence remains that the DAX3 wrapper invokes the persistent VLLDP/VR stack in a repeating `VLLDP -> VR -> VLLDP -> VR` order. Do not promote that normal-stereo inner ordering to an Alerts-specific claim without a dedicated capture.
+Follow-up KDNET work on the same boot has now closed the alert-specific inner sequence. With YouTube closed, an isolated explicit Alerts/NOTIFICATION playback produced 946 `DolbyApoVr` outer-callback hits and 946 `DolbyAPOvlldp150` outer-callback hits in strict `VR -> VLLDP` alternation, all returning to the DAX3 equal-rate direct-call site. A real Edge/YouTube DEFAULT stream independently produced the same current-boot `VR -> VLLDP` callback ordering. The older `VLLDP -> VR` callback-order observation is therefore not universal and must not be treated as a fixed architectural invariant; see `docs/findings/2026-08-11-youtube-vs-alerts-dolby-kdnet.md`.
 
 ## Hash gate
 
@@ -200,7 +200,7 @@ The already-closed qcaucd/SoundWire evidence for CPS is one shared physical WSA 
 
 - Static QCAUD mappings for RAW, COMMUNICATIONS, SPEECH, MEDIA and MOVIE are real, but complete AudioReach graph bodies are not all recovered. Do not invent them in an evidence-bound diagram.
 - The WinRT Media/Movie tests selecting DEFAULT do not prove that Qualcomm MEDIA/MOVIE modes are unreachable; they prove only that these particular client paths did not request them.
-- Explicit Alerts is proven to execute the DAX3 wrapper, but this short run does not independently prove the exact alert-specific VLLDP/VR inner callback order or coefficients.
+- Explicit Alerts is now also proven to execute both persistent inner Dolby callbacks on the current boot in strict `VR -> VLLDP` alternation. Exact alert-specific coefficients/state are still not claimed from callback execution alone; see `docs/findings/2026-08-11-youtube-vs-alerts-dolby-kdnet.md`.
 - The Windows ordinary render root is proven to WSA interface 1 and two protected speakers, but the CPS DP6 per-slave transport details must not be incorrectly copied onto the ordinary render stream.
 
 ## Debugger safety / capture notes
