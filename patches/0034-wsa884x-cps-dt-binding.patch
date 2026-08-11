@@ -1,0 +1,35 @@
+Subject: [PATCH 3/8] dt-bindings: sound: wsa884x: describe CPS transport properties
+
+Describe explicit CPS enablement and the board-provided per-slave
+DP6 OffsetCtrl1 value.
+
+---
+--- a/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml
++++ b/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml
+@@ -40,12 +40,24 @@
+     minItems: 6
+     maxItems: 6
+ 
++  qcom,enable-cps:
++    type: boolean
++    description: Enable the dedicated CPS SoundWire source DAI on data port 6.
++
++  qcom,cps-offset1:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    maximum: 255
++    description: |
++      Slave-only SoundWire DP6 OffsetCtrl1 override for CPS. This does not
++      change the physical master-port schedule selected by qcom,port-mapping.
++
+   '#sound-dai-cells':
+     enum: [0, 1]
+     description: |
+       Zero selects the legacy single speaker-playback DAI. With one cell,
+-      DAI 0 is speaker playback and DAI 1 is the render-coupled VISENSE
+-      protection-feedback sidechain.
++      DAI 0 is speaker playback, DAI 1 is the render-coupled VISENSE
++      protection-feedback sidechain, and DAI 2 is the dedicated CPS feedback
++      sidechain when qcom,enable-cps is present.
+ 
+   vdd-1p8-supply: true
+   vdd-io-supply: true

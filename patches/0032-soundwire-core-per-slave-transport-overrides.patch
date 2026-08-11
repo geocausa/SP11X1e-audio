@@ -1,0 +1,190 @@
+Subject: [PATCH 1/8] soundwire: support per-slave transport overrides
+
+Add the two SoundWire capabilities required by SP11 CPS.
+A slave-only Offset1 override is applied after the master computes
+the common schedule. SIMPLE DPNs can also opt into selected extended
+transport registers without being declared FULL.
+
+This avoids unsupported OffsetCtrl2 and BlockCtrl2 programming.
+
+---
+--- a/include/linux/soundwire/sdw.h
++++ b/include/linux/soundwire/sdw.h
+@@ -304,7 +304,13 @@
+  * @read_only_wordlength: Read Only wordlength field in DPN_BlockCtrl1 register
+  * @simple_ch_prep_sm: If the port supports simplified channel prepare state
+  * machine
+- */
++ * @simple_transport_registers: Optional banked transport registers implemented
++ * by a SIMPLE port in addition to the mandatory SIMPLE register set.
++ */
++#define SDW_DPN_SIMPLE_TRANSPORT_BLOCKCTRL3	BIT(0)
++#define SDW_DPN_SIMPLE_TRANSPORT_SAMPLECTRL2	BIT(1)
++#define SDW_DPN_SIMPLE_TRANSPORT_HCTRL		BIT(2)
++
+ struct sdw_dpn_prop {
+ 	u32 num;
+ 	u32 max_word;
+@@ -329,6 +335,7 @@
+ 	bool block_pack_mode;
+ 	bool read_only_wordlength;
+ 	bool simple_ch_prep_sm;
++	u32 simple_transport_registers;
+ };
+ 
+ /**
+@@ -889,10 +896,18 @@
+  *
+  * @num: Port number
+  * @ch_mask: channels mask for port
+- */
++ * @transport_params_override_mask: Bitmask selecting slave transport fields
++ * which override values computed by the bus master. Master port parameters are
++ * never affected by these per-slave overrides.
++ * @transport_params_override: Values for the selected transport fields.
++ */
++#define SDW_PORT_CONFIG_OVERRIDE_OFFSET1	BIT(0)
++
+ struct sdw_port_config {
+ 	unsigned int num;
+ 	unsigned int ch_mask;
++	unsigned int transport_params_override_mask;
++	struct sdw_transport_params transport_params_override;
+ };
+ 
+ /**
+--- a/drivers/soundwire/bus.h
++++ b/drivers/soundwire/bus.h
+@@ -117,6 +117,8 @@
+  * @ch_mask: Channel mask
+  * @transport_params: Transport parameters
+  * @port_params: Port parameters
++ * @transport_params_override_mask: Bitmask of per-slave transport overrides
++ * @transport_params_override: Per-slave transport override values
+  * @port_node: List node for Master or Slave port_list
+  * @lane: Which lane is used
+  *
+@@ -128,6 +130,8 @@
+ 	int ch_mask;
+ 	struct sdw_transport_params transport_params;
+ 	struct sdw_port_params port_params;
++	unsigned int transport_params_override_mask;
++	struct sdw_transport_params transport_params_override;
+ 	struct list_head port_node;
+ 	unsigned int lane;
+ };
+--- a/drivers/soundwire/stream.c
++++ b/drivers/soundwire/stream.c
+@@ -63,6 +63,57 @@
+ }
+ EXPORT_SYMBOL(sdw_find_row_index);
+ 
++static int sdw_program_simple_ext(struct sdw_bus *bus, struct sdw_slave *slave,
++				  struct sdw_transport_params *t_params,
++				  u32 registers)
++{
++	u32 blockctrl3, samplectrl2, hctrl;
++	u16 wbuf;
++	int ret;
++
++	if (bus->params.next_bank) {
++		blockctrl3 = SDW_DPN_BLOCKCTRL3_B1(t_params->port_num);
++		samplectrl2 = SDW_DPN_SAMPLECTRL2_B1(t_params->port_num);
++		hctrl = SDW_DPN_HCTRL_B1(t_params->port_num);
++	} else {
++		blockctrl3 = SDW_DPN_BLOCKCTRL3_B0(t_params->port_num);
++		samplectrl2 = SDW_DPN_SAMPLECTRL2_B0(t_params->port_num);
++		hctrl = SDW_DPN_HCTRL_B0(t_params->port_num);
++	}
++
++	if (registers & SDW_DPN_SIMPLE_TRANSPORT_BLOCKCTRL3) {
++		ret = sdw_write_no_pm(slave, blockctrl3, t_params->blk_pkg_mode);
++		if (ret < 0)
++			return ret;
++	}
++
++	if (registers & SDW_DPN_SIMPLE_TRANSPORT_SAMPLECTRL2) {
++		wbuf = FIELD_GET(SDW_DPN_SAMPLECTRL_HIGH,
++				 t_params->sample_interval - 1);
++		ret = sdw_write_no_pm(slave, samplectrl2, wbuf);
++		if (ret < 0)
++			return ret;
++	}
++
++	if (registers & SDW_DPN_SIMPLE_TRANSPORT_HCTRL) {
++		wbuf = FIELD_PREP(SDW_DPN_HCTRL_HSTART, t_params->hstart);
++		wbuf |= FIELD_PREP(SDW_DPN_HCTRL_HSTOP, t_params->hstop);
++		ret = sdw_write_no_pm(slave, hctrl, wbuf);
++		if (ret < 0)
++			return ret;
++	}
++
++	return 0;
++}
++
++static void sdw_apply_slave_transport_overrides(struct sdw_port_runtime *p_rt)
++{
++	if (p_rt->transport_params_override_mask &
++	    SDW_PORT_CONFIG_OVERRIDE_OFFSET1)
++		p_rt->transport_params.offset1 =
++			p_rt->transport_params_override.offset1;
++}
++
+ static int _sdw_program_slave_port_params(struct sdw_bus *bus,
+ 					  struct sdw_slave *slave,
+ 					  struct sdw_transport_params *t_params,
+@@ -138,12 +189,19 @@
+ 	struct sdw_slave_prop *slave_prop = &s_rt->slave->prop;
+ 	u32 addr1, addr2, addr3, addr4, addr5, addr6;
+ 	enum sdw_dpn_type port_type;
++	u32 simple_transport_registers = 0;
+ 	bool read_only_wordlength;
+ 	int ret;
+ 	u8 wbuf;
+ 
+ 	if (s_rt->slave->is_mockup_device)
+ 		return 0;
++
++	/* Bus compute_params() establishes the common master schedule. Apply
++	 * explicitly requested slave-only deltas immediately before the slave is
++	 * programmed so master transport state remains shared.
++	 */
++	sdw_apply_slave_transport_overrides(p_rt);
+ 
+ 	if (t_params->port_num) {
+ 		struct sdw_dpn_prop *dpn_prop;
+@@ -155,6 +213,7 @@
+ 
+ 		read_only_wordlength = dpn_prop->read_only_wordlength;
+ 		port_type = dpn_prop->type;
++		simple_transport_registers = dpn_prop->simple_transport_registers;
+ 	} else {
+ 		read_only_wordlength = false;
+ 		port_type = SDW_DPN_FULL;
+@@ -240,7 +299,14 @@
+ 		}
+ 	}
+ 
+-	if (port_type != SDW_DPN_SIMPLE) {
++	if (port_type == SDW_DPN_SIMPLE && simple_transport_registers) {
++		ret = sdw_program_simple_ext(bus, s_rt->slave, t_params,
++					     simple_transport_registers);
++		if (ret < 0)
++			dev_err(&s_rt->slave->dev,
++				"Extended SIMPLE transport reg write failed for port: %d\n",
++				t_params->port_num);
++	} else if (port_type != SDW_DPN_SIMPLE) {
+ 		ret = _sdw_program_slave_port_params(bus, s_rt->slave,
+ 						     t_params, port_type);
+ 		if (ret < 0)
+@@ -984,6 +1050,10 @@
+ {
+ 	p_rt->ch_mask = port_config[port_index].ch_mask;
+ 	p_rt->num = port_config[port_index].num;
++	p_rt->transport_params_override_mask =
++		port_config[port_index].transport_params_override_mask;
++	p_rt->transport_params_override =
++		port_config[port_index].transport_params_override;
+ 
+ 	/*
+ 	 * TODO: Check port capabilities for requested configuration

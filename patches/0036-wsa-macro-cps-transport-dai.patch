@@ -1,0 +1,94 @@
+Subject: [PATCH 5/8] ASoC: codecs: lpass-wsa-macro: add CPS transport DAI
+
+Add a 24 kHz/S32/two-channel CPS companion endpoint.
+It shares WSA macro clocking but does not invoke the VI callback
+that programs the speaker-protection sensing rate/state machine.
+
+---
+--- a/sound/soc/codecs/lpass-wsa-macro.c
++++ b/sound/soc/codecs/lpass-wsa-macro.c
+@@ -373,6 +373,7 @@
+ 	WSA_MACRO_AIF_MIX1_PB,
+ 	WSA_MACRO_AIF_VI,
+ 	WSA_MACRO_AIF_ECHO,
++	WSA_MACRO_AIF_CPS,
+ 	WSA_MACRO_MAX_DAIS,
+ };
+ 
+@@ -1282,6 +1283,13 @@
+ 		return 0;
+ 	}
+ 
++	/* CPS is already framed by the WSA8845 SoundWire DP6 source.  This
++	 * logical macro endpoint only carries it to WSA_CODEC_DMA_TX_1 and must
++	 * not reprogram the VI sensing rate/state machine.
++	 */
++	if (dai->id == WSA_MACRO_AIF_CPS)
++		return 0;
++
+ 	switch (substream->stream) {
+ 	case SNDRV_PCM_STREAM_PLAYBACK:
+ 		ret = wsa_macro_set_interpolator_rate(dai, params_rate(params));
+@@ -1325,6 +1333,10 @@
+ 			mask = mask >> 0x2;
+ 		*rx_slot = mask;
+ 		*rx_num = cnt;
++		break;
++	case WSA_MACRO_AIF_CPS:
++		*tx_num = 2;
++		*tx_slot = GENMASK(1, 0);
+ 		break;
+ 	case WSA_MACRO_AIF_ECHO:
+ 		val = snd_soc_component_read(component, CDC_WSA_RX_INP_MUX_RX_MIX_CFG0);
+@@ -1421,6 +1433,20 @@
+ 		},
+ 		.ops = &wsa_macro_dai_ops,
+ 	},
++	{
++		.name = "wsa_macro_cps",
++		.id = WSA_MACRO_AIF_CPS,
++		.playback = {
++			.stream_name = "WSA_AIF_CPS Protection",
++			.rates = SNDRV_PCM_RATE_24000,
++			.formats = SNDRV_PCM_FMTBIT_S32_LE,
++			.rate_max = 24000,
++			.rate_min = 24000,
++			.channels_min = 2,
++			.channels_max = 2,
++		},
++		.ops = &wsa_macro_dai_ops,
++	},
+ };
+ 
+ static void wsa_macro_mclk_enable(struct wsa_macro *wsa, bool mclk_enable)
+@@ -2333,6 +2359,9 @@
+ 			      SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_POST_PMD),
+ 	SND_SOC_DAPM_AIF_OUT("WSA AIF_ECHO", "WSA_AIF_ECHO Capture", 0,
+ 			     SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("WSA AIF_CPS Protection",
++			    "WSA_AIF_CPS Protection", 0,
++			    SND_SOC_NOPM, 0, 0),
+ 
+ 	SND_SOC_DAPM_MIXER("WSA_AIF_VI Mixer", SND_SOC_NOPM, WSA_MACRO_AIF_VI,
+ 			   0, aif_vi_mixer, ARRAY_SIZE(aif_vi_mixer)),
+@@ -2395,6 +2424,7 @@
+ 			     SND_SOC_DAPM_POST_PMD),
+ 
+ 	SND_SOC_DAPM_INPUT("VIINPUT_WSA"),
++	SND_SOC_DAPM_INPUT("CPSINPUT_WSA"),
+ 	SND_SOC_DAPM_OUTPUT("WSA_SPK1 OUT"),
+ 	SND_SOC_DAPM_OUTPUT("WSA_SPK2 OUT"),
+ 
+@@ -2435,6 +2465,12 @@
+ 	{"WSA_AIF_VI Mixer", "WSA_SPKR_VI_2", "VIINPUT_WSA"},
+ 	{"WSA AIF_VI", NULL, "WSA_AIF_VI Mixer"},
+ 	{"WSA AIF_VI", NULL, "WSA_MCLK"},
++
++	/* CPS feedback is a distinct transport from VI; only the shared macro
++	 * clock is required here.  DP6 framing is programmed by SoundWire.
++	 */
++	{"WSA AIF_CPS Protection", NULL, "CPSINPUT_WSA"},
++	{"WSA AIF_CPS Protection", NULL, "WSA_MCLK"},
+ 
+ 	{"WSA RX_MIX EC0_MUX", "RX_MIX_TX0", "WSA_RX INT0 SEC MIX"},
+ 	{"WSA RX_MIX EC1_MUX", "RX_MIX_TX0", "WSA_RX INT0 SEC MIX"},

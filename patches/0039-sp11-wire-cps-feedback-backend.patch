@@ -1,0 +1,57 @@
+Subject: [PATCH 8/8] arm64: dts: qcom: sp11: wire the CPS feedback backend
+
+Wire both WSA8845 DP6 sources into the dedicated WSA TX1 CPS backend.
+Both slaves keep mask 0x03 and physical master port 13.
+Board data sets left Offset1=0 and right Offset1=25.
+
+---
+--- a/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
++++ b/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
+@@ -346,6 +346,29 @@
+ 
+ 			cpu {
+ 				sound-dai = <&q6apmbedai WSA_CODEC_DMA_TX_0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		wsa-cps-dai-link {
++			link-name = "WSA CPS Protection";
++
++			/*
++			 * Dedicated CPS sidechain: both WSA8845 DP6 sources share
++			 * physical SoundWire master port 13.  swr0 DAI 10 is only
++			 * the independent ASoC/SoundWire stream handle; qcom,port-mapping
++			 * below remains authoritative for the physical master ports.
++			 */
++			codec {
++				sound-dai = <&left_spkr 2>, <&right_spkr 2>,
++					    <&swr0 10>, <&lpass_wsamacro 4>;
++			};
++
++			cpu {
++				sound-dai = <&q6apmbedai WSA_CODEC_DMA_TX_1>;
+ 			};
+ 
+ 			platform {
+@@ -1114,6 +1137,8 @@
+ 		vdd-1p8-supply = <&vreg_l15b_1p8>;
+ 		vdd-io-supply = <&vreg_l12b_1p2>;
+ 		qcom,port-mapping = <1 2 3 7 10 13>;
++		qcom,enable-cps;
++		qcom,cps-offset1 = <0>;
+ 	};
+ 
+ 	/* WSA8845, Right Speaker */
+@@ -1126,6 +1151,8 @@
+ 		vdd-1p8-supply = <&vreg_l15b_1p8>;
+ 		vdd-io-supply = <&vreg_l12b_1p2>;
+ 		qcom,port-mapping = <4 5 6 7 11 13>;
++		qcom,enable-cps;
++		qcom,cps-offset1 = <25>;
+ 	};
+ };
+ 

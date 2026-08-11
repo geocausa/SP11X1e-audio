@@ -1,0 +1,135 @@
+Subject: [PATCH 7/8] ASoC: qcom: gate SP11 protection on VI and CPS feedback
+
+Track CPS readiness independently from VI and configure WSA TX1 as
+24 kHz/S32/two-channel feedback.
+
+Keep playback available with protection bypassed if either feedback
+sidechain is unavailable. Enable protection only after both are ready.
+
+---
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -34,6 +34,7 @@
+ 
+ static struct q6apm *g_apm;
+ static bool sp11_vi_ready;
++static bool sp11_cps_ready;
+ 
+ void q6apm_sp11_set_vi_ready(bool ready)
+ {
+@@ -46,6 +47,18 @@
+ 	return READ_ONCE(sp11_vi_ready);
+ }
+ EXPORT_SYMBOL_GPL(q6apm_sp11_vi_ready);
++
++void q6apm_sp11_set_cps_ready(bool ready)
++{
++	WRITE_ONCE(sp11_cps_ready, ready);
++}
++EXPORT_SYMBOL_GPL(q6apm_sp11_set_cps_ready);
++
++bool q6apm_sp11_cps_ready(void)
++{
++	return READ_ONCE(sp11_cps_ready);
++}
++EXPORT_SYMBOL_GPL(q6apm_sp11_cps_ready);
+ 
+ static int audioreach_graph_mgmt_cmd(struct audioreach_graph *graph,
+ 				     uint32_t opcode);
+--- a/sound/soc/qcom/qdsp6/q6apm.h
++++ b/sound/soc/qcom/qdsp6/q6apm.h
+@@ -181,6 +181,8 @@
+ bool q6apm_is_adsp_ready(void);
+ void q6apm_sp11_set_vi_ready(bool ready);
+ bool q6apm_sp11_vi_ready(void);
++void q6apm_sp11_set_cps_ready(bool ready);
++bool q6apm_sp11_cps_ready(void);
+ 
+ int q6apm_enable_compress_module(struct device *dev, struct q6apm_graph *graph, bool en);
+ int q6apm_remove_initial_silence(struct device *dev, struct q6apm_graph *graph, uint32_t samples);
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1380,13 +1380,15 @@
+ 	if (ret)
+ 		goto out;
+ 
+-	if (!q6apm_sp11_vi_ready()) {
++	if (!q6apm_sp11_vi_ready() || !q6apm_sp11_cps_ready()) {
+ 		ret = audioreach_sp11_set_protection_enabled(graph, false);
+ 		audioreach_log_stage(graph, "SP/SPVI fail-safe bypass", ret);
+ 		if (ret)
+ 			goto out;
+ 		dev_warn(graph->dev,
+-			 "SP11 VI feedback is unavailable; speaker protection is bypassed\n");
++			 "SP11 protection feedback incomplete (VI=%s CPS=%s); speaker protection is bypassed\n",
++			 q6apm_sp11_vi_ready() ? "ready" : "missing",
++			 q6apm_sp11_cps_ready() ? "ready" : "missing");
+ 		goto volume_config;
+ 	}
+ 
+@@ -1436,7 +1438,7 @@
+ 	if (ret)
+ 		goto out;
+ 	ret = audioreach_sp11_set_protection_enabled(graph, true);
+-	audioreach_log_stage(graph, "SP/SPVI enabled with VI feedback", ret);
++	audioreach_log_stage(graph, "SP/SPVI enabled with VI+CPS feedback", ret);
+ 	if (ret)
+ 		goto out;
+ 
+--- a/sound/soc/qcom/x1e80100.c
++++ b/sound/soc/qcom/x1e80100.c
+@@ -64,6 +64,7 @@
+ 		snd_soc_limit_volume(card, "WSA2 WSA_RX1 Digital Volume", 81);
+ 		break;
+ 	case WSA_CODEC_DMA_TX_0:
++	case WSA_CODEC_DMA_TX_1:
+ 		return 0;
+ 	case DISPLAY_PORT_RX_0:
+ 		dp_pcm_id = 0;
+@@ -108,6 +109,14 @@
+ 		snd_mask_none(format);
+ 		snd_mask_set_format(format, SNDRV_PCM_FORMAT_S32_LE);
+ 		break;
++	case WSA_CODEC_DMA_TX_1:
++		rate->min = 24000;
++		rate->max = 24000;
++		channels->min = 2;
++		channels->max = 2;
++		snd_mask_none(format);
++		snd_mask_set_format(format, SNDRV_PCM_FORMAT_S32_LE);
++		break;
+ 	default:
+ 		break;
+ 	}
+@@ -166,6 +175,7 @@
+ 			return ret;
+ 		break;
+ 	case WSA_CODEC_DMA_TX_0:
++	case WSA_CODEC_DMA_TX_1:
+ 		ret = x1e80100_snd_hw_map_channels(tx_slot, channels);
+ 		if (ret)
+ 			return ret;
+@@ -194,6 +204,14 @@
+ 		if (ret)
+ 			return 0;
+ 	}
++	if (cpu_dai->id == WSA_CODEC_DMA_TX_1) {
++		q6apm_sp11_set_cps_ready(ret == 0);
++		dev_info(rtd->dev, "SP11 CPS feedback %s\n",
++			 ret ? "unavailable; protection will bypass" :
++			       "ready on WSA_CODEC_DMA_TX_1");
++		if (ret)
++			return 0;
++	}
+ 
+ 	return ret;
+ }
+@@ -206,6 +224,8 @@
+ 
+ 	if (cpu_dai->id == WSA_CODEC_DMA_TX_0)
+ 		q6apm_sp11_set_vi_ready(false);
++	else if (cpu_dai->id == WSA_CODEC_DMA_TX_1)
++		q6apm_sp11_set_cps_ready(false);
+ 
+ 	return qcom_snd_sdw_hw_free(substream, &data->stream_prepared[cpu_dai->id]);
+ }

@@ -1,0 +1,59 @@
+Subject: [PATCH 2/8] soundwire: qcom: merge shared physical master ports
+
+Merge slave mappings that target one Qualcomm physical master port
+into one master runtime entry and OR their channel masks.
+
+Also advertise 24 kHz on DIN DAIs for the SP11 CPS stream.
+
+---
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -1228,7 +1228,7 @@
+ 	struct sdw_port_runtime *p_rt;
+ 	struct sdw_slave *slave;
+ 	unsigned long *port_mask;
+-	int maxport, pn, nports = 0;
++	int maxport, pn, nports = 0, i;
+ 	unsigned int m_port;
+ 	struct sdw_port_config *pconfig __free(kfree) = kzalloc_objs(*pconfig,
+ 								     ctrl->nports);
+@@ -1281,6 +1281,21 @@
+ 					dev_err(ctrl->dev, "All ports busy\n");
+ 					return -EBUSY;
+ 				}
++
++				/* Multiple slaves may intentionally share one physical
++				 * master port. Keep one master runtime and merge the
++				 * channels instead of programming the same port twice.
++				 */
++				for (i = 0; i < nports; i++) {
++					if (pconfig[i].num != pn)
++						continue;
++
++					pconfig[i].ch_mask |= p_rt->ch_mask;
++					break;
++				}
++				if (i < nports)
++					continue;
++
+ 				set_bit(pn, port_mask);
+ 				pconfig[nports].num = pn;
+ 				pconfig[nports].ch_mask = p_rt->ch_mask;
+@@ -1408,6 +1423,7 @@
+ 				.channels_min = 1,
+ 				.channels_max = 1,
+ 				.rates = SNDRV_PCM_RATE_8000 |
++					 SNDRV_PCM_RATE_24000 |
+ 					 SNDRV_PCM_RATE_48000,
+ 				.formats = SNDRV_PCM_FMTBIT_S16_LE |
+ 					   SNDRV_PCM_FMTBIT_S32_LE,
+@@ -1423,7 +1439,8 @@
+ 		stream->channels_max = 1;
+ 		stream->rates = i < ctrl->num_dout_ports ?
+ 				SNDRV_PCM_RATE_48000 :
+-				SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_48000;
++				SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_24000 |
++				SNDRV_PCM_RATE_48000;
+ 		stream->formats = i < ctrl->num_dout_ports ?
+ 				SNDRV_PCM_FMTBIT_S16_LE :
+ 				SNDRV_PCM_FMTBIT_S16_LE |

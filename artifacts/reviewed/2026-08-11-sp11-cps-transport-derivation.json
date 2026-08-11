@@ -1,0 +1,83 @@
+{
+  "purpose": "SP11 Windows-parity CPS SoundWire transport derivation",
+  "master_source": {
+    "description": "Qualcomm WSA SoundWire controller port-13 board schedule",
+    "port": 13,
+    "sample_interval_minus_1": 799,
+    "offset1": 0,
+    "hstart": 15,
+    "hstop": 15,
+    "word_length_minus_1": 24,
+    "block_pack_mode": 0,
+    "block_group_count_valid": false,
+    "offset2_programmed_for_simple_cps": false
+  },
+  "slaves": [
+    {
+      "name": "left",
+      "identity": "0x0000000402170220",
+      "local_port": 6,
+      "master_port": 13,
+      "channel_enable": 3,
+      "offset1": 0,
+      "derived_registers": {
+        "ChannelEnable": 3,
+        "SampleCtrl1": 31,
+        "SampleCtrl2": 3,
+        "OffsetCtrl1": 0,
+        "HCtrl": 255,
+        "BlockCtrl1": 24,
+        "BlockCtrl3": 0,
+        "sample_interval_clocks": 800
+      }
+    },
+    {
+      "name": "right",
+      "identity": "0x0000000402170221",
+      "local_port": 6,
+      "master_port": 13,
+      "channel_enable": 3,
+      "offset1": 25,
+      "derived_registers": {
+        "ChannelEnable": 3,
+        "SampleCtrl1": 31,
+        "SampleCtrl2": 3,
+        "OffsetCtrl1": 25,
+        "HCtrl": 255,
+        "BlockCtrl1": 24,
+        "BlockCtrl3": 0,
+        "sample_interval_clocks": 800
+      }
+    }
+  ],
+  "deduped_master_runtime_ports": [
+    {
+      "port": 13,
+      "channel_mask": 3
+    }
+  ],
+  "registers_intentionally_not_programmed": [
+    "OffsetCtrl2",
+    "BlockCtrl2"
+  ],
+  "windows_expected": {
+    "left": {
+      "ChannelEnable": 3,
+      "SampleCtrl1": 31,
+      "SampleCtrl2": 3,
+      "OffsetCtrl1": 0,
+      "HCtrl": 255,
+      "BlockCtrl1": 24,
+      "BlockCtrl3": 0
+    },
+    "right": {
+      "ChannelEnable": 3,
+      "SampleCtrl1": 31,
+      "SampleCtrl2": 3,
+      "OffsetCtrl1": 25,
+      "HCtrl": 255,
+      "BlockCtrl1": 24,
+      "BlockCtrl3": 0
+    }
+  }
+}
