@@ -2,7 +2,50 @@
 
 Date: 2026-08-11 (Europe/London)
 
-## Outcome before first boot
+## Runtime outcome: rejected and quarantined
+
+The first controlled boot at 2026-08-11 19:12 BST **failed before audio-card
+registration**. The candidate is rejected; its GRUB generator is now
+non-executable and the entry has been removed from the generated GRUB menu.
+Do not boot or redeploy this bundle.
+
+The immediate failure was a kernel module-version mismatch:
+
+```text
+regmap_sdw: disagrees about version of symbol sdw_nwrite_no_pm
+regmap_sdw: Unknown symbol sdw_nwrite_no_pm (err -22)
+regmap_sdw: disagrees about version of symbol sdw_nread_no_pm
+regmap_sdw: Unknown symbol sdw_nread_no_pm (err -22)
+platform sound: deferred probe pending: snd-x1e80100: WSA Playback: codec dai not found
+```
+
+The SoundWire core changes altered the genksyms ABI/CRC seen by consumers, but
+the isolated initramfs replaced only a selected module set and retained the
+accepted `regmap-sdw.ko`. Focused compilation, MODPOST, vermagic checks and
+initramfs hash checks did not test this mixed-module closure. The replacement
+set is therefore incomplete even though every staged artifact matched its
+build output.
+
+Wi-Fi firmware and `ath12k` loaded in the rejected boot, but the radio remained
+hard-blocked. A one-shot rollback to `sp11-audio-clean` at 19:54 BST restored
+both subsystems:
+
+- Wi-Fi hard block cleared and NetworkManager connected `wlP4p1s0` to `GEOCA`;
+- ALSA registered the X1E80100 Surface card;
+- PipeWire exposed the built-in speaker and the installed Windows-Dolby sink;
+- a short `pw-play` through the default Dolby sink completed without an audio
+  or XRUN error;
+- the one-shot was consumed and the persistent GRUB default remains Windows
+  (`osprober-efi-2A36-6A1E`).
+
+Before another Linux boot candidate is allowed, rebuild and package the full
+SoundWire ABI consumer closure (at minimum `regmap-sdw.ko`, with the actual
+dependency/CRC closure derived from the final build), then verify every
+imported symbol CRC against the modules embedded in the candidate initramfs.
+An isolated boot bundle must never mix rebuilt SoundWire ABI providers with
+accepted-build consumers merely because `vermagic` matches.
+
+## Outcome before first boot (historical)
 
 The corrected CPS candidate is built and packaged as a separate lab entry:
 
@@ -64,7 +107,7 @@ presence or absence is not evidence that speaker protection is working.
 Exact artifact hashes are in
 `artifacts/reviewed/2026-08-11-sp11-cps-parity-v2-deployment-manifest.json`.
 
-## First-boot acceptance gate
+## First-boot acceptance gate (failed before step 2)
 
 The candidate is accepted only if one controlled playback shows all of the
 following:

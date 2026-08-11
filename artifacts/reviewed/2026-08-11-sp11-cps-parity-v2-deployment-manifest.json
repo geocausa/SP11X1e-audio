@@ -1,6 +1,6 @@
 {
   "generated_local": "2026-08-11T19:05:00+01:00",
-  "state": "built_verified_not_yet_armed",
+  "state": "runtime_rejected_quarantined",
   "kernel_release": "7.1.5-sp11-audio-clean+",
   "accepted_source_base": "f102e3fa8c7e860f3a9ac3ba2043a5fd55242e44",
   "candidate_source_commit": "826091400f088c1df0709f78b1d7e2b2d8d1fea7",
@@ -51,6 +51,25 @@
     "initramfs_extract_hash_match": "pass",
     "grub_script_check": "pass",
     "saved_windows_default_preserved": true,
-    "runtime": "pending"
+    "runtime": {
+      "result": "rejected_before_card_registration",
+      "boot_started_local": "2026-08-11T19:12:42+01:00",
+      "cause": "mixed SoundWire module ABI closure; accepted regmap-sdw.ko rejected rebuilt sdw_nread_no_pm and sdw_nwrite_no_pm symbol CRCs",
+      "downstream_failure": "snd-x1e80100 deferred: WSA Playback codec DAI not found",
+      "wifi_observation": "ath12k and WCN7850 firmware loaded but rfkill reported hard blocked",
+      "quarantine": "GRUB generator /etc/grub.d/57_sp11_audio_cps_parity_v2 made non-executable and generated entry removed",
+      "recovery": {
+        "entry": "sp11-audio-clean",
+        "boot_started_local": "2026-08-11T19:54:59+01:00",
+        "alsa_card_registered": true,
+        "wifi_hard_blocked": false,
+        "wifi_connected": "GEOCA",
+        "pipewire_speaker_present": true,
+        "dolby_default_sink_present": true,
+        "short_playback_completed_without_audio_or_xrun_error": true,
+        "persistent_windows_default_preserved": true
+      },
+      "required_before_retest": "rebuild and verify the complete SoundWire provider/consumer symbol-CRC closure, including regmap-sdw"
+    }
   }
 }
