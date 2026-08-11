@@ -1,0 +1,26 @@
+{
+  "date": "2026-08-11",
+  "status": "offline_compile_and_dtb_gate_passed",
+  "deployment_performed": false,
+  "sp11_linux_boot_performed": false,
+  "official_linux_v7_1_5_tarball_sha256": "22a0196b3cbcdf34dc27b77561f4d040585fd3447edc9ab3531a1ac79e3041e7",
+  "candidate_patch": "patches/0026-sp11-cps-windows-parity-candidate.patch",
+  "candidate_patch_sha256": "30f19b6666214e97e11b0b5e1273d671e3d2007378a4baeddeb7aaaa974c2315",
+  "compiler": "aarch64-linux-gnu-gcc (GCC) 16.1.1 20260501 (Red Hat Cross 16.1.1-1)",
+  "compiled_objects": [
+    "drivers/soundwire/stream.o",
+    "drivers/soundwire/qcom.o",
+    "sound/soc/codecs/wsa884x.o",
+    "sound/soc/codecs/lpass-wsa-macro.o",
+    "sound/soc/qcom/qdsp6/q6apm.o",
+    "sound/soc/qcom/qdsp6/audioreach.o",
+    "sound/soc/qcom/x1e80100.o"
+  ],
+  "compiled_dtbs": {
+    "qcom/x1e80100-microsoft-denali-oled.dtb": "555ef67313b053e1b7a142228d1a8ab1149076e1acce40890f5e17f77318e8f1",
+    "qcom/x1p64100-microsoft-denali.dtb": "70d57d70bdc750b9bd2794adf8d48eb83313761997b4521d6e1ed98369b31102"
+  },
+  "compile_log_sha256": "950c36a92eb121a202726d906cd84626d5941648ee03310b599286f60af1aa66",
+  "known_warning": "pre-existing audioreach_populate_graph ncontainer unused-variable warning",
+  "runtime_validation": "pending; do not deploy yet"
+}

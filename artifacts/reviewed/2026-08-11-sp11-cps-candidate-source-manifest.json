@@ -1,0 +1,69 @@
+{
+  "generated_utc": "2026-08-11T14:02:00Z",
+  "base": "official Linux v7.1.5 + reconstructed SP11 pre-CPS effective lineage",
+  "official_tarball_sha256": "22a0196b3cbcdf34dc27b77561f4d040585fd3447edc9ab3531a1ac79e3041e7",
+  "patch": "patches/0026-sp11-cps-windows-parity-candidate.patch",
+  "files": [
+    {
+      "path": "Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml",
+      "pre_cps_sha256": "937164f5d2e93ecd152d92556c88d75a37ff7d96216a0d0c49f9038692eb3c8a",
+      "candidate_sha256": "72b58c81d5ffc71619b954e8ea8689336a6cd03ef9cb77d541665dac0ad025ab"
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi",
+      "pre_cps_sha256": "51166ac46cca0ca8288a03b26f4a623970fef5dd88a059228fabc90744ad2ad4",
+      "candidate_sha256": "f20879fb076f981c25f182df8ae515dd461f27217b4e51900a040abf5a625314"
+    },
+    {
+      "path": "drivers/soundwire/bus.h",
+      "pre_cps_sha256": "c25915dc7b0b0357fd1260229b246c5edbf904e3f956bf8f5d7aa1473fe25663",
+      "candidate_sha256": "604434efda841813d206a16623a6dbf984e9567daa68d1b978c96c39152f9d8c"
+    },
+    {
+      "path": "drivers/soundwire/qcom.c",
+      "pre_cps_sha256": "197e222edada55a784dc1a79c39cc55a180718ce206415015b23da7a2843b8ae",
+      "candidate_sha256": "3bffd1c5c7756e635c1a434b9a975852e02afc7bbe46aac73968c8a364f92033"
+    },
+    {
+      "path": "drivers/soundwire/stream.c",
+      "pre_cps_sha256": "8572b3a6a0e32c95c5be41d18470616374c5923d3960a62501f810c2b6b12df9",
+      "candidate_sha256": "12e1f0808e0827a116ec35f895c3fff7c3ec34601f7aec3073a9e4901a156879"
+    },
+    {
+      "path": "include/linux/soundwire/sdw.h",
+      "pre_cps_sha256": "79eb5c2a023443c40422ade07a9f53f8f4a633121e7e228b223c8bbb380e6667",
+      "candidate_sha256": "62ee2dcfaafc271381257609b51a7e55e7f9b5c8f50aed2b7fda72d08563ac9c"
+    },
+    {
+      "path": "sound/soc/codecs/lpass-wsa-macro.c",
+      "pre_cps_sha256": "0905105cb2372f0b4ad402d97136c28cb64a98aeec56b90e9c535127dcecd713",
+      "candidate_sha256": "9c5711c687f6db86481d5c34097a49c8e85763e712f68df67534940b5f9f7037"
+    },
+    {
+      "path": "sound/soc/codecs/wsa884x.c",
+      "pre_cps_sha256": "6f2a973f3f15225edf9e55f63d94c413a9f420ad447279e629e5b83462e69645",
+      "candidate_sha256": "1d4918fc7b085723cd8d4d3bdcb2bf2bd5ca5547eb43a34c46959889e62eaca6"
+    },
+    {
+      "path": "sound/soc/qcom/qdsp6/audioreach.c",
+      "pre_cps_sha256": "585275598c7602b0caf9b72816ab1c83f0e9b51a61f5cd59405f27a35c2addc4",
+      "candidate_sha256": "4fee6c7d8c5fdbf621da1dee7f3fbdb09f79a522a95ebd0157de16003bd199f1"
+    },
+    {
+      "path": "sound/soc/qcom/qdsp6/q6apm.c",
+      "pre_cps_sha256": "095f7e2a42381df3e5003e0245a9c853d006b3a39a9f897b2324870459a814d6",
+      "candidate_sha256": "62851a4ffb1e1235c94a238e61d0087d34c808d353cf0c72cbfb5586a7bfd443"
+    },
+    {
+      "path": "sound/soc/qcom/qdsp6/q6apm.h",
+      "pre_cps_sha256": "97d8cd841996fd45d76b3fbf6e78e3fec40ff6296e0cedefcb2cb84429ce7b5b",
+      "candidate_sha256": "3524f93047c61e22ed77b345ab393ac2bae9d89c7cde9c01557aefc950bd3007"
+    },
+    {
+      "path": "sound/soc/qcom/x1e80100.c",
+      "pre_cps_sha256": "07a51a38dc90e381daeea1ff06ccc46597375f01075d1a3dfe5c55787bd1c309",
+      "candidate_sha256": "e172d83aa01e532847382577dbf26e75e1878d84e003375081c2d91cf06e344e"
+    }
+  ],
+  "deployment_state": "not booted; offline compile/DTB validation only"
+}

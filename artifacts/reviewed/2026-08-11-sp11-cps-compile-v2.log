@@ -1,0 +1,23 @@
+=== BUILD drivers/soundwire/stream.o ===
+  CC [M]  drivers/soundwire/stream.o
+=== BUILD drivers/soundwire/qcom.o ===
+  CC [M]  drivers/soundwire/qcom.o
+=== BUILD sound/soc/codecs/wsa884x.o ===
+  CC [M]  sound/soc/codecs/wsa884x.o
+=== BUILD sound/soc/codecs/lpass-wsa-macro.o ===
+  CC [M]  sound/soc/codecs/lpass-wsa-macro.o
+=== BUILD sound/soc/qcom/qdsp6/q6apm.o ===
+  CC [M]  sound/soc/qcom/qdsp6/q6apm.o
+=== BUILD sound/soc/qcom/qdsp6/audioreach.o ===
+  CC [M]  sound/soc/qcom/qdsp6/audioreach.o
+sound/soc/qcom/qdsp6/audioreach.c: In function ‘audioreach_populate_graph’:
+sound/soc/qcom/qdsp6/audioreach.c:450:13: warning: variable ‘ncontainer’ set but not used [-Wunused-but-set-variable=]
+  450 |         int ncontainer = 0, nmodule = 0, nconn = 0;
+      |             ^~~~~~~~~~
+=== BUILD sound/soc/qcom/x1e80100.o ===
+  CC [M]  sound/soc/qcom/x1e80100.o
+=== BUILD qcom/x1e80100-microsoft-denali-oled.dtb ===
+  DTC     arch/arm64/boot/dts/qcom/x1e80100-microsoft-denali-oled.dtb
+=== BUILD qcom/x1p64100-microsoft-denali.dtb ===
+  DTC     arch/arm64/boot/dts/qcom/x1p64100-microsoft-denali.dtb
+COMPILE_GATE_V2_PASS

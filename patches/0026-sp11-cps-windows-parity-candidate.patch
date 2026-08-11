@@ -1,0 +1,671 @@
+From: SP11 audio engineering closure
+Subject: [PATCH 0026] SP11: add Windows-parity CPS feedback transport
+
+Candidate-only patch generated 2026-08-11 against the reconstructed pre-CPS
+effective SP11 v7.1.5 audio source. It intentionally keeps the physical
+SoundWire master schedule on port 13, gives both WSA8845 DP6 slave ports
+ChannelEnable 0x03, applies per-slave OffsetCtrl1 0/25, and opts DP6 into the
+additional SIMPLE-port bank registers proven by the Windows qcaucd runtime
+capture. It also adds the dedicated 24 kHz/S32 WSA TX1 CPS backend and gates
+speaker protection on both VI and CPS readiness.
+
+This patch is compile/DTB validated only. It has not been booted on SP11 Linux.
+
+--- a/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml
++++ b/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml
+@@ -40,12 +40,24 @@
+     minItems: 6
+     maxItems: 6
+ 
++  qcom,enable-cps:
++    type: boolean
++    description: Enable the dedicated CPS SoundWire source DAI on data port 6.
++
++  qcom,cps-offset1:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    maximum: 255
++    description: |
++      Slave-only SoundWire DP6 OffsetCtrl1 override for CPS. This does not
++      change the physical master-port schedule selected by qcom,port-mapping.
++
+   '#sound-dai-cells':
+     enum: [0, 1]
+     description: |
+       Zero selects the legacy single speaker-playback DAI. With one cell,
+-      DAI 0 is speaker playback and DAI 1 is the render-coupled VISENSE
+-      protection-feedback sidechain.
++      DAI 0 is speaker playback, DAI 1 is the render-coupled VISENSE
++      protection-feedback sidechain, and DAI 2 is the dedicated CPS feedback
++      sidechain when qcom,enable-cps is present.
+ 
+   vdd-1p8-supply: true
+   vdd-io-supply: true
+--- a/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
++++ b/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
+@@ -346,6 +346,29 @@
+ 
+ 			cpu {
+ 				sound-dai = <&q6apmbedai WSA_CODEC_DMA_TX_0>;
++			};
++
++			platform {
++				sound-dai = <&q6apm>;
++			};
++		};
++
++		wsa-cps-dai-link {
++			link-name = "WSA CPS Protection";
++
++			/*
++			 * Dedicated CPS sidechain: both WSA8845 DP6 sources share
++			 * physical SoundWire master port 13.  swr0 DAI 10 is only
++			 * the independent ASoC/SoundWire stream handle; qcom,port-mapping
++			 * below remains authoritative for the physical master ports.
++			 */
++			codec {
++				sound-dai = <&left_spkr 2>, <&right_spkr 2>,
++					    <&swr0 10>, <&lpass_wsamacro 4>;
++			};
++
++			cpu {
++				sound-dai = <&q6apmbedai WSA_CODEC_DMA_TX_1>;
+ 			};
+ 
+ 			platform {
+@@ -1114,6 +1137,8 @@
+ 		vdd-1p8-supply = <&vreg_l15b_1p8>;
+ 		vdd-io-supply = <&vreg_l12b_1p2>;
+ 		qcom,port-mapping = <1 2 3 7 10 13>;
++		qcom,enable-cps;
++		qcom,cps-offset1 = <0>;
+ 	};
+ 
+ 	/* WSA8845, Right Speaker */
+@@ -1126,6 +1151,8 @@
+ 		vdd-1p8-supply = <&vreg_l15b_1p8>;
+ 		vdd-io-supply = <&vreg_l12b_1p2>;
+ 		qcom,port-mapping = <4 5 6 7 11 13>;
++		qcom,enable-cps;
++		qcom,cps-offset1 = <25>;
+ 	};
+ };
+ 
+--- a/drivers/soundwire/bus.h
++++ b/drivers/soundwire/bus.h
+@@ -117,6 +117,8 @@
+  * @ch_mask: Channel mask
+  * @transport_params: Transport parameters
+  * @port_params: Port parameters
++ * @transport_params_override_mask: Bitmask of per-slave transport overrides
++ * @transport_params_override: Per-slave transport override values
+  * @port_node: List node for Master or Slave port_list
+  * @lane: Which lane is used
+  *
+@@ -128,6 +130,8 @@
+ 	int ch_mask;
+ 	struct sdw_transport_params transport_params;
+ 	struct sdw_port_params port_params;
++	unsigned int transport_params_override_mask;
++	struct sdw_transport_params transport_params_override;
+ 	struct list_head port_node;
+ 	unsigned int lane;
+ };
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -1408,6 +1408,7 @@
+ 				.channels_min = 1,
+ 				.channels_max = 1,
+ 				.rates = SNDRV_PCM_RATE_8000 |
++					 SNDRV_PCM_RATE_24000 |
+ 					 SNDRV_PCM_RATE_48000,
+ 				.formats = SNDRV_PCM_FMTBIT_S16_LE |
+ 					   SNDRV_PCM_FMTBIT_S32_LE,
+@@ -1423,7 +1424,8 @@
+ 		stream->channels_max = 1;
+ 		stream->rates = i < ctrl->num_dout_ports ?
+ 				SNDRV_PCM_RATE_48000 :
+-				SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_48000;
++				SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_24000 |
++				SNDRV_PCM_RATE_48000;
+ 		stream->formats = i < ctrl->num_dout_ports ?
+ 				SNDRV_PCM_FMTBIT_S16_LE :
+ 				SNDRV_PCM_FMTBIT_S16_LE |
+--- a/drivers/soundwire/stream.c
++++ b/drivers/soundwire/stream.c
+@@ -63,6 +63,59 @@
+ }
+ EXPORT_SYMBOL(sdw_find_row_index);
+ 
++static int sdw_program_simple_extended_slave_port_params(
++					struct sdw_bus *bus,
++					struct sdw_slave *slave,
++					struct sdw_transport_params *t_params,
++					u32 registers)
++{
++	u32 blockctrl3, samplectrl2, hctrl;
++	u16 wbuf;
++	int ret;
++
++	if (bus->params.next_bank) {
++		blockctrl3 = SDW_DPN_BLOCKCTRL3_B1(t_params->port_num);
++		samplectrl2 = SDW_DPN_SAMPLECTRL2_B1(t_params->port_num);
++		hctrl = SDW_DPN_HCTRL_B1(t_params->port_num);
++	} else {
++		blockctrl3 = SDW_DPN_BLOCKCTRL3_B0(t_params->port_num);
++		samplectrl2 = SDW_DPN_SAMPLECTRL2_B0(t_params->port_num);
++		hctrl = SDW_DPN_HCTRL_B0(t_params->port_num);
++	}
++
++	if (registers & SDW_DPN_SIMPLE_TRANSPORT_BLOCKCTRL3) {
++		ret = sdw_write_no_pm(slave, blockctrl3, t_params->blk_pkg_mode);
++		if (ret < 0)
++			return ret;
++	}
++
++	if (registers & SDW_DPN_SIMPLE_TRANSPORT_SAMPLECTRL2) {
++		wbuf = FIELD_GET(SDW_DPN_SAMPLECTRL_HIGH,
++				 t_params->sample_interval - 1);
++		ret = sdw_write_no_pm(slave, samplectrl2, wbuf);
++		if (ret < 0)
++			return ret;
++	}
++
++	if (registers & SDW_DPN_SIMPLE_TRANSPORT_HCTRL) {
++		wbuf = FIELD_PREP(SDW_DPN_HCTRL_HSTART, t_params->hstart);
++		wbuf |= FIELD_PREP(SDW_DPN_HCTRL_HSTOP, t_params->hstop);
++		ret = sdw_write_no_pm(slave, hctrl, wbuf);
++		if (ret < 0)
++			return ret;
++	}
++
++	return 0;
++}
++
++static void sdw_apply_slave_transport_overrides(struct sdw_port_runtime *p_rt)
++{
++	if (p_rt->transport_params_override_mask &
++	    SDW_PORT_CONFIG_OVERRIDE_OFFSET1)
++		p_rt->transport_params.offset1 =
++			p_rt->transport_params_override.offset1;
++}
++
+ static int _sdw_program_slave_port_params(struct sdw_bus *bus,
+ 					  struct sdw_slave *slave,
+ 					  struct sdw_transport_params *t_params,
+@@ -138,12 +191,19 @@
+ 	struct sdw_slave_prop *slave_prop = &s_rt->slave->prop;
+ 	u32 addr1, addr2, addr3, addr4, addr5, addr6;
+ 	enum sdw_dpn_type port_type;
++	u32 simple_transport_registers = 0;
+ 	bool read_only_wordlength;
+ 	int ret;
+ 	u8 wbuf;
+ 
+ 	if (s_rt->slave->is_mockup_device)
+ 		return 0;
++
++	/* Bus compute_params() establishes the common master schedule. Apply
++	 * explicitly requested slave-only deltas immediately before the slave is
++	 * programmed so master transport state remains shared.
++	 */
++	sdw_apply_slave_transport_overrides(p_rt);
+ 
+ 	if (t_params->port_num) {
+ 		struct sdw_dpn_prop *dpn_prop;
+@@ -155,6 +215,7 @@
+ 
+ 		read_only_wordlength = dpn_prop->read_only_wordlength;
+ 		port_type = dpn_prop->type;
++		simple_transport_registers = dpn_prop->simple_transport_registers;
+ 	} else {
+ 		read_only_wordlength = false;
+ 		port_type = SDW_DPN_FULL;
+@@ -240,7 +301,14 @@
+ 		}
+ 	}
+ 
+-	if (port_type != SDW_DPN_SIMPLE) {
++	if (port_type == SDW_DPN_SIMPLE && simple_transport_registers) {
++		ret = sdw_program_simple_extended_slave_port_params(
++			bus, s_rt->slave, t_params, simple_transport_registers);
++		if (ret < 0)
++			dev_err(&s_rt->slave->dev,
++				"Extended SIMPLE transport reg write failed for port: %d\n",
++				t_params->port_num);
++	} else if (port_type != SDW_DPN_SIMPLE) {
+ 		ret = _sdw_program_slave_port_params(bus, s_rt->slave,
+ 						     t_params, port_type);
+ 		if (ret < 0)
+@@ -984,6 +1052,10 @@
+ {
+ 	p_rt->ch_mask = port_config[port_index].ch_mask;
+ 	p_rt->num = port_config[port_index].num;
++	p_rt->transport_params_override_mask =
++		port_config[port_index].transport_params_override_mask;
++	p_rt->transport_params_override =
++		port_config[port_index].transport_params_override;
+ 
+ 	/*
+ 	 * TODO: Check port capabilities for requested configuration
+--- a/include/linux/soundwire/sdw.h
++++ b/include/linux/soundwire/sdw.h
+@@ -304,7 +304,13 @@
+  * @read_only_wordlength: Read Only wordlength field in DPN_BlockCtrl1 register
+  * @simple_ch_prep_sm: If the port supports simplified channel prepare state
+  * machine
+- */
++ * @simple_transport_registers: Optional banked transport registers implemented
++ * by a SIMPLE port in addition to the mandatory SIMPLE register set.
++ */
++#define SDW_DPN_SIMPLE_TRANSPORT_BLOCKCTRL3	BIT(0)
++#define SDW_DPN_SIMPLE_TRANSPORT_SAMPLECTRL2	BIT(1)
++#define SDW_DPN_SIMPLE_TRANSPORT_HCTRL		BIT(2)
++
+ struct sdw_dpn_prop {
+ 	u32 num;
+ 	u32 max_word;
+@@ -329,6 +335,7 @@
+ 	bool block_pack_mode;
+ 	bool read_only_wordlength;
+ 	bool simple_ch_prep_sm;
++	u32 simple_transport_registers;
+ };
+ 
+ /**
+@@ -889,10 +896,18 @@
+  *
+  * @num: Port number
+  * @ch_mask: channels mask for port
+- */
++ * @transport_params_override_mask: Bitmask selecting slave transport fields
++ * which override values computed by the bus master. Master port parameters are
++ * never affected by these per-slave overrides.
++ * @transport_params_override: Values for the selected transport fields.
++ */
++#define SDW_PORT_CONFIG_OVERRIDE_OFFSET1	BIT(0)
++
+ struct sdw_port_config {
+ 	unsigned int num;
+ 	unsigned int ch_mask;
++	unsigned int transport_params_override_mask;
++	struct sdw_transport_params transport_params_override;
+ };
+ 
+ /**
+--- a/sound/soc/codecs/lpass-wsa-macro.c
++++ b/sound/soc/codecs/lpass-wsa-macro.c
+@@ -373,6 +373,7 @@
+ 	WSA_MACRO_AIF_MIX1_PB,
+ 	WSA_MACRO_AIF_VI,
+ 	WSA_MACRO_AIF_ECHO,
++	WSA_MACRO_AIF_CPS,
+ 	WSA_MACRO_MAX_DAIS,
+ };
+ 
+@@ -1282,6 +1283,13 @@
+ 		return 0;
+ 	}
+ 
++	/* CPS is already framed by the WSA8845 SoundWire DP6 source.  This
++	 * logical macro endpoint only carries it to WSA_CODEC_DMA_TX_1 and must
++	 * not reprogram the VI sensing rate/state machine.
++	 */
++	if (dai->id == WSA_MACRO_AIF_CPS)
++		return 0;
++
+ 	switch (substream->stream) {
+ 	case SNDRV_PCM_STREAM_PLAYBACK:
+ 		ret = wsa_macro_set_interpolator_rate(dai, params_rate(params));
+@@ -1325,6 +1333,10 @@
+ 			mask = mask >> 0x2;
+ 		*rx_slot = mask;
+ 		*rx_num = cnt;
++		break;
++	case WSA_MACRO_AIF_CPS:
++		*tx_num = 2;
++		*tx_slot = GENMASK(1, 0);
+ 		break;
+ 	case WSA_MACRO_AIF_ECHO:
+ 		val = snd_soc_component_read(component, CDC_WSA_RX_INP_MUX_RX_MIX_CFG0);
+@@ -1421,6 +1433,20 @@
+ 		},
+ 		.ops = &wsa_macro_dai_ops,
+ 	},
++	{
++		.name = "wsa_macro_cps",
++		.id = WSA_MACRO_AIF_CPS,
++		.playback = {
++			.stream_name = "WSA_AIF_CPS Protection",
++			.rates = SNDRV_PCM_RATE_24000,
++			.formats = SNDRV_PCM_FMTBIT_S32_LE,
++			.rate_max = 24000,
++			.rate_min = 24000,
++			.channels_min = 2,
++			.channels_max = 2,
++		},
++		.ops = &wsa_macro_dai_ops,
++	},
+ };
+ 
+ static void wsa_macro_mclk_enable(struct wsa_macro *wsa, bool mclk_enable)
+@@ -2333,6 +2359,9 @@
+ 			      SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_POST_PMD),
+ 	SND_SOC_DAPM_AIF_OUT("WSA AIF_ECHO", "WSA_AIF_ECHO Capture", 0,
+ 			     SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("WSA AIF_CPS Protection",
++			    "WSA_AIF_CPS Protection", 0,
++			    SND_SOC_NOPM, 0, 0),
+ 
+ 	SND_SOC_DAPM_MIXER("WSA_AIF_VI Mixer", SND_SOC_NOPM, WSA_MACRO_AIF_VI,
+ 			   0, aif_vi_mixer, ARRAY_SIZE(aif_vi_mixer)),
+@@ -2395,6 +2424,7 @@
+ 			     SND_SOC_DAPM_POST_PMD),
+ 
+ 	SND_SOC_DAPM_INPUT("VIINPUT_WSA"),
++	SND_SOC_DAPM_INPUT("CPSINPUT_WSA"),
+ 	SND_SOC_DAPM_OUTPUT("WSA_SPK1 OUT"),
+ 	SND_SOC_DAPM_OUTPUT("WSA_SPK2 OUT"),
+ 
+@@ -2435,6 +2465,12 @@
+ 	{"WSA_AIF_VI Mixer", "WSA_SPKR_VI_2", "VIINPUT_WSA"},
+ 	{"WSA AIF_VI", NULL, "WSA_AIF_VI Mixer"},
+ 	{"WSA AIF_VI", NULL, "WSA_MCLK"},
++
++	/* CPS feedback is a distinct transport from VI; only the shared macro
++	 * clock is required here.  DP6 framing is programmed by SoundWire.
++	 */
++	{"WSA AIF_CPS Protection", NULL, "CPSINPUT_WSA"},
++	{"WSA AIF_CPS Protection", NULL, "WSA_MCLK"},
+ 
+ 	{"WSA RX_MIX EC0_MUX", "RX_MIX_TX0", "WSA_RX INT0 SEC MIX"},
+ 	{"WSA RX_MIX EC1_MUX", "RX_MIX_TX0", "WSA_RX INT0 SEC MIX"},
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -741,7 +741,9 @@
+ 	struct device *dev;
+ 	struct regulator_bulk_data supplies[WSA884X_SUPPLIES_NUM];
+ 	struct sdw_slave *slave;
+-	struct sdw_stream_runtime *sruntime[2];
++	struct sdw_stream_runtime *sruntime[3];
++	u8 cps_offset1;
++	bool cps_enabled;
+ 	struct gpio_desc *sd_n;
+ 	struct reset_control *sd_reset;
+ 	bool port_prepared[WSA884X_MAX_SWR_PORTS];
+@@ -872,14 +874,6 @@
+ 		.simple_ch_prep_sm = true,
+ 		.read_only_wordlength = true,
+ 	},
+-	{
+-		.num = WSA884X_PORT_CPS + 1,
+-		.type = SDW_DPN_SIMPLE,
+-		.min_ch = 1,
+-		.max_ch = 1,
+-		.simple_ch_prep_sm = true,
+-		.read_only_wordlength = true,
+-	}
+ };
+ 
+ static struct sdw_dpn_prop wsa884x_source_dpn_prop[] = {
+@@ -890,6 +884,18 @@
+ 		.max_ch = 1,
+ 		.simple_ch_prep_sm = true,
+ 		.read_only_wordlength = true,
++	},
++	{
++		.num = WSA884X_PORT_CPS + 1,
++		.type = SDW_DPN_SIMPLE,
++		.min_ch = 1,
++		.max_ch = 2,
++		.simple_ch_prep_sm = true,
++		.read_only_wordlength = true,
++		.simple_transport_registers =
++			SDW_DPN_SIMPLE_TRANSPORT_BLOCKCTRL3 |
++			SDW_DPN_SIMPLE_TRANSPORT_SAMPLECTRL2 |
++			SDW_DPN_SIMPLE_TRANSPORT_HCTRL,
+ 	},
+ };
+ 
+@@ -2018,15 +2024,10 @@
+ 		.bps = 1,
+ 		.type = SDW_STREAM_PDM,
+ 	};
+-	u32 enabled_mask = 0;
+-	u32 selected_mask = 0;
+ 	int active_ports = 0;
+ 	int i;
+ 
+ 	for (i = 0; i < WSA884X_MAX_SWR_PORTS; i++) {
+-		if (wsa884x->port_enable[i])
+-			enabled_mask |= BIT(i);
+-
+ 		if (dai->id == 0) {
+ 			/*
+ 			 * Playback uses the three receive data ports.  PBR,
+@@ -2037,17 +2038,25 @@
+ 			     i != WSA884X_PORT_COMP &&
+ 			     i != WSA884X_PORT_BOOST))
+ 				continue;
+-		} else if (i != WSA884X_PORT_VISENSE) {
++		} else if (dai->id == 1) {
++			if (i != WSA884X_PORT_VISENSE)
++				continue;
++		} else if (dai->id == 2) {
++			if (!wsa884x->cps_enabled || i != WSA884X_PORT_CPS)
++				continue;
++		} else {
+ 			continue;
+ 		}
+ 
+-		selected_mask |= BIT(i);
+-		port_config[active_ports++] = wsa884x_pconfig[i];
++		port_config[active_ports] = wsa884x_pconfig[i];
++		if (i == WSA884X_PORT_CPS) {
++			port_config[active_ports].transport_params_override_mask =
++				SDW_PORT_CONFIG_OVERRIDE_OFFSET1;
++			port_config[active_ports].transport_params_override.offset1 =
++				wsa884x->cps_offset1;
++		}
++		active_ports++;
+ 	}
+-
+-	dev_info(dai->dev,
+-		 "SP11 SoundWire selection: dai=%d enabled-mask=%#x selected-mask=%#x rate=%u\n",
+-		 dai->id, enabled_mask, selected_mask, params_rate(params));
+ 
+ 	if (!active_ports)
+ 		return -ENODEV;
+@@ -2055,15 +2064,11 @@
+ 	sconfig.frame_rate = params_rate(params);
+ 	sconfig.direction = dai->id == 0 ? SDW_DATA_DIR_RX : SDW_DATA_DIR_TX;
+ 
+-	dev_info(dai->dev,
+-		 "SP11 %s stream: rate=%u ports=%d direction=%s\n",
+-		 dai->id == 0 ? "speaker playback" : "VI feedback",
+-		 sconfig.frame_rate, active_ports,
++	dev_info(dai->dev, "SP11 %s stream: rate=%u port=%u direction=%s\n",
++		 dai->id == 0 ? "speaker playback" :
++		 dai->id == 1 ? "VI feedback" : "CPS feedback",
++		 sconfig.frame_rate, port_config[0].num,
+ 		 sconfig.direction == SDW_DATA_DIR_TX ? "source" : "sink");
+-	for (i = 0; i < active_ports; i++)
+-		dev_info(dai->dev,
+-			 "SP11 SoundWire port[%d]: num=%u ch-mask=%#x\n",
+-			 i, port_config[i].num, port_config[i].ch_mask);
+ 
+ 	return sdw_stream_add_slave(wsa884x->slave, &sconfig, port_config,
+ 				    active_ports, wsa884x->sruntime[dai->id]);
+@@ -2176,6 +2181,20 @@
+ 		},
+ 		.ops = &wsa884x_dai_ops,
+ 	},
++	{
++		.name = "SPKR_CPS",
++		.id = 2,
++		.playback = {
++			.stream_name = "SPKR CPS Protection",
++			.rates = SNDRV_PCM_RATE_24000,
++			.formats = SNDRV_PCM_FMTBIT_S32_LE,
++			.rate_min = 24000,
++			.rate_max = 24000,
++			.channels_min = 1,
++			.channels_max = 1,
++		},
++		.ops = &wsa884x_dai_ops,
++	},
+ };
+ 
+ static int wsa884x_get_temp(struct wsa884x_priv *wsa884x, long *temp)
+@@ -2372,6 +2391,7 @@
+ 	struct device *dev = &pdev->dev;
+ 	struct wsa884x_priv *wsa884x;
+ 	unsigned int i;
++	u32 cps_offset1;
+ 	int ret;
+ 
+ 	wsa884x = devm_kzalloc(dev, sizeof(*wsa884x), GFP_KERNEL);
+@@ -2411,6 +2431,15 @@
+ 	wsa884x->slave = pdev;
+ 	wsa884x->dev = dev;
+ 	wsa884x->dev_mode = WSA884X_SPEAKER;
++	wsa884x->cps_enabled = device_property_read_bool(dev, "qcom,enable-cps");
++	if (wsa884x->cps_enabled) {
++		ret = device_property_read_u32(dev, "qcom,cps-offset1", &cps_offset1);
++		if (ret || cps_offset1 > U8_MAX)
++			return dev_err_probe(dev, ret ?: -ERANGE,
++					     "invalid qcom,cps-offset1\n");
++		wsa884x->cps_offset1 = cps_offset1;
++	}
++
+ 	/*
+ 	 * Port map index starts with 0, however the data port for this codec
+ 	 * are from index 1
+@@ -2422,9 +2451,10 @@
+ 	pdev->prop.sink_ports = BIT(WSA884X_PORT_DAC + 1) |
+ 				BIT(WSA884X_PORT_COMP + 1) |
+ 				BIT(WSA884X_PORT_BOOST + 1) |
+-				BIT(WSA884X_PORT_PBR + 1) |
+-				BIT(WSA884X_PORT_CPS + 1);
++				BIT(WSA884X_PORT_PBR + 1);
+ 	pdev->prop.source_ports = BIT(WSA884X_PORT_VISENSE + 1);
++	if (wsa884x->cps_enabled)
++		pdev->prop.source_ports |= BIT(WSA884X_PORT_CPS + 1);
+ 	pdev->prop.simple_clk_stop_capable = true;
+ 	pdev->prop.sink_dpn_prop = wsa884x_sink_dpn_prop;
+ 	pdev->prop.src_dpn_prop = wsa884x_source_dpn_prop;
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1380,13 +1380,15 @@
+ 	if (ret)
+ 		goto out;
+ 
+-	if (!q6apm_sp11_vi_ready()) {
++	if (!q6apm_sp11_vi_ready() || !q6apm_sp11_cps_ready()) {
+ 		ret = audioreach_sp11_set_protection_enabled(graph, false);
+ 		audioreach_log_stage(graph, "SP/SPVI fail-safe bypass", ret);
+ 		if (ret)
+ 			goto out;
+ 		dev_warn(graph->dev,
+-			 "SP11 VI feedback is unavailable; speaker protection is bypassed\n");
++			 "SP11 protection feedback incomplete (VI=%s CPS=%s); speaker protection is bypassed\n",
++			 q6apm_sp11_vi_ready() ? "ready" : "missing",
++			 q6apm_sp11_cps_ready() ? "ready" : "missing");
+ 		goto volume_config;
+ 	}
+ 
+@@ -1436,7 +1438,7 @@
+ 	if (ret)
+ 		goto out;
+ 	ret = audioreach_sp11_set_protection_enabled(graph, true);
+-	audioreach_log_stage(graph, "SP/SPVI enabled with VI feedback", ret);
++	audioreach_log_stage(graph, "SP/SPVI enabled with VI+CPS feedback", ret);
+ 	if (ret)
+ 		goto out;
+ 
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -34,6 +34,7 @@
+ 
+ static struct q6apm *g_apm;
+ static bool sp11_vi_ready;
++static bool sp11_cps_ready;
+ 
+ void q6apm_sp11_set_vi_ready(bool ready)
+ {
+@@ -46,6 +47,18 @@
+ 	return READ_ONCE(sp11_vi_ready);
+ }
+ EXPORT_SYMBOL_GPL(q6apm_sp11_vi_ready);
++
++void q6apm_sp11_set_cps_ready(bool ready)
++{
++	WRITE_ONCE(sp11_cps_ready, ready);
++}
++EXPORT_SYMBOL_GPL(q6apm_sp11_set_cps_ready);
++
++bool q6apm_sp11_cps_ready(void)
++{
++	return READ_ONCE(sp11_cps_ready);
++}
++EXPORT_SYMBOL_GPL(q6apm_sp11_cps_ready);
+ 
+ static int audioreach_graph_mgmt_cmd(struct audioreach_graph *graph,
+ 				     uint32_t opcode);
+--- a/sound/soc/qcom/qdsp6/q6apm.h
++++ b/sound/soc/qcom/qdsp6/q6apm.h
+@@ -181,6 +181,8 @@
+ bool q6apm_is_adsp_ready(void);
+ void q6apm_sp11_set_vi_ready(bool ready);
+ bool q6apm_sp11_vi_ready(void);
++void q6apm_sp11_set_cps_ready(bool ready);
++bool q6apm_sp11_cps_ready(void);
+ 
+ int q6apm_enable_compress_module(struct device *dev, struct q6apm_graph *graph, bool en);
+ int q6apm_remove_initial_silence(struct device *dev, struct q6apm_graph *graph, uint32_t samples);
+--- a/sound/soc/qcom/x1e80100.c
++++ b/sound/soc/qcom/x1e80100.c
+@@ -108,6 +108,12 @@
+ 		snd_mask_none(format);
+ 		snd_mask_set_format(format, SNDRV_PCM_FORMAT_S32_LE);
+ 		break;
++	case WSA_CODEC_DMA_TX_1:
++		rate->min = rate->max = 24000;
++		channels->min = channels->max = 2;
++		snd_mask_none(format);
++		snd_mask_set_format(format, SNDRV_PCM_FORMAT_S32_LE);
++		break;
+ 	default:
+ 		break;
+ 	}
+@@ -166,6 +172,7 @@
+ 			return ret;
+ 		break;
+ 	case WSA_CODEC_DMA_TX_0:
++	case WSA_CODEC_DMA_TX_1:
+ 		ret = x1e80100_snd_hw_map_channels(tx_slot, channels);
+ 		if (ret)
+ 			return ret;
+@@ -194,6 +201,14 @@
+ 		if (ret)
+ 			return 0;
+ 	}
++	if (cpu_dai->id == WSA_CODEC_DMA_TX_1) {
++		q6apm_sp11_set_cps_ready(ret == 0);
++		dev_info(rtd->dev, "SP11 CPS feedback %s\n",
++			 ret ? "unavailable; protection will bypass" :
++			       "ready on WSA_CODEC_DMA_TX_1");
++		if (ret)
++			return 0;
++	}
+ 
+ 	return ret;
+ }
+@@ -206,6 +221,8 @@
+ 
+ 	if (cpu_dai->id == WSA_CODEC_DMA_TX_0)
+ 		q6apm_sp11_set_vi_ready(false);
++	else if (cpu_dai->id == WSA_CODEC_DMA_TX_1)
++		q6apm_sp11_set_cps_ready(false);
+ 
+ 	return qcom_snd_sdw_hw_free(substream, &data->stream_prepared[cpu_dai->id]);
+ }
