@@ -10,8 +10,18 @@ The corrected CPS candidate is built and packaged as a separate lab entry:
 - card/topology identity: `X1E80100-Microsoft-Surface-Pro-11-CPS-Parity-V2`
 - kernel ABI: `7.1.5-sp11-audio-clean+`
 - accepted source base: `f102e3fa8c7e860f3a9ac3ba2043a5fd55242e44`
-- candidate source commit: `4a29626c912649b3c417bf64b28786f40168be61`
-- reviewable patch: `patches/0027-sp11-cps-windows-parity-v2-deployed.patch`
+- exact deployed source commit: `826091400f088c1df0709f78b1d7e2b2d8d1fea7`
+  on the local kernel source branch
+  `agent/cps-windows-parity-v2-20260811`;
+- reproducible accepted-baseline sequence: patch `0032`, then `0027`, then
+  `0040-sp11-cps-parity-v2-final-integration.patch`.
+
+The last GitHub refresh added the canonical split series `0032` through `0039`
+and its executable transport-model test. That test passes. The deployed source
+incorporates its late shared-master-port, writable BlockCtrl1, two-channel TX1,
+and machine-startup corrections while preserving the accepted WSA recovery and
+per-port diagnostic behavior. Patch `0040` is the exact delta from the first
+locally built candidate to this finalized deployed source.
 
 The saved persistent GRUB entry remains Windows
 (`osprober-efi-2A36-6A1E`). The Linux candidate must only be selected through
@@ -38,6 +48,8 @@ presence or absence is not evidence that speaker protection is working.
 
 - focused module compilation and MODPOST passed for SoundWire, WSA8845, WSA
   macro, AudioReach/Q6APM, Q6DSP common, and the X1E machine driver;
+- focused rebuilds of the GitHub-finalized deltas also passed with `W=1`;
+- all three tests in `tests/test_sp11_cps_transport_model.py` passed;
 - all rebuilt modules report the accepted kernel vermagic and a build-time
   module signature;
 - DTB compilation passed;
@@ -67,4 +79,3 @@ following:
 6. audible stereo playback completes and teardown is clean.
 
 Failure is a lab rejection, not a reason to modify the saved GRUB default.
-

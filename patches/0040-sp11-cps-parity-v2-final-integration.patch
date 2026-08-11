@@ -1,0 +1,166 @@
+From f659729cc8fa7a8fb9a8fb357959a7c81363f68e Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Tue, 11 Aug 2026 19:09:53 +0100
+Subject: [PATCH] SP11: integrate finalized CPS parity transport deltas
+
+---
+ drivers/soundwire/qcom.c                 | 17 +++++++++++++-
+ drivers/soundwire/stream.c               | 12 ++++------
+ sound/soc/codecs/wsa884x.c               |  5 +++-
+ sound/soc/qcom/qdsp6/q6dsp-lpass-ports.c | 29 +++++++++++++++++++++++-
+ sound/soc/qcom/x1e80100.c                |  7 ++++--
+ 5 files changed, 58 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
+index 70669af..0a141f6 100644
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -1228,7 +1228,7 @@ static int qcom_swrm_stream_alloc_ports(struct qcom_swrm_ctrl *ctrl,
+ 	struct sdw_port_runtime *p_rt;
+ 	struct sdw_slave *slave;
+ 	unsigned long *port_mask;
+-	int maxport, pn, nports = 0;
++	int maxport, pn, nports = 0, i;
+ 	unsigned int m_port;
+ 	struct sdw_port_config *pconfig __free(kfree) = kzalloc_objs(*pconfig,
+ 								     ctrl->nports);
+@@ -1281,6 +1281,21 @@ static int qcom_swrm_stream_alloc_ports(struct qcom_swrm_ctrl *ctrl,
+ 					dev_err(ctrl->dev, "All ports busy\n");
+ 					return -EBUSY;
+ 				}
++
++				/* Multiple slaves may intentionally share one physical
++				 * master port. Keep one master runtime and merge the
++				 * channels instead of programming the same port twice.
++				 */
++				for (i = 0; i < nports; i++) {
++					if (pconfig[i].num != pn)
++						continue;
++
++					pconfig[i].ch_mask |= p_rt->ch_mask;
++					break;
++				}
++				if (i < nports)
++					continue;
++
+ 				set_bit(pn, port_mask);
+ 				pconfig[nports].num = pn;
+ 				pconfig[nports].ch_mask = p_rt->ch_mask;
+diff --git a/drivers/soundwire/stream.c b/drivers/soundwire/stream.c
+index 03d0f90..86a4eaf 100644
+--- a/drivers/soundwire/stream.c
++++ b/drivers/soundwire/stream.c
+@@ -63,11 +63,9 @@ int sdw_find_row_index(int row)
+ }
+ EXPORT_SYMBOL(sdw_find_row_index);
+ 
+-static int sdw_program_simple_extended_slave_port_params(
+-					struct sdw_bus *bus,
+-					struct sdw_slave *slave,
+-					struct sdw_transport_params *t_params,
+-					u32 registers)
++static int sdw_program_simple_ext(struct sdw_bus *bus, struct sdw_slave *slave,
++				  struct sdw_transport_params *t_params,
++				  u32 registers)
+ {
+ 	u32 blockctrl3, samplectrl2, hctrl;
+ 	u16 wbuf;
+@@ -302,8 +300,8 @@ static int sdw_program_slave_port_params(struct sdw_bus *bus,
+ 	}
+ 
+ 	if (port_type == SDW_DPN_SIMPLE && simple_transport_registers) {
+-		ret = sdw_program_simple_extended_slave_port_params(
+-			bus, s_rt->slave, t_params, simple_transport_registers);
++		ret = sdw_program_simple_ext(bus, s_rt->slave, t_params,
++					     simple_transport_registers);
+ 		if (ret < 0)
+ 			dev_err(&s_rt->slave->dev,
+ 				"Extended SIMPLE transport reg write failed for port: %d\n",
+diff --git a/sound/soc/codecs/wsa884x.c b/sound/soc/codecs/wsa884x.c
+index 4dd850b..456893c 100644
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -891,7 +891,10 @@ static struct sdw_dpn_prop wsa884x_source_dpn_prop[] = {
+ 		.min_ch = 1,
+ 		.max_ch = 2,
+ 		.simple_ch_prep_sm = true,
+-		.read_only_wordlength = true,
++		/* CPS DP6 BlockCtrl1 is writable and Windows programs the
++		 * master-derived 0x18 word-length value on both slaves.
++		 */
++		.read_only_wordlength = false,
+ 		.simple_transport_registers =
+ 			SDW_DPN_SIMPLE_TRANSPORT_BLOCKCTRL3 |
+ 			SDW_DPN_SIMPLE_TRANSPORT_SAMPLECTRL2 |
+diff --git a/sound/soc/qcom/qdsp6/q6dsp-lpass-ports.c b/sound/soc/qcom/qdsp6/q6dsp-lpass-ports.c
+index f013de7..5f3b9b4 100644
+--- a/sound/soc/qcom/qdsp6/q6dsp-lpass-ports.c
++++ b/sound/soc/qcom/qdsp6/q6dsp-lpass-ports.c
+@@ -79,6 +79,33 @@
+ 		.id = did,						\
+ 	}
+ 
++#define Q6AFE_CDC_DMA_CPS_DAI(did) {				\
++		.playback = {						\
++			.stream_name = #did " Protection",		\
++			.rates = SNDRV_PCM_RATE_24000,		\
++			.formats = SNDRV_PCM_FMTBIT_S32_LE,		\
++			.channels_min = 2,				\
++			.channels_max = 2,				\
++			.rate_min = 24000,				\
++			.rate_max = 24000,				\
++		},							\
++		.capture = {						\
++			.stream_name = #did " Capture",		\
++			.rates = SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_16000 |\
++				SNDRV_PCM_RATE_32000 | SNDRV_PCM_RATE_48000 |\
++				SNDRV_PCM_RATE_176400,			\
++			.formats = SNDRV_PCM_FMTBIT_S16_LE |		\
++				   SNDRV_PCM_FMTBIT_S24_LE |		\
++				   SNDRV_PCM_FMTBIT_S32_LE,		\
++			.channels_min = 1,				\
++			.channels_max = 8,				\
++			.rate_min = 8000,				\
++			.rate_max = 176400,				\
++		},							\
++		.name = #did,						\
++		.id = did,						\
++	}
++
+ #define Q6AFE_CDC_DMA_VI_DAI(did) {				\
+ 		.playback = {						\
+ 			.stream_name = #did" Protection",		\
+@@ -676,7 +703,7 @@ static struct snd_soc_dai_driver q6dsp_audio_fe_dais[] = {
+ 	Q6AFE_CDC_DMA_RX_DAI(WSA_CODEC_DMA_RX_0),
+ 	Q6AFE_CDC_DMA_VI_DAI(WSA_CODEC_DMA_TX_0),
+ 	Q6AFE_CDC_DMA_RX_DAI(WSA_CODEC_DMA_RX_1),
+-	Q6AFE_CDC_DMA_TX_DAI(WSA_CODEC_DMA_TX_1),
++	Q6AFE_CDC_DMA_CPS_DAI(WSA_CODEC_DMA_TX_1),
+ 	Q6AFE_CDC_DMA_TX_DAI(WSA_CODEC_DMA_TX_2),
+ 	Q6AFE_CDC_DMA_TX_DAI(VA_CODEC_DMA_TX_0),
+ 	Q6AFE_CDC_DMA_TX_DAI(VA_CODEC_DMA_TX_1),
+diff --git a/sound/soc/qcom/x1e80100.c b/sound/soc/qcom/x1e80100.c
+index 1c1acc9..aa48020 100644
+--- a/sound/soc/qcom/x1e80100.c
++++ b/sound/soc/qcom/x1e80100.c
+@@ -64,6 +64,7 @@ static int x1e80100_snd_init(struct snd_soc_pcm_runtime *rtd)
+ 		snd_soc_limit_volume(card, "WSA2 WSA_RX1 Digital Volume", 81);
+ 		break;
+ 	case WSA_CODEC_DMA_TX_0:
++	case WSA_CODEC_DMA_TX_1:
+ 		return 0;
+ 	case DISPLAY_PORT_RX_0:
+ 		dp_pcm_id = 0;
+@@ -109,8 +110,10 @@ static int x1e80100_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
+ 		snd_mask_set_format(format, SNDRV_PCM_FORMAT_S32_LE);
+ 		break;
+ 	case WSA_CODEC_DMA_TX_1:
+-		rate->min = rate->max = 24000;
+-		channels->min = channels->max = 2;
++		rate->min = 24000;
++		rate->max = 24000;
++		channels->min = 2;
++		channels->max = 2;
+ 		snd_mask_none(format);
+ 		snd_mask_set_format(format, SNDRV_PCM_FORMAT_S32_LE);
+ 		break;

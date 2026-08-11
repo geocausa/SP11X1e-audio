@@ -12,6 +12,9 @@ repository. First read
 Treat `artifacts/reviewed/2026-08-11-sp11-cps-parity-v2-deployment-manifest.json`
 as the artifact identity ledger. Do not restore the rejected split-mask
 `0x01`/`0x02` layout and do not invent physical master port 14.
+The exact accepted-baseline deployment sequence is patch `0032`, then `0027`,
+then `0040`; the canonical GitHub series `0032` through `0039` is the
+cross-check and source-level derivation.
 
 If working on the SP11 Linux boot, validate the already packaged one-shot
 entry `sp11-audio-cps-parity-v2`; do not change the persistent Windows GRUB
@@ -43,4 +46,3 @@ is the right-slave companion and is not physical master port 14.
 Preserve raw debugger output before interpretation, record exact module hashes
 and symbols used, and update the canonical findings rather than creating an
 unlinked scratch conclusion.
-
