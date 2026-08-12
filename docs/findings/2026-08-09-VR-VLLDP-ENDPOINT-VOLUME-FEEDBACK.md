@@ -63,6 +63,12 @@ Windows and PipeWire UI percentages need not map to the same dB because their
 UI volume curves differ.  The portable parity quantity is actual endpoint
 attenuation in dB.
 
+> **2026-08-12 parity update:** the statement above that Windows and PipeWire UI
+> percentages need not match remains technically true for generic hosts, but it
+> is superseded for the SP11 parity target. The production SP11 path now pins
+> the freshly measured Windows endpoint scalar->dB taper so the same visible
+> scalar produces the same endpoint attenuation on both operating systems.
+
 ## Realtime control implementation
 
 The existing mapped runtime profile-control page was extended backward-

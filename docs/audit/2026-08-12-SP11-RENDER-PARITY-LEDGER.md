@@ -80,15 +80,15 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 
 ## 6. Volume law / user-facing loudness
 
-- [ ] **RED V01 — Windows endpoint UI taper is not reproduced.** Fresh Windows COM measurement gives endpoint scalar 0.25 -> about -20.747 dB. Current Linux PipeWire/WirePlumber 0.25 exposes linear channel gain 0.015625 -> -36.124 dB. The Linux UI therefore attenuates much more strongly at the same nominal percentage.
-- [~] **AMBER V02 — volume law and Dolby/MSIIR share one endpoint-gain source, but that source still uses the Linux taper.** Dolby postgain and the new MSIIR selector now follow the same recovered endpoint-dB state; final parity requires V01 to make the actual attenuation itself Windows-equivalent.
+- [x] **GREEN V01 — Windows endpoint UI taper is reproduced.** Fresh SP11 Windows `IAudioEndpointVolume` capture pinned the nonlinear scalar->dB curve (201 points, 0.005 spacing, endpoint range -75..0 dB). Linux keeps the visible virtual-sink scalar but retapers the hidden downstream ALSA sink to the Windows endpoint gain. At 25%, Linux now measures -20.7474 dB exactly while the visible slider remains 25%. Full reboot and filter-node recreation gates passed.
+- [x] **GREEN V02 — endpoint attenuation, Dolby postgain and MSIIR share one Windows-equivalent gain state.** The volume-sync daemon maps the visible scalar through the pinned Windows taper, writes VLLDP `postgain=round(dB*16)`, sets the downstream endpoint gain, and Q10 consumes the same postgain for CKV selection. Live 10/25/50/100% tests produced the expected Windows dB values and CKV1/2/16/30; mute, filter recreation, cold boot and first playback all passed.
 - [x] **GREEN V03 — no accidental double attenuation inside the virtual Dolby sink.** Raw PipeWire props show the virtual Dolby sink `softVolumes` at unity; actual soft attenuation is applied at the hardware sink. The problem is taper/mapping, not a second hidden volume multiplier.
 
 ## 7. Steady-state waveform parity
 
 - [x] **GREEN W01 — fresh deterministic Windows-vs-Linux Movie oracle.** Same-source/state comparison reached correlation ~0.99999947 with fitted gain ~1.00016 and ~59.8 dB residual SNR; cold-state comparison was even closer (~84.7 dB residual SNR).
 - [~] **AMBER W02 — strict sample identity.** The remaining ~60 dB full-file residual is tiny and concentrated around transient/state behavior but is not literal bit identity.
-- [ ] **RED W03 — real-browser tonal parity.** User-observed Windows YouTube still has more fullness/bass than Linux. Q09/Q10 and V01/V02 are now concrete causes/candidates that the deterministic oracle did not exercise.
+- [ ] **RED W03 — real-browser tonal parity requires fresh A/B after the volume fixes.** The previously reported Windows YouTube fullness/bass advantage was measured before Q09/Q10/V01/V02 existed. Linux now has the exact Windows volume-dependent MSIIR contour and endpoint taper; ordinary browser playback must be re-captured/re-auditioned before escalating to Q11.
 
 ## 8. Seek / discontinuity / lifecycle behavior
 
@@ -102,7 +102,7 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 ## 9. Source/provenance/reproducibility
 
 - [x] **GREEN S01 — clean integration source of truth identified.** Current work is on `/home/geoca/Documents/SP11-PROJECT/01-audio-cps-review`, branch `agent/render-parity-20260812`.
-- [x] **GREEN S02 — Movie correction and fresh waveform evidence committed.** Local commit `994f41c` is the current Aug-12 render integration baseline.
+- [x] **GREEN S02 — clean Aug-12 render integration history.** Movie correction (`994f41c`), Windows volume-dependent MSIIR (`f73ad55`), and the Windows endpoint-taper implementation are committed on the clean render-parity branch.
 - [~] **AMBER S03 — remote publication.** Current clean branch/commit has not been pushed because the Linux GitHub HTTPS credential/token is invalid for noninteractive push. Preserve patches/evidence on SP7 until remote publication is repaired.
 - [~] **AMBER S04 — older everyday audio working tree.** `/home/geoca/Documents/SP11-PROJECT/01-audio` is older and heavily dirty/untracked; it must not be treated as deployed production provenance.
 
@@ -114,13 +114,12 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 
 ## Ordered closure queue
 
-1. **V01/V02 — complete Windows volume behavior:** automatic `0x489e` CKV selection is now deployed; reproduce the Windows endpoint taper so the already shared Dolby/MSIIR gain state is driven by Windows-equivalent actual attenuation.
-2. **W03/Q11 — re-test real YouTube tonal parity:** only if fullness remains after the exact volume-dependent MSIIR + taper fix, trace WaveSpeaker EQ/Bass Boost/DRC runtime controls.
-3. **L03 — capture and fix genuine live Firefox/YouTube seek path:** compare browser input, post-Dolby output and hardware-bound stream around a seek.
-4. **L04 — implement Windows SOFT_PAUSE start/stop transaction:** exact `0x466b` payloads already captured; prove lifecycle parity without conflating it with in-stream seek.
-5. **L06 — cold boot + suspend/resume regression.**
-6. **P09-P11/H07/W02 — lower-level exactness closure.** These are final exactness items after the audible REDs are gone.
-7. Publish/merge the clean integration branch and archive obsolete contradictory docs.
+1. **W03/Q11 — re-test real browser/YouTube tonal parity:** the exact Windows MSIIR loudness contour and endpoint taper are now deployed. Only if a fresh A/B still shows missing fullness should WaveSpeaker EQ/Bass Boost/DRC runtime controls be traced/deployed.
+2. **L03 — capture and fix genuine live Firefox/YouTube seek path:** compare browser input, post-Dolby output and hardware-bound stream around a seek.
+3. **L04 — implement Windows SOFT_PAUSE start/stop transaction:** exact `0x466b` payloads already captured; prove lifecycle parity without conflating it with in-stream seek.
+4. **L06 — cold boot + suspend/resume regression.**
+5. **P09-P11/H07/W02 — lower-level exactness closure.** These are final exactness items after the audible REDs are gone.
+6. Publish/merge the clean integration branch and archive obsolete contradictory docs.
 
 ## Completion rule
 

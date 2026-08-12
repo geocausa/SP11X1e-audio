@@ -1,5 +1,5 @@
 [Unit]
-Description=SP11 Dolby endpoint-volume feedback
+Description=SP11 Windows endpoint taper and Dolby volume feedback
 After=pipewire.service wireplumber.service
 Before=filter-chain.service
 Wants=pipewire.service wireplumber.service

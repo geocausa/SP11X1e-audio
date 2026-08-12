@@ -120,3 +120,33 @@ The embedded 30-row coefficient table is generated from reviewed SP11 REV_0D
 ACDB (`a0a8635b...cde`) and must not be hand-tuned. The service re-applies the
 selected row every time the protected PCM enters RUNNING because kernel graph
 construction still initially loads CKV 30.
+
+### Windows endpoint taper parity
+
+The user-facing Dolby sink keeps the ordinary PipeWire/WirePlumber scalar, but
+Windows and PipeWire do not map the same scalar to endpoint dB. Fresh live SP11
+Windows `IAudioEndpointVolume` capture on 2026-08-12 measured the built-in
+speaker endpoint over scalar `0.000..1.000` in `0.005` increments. The endpoint
+reported `-75..0 dB`, 0.5-dB hardware granularity and 51 software step
+positions.
+
+`sp11-dolby-volume-sync` now recovers the visible PipeWire scalar from its cubic
+`channelVolumes`, looks up/interpolates the pinned Windows taper, and applies the
+result in two places: VLLDP `postgain=round(dB*16)` and the hidden downstream
+ALSA sink. This leaves the visible virtual sink unchanged while moving endpoint
+attenuation after Dolby/AudioEngine, matching the Windows ordering. The separate
+MSIIR sync service reads the same postgain page, so one endpoint-dB state drives
+attenuation, Dolby postgain and CKV selection.
+
+At the 25% reference point the live result is:
+
+```text
+virtual scalar        0.25
+Windows endpoint dB  -20.7474098
+downstream gain       0.091755
+VLLDP postgain        -332
+MSIIR CKV             2
+```
+
+Do not replace the pinned taper with a fitted exponent; the measured curve is
+strongly non-power-law at low scalar values.
