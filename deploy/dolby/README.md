@@ -7,7 +7,15 @@ The LADSPA bridge executes the sample dependency proved from the Aug-8 full-memo
 `DolbyApoVr -> DolbyAPOvlldp150`. Older hardware breakpoints observed the VLLDP callback before the VR callback, but that was scheduler invocation order; exact buffer provenance and captured-state replays prove the PCM dependency in the opposite direction.
 
 Profiles are `dynamic`, `movie`, `music`, `game`, `voice`, `onlinecourse`, or
-`personalize`. `SP11_DOLBY_PROFILE` remains the cold-start/default source, while
+`personalize`. For a fresh SP11 built-in-speaker deployment with no saved user
+selection, the parity default is **`movie`**. A fresh Windows oracle captured on
+2026-08-12 had no `SelectedMainProfile` override; the shipped operator policy
+selects Movie for the internal speaker with spatial audio enabled, and the
+29.45-second Linux Movie render matched that Windows loopback at
+`0.999999473836` correlation / `59.778 dB` residual SNR. Explicit user profile
+selections continue to override this fallback.
+
+`SP11_DOLBY_PROFILE` remains the cold-start/default source, while
 the production LADSPA bridge also exposes a `Profile` control (`0` = keep the
 startup profile, `1..7` = the seven profiles). PipeWire 1.6.2 exposes these
 custom graph controls as initialization state rather than a writable live API,

@@ -47,7 +47,7 @@ profile_name_from_code() {
   profile_name_from_index $((C - 1))
 }
 current_profile() {
-  if [ -s "$PROFILE_FILE" ]; then cat "$PROFILE_FILE"; else echo dynamic; fi
+  if [ -s "$PROFILE_FILE" ]; then cat "$PROFILE_FILE"; else echo movie; fi
 }
 current_geq() {
   if [ -s "$GEQ_FILE" ]; then cat "$GEQ_FILE"; else echo off; fi

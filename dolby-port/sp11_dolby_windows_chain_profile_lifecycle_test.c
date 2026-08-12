@@ -56,7 +56,18 @@ int main(void){
     snprintf(vl,sizeof(vl),"%s/.local/lib/sp11-dolby/DolbyAPOvlldp150.dll",home);
     snprintf(vr,sizeof(vr),"%s/.local/lib/sp11-dolby/DolbyAPOVR.dll",home);
     setenv("SP11_VLLDP_DLL",vl,1);setenv("SP11_VR_DLL",vr,1);
-    setenv("SP11_DOLBY_PROFILE","dynamic",1);setenv("SP11_DOLBY_GEQ","off",1);
+    setenv("SP11_DOLBY_GEQ","off",1);
+
+    /* A clean built-in-speaker deployment must follow the recovered Windows
+     * spatial-on operator default even before a profile file/drop-in exists. */
+    unsetenv("SP11_DOLBY_PROFILE");setenv("SP11_DOLBY_CONTROL_PATH","off",1);
+    ChainInst *defaultinst=(ChainInst*)chain_instantiate(NULL,48000);if(!defaultinst)return 3;
+    int default_profile_ok=defaultinst->profile==CHAIN_PROFILE_MOVIE;
+    printf("clean_default_profile=%s result=%s\n",chain_profiles[defaultinst->profile].name,
+           default_profile_ok?"PASS":"FAIL");
+    chain_cleanup(defaultinst);
+
+    setenv("SP11_DOLBY_PROFILE","dynamic",1);
     char ctl[160];snprintf(ctl,sizeof(ctl),"/tmp/sp11-dolby-profile-lifecycle-%ld.control",(long)getpid());
     unlink(ctl);setenv("SP11_DOLBY_CONTROL_PATH",ctl,1);
 
@@ -155,7 +166,7 @@ int main(void){
     unlink(ctl2);
     printf("preinstantiate_queue=%s\n",prequeue_ok?"PASS":"FAIL");
 
-    int ok=identity&&state_preserved&&profile_applied&&stereo_mode_ok&&sweep_ok&&return_preserved&&prequeue_ok;
+    int ok=default_profile_ok&&identity&&state_preserved&&profile_applied&&stereo_mode_ok&&sweep_ok&&return_preserved&&prequeue_ok;
     printf("PROFILE_LIFECYCLE_RESULT %s\n",ok?"PASS":"FAIL");
     return ok?0:20;
 }

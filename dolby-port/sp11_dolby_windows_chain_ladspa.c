@@ -229,15 +229,19 @@ static const char *chain_vr_path(void){
 }
 static ChainProfile chain_profile_from_env(void){
     const char *v=getenv("SP11_DOLBY_PROFILE");
-    if(!v || !*v || !strcasecmp(v,"dynamic")) return CHAIN_PROFILE_DYNAMIC;
+    /* SP11 built-in speakers use the Windows spatial-on operator default when
+     * no user selection exists. A fresh 2026-08-12 Windows oracle with no
+     * SelectedMainProfile override resolves to Movie, not Dynamic. */
+    if(!v || !*v) return CHAIN_PROFILE_MOVIE;
+    if(!strcasecmp(v,"dynamic")) return CHAIN_PROFILE_DYNAMIC;
     if(!strcasecmp(v,"movie")) return CHAIN_PROFILE_MOVIE;
     if(!strcasecmp(v,"music")) return CHAIN_PROFILE_MUSIC;
     if(!strcasecmp(v,"game") || !strcasecmp(v,"gaming")) return CHAIN_PROFILE_GAME;
     if(!strcasecmp(v,"voice")) return CHAIN_PROFILE_VOICE;
     if(!strcasecmp(v,"onlinecourse") || !strcasecmp(v,"online-course") || !strcasecmp(v,"course")) return CHAIN_PROFILE_ONLINECOURSE;
     if(!strcasecmp(v,"personalize") || !strcasecmp(v,"personalized") || !strncasecmp(v,"custom",6)) return CHAIN_PROFILE_PERSONALIZE;
-    fprintf(stderr,"sp11-dolby: unknown SP11_DOLBY_PROFILE='%s'; using dynamic\n",v);
-    return CHAIN_PROFILE_DYNAMIC;
+    fprintf(stderr,"sp11-dolby: unknown SP11_DOLBY_PROFILE='%s'; using movie\n",v);
+    return CHAIN_PROFILE_MOVIE;
 }
 
 static void vl_apply_profile_fields(ChainInst *p,void *core,const ChainProfileCfg *pc){
