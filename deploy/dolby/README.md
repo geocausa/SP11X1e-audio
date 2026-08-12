@@ -97,3 +97,26 @@ filter-chain restarts (and naturally disappears at user logout), so a volume
 request can be queued before a new Dolby instance is created. The service is
 ordered before `filter-chain.service` at login and remains subscribed while the
 Dolby node is recreated.
+
+### Windows volume-dependent Qualcomm MSIIR calibration
+
+Windows qcadcm does not leave speaker MSIIR `0x489e` at the full-volume row.
+It converts endpoint gain to Q28, selects the nearest gain-table entry, maps
+that index to CKV GainStep 1..30, and reapplies the corresponding ACDB
+calibration. `sp11-msiir-volume-sync.service` reproduces that policy using the
+same endpoint-dB/postgain state already supplied to VLLDP.
+
+Deployment files:
+
+```text
+deploy/dolby/sp11_msiir_volume_sync.py
+deploy/dolby/sp11-msiir-volume-sync.service
+tools/tlv_write.c / tools/bin/tlv_write
+```
+
+Install the helper as `$HOME/.local/lib/sp11-dolby/tlv_write`, the Python
+service as `$HOME/.local/bin/sp11-msiir-volume-sync`, and enable the user unit.
+The embedded 30-row coefficient table is generated from reviewed SP11 REV_0D
+ACDB (`a0a8635b...cde`) and must not be hand-tuned. The service re-applies the
+selected row every time the protected PCM enters RUNNING because kernel graph
+construction still initially loads CKV 30.
