@@ -98,6 +98,30 @@ def private_data(raw_type: int, payload: bytes) -> bytes:
     return struct.pack("<IIII", len(payload), raw_type, 0, 0) + payload
 
 
+def windows_default_control_payload(control: dict) -> bytes:
+    """Return the evidence-locked four-link DEFAULT control-link block."""
+    if control.get("link_count") != 4:
+        raise ValueError("reviewed Windows default graph no longer has four control links")
+    aggregate = bytes.fromhex(control["linux_aggregate_payload_hex"])
+    if len(aggregate) != control["linux_aggregate_payload_size"]:
+        raise ValueError("reviewed aggregate control-link size does not match payload")
+    if len(aggregate) < 4 or struct.unpack_from("<I", aggregate, 0)[0] != 4:
+        raise ValueError("reviewed aggregate control-link payload does not encode four links")
+
+    # The fourth Windows DEFAULT link is the POPLESS_EQUALIZER <-> VOL_CTRL
+    # headroom feedback path. Older SP11 Linux candidates accidentally took
+    # only record_blocks[0], silently dropping this record_blocks[1] link.
+    eq_vol_signature = struct.pack(
+        "<IIIII", 0x4664, 0x80000000, 0x4663, 0x80000000, 2
+    )
+    if (
+        eq_vol_signature not in aggregate
+        or struct.pack("<I", 0x08001118) not in aggregate
+    ):
+        raise ValueError("reviewed aggregate is missing EQ/VOL headroom control link")
+    return private_data(0x08001061, aggregate)
+
+
 def load_inputs(model_path: Path, stages_dir: Path, control_path: Path):
     model = json.loads(model_path.read_text(encoding="utf-8"))
     manifest = json.loads(
@@ -113,9 +137,6 @@ def load_inputs(model_path: Path, stages_dir: Path, control_path: Path):
     ]
     if len(admitted) != 26:
         raise ValueError("canonical model no longer has exactly 26 admitted edges")
-    if control["record_blocks"][0]["link_count"] != 3:
-        raise ValueError("reviewed baseline control-link block is not three links")
-
     stage_payloads = {}
     for name, raw_type in RAW_TYPES.items():
         payload = (stages_dir / f"{name}.bin").read_bytes()
@@ -124,11 +145,13 @@ def load_inputs(model_path: Path, stages_dir: Path, control_path: Path):
             raise ValueError(f"{name} size differs from its manifest")
         stage_payloads[name] = private_data(raw_type, payload)
 
-    # Record zero contains SP<->SPVI, CPS<->SP, and EQ<->VOL.  Record two is
-    # the captured external timer-drift peer and is intentionally not admitted.
-    control_payload = bytes.fromhex(
-        control["record_blocks"][0]["topology_private_hex"]
-    )
+    # Windows DEFAULT uses four module control links. Keep all four: SP<->SPVI,
+    # CPS<->SP, the codec/timer peer, and POPLESS_EQ<->VOL_CTRL headroom.
+    # The older three-link Linux candidate selected only record_blocks[0] and
+    # therefore omitted the headroom link despite a stale comment saying the
+    # opposite. Aggregate the reviewed link bodies into one valid topology
+    # private parameter, matching the topology control-link serializer contract.
+    control_payload = windows_default_control_payload(control)
     return model, admitted, stage_payloads, control_payload
 
 
