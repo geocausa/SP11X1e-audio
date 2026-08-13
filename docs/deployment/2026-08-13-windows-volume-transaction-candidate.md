@@ -106,3 +106,27 @@ Patch `0049` corrects that arithmetic without changing accepted transaction
 bytes. The corrected module/initramfs above has passed build, signature and
 initramfs-isolation checks and replaces the isolated test boot image. A second
 one-shot reboot is required to validate the large rows.
+
+## Corrected second-boot result
+
+The second one-shot boot loaded corrected srcversion
+`ECFA21430839C02C9138786`, exposed the combined control, retained Wi-Fi, and
+started the combined synchronizer while the legacy MSIIR service exited
+cleanly. Persistent GRUB fallback remained `sp11-audio-cps-v3` and the
+one-shot `next_entry` was consumed.
+
+Two running-graph sweeps completed without a userspace transaction failure or
+a DSP error following any runtime transaction:
+
+- 15% -> 25% -> 40% -> 25% -> 15% exercised GainSteps 1/3/12/3/1 and exact
+  delta sizes 216/272/216/272/216 bytes;
+- a quiet -22 dB stimulus at 34.73% -> 73.60% -> 34.73% -> 15% exercised the
+  two other extended rows, GainSteps 9/24/9, each at 272 bytes, then returned
+  to GainStep 1 at 216 bytes.
+
+The recurring `APM_CMD_SET_CFG` error 3 was timestamped at graph startup,
+before the first runtime volume transaction, matching the already documented
+unsupported startup-calibration record. No such error followed the runtime
+updates. Software/transport validation is therefore GREEN for all three large
+row shapes. Physical judgment of slider and seek transients remains pending,
+so V04/L03b stay AMBER overall.

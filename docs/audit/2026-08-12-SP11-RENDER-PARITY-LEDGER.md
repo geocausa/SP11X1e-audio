@@ -16,6 +16,13 @@
 > attenuation restored. Patch `0049` corrects the control maximum from 276 to
 > 284 bytes and is staged in a replacement one-shot initramfs. V04/L03b remain
 > AMBER pending the second-boot large-row and physical tests.
+>
+> **Second live gate passed at the transport layer:** corrected srcversion
+> `ECFA21430839C02C9138786` accepted repeated 216-byte rows and all three
+> 272-byte rows (GainSteps 3, 9, and 24) on a running graph. The combined
+> service remained active, Wi-Fi remained connected, no runtime transaction
+> failed, and the visible volume was returned to 15%. Physical slider/seek
+> judgment remains the final gate; V04/L03b therefore remain AMBER.
 
 This is the canonical playback/render ledger for the Surface Pro 11 (X1E80100) port as of 2026-08-12. It supersedes the earlier broad GREEN sign-off and the contradictory append-only SP7 ledger. The completion gate is **built-in-speaker rendering**. Microphone/input and Bluetooth are intentionally not completion blockers.
 

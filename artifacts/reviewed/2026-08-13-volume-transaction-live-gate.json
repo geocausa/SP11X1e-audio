@@ -1,0 +1,37 @@
+{
+  "format": "SP11 Windows volume transaction corrected live gate",
+  "date": "2026-08-13",
+  "boot_entry": "sp11-audio-volume-transaction",
+  "persistent_fallback": "sp11-audio-cps-v3",
+  "kernel_release": "7.1.5-sp11-cps-v3+",
+  "loaded_snd_q6apm_srcversion": "ECFA21430839C02C9138786",
+  "candidate_initramfs_sha256": "4d49e9b1b5fcdc0ebef3756c11bb4518783c8d87ed12516313b9a6844b265f0c",
+  "signed_module_zst_sha256": "90c68a50c51d89d4186d08e4bb404954ab2125417e9c5c321693ce9cbb233459",
+  "wifi_connected": true,
+  "combined_control_present": true,
+  "combined_service_active": true,
+  "legacy_msiir_service_stood_down": true,
+  "sweeps": [
+    {
+      "ui_percent": [15.0, 25.0, 40.0, 25.0, 15.0],
+      "gainstep": [1, 3, 12, 3, 1],
+      "delta_bytes": [216, 272, 216, 272, 216]
+    },
+    {
+      "ui_percent": [15.0, 34.73, 73.6, 34.73, 15.0],
+      "gainstep": [1, 9, 24, 9, 1],
+      "delta_bytes": [216, 272, 272, 272, 216],
+      "stimulus_headroom_db": -22
+    }
+  ],
+  "runtime_transaction_failures": 0,
+  "post_transaction_dsp_errors": 0,
+  "known_startup_error_excluded": {
+    "opcode": "0x01001006",
+    "dsp_error": 3,
+    "reason": "timestamped during graph startup before the first runtime transaction"
+  },
+  "final_visible_volume_percent": 15.0,
+  "transport_gate": "pass",
+  "physical_slider_seek_gate": "pending"
+}
