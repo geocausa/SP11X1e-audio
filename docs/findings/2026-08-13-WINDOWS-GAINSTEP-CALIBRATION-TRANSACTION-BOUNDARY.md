@@ -35,9 +35,22 @@ The varying MSIIR frame is record 93 at aggregate offset `10000`; at step 30 its
 
 For GainSteps 1..29, **no other IID/param pair changes**. Steps 3, 9 and 24 use the known 152-byte MSIIR form, making the complete graph-calibration aggregate `10520` bytes instead of `10464`; all other steps remain `10464` bytes.
 
+Resolving the runtime CKV delta, rather than rebuilding the complete startup
+aggregate, selects one four-frame module-CKV group on iid `0x489e`:
+
+- `0x08001020` input media format;
+- `0x08001021` output media format;
+- `0x08001022` MSIIR coefficients; and
+- `0x08001026` enable.
+
+That atomic runtime group is `216` bytes at 27 steps and `272` bytes at steps
+3, 9 and 24. Only the coefficient payload varies, but ACDB returns all four
+frames at the GainStep-dependent transaction boundary.
+
 Machine-readable evidence is in:
 
-`artifacts/reviewed/2026-08-13-gainstep-calibration-transaction-boundary.json`
+- `artifacts/reviewed/2026-08-13-gainstep-calibration-transaction-boundary.json`;
+- `artifacts/reviewed/2026-08-13-gainstep-runtime-delta.json`.
 
 ## Windows SetVolume ordering
 
@@ -52,7 +65,7 @@ The same recovered Qualcomm GSL/ACDB path used during startup defines graph cali
 
 ## Current Linux runtime mismatch
 
-The deployed runtime volume service correctly selects the Windows GainStep and exact `0x489e/0x08001022` payload. But it sends only that one parameter through the allowlisted `SP11 MSIIR Inject` control.
+The deployed runtime volume service correctly selects the Windows GainStep and exact `0x489e/0x08001022` payload. But it sends only that one parameter through the allowlisted `SP11 MSIIR Inject` control, omitting the other three frames in ACDB's selected runtime group.
 
 The kernel helper `audioreach_sp11_inject_module_param()` constructs a single in-band `APM_CMD_SET_CFG` containing only one `apm_module_param_data` frame and calls `q6apm_send_cmd_sync()`.
 
@@ -71,7 +84,7 @@ Do not invent additional volume-dependent EQ/limiter modules: the ACDB sweep dis
 Build a **no-install** candidate path that can reproduce the Windows volume transaction more faithfully:
 
 1. use final `VOL_CTRL 0x4a63 / 0x08001038` as the endpoint attenuation actuator so the existing Windows ramp policy is exercised;
-2. follow it with the selected GainStep calibration through the graph-calibration transaction boundary rather than a direct one-frame MSIIR SET_CFG;
-3. support the real aggregate sizes, including `10520` bytes at steps 3, 9 and 24;
+2. follow it with the complete selected four-frame GainStep group through the graph-calibration transaction boundary rather than a direct one-frame MSIIR SET_CFG;
+3. support the real runtime-delta sizes: `216` bytes normally and `272` bytes at steps 3, 9 and 24;
 4. preserve Dolby postgain and the exact endpoint taper as the shared gain-state source;
 5. static-test and exact-release-build first; do not live install while the user is away.
