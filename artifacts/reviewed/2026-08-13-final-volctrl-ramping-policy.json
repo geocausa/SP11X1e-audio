@@ -1,0 +1,45 @@
+{
+  "date": "2026-08-13",
+  "scope": "SP11 REV_0D Windows final render VOL_CTRL endpoint-gain ramp policy",
+  "windows_source": {
+    "binary": "qcadcm8380.sys",
+    "sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+    "sp7_path": "C:\\Users\\SurfacePro7\\Documents\\blobs\\sp11-driverdump\\qcadcm8380.inf_arm64_f5fba49e0720d715\\qcadcm8380.sys",
+    "decompile": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcadcm-setcfg-callers.txt",
+    "decompile_sha256": "04f31199a8e30ba3bc6b3ee6c595db72c874226a2fe6df4cf8b9d5ab715aeebb",
+    "function": "FUN_14006e038 / SetVolume",
+    "param_id_literal": "0x08001037",
+    "decompiled_log_format": "Ramp period_ms:0x%x step_us:0x%x ramping_curve:%u",
+    "field_order": [
+      "period_ms",
+      "step_us",
+      "ramping_curve"
+    ]
+  },
+  "linux_booted_topology": {
+    "path": "/lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-CPS-Headroom-Test-tplg.bin",
+    "sha256": "1b0c7217fc67bb11da002b06563dd8c411b0f0e35ac40778bff3d65093061c9d",
+    "audited_conf": "/home/geoca/Documents/SP11-AUDIO-AUDIT/headroom-link-candidate-20260812/topology.conf",
+    "instances": [
+      {
+        "iid": "0x4669",
+        "param_id": "0x08001037",
+        "payload_u32": [10, 1000, 3]
+      },
+      {
+        "iid": "0x4a63",
+        "param_id": "0x08001037",
+        "payload_u32": [10, 1000, 3]
+      }
+    ]
+  },
+  "windows_runtime_capture": {
+    "reviewed_inventory": "artifacts/reviewed/windows-kdnet-20260723/setcfg-inventory.json",
+    "small_set_cfg_pids_observed": [
+      "0x08001038",
+      "0x08001039"
+    ],
+    "param_0x08001037_observed_as_separate_runtime_small_body": false
+  },
+  "conclusion": "0x08001037 is the VOL_CTRL gain-ramping policy with period_ms, step_us and ramping_curve fields. The final 0x4a63 block in the exact booted Linux topology already carries the Windows-derived 10 ms / 1000 us / curve 3 policy. Linux currently fails to exercise that policy for endpoint-volume changes because 0x4a63 gain remains at unity while endpoint attenuation is performed in PipeWire/ALSA. The preserved Windows runtime capture updates 0x08001038 gain bodies without a separate 0x08001037 small body, consistent with ramp policy being preconfigured and persistent."
+}

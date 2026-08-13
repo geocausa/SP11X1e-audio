@@ -93,7 +93,9 @@ The current Linux endpoint attenuation occurs in a different host-side gain path
 
 That makes the actuator mismatch a strong explanation candidate for the user's slider spike. It does **not** yet prove that `0x4a63` itself performs the missing seek smoothing. Endpoint gain is normally unchanged during a seek, so a seek link requires further lifecycle/control evidence.
 
-The topology also carries `0x4a63/0x08001037` with a 12-byte body `10, 1000, 3` next to its gain controls. Its precise semantic name has not yet been recovered from an authoritative symbol source; do not label it as a ramp parameter without further evidence.
+The adjacent `0x4a63/0x08001037` policy is now independently recovered from the exact Windows `qcadcm8380.sys` `SetVolume` builder. The decompile logs its three fields verbatim as `Ramp period_ms:0x%x step_us:0x%x ramping_curve:%u`, and uses parameter literal `0x08001037`. The exact booted Linux topology already carries the same 12-byte payload on final `0x4a63`: `10, 1000, 3`, i.e. a 10 ms ramp period, 1000 us step and ramping-curve ID 3. The intermediate Windows-like `VOL_CTRL 0x4669` carries the same tuple.
+
+This materially sharpens the mismatch: Linux has already deployed the Windows final-VOL_CTRL **ramp policy**, but endpoint-volume changes never reach that block because `0x4a63/0x08001038` remains at unity. The preserved Windows small runtime `SET_CFG` capture contains `0x1038` gain and `0x1039` mute bodies, not a separate `0x1037` body, which is consistent with the ramp policy being configured once and then reused by later gain writes. See `artifacts/reviewed/2026-08-13-final-volctrl-ramping-policy.json`.
 
 ## Isolated diagnostic candidate
 
