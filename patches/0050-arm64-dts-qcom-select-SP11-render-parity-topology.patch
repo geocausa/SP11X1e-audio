@@ -1,0 +1,21 @@
+From: geoca <272055834+geocausa@users.noreply.github.com>
+Subject: [PATCH] arm64: dts: qcom: select SP11 render-parity topology
+
+Give the consolidated SP11 built-in-speaker candidate a distinct sound-card
+identity.  This prevents the corrected four-control-link topology from
+being silently replaced by the older three-link CPS-Parity-V2 binary during
+an initramfs rebuild.
+
+Signed-off-by: geoca <272055834+geocausa@users.noreply.github.com>
+---
+--- a/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
++++ b/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
+@@ -308,7 +308,7 @@
+ 
+ 	sound {
+ 		compatible = "qcom,x1e80100-sndcard";
+-		model = "X1E80100-Microsoft-Surface-Pro-11-CPS-Parity-V2";
++		model = "X1E80100-Microsoft-Surface-Pro-11-Render-Parity";
+ 		audio-routing = "SpkrLeft IN", "WSA WSA_SPK1 OUT",
+ 				"SpkrRight IN", "WSA WSA_SPK2 OUT",
+ 				"VA DMIC0", "vdd-micb",

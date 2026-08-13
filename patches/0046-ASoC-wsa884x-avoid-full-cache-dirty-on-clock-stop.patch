@@ -17,8 +17,6 @@ Real suspended-time control changes are therefore still
 synchronized on resume.  Keep the existing UNATTACHED/ATTACHED full-restore
 path unchanged as the conservative context-loss fallback.
 
-This is an isolated candidate only; it is not deployed.
-
 Signed-off-by: geoca <272055834+geocausa@users.noreply.github.com>
 ---
 --- a/sound/soc/codecs/wsa884x.c

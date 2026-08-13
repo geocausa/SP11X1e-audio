@@ -8,6 +8,15 @@ transactions, its REV_0D ACDB, the shipped ARM64 Qualcomm drivers and controlled
 Linux tests. Kernel/DT, DSP topology, ALSA UCM and PipeWire policy are kept as
 separate layers so that an acoustic result is never mistaken for a driver fact.
 
+> **Render-parity staging update (2026-08-14):** the isolated
+> `7.1.5-sp11-render-parity+` candidate consolidates the exact four-link DEFAULT
+> topology, final-volume/GainStep transaction, Windows SOFT_PAUSE and the
+> conservative WSA884x clock-stop correction with the full Wi-Fi, Phase91 touch,
+> OLED and protected-audio platform closure.  Its build, signed module tree,
+> initramfs and GRUB entry validate, but it is not armed or booted.  Runtime and
+> physical gates remain AMBER.  See
+> [`2026-08-14-render-parity-candidate.md`](docs/deployment/2026-08-14-render-parity-candidate.md).
+
 > **Project state (2026-08-11):** the protected, non-Dolby playback baseline
 > remains the accepted lower control. The isolated CPS V3 candidate now boots
 > the full platform, carries both per-amplifier CPS DP6 streams, starts the
