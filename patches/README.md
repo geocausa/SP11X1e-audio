@@ -629,3 +629,25 @@ require direct SP11 evidence.
 See
 [`docs/findings/2026-07-29-wsa884x-2s-supply-gap.md`](../docs/findings/2026-07-29-wsa884x-2s-supply-gap.md)
 for the evidence ledger and live register proof.
+
+## `0045-q6apm-sp11-windows-soft-pause-lifecycle.patch`
+
+Isolated, uninstalled lifecycle candidate. It sends the recovered zero-length
+SOFT_PAUSE pause/release parameters to iid `0x466b`, forwards the separate
+completion events and preserves the persistent pull graph. Live signing and
+pause/resume/STOP regression remain required.
+
+## `0046-ASoC-wsa884x-avoid-full-cache-dirty-on-clock-stop.patch`
+
+Isolated, uninstalled latency candidate. It avoids marking the entire WSA884x
+cache dirty for ordinary resident simple-clock-stop runtime suspend while
+retaining the conservative SoundWire detach/reattach restore. Muted timing and
+context-loss regression remain required.
+
+## `0047-q6apm-add-SP11-final-endpoint-volume-Q28-control.patch`
+
+Isolated, uninstalled diagnostic candidate. It exposes one fixed-target Q28
+control for final render VOL_CTRL iid `0x4a63`, parameter `0x08001038`, and
+constructs the exact 104-byte Windows L/R body in-kernel. It does not widen the
+existing arbitrary-payload allowlist. Physical A/B and GainStep transaction
+ordering remain required before promotion.

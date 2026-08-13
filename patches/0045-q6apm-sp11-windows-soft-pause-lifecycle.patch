@@ -1,0 +1,280 @@
+From: geoca <272055834+geocausa@users.noreply.github.com>
+Subject: [PATCH] ASoC: qcom: q6apm: add SP11 Windows soft-pause lifecycle
+
+Reproduce the evidence-backed Windows SP11 protected-render SOFT_PAUSE
+lifecycle on the persistent pull graph.  The reviewed Windows path uses
+instance 0x466b and zero-length SET_CFG parameters 0x0800102e for pause
+and 0x0800102f for release, with separate PAUSE_COMPLETE/RESUME_COMPLETE
+events.
+
+Keep the graph persistent across ALSA STOP/reprepare and bound completion
+waits from the current Windows DEFAULT timing: 20 ms rampdown + 25 ms
+downstream delay + 5 ms qcadcm allowance.
+
+This is an isolated candidate only; it is not deployed.
+
+Signed-off-by: geoca <272055834+geocausa@users.noreply.github.com>
+---
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -24,6 +24,12 @@
+ #define Q6APM_OOB_BUFFER_SIZE	SZ_16K
+ #define Q6APM_DSP_SID_MASK	GENMASK(3, 0)
+ 
++/* Windows DEFAULT speaker SOFT_PAUSE lifecycle, evidence-locked on SP11. */
++#define SP11_MODULE_ID_SOFT_PAUSE		0x07001019
++#define SP11_SOFT_PAUSE_IID			0x0000466b
++#define SP11_PARAM_SOFT_PAUSE_PAUSE		0x0800102e
++#define SP11_PARAM_SOFT_PAUSE_RESUME		0x0800102f
++
+ struct apm_graph_mgmt_cmd {
+ 	struct apm_module_param_data param_data;
+ 	uint32_t num_sub_graphs;
+@@ -1202,6 +1208,12 @@
+ 	case APM_EVENT_MODULE_TO_CLIENT: {
+ 		const struct apm_module_event *event = data->payload;
+ 
++		if (data->payload_size < sizeof(*event)) {
++			dev_warn(dev, "SP11 truncated module event: %d bytes\n",
++				 data->payload_size);
++			break;
++		}
++
+ 		/*
+ 		 * SP11 2026-08-01: log every module->client event.
+ 		 *
+@@ -1225,9 +1237,25 @@
+ 				 data->hdr.src_port, event->event_id,
+ 				 event->event_payload_size);
+ 
+-		if (!graph->pull_mode ||
+-		    event->event_id !=
+-			    EVENT_ID_SH_MEM_PULL_PUSH_MODE_WATERMARK)
++		if (!graph->pull_mode)
++			break;
++
++		if (data->hdr.src_port == SP11_SOFT_PAUSE_IID && graph->cb) {
++			if (event->event_id == EVENT_ID_SOFT_PAUSE_PAUSE_COMPLETE) {
++				graph->cb(APM_CLIENT_EVENT_SOFT_PAUSE_COMPLETE, 0,
++					  (u8 *)data->payload + sizeof(*event),
++					  graph->priv);
++				break;
++			}
++			if (event->event_id == EVENT_ID_SOFT_PAUSE_RESUME_COMPLETE) {
++				graph->cb(APM_CLIENT_EVENT_SOFT_RESUME_COMPLETE, 0,
++					  (u8 *)data->payload + sizeof(*event),
++					  graph->priv);
++				break;
++			}
++		}
++
++		if (event->event_id != EVENT_ID_SH_MEM_PULL_PUSH_MODE_WATERMARK)
+ 			break;
+ 		if (graph->cb)
+ 			graph->cb(APM_CLIENT_EVENT_PULL_WATERMARK, 0,
+@@ -1437,6 +1465,35 @@
+ EXPORT_SYMBOL_GPL(q6apm_graph_flush);
+ 
+ /*
++ * Reproduce qcadcm SetStreamPause() for the SP11 protected pull graph.
++ * REV_0D tag 0x04010008 / key 0x01000021 resolves to a zero-length
++ * parameter command on iid 0x466b: value 1 -> 0x0800102e (pause),
++ * value 0 -> 0x0800102f (resume/release).  The Aug-10 common-GPR Windows
++ * capture independently observed both exact SET_CFG headers.
++ */
++int q6apm_graph_sp11_soft_pause(struct q6apm_graph *graph, bool pause)
++{
++	struct audioreach_module *module;
++	struct apm_module_param_data param = { 0 };
++
++	if (!graph || !graph->pull_mode || !graph->ar_graph)
++		return -EOPNOTSUPP;
++
++	module = q6apm_find_module_by_mid(graph, SP11_MODULE_ID_SOFT_PAUSE);
++	if (!module || module->instance_id != SP11_SOFT_PAUSE_IID)
++		return -EOPNOTSUPP;
++
++	param.module_instance_id = module->instance_id;
++	param.param_id = pause ? SP11_PARAM_SOFT_PAUSE_PAUSE :
++				 SP11_PARAM_SOFT_PAUSE_RESUME;
++	param.param_size = 0;
++	param.error_code = 0;
++
++	return q6apm_send_inband_config(graph->ar_graph, &param, sizeof(param));
++}
++EXPORT_SYMBOL_GPL(q6apm_graph_sp11_soft_pause);
++
++/*
+  * SP11 MSIIR parameter injection control (added 2026-08-01).
+  *
+  * Mirrors what DolbyAPOvlldp150 does on Windows: a user-space processor
+--- a/sound/soc/qcom/qdsp6/q6apm.h
++++ b/sound/soc/qcom/qdsp6/q6apm.h
+@@ -43,6 +43,8 @@
+ #define APM_CLIENT_EVENT_DATA_WRITE_DONE	0x1009
+ #define APM_CLIENT_EVENT_DATA_READ_DONE		0x100a
+ #define APM_CLIENT_EVENT_PULL_WATERMARK		0x100b
++#define APM_CLIENT_EVENT_SOFT_PAUSE_COMPLETE	0x100c
++#define APM_CLIENT_EVENT_SOFT_RESUME_COMPLETE	0x100d
+ #define APM_WRITE_TOKEN_MASK                   GENMASK(15, 0)
+ #define APM_WRITE_TOKEN_LEN_MASK               GENMASK(31, 16)
+ #define APM_WRITE_TOKEN_LEN_SHIFT              16
+@@ -135,6 +137,7 @@
+ int q6apm_graph_start(struct q6apm_graph *graph);
+ int q6apm_graph_stop(struct q6apm_graph *graph);
+ int q6apm_graph_flush(struct q6apm_graph *graph);
++int q6apm_graph_sp11_soft_pause(struct q6apm_graph *graph, bool pause);
+ bool q6apm_graph_is_pull_mode(struct device *dev, unsigned int graph_id);
+ 
+ /* Media Format */
+--- a/sound/soc/qcom/qdsp6/q6apm-dai.c
++++ b/sound/soc/qcom/qdsp6/q6apm-dai.c
+@@ -14,6 +14,8 @@
+ #include <asm/div64.h>
+ #include <asm/dma.h>
+ #include <linux/dma-mapping.h>
++#include <linux/completion.h>
++#include <linux/jiffies.h>
+ #include <sound/pcm_params.h>
+ #include "q6apm.h"
+ 
+@@ -31,6 +33,15 @@
+ #define BUFFER_BYTES_MIN (PLAYBACK_MIN_NUM_PERIODS * PLAYBACK_MIN_PERIOD_SIZE)
+ #define SP11_PULL_PERIOD_BYTES	1920
+ #define SP11_PULL_BUFFER_BYTES	3840
++/* Current Windows DEFAULT 0x466b timing: 0x102d rampdown=20 ms,
++ * 0x103e downstream delay=25 ms, and qcadcm adds a 5 ms completion margin.
++ */
++#define SP11_SOFT_PAUSE_RAMPDOWN_MS		20
++#define SP11_SOFT_PAUSE_DOWNSTREAM_DELAY_MS	25
++#define SP11_SOFT_PAUSE_COMPLETION_MARGIN_MS	5
++#define SP11_SOFT_PAUSE_TIMEOUT_MS		\
++	(SP11_SOFT_PAUSE_RAMPDOWN_MS + SP11_SOFT_PAUSE_DOWNSTREAM_DELAY_MS + \
++	 SP11_SOFT_PAUSE_COMPLETION_MARGIN_MS)
+ #define COMPR_PLAYBACK_MAX_FRAGMENT_SIZE (128 * 1024)
+ #define COMPR_PLAYBACK_MAX_NUM_FRAGMENTS (16 * 4)
+ #define COMPR_PLAYBACK_MIN_FRAGMENT_SIZE (8 * 1024)
+@@ -78,6 +89,9 @@
+ 	struct q6apm_graph *graph;
+ 	spinlock_t lock;
+ 	bool notify_on_drain;
++	bool soft_paused;
++	struct completion soft_pause_done;
++	struct completion soft_resume_done;
+ };
+ 
+ struct q6apm_dai_data {
+@@ -165,6 +179,12 @@
+ 		if (prtd->state == Q6APM_STREAM_RUNNING)
+ 			snd_pcm_period_elapsed(substream);
+ 		break;
++	case APM_CLIENT_EVENT_SOFT_PAUSE_COMPLETE:
++		complete(&prtd->soft_pause_done);
++		break;
++	case APM_CLIENT_EVENT_SOFT_RESUME_COMPLETE:
++		complete(&prtd->soft_resume_done);
++		break;
+ 	case APM_CLIENT_EVENT_DATA_READ_DONE:
+ 		snd_pcm_period_elapsed(substream);
+ 		if (prtd->state == Q6APM_STREAM_RUNNING)
+@@ -359,6 +379,39 @@
+ 	return ret;
+ }
+ 
++static int q6apm_dai_sp11_soft_pause(struct snd_soc_component *component,
++				     struct q6apm_dai_rtd *prtd,
++				     bool pause)
++{
++	struct completion *done = pause ? &prtd->soft_pause_done :
++					    &prtd->soft_resume_done;
++	unsigned long timeout;
++	int ret;
++
++	if (!prtd->graph->pull_mode)
++		return -EOPNOTSUPP;
++
++	reinit_completion(done);
++	ret = q6apm_graph_sp11_soft_pause(prtd->graph, pause);
++	if (ret)
++		return ret;
++
++	/* The DSP accepted the command. Track requested state even if its
++	 * completion event is delayed/lost so STOP can safely clean up a
++	 * possibly outstanding pause.
++	 */
++	prtd->soft_paused = pause;
++
++	timeout = wait_for_completion_timeout(done, msecs_to_jiffies(SP11_SOFT_PAUSE_TIMEOUT_MS));
++	if (!timeout) {
++		dev_err(component->dev, "SP11 soft-%s completion timed out\n",
++			pause ? "pause" : "resume");
++		return -ETIMEDOUT;
++	}
++
++	return 0;
++}
++
+ static int q6apm_dai_trigger(struct snd_soc_component *component,
+ 			     struct snd_pcm_substream *substream, int cmd)
+ {
+@@ -368,16 +421,50 @@
+ 
+ 	switch (cmd) {
+ 	case SNDRV_PCM_TRIGGER_START:
++		break;
+ 	case SNDRV_PCM_TRIGGER_RESUME:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
++		if (substream->stream != SNDRV_PCM_STREAM_PLAYBACK ||
++		    !prtd->graph->pull_mode || !prtd->soft_paused)
++			break;
++		ret = q6apm_dai_sp11_soft_pause(component, prtd, false);
++		if (ret == -EOPNOTSUPP) {
++			ret = 0;
++		} else if (!ret) {
++			prtd->soft_paused = false;
++			prtd->state = Q6APM_STREAM_RUNNING;
++		}
+ 		break;
+ 	case SNDRV_PCM_TRIGGER_STOP:
+-		/* TODO support be handled via SoftPause Module */
++		/*
++		 * Keep the SP11 pull graph persistent across host STOP/reprepare.
++		 * Windows closes an outstanding soft pause before leaving STOP; do
++		 * the same without converting this into a graph-stop transaction.
++		 */
++		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
++		    prtd->graph->pull_mode && prtd->soft_paused) {
++			ret = q6apm_dai_sp11_soft_pause(component, prtd, false);
++			if (ret == -EOPNOTSUPP)
++				ret = 0;
++			else if (!ret)
++				prtd->soft_paused = false;
++		}
+ 		prtd->state = Q6APM_STREAM_STOPPED;
+ 		prtd->queue_ptr = 0;
+ 		break;
+ 	case SNDRV_PCM_TRIGGER_SUSPEND:
++		break;
+ 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
++		if (substream->stream != SNDRV_PCM_STREAM_PLAYBACK ||
++		    !prtd->graph->pull_mode || prtd->soft_paused)
++			break;
++		ret = q6apm_dai_sp11_soft_pause(component, prtd, true);
++		if (ret == -EOPNOTSUPP) {
++			ret = 0;
++		} else if (!ret) {
++			prtd->soft_paused = true;
++			prtd->state = Q6APM_STREAM_STOPPED;
++		}
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+@@ -411,6 +498,8 @@
+ 		return -ENOMEM;
+ 
+ 	spin_lock_init(&prtd->lock);
++	init_completion(&prtd->soft_pause_done);
++	init_completion(&prtd->soft_resume_done);
+ 	prtd->substream = substream;
+ 	prtd->graph = q6apm_graph_open(dev, event_handler, prtd, graph_id, substream->stream);
+ 	if (IS_ERR(prtd->graph)) {

@@ -1,0 +1,44 @@
+From: geoca <272055834+geocausa@users.noreply.github.com>
+Subject: [PATCH] ASoC: wsa884x: avoid full cache dirty on runtime clock-stop
+
+SP11 keeps the WSA884x supplies enabled and reset deasserted across runtime
+PM, and the SoundWire slave advertises simple clock-stop support.  Marking
+the entire regcache dirty at runtime suspend therefore treats an ordinary
+clock-stop as hardware context loss.
+
+This is especially costly on SP11: function tracing measures each full
+WSA884x regcache replay at roughly 4.3-4.6 seconds, and one cold playback
+currently performs one replay from runtime_resume plus another from the
+SoundWire reattach path for each of two amplifiers.
+
+Leave the map cache-only while suspended, but do not force every register
+dirty.  Regmap already tracks writes made while the map is cache-only.
+Real suspended-time control changes are therefore still
+synchronized on resume.  Keep the existing UNATTACHED/ATTACHED full-restore
+path unchanged as the conservative context-loss fallback.
+
+This is an isolated candidate only; it is not deployed.
+
+Signed-off-by: geoca <272055834+geocausa@users.noreply.github.com>
+---
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -2604,8 +2604,17 @@
+ {
+ 	struct regmap *regmap = dev_get_regmap(dev, NULL);
+ 
++	/*
++	 * Runtime PM only clock-stops the internal SoundWire link on SP11; the
++	 * WSA supplies and reset remain asserted and the codec advertises simple
++	 * clock-stop capability.  Do not mark the entire 390-entry cache dirty as
++	 * though hardware context had been lost.  Regmap already marks the cache
++	 * dirty for writes made while cache-only, so runtime_resume's sync still
++	 * flushes genuine suspended-time changes.  The SoundWire UNATTACHED ->
++	 * ATTACHED recovery path intentionally retains its full dirty-cache restore
++	 * as a conservative context-loss fallback.
++	 */
+ 	regcache_cache_only(regmap, true);
+-	regcache_mark_dirty(regmap);
+ 
+ 	return 0;
+ }

@@ -138,7 +138,7 @@ The attach-side `UNATTACHED -> ATTACHED` path deliberately retains its existing 
 
 Artifacts:
 
-- patch: `/home/geoca/Documents/SP11-AUDIO-AUDIT/wsa-regcache-candidate-20260813/0001-ASoC-wsa884x-avoid-full-cache-dirty-on-clock-stop.patch`;
+- patch: `patches/0046-ASoC-wsa884x-avoid-full-cache-dirty-on-clock-stop.patch`;
 - patch SHA-256: `b653431eb855d7dccc709841f2104fb20a519f15a7756732dac2ae2e37ae4ba2`;
 - strict checkpatch: 0 errors, 0 warnings, 0 checks;
 - exact-release candidate module SHA-256: `4ccf7565dd4e8457d61b3482c45cf4605305128d4ff1ad8b02a9665236442688`;

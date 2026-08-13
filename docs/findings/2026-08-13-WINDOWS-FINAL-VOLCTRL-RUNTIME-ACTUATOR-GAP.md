@@ -99,21 +99,19 @@ This materially sharpens the mismatch: Linux has already deployed the Windows fi
 
 ## Isolated diagnostic candidate
 
-No live control was added. An isolated exact-target candidate was built under:
+No live control was added. The isolated exact-target candidate is preserved in
+the canonical repository as patch `0047` and accompanying offline/A-B tools.
 
-`/home/geoca/Documents/SP11-AUDIO-AUDIT/final-volctrl-candidate-20260813/`
-
-Patch:
-
-`0001-q6apm-add-SP11-final-endpoint-volume-Q28-control.patch`
+Patch: `patches/0047-q6apm-add-SP11-final-endpoint-volume-Q28-control.patch`.
 
 Patch SHA-256:
 
 `e604bdeb118a2961687380f9980da5d930a3885407629dca3db8f4717429c13c`
 
-Userspace offline generator:
+Userspace offline generator: `tools/sp11_final_volume_q28.py`.
 
-`sp11_final_volume_q28.py`
+Safe actuator A/B wrapper: `tools/sp11_volume_actuator_ab.py`, covered by
+`tests/test_sp11_volume_actuator_ab.py`.
 
 Generator SHA-256:
 

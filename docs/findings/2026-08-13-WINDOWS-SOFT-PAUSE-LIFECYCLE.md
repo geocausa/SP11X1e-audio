@@ -103,9 +103,10 @@ The remaining implementation work is host lifecycle plumbing: send the exact `0x
 
 ## Isolated Linux candidate status — 2026-08-13 follow-up
 
-The bounded host-side implementation has now been converted into a clean reviewable patch:
+The bounded host-side implementation has now been converted into a clean,
+reviewable patch preserved in the canonical repository:
 
-`/home/geoca/Documents/SP11-AUDIO-AUDIT/softpause-lifecycle-candidate-20260813/0001-q6apm-sp11-windows-soft-pause-lifecycle.patch`
+`patches/0045-q6apm-sp11-windows-soft-pause-lifecycle.patch`
 
 SHA-256:
 
