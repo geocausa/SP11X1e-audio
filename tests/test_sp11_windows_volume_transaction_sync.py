@@ -89,6 +89,18 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
             self.assertEqual(sync.run(args), 0)
         restore.assert_called_once_with((0.25 ** 3, False), 69, "wpctl")
 
+    def test_load_module_accepts_extensionless_installed_helper(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            helper = Path(tmpdir) / ".local/bin/test-helper"
+            helper.parent.mkdir(parents=True)
+            helper.write_text("answer = 42\n")
+            with patch.object(sync, "ROOT", None), \
+                 patch.object(sync.Path, "home", return_value=Path(tmpdir)):
+                module = sync.load_module(
+                    "unused.py", "test-helper", "test_extensionless_helper"
+                )
+        self.assertEqual(module.answer, 42)
+
 
 if __name__ == "__main__":
     unittest.main()

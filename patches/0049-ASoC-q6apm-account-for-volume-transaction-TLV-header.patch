@@ -1,0 +1,55 @@
+From f165410554d95ddd6af3c1eedc16c9703b2ce71f Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Thu, 13 Aug 2026 19:36:20 +0100
+Subject: [PATCH] ASoC: q6apm: account for volume transaction TLV header
+
+SND_SOC_BYTES_TLV limits the complete callback buffer, including its
+two-word ALSA TLV header. The initial control maximum covered only the
+largest transaction payload, so 272-byte GainStep rows were truncated and
+rejected before validation.
+
+Keep the payload buffer at 276 bytes and expose 284 bytes for the complete
+control buffer. Normal 216-byte and extended 272-byte payload validation is
+otherwise unchanged.
+
+Signed-off-by: SP11 audio reconstruction <sp11-audio@localhost>
+---
+ sound/soc/qcom/qdsp6/q6apm.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+index afe0ad6..990a9b7 100644
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -1464,8 +1464,10 @@ EXPORT_SYMBOL_GPL(q6apm_graph_flush);
+ 
+ #define SP11_VOLUME_TRANSACTION_NORMAL_SIZE	216
+ #define SP11_VOLUME_TRANSACTION_LARGE_SIZE	272
+-#define SP11_VOLUME_TRANSACTION_MAX		(sizeof(u32) + \
++#define SP11_VOLUME_TRANSACTION_PAYLOAD_MAX	(sizeof(u32) + \
+ 						 SP11_VOLUME_TRANSACTION_LARGE_SIZE)
++#define SP11_VOLUME_TRANSACTION_CONTROL_MAX	(SND_SOC_TLV_HDR + \
++						 SP11_VOLUME_TRANSACTION_PAYLOAD_MAX)
+ #define SP11_GAINSTEP_IID			0x489e
+ 
+ static DEFINE_MUTEX(sp11_volume_transaction_lock);
+@@ -1626,7 +1628,7 @@ q6apm_sp11_volume_transaction_put(struct snd_kcontrol *kcontrol,
+ {
+ 	struct snd_soc_component *c = snd_kcontrol_chip(kcontrol);
+ 	struct q6apm *apm = dev_get_drvdata(c->dev);
+-	u8 data[SP11_VOLUME_TRANSACTION_MAX];
++	u8 data[SP11_VOLUME_TRANSACTION_PAYLOAD_MAX];
+ 	size_t payload_size;
+ 	u32 gain_q28;
+ 
+@@ -1652,7 +1654,7 @@ static const struct snd_kcontrol_new q6apm_sp11_controls[] = {
+ 	SND_SOC_BYTES_TLV("SP11 MSIIR Inject", SP11_INJECT_CTL_MAX,
+ 			  NULL, q6apm_sp11_inject_put),
+ 	SND_SOC_BYTES_TLV("SP11 Windows Volume Transaction",
+-			  SP11_VOLUME_TRANSACTION_MAX, NULL,
++			  SP11_VOLUME_TRANSACTION_CONTROL_MAX, NULL,
+ 			  q6apm_sp11_volume_transaction_put),
+ };
+ 
+-- 
+2.53.0

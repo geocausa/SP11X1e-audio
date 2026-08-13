@@ -659,3 +659,13 @@ Combined rollback-safe diagnostic candidate. It sends final render VOL_CTRL
 delta through the protected graph's existing OOB calibration mapping. The new
 ALSA control accepts only Q28 unity-or-lower gain plus structurally validated
 216/272-byte deltas; arbitrary module targets and idle graphs are rejected.
+
+## `0049-ASoC-q6apm-account-for-volume-transaction-TLV-header.patch`
+
+Mandatory live-gate correction on top of `0048`. The first candidate sized
+the ASoC bytes control for the 276-byte maximum payload but omitted the
+8-byte ALSA TLV header from the control maximum. Consequently normal 216-byte
+GainStep rows worked while 272-byte rows were truncated before the validator
+and rejected with `-EINVAL`. This patch separates payload capacity from total
+control-buffer capacity (`276 + 8 = 284` bytes). The payload validator and
+DSP transaction bytes are otherwise unchanged.

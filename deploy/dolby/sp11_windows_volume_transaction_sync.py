@@ -24,6 +24,7 @@ import struct
 import subprocess
 import sys
 import time
+from importlib.machinery import SourceFileLoader
 from pathlib import Path
 
 
@@ -39,7 +40,12 @@ def load_module(source_name: str, installed_name: str, module_name: str):
     path = next((candidate for candidate in candidates if candidate.exists()), None)
     if path is None:
         raise RuntimeError(f"missing dependency: {installed_name}")
-    spec = importlib.util.spec_from_file_location(module_name, path)
+    # Installed helpers intentionally have no .py suffix.  Python cannot infer
+    # a loader for those paths, so bind the source loader explicitly.
+    loader = SourceFileLoader(module_name, str(path))
+    spec = importlib.util.spec_from_file_location(
+        module_name, path, loader=loader
+    )
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
     spec.loader.exec_module(module)

@@ -9,6 +9,13 @@
 > slider/seek listening still gate GREEN. Persistent fallback remains
 > `sp11-audio-cps-v3`. See
 > `docs/deployment/2026-08-13-windows-volume-transaction-candidate.md`.
+>
+> **First live-gate correction:** candidate v1 booted with Wi-Fi and protected
+> audio intact. Normal 216-byte transactions succeeded; extended 272-byte rows
+> exposed an 8-byte ALSA TLV capacity error and failed quiet with host
+> attenuation restored. Patch `0049` corrects the control maximum from 276 to
+> 284 bytes and is staged in a replacement one-shot initramfs. V04/L03b remain
+> AMBER pending the second-boot large-row and physical tests.
 
 This is the canonical playback/render ledger for the Surface Pro 11 (X1E80100) port as of 2026-08-12. It supersedes the earlier broad GREEN sign-off and the contradictory append-only SP7 ledger. The completion gate is **built-in-speaker rendering**. Microphone/input and Bluetooth are intentionally not completion blockers.
 
