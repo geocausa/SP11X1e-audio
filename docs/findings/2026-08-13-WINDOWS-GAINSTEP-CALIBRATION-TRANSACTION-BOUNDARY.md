@@ -142,3 +142,18 @@ Build, but do not install, a combined candidate that reproduces the recovered Wi
 3. submit the complete 216/272-byte four-frame `0x489e` delta through the protected graph's existing OOB calibration mapping;
 4. retain Dolby postgain and the exact endpoint taper as the shared gain-state source;
 5. static-test exact bytes/order and build exact-release modules only; do not live install while the user is away.
+
+## 2026-08-13 staged candidate update
+
+That engineering gate is now implemented by
+`patches/0048-ASoC-q6apm-add-SP11-Windows-volume-transaction.patch`.
+The candidate passes strict checkpatch, exact-release build/provenance checks,
+and the Wi-Fi bake verifier. Its module is signed with the accepted CPS-v3 key
+and isolated in GRUB entry `sp11-audio-volume-transaction`; the accepted
+kernel, DTB, and persistent `sp11-audio-cps-v3` fallback are unchanged.
+
+Userspace establishes host attenuation while idle, orders Dolby postgain ->
+combined DSP transaction -> host unity, and restores host attenuation on
+failure or service exit. Physical validation is still pending, so transaction
+and causal parity remain AMBER rather than GREEN. See
+`docs/deployment/2026-08-13-windows-volume-transaction-candidate.md`.

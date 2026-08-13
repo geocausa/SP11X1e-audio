@@ -145,3 +145,17 @@ When a live listening window is appropriate, compare two gain-actuator paths on 
 The test must preserve the exact Windows taper, Dolby postgain and MSIIR state. Only the location/transition actuator should differ. Physical slider-transient behavior then decides whether V04 closes or whether the remaining cause lies elsewhere.
 
 Do not deploy this candidate while the user is away.
+
+## 2026-08-13 live-window update
+
+The user is now physically present and explicitly authorized a live test.
+The superseding combined candidate is patch `0048`: it retains the fixed
+final-`VOL_CTRL` target and adds the complete four-frame OOB GainStep delta in
+the recovered Windows order. It is signed, isolated in one-shot GRUB entry
+`sp11-audio-volume-transaction`, and uses the accepted CPS-v3 kernel and DTB
+byte-for-byte. Persistent fallback remains `sp11-audio-cps-v3`.
+
+This advances V04 from RED implementation gap to AMBER staged candidate. It
+does not close V04: post-boot transaction evidence and physical slider/seek
+listening remain mandatory. Exact deployment provenance is in
+`docs/deployment/2026-08-13-windows-volume-transaction-candidate.md`.

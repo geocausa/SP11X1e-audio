@@ -131,13 +131,15 @@ def extract_gainstep_delta(chunks: dict[str, dict], step: int) -> tuple[bytes, d
     return found
 
 
-def inventory(acdb: Path) -> dict:
+def inventory(acdb: Path, *, include_payloads: bool = False) -> dict:
     raw = acdb.read_bytes()
     source_sha = sha256(raw)
     chunks = parse_chunks(raw)
     steps = []
     for step in range(1, 31):
-        _blob, meta = extract_gainstep_delta(chunks, step)
+        blob, meta = extract_gainstep_delta(chunks, step)
+        if include_payloads:
+            meta["serialized_hex"] = blob.hex()
         steps.append(meta)
     return {
         "format": "SP11 Windows runtime GainStep delta calibration inventory",
@@ -160,8 +162,9 @@ def main() -> int:
     parser.add_argument("acdb", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--allow-unexpected-source", action="store_true")
+    parser.add_argument("--include-payloads", action="store_true")
     args = parser.parse_args()
-    result = inventory(args.acdb)
+    result = inventory(args.acdb, include_payloads=args.include_payloads)
     if not result["source_matches_reviewed_rev_0d"] and not args.allow_unexpected_source:
         raise SystemExit(
             f"unexpected ACDB SHA-256: {result['source_sha256']} != {SP11_REV_0D_SHA256}"

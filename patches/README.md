@@ -651,3 +651,11 @@ control for final render VOL_CTRL iid `0x4a63`, parameter `0x08001038`, and
 constructs the exact 104-byte Windows L/R body in-kernel. It does not widen the
 existing arbitrary-payload allowlist. Physical A/B and GainStep transaction
 ordering remain required before promotion.
+
+## `0048-ASoC-q6apm-add-SP11-Windows-volume-transaction.patch`
+
+Combined rollback-safe diagnostic candidate. It sends final render VOL_CTRL
+`0x4a63/0x08001038` first, then submits the exact four-frame `0x489e` GainStep
+delta through the protected graph's existing OOB calibration mapping. The new
+ALSA control accepts only Q28 unity-or-lower gain plus structurally validated
+216/272-byte deltas; arbitrary module targets and idle graphs are rejected.

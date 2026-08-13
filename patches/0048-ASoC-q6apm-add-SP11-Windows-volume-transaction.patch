@@ -1,0 +1,296 @@
+From a934531c4a0a73f8e33b0d9da2f020ad8e90d784 Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Thu, 13 Aug 2026 19:12:29 +0100
+Subject: [PATCH] ASoC: q6apm: add SP11 Windows volume transaction
+
+---
+ sound/soc/qcom/qdsp6/audioreach.c |  73 +++++++++++++---
+ sound/soc/qcom/qdsp6/audioreach.h |   1 +
+ sound/soc/qcom/qdsp6/q6apm.c      | 136 ++++++++++++++++++++++++++++++
+ 3 files changed, 196 insertions(+), 14 deletions(-)
+
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+index 77cc8af..16b49d6 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1899,7 +1899,7 @@ static bool sp11_inject_target_allowed(u32 iid, u32 param_id)
+ 	}
+ }
+ 
+-/**
++/*
+  * audioreach_sp11_inject_module_param() - push one parameter to a live module
+  * @apm:the APM instance
+  * @iid:target module instance id (allowlisted)
+@@ -1912,26 +1912,17 @@ static bool sp11_inject_target_allowed(u32 iid, u32 param_id)
+  * typically means the module has not been initialised through the media-format
+  * path yet, i.e. the graph is not running.
+  */
+-int audioreach_sp11_inject_module_param(struct q6apm *apm, u32 iid, u32 param_id,
+-					const void *payload, size_t size)
++static int
++audioreach_sp11_send_module_param(struct q6apm *apm, u32 iid, u32 param_id,
++				  const void *payload, size_t size)
+ {
+ 	struct apm_module_param_data *param_data;
+ 	int pkt_size;
+ 	void *p;
+ 
+-	if (!apm || !payload)
+-		return -EINVAL;
+-
+-	if (!size || size > SP11_MAX_INJECT_PAYLOAD)
++	if (!apm || !payload || !size || size > SP11_MAX_INJECT_PAYLOAD)
+ 		return -EINVAL;
+ 
+-	if (!sp11_inject_target_allowed(iid, param_id)) {
+-		dev_warn(apm->dev,
+-			 "SP11 inject refused: iid %#x param %#x not allowlisted\n",
+-			 iid, param_id);
+-		return -EPERM;
+-	}
+-
+ 	pkt_size = ALIGN(size, 8) + APM_MODULE_PARAM_DATA_SIZE;
+ 
+ 	struct gpr_pkt *pkt __free(kfree) =
+@@ -1952,8 +1943,62 @@ int audioreach_sp11_inject_module_param(struct q6apm *apm, u32 iid, u32 param_id
+ 
+ 	return q6apm_send_cmd_sync(apm, pkt, 0);
+ }
++
++int audioreach_sp11_inject_module_param(struct q6apm *apm, u32 iid, u32 param_id,
++					const void *payload, size_t size)
++{
++	if (!apm || !payload)
++		return -EINVAL;
++
++	if (!size || size > SP11_MAX_INJECT_PAYLOAD)
++		return -EINVAL;
++
++	if (!sp11_inject_target_allowed(iid, param_id)) {
++		dev_warn(apm->dev,
++			 "SP11 inject refused: iid %#x param %#x not allowlisted\n",
++			 iid, param_id);
++		return -EPERM;
++	}
++
++	return audioreach_sp11_send_module_param(apm, iid, param_id, payload, size);
++}
+ EXPORT_SYMBOL_GPL(audioreach_sp11_inject_module_param);
+ 
++#define SP11_FINAL_VOL_CTRL_IID		0x4a63
++#define SP11_PARAM_VOL_CTRL_MULTICH_GAIN	0x08001038
++#define SP11_VOL_CTRL_Q28_UNITY		0x10000000
++#define SP11_VOL_CTRL_NUM_CONFIGS		8
++
++struct sp11_vol_ctrl_channel_gain {
++	u32 channel_mask_lsw;
++	u32 channel_mask_msw;
++	u32 gain_q28;
++} __packed;
++
++struct sp11_vol_ctrl_multichannel_gain {
++	u32 num_config;
++	struct sp11_vol_ctrl_channel_gain channel[SP11_VOL_CTRL_NUM_CONFIGS];
++	u32 padding;
++} __packed;
++
++static_assert(sizeof(struct sp11_vol_ctrl_multichannel_gain) == 0x68);
++
++int audioreach_sp11_set_final_volume_q28(struct q6apm *apm, u32 gain_q28)
++{
++	struct sp11_vol_ctrl_multichannel_gain cfg = {
++		.num_config = SP11_VOL_CTRL_NUM_CONFIGS,
++		.channel[0] = { .channel_mask_lsw = 0x2, .gain_q28 = gain_q28 },
++		.channel[1] = { .channel_mask_lsw = 0x4, .gain_q28 = gain_q28 },
++	};
++
++	if (!apm || gain_q28 > SP11_VOL_CTRL_Q28_UNITY)
++		return -EINVAL;
++
++	return audioreach_sp11_send_module_param(apm, SP11_FINAL_VOL_CTRL_IID,
++			SP11_PARAM_VOL_CTRL_MULTICH_GAIN, &cfg, sizeof(cfg));
++}
++EXPORT_SYMBOL_GPL(audioreach_sp11_set_final_volume_q28);
++
+ static int audioreach_gain_set(struct q6apm_graph *graph,
+ 			       const struct audioreach_module *module)
+ {
+diff --git a/sound/soc/qcom/qdsp6/audioreach.h b/sound/soc/qcom/qdsp6/audioreach.h
+index eee60c1..74e3289 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.h
++++ b/sound/soc/qcom/qdsp6/audioreach.h
+@@ -925,6 +925,7 @@ int audioreach_gain_set_vol_ctrl(struct q6apm *apm,
+ 				 const struct audioreach_module *module, int vol);
+ int audioreach_sp11_inject_module_param(struct q6apm *apm, u32 iid, u32 param_id,
+ 					const void *payload, size_t size);
++int audioreach_sp11_set_final_volume_q28(struct q6apm *apm, u32 gain_q28);
+ int audioreach_send_u32_param(struct q6apm_graph *graph,
+ 			      const struct audioreach_module *module,
+ 			      uint32_t param_id, uint32_t param_val);
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+index fd18f83..afe0ad6 100644
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -11,6 +11,7 @@
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/soc/qcom/apr.h>
++#include <linux/unaligned.h>
+ #include <linux/wait.h>
+ #include <sound/soc.h>
+ #include <sound/soc-dapm.h>
+@@ -1461,6 +1462,109 @@ EXPORT_SYMBOL_GPL(q6apm_graph_flush);
+ #define SP11_INJECT_CTL_HDR	(3 * sizeof(u32))
+ #define SP11_INJECT_CTL_MAX	1152
+ 
++#define SP11_VOLUME_TRANSACTION_NORMAL_SIZE	216
++#define SP11_VOLUME_TRANSACTION_LARGE_SIZE	272
++#define SP11_VOLUME_TRANSACTION_MAX		(sizeof(u32) + \
++						 SP11_VOLUME_TRANSACTION_LARGE_SIZE)
++#define SP11_GAINSTEP_IID			0x489e
++
++static DEFINE_MUTEX(sp11_volume_transaction_lock);
++
++static int q6apm_sp11_validate_gainstep_delta(const u8 *data, size_t size)
++{
++	static const u32 expected_param_ids[] = {
++		0x08001020, 0x08001021, 0x08001022, 0x08001026,
++	};
++	static const u32 expected_param_sizes[] = { 28, 16, 0, 4 };
++	size_t offset = 0;
++	u32 coeff_size;
++	int i;
++
++	if (size == SP11_VOLUME_TRANSACTION_NORMAL_SIZE)
++		coeff_size = 96;
++	else if (size == SP11_VOLUME_TRANSACTION_LARGE_SIZE)
++		coeff_size = 152;
++	else
++		return -EINVAL;
++
++	for (i = 0; i < ARRAY_SIZE(expected_param_ids); i++) {
++		size_t frame_size, padding;
++		u32 param_size;
++
++		if (size - offset < APM_MODULE_PARAM_DATA_SIZE)
++			return -EINVAL;
++		if (get_unaligned_le32(data + offset) != SP11_GAINSTEP_IID ||
++		    get_unaligned_le32(data + offset + sizeof(u32)) !=
++			    expected_param_ids[i] ||
++		    get_unaligned_le32(data + offset + 3 * sizeof(u32)) != 0)
++			return -EPERM;
++
++		param_size = get_unaligned_le32(data + offset + 2 * sizeof(u32));
++		if (param_size != (i == 2 ? coeff_size : expected_param_sizes[i]))
++			return -EINVAL;
++
++		frame_size = ALIGN(APM_MODULE_PARAM_DATA_SIZE + param_size, 8);
++		if (frame_size > size - offset)
++			return -EINVAL;
++		padding = frame_size - APM_MODULE_PARAM_DATA_SIZE - param_size;
++		if (padding && memchr_inv(data + offset + APM_MODULE_PARAM_DATA_SIZE +
++					  param_size, 0, padding))
++			return -EINVAL;
++		offset += frame_size;
++	}
++
++	return offset == size ? 0 : -EINVAL;
++}
++
++static struct audioreach_graph *
++q6apm_sp11_get_running_protected_graph(struct q6apm *apm)
++{
++	struct audioreach_graph *graph;
++	int id;
++
++	mutex_lock(&apm->lock);
++	idr_for_each_entry(&apm->graph_idr, graph, id) {
++		if (!audioreach_graph_has_protected_calibration(graph->info) ||
++		    READ_ONCE(graph->start_count) <= 0)
++			continue;
++		kref_get(&graph->refcount);
++		mutex_unlock(&apm->lock);
++		return graph;
++	}
++	mutex_unlock(&apm->lock);
++
++	return ERR_PTR(-ENODEV);
++}
++
++static int q6apm_sp11_apply_volume_transaction(struct q6apm *apm, u32 gain_q28,
++					       const u8 *delta, size_t delta_size)
++{
++	struct audioreach_graph *graph;
++	int ret;
++
++	ret = q6apm_sp11_validate_gainstep_delta(delta, delta_size);
++	if (ret)
++		return ret;
++
++	graph = q6apm_sp11_get_running_protected_graph(apm);
++	if (IS_ERR(graph))
++		return PTR_ERR(graph);
++
++	mutex_lock(&sp11_volume_transaction_lock);
++	ret = audioreach_sp11_set_final_volume_q28(apm, gain_q28);
++	if (!ret)
++		ret = q6apm_send_oob_config(graph, delta, delta_size);
++	mutex_unlock(&sp11_volume_transaction_lock);
++
++	if (ret)
++		dev_dbg(apm->dev,
++			"SP11 volume transaction Q28 %#x delta %zu -> %d\n",
++			gain_q28, delta_size, ret);
++
++	kref_put(&graph->refcount, q6apm_put_audioreach_graph);
++	return ret;
++}
++
+ static int q6apm_sp11_inject_put(struct snd_kcontrol *kcontrol,
+ 				 const unsigned int __user *bytes,
+ 				 unsigned int size)
+@@ -1515,9 +1619,41 @@ static int q6apm_sp11_inject_put(struct snd_kcontrol *kcontrol,
+ 	return ret;
+ }
+ 
++static int
++q6apm_sp11_volume_transaction_put(struct snd_kcontrol *kcontrol,
++				  const unsigned int __user *bytes,
++				  unsigned int size)
++{
++	struct snd_soc_component *c = snd_kcontrol_chip(kcontrol);
++	struct q6apm *apm = dev_get_drvdata(c->dev);
++	u8 data[SP11_VOLUME_TRANSACTION_MAX];
++	size_t payload_size;
++	u32 gain_q28;
++
++	if (size < SND_SOC_TLV_HDR + sizeof(gain_q28))
++		return -EINVAL;
++	payload_size = size - SND_SOC_TLV_HDR;
++	if (payload_size != sizeof(gain_q28) +
++			    SP11_VOLUME_TRANSACTION_NORMAL_SIZE &&
++	    payload_size != sizeof(gain_q28) +
++			    SP11_VOLUME_TRANSACTION_LARGE_SIZE)
++		return -EINVAL;
++
++	bytes += 2;
++	if (copy_from_user(data, bytes, payload_size))
++		return -EFAULT;
++	gain_q28 = get_unaligned_le32(data);
++
++	return q6apm_sp11_apply_volume_transaction(apm, gain_q28,
++			data + sizeof(gain_q28), payload_size - sizeof(gain_q28));
++}
++
+ static const struct snd_kcontrol_new q6apm_sp11_controls[] = {
+ 	SND_SOC_BYTES_TLV("SP11 MSIIR Inject", SP11_INJECT_CTL_MAX,
+ 			  NULL, q6apm_sp11_inject_put),
++	SND_SOC_BYTES_TLV("SP11 Windows Volume Transaction",
++			  SP11_VOLUME_TRANSACTION_MAX, NULL,
++			  q6apm_sp11_volume_transaction_put),
+ };
+ 
+ static int q6apm_audio_probe(struct snd_soc_component *component)
+-- 
+2.53.0

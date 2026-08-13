@@ -1,7 +1,14 @@
 import struct
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
-from tools.acdb_gainstep_delta_inventory import EXPECTED_PARAMS, extract_gainstep_delta
+from tools.acdb_gainstep_delta_inventory import (
+    EXPECTED_PARAMS,
+    extract_gainstep_delta,
+    inventory,
+)
 from tools.acdb_protection_stage_builder import (
     CHANNEL_COUNT_KEY_ID,
     DEVICE_CHANNEL_COUNT_KEY_ID,
@@ -80,6 +87,30 @@ class GainStepDeltaInventoryTests(unittest.TestCase):
             self.assertEqual(meta["parameter_count"], 4)
         finally:
             mod.resolve_subgraph_calibration = old
+
+    def test_inventory_can_preserve_exact_runtime_payloads(self):
+        blobs = {
+            step: bytes([step]) * (272 if step in (3, 9, 24) else 216)
+            for step in range(1, 31)
+        }
+
+        def fake_extract(_chunks, step):
+            blob = blobs[step]
+            return blob, {"gain_step": step, "serialized_size": len(blob)}
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            source = Path(tmpdir) / "test.acdb"
+            source.write_bytes(b"test")
+            with patch("tools.acdb_gainstep_delta_inventory.parse_chunks",
+                       return_value={}), \
+                 patch("tools.acdb_gainstep_delta_inventory.extract_gainstep_delta",
+                       side_effect=fake_extract):
+                result = inventory(source, include_payloads=True)
+
+        self.assertEqual(len(result["steps"]), 30)
+        self.assertEqual(
+            result["steps"][2]["serialized_hex"], blobs[3].hex()
+        )
 
 
 if __name__ == "__main__":

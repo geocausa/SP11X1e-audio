@@ -32,6 +32,7 @@ import time
 from pathlib import Path
 
 CONTROL_NAME = "SP11 MSIIR Inject"
+TRANSACTION_CONTROL_NAME = "SP11 Windows Volume Transaction"
 DEFAULT_CARD = "hw:0"
 DEFAULT_PCM_STATUS = Path("/proc/asound/card0/pcm0p/sub0/status")
 DEFAULT_CONTROL_BASENAME = "sp11-dolby-profile.control"
@@ -170,6 +171,13 @@ def find_control_numid(card: str = DEFAULT_CARD, amixer: str = "amixer") -> int 
     return None
 
 
+def control_present(name: str, card: str = DEFAULT_CARD,
+                    amixer: str = "amixer") -> bool:
+    cp = subprocess.run([amixer, "-D", card, "controls"],
+                        capture_output=True, text=True)
+    return cp.returncode == 0 and name.lower() in cp.stdout.lower()
+
+
 def build_tlv_blob(step: int) -> bytes:
     if not 1 <= step <= 30:
         raise ValueError("CKV step must be 1..30")
@@ -272,6 +280,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.interval_ms < 20:
         print("interval must be >=20 ms", file=sys.stderr)
         return 2
+    if control_present(TRANSACTION_CONTROL_NAME, args.card, args.amixer):
+        print("combined Windows volume transaction owns GainStep updates")
+        return 0
     try:
         return run_once(args) if args.once else run_monitor(args)
     except KeyboardInterrupt:

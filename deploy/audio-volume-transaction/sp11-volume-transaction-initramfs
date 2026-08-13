@@ -1,0 +1,21 @@
+#!/bin/sh
+# Override only snd-q6apm in the isolated SP11 Windows-volume transaction boot.
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+prereqs) prereqs; exit 0 ;;
+esac
+
+[ "${version:-}" = "7.1.5-sp11-cps-v3+" ] || exit 0
+
+candidate=/usr/local/lib/sp11-audio-candidates/volume-transaction/snd-q6apm.ko.zst
+destination="$DESTDIR/usr/lib/modules/$version/kernel/sound/soc/qcom/qdsp6/snd-q6apm.ko.zst"
+
+[ -f "$candidate" ] || {
+	echo "missing signed SP11 volume-transaction module: $candidate" >&2
+	exit 1
+}
+
+mkdir -p "${destination%/*}"
+cp -p "$candidate" "$destination"
