@@ -7,9 +7,12 @@ instance 0x466b and zero-length SET_CFG parameters 0x0800102e for pause
 and 0x0800102f for release, with separate PAUSE_COMPLETE/RESUME_COMPLETE
 events.
 
-Keep the graph persistent across ALSA STOP/reprepare and bound completion
-waits from the current Windows DEFAULT timing: 20 ms rampdown + 25 ms
-downstream delay + 5 ms qcadcm allowance.
+Map ALSA PAUSE_PUSH/PAUSE_RELEASE to the recovered Windows pause/release
+commands.  Treat ALSA STOP/reprepare as an intermediate Linux host
+transition, not as Windows graph teardown; the existing graph-close path
+retains the real graph STOP.  Bound completion waits to the recovered
+Windows DEFAULT timing: 20 ms rampdown + 25 ms downstream delay + 5 ms
+qcadcm allowance.
 
 This is an isolated candidate only; it is not deployed.
 
@@ -217,7 +220,7 @@ Signed-off-by: geoca <272055834+geocausa@users.noreply.github.com>
  static int q6apm_dai_trigger(struct snd_soc_component *component,
  			     struct snd_pcm_substream *substream, int cmd)
  {
-@@ -368,16 +421,50 @@
+@@ -368,16 +421,51 @@
  
  	switch (cmd) {
  	case SNDRV_PCM_TRIGGER_START:
@@ -238,9 +241,10 @@ Signed-off-by: geoca <272055834+geocausa@users.noreply.github.com>
  	case SNDRV_PCM_TRIGGER_STOP:
 -		/* TODO support be handled via SoftPause Module */
 +		/*
-+		 * Keep the SP11 pull graph persistent across host STOP/reprepare.
-+		 * Windows closes an outstanding soft pause before leaving STOP; do
-+		 * the same without converting this into a graph-stop transaction.
++		 * ALSA STOP is an intermediate host lifecycle transition for this
++		 * persistent pull graph, not the Windows graph teardown boundary.
++		 * If a Windows PAUSE is outstanding, release it exactly before the
++		 * host reprepare; q6apm_dai_close() retains the real graph STOP.
 +		 */
 +		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
 +		    prtd->graph->pull_mode && prtd->soft_paused) {
@@ -269,7 +273,7 @@ Signed-off-by: geoca <272055834+geocausa@users.noreply.github.com>
  		break;
  	default:
  		ret = -EINVAL;
-@@ -411,6 +498,8 @@
+@@ -411,6 +499,8 @@
  		return -ENOMEM;
  
  	spin_lock_init(&prtd->lock);
