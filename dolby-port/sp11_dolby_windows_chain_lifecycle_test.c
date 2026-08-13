@@ -47,10 +47,28 @@ int main(int ac,char **av){setenv("SP11_DOLBY_CONTROL_PATH","off",1);
         pos+=n;
     }
 
-    /* PipeWire module-filter-chain reset on PAUSED calls LADSPA activate()
-       again.  Windows CApoBase::Reset is a no-op, so this second activation
-       must not destroy Dolby adaptive state. */
+    /* Give reference A an explicit 1776-frame zero drain. PipeWire pauses
+       immediately and calls LADSPA activate(), so B must perform the same
+       discarded drain internally without reconstructing either long-memory
+       Dolby core. */
+    float silence[960]={0};
+    uint32_t drain_left=1776;
+    while(drain_left){
+        unsigned n=drain_left>480?480:drain_left;
+        if(run_block(d,a,silence,n,NULL))return 8;
+        drain_left-=n;
+    }
     if(d->activate)d->activate(b);
+
+    /* The first block after a wake is often silence before the notification
+       waveform. It must not expose a different (undrained) media history. */
+    float wake_a[512],wake_b[512];
+    if(run_block(d,a,silence,256,wake_a)||run_block(d,b,silence,256,wake_b))return 9;
+    size_t wake_diff=0;float wake_peak=0;
+    for(size_t i=0;i<512;i++){
+        if(memcmp(wake_a+i,wake_b+i,sizeof(float)))wake_diff++;
+        float q=fabsf(wake_b[i]);if(q>wake_peak)wake_peak=q;
+    }
 
     const uint64_t probe_frames=3ULL*48000ULL; float *oa=calloc(probe_frames*2,sizeof(float)),*ob=calloc(probe_frames*2,sizeof(float));
     if(!oa||!ob)return 6;
@@ -72,9 +90,12 @@ int main(int ac,char **av){setenv("SP11_DOLBY_CONTROL_PATH","off",1);
         sa+=(double)oa[i]*oa[i]; sb+=(double)ob[i]*ob[i];
     }
     printf("warm_frames=%"PRIu64" warm_seconds=%.3f\n",warm_frames,(double)warm_frames/48000.0);
-    printf("continue_hash=%016"PRIx64" rms=%.9f\n",fnv1a(oa,probe_frames*2*sizeof(float)),sqrt(sa/(probe_frames*2)));
-    printf("reactivate_hash=%016"PRIx64" rms=%.9f\n",fnv1a(ob,probe_frames*2*sizeof(float)),sqrt(sb/(probe_frames*2)));
+    printf("reference_hash=%016"PRIx64" rms=%.9f\n",fnv1a(oa,probe_frames*2*sizeof(float)),sqrt(sa/(probe_frames*2)));
+    printf("pause_callback_hash=%016"PRIx64" rms=%.9f\n",fnv1a(ob,probe_frames*2*sizeof(float)),sqrt(sb/(probe_frames*2)));
     printf("diff_samples=%zu max_abs_diff=%.9g\n",diff,maxd);
-    printf("LIFECYCLE_RESULT %s\n",diff==0?"PASS":"FAIL");
-    if(d->cleanup){d->cleanup(a);d->cleanup(b);} free(oa);free(ob);dlclose(lib); return diff?20:0;
+    printf("pause_drain_frames=1776\n");
+    printf("wake_diff_samples=%zu wake_peak=%.9g\n",wake_diff,wake_peak);
+    int ok=(diff==0&&wake_diff==0);
+    printf("LIFECYCLE_RESULT %s\n",ok?"PASS":"FAIL");
+    if(d->cleanup){d->cleanup(a);d->cleanup(b);} free(oa);free(ob);dlclose(lib); return ok?0:20;
 }

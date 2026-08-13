@@ -121,6 +121,10 @@ typedef struct {
 
 enum { PORT_IN_L,PORT_IN_R,PORT_OUT_L,PORT_OUT_R,PORT_BYPASS,PORT_PROFILE,PORT_COUNT };
 
+/* Measured end-to-end algorithmic latency of the recovered VR -> VLLDP ->
+ * AudioEng chain at its fixed 48-kHz operating rate. */
+#define SP11_CHAIN_DELAY_FRAMES 1776u
+
 typedef enum {
     CHAIN_PROFILE_DYNAMIC=0, CHAIN_PROFILE_MOVIE, CHAIN_PROFILE_MUSIC,
     CHAIN_PROFILE_GAME, CHAIN_PROFILE_VOICE, CHAIN_PROFILE_ONLINECOURSE,
@@ -206,6 +210,7 @@ typedef struct {
 
     float *buf_a,*buf_b;
     Sp11AudioEngLimiter audioeng_limiter;
+    uint64_t frames_since_pause_drain;
 } ChainInst;
 
 static void vl_lock_noop(void*p){(void)p;}
@@ -639,6 +644,9 @@ fail:
     chain_free_mem(p);free(p);return NULL;
 }
 
+static void chain_run(LADSPA_Handle h,unsigned long n);
+static void chain_drain_delayed_audio(ChainInst *p);
+
 static void chain_connect(LADSPA_Handle h,unsigned long port,LADSPA_Data *d){ChainInst*p=h;if(port<PORT_COUNT)p->ports[port]=d;}
 static void chain_activate(LADSPA_Handle h){
     ChainInst *p=h;
@@ -648,14 +656,23 @@ static void chain_activate(LADSPA_Handle h){
        both shipped VLLDP150 and VR APOs, so rebuilding here incorrectly drops
        minutes-long adaptive Leveler/regulator history on every idle transition.
        Instantiation (and service/profile recreation) remains the cold-start
-       boundary. Only recover here if construction was not ready. */
-    if(p->ready)return;
+       boundary. PipeWire stops calling this endpoint chain immediately when
+       playback pauses, freezing its measured algorithmic-delay contents. Consume
+       exactly that delay here so a later notification cannot replay already
+       rendered media; the discarded zero run preserves the long-memory Dolby
+       state. Initial or repeated activation with no intervening processing
+       remains a no-op. */
+    if(p->ready){
+        if(p->frames_since_pause_drain)chain_drain_delayed_audio(p);
+        return;
+    }
     p->ready=(vl_reset(p)==0 && vr_build(p)==0);
 }
 
 static void chain_run(LADSPA_Handle h,unsigned long n){
     ChainInst*p=h;const float*il=p->ports[0],*ir=p->ports[1];float*ol=p->ports[2],*or=p->ports[3];
     if(!il||!ir||!ol||!or)return;
+    if(n)p->frames_since_pause_drain+=n;
     if(!p->ready){for(unsigned long i=0;i<n;i++){ol[i]=il[i];or[i]=ir[i];}return;}
     uint8_t profile_code=PROFILE_CONTROL_NONE;
     int requested=chain_requested_profile(p,&profile_code);
@@ -699,6 +716,24 @@ static void chain_run(LADSPA_Handle h,unsigned long n){
         }
         pos+=take;
     }
+}
+
+static void chain_drain_delayed_audio(ChainInst *p){
+    LADSPA_Data *saved[4]={p->ports[0],p->ports[1],p->ports[2],p->ports[3]};
+    float zero[RT_CHUNK_FRAMES]={0};
+    float discard_l[RT_CHUNK_FRAMES],discard_r[RT_CHUNK_FRAMES];
+    uint32_t left=SP11_CHAIN_DELAY_FRAMES;
+
+    p->ports[PORT_IN_L]=zero;p->ports[PORT_IN_R]=zero;
+    p->ports[PORT_OUT_L]=discard_l;p->ports[PORT_OUT_R]=discard_r;
+    while(left){
+        uint32_t take=left>RT_CHUNK_FRAMES?RT_CHUNK_FRAMES:left;
+        chain_run(p,take);
+        left-=take;
+    }
+    p->ports[PORT_IN_L]=saved[0];p->ports[PORT_IN_R]=saved[1];
+    p->ports[PORT_OUT_L]=saved[2];p->ports[PORT_OUT_R]=saved[3];
+    p->frames_since_pause_drain=0;
 }
 
 static void chain_cleanup(LADSPA_Handle h){

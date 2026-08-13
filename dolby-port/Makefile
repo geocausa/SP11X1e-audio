@@ -102,7 +102,7 @@ guardrail-check:
 
 check: contract-check native-bridge-check full-chain-seed-check exact-plugin-smoke guardrail-check
 
-.PHONY: windows-chain-production windows-chain-profile-lifecycle-check windows-chain-postgain-control-check windows-audioeng-limiter-check
+.PHONY: windows-chain-production windows-chain-lifecycle-check windows-chain-profile-lifecycle-check windows-chain-postgain-control-check windows-audioeng-limiter-check
 
 windows-audioeng-limiter-check: CC = gcc
 windows-audioeng-limiter-check: CFLAGS = -O2 -Wall -Wextra
@@ -111,7 +111,13 @@ windows-audioeng-limiter-check: sp11_audioeng_limiter_cli.c sp11_audioeng_limite
 	python3 ../tools/dolby/test_audioeng_limiter_c_parity.py
 
 windows-chain-production:
-	../deploy/dolby/build-production.sh $(CURDIR)/sp11_dolby_windows_chain.production.so
+	sh ../deploy/dolby/build-production.sh $(CURDIR)/sp11_dolby_windows_chain.production.so
+
+windows-chain-lifecycle-check: CC = gcc
+windows-chain-lifecycle-check: CFLAGS = -O2 -Wall -Wextra
+windows-chain-lifecycle-check: sp11_dolby_windows_chain_lifecycle_test.c sp11_dolby_windows_chain_ladspa.c
+	$(CC) $(CFLAGS) -o sp11_dolby_windows_chain_lifecycle_test sp11_dolby_windows_chain_lifecycle_test.c -ldl -lm
+	./sp11_dolby_windows_chain_lifecycle_test ./sp11_dolby_windows_chain.production.so
 
 windows-chain-profile-lifecycle-check: CC = gcc
 windows-chain-profile-lifecycle-check: CFLAGS = -O2 -Wall -Wextra

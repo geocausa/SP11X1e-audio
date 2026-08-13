@@ -1,0 +1,47 @@
+/*
+ * Capture representative input samples presented to the SP11 Dolby chain.
+ * ChainInst begins with LADSPA_Data *ports[PORT_COUNT], so ports 0 and 1 are
+ * the left/right input buffers. Values are printed as raw IEEE-754 words to
+ * avoid doing floating-point work in BPF.
+ */
+uprobe:/home/geoca/.local/lib/sp11-dolby/sp11_dolby_windows_chain.so:chain_run
+/pid == $1/
+{
+    @inst[tid] = arg0;
+    $ports = (uint64 *)arg0;
+    $left = *(uint64 *)($ports + 0);
+    $right = *(uint64 *)($ports + 1);
+
+    printf("%llu RUN n=%lu L=%08x,%08x,%08x,%08x,%08x,%08x R=%08x,%08x,%08x,%08x,%08x,%08x\n",
+        nsecs, arg1,
+        *(uint32 *)($left + 0), *(uint32 *)($left + 4),
+        *(uint32 *)($left + 128), *(uint32 *)($left + 256),
+        *(uint32 *)($left + 512), *(uint32 *)($left + 1020),
+        *(uint32 *)($right + 0), *(uint32 *)($right + 4),
+        *(uint32 *)($right + 128), *(uint32 *)($right + 256),
+        *(uint32 *)($right + 512), *(uint32 *)($right + 1020));
+}
+
+uretprobe:/home/geoca/.local/lib/sp11-dolby/sp11_dolby_windows_chain.so:chain_run
+/pid == $1 && @inst[tid]/
+{
+    $ports = (uint64 *)@inst[tid];
+    $left = *(uint64 *)($ports + 2);
+    $right = *(uint64 *)($ports + 3);
+
+    printf("%llu OUT L=%08x,%08x,%08x,%08x,%08x,%08x R=%08x,%08x,%08x,%08x,%08x,%08x\n",
+        nsecs,
+        *(uint32 *)($left + 0), *(uint32 *)($left + 4),
+        *(uint32 *)($left + 128), *(uint32 *)($left + 256),
+        *(uint32 *)($left + 512), *(uint32 *)($left + 1020),
+        *(uint32 *)($right + 0), *(uint32 *)($right + 4),
+        *(uint32 *)($right + 128), *(uint32 *)($right + 256),
+        *(uint32 *)($right + 512), *(uint32 *)($right + 1020));
+    delete(@inst[tid]);
+}
+
+uprobe:/home/geoca/.local/lib/sp11-dolby/sp11_dolby_windows_chain.so:chain_activate
+/pid == $1/
+{
+    printf("%llu ACTIVATE\n", nsecs);
+}
