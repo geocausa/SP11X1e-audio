@@ -1,0 +1,458 @@
+{
+  "date": "2026-08-13",
+  "scope": "SP11 Windows GainStep-dependent graph-calibration completeness and transaction-boundary audit",
+  "source_acdb": {
+    "path": "/home/geoca/Documents/SP11-PROJECT/00-RE-archive/sp11-driverdump/surface_acsp8380.inf_arm64_f6524e4db745e12a/REV_0D/acdb_cal_0D.acdb",
+    "sha256": "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde"
+  },
+  "query": {
+    "subgraphs": [
+      "0xb0000001",
+      "0xb000007e",
+      "0xb000007f"
+    ],
+    "fixed_keys": {
+      "0x0100000e": 48000,
+      "0x01000010": 2,
+      "0x01000013": 1,
+      "0x01000014": 2
+    },
+    "swept_key": "0x01000011",
+    "steps": "1..30"
+  },
+  "step30_reference": {
+    "size": 10464,
+    "sha256": "2a654ffa7a4467c93ecfc64f380974df0bccdd5c67959ba6ac7c59a008358ca1",
+    "known_windows_full_volume_size": 10464,
+    "known_windows_full_volume_sha256": "2a654ffa7a4467c93ecfc64f380974df0bccdd5c67959ba6ac7c59a008358ca1",
+    "changed_frame": {
+      "record_index": 93,
+      "frame_offset": 10000,
+      "payload_offset": 10016,
+      "payload_size": 96,
+      "frame_size": 112,
+      "payload_sha256": "fd08adf0b49d4eb14fcba678b539f09267f40657db6c19002ef3bd96c8028f80"
+    }
+  },
+  "all_changed_iid_param_pairs": [
+    {
+      "iid": "0x0000489e",
+      "param_id": "0x08001022"
+    }
+  ],
+  "steps": [
+    {
+      "gain_step": 1,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "b396757f1c5a7402cc4b945e0d0bba70e96f88680621f9defd005320cc181526",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "6fc22a16c6268cb449fed97b4bed92b75dcd7db36a15dc72c4207ddb3fbc3fcc",
+          "pool_offset": "0x00023694"
+        }
+      ]
+    },
+    {
+      "gain_step": 2,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "d60eda1c5f47cdf278427d8f801a7901185f2a59a7f5adca36d3eb866df8bcf4",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "e1720e6dc7566b79eff3b593cb64a003ed97eba126e226ba57e892f974c6afe4",
+          "pool_offset": "0x000236f8"
+        }
+      ]
+    },
+    {
+      "gain_step": 3,
+      "aggregate_size": 10520,
+      "aggregate_sha256": "54095a885b526e2d9b0f4df9bb786ee0f1a935a5a1363430d08241da28bb0360",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 152,
+          "payload_sha256": "6df115d61ed35398593759c38f658497d248544f51fb784f5a563a9fd959274c",
+          "pool_offset": "0x0002375c"
+        }
+      ]
+    },
+    {
+      "gain_step": 4,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "d20f8f0e333f642ef5824b9558d9be824db83054266339ae4d70b91159a31a16",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "12d5ec5fd774dafd5ff4e7140adebc55e8740a117b08df01e1c4680fa3ed9055",
+          "pool_offset": "0x000237f8"
+        }
+      ]
+    },
+    {
+      "gain_step": 5,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "11522443c83828ae17c21ab8d341814c7c670d8d4fe7993943e6a7268680b99b",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "7cadd7e82834ffcd516da381f43313dc502614f928657b3488a40f5ccb2cffd7",
+          "pool_offset": "0x0002385c"
+        }
+      ]
+    },
+    {
+      "gain_step": 6,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "d347ed39f0908e27edef87b029d199ea8a87cc4c8b301bb039fd5f7e0d4cc43d",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "0319cdf298f07c41e24cc5c3d8e18ee27f337d8f8aa4190f8196ab81cbd2bfa1",
+          "pool_offset": "0x000238c0"
+        }
+      ]
+    },
+    {
+      "gain_step": 7,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "edfa2c63acdbe88924c649baba4215c9a8c7bef4550d27a2ec46e1c564c3e56e",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "c78f9b9d28a357b281457258af773cd6a530ada8b3e3f94c2274c019ccf6d671",
+          "pool_offset": "0x00023924"
+        }
+      ]
+    },
+    {
+      "gain_step": 8,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "3efa93dd25c43ddb463766b0e04ba04f401e90b64cf52e47dffa68bb2f0d4f76",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "f399ac235e7bfa7b7f4797464c25f3aa352460f756a9b89c5dd7c60733868fa3",
+          "pool_offset": "0x00023988"
+        }
+      ]
+    },
+    {
+      "gain_step": 9,
+      "aggregate_size": 10520,
+      "aggregate_sha256": "1c058c5cc21049ba6679d2ae8fa320a6d232c74fddade0e76734e84547d10319",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 152,
+          "payload_sha256": "a9220ad922feaebceaaac77f967f214583afb5762426cb27f84a7eebe10b7586",
+          "pool_offset": "0x000239ec"
+        }
+      ]
+    },
+    {
+      "gain_step": 10,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "5e2942a6a928487a2a13582005fe6e84c782b23754a49af2d5a58bd8bc4e420b",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "2d405344f0bcdb66ce1280506b476744a113aa0a1184169f1c0ac9fa4b132db5",
+          "pool_offset": "0x00023a88"
+        }
+      ]
+    },
+    {
+      "gain_step": 11,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "f14d87609cca3322a33e5520eb7aa14c4301e0e8c6d4087e54b63a4521540684",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "b089ec9ba37bbe80952994b8add0104ec338776d227da835beda7d95b8e4ee57",
+          "pool_offset": "0x00023aec"
+        }
+      ]
+    },
+    {
+      "gain_step": 12,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "b2cd067d6761b2170601f5c8f005867f29dc27f4a13eca8c2368c53ee836cae6",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "db19f1683a03a8f769690dd9ef68164c428ff014869193a8e792436abee352b0",
+          "pool_offset": "0x00023b50"
+        }
+      ]
+    },
+    {
+      "gain_step": 13,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "18c9c8480ba3570f033c0e003beb2f52f94dd2320bf619a0d1d96be1b37398dc",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "c2241970d1685450f18c68c09ed6b4b93a39005663bdc45a53733f8600c3cead",
+          "pool_offset": "0x00023bb4"
+        }
+      ]
+    },
+    {
+      "gain_step": 14,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "9d9ffc45acc3eda1ae371491a5406aa84cab33141d9697c7615a96b694a71cae",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "f9517b69270f1f1892a2bbdf35af4cdaf3b612b69782803039fae85882738ccd",
+          "pool_offset": "0x00023c18"
+        }
+      ]
+    },
+    {
+      "gain_step": 15,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "359f7a3ac07dcb2b622fe53eb8f2de3d6e54d29b964e5e804620363d0ad36f9e",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "618da4fae2b6de272bcb16eb1338825e0cf21c2284631ddd142213748bb02335",
+          "pool_offset": "0x00023c7c"
+        }
+      ]
+    },
+    {
+      "gain_step": 16,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "16dc73bb7d47e61120bed32f608e940469db30364307531e217350962eeb5a2f",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "538ded399e356d6975717967cbdd60af0833e2e4eaed563e2d72c8ae54b9a3db",
+          "pool_offset": "0x00023ce0"
+        }
+      ]
+    },
+    {
+      "gain_step": 17,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "ca289c6ad82921642c1d9befae8e8b3c4c4e131be97ec537274a2881a3654df7",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "cbe520fbcac2a1c6dae6c9a116ce8b86be26ca1370e184a33c0f2f07d4ec833f",
+          "pool_offset": "0x00023d44"
+        }
+      ]
+    },
+    {
+      "gain_step": 18,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "0da31ceb13c3ca83cff6c818a0623329f9c4636f9f5baf0a48f568ebee50838b",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "b58b3b495bd68a3f3df60d2f3baf2891147c3eaab01888eed3aa46783d7a58d8",
+          "pool_offset": "0x00023da8"
+        }
+      ]
+    },
+    {
+      "gain_step": 19,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "952682bf068168d9903bc05b826e6790a460185044c9a68406f9af898d35bd88",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "cdcd556acc2cf7eaa8e56049f9ed304d50d98416494097043e0227e0c217ea67",
+          "pool_offset": "0x00023e0c"
+        }
+      ]
+    },
+    {
+      "gain_step": 20,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "5fe03b6511c50fe92a93c695572049d6c67382889f64e13fd1e0289021f40596",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "76fce88c1fe8c7f8e8b61ead5654b23163195a48eda1b0a464c82a824ed7a61c",
+          "pool_offset": "0x00023e70"
+        }
+      ]
+    },
+    {
+      "gain_step": 21,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "b2fa72cd2a8c73e21131cbc45a42296f579192b259e201a03eabf69912b04eef",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "7f7ea8f6bf2d4773b88d398a3556daafb60a876ee948e5c8ebbb5d771588dc8e",
+          "pool_offset": "0x00023ed4"
+        }
+      ]
+    },
+    {
+      "gain_step": 22,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "10da8c152a598dd8d9e255debfa6a4c4991bf673f137ea4a3580e61729ee401e",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "be8a020a948202b0c016683f194fa8fb3b5904df161fc2b6c8f70062c6047c23",
+          "pool_offset": "0x00023f38"
+        }
+      ]
+    },
+    {
+      "gain_step": 23,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "c981769d08e17eb12870a08cf3e3b83ecd5fc7dba4d234c15ec9e301e4eb1619",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "f3790375039a5f7a1f77f6bbb2b00390ff106a383f0e990fb4e6a69333ef80aa",
+          "pool_offset": "0x00023f9c"
+        }
+      ]
+    },
+    {
+      "gain_step": 24,
+      "aggregate_size": 10520,
+      "aggregate_sha256": "fd3de08e3f818a9b578def7178714118228ddee4393d963e9f12309823f37d19",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 152,
+          "payload_sha256": "47f0561765249d417b576d7682348e352c78092f6e822eefb77e235aa7978e20",
+          "pool_offset": "0x00024000"
+        }
+      ]
+    },
+    {
+      "gain_step": 25,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "f37f8bbdfa902f08da7b13a1ac55d6a79b1eb2b80d6886b5f40b0c2db1676e21",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "07cbe9191e2af2efb3f85a667fcbecb6c04817acd8be4b40c49e9a6c68d84885",
+          "pool_offset": "0x000212c0"
+        }
+      ]
+    },
+    {
+      "gain_step": 26,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "5204a2c193aebbed5585c8efab9c7ab93b43b9367035f7c87d66aaff2a75406b",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "47f87af5d3ec020d6c5f070ed37dac7f1b785528f6aeb78ff08d15cfb830a99a",
+          "pool_offset": "0x00021324"
+        }
+      ]
+    },
+    {
+      "gain_step": 27,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "ff5cf85dfb3713feb4a87cc7866dfecf01e696339929f793de17b31a70b68ab1",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "01397c229ea01355b0469298d1cd441fa6a459afb87f6ea2bc32688fe801833a",
+          "pool_offset": "0x00021388"
+        }
+      ]
+    },
+    {
+      "gain_step": 28,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "5a4236723c7bf1f5dcff25a29b8022885992ef60f2cf56f70779600f6fca110e",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "f4a43e66aae49a02f9bf895a693422744c78bc4fd01a97f9289c0e12c6bda496",
+          "pool_offset": "0x000213ec"
+        }
+      ]
+    },
+    {
+      "gain_step": 29,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "346fbde8fec6fde5bc9ae59a2db91fba096024fb634eba414c3d03236c925081",
+      "changed_vs_step30": [
+        {
+          "iid": "0x0000489e",
+          "param_id": "0x08001022",
+          "payload_size": 96,
+          "payload_sha256": "4e20874eab2612db2ecf6f896c5de1f38f5f29244c56f60ba6c0c5d92e484879",
+          "pool_offset": "0x00021450"
+        }
+      ]
+    },
+    {
+      "gain_step": 30,
+      "aggregate_size": 10464,
+      "aggregate_sha256": "2a654ffa7a4467c93ecfc64f380974df0bccdd5c67959ba6ac7c59a008358ca1",
+      "changed_vs_step30": []
+    }
+  ],
+  "conclusion": "Across all 30 GainStep CKVs the only parameter whose payload differs is MSIIR iid 0x489e param 0x08001022. Thus the Linux volume-dependent coefficient table is complete in terms of which ACDB parameter varies. However Windows qcadcm SetVolume sends the VOL_CTRL gain and then invokes gsl_set_cal for the selected GainStep CKV, preserving graph-calibration transaction semantics; Linux currently writes only the changed MSIIR frame through SP11 MSIIR Inject. Values are complete, transaction boundary/lifecycle is not equivalent."
+}
