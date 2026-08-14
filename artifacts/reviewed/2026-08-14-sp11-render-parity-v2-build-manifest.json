@@ -1,14 +1,16 @@
 {
   "schema": "sp11-render-parity-v2-build-manifest-v1",
   "date": "2026-08-14",
-  "status": "installed-validated-one-shot-armed",
+  "status": "booted-live-gates-passed",
   "kernel_release": "7.1.5-sp11-render-parity-v2+",
   "functional_delta": "patch 0051 only: enter STOPPED before SOFT_PAUSE command",
   "grub": {
     "entry_id": "sp11-audio-render-parity-v2",
     "bundle": "/boot/sp11-7.1.5-audio-render-parity-v2",
     "saved_entry": "sp11-audio-cps-v3",
-    "next_entry": "sp11-audio-render-parity-v2",
+    "next_entry_armed": "sp11-audio-render-parity-v2",
+    "next_entry_after_boot": "",
+    "booted": true,
     "syntax_check": "passed"
   },
   "sound_model": "X1E80100-Microsoft-Surface-Pro-11-Render-Parity",
@@ -32,7 +34,13 @@
     "q6apm_dai_w1_compile": "passed",
     "initramfs_dependency_check": "passed",
     "wifi_bake_check": "passed",
-    "combined_dtb_check": "passed"
+    "combined_dtb_check": "passed",
+    "live_platform_closure": "passed",
+    "live_soft_pause": "passed",
+    "live_soft_resume": "passed",
+    "live_stop_while_paused": "passed",
+    "live_cold_start_ms": 86,
+    "live_gainstep_3_272_byte_transaction": "passed"
   },
   "artifacts": {
     "kernel_image": {

@@ -201,3 +201,14 @@ GRUB syntax and asset checks passed. The one-shot state is armed as
 `saved_entry=sp11-audio-cps-v3` remains unchanged. See
 `deploy/render-parity-v2/README.md` and
 `artifacts/reviewed/2026-08-14-sp11-render-parity-v2-build-manifest.json`.
+
+The v2 one-shot subsequently booted successfully. Platform, Wi-Fi, touch,
+display, Dolby, both amplifiers, VI/CPS protection and the complete graph
+startup passed. The formerly failing zero-valued direct-ALSA lifecycle now
+received pause-complete `0x0800103f`, resume-complete `0x08001043`, and a
+second resume-complete during STOP-while-paused, with no timeout. ALSA moved
+through `RUNNING -> PAUSED -> RUNNING`, then closed cleanly. A cold start from
+all three SoundWire nodes suspended reached RUNNING in 86 ms, and a 272-byte
+GainStep-3 volume transaction passed. This promotes L04's implementation and
+live lifecycle gate to GREEN; physical YouTube seek/slider judgment remains a
+separate L03/L03b gate.

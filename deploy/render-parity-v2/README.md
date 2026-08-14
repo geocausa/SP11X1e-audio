@@ -45,3 +45,29 @@ next_entry=sp11-audio-render-parity-v2
 The persistent saved entry was not changed. On the next power-on, validate
 Wi-Fi/touch/display and the protected graph first, then repeat the zero-valued
 interactive ALSA pause/resume/STOP lifecycle before physical playback.
+
+## Live boot result
+
+The one-shot boot reached `7.1.5-sp11-render-parity-v2+` and consumed
+`next_entry`, leaving `saved_entry=sp11-audio-cps-v3`. Wi-Fi, Phase91 touch,
+OLED/MSM, ALSA, PipeWire/WirePlumber, the native Dolby chain, both WSA884x
+amplifiers, VI/CPS feedback and every required protected-graph stage passed.
+
+The exact zero-valued direct-ALSA lifecycle that failed on v1 now passes:
+
+- `PAUSE_PUSH` entered ALSA `PAUSED` and received iid `0x466b` event
+  `0x0800103f` without timeout;
+- `PAUSE_RELEASE` returned ALSA to `RUNNING` and received `0x08001043`;
+- STOP while paused received the resume-complete event before closing; and
+- PipeWire/WirePlumber/volume-sync remained active, with the SoundWire manager
+  and both amplifiers returning to automatic runtime suspend.
+
+A separate zero-valued start from all three SoundWire nodes suspended reached
+ALSA `RUNNING` in 86 ms. GainStep 3's 272-byte combined Windows volume
+transaction also succeeded with no following runtime DSP error. The endpoint
+volume was restored to its pre-test 48% state.
+
+Ubuntu's first boot-success service briefly reported an invalid GRUB
+environment block after firmware consumed the one-shot. Rewriting only the
+absent `recordfail` variable repaired the block; the service then completed
+successfully, with `next_entry` empty and the saved fallback unchanged.
