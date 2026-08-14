@@ -1,0 +1,75 @@
+{
+  "schema": "sp11-linux-wsa-live-observer-v1",
+  "captured_local": "2026-08-14T17:40:11+01:00",
+  "host": "SP11X1e",
+  "boot": {
+    "kernel_release": "7.1.5-sp11-render-parity-v2+",
+    "entry_marker": "7.1.5-sp11-visense-parity",
+    "boot_image": "/boot/sp11-7.1.5-audio-visense-parity/vmlinuz-7.1.5-sp11-render-parity-v2+",
+    "wsa884x_srcversion": "B7F5D7D97DD31C77EFB6F01"
+  },
+  "stimulus": {
+    "command": "speaker-test -D pipewire -c 2 -t sine -f 440 -l 1",
+    "visible_volume_percent": 41,
+    "observer_samples_per_amplifier": 12,
+    "observer_interval_ms": 100
+  },
+  "transport_state": {
+    "dp1_channel_enable": "0x01",
+    "dp2_channel_enable": "0x0f",
+    "dp3_channel_enable": "0x03",
+    "dp5_channel_enable": "0x03",
+    "dp6_channel_enable": "0x03",
+    "both_amplifiers_enabled": true,
+    "sp_spvi_enable_with_vi_cps_feedback_accepted": true
+  },
+  "common_readback": {
+    "pa_enable": "0x01",
+    "status": ["0x2f", "0x00"],
+    "error": ["0x00", "0x00"],
+    "interrupt": ["0x00", "0x00"],
+    "failed_read_mask": "0x0",
+    "current_limit_register": "0x44",
+    "current_limit_code": 17,
+    "current_limit_override": false,
+    "wavg_register": "0x00",
+    "cps_control_register": "0x00"
+  },
+  "amplifiers": {
+    "sdw_0": {
+      "sample_count": 12,
+      "sample_sequence": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      "adc_raw_unique": ["0x7420", "0x74e0", "0x7520", "0x75a0", "0xc460", "0xc4a0", "0xc4e0"],
+      "temperature_raw_unique": ["0x74c0", "0x7500"],
+      "vbat_raw_unique": ["0xc3c0", "0xc400"]
+    },
+    "sdw_1": {
+      "sample_count": 12,
+      "sample_sequence": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      "adc_raw_unique": ["0x7220", "0x7320", "0x7360", "0xc420", "0xc4a0", "0xc4e0", "0xc5e0"],
+      "temperature_raw_unique": ["0x7280", "0x72c0", "0x7300"],
+      "vbat_raw_unique": ["0xc3c0", "0xc400"]
+    }
+  },
+  "postconditions": {
+    "observer_parameter_reset_to": 0,
+    "pcm_closed_after_idle": true,
+    "sp11_dolby_volume_sync_service_active": true,
+    "kernel_fault_or_xrun_seen": false
+  },
+  "interpretation": {
+    "proven": [
+      "Both physical WSA884x devices can be observed during protected playback.",
+      "Both devices return independent, changing raw measurements.",
+      "No WSA status, error, interrupt, read-failure, or XRUN condition appeared in the bounded run.",
+      "The temporary observer was disabled after the run and does not remain armed."
+    ],
+    "not_proven": [
+      "Raw ADC words are calibrated speaker current, excursion, power, or temperature values.",
+      "Linux reproduces the private Windows DSP diagnostic callback/result path.",
+      "CPS private fields have complete semantic names.",
+      "Physical left/right speaker naming and per-speaker calibration attribution are correct; operator listening verdict is pending."
+    ],
+    "cps_note": "CPS control register 0x00 is a local codec readback, not evidence that CPS feedback is absent: DP6 0x03 and the accepted SP/SPVI VI+CPS graph establish the active transport path."
+  }
+}
