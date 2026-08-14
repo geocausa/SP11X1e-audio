@@ -40,7 +40,8 @@
     "live_soft_resume": "passed",
     "live_stop_while_paused": "passed",
     "live_cold_start_ms": 86,
-    "live_gainstep_3_272_byte_transaction": "passed"
+    "live_gainstep_3_272_byte_transaction": "passed",
+    "physical_slider_notification_ghost": "absent-user-confirmed"
   },
   "artifacts": {
     "kernel_image": {

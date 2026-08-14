@@ -212,3 +212,8 @@ all three SoundWire nodes suspended reached RUNNING in 86 ms, and a 272-byte
 GainStep-3 volume transaction passed. This promotes L04's implementation and
 live lifecycle gate to GREEN; physical YouTube seek/slider judgment remains a
 separate L03/L03b gate.
+
+The user subsequently repeated the physical paused-YouTube volume-slider
+notification test and reports that the stale-media "ghost" remains gone on
+v2. This is a physical no-regression pass for the already closed Dolby
+pause-drain fix (L03c), distinct from the still-pending in-stream seek test.

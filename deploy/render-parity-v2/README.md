@@ -71,3 +71,9 @@ Ubuntu's first boot-success service briefly reported an invalid GRUB
 environment block after firmware consumed the one-shot. Rewriting only the
 absent `recordfail` variable repaired the block; the service then completed
 successfully, with `next_entry` empty and the saved fallback unchanged.
+
+The user then repeated the physical paused-media/volume-slider notification
+test and confirmed that the old song-fragment "ghost" is absent on v2. This
+proves the previously closed Dolby pause-drain fix survives the consolidated
+kernel, topology and lifecycle changes. It does not by itself close the
+separate in-stream YouTube seek transient.
