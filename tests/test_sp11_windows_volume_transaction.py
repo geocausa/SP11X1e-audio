@@ -32,10 +32,14 @@ class WindowsVolumeTransactionTests(unittest.TestCase):
     def test_windows_operation_order_is_explicit(self):
         with patch.object(tx, "extract_gainstep_delta", side_effect=self.fake_delta):
             row = tx.plan_for_ui_scalar({}, 0.40)
+        self.assertEqual(row["generation_configuration"], ["dolby_postgain"])
         self.assertEqual(row["ordered_operations"], [
-            "dolby_postgain",
             "final_vol_ctrl_ramped_gain",
             "gainstep_oob_nonpersistent_delta",
+        ])
+        self.assertEqual(row["stereo_master_sequence"], [
+            "left_new_right_old_then_mixed_gainstep",
+            "left_new_right_new_then_final_gainstep",
         ])
 
     def test_large_gainstep_delta_classes(self):

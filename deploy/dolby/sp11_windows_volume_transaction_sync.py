@@ -83,6 +83,9 @@ DEFAULT_DELTA_TABLE = (
     else Path.home() / ".local/share/sp11-audio/sp11-gainstep-runtime-deltas.json"
 )
 Q28_ONE = 1 << 28
+SND_SOC_TLV_HDR = 2 * 4
+STEREO_GAIN_WORDS = 2 * 4
+STEREO_TRANSACTION_CONTROL_VALUES = SND_SOC_TLV_HDR + STEREO_GAIN_WORDS + 272
 EXPECTED_ACDB_SHA256 = (
     "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde"
 )
@@ -133,13 +136,35 @@ def find_control_numid(card: str = DEFAULT_CARD, amixer: str = "amixer") -> int 
     return None
 
 
-def write_transaction(q28: int, delta: bytes, *, helper: Path, card: str,
-                      numid: int) -> None:
-    if not 0 <= q28 <= Q28_ONE:
-        raise ValueError("final VOL_CTRL Q28 outside 0..unity")
+def find_control_values(card: str, numid: int, amixer: str = "amixer") -> int | None:
+    cp = subprocess.run(
+        [amixer, "-D", card, "cget", f"numid={numid}"],
+        capture_output=True, text=True,
+    )
+    if cp.returncode:
+        return None
+    for line in cp.stdout.splitlines():
+        if "type=BYTES" not in line or "values=" not in line:
+            continue
+        try:
+            return int(line.split("values=", 1)[1].split()[0])
+        except (ValueError, IndexError):
+            return None
+    return None
+
+
+def write_transaction(left_q28: int, delta: bytes, *, helper: Path, card: str,
+                      numid: int, right_q28: int | None = None) -> None:
+    if not 0 <= left_q28 <= Q28_ONE:
+        raise ValueError("left final VOL_CTRL Q28 outside 0..unity")
+    if right_q28 is not None and not 0 <= right_q28 <= Q28_ONE:
+        raise ValueError("right final VOL_CTRL Q28 outside 0..unity")
     if len(delta) not in (216, 272):
         raise ValueError("invalid GainStep delta size")
-    blob = struct.pack("<I", q28) + delta
+    if right_q28 is None:
+        blob = struct.pack("<I", left_q28) + delta
+    else:
+        blob = struct.pack("<II", left_q28, right_q28) + delta
     cp = subprocess.run(
         [str(helper), card, str(numid), blob.hex()], capture_output=True, text=True
     )
@@ -231,20 +256,49 @@ def queue_dolby_postgain_for_generation(
 
 def apply_transaction(state: tuple[float, bool], hardware_id: int,
                       deltas: tuple[bytes, ...], helper: Path,
-                      card: str, numid: int, wpctl: str) -> tuple[int, int]:
+                      card: str, numid: int, wpctl: str,
+                      previous: tuple[int, int] | None = None,
+                      stereo_sequence: bool = False) -> tuple[int, int]:
     pipewire_gain, muted = state
     ui_scalar, endpoint_db, _postgain, _host_scalar = base.derive_windows_state(
         pipewire_gain, muted
     )
     q28 = qcadcm_q28_from_db(endpoint_db)
     step = msiir.select_ckv_step_q28(q28)
-    write_transaction(q28, deltas[step - 1], helper=helper, card=card, numid=numid)
+    sequence = "legacy-stereo"
+
+    if stereo_sequence:
+        if previous is not None and previous[0] != q28:
+            old_q28, old_step = previous
+            # Fresh Windows KDNET shows master volume is delivered as left
+            # channel first and right channel second. GetGraphCkv keeps the
+            # louder of the two channel states during that intermediate body.
+            mixed_step = max(old_step, step)
+            write_transaction(
+                q28, deltas[mixed_step - 1], helper=helper, card=card,
+                numid=numid, right_q28=old_q28,
+            )
+            write_transaction(
+                q28, deltas[step - 1], helper=helper, card=card,
+                numid=numid, right_q28=q28,
+            )
+            sequence = f"windows-lr:{mixed_step}->{step}"
+        else:
+            write_transaction(
+                q28, deltas[step - 1], helper=helper, card=card,
+                numid=numid, right_q28=q28,
+            )
+            sequence = "windows-lr:init"
+    else:
+        write_transaction(q28, deltas[step - 1], helper=helper, card=card, numid=numid)
+
     base.set_hardware_volume(hardware_id, 1.0, wpctl)
     print(
         f"pipewire_gain={pipewire_gain:.9g} ui_scalar={ui_scalar:.6f} "
         f"windows_db={endpoint_db:.3f} final_q28=0x{q28:08x} "
         f"gainstep={step} delta={len(deltas[step - 1])} "
-        f"hardware_scalar=1.000000 muted={'yes' if muted else 'no'}",
+        f"sequence={sequence} hardware_scalar=1.000000 "
+        f"muted={'yes' if muted else 'no'}",
         flush=True,
     )
     return q28, step
@@ -271,6 +325,16 @@ def run(args: argparse.Namespace) -> int:
     if not args.tlv_write.exists():
         print(f"missing TLV helper: {args.tlv_write}", file=sys.stderr)
         return 5
+    control_values = find_control_values(args.card, numid, args.amixer)
+    stereo_sequence = (
+        control_values is not None
+        and control_values >= STEREO_TRANSACTION_CONTROL_VALUES
+    )
+    print(
+        f"volume_transaction_control_values={control_values} "
+        f"mode={'windows-lr' if stereo_sequence else 'legacy-stereo'}",
+        flush=True,
+    )
 
     last: tuple[int, int] | None = None
     last_host: tuple[int, int] | None = None
@@ -310,7 +374,9 @@ def run(args: argparse.Namespace) -> int:
         try:
             last = apply_transaction(
                 state, hardware_id, deltas, args.tlv_write,
-                args.card, numid, args.wpctl
+                args.card, numid, args.wpctl,
+                previous=last if transaction_active else None,
+                stereo_sequence=stereo_sequence,
             )
             last_host = None
             transaction_active = True

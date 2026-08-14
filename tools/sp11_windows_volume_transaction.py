@@ -5,12 +5,14 @@ This tool does not touch ALSA or the DSP.  It combines the recovered Windows
 endpoint taper, final render VOL_CTRL Q28 actuator, qcadcm GainStep selector,
 and ACDB prior/new-CKV runtime delta into one deterministic transaction plan.
 
-Recovered Windows ordering:
-  1. DAX/VLLDP postgain follows endpoint master dB;
-  2. final render VOL_CTRL iid 0x4a63 / pid 0x08001038 receives endpoint Q28;
-  3. qcadcm selects GainStep 1..30 from that Q28 gain;
-  4. gsl_set_cal sends the selected 0x489e four-frame non-persistent ACDB delta
-     as one OOB APM_CMD_SET_CFG transaction.
+Recovered Windows lifecycle:
+  * DAX/VLLDP postgain is derived from endpoint master dB when the Dolby APO
+    generation is configured; it is not rewritten by an ordinary live slider.
+  * live SetVolume sends final render VOL_CTRL iid 0x4a63 / pid 0x08001038;
+  * qcadcm then selects GainStep 1..30 and sends the selected 0x489e four-frame
+    non-persistent ACDB delta as one OOB APM_CMD_SET_CFG transaction.
+  * a stereo master gesture is delivered as left-channel state first, then the
+    matching right-channel state, as proved by fresh SP11 KDNET.
 """
 from __future__ import annotations
 
@@ -107,10 +109,14 @@ def plan_for_ui_scalar(chunks, scalar: float, *, muted: bool = False) -> dict:
             "coefficient_size": len(coeff),
             "coefficient_sha256": sha256(coeff),
         },
+        "generation_configuration": ["dolby_postgain"],
         "ordered_operations": [
-            "dolby_postgain",
             "final_vol_ctrl_ramped_gain",
             "gainstep_oob_nonpersistent_delta",
+        ],
+        "stereo_master_sequence": [
+            "left_new_right_old_then_mixed_gainstep",
+            "left_new_right_new_then_final_gainstep",
         ],
     }
 
@@ -124,11 +130,17 @@ def inventory(acdb: Path) -> dict:
         "format_version": 1,
         "source_acdb": str(acdb),
         "source_acdb_sha256": sha256(raw),
-        "windows_order": [
-            "DAX/VLLDP postgain from endpoint master dB",
+        "windows_generation_configuration": [
+            "DAX/VLLDP postgain from endpoint master dB once per Dolby APO generation",
+        ],
+        "windows_live_order": [
             "final VOL_CTRL 0x4a63/0x08001038 Q28 gain (topology ramp 10 ms / 1000 us / curve 3)",
             "GainStep selection by qcadcm nearest-Q28 rule",
             "one OOB non-persistent 0x489e four-frame ACDB delta",
+        ],
+        "windows_stereo_master_sequence": [
+            "left=new/right=old with mixed-state GainStep",
+            "left=new/right=new with final GainStep",
         ],
         "rows_integer_percent": rows,
     }

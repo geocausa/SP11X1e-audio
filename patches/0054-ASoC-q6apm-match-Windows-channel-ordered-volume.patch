@@ -1,0 +1,145 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Fri, 14 Aug 2026 23:30:00 +0100
+Subject: [PATCH] ASoC: q6apm: match Windows channel volume order
+
+Windows KDNET shows a stereo master-volume gesture reaches qcadcm as two
+SetVolume calls. The first final VOL_CTRL body has left=new and right=old.
+GetGraphCkv then applies the mixed-state GainStep. The second body has both
+channels=new and applies the final GainStep.
+
+Extend the isolated SP11 volume-transaction control to accept a second Q28
+word. Keep the deployed one-Q28 format valid for rollback userspace. No new
+targets are exposed: final VOL_CTRL remains fixed at iid 0x4a63 / pid
+0x08001038 and the existing four-frame 0x489e delta validator is unchanged.
+
+Signed-off-by: SP11 audio reconstruction <sp11-audio@localhost>
+---
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1983,15 +1983,17 @@
+ 
+ static_assert(sizeof(struct sp11_vol_ctrl_multichannel_gain) == 0x68);
+ 
+-int audioreach_sp11_set_final_volume_q28(struct q6apm *apm, u32 gain_q28)
++int audioreach_sp11_set_final_volume_q28(struct q6apm *apm, u32 left_q28,
++					 u32 right_q28)
+ {
+ 	struct sp11_vol_ctrl_multichannel_gain cfg = {
+ 		.num_config = SP11_VOL_CTRL_NUM_CONFIGS,
+-		.channel[0] = { .channel_mask_lsw = 0x2, .gain_q28 = gain_q28 },
+-		.channel[1] = { .channel_mask_lsw = 0x4, .gain_q28 = gain_q28 },
++		.channel[0] = { .channel_mask_lsw = 0x2, .gain_q28 = left_q28 },
++		.channel[1] = { .channel_mask_lsw = 0x4, .gain_q28 = right_q28 },
+ 	};
+ 
+-	if (!apm || gain_q28 > SP11_VOL_CTRL_Q28_UNITY)
++	if (!apm || left_q28 > SP11_VOL_CTRL_Q28_UNITY ||
++	    right_q28 > SP11_VOL_CTRL_Q28_UNITY)
+ 		return -EINVAL;
+ 
+ 	return audioreach_sp11_send_module_param(apm, SP11_FINAL_VOL_CTRL_IID,
+--- a/sound/soc/qcom/qdsp6/audioreach.h
++++ b/sound/soc/qcom/qdsp6/audioreach.h
+@@ -925,7 +925,8 @@
+ 				 const struct audioreach_module *module, int vol);
+ int audioreach_sp11_inject_module_param(struct q6apm *apm, u32 iid, u32 param_id,
+ 					const void *payload, size_t size);
+-int audioreach_sp11_set_final_volume_q28(struct q6apm *apm, u32 gain_q28);
++int audioreach_sp11_set_final_volume_q28(struct q6apm *apm, u32 left_q28,
++					 u32 right_q28);
+ int audioreach_send_u32_param(struct q6apm_graph *graph,
+ 			      const struct audioreach_module *module,
+ 			      uint32_t param_id, uint32_t param_val);
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -1521,7 +1521,7 @@
+ 
+ #define SP11_VOLUME_TRANSACTION_NORMAL_SIZE	216
+ #define SP11_VOLUME_TRANSACTION_LARGE_SIZE	272
+-#define SP11_VOLUME_TRANSACTION_PAYLOAD_MAX	(sizeof(u32) + \
++#define SP11_VOLUME_TRANSACTION_PAYLOAD_MAX	(2 * sizeof(u32) + \
+ 						 SP11_VOLUME_TRANSACTION_LARGE_SIZE)
+ #define SP11_VOLUME_TRANSACTION_CONTROL_MAX	(SND_SOC_TLV_HDR + \
+ 						 SP11_VOLUME_TRANSACTION_PAYLOAD_MAX)
+@@ -1595,8 +1595,9 @@
+ 	return ERR_PTR(-ENODEV);
+ }
+ 
+-static int q6apm_sp11_apply_volume_transaction(struct q6apm *apm, u32 gain_q28,
+-					       const u8 *delta, size_t delta_size)
++static int q6apm_sp11_apply_volume_transaction(struct q6apm *apm, u32 left_q28,
++					       u32 right_q28, const u8 *delta,
++					       size_t delta_size)
+ {
+ 	struct audioreach_graph *graph;
+ 	int ret;
+@@ -1610,15 +1611,15 @@
+ 		return PTR_ERR(graph);
+ 
+ 	mutex_lock(&sp11_volume_transaction_lock);
+-	ret = audioreach_sp11_set_final_volume_q28(apm, gain_q28);
++	ret = audioreach_sp11_set_final_volume_q28(apm, left_q28, right_q28);
+ 	if (!ret)
+ 		ret = q6apm_send_oob_config(graph, delta, delta_size);
+ 	mutex_unlock(&sp11_volume_transaction_lock);
+ 
+ 	if (ret)
+ 		dev_dbg(apm->dev,
+-			"SP11 volume transaction Q28 %#x delta %zu -> %d\n",
+-			gain_q28, delta_size, ret);
++			"SP11 volume transaction L %#x R %#x delta %zu -> %d\n",
++			left_q28, right_q28, delta_size, ret);
+ 
+ 	kref_put(&graph->refcount, q6apm_put_audioreach_graph);
+ 	return ret;
+@@ -1686,25 +1687,39 @@
+ 	struct snd_soc_component *c = snd_kcontrol_chip(kcontrol);
+ 	struct q6apm *apm = dev_get_drvdata(c->dev);
+ 	u8 data[SP11_VOLUME_TRANSACTION_PAYLOAD_MAX];
+-	size_t payload_size;
+-	u32 gain_q28;
++	size_t payload_size, gain_size, delta_size;
++	u32 left_q28, right_q28;
+ 
+-	if (size < SND_SOC_TLV_HDR + sizeof(gain_q28))
++	if (size < SND_SOC_TLV_HDR + sizeof(left_q28))
+ 		return -EINVAL;
+ 	payload_size = size - SND_SOC_TLV_HDR;
+-	if (payload_size != sizeof(gain_q28) +
+-			    SP11_VOLUME_TRANSACTION_NORMAL_SIZE &&
+-	    payload_size != sizeof(gain_q28) +
+-			    SP11_VOLUME_TRANSACTION_LARGE_SIZE)
++
++	/*
++	 * Preserve the deployed one-Q28 ABI while adding the exact Windows master
++	 * volume form: left Q28 + right Q28 + one GainStep delta.  The extended
++	 * form permits the intermediate L=new/R=old body observed by KDNET.
++	 */
++	if (payload_size == sizeof(left_q28) + SP11_VOLUME_TRANSACTION_NORMAL_SIZE ||
++	    payload_size == sizeof(left_q28) + SP11_VOLUME_TRANSACTION_LARGE_SIZE)
++		gain_size = sizeof(left_q28);
++	else if (payload_size == 2 * sizeof(left_q28) +
++			 SP11_VOLUME_TRANSACTION_NORMAL_SIZE ||
++		 payload_size == 2 * sizeof(left_q28) +
++			 SP11_VOLUME_TRANSACTION_LARGE_SIZE)
++		gain_size = 2 * sizeof(left_q28);
++	else
+ 		return -EINVAL;
+ 
+ 	bytes += 2;
+ 	if (copy_from_user(data, bytes, payload_size))
+ 		return -EFAULT;
+-	gain_q28 = get_unaligned_le32(data);
++	left_q28 = get_unaligned_le32(data);
++	right_q28 = gain_size == 2 * sizeof(left_q28) ?
++		get_unaligned_le32(data + sizeof(left_q28)) : left_q28;
++	delta_size = payload_size - gain_size;
+ 
+-	return q6apm_sp11_apply_volume_transaction(apm, gain_q28,
+-			data + sizeof(gain_q28), payload_size - sizeof(gain_q28));
++	return q6apm_sp11_apply_volume_transaction(apm, left_q28, right_q28,
++			data + gain_size, delta_size);
+ }
+ 
+ static const struct snd_kcontrol_new q6apm_sp11_controls[] = {

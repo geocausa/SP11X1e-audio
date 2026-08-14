@@ -80,6 +80,48 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
             self.assertEqual(write.call_count, 2)
             self.assertEqual(generation.read_text().strip(), "42")
 
+
+    def test_control_capacity_detects_stereo_transaction_extension(self):
+        class CP:
+            returncode = 0
+            stdout = "numid=33,iface=MIXER,name='SP11 Windows Volume Transaction'\n  ; type=BYTES,access=-----RW-,values=288\n"
+        with patch.object(sync.subprocess, "run", return_value=CP()):
+            self.assertEqual(sync.find_control_values("hw:0", 33), 288)
+
+    def test_windows_lr_sequence_matches_kdnet_upward_transition(self):
+        q8 = sync.qcadcm_q28_from_db(-37.183)
+        q17 = sync.qcadcm_q28_from_db(-26.409)
+        deltas = tuple(bytes([step]) * (272 if step in (3, 9, 24) else 216)
+                       for step in range(1, 31))
+        calls = []
+        with patch.object(sync, "write_transaction",
+                          side_effect=lambda left, delta, **kw:
+                          calls.append((left, kw.get("right_q28"), delta[0]))), \
+             patch.object(sync.base, "set_hardware_volume"):
+            result = sync.apply_transaction(
+                (0.17 ** 3, False), 69, deltas, Path("tlv"), "hw:0", 33,
+                "wpctl", previous=(q8, 1), stereo_sequence=True,
+            )
+        self.assertEqual(result, (q17, 2))
+        self.assertEqual(calls, [(q17, q8, 2), (q17, q17, 2)])
+
+    def test_windows_lr_sequence_matches_kdnet_downward_transition(self):
+        q8 = sync.qcadcm_q28_from_db(-37.183)
+        q17 = sync.qcadcm_q28_from_db(-26.409)
+        deltas = tuple(bytes([step]) * (272 if step in (3, 9, 24) else 216)
+                       for step in range(1, 31))
+        calls = []
+        with patch.object(sync, "write_transaction",
+                          side_effect=lambda left, delta, **kw:
+                          calls.append((left, kw.get("right_q28"), delta[0]))), \
+             patch.object(sync.base, "set_hardware_volume"):
+            result = sync.apply_transaction(
+                (0.08 ** 3, False), 69, deltas, Path("tlv"), "hw:0", 33,
+                "wpctl", previous=(q17, 2), stereo_sequence=True,
+            )
+        self.assertEqual(result, (q8, 1))
+        self.assertEqual(calls, [(q8, q17, 2), (q8, q8, 1)])
+
     def test_dispatch_selects_candidate_only_when_control_exists(self):
         class CP:
             returncode = 0
@@ -157,6 +199,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         applied = []
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync, "find_control_values", return_value=284), \
              patch.object(sync.subprocess, "Popen", return_value=FakeProc()), \
              patch.object(sync.base, "snapshot",
                           side_effect=lambda _pw: snapshots.append(True) or initial), \
@@ -230,6 +273,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
 
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync, "find_control_values", return_value=284), \
              patch.object(sync.subprocess, "Popen", return_value=FakeProc()), \
              patch.object(sync.base, "snapshot", return_value=initial), \
              patch.object(sync.base, "iter_json_stream",
