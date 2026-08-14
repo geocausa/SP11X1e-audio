@@ -184,3 +184,20 @@ L04 can be promoted.
 Physical seek/slider listening was not performed with the zero-valued probes.
 The current candidate is therefore a partial live pass, not a promoted
 default.
+
+## Corrected Render-Parity v2 deployment
+
+Patch `0051` was consolidated into a new full release rather than replacing a
+live module in place. `7.1.5-sp11-render-parity-v2+` completed a full
+`Image modules dtbs` build and was installed under isolated module and boot
+paths. All 7,886 modules have exact v2 vermagic and build-key signatures; the
+Phase91 trio was rebuilt from source against the exact v2 ABI. The combined
+DTB and reviewed topology remain byte-identical to the first Render-Parity
+candidate, and the initramfs contains the complete Wi-Fi, touch, OLED,
+AudioReach, SoundWire, WSA and topology closure.
+
+GRUB syntax and asset checks passed. The one-shot state is armed as
+`next_entry=sp11-audio-render-parity-v2`, while persistent
+`saved_entry=sp11-audio-cps-v3` remains unchanged. See
+`deploy/render-parity-v2/README.md` and
+`artifacts/reviewed/2026-08-14-sp11-render-parity-v2-build-manifest.json`.
