@@ -96,6 +96,12 @@ The rest of that profile is already correctly applied here. Verified live:
 Change the variant test so speaker parts on this board also get 18 dB. Match
 what Windows programs on this silicon rather than inventing a Linux value.
 
+> **2026-08-14 correction:** the DRE register discussed by the earlier audit is
+> `0x34b1`, not `0x30b1`. Any `0x30b1=0xaa` conclusion is invalid. The new
+> Windows FIFO decode also proves state-2 `ANA_WO_CTL_0=0x9d`; the former Linux
+> `0xdd` value mis-encoded the two-bit supply field. Patch `0052` supersedes
+> this plan's supply-profile claim.
+
 `ANA_WO_CTL_0` is **write-once at codec init**, so this needs a kernel build
 and a reboot. There is no runtime path.
 

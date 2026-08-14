@@ -33,6 +33,29 @@ ffff`0003  30 06 11 03
     assert records[1]["logical_device"] == 1
 
 
+def test_parse_accepts_v2_direct_fifo_and_rejects_adjacent_controller_fifos():
+    text = """
+CODEX_QCAUCD_V2CMD addr=0000000006b15020 datap=ffff0001 sel=1
+ffff`0001  b1 34 10 00
+CODEX_QCAUCD_V2CMD addr=0000000006b15024 datap=ffff0002 sel=1
+ffff`0002  01 34 11 01
+CODEX_QCAUCD_V2CMD addr=0000000006b15050 datap=ffff0003 sel=0
+ffff`0003  00 00 00 00
+CODEX_QCAUCD_V2CMD_READ_RESULT addr=6b15050 datap=ffff0003
+ffff`0003  21 00 01 40
+CODEX_QCAUCD_V2CMD addr=0000000006b15020 datap=ffff0004 sel=1
+ffff`0004  b1 34 20 00
+"""
+
+    records = parse_log(text)
+
+    assert len(records) == 2
+    assert [record["register"] for record in records] == ["0x34b1", "0x34b1"]
+    assert [record["logical_device"] for record in records] == [1, 2]
+    assert all(record["marker"] == "CODEX_QCAUCD_V2CMD" for record in records)
+    assert all(record["fifo_address"] == "0x06b15020" for record in records)
+
+
 def test_summary_recognizes_repeated_cycles_and_omits_final_tail():
     records = []
     for index, raw in enumerate(

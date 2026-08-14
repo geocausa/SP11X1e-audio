@@ -1,0 +1,160 @@
+{
+  "schema": "sp11-windows-wsa-init-vs-linux-v1",
+  "date": "2026-08-14",
+  "windows_source": {
+    "path": "01-audio/11.08.2026/CPS_SWR_RUNTIME_20260810_1909Z_2d7c_2026-08-10_19-09-12-880.log",
+    "sha256": "ee8cb66eb3d7a44bf7fe4aadd61f04bb29ba85520df5e15e5ded95d2c1b3dc36",
+    "marker": "CODEX_QCAUCD_V2CMD",
+    "direct_command_fifo": "0x06b15020",
+    "decoded_direct_writes": 133,
+    "logical_device_1_writes": 66,
+    "logical_device_2_writes": 66,
+    "controller_tail_writes": 1,
+    "codec_init_register_writes_per_device": 63,
+    "device_transactions_identical": true
+  },
+  "static_source": {
+    "qcaucd_decompile": {
+      "path": "01-audio/11.08.2026/qcaucd-slave-helper-all-callers.txt",
+      "sha256": "518e27c2beb08ab583303b67412e300bcdac209545970479a1d9c73b68258489"
+    },
+    "vbat_adjacent_decompile": {
+      "path": "01-audio/11.08.2026/qcaucd-wsa-vbat-adjacent-path.txt",
+      "sha256": "6813a8c66b6b2dfd95d61ae214f8b6b24bacdcbe2ed1f3ac6ea3cb018cd46204"
+    }
+  },
+  "linux_snapshot": {
+    "kernel": "7.1.5-sp11-render-parity-v2+",
+    "state": "both amplifiers active during bounded stereo playback",
+    "devices": [
+      "sdw:1:0:0217:0204:00:0",
+      "sdw:1:0:0217:0204:00:1"
+    ],
+    "both_devices_identical_for_compared_codec_registers": true
+  },
+  "already_matching_registers": [
+    "0x3003=0x22",
+    "0x300b=0xd1",
+    "0x3040=0xd2",
+    "0x3045=0x06",
+    "0x3046=0x14",
+    "0x3047=0x19",
+    "0x3048=0x1b",
+    "0x3049=0x1c",
+    "0x304c=0xf6",
+    "0x306a=0x02",
+    "0x3090=0x6a",
+    "0x3091=0x44",
+    "0x30a0=0xf8",
+    "0x30aa=0xe3",
+    "0x30ba=0x13 final",
+    "0x343c=0x00",
+    "0x3458=0x79",
+    "0x3459=0x05",
+    "0x3461=0x11",
+    "0x3473..0x347d",
+    "0x3480..0x3487",
+    "0x348b=0x01",
+    "0x34b0=0xf0",
+    "0x34b9=0x0e",
+    "0x34d2=0x13",
+    "0x3505=0x00",
+    "0x38a8=0x20"
+  ],
+  "proven_corrections": [
+    {
+      "register": "0x3004 BOP2_PROG",
+      "linux_before": "0x66",
+      "windows": "0x44"
+    },
+    {
+      "register": "0x3005 UVLO_PROG",
+      "linux_before": "0x77",
+      "windows": "0x33"
+    },
+    {
+      "register": "0x3006 UVLO_PROG1",
+      "linux_before": "0x40",
+      "windows": "0x60"
+    },
+    {
+      "register": "0x3014 VBAT_SNS",
+      "linux_before_active_read": "0xa0",
+      "windows_init_write": "0x20"
+    },
+    {
+      "register": "0x30a5 PWRSTAGE_CTRL2",
+      "linux_before": "0x31",
+      "windows": "0xf1"
+    },
+    {
+      "register": "0x3414 SWR_RESET_EN",
+      "linux_before": "0x00",
+      "windows_init": "0x07"
+    },
+    {
+      "register": "0x347f CDC_SPK_DSM_C_2",
+      "linux_before": "0xf0",
+      "windows": "0xf2"
+    },
+    {
+      "register": "0x34b2 DRE_IDLE_DET_CTL",
+      "linux_before": "0x2f",
+      "windows": "0x0f"
+    },
+    {
+      "register": "0x34d6 CLSH_SOFT_MAX",
+      "linux_before": "0xf5",
+      "windows": "0xff"
+    },
+    {
+      "register": "0x3504 ANA_WO_CTL_0",
+      "linux_before": "0xdd",
+      "windows_2s": "0x9d",
+      "root_cause": "Linux ORed the whole 0xc0 field mask instead of encoding supply state 2"
+    },
+    {
+      "register": "0x38a6 OTP_REG_38",
+      "linux_before": "0x00",
+      "windows": "0x08"
+    }
+  ],
+  "proven_pa_lifecycle": {
+    "initial_idle": {
+      "0x3067 PWRSTG_DBG": "0x0c",
+      "0x304d PDRV_HS_CTL": "0x5a",
+      "0x34d0 CLSH_CTL_0": "0x00"
+    },
+    "before_global_pa_enable": {
+      "0x34d0 CLSH_CTL_0": "0x67",
+      "0x3067 PWRSTG_DBG": "0x08",
+      "0x304d PDRV_HS_CTL": "0x52"
+    },
+    "after_global_pa_enable": {
+      "0x3067 PWRSTG_DBG": "0x0c",
+      "0x304d PDRV_HS_CTL": "0x5a"
+    },
+    "after_disable": {
+      "0x34d0 CLSH_CTL_0": "0x00"
+    }
+  },
+  "intentionally_not_changed": [
+    {
+      "register": "0x34b1 DRE_CTL_1 CSR_GAIN",
+      "reason": "Windows init value 0 and Linux UCM value 24 affect only the fallback CSR path; normal SP11 playback has COMP enabled and CSR_GAIN_EN is disabled"
+    },
+    {
+      "registers": "0x3581/0x3582 interrupt masks",
+      "reason": "Linux regmap-IRQ owns the masks and its active values 0x90/0x00 already match the Windows PA-start state"
+    },
+    {
+      "registers": "0x0040/0x0041/0x0046",
+      "reason": "SoundWire controller/device-selection traffic rather than WSA codec profile"
+    }
+  ],
+  "implementation": {
+    "patch": "patches/0052-ASoC-wsa884x-match-SP11-Windows-codec-init.patch",
+    "status": "full kernel build in progress",
+    "requires_reboot": true
+  }
+}

@@ -1,0 +1,116 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Fri, 14 Aug 2026 15:00:00 +0100
+Subject: [PATCH] ASoC: wsa884x: match SP11 Windows codec init
+
+The retained qcaucd command-FIFO trace contains the complete initialization
+of both physical SP11 WSA8845 amplifiers.  Both devices receive the same
+66-command transaction and both report VPHX_SYS_EN_STATUS 2.
+
+Correct the SP11 2S overrides to the values actually written by Windows.
+In particular, encode supply state 2 into ANA_WO_CTL_0 instead of ORing the
+whole two-bit mask.  That incorrectly produced the state-3 value.
+Apply the captured BOP/UVLO, power-stage, DSM, DRE, class-H and OTP values.
+
+Reproduce the Windows power-amplifier transition ordering around PA_FSM_EN.
+This leaves the compander and its user-selected fallback CSR gain policy
+unchanged.
+
+Signed-off-by: SP11 audio reconstruction <sp11-audio@localhost>
+---
+ sound/soc/codecs/wsa884x.c | 43 +++++++++++++++++++++++++++++---------
+ 1 file changed, 33 insertions(+), 10 deletions(-)
+
+diff --git a/sound/soc/codecs/wsa884x.c b/sound/soc/codecs/wsa884x.c
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -1599,12 +1599,27 @@ static void wsa884x_apply_supply_config(struct wsa884x_priv *wsa884x)
+ 		return;
+ 
+ 	/*
+-	 * Exact Surface ACDB 4 Ohm load policy and CONFIG_2S overrides from
+-	 * Qualcomm's Windows and downstream Linux drivers.
++	 * Exact Surface ACDB 4 Ohm load policy plus the CONFIG_2S values
++	 * observed on both physical amplifiers in the SP11 Windows qcaucd
++	 * command-FIFO trace.  Keep this after the generic init table so the
++	 * board-specific values win.
+ 	 */
++	regmap_write(regmap, WSA884X_BOP2_PROG, 0x44);
++	regmap_write(regmap, WSA884X_UVLO_PROG, 0x33);
++	regmap_write(regmap, WSA884X_UVLO_PROG1, 0x60);
++	regmap_write(regmap, WSA884X_VBAT_SNS, 0x20);
+ 	regmap_write(regmap, WSA884X_OCP_CTL, 0xf6);
++	regmap_write(regmap, WSA884X_PDRV_HS_CTL, 0x5a);
++	regmap_write(regmap, WSA884X_PWRSTG_DBG, 0x0c);
++	regmap_write(regmap, WSA884X_PWRSTAGE_CTRL2, 0xf1);
++	regmap_write(regmap, WSA884X_SWR_RESET_EN, 0x07);
+ 	regmap_multi_reg_write(regmap, sp11_2s_4ohm_pbr,
+ 			       ARRAY_SIZE(sp11_2s_4ohm_pbr));
++	regmap_write(regmap, WSA884X_CDC_SPK_DSM_C_2, 0xf2);
++	regmap_write(regmap, WSA884X_DRE_IDLE_DET_CTL, 0x0f);
++	regmap_write(regmap, WSA884X_CLSH_CTL_0, 0x00);
++	regmap_write(regmap, WSA884X_CLSH_SOFT_MAX, 0xff);
++	regmap_write(regmap, WSA884X_OTP_REG_38, 0x08);
+ 	regmap_update_bits(regmap, WSA884X_CLSH_CTL_1,
+ 			   WSA884X_CLSH_CTL_1_SLR_MAX_MASK,
+ 			   FIELD_PREP(WSA884X_CLSH_CTL_1_SLR_MAX_MASK, 0x2));
+@@ -1620,14 +1635,8 @@ static void wsa884x_apply_supply_config(struct wsa884x_priv *wsa884x)
+ 			   WSA884X_DAC_VCM_CTRL_REG7_FINAL_OVERRIDE_MASK,
+ 			   WSA884X_DAC_VCM_CTRL_REG7_FINAL_OVERRIDE_MASK);
+ 
+-	/*
+-	 * These UVLO values are applied after the 2S overrides in both the
+-	 * downstream source and a newer WSA884x module decompilation.
+-	 */
+-	regmap_write(regmap, WSA884X_UVLO_PROG, 0x77);
+ 	regmap_write(regmap, WSA884X_PA_FSM_TIMER0, 0xc0);
+ 	regmap_write(regmap, WSA884X_UVLO_DEGLITCH_CTL, 0x1d);
+-	regmap_write(regmap, WSA884X_UVLO_PROG1, 0x40);
+ 
+ 	regmap_update_bits(regmap, WSA884X_TOP_CTRL1,
+ 			   WSA884X_TOP_CTRL1_OCP_LOWVBAT_ITH_EN_MASK, 0);
+@@ -1664,7 +1673,8 @@ static void wsa884x_init(struct wsa884x_priv *wsa884x)
+ 
+ 	wo_ctl_0 = 0xc;
+ 	if (wsa884x->supply_config == WSA884X_SUPPLY_2S)
+-		wo_ctl_0 |= WSA884X_ANA_WO_CTL_0_VPHX_SYS_EN_MASK;
++		wo_ctl_0 |= FIELD_PREP(WSA884X_ANA_WO_CTL_0_VPHX_SYS_EN_MASK,
++				     wsa884x->supply_config);
+ 	wo_ctl_0 |= FIELD_PREP(WSA884X_ANA_WO_CTL_0_DAC_CM_CLAMP_EN_MASK,
+ 			       WSA884X_ANA_WO_CTL_0_DAC_CM_CLAMP_EN_MODE_SPEAKER);
+ 	/* Assume that compander is enabled by default unless it is haptics sku */
+@@ -2193,6 +2203,8 @@ static int wsa884x_mute_stream(struct snd_soc_dai *dai, int mute, int stream)
+ 		snd_soc_component_write_field(component, WSA884X_PA_FSM_EN,
+ 					      WSA884X_PA_FSM_EN_GLOBAL_PA_EN_MASK,
+ 					      0x0);
++		if (wsa884x->supply_config == WSA884X_SUPPLY_2S)
++			regmap_write(wsa884x->regmap, WSA884X_CLSH_CTL_0, 0x00);
+ 
+ 	} else {
+ 		/*
+@@ -2203,12 +2215,23 @@ static int wsa884x_mute_stream(struct snd_soc_dai *dai, int mute, int stream)
+ 		    (sta1 & WSA884X_PA_ERROR_MASK))
+ 			wsa884x_recover_pa(wsa884x, false);
+ 
++		/* Exact SP11 state-2 qcaucd ordering around GLOBAL_PA_EN. */
++		if (wsa884x->supply_config == WSA884X_SUPPLY_2S) {
++			regmap_write(wsa884x->regmap, WSA884X_CLSH_CTL_0, 0x67);
++			regmap_write(wsa884x->regmap, WSA884X_PWRSTG_DBG, 0x08);
++			regmap_write(wsa884x->regmap, WSA884X_PDRV_HS_CTL, 0x52);
++		}
++
+ 		snd_soc_component_write_field(component, WSA884X_DRE_CTL_1,
+ 					      WSA884X_DRE_CTL_1_CSR_GAIN_EN_MASK,
+ 					      0x1);
+ 		snd_soc_component_write_field(component, WSA884X_PA_FSM_EN,
+ 					      WSA884X_PA_FSM_EN_GLOBAL_PA_EN_MASK,
+ 					      0x1);
++		if (wsa884x->supply_config == WSA884X_SUPPLY_2S) {
++			regmap_write(wsa884x->regmap, WSA884X_PWRSTG_DBG, 0x0c);
++			regmap_write(wsa884x->regmap, WSA884X_PDRV_HS_CTL, 0x5a);
++		}
+ 		usleep_range(1000, 1100);
+ 
+ 		if (!regmap_read(wsa884x->regmap, WSA884X_PA_FSM_STA1, &sta1) &&
+-- 
+2.53.0

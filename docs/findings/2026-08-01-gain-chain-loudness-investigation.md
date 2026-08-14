@@ -61,10 +61,16 @@ SOC_SINGLE_RANGE_TLV("PA Volume", WSA884X_DRE_CTL_1,
 a write of 12 back to 6. **This is identical in pristine upstream 7.1.5**, so it
 is not a local patch. Why ALSA reports 6 is **UNRESOLVED**.
 
-`OBSERVED`, live register from `wsa-regmaps-full.txt`, both amps:
+> **2026-08-14 address correction:** `DRE_CTL_1` is `0x34b1`
+> (`WSA884X_BASE 0x3000 + DIG_CTRL0 0x0400 + 0xb1`), not `0x30b1`.
+> The old `0x30b1=0xaa` observation addressed a different analogue register
+> and must not be used as DRE evidence. Current live `0x34b1` decodes
+> consistently with the ALSA PA control.
+
+`OBSERVED`, historical live register from `wsa-regmaps-full.txt`, both amps:
 
 ```text
-DRE_CTL_1 (0x30b1) = 0xaa = 1010 1010b
+DRE_CTL_1 (historically misaddressed as 0x30b1) = 0xaa = 1010 1010b
   CSR_GAIN    (bits 5:1, mask 0x3e) = 21   -> -9 + 1.5*21 = +22.5 dB
   CSR_GAIN_EN (bit 0)               = 0    -> disabled
 ```

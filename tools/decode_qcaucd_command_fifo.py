@@ -4,6 +4,10 @@
 The Aug-10 SP11 capture logs a CODEX_DP6BRIDGE marker followed by a four-byte
 WinDbg ``db`` row.  Despite the marker name, the breakpoint covered every
 qcaucd write to command FIFO 0x06b15020, not only data port 6.
+
+A later capture uses CODEX_QCAUCD_V2CMD for writes to several controller
+addresses.  Only address 0x06b15020 carries the same packed slave-write word;
+the decoder deliberately excludes the adjacent indirect/read-control FIFOs.
 """
 
 from __future__ import annotations
@@ -16,7 +20,11 @@ from collections import Counter
 from pathlib import Path
 
 
-MARKER = "CODEX_DP6BRIDGE"
+LEGACY_MARKER = "CODEX_DP6BRIDGE"
+V2_MARKER = re.compile(
+    r"CODEX_QCAUCD_V2CMD\s+addr=(?:0x)?([0-9a-fA-F]+)\b"
+)
+COMMAND_FIFO_ADDRESS = 0x06B15020
 DB_ROW = re.compile(
     r"^\s*[0-9a-fA-F`]+\s+((?:[0-9a-fA-F]{2}\s+){3}[0-9a-fA-F]{2})\b"
 )
@@ -86,10 +94,23 @@ def decode_word(raw: bytes, index: int, line_number: int) -> dict[str, object]:
 def parse_log(text: str) -> list[dict[str, object]]:
     records: list[dict[str, object]] = []
     marker_line: int | None = None
+    marker_name: str | None = None
 
     for line_number, line in enumerate(text.splitlines(), start=1):
-        if MARKER in line:
+        if LEGACY_MARKER in line:
             marker_line = line_number
+            marker_name = LEGACY_MARKER
+            continue
+
+        v2_match = V2_MARKER.search(line)
+        if v2_match:
+            address = int(v2_match.group(1), 16)
+            if address == COMMAND_FIFO_ADDRESS:
+                marker_line = line_number
+                marker_name = "CODEX_QCAUCD_V2CMD"
+            else:
+                marker_line = None
+                marker_name = None
             continue
         if marker_line is None:
             continue
@@ -102,8 +123,11 @@ def parse_log(text: str) -> list[dict[str, object]]:
             bytes.fromhex(match.group(1)), len(records), line_number
         )
         record["marker_line"] = marker_line
+        record["marker"] = marker_name
+        record["fifo_address"] = f"0x{COMMAND_FIFO_ADDRESS:08x}"
         records.append(record)
         marker_line = None
+        marker_name = None
 
     return records
 
@@ -190,7 +214,7 @@ def main() -> int:
     raw = args.log.read_bytes()
     decoded = parse_log(raw.decode(errors="replace"))
     output: dict[str, object] = {
-        "schema": "sp11-qcaucd-command-fifo-decode-v1",
+        "schema": "sp11-qcaucd-command-fifo-decode-v2",
         "source": {
             "path": str(args.log),
             "size_bytes": len(raw),

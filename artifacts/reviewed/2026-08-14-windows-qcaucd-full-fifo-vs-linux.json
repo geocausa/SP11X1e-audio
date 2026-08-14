@@ -1,6 +1,7 @@
 {
   "schema": "sp11-windows-qcaucd-full-fifo-vs-linux-v1",
   "date": "2026-08-14",
+  "scope_erratum": "This artifact closes the CODEX_DP6BRIDGE data-port and lifecycle capture. It does not decode the separate CODEX_QCAUCD_V2CMD codec initialization block; see artifacts/reviewed/2026-08-14-windows-wsa-init-vs-linux.json.",
   "windows_evidence": {
     "raw_log": {
       "local_path": "/home/geoca/Documents/SP11-PROJECT/01-audio/11.08.2026/CPS_DP6_SLAVES_20260810_2007BST_25f4_2026-08-10_20-07-15-660.log",
@@ -118,8 +119,7 @@
       "VSENSE1 0x67 and ISENSE2 0x07",
       "OCP 0xf6",
       "2-cell current limit 0x44",
-      "all 15 PBR thresholds 0x34e1..0x34ef",
-      "PA enable, high-side driver and class-H start state"
+      "all 15 PBR thresholds 0x34e1..0x34ef"
     ],
     "proven_mismatch": {
       "function": "DP5/VISENSE",
@@ -128,13 +128,14 @@
       "linux_dpn_max_ch": 1,
       "linux_runtime_request_log": "num=5 ch-mask=0x1 on both amplifiers",
       "risk": "Linux requests only half of the two-channel voltage/current sensing lane that Windows programs on each amplifier."
-    }
+    },
+    "later_reopened_codec_profile": "The V2CMD decode proves additional init mismatches and that Linux omitted the final Windows 0x3067=0x0c / 0x304d=0x5a PA-start restoration; patch 0052 addresses these separately."
   },
     "conclusion": {
         "new_windows_capture_required": false,
         "candidate_patch": "patches/0050-ASoC-wsa884x-denali-use-native-VISENSE-channel-mask.patch",
-        "candidate_build": "complete WSA884x module and Denali OLED DTB compiled successfully; not deployed",
-        "next_action": "Install as a separate boot candidate, validate clean DP5 mask 0x03 and VI/protection startup, then perform a bounded listening comparison.",
+        "candidate_build": "DP5 candidate subsequently deployed and live-gated; separate codec-init patch 0052 is pending its own boot gate",
+        "next_action": "Preserve the GREEN DP5 result and validate patch 0052 as a separate codec-init/PA-lifecycle candidate.",
         "do_not_enable": "PBR DP4; the runtime capture contains no positive DP4 programming."
     }
 }

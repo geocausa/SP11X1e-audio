@@ -16,6 +16,18 @@
 > Suspend/resume is explicitly deferred to a separate investigation and is not
 > part of the current built-in-speaker sound-quality gate.
 
+> **2026-08-14 codec-init correction:** the retained Windows
+> `CODEX_QCAUCD_V2CMD` capture contains a second, complete 63-register WSA8845
+> initialization transaction per amplifier which the earlier DP6-focused
+> decoder ignored. It proves that Linux mis-encoded the two-bit 2S supply field
+> (`0xdd` instead of Windows `0x9d`) and used several generic/downstream values
+> where the actual SP11 Windows driver writes different BOP/UVLO, power-stage,
+> DSM, DRE, class-H and OTP values. Patch `0052` corrects those fields and the
+> exact PA start/stop ordering. The isolated `7.1.5-sp11-render-parity-v3+`
+> candidate passes build, module, initramfs and GRUB preboot gates; H08 remains
+> AMBER until it boots and passes register, safety and listening gates. See
+> `docs/findings/2026-08-14-WINDOWS-WSA8845-INIT-PARITY-CORRECTION.md`.
+
 > **2026-08-14 consolidated-candidate update:** isolated GRUB entry
 > `sp11-audio-render-parity` now stages one coherent
 > `7.1.5-sp11-render-parity+` build containing the already-live CPS/VI and
@@ -78,7 +90,7 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 - [x] **GREEN H05 — VISENSE / VI mixers reproduce the Windows slave width.** The corrected `sp11-audio-visense-parity` boot loaded WSA884x srcversion `782FC79EBBA505E52A2AE88`; both amplifiers requested DP5 ChannelEnable `0x03` at 8 kHz, matching the qcaucd slave FIFO, master-port-10/11 runtime tuples and static templates. VI feedback, SP/SPVI enable and bounded playback succeeded without PA fault, XRUN or port conflict, and both amplifiers returned to runtime suspend. Overall physical tonal parity remains W03, not part of this transport result.
 - [x] **GREEN H06 — PBR/protected high-output policy.** Current protected path includes the recovered PBR/current-limit state used for the high-output deployment.
 - [x] **GREEN H07 — physical L/R identity and per-speaker calibration attribution.** During the 2026-08-14 standard spoken stereo test the operator confirmed that `Front Left` came from physical chassis left and `Front Right` from physical chassis right. This closes the acoustic end of the already-consistent ordering chain: Windows R0/T0 records 0/1, SPVI V/I pairs 1/2 then 3/4, and Linux `left_spkr` then `right_spkr`. Record 0 remains physical left (R0 4.955847740 ohm, T0 38.65625 C); record 1 remains physical right (R0 5.370454669 ohm, T0 37.0 C). No calibration swap is required.
-- [x] **GREEN H08 — the retained 328-write Windows amplifier transaction is decoded and its Linux transport/profile comparison is closed.** The exact local raw logs contain three payload-identical 109-command cycles. Linux matches Windows DP1/DAC, DP2/COMP, DP3/BOOST, DP5/VISENSE, DP6/CPS, no ordinary DP4 schedule, PA/class-H, 4-ohm/18-dB sensing, OCP, 2-cell current limit and PBR thresholds. The sole proven transport mismatch, DP5 `0x01` versus Windows `0x03`, is corrected and live-gated on both amplifiers. This closes the captured hardware-transaction comparison, not subjective Windows acoustic parity.
+- [~] **AMBER H08 — SoundWire transport is closed, but the newly decoded Windows codec initialization correction is not yet live-gated.** The retained 328-write `CODEX_DP6BRIDGE` cycles still prove Linux DP1/DAC, DP2/COMP, DP3/BOOST, DP5/VISENSE, DP6/CPS and no ordinary DP4 schedule; the DP5 `0x03` correction remains GREEN. A separate retained `CODEX_QCAUCD_V2CMD` trace now proves 63 codec-register writes per amplifier and exposes Linux profile mismatches hidden from the first decoder, including `ANA_WO_CTL_0=0xdd` versus Windows state-2 `0x9d`. Patch `0052` corrects the exact init and PA lifecycle. The isolated v3 candidate passes all preboot gates, but H08 remains AMBER until boot, readback, fault-free protected playback and physical listening.
 
 ## 3. Qualcomm AudioReach graph and calibration
 
@@ -114,7 +126,7 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 - [x] **GREEN P06 — dual 8 kHz native-width VI feedback.** Both WSA amplifiers request Windows DP5 mask `0x03`, both VI feedback paths report ready, SP/SPVI with VI+CPS feedback and `GRAPH_START` are accepted, bounded playback is fault/XRUN-free, and both amplifiers suspend cleanly afterward.
 - [x] **GREEN P07 — CPS feedback coupling.** SP/SPVI enable with VI+CPS feedback accepted; CPS runtime transport is closed as a deployment blocker.
 - [x] **GREEN P08 — protected high-output gate.** High-output PA state is only used with protection active.
-- [~] **AMBER P09 — passive/protection limiter telemetry equivalence.** A bounded live run on `7.1.5-sp11-render-parity-v2+` captured 12 successful samples from each WSA884x while protected stereo playback ran: both PAs stayed enabled, both devices returned independent changing raw ADC/temperature words, current-limit register `0x44` remained selected, and every failed-read, error and interrupt field stayed zero. The temporary observer was reset to disabled afterward. This proves dual-device Linux observability, but the raw words are not yet calibrated physical current/excursion/temperature and the private Windows DSP diagnostic callback/result semantics remain incomplete. See `docs/findings/2026-08-14-LINUX-BOUNDED-WSA-PROTECTION-OBSERVATION.md`.
+- [~] **AMBER P09 — passive/protection limiter telemetry equivalence.** A bounded live run on `7.1.5-sp11-render-parity-v2+` captured 12 successful samples from each WSA884x while protected stereo playback ran: both PAs stayed enabled, both devices returned independent changing raw ADC/temperature words, current-limit register `0x44` remained selected, and every failed-read, error and interrupt field stayed zero. The temporary observer was reset to disabled afterward. The old Windows TMax/XMax GET and newer public telemetry IDs have already been tried and rejected by the Linux DSP. A complete hash-bound qcadcm/qcaudminiport causal trace proves Windows uses the TMax/XMax response only for WPP/ETW logging, so this AMBER observability gap is excluded as a cause of W03 and does not justify another Windows reboot. See `docs/findings/2026-08-14-LINUX-BOUNDED-WSA-PROTECTION-OBSERVATION.md` and `docs/findings/2026-08-14-WINDOWS-TMAX-XMAX-READBACK-IS-LOGGING-ONLY.md`.
 - [~] **AMBER P10 — exact HLOS CPS payload semantics.** Transport/effect are present; every private field has not been named semantically.
 - [x] **GREEN P11 — ordinary-playback PBR DP4 scheduling exactness.** Full decoding of the retained 328-write qcaucd FIFO log shows three identical Windows playback cycles. DP1/2/3/5/6 are positively programmed on both amplifiers; DP4 has no positive programming and appears only as right-slave bank-1 ChannelEnable `0x00` teardown once per cycle. The selector-5 DP4 template therefore remains supported capability, not a request in this captured playback scenario. Linux correctly keeps slave DP4 unscheduled while retaining the exact internal WSA8845 2-cell PBR/current-limit policy. Do not enable DP4.
 

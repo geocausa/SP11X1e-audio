@@ -1,0 +1,46 @@
+{
+  "schema": "sp11-windows-protection-readback-causality-v1",
+  "date": "2026-08-14",
+  "binaries": {
+    "qcadcm8380.sys": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+    "qcaudminiport8380.sys": "79b26804d05332304c736c4e03e942db6a07ea886a2b07f3a4ff5947d1d05531"
+  },
+  "qcadcm": {
+    "get_tmax_xmax_function": "0x140075eb8",
+    "instance_id": "0x4027",
+    "parameter_id": "0x080011f2",
+    "operation": "tagged GET_CFG",
+    "returned_fields_per_speaker": [
+      "MaxExcur",
+      "excursion_count",
+      "MaxTemp",
+      "temperature_count"
+    ],
+    "side_effects": "copy result to caller output and emit WPP logging",
+    "set_cfg_or_register_write_seen": false
+  },
+  "qcaudminiport": {
+    "consumer_function": "0x140093cb0",
+    "graph_ioctl_wrapper": "0x140062830",
+    "ioctl_selector": "0x1e",
+    "output_size_bytes": 132,
+    "per_speaker_logger": "0x1400108a8",
+    "callers": [
+      "0x14008e680",
+      "0x14008fb50",
+      "0x140090700"
+    ],
+    "host_action": "iterate returned speakers and emit WPP/ETW records, then clear graph state",
+    "gain_protection_or_codec_actuation_seen": false
+  },
+  "linux_runtime": {
+    "old_tmax_xmax_0x080011f2": "framed 92-byte response, command status 1, module status 1, zero body, rejected with -EINVAL",
+    "speaker_condition_event_0x0800138c": "AR_EUNSUPPORTED",
+    "newer_public_protection_queries": "all tested queries returned module error 3 / AR_EUNSUPPORTED"
+  },
+  "conclusion": {
+    "observability_gap_remains": true,
+    "tonal_parity_cause": false,
+    "new_windows_capture_required_for_w03": false
+  }
+}

@@ -2,6 +2,14 @@
 
 Date: 2026-08-14 (Europe/London)
 
+> **Later 2026-08-14 scope correction:** this finding correctly decoded the
+> 328 `CODEX_DP6BRIDGE` data-port/lifecycle records and led to the successful
+> DP5 fix, but it did not parse the separate `CODEX_QCAUCD_V2CMD` amplifier
+> initialization block in the same retained runtime log. Therefore its claim
+> that the complete WSA profile was closed was too broad. The second decoder
+> pass and patch `0052` are documented in
+> `2026-08-14-WINDOWS-WSA8845-INIT-PARITY-CORRECTION.md`.
+
 ## Result
 
 The user was correct that the retained Windows logs had already been copied to
@@ -88,11 +96,13 @@ around the port transaction.  On both amplifiers Windows sets:
 - `PA_FSM_EN 0x3430 = 0x01`;
 - then `0x3067/0x304d = 0x0c/0x5a`.
 
-The running `7.1.5-sp11-render-parity-v2+` regmap matches the relevant Windows
-profile: `0x3020=67`, `0x3021=07`, `0x304c=f6`, `0x3091=44`, the exact 15 PBR
-thresholds, and the active PA/class-H start state.  Current kernel logs also
-show the exact Windows masks for DP1/2/3 and DP6, but explicitly show
-`num=5 ch-mask=0x1` for DP5 on both amplifiers.
+The running `7.1.5-sp11-render-parity-v2+` regmap matches `0x3020=67`,
+`0x3021=07`, `0x304c=f6`, `0x3091=44`, and the exact 15 PBR thresholds.
+Current kernel logs also show the exact Windows masks for DP1/2/3 and DP6, but
+explicitly showed `num=5 ch-mask=0x1` for DP5 on both amplifiers. A later
+state-aware comparison showed Linux did not reproduce the final
+`0x3067=0x0c / 0x304d=0x5a` PA-start restoration and reopened the broader
+codec initialization scope.
 
 The Linux DP5 mismatch is already present in the current source:
 
