@@ -2,9 +2,16 @@
 """Apply the recovered SP11 Windows endpoint-volume transaction atomically.
 
 This synchronizer is selected only when the candidate kernel exposes
-``SP11 Windows Volume Transaction``.  It writes Dolby postgain, then asks the
-kernel to send final VOL_CTRL followed by the complete four-frame GainStep OOB
-delta.  Only after that succeeds does it move the hidden ALSA sink to unity.
+``SP11 Windows Volume Transaction``.  The live endpoint transaction sends final
+VOL_CTRL followed by the complete four-frame GainStep OOB delta.  Only after
+that succeeds does it move the hidden ALSA sink to unity.
+
+Windows KDNET and stationary-loopback captures prove that endpoint slider
+changes do not retune VLLDP while its Dolby APO instance remains alive.  Dolby
+postgain is therefore queued once per visible/hidden filter-chain generation,
+not on ordinary live volume changes.  A replacement Dolby engine gets the
+current endpoint-derived postgain once; that value then remains frozen until
+the engine is recreated.
 
 Steady-state volume changes are consumed from ``pw-dump -m`` rather than a
 timer.  This preserves the recovered Windows ordering without allowing the
@@ -25,6 +32,7 @@ import hashlib
 import importlib.util
 import json
 import math
+import os
 import signal
 import struct
 import subprocess
@@ -177,27 +185,69 @@ def restore_visible_control_state(state: tuple[float, bool], node_id: int,
     return ui_scalar
 
 
+def default_generation_state() -> Path:
+    runtime = os.environ.get("XDG_RUNTIME_DIR")
+    if runtime:
+        return Path(runtime) / "sp11-dolby-volume-generation"
+    return Path(f"/run/user/{os.getuid()}/sp11-dolby-volume-generation")
+
+
+def read_generation_node(path: Path) -> int | None:
+    try:
+        return int(path.read_text().strip())
+    except (FileNotFoundError, OSError, ValueError):
+        return None
+
+
+def queue_dolby_postgain_for_generation(
+    state: tuple[float, bool], node_id: int, control: Path, generation_state: Path
+) -> int | None:
+    """Queue VLLDP postgain once for one Dolby/filter-chain generation.
+
+    Fresh Windows KDNET proves live endpoint SetVolume updates final VOL_CTRL and
+    GainStep/CKV but does not enter either recovered VLLDP postgain setter.  A
+    second stationary-loopback experiment proves even idle -> new-stream starts
+    leave the upstream Dolby transfer unchanged while the same APO instance is
+    alive.  Linux therefore updates this control only when its Dolby engine is
+    newly instantiated (represented by a new visible filter-chain node id).
+    """
+    if read_generation_node(generation_state) == node_id:
+        return None
+    pipewire_gain, muted = state
+    ui_scalar, endpoint_db, postgain, _host = base.derive_windows_state(
+        pipewire_gain, muted
+    )
+    base.write_postgain_request(control, postgain)
+    generation_state.parent.mkdir(parents=True, exist_ok=True)
+    generation_state.write_text(f"{node_id}\n")
+    print(
+        f"dolby_generation={node_id} ui_scalar={ui_scalar:.6f} "
+        f"windows_db={endpoint_db:.3f} queued_postgain={postgain} "
+        f"muted={'yes' if muted else 'no'}",
+        flush=True,
+    )
+    return postgain
+
+
 def apply_transaction(state: tuple[float, bool], hardware_id: int,
-                      control: Path, deltas: tuple[bytes, ...], helper: Path,
+                      deltas: tuple[bytes, ...], helper: Path,
                       card: str, numid: int, wpctl: str) -> tuple[int, int]:
     pipewire_gain, muted = state
-    ui_scalar, endpoint_db, postgain, _host_scalar = base.derive_windows_state(
+    ui_scalar, endpoint_db, _postgain, _host_scalar = base.derive_windows_state(
         pipewire_gain, muted
     )
     q28 = qcadcm_q28_from_db(endpoint_db)
     step = msiir.select_ckv_step_q28(q28)
-    base.write_postgain_request(control, postgain)
     write_transaction(q28, deltas[step - 1], helper=helper, card=card, numid=numid)
     base.set_hardware_volume(hardware_id, 1.0, wpctl)
     print(
         f"pipewire_gain={pipewire_gain:.9g} ui_scalar={ui_scalar:.6f} "
-        f"windows_db={endpoint_db:.3f} postgain={postgain} "
-        f"final_q28=0x{q28:08x} gainstep={step} "
-        f"delta={len(deltas[step - 1])} hardware_scalar=1.000000 "
-        f"muted={'yes' if muted else 'no'}",
+        f"windows_db={endpoint_db:.3f} final_q28=0x{q28:08x} "
+        f"gainstep={step} delta={len(deltas[step - 1])} "
+        f"hardware_scalar=1.000000 muted={'yes' if muted else 'no'}",
         flush=True,
     )
-    return postgain, q28
+    return q28, step
 
 
 def event_mentions_node(value: object, node_name: str) -> bool:
@@ -229,6 +279,7 @@ def run(args: argparse.Namespace) -> int:
     current_node_id: int | None = None
     current_hardware_id: int | None = None
     node_settle_ms = getattr(args, "node_settle_ms", 0)
+    generation_state = getattr(args, "generation_state", default_generation_state())
 
     def reconcile(state: tuple[float, bool], hardware_id: int) -> None:
         nonlocal last, last_host, transaction_active
@@ -248,15 +299,17 @@ def run(args: argparse.Namespace) -> int:
             return
 
         pipewire_gain, muted = state
-        _ui, endpoint_db, postgain, _host = base.derive_windows_state(
+        _ui, endpoint_db, _postgain, _host = base.derive_windows_state(
             pipewire_gain, muted
         )
-        signature = (postgain, qcadcm_q28_from_db(endpoint_db))
+        q28 = qcadcm_q28_from_db(endpoint_db)
+        step = msiir.select_ckv_step_q28(q28)
+        signature = (q28, step)
         if transaction_active and signature == last:
             return
         try:
             last = apply_transaction(
-                state, hardware_id, args.control, deltas, args.tlv_write,
+                state, hardware_id, deltas, args.tlv_write,
                 args.card, numid, args.wpctl
             )
             last_host = None
@@ -295,6 +348,9 @@ def run(args: argparse.Namespace) -> int:
         # is authoritative across object recreation and is restored first.
         restore_visible_control_state(current_state, node_id, args.wpctl)
         current_node_id = node_id
+        queue_dolby_postgain_for_generation(
+            current_state, node_id, args.control, generation_state
+        )
         target_hardware = hardware_id or current_hardware_id
         if target_hardware is not None:
             reconcile(current_state, target_hardware)
@@ -306,6 +362,9 @@ def run(args: argparse.Namespace) -> int:
             print("volume or hardware node unavailable", file=sys.stderr)
             return 3
         current_node_id = node_id
+        queue_dolby_postgain_for_generation(
+            state, node_id, args.control, generation_state
+        )
         reconcile(state, hardware_id)
         if not transaction_active:
             print("graph idle; host attenuation established")
@@ -342,6 +401,9 @@ def run(args: argparse.Namespace) -> int:
                         continue
                     state, node_id, hardware_id = state2, node_id2, hardware_id2
                 current_node_id = node_id
+                queue_dolby_postgain_for_generation(
+                    state, node_id, args.control, generation_state
+                )
                 reconcile(state, hardware_id)
                 break
             if time.monotonic() >= deadline:
@@ -443,6 +505,8 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--bootstrap-guard-ms", type=int, default=1000)
     p.add_argument("--node-settle-ms", type=int, default=300,
                    help="wait for WirePlumber Props restore before first transaction")
+    p.add_argument("--generation-state", type=Path,
+                   default=default_generation_state(), help=argparse.SUPPRESS)
     # Kept only so older unit/service invocations do not fail argument parsing;
     # the transaction path is no longer timer-driven.
     p.add_argument("--interval-ms", type=int, default=100,

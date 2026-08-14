@@ -21,13 +21,17 @@ Windows' recovered final-volume ramp is already present in the topology:
 - final speaker VOL_CTRL IID `0x4a63`;
 - runtime gain PID `0x08001038`.
 
-The transaction order remains:
+Fresh same-day Windows KDNET later corrected one part of this original model.
+For an already-created Dolby APO, a live endpoint slider change does **not**
+retune VLLDP postgain. The live Windows transaction is:
 
-1. Dolby VLLDP postgain request;
-2. final DSP VOL_CTRL Q28 gain;
-3. the exact four-frame Windows GainStep OOB delta in the same kernel control
-   call, after VOL_CTRL;
-4. hidden ALSA sink unity only after the DSP call succeeds.
+1. final DSP VOL_CTRL Q28 gain;
+2. GetGraphCkv / the dependent GainStep calibration;
+3. hidden endpoint actuation/ramping at that downstream boundary.
+
+Linux now queues VLLDP postgain once per Dolby/filter-chain generation and keeps
+it frozen for ordinary live slider changes and stream stop/start. See
+`2026-08-14-WINDOWS-LIVE-VOLUME-LIFECYCLE-KDNET.md`.
 
 When the graph is idle or the DSP transaction fails, the hidden sink retains
 the recovered Windows endpoint attenuation.  This prevents a full-volume
@@ -90,22 +94,20 @@ The older standalone MSIIR synchronizer is not a competing writer: on this
 kernel it detects `SP11 Windows Volume Transaction`, prints that the combined
 transaction owns GainStep updates, and exits successfully.
 
-One concrete cross-domain ordering gap remains.  The synchronizer currently:
+The previously suspected cross-domain VLLDP postgain acknowledgement race is
+now **retired**. Fresh KDNET placed breakpoints on both recovered VLLDP postgain
+setters while Windows executed controlled 8% -> 17% -> 8% live endpoint
+changes; neither setter fired. A stationary WASAPI-loopback experiment stayed
+sample-transfer-stable across the same slider changes, and separate idle ->
+new-stream captures at 17% and 8% differed by only about 0.0012/0.0023 dB.
 
-1. writes the Dolby postgain **request**;
-2. immediately sends the synchronous final VOL_CTRL + GainStep kernel call.
-
-The Dolby plug-in does not apply and acknowledge that request until the next
-audio callback/block.  Therefore “request written before DSP call” does not
-guarantee “Dolby postgain applied before DSP call.”  Scheduler timing can make
-the effective acoustic order vary, which is consistent with the reported
-direction-dependent residual.  At the inspected settled state, request and
-ack both reached `-214`; the issue is transition ordering, not a stuck value.
-
-Next work must timestamp postgain request/ack and the kernel transaction during
-one bounded real transition, then enforce the recovered Windows order if the
-race is observed.  Do not add a guessed second fade or alter the proven
-10 ms / 1 ms / curve-3 DSP ramp before closing this acknowledgement boundary.
+At the same time, qcadcm SetVolume, final `0x4a63/0x08001038`, and GetGraphCkv
+all fired live. Linux therefore now freezes VLLDP postgain for one Dolby-engine
+generation while continuing final VOL_CTRL + GainStep updates. The remaining
+transition exactness gap is Windows' two per-channel master-volume SetVolume
+calls versus Linux's current one simultaneous stereo body. Do not add a guessed
+fade or alter the proven 10 ms / 1 ms / curve-3 ramp before evaluating that
+specific sequencing difference.
 
 ## DP5/VISENSE `0x03` — closed; do not rediscover
 

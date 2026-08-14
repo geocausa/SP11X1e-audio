@@ -38,13 +38,11 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         self.assertEqual(len(deltas[1]), 216)
         self.assertEqual(len(deltas[2]), 272)
 
-    def test_apply_order_is_postgain_transaction_then_host_unity(self):
+    def test_apply_order_is_transaction_then_host_unity_without_live_postgain(self):
         calls = []
         deltas = tuple(b"d" * (272 if step in (3, 9, 24) else 216)
                        for step in range(1, 31))
-        with patch.object(sync.base, "write_postgain_request",
-                          side_effect=lambda path, value:
-                          calls.append(("postgain", value))), \
+        with patch.object(sync.base, "write_postgain_request") as postgain, \
              patch.object(sync, "write_transaction",
                           side_effect=lambda q28, delta, **kwargs:
                           calls.append(("transaction", q28, len(delta)))), \
@@ -52,14 +50,35 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
                           side_effect=lambda node, scalar, wpctl:
                           calls.append(("host", scalar))):
             signature = sync.apply_transaction(
-                (0.25 ** 3, False), 69, Path("control"), deltas,
+                (0.25 ** 3, False), 69, deltas,
                 Path("tlv_write"), "hw:0", 321, "wpctl"
             )
-        self.assertEqual(calls[0], ("postgain", -332))
-        self.assertEqual(calls[1][0], "transaction")
-        self.assertEqual(calls[1][2], 272)
-        self.assertEqual(calls[2], ("host", 1.0))
-        self.assertEqual(signature[0], -332)
+        postgain.assert_not_called()
+        self.assertEqual(calls[0][0], "transaction")
+        self.assertEqual(calls[0][2], 272)
+        self.assertEqual(calls[1], ("host", 1.0))
+        expected_q28 = sync.qcadcm_q28_from_db(-20.7474098205566)
+        self.assertEqual(signature, (expected_q28, 3))
+
+    def test_postgain_is_queued_once_per_dolby_generation(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            generation = Path(tmpdir) / "generation"
+            control = Path(tmpdir) / "control"
+            with patch.object(sync.base, "write_postgain_request") as write:
+                first = sync.queue_dolby_postgain_for_generation(
+                    (0.25 ** 3, False), 41, control, generation
+                )
+                same = sync.queue_dolby_postgain_for_generation(
+                    (0.50 ** 3, False), 41, control, generation
+                )
+                replacement = sync.queue_dolby_postgain_for_generation(
+                    (0.50 ** 3, False), 42, control, generation
+                )
+            self.assertEqual(first, -332)
+            self.assertIsNone(same)
+            self.assertNotEqual(replacement, -332)
+            self.assertEqual(write.call_count, 2)
+            self.assertEqual(generation.read_text().strip(), "42")
 
     def test_dispatch_selects_candidate_only_when_control_exists(self):
         class CP:
@@ -84,9 +103,12 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
                           return_value=(0.25 ** 3, False)), \
              patch.object(sync.base, "extract_node_id", return_value=69), \
              patch.object(sync.msiir, "graph_running", return_value=False), \
+             patch.object(sync, "queue_dolby_postgain_for_generation",
+                          return_value=-332) as queue, \
              patch.object(sync, "restore_host_attenuation",
                           return_value=(-332, 451035000)) as restore:
             self.assertEqual(sync.run(args), 0)
+        queue.assert_called_once()
         restore.assert_called_once_with((0.25 ** 3, False), 69, "wpctl")
 
     def test_monitor_applies_complete_volume_event_without_another_snapshot(self):
@@ -140,15 +162,18 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
                           side_effect=lambda _pw: snapshots.append(True) or initial), \
              patch.object(sync.base, "iter_json_stream",
                           return_value=iter((changed,))), \
+             patch.object(sync, "queue_dolby_postgain_for_generation",
+                          return_value=-332) as queue, \
              patch.object(sync.msiir, "graph_running", return_value=True), \
              patch.object(sync, "apply_transaction",
                           side_effect=lambda state, *a, **k:
-                          applied.append(state) or (-332, 123)), \
+                          applied.append(state) or (123, 2)), \
              patch.object(sync, "restore_host_attenuation"):
             self.assertEqual(sync.run(args), 0)
 
         self.assertEqual(len(snapshots), 1)
         self.assertEqual(applied, [(0.25 ** 3, False), (0.5 ** 3, False)])
+        queue.assert_called_once()
 
     def test_recreated_visible_sink_inherits_previous_state_before_transaction(self):
         class FakeStdout:
@@ -200,7 +225,8 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         def fake_apply(state, *args, **kwargs):
             applied.append(state)
             _ui, db, postgain, _host = sync.base.derive_windows_state(*state)
-            return postgain, sync.qcadcm_q28_from_db(db)
+            q28 = sync.qcadcm_q28_from_db(db)
+            return q28, sync.msiir.select_ckv_step_q28(q28)
 
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \
@@ -210,6 +236,8 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
                           return_value=iter((recreated_unity,))), \
              patch.object(sync.msiir, "graph_running", return_value=True), \
              patch.object(sync, "apply_transaction", side_effect=fake_apply), \
+             patch.object(sync, "queue_dolby_postgain_for_generation",
+                          return_value=-332) as queue, \
              patch.object(sync, "restore_visible_control_state",
                           side_effect=lambda state, node_id, wpctl:
                           restored.append((state, node_id)) or 0.25), \
@@ -217,6 +245,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
             self.assertEqual(sync.run(args), 0)
 
         self.assertEqual(restored, [((old_gain, False), 42)])
+        self.assertEqual(queue.call_count, 2)
         self.assertTrue(applied)
         self.assertTrue(all(state == (old_gain, False) for state in applied))
 
