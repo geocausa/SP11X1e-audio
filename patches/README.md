@@ -670,6 +670,15 @@ and rejected with `-EINVAL`. This patch separates payload capacity from total
 control-buffer capacity (`276 + 8 = 284` bytes). The payload validator and
 DSP transaction bytes are otherwise unchanged.
 
+## `0050-ASoC-wsa884x-denali-use-native-VISENSE-channel-mask.patch`
+
+Board-scoped protection-path parity candidate. The full Windows qcaucd
+command-FIFO capture programs native DP5/VISENSE ChannelEnable `0x03` on both
+amplifiers, while Linux currently requests `0x01`. The optional codec property
+keeps the generic default everywhere else and selects `0x03` only for Microsoft
+Denali. It deliberately does not enable DP4/PBR, which Windows did not schedule
+in any of the three captured playback transactions.
+
 ## `0051-ASoC-q6apm-quiesce-pull-watermarks-before-soft-pause.patch`
 
 Mandatory live-gate correction on top of `0045`. The first consolidated

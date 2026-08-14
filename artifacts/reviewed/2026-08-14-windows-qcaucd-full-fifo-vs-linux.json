@@ -1,0 +1,140 @@
+{
+  "schema": "sp11-windows-qcaucd-full-fifo-vs-linux-v1",
+  "date": "2026-08-14",
+  "windows_evidence": {
+    "raw_log": {
+      "local_path": "/home/geoca/Documents/SP11-PROJECT/01-audio/11.08.2026/CPS_DP6_SLAVES_20260810_2007BST_25f4_2026-08-10_20-07-15-660.log",
+      "size_bytes": 48229,
+      "sha256": "a6bbf3574e6caaf5fdb0fc46ec4bad0106321af90cce91fbeb4f2015b60b66eb"
+    },
+    "master_log": {
+      "local_path": "/home/geoca/Documents/SP11-PROJECT/01-audio/11.08.2026/CPS_SWR_RUNTIME_20260810_1909Z_2d7c_2026-08-10_19-09-12-880.log",
+      "sha256": "ee8cb66eb3d7a44bf7fe4aadd61f04bb29ba85520df5e15e5ded95d2c1b3dc36"
+    },
+    "static_templates": {
+      "local_path": "/home/geoca/Documents/SP11-PROJECT/01-audio/11.08.2026/qcaucd-port-templates.txt",
+      "sha256": "5d81834f2c9efdd92fa54ff07f22fcde394cfd3781ea25ab022903e8dd15f4ed"
+    },
+    "fifo": {
+      "physical_address": "0x06b15020",
+      "packing": "reg | (cmd_id << 16) | (logical_dev << 20) | (data << 24)",
+      "record_count": 328,
+      "cycle_count": 3,
+      "records_per_cycle": 109,
+      "cycles_identical_ignoring_command_id": true,
+      "final_tail": "broadcast 0x0044=0x02"
+    }
+  },
+  "identity": {
+    "logical_device_2": {
+      "wsa_identity": "0x0000000402170220",
+      "side": "left"
+    },
+    "logical_device_1": {
+      "wsa_identity": "0x0000000402170221",
+      "side": "right"
+    }
+  },
+  "windows_slave_active_bank1": {
+    "dp1_DAC": {
+      "both_channel_enable": "0x01",
+      "sample_ctrl1": "0x07",
+      "left_offset1": "0x01",
+      "right_offset1": "0x02",
+      "block_ctrl3": "0x00"
+    },
+    "dp2_COMP": {
+      "both_channel_enable": "0x0f",
+      "sample_ctrl1": "0x1f",
+      "left_offset1": "0x03",
+      "right_offset1": "0x04",
+      "both_offset2": "0x07",
+      "block_ctrl3": "0x01"
+    },
+    "dp3_BOOST": {
+      "both_channel_enable": "0x03",
+      "sample_ctrl1": "0x3f",
+      "left_offset1": "0x05",
+      "right_offset1": "0x15",
+      "both_offset2": "0x1f",
+      "block_ctrl3": "0x01"
+    },
+    "dp4_PBR": {
+      "positive_programming_observed": false,
+      "observed_runtime_writes": [
+        "logical_device_1 0x0430=0x00 teardown, once per cycle"
+      ],
+      "static_selector5_template_exists": true,
+      "interpretation": "The driver supports DP4, but the three captured playback cycles did not schedule it."
+    },
+    "dp5_VISENSE": {
+      "both_channel_enable": "0x03",
+      "sample_ctrl1": "0x0f",
+      "left_offset1": "0x06",
+      "right_offset1": "0x0d",
+      "block_ctrl3": "0x01",
+      "master_port_10_left_runtime_tuple": "0f 06 00 03",
+      "master_port_11_right_runtime_tuple": "0f 0d 00 03"
+    },
+    "dp6_CPS": {
+      "both_channel_enable": "0x03",
+      "sample_ctrl1": "0x1f",
+      "sample_ctrl2": "0x03",
+      "left_offset1": "0x00",
+      "right_offset1": "0x19",
+      "hctrl": "0xff",
+      "block_ctrl1": "0x18",
+      "block_ctrl3": "0x00"
+    }
+  },
+  "windows_amplifier_transaction": {
+    "start_both": [
+      "0x3021=0x07 ISENSE2",
+      "0x3020=0x67 VSENSE1",
+      "0x3581=0x90 interrupt mask 0",
+      "0x3582=0x00 interrupt mask 1",
+      "0x34d0=0x67 class-H control",
+      "0x3067=0x08 power-stage debug",
+      "0x304d=0x52 high-side driver",
+      "0x3430=0x01 PA FSM enable",
+      "0x3067=0x0c power-stage debug",
+      "0x304d=0x5a high-side driver"
+    ],
+    "stop_both": [
+      "0x3430=0x00 PA FSM disable",
+      "0x3581=0xff and 0x3582=0x03 interrupt mask",
+      "0x3585=0xff and 0x3586=0x03 interrupt clear",
+      "0x34d0=0x00 class-H disable"
+    ]
+  },
+  "linux_comparison": {
+    "kernel": "7.1.5-sp11-render-parity-v2+",
+    "matching": [
+      "DP1/DAC mask and timing",
+      "DP2/COMP mask and timing",
+      "DP3/BOOST mask and timing",
+      "DP6/CPS mask 0x03, timing and per-speaker offsets 0/25",
+      "no ordinary-playback DP4/PBR schedule",
+      "VSENSE1 0x67 and ISENSE2 0x07",
+      "OCP 0xf6",
+      "2-cell current limit 0x44",
+      "all 15 PBR thresholds 0x34e1..0x34ef",
+      "PA enable, high-side driver and class-H start state"
+    ],
+    "proven_mismatch": {
+      "function": "DP5/VISENSE",
+      "windows_per_slave_channel_mask": "0x03",
+      "linux_wsa884x_port_config_channel_mask": "0x01",
+      "linux_dpn_max_ch": 1,
+      "linux_runtime_request_log": "num=5 ch-mask=0x1 on both amplifiers",
+      "risk": "Linux requests only half of the two-channel voltage/current sensing lane that Windows programs on each amplifier."
+    }
+  },
+    "conclusion": {
+        "new_windows_capture_required": false,
+        "candidate_patch": "patches/0050-ASoC-wsa884x-denali-use-native-VISENSE-channel-mask.patch",
+        "candidate_build": "complete WSA884x module and Denali OLED DTB compiled successfully; not deployed",
+        "next_action": "Install as a separate boot candidate, validate clean DP5 mask 0x03 and VI/protection startup, then perform a bounded listening comparison.",
+        "do_not_enable": "PBR DP4; the runtime capture contains no positive DP4 programming."
+    }
+}

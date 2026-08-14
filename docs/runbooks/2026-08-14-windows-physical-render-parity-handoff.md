@@ -47,11 +47,19 @@ C:\Users\SurfacePro7\Documents\KDNET\Codex\CPS_SWR_RUNTIME_20260810_1909Z_2d7c_2
 Their hashes and the reviewed DP6 extraction are in
 `artifacts/reviewed/2026-08-10-windows-cps-dp6-runtime.json`.
 
-First recover those retained raw logs and decode all non-DP6 records.  Build a
-functional Windows-versus-Linux matrix covering render DAC/COMP/BOOST, amp
-initialization, gains, compander, softclip, sensing, OCP, PBR/current limit and
-teardown.  Cross-check it against the static qcaucd/ACDB profile and current
-Linux driver/register state.
+They were subsequently found already copied on SP11 Linux under
+`/home/geoca/Documents/SP11-PROJECT/01-audio/11.08.2026/`.  The exact hashes
+match.  The complete FIFO has now been decoded with
+`tools/decode_qcaucd_command_fifo.py`; see
+`docs/findings/2026-08-14-full-qcaucd-fifo-visense-gap.md` and
+`artifacts/reviewed/2026-08-14-windows-qcaucd-full-fifo-vs-linux.json`.
+
+The decode resolves the former first priority.  All three 109-command Windows
+playback cycles are identical.  Linux matches DP1/DAC, DP2/COMP, DP3/BOOST,
+DP6/CPS and the material WSA amplifier profile.  It does **not** match
+DP5/VISENSE: Windows programs slave mask `0x03` on both amplifiers while the
+running Linux driver requests `0x01`.  Windows does not positively program
+DP4/PBR in any of the three cycles, so Linux must not enable DP4.
 
 The July Gemini report
 `Gemini/docs/sp11_audio_parity_captured_telemetry.md` is not a substitute for
@@ -129,18 +137,16 @@ Do not mix DEFAULT and NOTIFICATION graphs in the steady-state comparison.
 
 ## Evidence-audit priorities
 
-1. Decode and classify every retained Aug-10 qcaucd FIFO record, not only the
-   already-reviewed DP6 subset.  Compare it with the exact static WSA profile
-   and Linux's live state.
+1. Treat the complete Aug-10 qcaucd FIFO decode as closed evidence.  Implement
+   the proven DP5/VISENSE `0x03` slave-mask difference as a Denali/SP11-scoped
+   normal-SoundWire candidate and compare it with Linux's current `0x01` path.
 2. Reuse the existing AudioReach startup/calibration and selected-CKV corpus to
    confirm final `VOL_CTRL 0x4a63`, the four-frame `MSIIR 0x489e` GainStep
    transaction and root protection calibration.  Do not recapture these
    already-closed boundaries.
-3. Determine from the retained qcaucd data and static caller graph whether
-   ordinary Windows playback requests the known DP4/PBR
-   schedule (slot 7 / slave DP4 / shared master port 7), rather than merely
-   carrying the static template.  A runtime request or programming event is
-   required for a positive result.
+3. Keep DP4/PBR unscheduled.  The static slot-7 template exists, but the three
+   retained runtime playback cycles contain no positive DP4 programming and
+   only one right-slave `0x0430=0x00` teardown per cycle.
 4. Inventory the retained passive SP/SPVI/CPS state, events and calibrated
    measurements before declaring any telemetry field missing.
 5. Bind WSA identities `0x0000000402170220` and

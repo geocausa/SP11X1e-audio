@@ -1,0 +1,110 @@
+From: SP11 audio parity work <sp11-audio@localhost>
+Subject: [PATCH] ASoC: wsa884x: allow board native VISENSE channel mask
+
+The WSA884x generic DP5 configuration uses channel mask 0x01.  The Surface
+Pro 11 Windows qcaucd command-FIFO capture programs ChannelEnable 0x03 on
+DP5 for both amplifiers, independently corroborated by its selector-5 port
+templates and master-port runtime tuples.
+
+Add an optional codec property and set it to 0x03 only on Microsoft Denali.
+Machines without the property retain the existing generic mask.  Read the
+property from the codec OF node because the SoundWire slave's primary
+firmware node does not expose the board codec properties.
+
+This does not enable DP4/PBR.  The same Windows runtime capture contains no
+positive DP4 programming during any of its three playback transactions.
+
+Signed-off-by: SP11 audio parity work <sp11-audio@localhost>
+---
+ Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml | 8 ++++++++
+ arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi          | 2 ++
+ sound/soc/codecs/wsa884x.c                                 | 13 +++++++++++++
+ 3 files changed, 23 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml b/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml
+index 244d88f..0f1efbd 100644
+--- a/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml
++++ b/Documentation/devicetree/bindings/sound/qcom,wsa8840.yaml
+@@ -51,6 +51,14 @@ properties:
+       Slave-only SoundWire DP6 OffsetCtrl1 override for CPS. This does not
+       change the physical master-port schedule selected by qcom,port-mapping.
+ 
++  qcom,visense-channel-mask:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    minimum: 1
++    maximum: 255
++    description: |
++      Native WSA data-port-5 channel-enable mask for the VISENSE protection
++      sidechain. If absent, the codec default is used.
++
+   '#sound-dai-cells':
+     enum: [0, 1]
+     description: |
+diff --git a/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi b/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
+index 7877285..2cf5e9d 100644
+--- a/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
++++ b/arch/arm64/boot/dts/qcom/x1-microsoft-denali.dtsi
+@@ -1139,6 +1139,7 @@ left_spkr: speaker@0,0 {
+ 		vdd-1p8-supply = <&vreg_l15b_1p8>;
+ 		vdd-io-supply = <&vreg_l12b_1p2>;
+ 		qcom,port-mapping = <1 2 3 7 10 13>;
++		qcom,visense-channel-mask = <3>;
+ 		qcom,enable-cps;
+ 		qcom,cps-offset1 = <0>;
+ 	};
+@@ -1153,6 +1154,7 @@ right_spkr: speaker@0,1 {
+ 		vdd-1p8-supply = <&vreg_l15b_1p8>;
+ 		vdd-io-supply = <&vreg_l12b_1p2>;
+ 		qcom,port-mapping = <4 5 6 7 11 13>;
++		qcom,visense-channel-mask = <3>;
+ 		qcom,enable-cps;
+ 		qcom,cps-offset1 = <25>;
+ 	};
+diff --git a/sound/soc/codecs/wsa884x.c b/sound/soc/codecs/wsa884x.c
+index 6a990b4..baeff50 100644
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -749,6 +749,7 @@ struct wsa884x_priv {
+ 	struct sdw_slave *slave;
+ 	struct sdw_stream_runtime *sruntime[3];
+ 	u8 cps_offset1;
++	u8 visense_channel_mask;
+ 	bool cps_enabled;
+ 	struct gpio_desc *sd_n;
+ 	struct reset_control *sd_reset;
+@@ -2130,6 +2131,9 @@ static int wsa884x_hw_params(struct snd_pcm_substream *substream,
+ 
+ 		selected_mask |= BIT(i);
+ 		port_config[active_ports] = wsa884x_pconfig[i];
++		if (i == WSA884X_PORT_VISENSE)
++			port_config[active_ports].ch_mask =
++				wsa884x->visense_channel_mask;
+ 		if (i == WSA884X_PORT_CPS) {
+ 			port_config[active_ports].transport_params_override_mask =
+ 				SDW_PORT_CONFIG_OVERRIDE_OFFSET1;
+@@ -2482,6 +2486,7 @@ static int wsa884x_probe(struct sdw_slave *pdev,
+ 	struct wsa884x_priv *wsa884x;
+ 	unsigned int i;
+ 	u32 cps_offset1;
++	u32 visense_channel_mask;
+ 	int ret;
+ 
+ 	wsa884x = devm_kzalloc(dev, sizeof(*wsa884x), GFP_KERNEL);
+@@ -2521,6 +2526,15 @@ static int wsa884x_probe(struct sdw_slave *pdev,
+ 	wsa884x->slave = pdev;
+ 	wsa884x->dev = dev;
+ 	wsa884x->dev_mode = WSA884X_SPEAKER;
++	wsa884x->visense_channel_mask =
++		wsa884x_pconfig[WSA884X_PORT_VISENSE].ch_mask;
++	if (!of_property_read_u32(dev->of_node, "qcom,visense-channel-mask",
++				  &visense_channel_mask)) {
++		if (!visense_channel_mask || visense_channel_mask > U8_MAX)
++			return dev_err_probe(dev, -EINVAL,
++					     "invalid qcom,visense-channel-mask\n");
++		wsa884x->visense_channel_mask = visense_channel_mask;
++	}
+ 	/*
+ 	 * SoundWire supplies its own primary firmware node for the slave device,
+ 	 * so the generic device-property helpers do not reach the codec's OF
+-- 
+2.51.0
