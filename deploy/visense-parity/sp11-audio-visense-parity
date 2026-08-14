@@ -1,0 +1,14 @@
+#!/bin/sh
+# Load the isolated WSA884x candidate before the real root module tree appears.
+
+PREREQ="sp11-audio-render-parity-v2"
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+prereqs) prereqs; exit 0 ;;
+esac
+
+[ "${version:-}" = "7.1.5-sp11-render-parity-v2+" ] || exit 0
+
+. /usr/share/initramfs-tools/hook-functions
+
+force_load snd_soc_wsa884x

@@ -1,7 +1,7 @@
 {
   "schema": "sp11-visense-parity-build-manifest-v1",
   "date": "2026-08-14",
-  "status": "installed-one-shot-armed-live-gate-pending",
+  "status": "first-boot-activation-defect-corrected-one-shot-rearmed",
   "kernel_release": "7.1.5-sp11-render-parity-v2+",
   "command_line_identity": "sp11_entry=7.1.5-sp11-visense-parity",
   "functional_delta": "Denali-only WSA884x DP5/VISENSE native channel mask 0x03 on both amplifiers",
@@ -39,8 +39,8 @@
       "sha256": "b74d13ea8360efecfc7d3d36e1ddb043b028e466ac7921b25749f864e7dd303b"
     },
     "initramfs": {
-      "bytes": 157500708,
-      "sha256": "6f3c7dc1fd44ad514fa4e982399b0cd4955f5483b584061d17196f4d5c657a2a"
+      "bytes": 157507657,
+      "sha256": "8ba52d121c3957c5a170eda4437884ecbfdfcdcdd1d3e21808ce29f18db3c700"
     },
     "signed_wsa884x_module": {
       "bytes": 14493,
@@ -59,5 +59,18 @@
     "SP, SPVI and CPS graph startup",
     "no PA fault or XRUN during bounded playback",
     "physical Windows-parity listening comparison"
-  ]
+  ],
+  "first_boot": {
+    "entry_identity": "passed",
+    "wifi": "passed",
+    "one_shot_consumed": true,
+    "loaded_wsa884x_srcversion": "B7F5D7D97DD31C77EFB6F01",
+    "observed_dp5_mask_both": "0x01",
+    "interpretation": "false candidate: module was included but not loaded in initramfs; old root module loaded later",
+    "audio_listening_performed": false,
+    "correction": "force_load snd_soc_wsa884x in candidate initramfs",
+    "corrected_archive_conf_modules": "contains exact snd_soc_wsa884x line",
+    "corrected_archive_embedded_candidate_hash": "passed",
+    "root_module_restored_after_rebuild": true
+  }
 }

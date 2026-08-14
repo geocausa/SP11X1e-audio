@@ -47,12 +47,21 @@ operation, and the root module was restored to its original SHA-256
 The running module and known-good Render-Parity v2 boot bundle were never
 modified.
 
+The first live one-shot exposed an initramfs activation defect: inclusion alone
+did not load WSA884x before the real root appeared, so the old root module
+`B7F5D7D97DD31C77EFB6F01` loaded and DP5 correctly remained `0x01`.  No acoustic
+judgment was taken from that false candidate.  The candidate hook now uses
+`force_load snd_soc_wsa884x`.  The rebuilt archive contains that exact line in
+`conf/modules`, and its extracted WSA884x file is byte-identical to the signed
+candidate.  The root module was again restored to its original hash before the
+replacement archive was installed.
+
 Installed hashes:
 
 | Artifact | SHA-256 |
 |---|---|
 | kernel image | `b74d13ea8360efecfc7d3d36e1ddb043b028e466ac7921b25749f864e7dd303b` |
-| initramfs | `6f3c7dc1fd44ad514fa4e982399b0cd4955f5483b584061d17196f4d5c657a2a` |
+| initramfs (forced-load correction) | `8ba52d121c3957c5a170eda4437884ecbfdfcdcdd1d3e21808ce29f18db3c700` |
 | signed WSA884x candidate | `c56d98f770a94110df8d93388d3ea9796fdd3549d2e7b4e1a9da7c61d2119b16` |
 | combined candidate DTB | `3530e3426c500d664be6ed3ef066d1b548025ba8286a5810e8b98c591b6555ca` |
 
