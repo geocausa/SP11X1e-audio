@@ -150,6 +150,76 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         self.assertEqual(len(snapshots), 1)
         self.assertEqual(applied, [(0.25 ** 3, False), (0.5 ** 3, False)])
 
+    def test_recreated_visible_sink_inherits_previous_state_before_transaction(self):
+        class FakeStdout:
+            def fileno(self):
+                return 9
+
+        class FakeProc:
+            stdout = FakeStdout()
+            returncode = 0
+
+            def poll(self):
+                return 0
+
+            def terminate(self):
+                raise AssertionError("completed fake monitor must not be terminated")
+
+            def wait(self):
+                return 0
+
+        old_gain = 0.25 ** 3
+        initial = [{
+            "id": 41,
+            "info": {
+                "props": {"node.name": "virtual"},
+                "params": {"Props": [{"channelVolumes": [old_gain]}]},
+            },
+        }, {
+            "id": 69,
+            "info": {"props": {"node.name": "hardware"}},
+        }]
+        recreated_unity = [{
+            "id": 42,
+            "info": {
+                "props": {"node.name": "virtual"},
+                "params": {"Props": [{"channelVolumes": [1.0]}]},
+            },
+        }]
+        args = Namespace(
+            delta_table=Path("deltas.json"), card="hw:0", amixer="amixer",
+            tlv_write=Path(__file__), pw_dump="pw-dump", node="virtual",
+            hardware_node="hardware", pcm_status=Path("status"),
+            wpctl="wpctl", control=Path("control"), interval_ms=100,
+            settle_ms=0, bootstrap_ms=0, bootstrap_guard_ms=0,
+            node_settle_ms=0, once=False,
+        )
+        applied = []
+        restored = []
+
+        def fake_apply(state, *args, **kwargs):
+            applied.append(state)
+            _ui, db, postgain, _host = sync.base.derive_windows_state(*state)
+            return postgain, sync.qcadcm_q28_from_db(db)
+
+        with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
+             patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync.subprocess, "Popen", return_value=FakeProc()), \
+             patch.object(sync.base, "snapshot", return_value=initial), \
+             patch.object(sync.base, "iter_json_stream",
+                          return_value=iter((recreated_unity,))), \
+             patch.object(sync.msiir, "graph_running", return_value=True), \
+             patch.object(sync, "apply_transaction", side_effect=fake_apply), \
+             patch.object(sync, "restore_visible_control_state",
+                          side_effect=lambda state, node_id, wpctl:
+                          restored.append((state, node_id)) or 0.25), \
+             patch.object(sync, "restore_host_attenuation"):
+            self.assertEqual(sync.run(args), 0)
+
+        self.assertEqual(restored, [((old_gain, False), 42)])
+        self.assertTrue(applied)
+        self.assertTrue(all(state == (old_gain, False) for state in applied))
+
     def test_load_module_accepts_extensionless_installed_helper(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             helper = Path(tmpdir) / ".local/bin/test-helper"

@@ -87,7 +87,16 @@ Files:
 ```text
 deploy/dolby/sp11_dolby_volume_sync.py
 deploy/dolby/sp11-dolby-volume-sync.service
+deploy/dolby/sp11_dolby_monitor_link.py
+deploy/dolby/sp11-dolby-monitor-link.service
 ```
+
+The monitor-link keeper is intentionally exact-name based; it creates only the
+left/right unity monitor -> hidden Dolby engine links. The transaction sync also
+tracks the visible sink object ID. If filter-chain recreates the node, the new
+object inherits the previous user scalar before any final VOL_CTRL/GainStep
+transaction, so PipeWire's transient default-unity Props cannot become a 100%
+endpoint command.
 
 `sp11-dolby postgain` shows the raw request/applied values.
 `sp11-dolby sync-volume` performs one manual volume->postgain synchronization.
@@ -130,13 +139,19 @@ speaker endpoint over scalar `0.000..1.000` in `0.005` increments. The endpoint
 reported `-75..0 dB`, 0.5-dB hardware granularity and 51 software step
 positions.
 
-`sp11-dolby-volume-sync` now recovers the visible PipeWire scalar from its cubic
-`channelVolumes`, looks up/interpolates the pinned Windows taper, and applies the
-result in two places: VLLDP `postgain=round(dB*16)` and the hidden downstream
-ALSA sink. This leaves the visible virtual sink unchanged while moving endpoint
-attenuation after Dolby/AudioEngine, matching the Windows ordering. The separate
-MSIIR sync service reads the same postgain page, so one endpoint-dB state drives
-attenuation, Dolby postgain and CKV selection.
+`sp11-dolby-volume-sync` recovers the visible PipeWire scalar from its cubic
+`channelVolumes` and maps it through the pinned Windows taper. The visible sink
+is now a **control sink only**: its unity monitor ports feed a separate hidden
+Dolby engine, so its cubic `channelVolumes` never attenuate VLLDP/VR input PCM.
+`sp11-dolby-monitor-link` maintains those exact two monitor-to-engine links.
+
+When the protected graph is idle, the hidden downstream ALSA sink carries the
+Windows endpoint attenuation as the fail-quiet actuator. When the v4 protected
+graph is running, the combined volume transaction programs final AudioReach
+`VOL_CTRL` plus GainStep and only then moves that hidden sink to unity. VLLDP
+postgain and MSIIR selection continue to consume the same Windows-equivalent dB
+state. This preserves one visible desktop slider while matching Windows ordering:
+full-scale host PCM -> Dolby/AudioEngine -> endpoint attenuation.
 
 At the 25% reference point the live result is:
 

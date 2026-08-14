@@ -150,6 +150,33 @@ def restore_host_attenuation(state: tuple[float, bool], hardware_id: int,
     return postgain, round(host_scalar * 1_000_000_000)
 
 
+def restore_visible_control_state(state: tuple[float, bool], node_id: int,
+                                  wpctl: str) -> float:
+    """Restore the last user scalar on a recreated visible control sink.
+
+    PipeWire publishes a new filter sink at unity before WirePlumber restores
+    its saved Props.  That transient value is node lifecycle state, not a user
+    volume command, and must never reach final VOL_CTRL/GainStep.  Apply volume
+    before mute/unmute so recreation always fails toward attenuation.
+    """
+    pipewire_gain, muted = state
+    ui_scalar = base.pipewire_ui_scalar_from_linear_gain(pipewire_gain)
+    subprocess.run(
+        [wpctl, "set-volume", str(node_id), f"{ui_scalar:.12f}"], check=True,
+        stdout=subprocess.DEVNULL,
+    )
+    subprocess.run(
+        [wpctl, "set-mute", str(node_id), "1" if muted else "0"], check=True,
+        stdout=subprocess.DEVNULL,
+    )
+    print(
+        f"recreated visible sink id={node_id} restored ui_scalar={ui_scalar:.6f} "
+        f"muted={'yes' if muted else 'no'}",
+        flush=True,
+    )
+    return ui_scalar
+
+
 def apply_transaction(state: tuple[float, bool], hardware_id: int,
                       control: Path, deltas: tuple[bytes, ...], helper: Path,
                       card: str, numid: int, wpctl: str) -> tuple[int, int]:
@@ -199,7 +226,9 @@ def run(args: argparse.Namespace) -> int:
     last_host: tuple[int, int] | None = None
     transaction_active = False
     current_state: tuple[float, bool] | None = None
+    current_node_id: int | None = None
     current_hardware_id: int | None = None
+    node_settle_ms = getattr(args, "node_settle_ms", 0)
 
     def reconcile(state: tuple[float, bool], hardware_id: int) -> None:
         nonlocal last, last_host, transaction_active
@@ -241,18 +270,42 @@ def run(args: argparse.Namespace) -> int:
                 flush=True,
             )
 
-    def settled() -> tuple[tuple[float, bool] | None, int | None]:
+    def settled() -> tuple[tuple[float, bool] | None, int | None, int | None]:
         entries = base.snapshot(args.pw_dump)
         return (
             base.extract_node_volume(entries, args.node),
+            base.extract_node_id(entries, args.node),
             base.extract_node_id(entries, args.hardware_node),
         )
 
+    def adopt_recreated_node(node_id: int | None, hardware_id: int | None) -> bool:
+        """Return True when a replacement node was restored and reconciled."""
+        nonlocal current_node_id
+        if node_id is None:
+            return False
+        if current_node_id is None:
+            current_node_id = node_id
+            return False
+        if node_id == current_node_id:
+            return False
+        if current_state is None:
+            current_node_id = node_id
+            return False
+        # Do not consume the new node's default-unity Props.  The old user state
+        # is authoritative across object recreation and is restored first.
+        restore_visible_control_state(current_state, node_id, args.wpctl)
+        current_node_id = node_id
+        target_hardware = hardware_id or current_hardware_id
+        if target_hardware is not None:
+            reconcile(current_state, target_hardware)
+        return True
+
     if args.once:
-        state, hardware_id = settled()
-        if state is None or hardware_id is None:
+        state, node_id, hardware_id = settled()
+        if state is None or node_id is None or hardware_id is None:
             print("volume or hardware node unavailable", file=sys.stderr)
             return 3
+        current_node_id = node_id
         reconcile(state, hardware_id)
         if not transaction_active:
             print("graph idle; host attenuation established")
@@ -266,9 +319,29 @@ def run(args: argparse.Namespace) -> int:
         if args.settle_ms > 0:
             time.sleep(args.settle_ms / 1000.0)
         deadline = time.monotonic() + (args.bootstrap_ms / 1000.0)
-        while current_state is None or current_hardware_id is None:
-            state, hardware_id = settled()
-            if state is not None and hardware_id is not None:
+        while (
+            current_state is None
+            or current_node_id is None
+            or current_hardware_id is None
+        ):
+            state, node_id, hardware_id = settled()
+            if state is not None and node_id is not None and hardware_id is not None:
+                # A brand-new PipeWire node is born at unity before WirePlumber
+                # restores stream properties.  Give that restoration one
+                # bounded window before the first DSP transaction of a login.
+                if node_settle_ms > 0:
+                    time.sleep(node_settle_ms / 1000.0)
+                    state2, node_id2, hardware_id2 = settled()
+                    if (
+                        state2 is None
+                        or node_id2 != node_id
+                        or hardware_id2 is None
+                    ):
+                        if time.monotonic() >= deadline:
+                            break
+                        continue
+                    state, node_id, hardware_id = state2, node_id2, hardware_id2
+                current_node_id = node_id
                 reconcile(state, hardware_id)
                 break
             if time.monotonic() >= deadline:
@@ -281,14 +354,27 @@ def run(args: argparse.Namespace) -> int:
         )
         for value in base.iter_json_stream(proc.stdout.fileno()):
             event_state = base.extract_node_volume(value, args.node)
+            found_node_id = base.extract_node_id(value, args.node)
             found_hardware_id = base.extract_node_id(value, args.hardware_node)
             relevant = (
                 event_state is not None
+                or found_node_id is not None
                 or found_hardware_id is not None
                 or event_mentions_node(value, args.node)
                 or event_mentions_node(value, args.hardware_node)
             )
             if not relevant:
+                continue
+
+            # A filter-chain recreation is not a volume gesture.  Restore the
+            # previous scalar on the replacement object before considering any
+            # of its default Props, then ignore the queued unity event.
+            if adopt_recreated_node(
+                found_node_id, found_hardware_id or current_hardware_id
+            ):
+                guard_until = time.monotonic() + (
+                    args.bootstrap_guard_ms / 1000.0
+                )
                 continue
 
             # Resolve queued bootstrap values and partial node-state deltas
@@ -299,14 +385,25 @@ def run(args: argparse.Namespace) -> int:
                 or current_hardware_id is None
                 or time.monotonic() < guard_until
             ):
-                snap_state, snap_hardware_id = settled()
+                snap_state, snap_node_id, snap_hardware_id = settled()
                 event_state = snap_state or event_state
+                found_node_id = snap_node_id or found_node_id
                 found_hardware_id = snap_hardware_id or found_hardware_id
+
+                if adopt_recreated_node(
+                    found_node_id, found_hardware_id or current_hardware_id
+                ):
+                    guard_until = time.monotonic() + (
+                        args.bootstrap_guard_ms / 1000.0
+                    )
+                    continue
 
             state = event_state or current_state
             hardware_id = found_hardware_id or current_hardware_id
             if state is None or hardware_id is None:
                 continue
+            if found_node_id is not None and current_node_id is None:
+                current_node_id = found_node_id
             reconcile(state, hardware_id)
     finally:
         if proc.poll() is None:
@@ -329,7 +426,6 @@ def run(args: argparse.Namespace) -> int:
                 )
     return proc.returncode or 0
 
-
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--node", default=base.DEFAULT_NODE)
@@ -345,6 +441,8 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--settle-ms", type=int, default=200)
     p.add_argument("--bootstrap-ms", type=int, default=5000)
     p.add_argument("--bootstrap-guard-ms", type=int, default=1000)
+    p.add_argument("--node-settle-ms", type=int, default=300,
+                   help="wait for WirePlumber Props restore before first transaction")
     # Kept only so older unit/service invocations do not fail argument parsing;
     # the transaction path is no longer timer-driven.
     p.add_argument("--interval-ms", type=int, default=100,
@@ -355,7 +453,8 @@ def parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
-    if min(args.settle_ms, args.bootstrap_ms, args.bootstrap_guard_ms) < 0:
+    if min(args.settle_ms, args.bootstrap_ms, args.bootstrap_guard_ms,
+           args.node_settle_ms) < 0:
         print("monitor timing values must be non-negative", file=sys.stderr)
         return 2
     if not args.once:
