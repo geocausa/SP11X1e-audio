@@ -1,5 +1,18 @@
 # SP11 built-in-speaker Windows/Linux render parity ledger — 2026-08-12
 
+> **2026-08-14 physical-listening correction:** the user has now auditioned
+> ordinary YouTube playback on the live `7.1.5-sp11-render-parity-v2+` build.
+> The paused-media fragment on a notification wake remains fixed, and ordinary
+> live volume tracking behaves correctly.  A sharp slider/transition spike is
+> still audible, however, and overall Linux tonality is reported as much better
+> than two weeks earlier but still **not close to Windows parity**.  W03 is
+> therefore a confirmed physical failure, not a pending A/B.  Because the
+> state-matched Windows/Linux Dolby waveform is already nearly identical, the
+> next discriminator is the downstream AudioReach/WSA8845/protection state at a
+> matched volume, not an invented userspace EQ or psychoacoustic block.
+> Suspend/resume is explicitly deferred to a separate investigation and is not
+> part of the current built-in-speaker sound-quality gate.
+
 > **2026-08-14 consolidated-candidate update:** isolated GRUB entry
 > `sp11-audio-render-parity` now stages one coherent
 > `7.1.5-sp11-render-parity+` build containing the already-live CPS/VI and
@@ -47,7 +60,7 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 
 ## 1. Base Linux render path
 
-- [x] **GREEN R01 — Kernel / ASoC platform stack.** Current live kernel is `7.1.5-sp11-softpause+`; X1E80100, q6apm/q6prm/APR, SoundWire and WSA884x are live.  The consolidated `7.1.5-sp11-render-parity+` replacement is fully staged but not yet booted.
+- [x] **GREEN R01 — Kernel / ASoC platform stack.** Current live kernel is `7.1.5-sp11-render-parity-v2+`; X1E80100, q6apm/q6prm/APR, SoundWire and WSA884x are live. The consolidated render-parity work is booted and live-gated.
 - [x] **GREEN R02 — Internal speaker card/PCM.** Surface Pro 11 ALSA card exposes the expected `MultiMedia1 Playback` PCM.
 - [x] **GREEN R03 — UCM speaker route.** SP11-specific UCM is deployed; built-in speaker is the intended active render endpoint.
 - [x] **GREEN R04 — PipeWire/WirePlumber integration.** PipeWire 1.6.2 + WirePlumber 0.5.13 healthy; default configured sink is `effect_input.sp11_windows_dolby`.
@@ -61,7 +74,8 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 - [x] **GREEN H04 — WSA softclip.** Softclip0/1 enabled.
 - [x] **GREEN H05 — VISENSE / VI mixers.** VISENSE enabled on both amplifiers and both VI mixers active.
 - [x] **GREEN H06 — PBR/protected high-output policy.** Current protected path includes the recovered PBR/current-limit state used for the high-output deployment.
-- [~] **AMBER H07 — exact physical L/R identity and per-speaker calibration attribution.** Functional stereo is proven; final physical-channel naming/calibration attribution remains lower-priority exactness work.
+- [~] **AMBER H07 — exact physical L/R identity and per-speaker calibration attribution.** Functional stereo is proven, but final physical-channel naming/calibration attribution is now part of the physical-parity investigation rather than merely cosmetic exactness work.
+- [ ] **RED H08 — complete matched Windows/Linux WSA8845 runtime-state comparison.** Linux has the recovered 2S/4-ohm/18-dB static profile and live VI/CPS transport, but the project has not captured and diffed the complete safe, driver-owned Windows amplifier state against Linux during the same ordinary DEFAULT/YouTube condition, endpoint volume and warm-up window. The large physical tonal mismatch despite near-identical user-mode waveform makes this a primary discriminator. Capture through hash-matched driver objects/write paths only; direct physical MMIO reads previously caused fatal target failures and are forbidden.
 
 ## 3. Qualcomm AudioReach graph and calibration
 
@@ -126,7 +140,7 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 
 - [x] **GREEN W01 — fresh deterministic Windows-vs-Linux Movie oracle.** Same-source/state comparison reached correlation ~0.99999947 with fitted gain ~1.00016 and ~59.8 dB residual SNR; cold-state comparison was even closer (~84.7 dB residual SNR).
 - [~] **AMBER W02 — strict sample identity.** The remaining ~60 dB full-file residual is tiny and concentrated around transient/state behavior but is not literal bit identity.
-- [ ] **RED W03 — real-browser tonal parity requires fresh A/B after the volume fixes.** The previously reported Windows YouTube fullness/bass advantage was measured before Q09/Q10/V01/V02 existed. Linux now has the exact Windows volume-dependent MSIIR contour and endpoint taper; ordinary browser playback must be re-captured/re-auditioned before escalating to Q11.
+- [ ] **RED W03 — real-browser physical tonal parity failed after the volume fixes.** On the live Render-Parity-v2 build the user reports that ordinary YouTube sound is much better than two weeks earlier but still not close to Windows parity. This is fresh evidence after Q09/Q10/V01/V02 and the exact final volume/GainStep transaction. It must not be papered over with guessed EQ, Bass Boost, Virtual Bass, ASAR/HRTF or DRC: the active native Dolby path and state-matched digital transfer are already strongly matched, while the remaining audible difference is heard at the physical speakers. Promote matched AudioReach/WSA/protection-state comparison (H08/P09-P11) before changing sample processing.
 
 ## 8. Seek / discontinuity / lifecycle behavior
 
@@ -138,8 +152,8 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 - [~] **AMBER L03b — exact Windows GainStep transaction is live transport-GREEN in Render-Parity; physical validation remains.** The full REV_0D sweep and recovered GSL/ACDB semantics identify the four ordered `0x489e` records `0x08001020`, `0x08001021`, `0x08001022`, `0x08001026`, sent as one 216/272-byte OOB APM SET_CFG after final `VOL_CTRL`. Patch `0048` plus capacity correction `0049` structurally validates and sends that complete group through the protected graph's existing OOB mapping; arbitrary targets, malformed payloads, nonzero padding, and idle graphs are rejected. On the consolidated live boot a zero-valued 15->25->40->25->15->31% sweep accepted GainSteps 1/3/12/3/1/7, including both 272-byte rows, without a following runtime DSP error. Physical slider/seek listening still gates overall GREEN. See `docs/deployment/2026-08-14-render-parity-candidate.md`.
 - [x] **GREEN L04 — Windows SOFT_PAUSE lifecycle is recovered and live-validated.** Windows DEFAULT uses iid `0x466b`, PAUSE/state-3 -> zero-length pid `0x0800102e`, RUN/release/state-4 -> `0x0800102f`, with completion events `0x0800103f`/`0x08001043`; STOP releases any outstanding pause. The first live candidate proved those DSP identities but exposed Linux callback ordering: a running pull watermark could block completion behind ALSA's held PCM stream lock. Patch `0051` enters STOPPED/state 3 before sending PAUSE. On `7.1.5-sp11-render-parity-v2+`, zero-valued direct ALSA PAUSE_PUSH entered `PAUSED` and received `0x0800103f`, PAUSE_RELEASE returned `RUNNING` with `0x08001043`, and STOP-while-paused received resume-complete before clean close. There were no timeouts; services remained active and all SoundWire devices returned to runtime suspend. See `docs/deployment/2026-08-14-render-parity-candidate.md`.
 - [x] **GREEN L05 — SOFT_PAUSE is not the direct in-stream seek mechanism.** Controlled Edge seeks did not emit additional `0x466b` transactions; implement it for lifecycle parity, not as a guessed YouTube-seek fix.
-- [~] **AMBER L06 — suspend/resume render lifecycle.** Not re-audited against the current Aug-12 Dolby/CPS deployment; must be rechecked before final GREEN sign-off.
-- [~] **AMBER L07 — ordinary cold first-playback latency correction is live-GREEN; attach and suspend/resume recovery remain.** The baseline reproduced 18.627/18.464 s launches and four 4.28-4.60 s WSA-scale `regcache_sync()` calls. Render-Parity removes only unconditional `regcache_mark_dirty()` from ordinary resident clock-stop suspend while retaining cache-only write tracking and UNATTACHED/ATTACHED full restore. Two live zero-valued starts from all three SoundWire nodes suspended reached ALSA RUNNING in 208 ms and 83 ms, with no multi-second replay, and returned to automatic suspend after stop. Forced attach recovery and suspend-to-RAM still gate overall GREEN; this does not claim to solve warm seek/slider spikes. See `docs/findings/2026-08-13-WSA884X-COLD-START-DOUBLE-REGCACHE-REPLAY.md` and `docs/deployment/2026-08-14-render-parity-candidate.md`.
+- [ ] **N/A L06 — system suspend/resume lifecycle.** Explicitly deferred by the user to a separate investigation; it is not part of the present built-in-speaker sound-quality completion gate.
+- [x] **GREEN L07 — ordinary cold first-playback latency correction.** The baseline reproduced 18.627/18.464 s launches and four 4.28-4.60 s WSA-scale `regcache_sync()` calls. Render-Parity removes only unconditional `regcache_mark_dirty()` from ordinary resident clock-stop suspend while retaining cache-only write tracking and UNATTACHED/ATTACHED full restore. Two live zero-valued starts from all three SoundWire nodes suspended reached ALSA RUNNING in 208 ms and 83 ms, with no multi-second replay, and returned to automatic suspend after stop. Forced attach and system-suspend recovery are deferred with L06 and do not reopen the ordinary cold-start result. See `docs/findings/2026-08-13-WSA884X-COLD-START-DOUBLE-REGCACHE-REPLAY.md` and `docs/deployment/2026-08-14-render-parity-candidate.md`.
 
 ## 9. Source/provenance/reproducibility
 
@@ -153,15 +167,14 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 - [ ] **N/A O01 — microphone/capture.** Deferred by project priority; current playback gate does not require it.
 - [ ] **N/A O02 — Bluetooth audio.** Deferred by project priority.
 - [ ] **N/A O03 — external display / USB / other external playback endpoints.** Not part of the current built-in-speaker parity gate unless promoted later.
+- [ ] **N/A O04 — system suspend/resume.** Deferred to its own platform-lifecycle investigation at the user's request; sound quality and ordinary playback are the current priority.
 
 ## Ordered closure queue
 
-1. **W03 — re-test real browser/YouTube tonal parity when listening is available:** the exact Windows MSIIR loudness contour and endpoint taper are deployed. Q11 is closed as a false generic missing-stage lead; do not add WaveSpeaker EQ/Bass Boost/DRC without new mode-specific runtime evidence.
-2. **V04/L03/L03a/L03b — close the general physical transient:** the four-link POPLESS/headroom restoration failed the physical seek gate. The exact Windows endpoint-volume transaction is now structurally recovered: final `VOL_CTRL 0x4a63` with its 10 ms / 1000 us / curve-3 ramp, then the selected GainStep as one 216/272-byte OOB four-frame `0x489e` delta (`0x1020/0x1021/0x1022/0x1026`). Build/static-test that combined path while the user is away; install/listen only when they are physically present. Do not re-run already-closed digital localization or revive superseded limiter assumptions.
-3. **L04 — live-gate the clean Windows SOFT_PAUSE host lifecycle candidate:** patch/style, evidence-derived timing, and exact `7.1.5-sp11-cps-v3+` build identity are now closed. Sign/stage only when an explicit live regression window is appropriate; preserve persistent STOP/reprepare behavior and verify pause/resume completion events before promotion.
-4. **L07 — live-gate candidate A for the stack-proven duplicate WSA884x regcache replay:** the conservative no-runtime-`mark_dirty` patch is clean and exact-release buildable. Sign/stage only for a muted timing regression; expected result is removal of the runtime-resume full replay while retaining the attach-side context-loss restore. Then perform L06 cold boot + suspend/resume regression.
-5. **P09-P11/H07/W02 — lower-level exactness closure.** These are final exactness items after the audible REDs are gone.
-6. Publish/merge the clean integration branch and archive obsolete contradictory docs.
+1. **W03/H08/P09-P11/H07 — explain the confirmed physical tonal gap from Windows evidence:** capture the complete safe Windows AudioReach/WSA8845/protection runtime state during ordinary DEFAULT/YouTube playback at a pinned endpoint volume, and compare it with the already-capturable Linux state. Resolve whether ordinary Windows schedules PBR DP4, whether protection/CPS state or calibration differs, and which amp is the physical left/right channel. Do not direct-read MMIO and do not enable any unproven path merely because a static template exists.
+2. **L03/L03a/V04/L03b — close the remaining physical transition spike:** the exact final `VOL_CTRL` and four-record GainStep transaction are live and ordinary level tracking is correct, but the user still hears a sharp slider/transition spike. Preserve the already-fixed pause/notification drain and distinguish a control transition from steady-state tonality in the matched Windows capture.
+3. **W02 — strict digital identity:** revisit only after the physical downstream mismatch is explained; the existing ~60 dB residual is too small to justify a large guessed coloration stage.
+4. Publish/merge the clean integration branch and archive obsolete contradictory docs.
 
 ## Completion rule
 
