@@ -9,7 +9,10 @@
 > therefore a confirmed physical failure, not a pending A/B.  Because the
 > state-matched Windows/Linux Dolby waveform is already nearly identical, the
 > next discriminator is the downstream AudioReach/WSA8845/protection state at a
-> matched volume, not an invented userspace EQ or psychoacoustic block.
+> matched volume, not an invented userspace EQ or psychoacoustic block.  This
+> begins with re-analysis of the already-preserved Windows QGPR corpus and the
+> Aug-10/11 qcaucd captures (including 328 driver-submitted SoundWire FIFO
+> writes), not an automatic request for another Windows capture.
 > Suspend/resume is explicitly deferred to a separate investigation and is not
 > part of the current built-in-speaker sound-quality gate.
 
@@ -75,7 +78,7 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 - [x] **GREEN H05 — VISENSE / VI mixers.** VISENSE enabled on both amplifiers and both VI mixers active.
 - [x] **GREEN H06 — PBR/protected high-output policy.** Current protected path includes the recovered PBR/current-limit state used for the high-output deployment.
 - [~] **AMBER H07 — exact physical L/R identity and per-speaker calibration attribution.** Functional stereo is proven, but final physical-channel naming/calibration attribution is now part of the physical-parity investigation rather than merely cosmetic exactness work.
-- [ ] **RED H08 — complete matched Windows/Linux WSA8845 runtime-state comparison.** Linux has the recovered 2S/4-ohm/18-dB static profile and live VI/CPS transport, but the project has not captured and diffed the complete safe, driver-owned Windows amplifier state against Linux during the same ordinary DEFAULT/YouTube condition, endpoint volume and warm-up window. The large physical tonal mismatch despite near-identical user-mode waveform makes this a primary discriminator. Capture through hash-matched driver objects/write paths only; direct physical MMIO reads previously caused fatal target failures and are forbidden.
+- [ ] **RED H08 — complete matched Windows/Linux WSA8845 runtime-state comparison is not yet assembled.** This is not a claim that Windows was never captured. Existing evidence includes the July QGPR graph/calibration corpus, the exact static qcaucd/ACDB 2S/4-ohm/18-dB amplifier profile, and Aug-10/11 qcaucd runtime logs containing 328 driver-submitted SoundWire FIFO writes with the complete per-speaker DP6/CPS schedule. The immediate task is to recover/exhaust those raw logs and decode the non-DP6 records into a functional Windows-versus-Linux comparison. Request a new Windows trace only for a specifically demonstrated hole in that corpus. Direct physical MMIO reads previously caused fatal target failures and remain forbidden.
 
 ## 3. Qualcomm AudioReach graph and calibration
 
@@ -171,7 +174,7 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 
 ## Ordered closure queue
 
-1. **W03/H08/P09-P11/H07 — explain the confirmed physical tonal gap from Windows evidence:** capture the complete safe Windows AudioReach/WSA8845/protection runtime state during ordinary DEFAULT/YouTube playback at a pinned endpoint volume, and compare it with the already-capturable Linux state. Resolve whether ordinary Windows schedules PBR DP4, whether protection/CPS state or calibration differs, and which amp is the physical left/right channel. Do not direct-read MMIO and do not enable any unproven path merely because a static template exists.
+1. **W03/H08/P09-P11/H07 — explain the confirmed physical tonal gap from existing Windows evidence first:** recover and fully decode the retained Aug-10/11 328-write qcaucd FIFO log, combine it with the already-reviewed QGPR graph/calibration and static WSA profile, and build a functional Windows-versus-Linux diff. Resolve from that corpus whether ordinary Windows schedules PBR DP4, whether protection/CPS state or calibration differs, and which amp is the physical left/right channel. Only if a named field remains absent should a narrow Windows capture be requested. Do not direct-read MMIO and do not enable any unproven path merely because a static template exists.
 2. **L03/L03a/V04/L03b — close the remaining physical transition spike:** the exact final `VOL_CTRL` and four-record GainStep transaction are live and ordinary level tracking is correct, but the user still hears a sharp slider/transition spike. Preserve the already-fixed pause/notification drain and distinguish a control transition from steady-state tonality in the matched Windows capture.
 3. **W02 — strict digital identity:** revisit only after the physical downstream mismatch is explained; the existing ~60 dB residual is too small to justify a large guessed coloration stage.
 4. Publish/merge the clean integration branch and archive obsolete contradictory docs.

@@ -1,11 +1,12 @@
-# Handoff: Windows physical render parity after Render-Parity-v2
+# Handoff: existing-evidence audit for physical render parity
 
 Date: 2026-08-14 (Europe/London)
 
 ## Objective
 
 Explain and then reproduce the remaining physical Windows speaker advantage on
-the Surface Pro 11 without adding guessed DSP.  The current Linux build is
+the Surface Pro 11 without adding guessed DSP or repeating completed captures.
+The current Linux build is
 `7.1.5-sp11-render-parity-v2+` on branch
 `agent/render-parity-20260812`.
 
@@ -18,6 +19,47 @@ Fresh operator evidence on this build is:
   not close to Windows parity.
 
 Suspend/resume is explicitly outside this investigation.
+
+## Do not start with another Windows capture
+
+Substantial Windows evidence already exists and must be exhausted first:
+
+- the reviewed July-23 QGPR/KD graph and complete protection-calibration
+  startup corpus;
+- the July-26 ETL/state set including real YouTube playback;
+- the Aug-7/11 state-pinned Dolby and live callback captures;
+- the Aug-10 qcaucd command-FIFO session containing **328 decoded Windows
+  driver writes** over three playback initializations;
+- the Aug-11 semantic qcaucd DP6 trace and static SoundWire port-template
+  reconstruction;
+- the exact static qcadcm/qcaucd/ACDB 2S, 4-ohm, 18-dB, OCP, sensing and PBR
+  threshold evidence;
+- the Linux live WSA register and telemetry observations.
+
+The Aug-10 raw files were recorded on the SP7 as:
+
+```text
+C:\Users\SurfacePro7\Documents\KDNET\Codex\CPS_DP6_SLAVES_20260810_2007BST_25f4_2026-08-10_20-07-15-660.log
+C:\Users\SurfacePro7\Documents\KDNET\Codex\CPS_DP6_SLAVES_20260810_2007BST-extract.txt
+C:\Users\SurfacePro7\Documents\KDNET\Codex\CPS_SWR_RUNTIME_20260810_1909Z_2d7c_2026-08-10_19-09-12-880.log
+```
+
+Their hashes and the reviewed DP6 extraction are in
+`artifacts/reviewed/2026-08-10-windows-cps-dp6-runtime.json`.
+
+First recover those retained raw logs and decode all non-DP6 records.  Build a
+functional Windows-versus-Linux matrix covering render DAC/COMP/BOOST, amp
+initialization, gains, compander, softclip, sensing, OCP, PBR/current limit and
+teardown.  Cross-check it against the static qcaucd/ACDB profile and current
+Linux driver/register state.
+
+The July Gemini report
+`Gemini/docs/sp11_audio_parity_captured_telemetry.md` is not a substitute for
+the raw corpus.  Its claim of a 100% complete six-boundary capture was audited
+and rejected: the returned document preserved only three outbound packets and
+one GET_CFG sample, with no raw debugger transcript, selector, SET_CFG, OOB or
+scenario markers.  See
+`docs/audit/2026-07-26-returned-windows-capture-initial-assessment.md`.
 
 ## Why the next boundary is below the Windows loopback
 
@@ -69,7 +111,7 @@ Before detach, break in, run `bc *`, close the log and use `qd`.
 Do not enable PBR DP4, add a DSP module, change a coefficient, or write a WSA
 register merely because a static template exists.
 
-## Matched stimulus/state
+## Matched stimulus/state for any proven residual hole
 
 Use ordinary Edge/YouTube stereo playback, which is already runtime-proven to
 select DEFAULT / GKV 2.  Pin and record:
@@ -85,37 +127,35 @@ select DEFAULT / GKV 2.  Pin and record:
 
 Do not mix DEFAULT and NOTIFICATION graphs in the steady-state comparison.
 
-## Capture priorities
+## Evidence-audit priorities
 
-1. Capture the complete driver-owned WSA8845 configuration/write stream for
-   both amplifier identities during idle -> DEFAULT graph start -> steady
-   playback -> stop.  Include render DAC/COMP/BOOST dataports, PA/digital gain,
-   compander, softclip, sensing, OCP, PBR/current-limit, 2S supply, nominal-load
-   and every state transition that differs between the two amps.
-2. Capture the exact AudioReach startup/calibration sequence and selected
-   CKVs for the pinned volume.  Confirm final `VOL_CTRL 0x4a63`, the four-frame
-   `MSIIR 0x489e` GainStep transaction and all root protection calibration in
-   the actual DEFAULT playback lifetime.
-3. Determine whether ordinary Windows playback requests the known DP4/PBR
+1. Decode and classify every retained Aug-10 qcaucd FIFO record, not only the
+   already-reviewed DP6 subset.  Compare it with the exact static WSA profile
+   and Linux's live state.
+2. Reuse the existing AudioReach startup/calibration and selected-CKV corpus to
+   confirm final `VOL_CTRL 0x4a63`, the four-frame `MSIIR 0x489e` GainStep
+   transaction and root protection calibration.  Do not recapture these
+   already-closed boundaries.
+3. Determine from the retained qcaucd data and static caller graph whether
+   ordinary Windows playback requests the known DP4/PBR
    schedule (slot 7 / slave DP4 / shared master port 7), rather than merely
    carrying the static template.  A runtime request or programming event is
    required for a positive result.
-4. Capture passive SP/SPVI/CPS state, events or calibrated measurements if they
-   naturally appear.  Do not provoke thermal, excursion, over-current or PA
-   faults.
+4. Inventory the retained passive SP/SPVI/CPS state, events and calibrated
+   measurements before declaring any telemetry field missing.
 5. Bind WSA identities `0x0000000402170220` and
    `0x0000000402170221` to physical chassis left/right and normal render channel
    assignment using safe driver-owned evidence plus an operator channel test.
-6. Around the bounded volume transition and seek, record which lower-boundary
-   transactions or protection/amp state changes occur on Windows.  This is the
-   discriminator for the remaining Linux spike.
+6. Only after this audit, name the exact absent record needed around a bounded
+   volume transition or seek.  If the existing corpus cannot answer it, design
+   one narrow read-only trace for that record alone.
 
 ## Deliverables
 
 Return:
 
-1. untouched timestamped debugger log and command transcript, stored locally
-   under ignored `artifacts/raw/` until reviewed for secrets;
+1. recovered untouched timestamped debugger logs and command transcripts,
+   stored locally under ignored `artifacts/raw/` until reviewed for secrets;
 2. hashes and module identities for the capture;
 3. machine-readable per-amp state/transaction records with observation versus
    inference clearly separated;
@@ -123,13 +163,15 @@ Return:
    raw address;
 5. one concise finding that identifies either a proven missing Linux action or
    the next uniquely discriminating read-only capture;
-6. no Linux implementation change unless the Windows capture proves the exact
+6. no Linux implementation change unless the Windows evidence proves the exact
    behavior to reproduce.
 
 ## Acceptance rule
 
-This handoff succeeds when it produces an evidence-backed downstream mismatch
+This handoff succeeds when existing evidence produces an evidence-backed downstream mismatch
 that plausibly explains the physical tonal or transition difference, or when a
 complete matched state comparison proves that boundary equivalent and moves
-the investigation elsewhere.  A static capability, module residency, an INF
-declaration, or a guessed psychoacoustic explanation is not sufficient.
+the investigation elsewhere.  A new Windows capture is justified only after a
+specific missing record is demonstrated.  A static capability, module
+residency, an INF declaration, or a guessed psychoacoustic explanation is not
+sufficient.
