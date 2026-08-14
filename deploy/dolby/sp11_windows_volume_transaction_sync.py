@@ -6,6 +6,12 @@ This synchronizer is selected only when the candidate kernel exposes
 kernel to send final VOL_CTRL followed by the complete four-frame GainStep OOB
 delta.  Only after that succeeds does it move the hidden ALSA sink to unity.
 
+Steady-state volume changes are consumed from ``pw-dump -m`` rather than a
+timer.  This preserves the recovered Windows ordering without allowing the
+desktop preview sound to run ahead of a 100 ms userspace poll.  The bootstrap
+snapshot and stale-event guard are the same proven mechanism used by the
+rollback host-volume actuator.
+
 When the graph is idle, or if the transaction fails, the hidden sink retains
 the Windows endpoint attenuation.  This makes handover fail quiet rather than
 creating a full-volume interval.  A rollback kernel lacks the candidate
@@ -167,6 +173,18 @@ def apply_transaction(state: tuple[float, bool], hardware_id: int,
     return postgain, q28
 
 
+def event_mentions_node(value: object, node_name: str) -> bool:
+    entries = value if isinstance(value, list) else [value]
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        info = entry.get("info") or {}
+        props = info.get("props") or {}
+        if props.get("node.name") == node_name:
+            return True
+    return False
+
+
 def run(args: argparse.Namespace) -> int:
     deltas = load_deltas(args.delta_table)
     numid = find_control_numid(args.card, args.amixer)
@@ -182,65 +200,120 @@ def run(args: argparse.Namespace) -> int:
     transaction_active = False
     current_state: tuple[float, bool] | None = None
     current_hardware_id: int | None = None
-    try:
-        while True:
-            entries = base.snapshot(args.pw_dump)
-            state = base.extract_node_volume(entries, args.node)
-            hardware_id = base.extract_node_id(entries, args.hardware_node)
-            if state is None or hardware_id is None:
-                time.sleep(args.interval_ms / 1000.0)
-                continue
-            current_state = state
-            current_hardware_id = hardware_id
 
-            running = msiir.graph_running(args.pcm_status)
-            if not running:
-                pipewire_gain, muted = state
-                _ui, _db, postgain, host_scalar = base.derive_windows_state(
-                    pipewire_gain, muted
-                )
-                host_signature = (postgain, round(host_scalar * 1_000_000_000))
-                if transaction_active or host_signature != last_host:
-                    last_host = restore_host_attenuation(
-                        state, hardware_id, args.wpctl
-                    )
-                transaction_active = False
-                if args.once:
-                    print("graph idle; host attenuation established")
-                    return 0
-                time.sleep(args.interval_ms / 1000.0)
-                continue
+    def reconcile(state: tuple[float, bool], hardware_id: int) -> None:
+        nonlocal last, last_host, transaction_active
+        nonlocal current_state, current_hardware_id
+        current_state = state
+        current_hardware_id = hardware_id
 
+        if not msiir.graph_running(args.pcm_status):
             pipewire_gain, muted = state
-            _ui, endpoint_db, postgain, _host = base.derive_windows_state(
+            _ui, _db, postgain, host_scalar = base.derive_windows_state(
                 pipewire_gain, muted
             )
-            signature = (postgain, qcadcm_q28_from_db(endpoint_db))
-            if not transaction_active or signature != last:
-                try:
-                    last = apply_transaction(
-                        state, hardware_id, args.control, deltas, args.tlv_write,
-                        args.card, numid, args.wpctl
-                    )
-                    last_host = None
-                    transaction_active = True
-                except RuntimeError as exc:
-                    last_host = restore_host_attenuation(
-                        state, hardware_id, args.wpctl
-                    )
-                    transaction_active = False
-                    print(
-                        f"transaction failed safely: {exc}",
-                        file=sys.stderr,
-                        flush=True,
-                    )
-            if args.once:
-                return 0
-            time.sleep(args.interval_ms / 1000.0)
+            host_signature = (postgain, round(host_scalar * 1_000_000_000))
+            if transaction_active or host_signature != last_host:
+                last_host = restore_host_attenuation(state, hardware_id, args.wpctl)
+            transaction_active = False
+            return
+
+        pipewire_gain, muted = state
+        _ui, endpoint_db, postgain, _host = base.derive_windows_state(
+            pipewire_gain, muted
+        )
+        signature = (postgain, qcadcm_q28_from_db(endpoint_db))
+        if transaction_active and signature == last:
+            return
+        try:
+            last = apply_transaction(
+                state, hardware_id, args.control, deltas, args.tlv_write,
+                args.card, numid, args.wpctl
+            )
+            last_host = None
+            transaction_active = True
+        except RuntimeError as exc:
+            last_host = restore_host_attenuation(state, hardware_id, args.wpctl)
+            transaction_active = False
+            print(
+                f"transaction failed safely: {exc}",
+                file=sys.stderr,
+                flush=True,
+            )
+
+    def settled() -> tuple[tuple[float, bool] | None, int | None]:
+        entries = base.snapshot(args.pw_dump)
+        return (
+            base.extract_node_volume(entries, args.node),
+            base.extract_node_id(entries, args.hardware_node),
+        )
+
+    if args.once:
+        state, hardware_id = settled()
+        if state is None or hardware_id is None:
+            print("volume or hardware node unavailable", file=sys.stderr)
+            return 3
+        reconcile(state, hardware_id)
+        if not transaction_active:
+            print("graph idle; host attenuation established")
+        return 0
+
+    # Subscribe before the initial snapshot so node creation cannot fall into
+    # a snapshot/monitor attachment gap during a user-session cold start.
+    proc = subprocess.Popen([args.pw_dump, "-m"], stdout=subprocess.PIPE)
+    assert proc.stdout is not None
+    try:
+        if args.settle_ms > 0:
+            time.sleep(args.settle_ms / 1000.0)
+        deadline = time.monotonic() + (args.bootstrap_ms / 1000.0)
+        while current_state is None or current_hardware_id is None:
+            state, hardware_id = settled()
+            if state is not None and hardware_id is not None:
+                reconcile(state, hardware_id)
+                break
+            if time.monotonic() >= deadline:
+                break
+            time.sleep(0.1)
+
+        guard_until = (
+            time.monotonic() + (args.bootstrap_guard_ms / 1000.0)
+            if current_state is not None else 0.0
+        )
+        for value in base.iter_json_stream(proc.stdout.fileno()):
+            event_state = base.extract_node_volume(value, args.node)
+            found_hardware_id = base.extract_node_id(value, args.hardware_node)
+            relevant = (
+                event_state is not None
+                or found_hardware_id is not None
+                or event_mentions_node(value, args.node)
+                or event_mentions_node(value, args.hardware_node)
+            )
+            if not relevant:
+                continue
+
+            # Resolve queued bootstrap values and partial node-state deltas
+            # against a complete snapshot. Outside the guard, a complete Props
+            # event is used directly so slider changes have no polling delay.
+            if (
+                event_state is None
+                or current_hardware_id is None
+                or time.monotonic() < guard_until
+            ):
+                snap_state, snap_hardware_id = settled()
+                event_state = snap_state or event_state
+                found_hardware_id = snap_hardware_id or found_hardware_id
+
+            state = event_state or current_state
+            hardware_id = found_hardware_id or current_hardware_id
+            if state is None or hardware_id is None:
+                continue
+            reconcile(state, hardware_id)
     finally:
+        if proc.poll() is None:
+            proc.terminate()
+        proc.wait()
         if (
             transaction_active
-            and not args.once
             and current_state is not None
             and current_hardware_id is not None
         ):
@@ -254,6 +327,7 @@ def run(args: argparse.Namespace) -> int:
                     file=sys.stderr,
                     flush=True,
                 )
+    return proc.returncode or 0
 
 
 def parser() -> argparse.ArgumentParser:
@@ -268,15 +342,21 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--pw-dump", default="pw-dump")
     p.add_argument("--wpctl", default="wpctl")
     p.add_argument("--amixer", default="amixer")
-    p.add_argument("--interval-ms", type=int, default=100)
+    p.add_argument("--settle-ms", type=int, default=200)
+    p.add_argument("--bootstrap-ms", type=int, default=5000)
+    p.add_argument("--bootstrap-guard-ms", type=int, default=1000)
+    # Kept only so older unit/service invocations do not fail argument parsing;
+    # the transaction path is no longer timer-driven.
+    p.add_argument("--interval-ms", type=int, default=100,
+                   help=argparse.SUPPRESS)
     p.add_argument("--once", action="store_true")
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
-    if args.interval_ms < 20:
-        print("interval must be >=20 ms", file=sys.stderr)
+    if min(args.settle_ms, args.bootstrap_ms, args.bootstrap_guard_ms) < 0:
+        print("monitor timing values must be non-negative", file=sys.stderr)
         return 2
     if not args.once:
         signal.signal(signal.SIGTERM, lambda _signum, _frame: sys.exit(0))

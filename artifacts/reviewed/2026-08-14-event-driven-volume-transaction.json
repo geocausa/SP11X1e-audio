@@ -1,0 +1,58 @@
+{
+  "date": "2026-08-14",
+  "status": "deployed_pending_subjective_slider_test",
+  "symptom": "GNOME volume-preview onset can sound like a brief spike while moving the slider",
+  "recovered_windows_ramp": {
+    "policy_pid": "0x08001037",
+    "period_ms": 10,
+    "step_us": 1000,
+    "curve": 3,
+    "final_volume_iid": "0x4a63",
+    "runtime_gain_pid": "0x08001038",
+    "already_deployed": true
+  },
+  "localized_linux_mismatch": {
+    "old_trigger": "100 ms full pw-dump polling",
+    "new_trigger": "pw-dump -m complete Props event",
+    "inference": "the desktop preview could begin at the prior gain before the already-correct DSP ramp was triggered"
+  },
+  "transaction_order_preserved": [
+    "Dolby VLLDP postgain",
+    "final DSP VOL_CTRL Q28",
+    "exact four-frame Windows GainStep OOB delta",
+    "hidden ALSA sink unity after DSP success"
+  ],
+  "safe_states": {
+    "graph_idle": "hidden ALSA sink carries recovered Windows attenuation",
+    "transaction_failure": "hidden ALSA sink carries recovered Windows attenuation",
+    "service_shutdown": "restore hidden ALSA sink attenuation"
+  },
+  "validation": {
+    "focused_tests": "29 passed, 3 subtests passed",
+    "installed_sha256": "4b1da1ff0f540949ad511df0f6322ef47282680fc4247d76882bc50516f7a72b",
+    "service_active": true,
+    "monitor_process": "pw-dump -m",
+    "deployment_graph_state": "closed",
+    "live_zero_input_graph_test": {
+      "endpoint_sequence_percent": [41, 42, 43, 42, 41],
+      "accepted_transactions": 5,
+      "restored_endpoint_percent": 41,
+      "final_graph_state": "closed",
+      "service_active_after_test": true,
+      "kernel_faults_or_xruns": 0,
+      "both_amp_dp5_masks": "0x03",
+      "both_amp_dp6_masks": "0x03"
+    }
+  },
+  "do_not_conflate": {
+    "old_ghost": "1776 frames / 37 ms of rendered media in Dolby delay, already fixed and physically passed",
+    "current_hypothesis": "control delivery latency before the DSP ramp"
+  },
+  "durable_dp5_reference": {
+    "status": "green_do_not_rediscover",
+    "git_commit": "c4c6dde",
+    "both_amp_masks": "0x03",
+    "loaded_wsa884x_srcversion": "782FC79EBBA505E52A2AE88",
+    "canonical_deployment_doc": "deploy/visense-parity/README.md"
+  }
+}

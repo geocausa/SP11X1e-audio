@@ -89,6 +89,67 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
             self.assertEqual(sync.run(args), 0)
         restore.assert_called_once_with((0.25 ** 3, False), 69, "wpctl")
 
+    def test_monitor_applies_complete_volume_event_without_another_snapshot(self):
+        class FakeStdout:
+            def fileno(self):
+                return 9
+
+        class FakeProc:
+            stdout = FakeStdout()
+            returncode = 0
+
+            def poll(self):
+                return 0
+
+            def terminate(self):
+                raise AssertionError("completed fake monitor must not be terminated")
+
+            def wait(self):
+                return 0
+
+        initial = [{
+            "id": 41,
+            "info": {
+                "props": {"node.name": "virtual"},
+                "params": {"Props": [{"channelVolumes": [0.25 ** 3] }]},
+            },
+        }, {
+            "id": 69,
+            "info": {"props": {"node.name": "hardware"}},
+        }]
+        changed = [{
+            "id": 41,
+            "info": {
+                "props": {"node.name": "virtual"},
+                "params": {"Props": [{"channelVolumes": [0.5 ** 3] }]},
+            },
+        }]
+        args = Namespace(
+            delta_table=Path("deltas.json"), card="hw:0", amixer="amixer",
+            tlv_write=Path(__file__), pw_dump="pw-dump", node="virtual",
+            hardware_node="hardware", pcm_status=Path("status"),
+            wpctl="wpctl", control=Path("control"), interval_ms=100,
+            settle_ms=0, bootstrap_ms=0, bootstrap_guard_ms=0, once=False,
+        )
+        snapshots = []
+        applied = []
+        with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
+             patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync.subprocess, "Popen", return_value=FakeProc()), \
+             patch.object(sync.base, "snapshot",
+                          side_effect=lambda _pw: snapshots.append(True) or initial), \
+             patch.object(sync.base, "iter_json_stream",
+                          return_value=iter((changed,))), \
+             patch.object(sync.msiir, "graph_running", return_value=True), \
+             patch.object(sync, "apply_transaction",
+                          side_effect=lambda state, *a, **k:
+                          applied.append(state) or (-332, 123)), \
+             patch.object(sync, "restore_host_attenuation"):
+            self.assertEqual(sync.run(args), 0)
+
+        self.assertEqual(len(snapshots), 1)
+        self.assertEqual(applied, [(0.25 ** 3, False), (0.5 ** 3, False)])
+
     def test_load_module_accepts_extensionless_installed_helper(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             helper = Path(tmpdir) / ".local/bin/test-helper"
