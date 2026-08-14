@@ -1,0 +1,10 @@
+/dts-v1/;
+/plugin/;
+
+&{/soc@0/soundwire@6b10000/speaker@0,0} {
+	qcom,visense-channel-mask = <3>;
+};
+
+&{/soc@0/soundwire@6b10000/speaker@0,1} {
+	qcom,visense-channel-mask = <3>;
+};

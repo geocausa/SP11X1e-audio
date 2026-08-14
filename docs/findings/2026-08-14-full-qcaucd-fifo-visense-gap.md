@@ -131,7 +131,15 @@ property retain the generic `0x01` default.
 The modified WSA884x object and complete module linked successfully, and the
 Denali OLED DTB compiled successfully, against the current
 `7.1.5-sp11-render-parity-v2+` build tree.  The patch also reverse-applies
-cleanly to that source state.  Deployment remains gated on:
+cleanly to that source state.
+
+An isolated one-shot candidate is now installed as
+`sp11-audio-visense-parity`.  It reuses the live-gated Render-Parity v2 kernel
+and archive closure, replaces only the signed WSA884x module, and applies the
+two properties as an overlay to the already-proven combined Phase91/Wi-Fi/OLED
+DTB.  A decompiled DTB comparison proves those are the only two platform-tree
+changes.  The persistent saved entry remains unchanged.  Live acceptance is
+still gated on:
 
 1. both DP5 slave requests reporting mask `0x03` with offsets `6` and `13`;
 2. master ports 10/11 allocating without a bus clash;
