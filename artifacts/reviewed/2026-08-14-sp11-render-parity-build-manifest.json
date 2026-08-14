@@ -1,7 +1,7 @@
 {
   "schema": "sp11-render-parity-build-manifest-v1",
   "date": "2026-08-14",
-  "status": "staged-not-booted",
+  "status": "booted-partial-pass-softpause-ordering-failed",
   "kernel_release": "7.1.5-sp11-render-parity+",
   "kernel_baseline_commit": "f165410554d95ddd6af3c1eedc16c9703b2ce71f",
   "integration_parent_commit": "601f876f723bbc9515eb226fba08a2683c3e63b9",
@@ -12,8 +12,8 @@
     "saved_entry_after": "sp11-audio-cps-v3",
     "next_entry_before": "",
     "next_entry_after": "",
-    "armed": false,
-    "rebooted": false,
+    "armed": true,
+    "rebooted": true,
     "syntax_check": "passed"
   },
   "sound_model": "X1E80100-Microsoft-Surface-Pro-11-Render-Parity",

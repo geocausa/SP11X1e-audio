@@ -2,7 +2,7 @@
 
 Date: 2026-08-14 (Europe/London)
 
-## Outcome
+## Preboot outcome
 
 A complete, isolated kernel candidate is built and staged as GRUB entry
 `sp11-audio-render-parity`.  It has not been armed or booted.  The pre-existing
@@ -120,3 +120,67 @@ Do not promote the candidate merely because it boots.  Capture and verify:
 8. physical YouTube seek and live-slider transients at a conservative volume.
 
 Only those live results can promote L03b, L04 and L07 from AMBER.
+
+## First live boot result
+
+The one-shot entry was deliberately booted on 2026-08-14 at 08:03 BST.  It
+reached the exact `7.1.5-sp11-render-parity+` release and Render-Parity sound
+model.  The one-shot GRUB state was consumed while persistent
+`saved_entry=sp11-audio-cps-v3` remained unchanged.
+
+Platform and protected-audio closure passed:
+
+- Wi-Fi associated with a valid address/default route; OLED/MSM display,
+  Phase91 touch and all three external transport overrides loaded from the
+  exact new release;
+- the four-link Render-Parity topology opened both WSA884x amplifiers with
+  playback ports 1/2/3, VI port 5 at 8 kHz and CPS port 6 at 24 kHz;
+- SP, SPVI, VI and CPS configuration, endpoint calibration and graph start
+  were accepted; and
+- PipeWire, WirePlumber, the native Dolby chain and combined Windows volume
+  synchronizer were active.  The legacy MSIIR synchronizer correctly stood
+  down because the combined transaction control was present.
+
+### Volume transaction: live transport pass
+
+With a zero-valued local stream, the synchronizer completed
+15% -> 25% -> 40% -> 25% -> 15% -> restored 31%.  This exercised GainSteps
+1/3/12/3/1/7 and both 216-byte and formerly failing 272-byte rows.  Every row
+reported hardware unity only after the combined transaction succeeded; no
+runtime DSP error followed any update.  The recurring status-3 SET_CFG is the
+already documented optional graph-start calibration frame and preceded the
+runtime sweep.
+
+### WSA clock-stop correction: live latency pass
+
+Two zero-valued starts began with the SoundWire manager and both WSA slaves in
+`runtime_status=suspended`, `power/control=auto`.  ALSA reached `RUNNING` in
+208 ms and 83 ms respectively, versus the prior reproducible 18.627/18.464 s
+baseline.  No multi-second regcache replay occurred.  After each stopped
+stream all three devices returned to automatic runtime suspend.  Suspend-to-RAM
+and forced detach/re-attach recovery remain separate gates.
+
+### SOFT_PAUSE: live failure and bounded correction
+
+A direct, zero-valued ALSA `PAUSE_PUSH` reached the new lifecycle path, but
+`PAUSE_COMPLETE` missed the 50 ms waiter and ALSA returned `-ETIMEDOUT`.
+After the trigger stall ended the kernel logged both correct DSP module events
+from iid `0x466b`: pause `0x0800103f` and resume `0x08001043`.  The graph then
+closed normally, all services remained active and all SoundWire devices
+returned to suspend.
+
+This localizes the failure to Linux host callback ordering rather than the
+recovered Windows parameter/event identities.  ALSA calls `.trigger()` with
+the PCM stream lock held.  Leaving the pull stream marked RUNNING permits a
+watermark on the same serialized GPR receive path to enter
+`snd_pcm_period_elapsed()` and block before the completion event can be
+delivered.  Patch `0051` enters STOPPED/Windows PAUSE-state 3 before issuing
+the pause command, suppresses watermark period callbacks during the wait, and
+restores RUNNING if the command itself is rejected.  It passes reverse
+applicability, strict checkpatch, focused tests and a `W=1` GCC compile of the
+exact `q6apm-dai.o` target.  A new isolated boot candidate is required before
+L04 can be promoted.
+
+Physical seek/slider listening was not performed with the zero-valued probes.
+The current candidate is therefore a partial live pass, not a promoted
+default.

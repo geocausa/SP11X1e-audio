@@ -1,0 +1,58 @@
+From: SP11 Audio Porting Project <sp11-audio@local>
+Date: Fri, 14 Aug 2026 08:18:00 +0100
+Subject: [PATCH] ASoC: q6apm: quiesce pull watermarks before soft pause
+
+The first Render-Parity live PAUSE_PUSH reached the DSP, but the expected
+PAUSE_COMPLETE event timed out.  PAUSE_COMPLETE and RESUME_COMPLETE were
+both delivered only after the ALSA trigger stall ended.
+
+ALSA invokes the trigger callback with the PCM stream lock held.  Leave the
+pull stream marked RUNNING while waiting for PAUSE_COMPLETE and an earlier
+watermark can call snd_pcm_period_elapsed() on the same serialized GPR
+receive path.  That callback waits for the PCM lock held by trigger, so the
+later completion event cannot be dispatched to release trigger.
+
+Enter the stopped host state before sending the pause parameter.  The pull
+watermark handler then skips snd_pcm_period_elapsed(), allowing the exact
+DSP PAUSE_COMPLETE event to reach the waiter.  Restore RUNNING if the pause
+command itself is rejected.  Resume already remains stopped until its
+completion event succeeds.
+
+This ordering also matches the recovered Windows lifecycle: PAUSE/state 3
+precedes the value-1 SOFT_PAUSE TKV.
+
+Signed-off-by: SP11 Audio Porting Project <sp11-audio@local>
+---
+ sound/soc/qcom/qdsp6/q6apm-dai.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/sound/soc/qcom/qdsp6/q6apm-dai.c b/sound/soc/qcom/qdsp6/q6apm-dai.c
+--- a/sound/soc/qcom/qdsp6/q6apm-dai.c
++++ b/sound/soc/qcom/qdsp6/q6apm-dai.c
+@@ -391,10 +391,23 @@ static int q6apm_dai_sp11_soft_pause(struct snd_soc_component *component,
+ 	if (!prtd->graph->pull_mode)
+ 		return -EOPNOTSUPP;
+ 
++	/*
++	 * ALSA calls trigger() with the PCM stream lock held.  A pull watermark
++	 * delivered while that lock is held must not call snd_pcm_period_elapsed()
++	 * ahead of the SOFT_PAUSE completion event on the same GPR receive path,
++	 * or completion delivery is blocked behind the trigger waiter.  Windows
++	 * likewise enters PAUSE/state 3 before it sends the value-1 TKV.
++	 */
++	if (pause)
++		prtd->state = Q6APM_STREAM_STOPPED;
++
+ 	reinit_completion(done);
+ 	ret = q6apm_graph_sp11_soft_pause(prtd->graph, pause);
+-	if (ret)
++	if (ret) {
++		if (pause)
++			prtd->state = Q6APM_STREAM_RUNNING;
+ 		return ret;
++	}
+ 
+ 	/* The DSP accepted the command. Track requested state even if its
+ 	 * completion event is delayed/lost so STOP can safely clean up a
+-- 
+2.51.0

@@ -669,3 +669,15 @@ GainStep rows worked while 272-byte rows were truncated before the validator
 and rejected with `-EINVAL`. This patch separates payload capacity from total
 control-buffer capacity (`276 + 8 = 284` bytes). The payload validator and
 DSP transaction bytes are otherwise unchanged.
+
+## `0051-ASoC-q6apm-quiesce-pull-watermarks-before-soft-pause.patch`
+
+Mandatory live-gate correction on top of `0045`. The first consolidated
+Render-Parity pause reached the DSP, but ALSA waited for its completion while
+the pull stream was still marked running. A watermark on the same serialized
+GPR receive path could therefore enter `snd_pcm_period_elapsed()` and block on
+the PCM stream lock already held by the trigger callback, preventing the later
+SOFT_PAUSE completion from reaching its waiter. The patch enters stopped state
+before sending PAUSE, suppressing watermark period callbacks during the wait,
+and restores running state if the DSP command itself is rejected. This also
+matches the recovered Windows PAUSE/state-3 ordering.
