@@ -80,3 +80,27 @@ Before playback, confirm Wi-Fi, touch, OLED, the expected command line and the
 candidate WSA884x `srcversion`.  Then require DP5 mask `0x03` for both
 amplifiers with offsets 6/13, clean master-port 10/11 allocation, successful
 SP/SPVI/CPS graph startup, no PA fault/XRUN, and bounded physical listening.
+
+## Corrected live boot result
+
+The second one-shot loaded the intended initramfs module.  Because the real
+root intentionally retains the rollback module, plain `modinfo` reports that
+on-disk copy; the authoritative loaded identity is
+`/sys/module/snd_soc_wsa884x/srcversion`, which reported candidate
+`782FC79EBBA505E52A2AE88`.
+
+Runtime gates passed:
+
+- candidate command line and one-shot consumption;
+- Wi-Fi associated, sound card present, both WSA8845 slaves attached;
+- both DP5/VISENSE requests at 8 kHz used `ch-mask=0x3`;
+- both DP6/CPS requests retained `ch-mask=0x3` and offsets 0/25;
+- VI and CPS feedback became ready;
+- SP/SPVI enable and `GRAPH_START` were accepted;
+- a bounded PipeWire/Dolby playback pass completed at the existing 41% user
+  volume with no PA fault, XRUN, port conflict or timeout; and
+- both amplifiers returned to runtime suspend after playback.
+
+This closes the proven Windows/Linux DP5 transport mismatch.  Physical tonal
+improvement versus the prior build still requires the user's listening
+judgment and is not inferred from the successful transport test.

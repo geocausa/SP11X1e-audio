@@ -149,5 +149,20 @@ still gated on:
 
 No new Windows session is needed for this change.
 
+## Corrected live result
+
+The first one-shot was rejected as a false candidate because inclusion without
+early activation allowed the old root WSA884x module to load; its DP5 remained
+`0x01`, as expected.  The rebuilt initramfs explicitly force-loads the signed
+candidate.  The corrected boot reported loaded srcversion
+`782FC79EBBA505E52A2AE88` and DP5 `ch-mask=0x3` on both amplifiers at 8 kHz.
+
+VI and CPS feedback became ready, SP/SPVI enable and `GRAPH_START` were
+accepted, and a bounded PipeWire/Dolby playback pass completed at the existing
+41% user volume with zero logged PA faults, XRUNs, SoundWire port conflicts or
+timeouts.  Both amplifiers returned to runtime suspend.  Thus the proven DP5
+transport mismatch is closed; subjective tonal improvement remains an operator
+listening gate.
+
 Machine-readable result:
 `artifacts/reviewed/2026-08-14-windows-qcaucd-full-fifo-vs-linux.json`.

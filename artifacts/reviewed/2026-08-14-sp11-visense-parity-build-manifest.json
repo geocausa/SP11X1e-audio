@@ -1,7 +1,7 @@
 {
   "schema": "sp11-visense-parity-build-manifest-v1",
   "date": "2026-08-14",
-  "status": "first-boot-activation-defect-corrected-one-shot-rearmed",
+  "status": "corrected-boot-runtime-gates-passed-physical-judgment-pending",
   "kernel_release": "7.1.5-sp11-render-parity-v2+",
   "command_line_identity": "sp11_entry=7.1.5-sp11-visense-parity",
   "functional_delta": "Denali-only WSA884x DP5/VISENSE native channel mask 0x03 on both amplifiers",
@@ -72,5 +72,31 @@
     "corrected_archive_conf_modules": "contains exact snd_soc_wsa884x line",
     "corrected_archive_embedded_candidate_hash": "passed",
     "root_module_restored_after_rebuild": true
+  },
+  "corrected_boot": {
+    "entry_identity": "passed",
+    "loaded_wsa884x_srcversion": "782FC79EBBA505E52A2AE88",
+    "wifi": "associated",
+    "soundwire_slaves": 2,
+    "dp5_visense_mask_both": "0x03",
+    "dp5_rate_hz": 8000,
+    "dp6_cps_mask_both": "0x03",
+    "vi_feedback_ready": true,
+    "cps_feedback_ready": true,
+    "sp_spvi_enable": "accepted",
+    "graph_start": "accepted",
+    "bounded_playback": {
+      "path": "PipeWire default Windows Dolby sink",
+      "volume": 0.41,
+      "result": "completed",
+      "pa_faults": 0,
+      "xruns": 0,
+      "soundwire_port_conflicts": 0,
+      "timeouts": 0
+    },
+    "post_playback_amp_runtime_state": "both suspended",
+    "one_shot_consumed": true,
+    "persistent_saved_entry": "sp11-audio-cps-v3",
+    "physical_tonal_judgment": "pending user"
   }
 }
