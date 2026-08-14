@@ -57,18 +57,24 @@
     "sp11_dolby_volume_sync_service_active": true,
     "kernel_fault_or_xrun_seen": false
   },
+  "physical_channel_verdict": {
+    "method": "Operator listening to the standard spoken Front Left / Front Right test",
+    "front_left_from_physical_left": true,
+    "front_right_from_physical_right": true,
+    "reported_local_date": "2026-08-14"
+  },
   "interpretation": {
     "proven": [
       "Both physical WSA884x devices can be observed during protected playback.",
       "Both devices return independent, changing raw measurements.",
       "No WSA status, error, interrupt, read-failure, or XRUN condition appeared in the bounded run.",
-      "The temporary observer was disabled after the run and does not remain armed."
+      "The temporary observer was disabled after the run and does not remain armed.",
+      "The software Front Left and Front Right routes reach the matching physical chassis sides."
     ],
     "not_proven": [
       "Raw ADC words are calibrated speaker current, excursion, power, or temperature values.",
       "Linux reproduces the private Windows DSP diagnostic callback/result path.",
-      "CPS private fields have complete semantic names.",
-      "Physical left/right speaker naming and per-speaker calibration attribution are correct; operator listening verdict is pending."
+      "CPS private fields have complete semantic names."
     ],
     "cps_note": "CPS control register 0x00 is a local codec readback, not evidence that CPS feedback is absent: DP6 0x03 and the accepted SP/SPVI VI+CPS graph establish the active transport path."
   }

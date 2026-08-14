@@ -43,13 +43,20 @@ questions keep P09 AMBER.
 register; the live DP6 `0x03` programming and accepted SP/SPVI graph with VI+CPS
 feedback are the relevant transport evidence.
 
-## Physical-channel gate
+## Physical-channel gate — passed
 
 The same session played the standard spoken `Front Left` / `Front Right`
-stereo test and a channel-alternating sine test. Software channels and SoundWire
-ports are distinct, but the operator still needs to confirm that the spoken
-labels came from the matching physical sides. Until that answer is recorded,
-H07 remains AMBER and no left/right calibration reassignment is justified.
+stereo test and a channel-alternating sine test. The operator confirmed that
+`Front Left` came from the physical chassis left and `Front Right` came from
+the physical chassis right.
+
+That acoustic result completes the existing evidence chain: Windows R0/T0
+record 0/1 order is retained byte-for-byte; the SPVI map keeps the first V/I
+pair before the second; and Linux supplies `left_spkr` before `right_spkr` in
+the VI/CPS DAI links. Consequently Windows speaker record 0 remains assigned
+to physical left (R0 4.955847740 ohm, T0 38.65625 C), and record 1 remains
+assigned to physical right (R0 5.370454669 ohm, T0 37.0 C). No calibration
+swap or rebuild is required, and H07 is GREEN.
 
 ## Deployment decision
 
