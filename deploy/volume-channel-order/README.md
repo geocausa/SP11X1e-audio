@@ -156,3 +156,36 @@ Before physical judgment, prove:
 9. no XRUN, SoundWire, APM runtime error, WSA or PA fault follows a transaction;
 10. another reboot still returns to persistent CPS-v3 unless another one-shot is
     deliberately armed.
+
+
+## Live post-boot validation — passed
+
+The one-shot candidate booted the intended entry with the accepted v4 kernel
+and DTB. The actual loaded initramfs module reports:
+
+```text
+/sys/module/snd_q6apm/srcversion = 71CDE1039F9209C3B0E89E0
+```
+
+ALSA reports `values=288` and the user service selected
+`volume_transaction_control_values=288 mode=windows-lr`.
+
+A live MP3 gate changed `12% -> 8% -> 17% -> 8% -> 12%`. VLLDP request/ack
+remained `-503/-503`; both WSA8845s produced 18/18 PA-enabled samples with
+current-limit code 17 / register `0x44` and zero PA errors; no XRUN, SoundWire,
+WSA/PA or APM runtime fault followed.
+
+A temporary kprobe on the loaded final-volume helper captured the exact Windows
+left-first/right-second Q28 sequence inside the kernel. Raw trace and journals
+are retained under:
+
+```text
+artifacts/live/2026-08-14-linux-channel-volume-order/
+```
+
+The maximum extended TLV shape was also exercised live: 12% -> 25% selected
+GainStep 3 with a 272-byte delta and `sequence=windows-lr:3->3`; 25% -> 12%
+used `sequence=windows-lr:3->1`. No transaction failed.
+
+The visible endpoint was restored to 12%. `next_entry` was consumed and the
+persistent saved entry remains `sp11-audio-cps-v3`.
