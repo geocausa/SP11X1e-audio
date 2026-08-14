@@ -1,5 +1,14 @@
 # SP11 built-in-speaker Windows/Linux render parity ledger — 2026-08-12
 
+> **2026-08-14 LPASS softclip correction:** live v3 register readback disproves
+> the earlier H04 claim.  Although ALSA reported both softclip controls on,
+> the v2.5 driver's hard-coded v2.1 control address left the real softclip
+> enable bits off and changed `COMPANDER1_CTL9/17` from `0x00/0x24` to
+> `0x01/0x25`.  Patch `0053` corrects the latent driver address bug, while the
+> SP11 UCM now explicitly leaves the unproven Linux-only softclip path off.
+> The v4 candidate must restore the two compander bytes and pass protected
+> playback/listening gates before this correction becomes GREEN.
+
 > **2026-08-14 physical-listening correction:** the user has now auditioned
 > ordinary YouTube playback on the live `7.1.5-sp11-render-parity-v2+` build.
 > The paused-media fragment on a notification wake remains fixed, and ordinary
@@ -86,11 +95,11 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 - [x] **GREEN H01 — Both WSA884x amplifiers active on SoundWire.** Left/right speaker routes are live.
 - [x] **GREEN H02 — Digital mute/gain state.** RX0/RX1 mute off and digital volume 81 as deployed.
 - [x] **GREEN H03 — PA operating point.** Both PA controls are 24 in the current high-output protected configuration.
-- [x] **GREEN H04 — WSA softclip.** Softclip0/1 enabled.
+- [~] **AMBER H04 — remove false softclip enablement and restore symmetric macro companders.** Live v3 readback proves the real v2.5 softclip control bits remained off while the driver's old v2.1 address calculation altered `COMPANDER1_CTL9/17`. Patch `0053` fixes the latent address defect and UCM explicitly leaves this unobserved Windows block off. Await v4 boot readback and physical listening; see `docs/findings/2026-08-14-LPASS-WSA-V2.5-SOFTCLIP-ADDRESS-CORRECTION.md`.
 - [x] **GREEN H05 — VISENSE / VI mixers reproduce the Windows slave width.** The corrected `sp11-audio-visense-parity` boot loaded WSA884x srcversion `782FC79EBBA505E52A2AE88`; both amplifiers requested DP5 ChannelEnable `0x03` at 8 kHz, matching the qcaucd slave FIFO, master-port-10/11 runtime tuples and static templates. VI feedback, SP/SPVI enable and bounded playback succeeded without PA fault, XRUN or port conflict, and both amplifiers returned to runtime suspend. Overall physical tonal parity remains W03, not part of this transport result.
 - [x] **GREEN H06 — PBR/protected high-output policy.** Current protected path includes the recovered PBR/current-limit state used for the high-output deployment.
 - [x] **GREEN H07 — physical L/R identity and per-speaker calibration attribution.** During the 2026-08-14 standard spoken stereo test the operator confirmed that `Front Left` came from physical chassis left and `Front Right` from physical chassis right. This closes the acoustic end of the already-consistent ordering chain: Windows R0/T0 records 0/1, SPVI V/I pairs 1/2 then 3/4, and Linux `left_spkr` then `right_spkr`. Record 0 remains physical left (R0 4.955847740 ohm, T0 38.65625 C); record 1 remains physical right (R0 5.370454669 ohm, T0 37.0 C). No calibration swap is required.
-- [~] **AMBER H08 — SoundWire transport is closed, but the newly decoded Windows codec initialization correction is not yet live-gated.** The retained 328-write `CODEX_DP6BRIDGE` cycles still prove Linux DP1/DAC, DP2/COMP, DP3/BOOST, DP5/VISENSE, DP6/CPS and no ordinary DP4 schedule; the DP5 `0x03` correction remains GREEN. A separate retained `CODEX_QCAUCD_V2CMD` trace now proves 63 codec-register writes per amplifier and exposes Linux profile mismatches hidden from the first decoder, including `ANA_WO_CTL_0=0xdd` versus Windows state-2 `0x9d`. Patch `0052` corrects the exact init and PA lifecycle. The isolated v3 candidate passes all preboot gates, but H08 remains AMBER until boot, readback, fault-free protected playback and physical listening.
+- [x] **GREEN H08 — Windows WSA8845 codec initialization and SoundWire transport.** The v3 candidate booted with both amplifiers carrying the exact patch-0052 state-2 initialization and PA ordering recovered from `CODEX_QCAUCD_V2CMD`; protected playback and live telemetry ran with zero PA/protection errors. The retained `CODEX_DP6BRIDGE` cycles prove DP1/DAC, DP2/COMP, DP3/BOOST, DP5/VISENSE, DP6/CPS and no ordinary DP4 schedule, with DP5 `0x03` live on both amplifiers. This closes the physical-codec/transport transaction, not W03 acoustic parity; H04 separately tracks the newly found upstream LPASS-macro defect.
 
 ## 3. Qualcomm AudioReach graph and calibration
 

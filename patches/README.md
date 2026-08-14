@@ -4,6 +4,20 @@ Files in this directory are evidence-backed candidates for offline review
 and build validation.  They are not automatically applied to the live
 kernel, boot files, ALSA UCM configuration, or speaker controls.
 
+## `0053-ASoC-lpass-wsa-macro-fix-v2.5-softclip-address.patch`
+
+Corrects a versioning defect in the LPASS WSA macro driver.  The clock helper
+uses the v2.5 softclip bases (`0x640/0x660`), but the enable helper started from
+the old fixed v2.1 address `0x604`.  Live SP11 readback proves the result:
+softclip remained disabled at its real controls while two COMPANDER1
+coefficient bytes were changed asymmetrically.  The patch derives the control
+address from the versioned layout.  SP11 UCM separately keeps both softclip
+controls off because Windows activation has not been observed and the former
+Linux enablement was an experiment, not recovered platform policy.
+
+See
+[`2026-08-14-LPASS-WSA-V2.5-SOFTCLIP-ADDRESS-CORRECTION.md`](../docs/findings/2026-08-14-LPASS-WSA-V2.5-SOFTCLIP-ADDRESS-CORRECTION.md).
+
 ## `0031-ASoC-qcom-add-bounded-SP11-protection-readback-probe.patch`
 
 Observation-only successor to the rejected combined diagnostic kernels. It

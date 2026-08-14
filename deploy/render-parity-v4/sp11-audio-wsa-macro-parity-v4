@@ -1,0 +1,50 @@
+#!/bin/sh
+# Include the complete SP11 platform/audio closure and force the WSA8845 and
+# LPASS WSA-macro drivers into the macro-parity v4 initramfs.
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+prereqs) prereqs; exit 0 ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+[ "${version:-}" = "7.1.5-sp11-render-parity-v4+" ] || exit 0
+
+manual_add_modules gpi
+manual_add_modules spi-geni-qcom
+manual_add_modules mshw0485_touch
+
+manual_add_modules ath12k_wifi7
+manual_add_modules ath12k
+manual_add_modules hci_uart
+manual_add_modules btqca
+manual_add_modules msm
+
+manual_add_modules regmap_sdw
+manual_add_modules soundwire_bus
+manual_add_modules soundwire_qcom
+manual_add_modules snd_soc_wsa884x
+manual_add_modules snd_soc_lpass_wsa_macro
+manual_add_modules snd_q6dsp_common
+manual_add_modules snd_q6apm
+manual_add_modules q6apm_dai
+manual_add_modules q6apm_lpass_dais
+manual_add_modules snd_soc_x1e80100
+
+topology=/usr/lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-Render-Parity-tplg.bin
+[ -f "$topology" ] || {
+	echo "missing reviewed SP11 render-parity topology: $topology" >&2
+	exit 1
+}
+if [ ! -e "$DESTDIR$topology" ]; then
+	copy_file firmware "$topology" "$topology"
+fi
+
+# Both changed speaker drivers must bind from this initramfs before the real
+# root module tree can expose another copy.
+force_load snd_soc_wsa884x
+force_load snd_soc_lpass_wsa_macro
+
+exit 0

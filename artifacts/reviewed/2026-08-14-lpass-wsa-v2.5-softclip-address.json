@@ -1,0 +1,43 @@
+{
+  "date": "2026-08-14",
+  "machine": "Microsoft Surface Pro 11 X1E80100",
+  "running_kernel": "7.1.5-sp11-render-parity-v3+",
+  "codec_layout": "LPASS WSA macro v2.5",
+  "logical_controls": {
+    "WSA WSA_Softclip0 Enable": 1,
+    "WSA WSA_Softclip1 Enable": 1
+  },
+  "live_registers": {
+    "0x0118": "0x03",
+    "0x0604": "0x01",
+    "0x0624": "0x25",
+    "0x0640": "0x01",
+    "0x0644": "0x38",
+    "0x0660": "0x01",
+    "0x0664": "0x38"
+  },
+  "interpretation": {
+    "0x0604": "v2.5 COMPANDER1_CTL9; default 0x00 was changed to 0x01",
+    "0x0624": "v2.5 COMPANDER1_CTL17; default 0x24 was changed to 0x25",
+    "0x0644": "real v2.5 softclip0 control; enable bit remains clear",
+    "0x0664": "real v2.5 softclip1 control; enable bit remains clear"
+  },
+  "root_cause": "wsa_macro_config_softclip used fixed v2.1 control base 0x604 while the clock helper used the versioned v2.5 base",
+  "correction": {
+    "patch": "patches/0053-ASoC-lpass-wsa-macro-fix-v2.5-softclip-address.patch",
+    "patch_sha256": "9fe115df2dc4cfda06125f05a4df2d4e748a40de830014ad6d8297b1c481e0d8",
+    "source_sha256": "7dbb2f2158841882795df08be6cba5749890764a48420f514b89e0859576f25d",
+    "ucm_sha256": "d9cc675fd4d432f62fd3e01fba32a8afe22a64e988fac476120161e67c63fb54",
+    "sp11_softclip_policy": "explicitly disabled pending positive Windows activation evidence"
+  },
+  "validation": {
+    "focused_arm64_w1_object_build": "passed",
+    "strict_checkpatch": "0 errors, 0 warnings, 0 checks",
+    "repository_tests": "144 passed, 3 skipped, 6 subtests passed",
+    "full_v4_build": "passed",
+    "installed_modules": "7886 exact-v4 vermagic, 0 unsigned",
+    "initramfs_dependency_inventory": "passed",
+    "live_v4_gate": "pending"
+  },
+  "scope": "removes an asymmetric Linux register corruption; does not claim W03 acoustic parity"
+}

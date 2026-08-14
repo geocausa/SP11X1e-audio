@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Fri, 14 Aug 2026 19:45:00 +0100
+Subject: [PATCH] ASoC: lpass-wsa-macro: fix v2.5 softclip address
+
+The softclip clock helper uses the versioned register base from
+wsa_reg_layout, but the control helper always starts at the old v2.1
+SOFTCLIP0 control address.  On a v2.5 macro, enabling softclip consequently
+writes bit 0 into COMPANDER1_CTL9 and COMPANDER1_CTL17 instead of the two
+softclip control registers.
+
+Use the versioned softclip base for the control address, matching the clock
+helper.  The control register is four bytes after the CRC/clock register in
+both supported layouts.
+
+Signed-off-by: SP11 audio reconstruction <sp11-audio@localhost>
+---
+ sound/soc/codecs/lpass-wsa-macro.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/sound/soc/codecs/lpass-wsa-macro.c b/sound/soc/codecs/lpass-wsa-macro.c
+index eec7fba..83d9abb 100644
+--- a/sound/soc/codecs/lpass-wsa-macro.c
++++ b/sound/soc/codecs/lpass-wsa-macro.c
+@@ -285,6 +285,7 @@
+ #define WSA_MACRO_RX_PATH_OFFSET 0x80
+ #define WSA_MACRO_RX_PATH_CFG3_OFFSET 0x10
+ #define WSA_MACRO_RX_PATH_DSMDEM_OFFSET 0x4C
++#define WSA_MACRO_SOFTCLIP_CTRL_OFFSET 0x4
+ #define WSA_MACRO_FS_RATE_MASK 0x0F
+ #define WSA_MACRO_EC_MIX_TX0_MASK 0x03
+ #define WSA_MACRO_EC_MIX_TX1_MASK 0x18
+@@ -1743,7 +1744,8 @@ static int wsa_macro_config_softclip(struct snd_soc_component *component,
+ 	if (!wsa->is_softclip_on[softclip_path])
+ 		return 0;
+ 
+-	softclip_ctrl_reg = CDC_WSA_SOFTCLIP0_SOFTCLIP_CTRL +
++	softclip_ctrl_reg = wsa->reg_layout->softclip0_reg_base +
++			WSA_MACRO_SOFTCLIP_CTRL_OFFSET +
+ 				(softclip_path * wsa->reg_layout->softclip1_reg_offset);
+ 
+ 	if (SND_SOC_DAPM_EVENT_ON(event)) {
+-- 
+2.53.0
