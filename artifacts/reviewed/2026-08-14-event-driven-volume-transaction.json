@@ -1,6 +1,6 @@
 {
   "date": "2026-08-14",
-  "status": "deployed_pending_subjective_slider_test",
+  "status": "deployed_subjectively_improved_not_closed",
   "symptom": "GNOME volume-preview onset can sound like a brief spike while moving the slider",
   "recovered_windows_ramp": {
     "policy_pid": "0x08001037",
@@ -47,6 +47,20 @@
   "do_not_conflate": {
     "old_ghost": "1776 frames / 37 ms of rendered media in Dolby delay, already fixed and physically passed",
     "current_hypothesis": "control delivery latency before the DSP ramp"
+  },
+  "subjective_slider_result": {
+    "result": "better_but_intermittent_spike_remains",
+    "content_dependent": true,
+    "reported_direction": "can feel forward or reversed",
+    "conclusion": "100 ms polling was a contributor, not the complete cause"
+  },
+  "remaining_ordering_gap": {
+    "duplicate_msiir_writer_ruled_out": true,
+    "dolby_request_precedes_kernel_transaction": true,
+    "dolby_apply_and_ack_wait_for_next_audio_callback": true,
+    "effective_apply_order_currently_guaranteed": false,
+    "settled_request_and_ack": -214,
+    "next_gate": "timestamp postgain request/ack and kernel transaction during one bounded transition before changing ramp policy"
   },
   "durable_dp5_reference": {
     "status": "green_do_not_rediscover",

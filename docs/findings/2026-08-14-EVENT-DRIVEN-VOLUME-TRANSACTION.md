@@ -79,9 +79,33 @@ longer drives steady-state processing.
 - that same live gate independently reconfirmed DP5/VISENSE `ch-mask=0x3` and
   DP6/CPS `ch-mask=0x3` on both amplifiers.
 
-Physical closure still requires the user's ordinary YouTube + GNOME slider
-preview test.  Do not add a second fade or alter the recovered 10/1/curve-3
-ramp unless that bounded test localizes a different Windows/Linux mismatch.
+## Physical slider result and remaining ordering gap
+
+The subsequent ordinary YouTube + GNOME slider test was **improved but not
+closed**.  The user still intermittently hears a transition/spike whose sense
+can appear forward or reversed depending on content.  This proves the removed
+100 ms polling latency was a real contributor, not the complete cause.
+
+The older standalone MSIIR synchronizer is not a competing writer: on this
+kernel it detects `SP11 Windows Volume Transaction`, prints that the combined
+transaction owns GainStep updates, and exits successfully.
+
+One concrete cross-domain ordering gap remains.  The synchronizer currently:
+
+1. writes the Dolby postgain **request**;
+2. immediately sends the synchronous final VOL_CTRL + GainStep kernel call.
+
+The Dolby plug-in does not apply and acknowledge that request until the next
+audio callback/block.  Therefore “request written before DSP call” does not
+guarantee “Dolby postgain applied before DSP call.”  Scheduler timing can make
+the effective acoustic order vary, which is consistent with the reported
+direction-dependent residual.  At the inspected settled state, request and
+ack both reached `-214`; the issue is transition ordering, not a stuck value.
+
+Next work must timestamp postgain request/ack and the kernel transaction during
+one bounded real transition, then enforce the recovered Windows order if the
+race is observed.  Do not add a guessed second fade or alter the proven
+10 ms / 1 ms / curve-3 DSP ramp before closing this acknowledgement boundary.
 
 ## DP5/VISENSE `0x03` — closed; do not rediscover
 
