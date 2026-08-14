@@ -1,0 +1,47 @@
+{
+  "date": "2026-08-15",
+  "windows_seek_kdnet": {
+    "qcadcm8380_base": "0xfffff801804a0000",
+    "setvolume_rva": "0x6e038",
+    "setvolume_live": "0xfffff8018050e038",
+    "getgraphckv_rva": "0x91888",
+    "getgraphckv_live": "0xfffff80180531888",
+    "set_cfg_rva": "0x60b78",
+    "set_cfg_live": "0xfffff80180500b78",
+    "filtered_iids": ["0x4663", "0x4664", "0x4669", "0x466b", "0x4a63", "0x489e", "0x48a1", "0x412b"],
+    "seek_sequence_seconds": [[41.58, 55.0], [59.00, 12.0], [16.00, 90.0]],
+    "seek_runtime_hits": 0,
+    "seek_log_sha256": "b53f54ee731c9b0a14df1acc102e3e82e468f99cb2d0b7611e5f7f7236e7572a",
+    "positive_control_runtime_markers": 16,
+    "positive_control_log_sha256": "6f89140d2a42da7706bd12831faa3fec7d76f0067d16b15f8b80a114ae206a29",
+    "positive_control": "same armed breakpoints fired SetVolume, final VOL_CTRL 0x4a63 and GetGraphCkv during 25% -> 17% -> 25% endpoint changes"
+  },
+  "windows_synchronized_local_mp3_loopback": {
+    "source_sha256": "951a65cc63fee17622485c1d94708614005524c7e20f86d3d815327f6bd0e8b3",
+    "endpoint_scalar": 0.25,
+    "wav_sha256": "1c812d500a8e340ce5cb5b8e6f0db41c6337fed8d78dc2a4bf781de63fa64381",
+    "events_sha256": "3e4c1a3de63d47c1d12a1e6ac3baf383382666ad460d98f0512830f6f4339a5a",
+    "seek_targets_seconds": [55, 12, 90],
+    "signal_surrounded_exact_zero_runs": 0,
+    "minimum_5ms_rms_dbfs_near_seeks": [-67.74, -90.87, -86.08],
+    "scope_note": "This near-silence transition is MediaPlayer-specific evidence only. Prior matched real Edge/YouTube Windows loopback reaches about 0.987 full-scale after seek, so no generic host fade is inferred."
+  },
+  "linux_corrected_seek": {
+    "entry": "sp11-audio-volume-channel-order",
+    "kernel": "7.1.5-sp11-render-parity-v4+",
+    "snd_q6apm_srcversion": "71CDE1039F9209C3B0E89E0",
+    "endpoint_scalar": 0.25,
+    "vlldp_postgain": -332,
+    "physical_monitor_sha256": "c3d4d21f928960a1b8b61b1232509b27a422920564f8b75ee2c198fb9a1b2d1c",
+    "events_sha256": "0bb572c64993f956e90b44aa0c06da69471b507a8ad4e536e066cf9f47a6540f",
+    "exact_zero_runs_ms": [74.667, 10.667, 80.0],
+    "first_nonzero_step_abs": [0.214203, 0.167999, 0.324402],
+    "runtime_volume_transactions_during_seek": 0,
+    "runtime_faults": 0,
+    "wsa_samples_obtained": 8,
+    "wsa_all_pa_enabled": true,
+    "wsa_current_limit_code": 17,
+    "wsa_pa_errors": 0
+  },
+  "conclusion": "Fresh Windows KDNET proves in-stream seeks do not cause host qcad SetVolume, GetGraphCkv, SOFT_PAUSE, POPLESS, adjacent VOL_CTRL, final VOL_CTRL, MSIIR or SPR SET_CFG traffic. The same breakpoints have a positive volume-change control. Therefore Windows seek smoothing is autonomous in the already-configured render graph and/or source discontinuity behavior. Linux now has the exact POPLESS 0x4664 calibration, 0x4664<->0x4663 headroom intent link, adjacent ramp policies and corrected endpoint-volume lifecycle. Fresh corrected Linux seeks show no DSP/SoundWire/WSA/PA faults. A physical corrected-topology verdict remains the final gate."
+}
