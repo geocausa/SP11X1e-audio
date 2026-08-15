@@ -32,7 +32,7 @@
       "06 12 1e 24 24 24": 0,
       "00 24 2a 16": 0
     },
-    "host_files": "Earlier project-wide scans across Windows audio/DSP/driver files also found no exact Linux curve serialization.",
+    "host_files": "Earlier project-wide scans across Windows audio/DSP/driver files also found no exact Linux curve serialization. Exact Ghidra scalar scans also found zero executable references to physical WSA macro base 0x06b00000 in both qcaucd8380.sys and qcadcm8380.sys.",
     "interpretation": "Absence of the byte pattern is not proof of a different Windows curve because reset-state equivalence or generated/encoded programming remain possible."
   },
   "live_windows_gate": {
