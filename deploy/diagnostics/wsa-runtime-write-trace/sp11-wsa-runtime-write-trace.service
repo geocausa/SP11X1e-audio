@@ -1,0 +1,11 @@
+[Unit]
+Description=SP11 passive WSA runtime write trace
+After=local-fs.target systemd-modules-load.service
+Before=graphical.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/libexec/sp11-wsa-runtime-write-trace.sh
+
+[Install]
+WantedBy=multi-user.target
