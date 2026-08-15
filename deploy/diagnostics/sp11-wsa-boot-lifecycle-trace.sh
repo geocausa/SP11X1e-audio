@@ -19,7 +19,7 @@ fi
 
 # Wait briefly for the sound modules to register their local kallsyms.  This
 # service runs before the graphical session; no audio service is manipulated.
-need='wsa884x_hw_params wsa884x_mute_stream wsa_macro_enable_interpolator wsa_macro_config_compander'
+need='wsa884x_hw_params wsa884x_mute_stream wsa_macro_enable_interpolator'
 i=0
 while [ "$i" -lt 100 ]; do
     missing=0
@@ -65,7 +65,11 @@ add_probe sp11_wsa_hw_params 'wsa884x_hw_params substream=%x0:u64 params=%x1:u64
 add_probe sp11_wsa_mute 'wsa884x_mute_stream dai=%x0:u64 mute=%x1:s32 stream=%x2:s32'
 add_probe sp11_wsa_spkr_event 'wsa884x_spkr_event widget=%x0:u64 event=%x2:u32'
 add_probe sp11_macro_interp 'wsa_macro_enable_interpolator widget=%x0:u64 event=%x2:u32'
-add_probe sp11_macro_comp 'wsa_macro_config_compander component=%x0:u64 interp=%x1:u32 event=%x2:u32'
+if grep -qw wsa_macro_config_compander /proc/kallsyms; then
+    add_probe sp11_macro_comp 'wsa_macro_config_compander component=%x0:u64 interp=%x1:u32 event=%x2:u32'
+else
+    echo "optional symbol absent: wsa_macro_config_compander (covered by wsa_macro_enable_interpolator)"
+fi
 
 # These symbols are optional across the different protected-kernel lineages.
 if grep -qw qcom_swrm_hw_params /proc/kallsyms; then
