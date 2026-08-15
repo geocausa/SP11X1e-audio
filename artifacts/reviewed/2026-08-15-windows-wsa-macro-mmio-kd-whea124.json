@@ -1,0 +1,35 @@
+{
+  "date": "2026-08-15",
+  "status": "REJECTED_DO_NOT_REPEAT",
+  "purpose": "Direct Windows KD read of LPASS WSA macro MMIO",
+  "host": "SP7 classic kd.exe via PiMaster ConPTY",
+  "target": "SP11 Windows 10/11 build 26100 ARM64",
+  "kdnet": {
+    "port": 50005,
+    "target_ip_seen": "169.254.236.156",
+    "host_ip_seen": "169.254.185.243"
+  },
+  "result": {
+    "direct_pty_control": "PROVEN",
+    "kernel_prompt": "0: kd>",
+    "target_uptime_before_read": "0 days 0:37:08.317",
+    "command": "!dd [uc] 06b00580 L1",
+    "outcome": "Fatal System Error 0x00000124",
+    "parameters": [
+      "0x0000000000000011",
+      "0xFFFFAE87C4F03028",
+      "0x0000000000000000",
+      "0x0000000000000000"
+    ],
+    "transport_after_error": "lost",
+    "recovery": "SP11 automatically rebooted into saved Linux CPS-v3 fallback"
+  },
+  "safety_conclusion": "APPS/KD direct physical reads of the 0x06b00000 LPASS WSA macro aperture are unsafe even with [uc]. Do not issue !dd, dd, !db, or equivalent direct physical reads against this aperture again, regardless of target uptime or audio state.",
+  "scope": "This does not invalidate KDNET itself. Direct kd.exe ConPTY control is proven and remains suitable for host-driver breakpoints, register/memory observation in normal kernel virtual memory, and already-proven qcaucd/qcadcm tracing that does not access the WSA macro physical aperture.",
+  "connectivity_discriminator": "SP7 and MacBook stayed online; SP11 alone faulted, proving this event was target-local and not the home router/provider.",
+  "post_recovery": {
+    "kernel": "7.1.5-sp11-cps-v3+",
+    "saved_entry": "sp11-audio-cps-v3",
+    "next_entry": "empty"
+  }
+}
