@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: SP11 audio reconstruction <sp11-audio@localhost>
+Date: Sat, 15 Aug 2026 00:58:00 +0100
+Subject: [PATCH] ASoC: wsa884x: match Windows DRE_CTL_1 lifecycle
+
+Fresh Windows KDNET traces the qcaucd direct slave-write helper over two
+SP11 idle/play/stop cycles.  Both amplifiers receive the known class-H,
+power-stage and GLOBAL_PA_EN transitions.  There are no runtime writes to
+DRE_CTL_1 (0x34b1).  The retained Windows initialization transaction writes
+0x00 to DRE_CTL_1 on both devices.  Static qcaucd disassembly has no other
+0x34b1 writer.
+
+Linux diverged in two ways.  Generic unmute re-enabled CSR_GAIN_EN.  SP11
+UCM also populated the fallback CSR gain field.  Keep the SP11 2S hardware
+path at the Windows value.  Initialize DRE_CTL_1 to zero.  Keep the generic
+CSR fallback gain off on unmute.  Other supply profiles are unchanged.
+
+The matching SP11 UCM change is separate.  It stops programming PA Volume.
+That control backs the compander-off fallback path.  It is not the Windows
+endpoint volume actuator.
+
+Signed-off-by: SP11 audio reconstruction <sp11-audio@localhost>
+---
+ sound/soc/codecs/wsa884x.c | 9 ++++++++ -
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/sound/soc/codecs/wsa884x.c b/sound/soc/codecs/wsa884x.c
+@@ -1617,6 +1617,7 @@
+ 	regmap_multi_reg_write(regmap, sp11_2s_4ohm_pbr,
+ 			       ARRAY_SIZE(sp11_2s_4ohm_pbr));
+ 	regmap_write(regmap, WSA884X_CDC_SPK_DSM_C_2, 0xf2);
++	regmap_write(regmap, WSA884X_DRE_CTL_1, 0x00);
+ 	regmap_write(regmap, WSA884X_DRE_IDLE_DET_CTL, 0x0f);
+ 	regmap_write(regmap, WSA884X_CLSH_CTL_0, 0x00);
+ 	regmap_write(regmap, WSA884X_CLSH_SOFT_MAX, 0xff);
+@@ -2226,9 +2227,15 @@
+ 			regmap_write(wsa884x->regmap, WSA884X_PDRV_HS_CTL, 0x52);
+ 		}
+ 
++		/*
++		 * Windows leaves DRE_CTL_1 at 0x00 for normal SP11 speaker
++		 * playback.  The compander path is active, so do not enable
++		 * the generic CSR fallback gain on the 2S Surface profile.
++		 */
+ 		snd_soc_component_write_field(component, WSA884X_DRE_CTL_1,
+ 					      WSA884X_DRE_CTL_1_CSR_GAIN_EN_MASK,
+-					      0x1);
++					      wsa884x->supply_config == WSA884X_SUPPLY_2S ?
++					      0x0 : 0x1);
+ 		snd_soc_component_write_field(component, WSA884X_PA_FSM_EN,
+ 					      WSA884X_PA_FSM_EN_GLOBAL_PA_EN_MASK,
+ 					      0x1);
+-- 
+2.53.0

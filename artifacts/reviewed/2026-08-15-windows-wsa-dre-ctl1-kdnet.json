@@ -1,0 +1,32 @@
+{
+  "schema": "sp11-windows-wsa-dre-ctl1-kdnet-v1",
+  "date_local": "2026-08-15",
+  "windows_driver": "qcaucd8380.sys",
+  "module_base": "0xfffff80285130000",
+  "direct_slave_write_helper_rva": "0x1bf80",
+  "direct_slave_write_helper_live": "0xfffff8028514bf80",
+  "command_fifo": "0x06b15020",
+  "raw_log": {
+    "sp7_path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\SP11_WSA_DRE_CTL1_LIVE_20260815.log",
+    "sha256": "953ef108f0f821af860d15e488da4990be9bb2e240b8bb13f113e1752228bb6e"
+  },
+  "scenario": "two independent idle -> play 6 s -> stop -> idle cycles, exact local Seven Nation Army MP3, endpoint 12%",
+  "runtime_filtered_write_count": 32,
+  "runtime_counts": {
+    "0x34b1_DRE_CTL_1": 0,
+    "0x34d0_CLSH_CTL_0": 8,
+    "0x3067_PWRSTG_DBG": 8,
+    "0x304d_PDRV_HS_CTL": 8,
+    "0x3430_PA_FSM_EN": 8
+  },
+  "positive_control_sequences": {
+    "start": ["0x34d0=0x67", "0x3067=0x08", "0x304d=0x52", "0x3430=0x01", "0x3067=0x0c", "0x304d=0x5a"],
+    "stop": ["0x3430=0x00", "0x34d0=0x00"]
+  },
+  "retained_initialization": {
+    "logical_amp_1": "0x34b1=0x00",
+    "logical_amp_2": "0x34b1=0x00"
+  },
+  "static_disassembly": "available qcaucd text contains only the initialization writer for 0x34b1 and writes value 0",
+  "conclusion": "Windows leaves DRE_CTL_1 at 0x00 during ordinary speaker PA start/stop; Linux DRE_CTL_1=0x0f is a real codec-driver/UCM mismatch"
+}

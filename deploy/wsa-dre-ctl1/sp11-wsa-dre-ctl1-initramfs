@@ -1,0 +1,21 @@
+#!/bin/sh
+# Override only snd-soc-wsa884x in the isolated SP11 Windows DRE_CTL_1 boot.
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+prereqs) prereqs; exit 0 ;;
+esac
+
+[ "${version:-}" = "7.1.5-sp11-render-parity-v4+" ] || exit 0
+
+candidate=/usr/local/lib/sp11-audio-candidates/wsa-dre-ctl1/snd-soc-wsa884x.ko.zst
+destination="$DESTDIR/usr/lib/modules/$version/kernel/sound/soc/codecs/snd-soc-wsa884x.ko.zst"
+
+[ -f "$candidate" ] || {
+	echo "missing signed SP11 DRE_CTL_1 module: $candidate" >&2
+	exit 1
+}
+
+mkdir -p "${destination%/*}"
+cp -p "$candidate" "$destination"
