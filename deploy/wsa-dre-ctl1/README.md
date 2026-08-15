@@ -34,4 +34,9 @@ hooks were removed after generation. Persistent GRUB fallback remains CPS-v3.
 
 Pre-boot test suite: `155 passed, 3 skipped, 6 subtests passed`.
 
-Live validation is pending at this point in the document.
+First live boot proved the kernel half: with persisted ALSA PA Volume 24,
+`DRE_CTL_1` changed from the old `0x0f` to `0x0e`, showing CSR_GAIN_EN was
+correctly kept clear.  A bounded live control test then set PA Volume 31 and
+both amplifiers immediately read `DRE_CTL_1=0x00` while PA/protection state
+remained healthy. UCM was therefore tightened to pin the inverted control at
+31 so it overrides mixer-state restore. A cold validation boot is pending.

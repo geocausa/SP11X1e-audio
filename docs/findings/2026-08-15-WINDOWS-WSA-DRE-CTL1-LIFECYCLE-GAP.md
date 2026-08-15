@@ -78,7 +78,11 @@ It:
 - keeps `CSR_GAIN_EN=0` on the 2S Surface unmute path;
 - preserves generic non-2S behavior.
 
-The matching SP11 UCM removes all `SpkrLeft/Right PA Volume` writes. Endpoint
-volume remains the already-proven AudioReach final `VOL_CTRL`/GainStep path.
+The matching SP11 UCM pins `SpkrLeft/Right PA Volume` to 31. The ALSA control
+is inverted, so user value 31 produces raw CSR gain code zero; this also
+overrides a persisted `alsactl` value of 24 that was observed on the first
+candidate boot. Patch `0055` keeps `CSR_GAIN_EN` clear, yielding the exact
+Windows live register `0x34b1=0x00`. Endpoint volume remains the already-proven
+AudioReach final `VOL_CTRL`/GainStep path.
 
 No EQ, fade, limiter, PBR or topology behavior is guessed by this correction.

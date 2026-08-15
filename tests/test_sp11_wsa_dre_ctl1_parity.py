@@ -5,10 +5,12 @@ PATCH = ROOT / "patches/0055-ASoC-wsa884x-match-Windows-DRE-CTL1-lifecycle.patch
 UCM = ROOT / "deploy/ucm2/Qualcomm/x1e80100/SP11-HiFi.conf"
 
 
-def test_sp11_ucm_does_not_program_pa_volume():
+def test_sp11_ucm_pins_inverted_pa_control_to_raw_zero():
     text = UCM.read_text()
-    assert "SpkrLeft PA Volume'" not in text
-    assert "SpkrRight PA Volume'" not in text
+    assert text.count("SpkrLeft PA Volume' 31") == 2
+    assert text.count("SpkrRight PA Volume' 31") == 2
+    assert "user value 31 maps the CSR gain field to raw zero" in text
+    assert "patch 0055 keeps CSR_GAIN_EN clear" in text
     assert "DRE_CTL_1" in text
     assert "final VOL_CTRL" in text
 
