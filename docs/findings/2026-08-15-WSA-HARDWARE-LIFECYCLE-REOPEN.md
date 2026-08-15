@@ -83,6 +83,34 @@ The next kernel candidate must make **no audio behavior changes**. It should emi
 
 No trace point may read WSA debugfs/regmap state. Software state and existing function arguments only.
 
+
+## Passive CPS-v3 boot trace result — producer ordering closed
+
+A passive kprobe-only trace was armed before the graphical session on the untouched `7.1.5-sp11-cps-v3+` boot. It made no codec register accesses and changed no audio policy. Raw trace:
+
+- `artifacts/reviewed/2026-08-15-wsa-boot-lifecycle-cps-v3.trace`
+- SHA-256 `47548eb01b6baae90c4d0d89867b9d5d60b75c14ecfe33b1163b3fb18d63b5ed`
+
+The production PipeWire activation orders the lower stack as follows (kernel monotonic timestamps):
+
+```text
+12.935309  first WSA8845 hw_params
+12.935396  first SoundWire prepare
+12.939782  first SoundWire enable
+12.942806  WSA-macro interpolator PRE_PMU begins
+12.942820  WSA-macro interpolator POST_PMU left
+12.942829  WSA-macro interpolator POST_PMU right
+12.942835  WSA8845 speaker POST_PMU left
+12.942846  WSA8845 speaker POST_PMU right
+12.971728  first WSA8845 mute_stream(mute=0) / unmute path
+```
+
+Therefore the macro producer and speaker DAPM power sequence complete about **28.9 ms before the first WSA8845 unmute/PA path**. The simple hypothesis that Linux exposes COMP-only playback before the producer is powered is rejected for this normal cold/login lifecycle.
+
+The trace also confirms the generic Linux unmute is a later, distinct stage. Source inspection proves that this stage unconditionally writes `DRE_CTL_1.CSR_GAIN_EN=1` before `GLOBAL_PA_EN=1`, even though the earlier COMP-aware gain setup cleared CSR. This is the remaining amp-side lifecycle divergence from Windows.
+
+The unsafe DRE=0 result must therefore be explained by COMP-path **data/configuration/semantics** (or another downstream dependency), not by the macro merely powering too late. In particular, the LPASS WSA macro still uses generic Qualcomm v2.5 compander register defaults with no Surface/Windows runtime oracle proving the same producer curve.
+
 ## Acceptance gates before any new DRE experiment
 
 A future DRE-disabled candidate is forbidden until the trace proves all of the following:
