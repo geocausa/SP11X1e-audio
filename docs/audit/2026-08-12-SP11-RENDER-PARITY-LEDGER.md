@@ -1,6 +1,21 @@
 # SP11 built-in-speaker Windows/Linux render parity ledger — 2026-08-12
 
 
+> **2026-08-15 qcadcm boot-zero codec-resource closure:** a strict KDNET
+> loader trap stopped Windows on `qcadcm8380.sys` load before the driver was
+> allowed to continue. Breakpoints on hash-matched `AudioHwRscIoctl` RVA
+> `0x89380` and `gsl_command_hw_rsc_custom_config` RVA `0x5c5d8` then captured
+> the complete normal qcadcm hardware-resource sequence through boot completion:
+> 26 transactions total, consisting only of hardware-core `0x08001032`, clock
+> `0x0800102c`, and endpoint-GPIO `0x080014f3` resources. The recovered private
+> codec-register service `0x0800131b` appears zero times. Together with the
+> complete REV_0D ACDB negative search and the marked speaker-playback trace,
+> this closes qcadcm/ACDB as the source of a hidden Windows WSA-macro register
+> program for the normal internal-speaker path. H03 remains RED because the
+> actual Windows WSA-macro producer state is still unknown; the next target is
+> ADSP/HAL-internal or silicon/reset state, not another synthetic qcadcm
+> request. See `docs/findings/2026-08-15-QCADCM-HW-RSC-BOOTZERO.md`.
+
 > **2026-08-14 late volume-path closeout:** fresh SP11 Windows KDNET and
 > stationary WASAPI loopback corrected two lifecycle assumptions in the older
 > notes below. Windows does not live-retune VLLDP postgain on endpoint slider
@@ -112,7 +127,7 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 
 - [x] **GREEN H01 — Both WSA884x amplifiers active on SoundWire.** Left/right speaker routes are live.
 - [x] **GREEN H02 — Digital mute/gain state.** RX0/RX1 mute off and digital volume 81 as deployed.
-- [ ] **RED H03 — WSA DRE/CSR fallback lifecycle is not yet Windows-equivalent.** Fresh Windows KDNET still proves both amplifiers initialize `DRE_CTL_1 0x34b1=0x00` and perform zero runtime writes to it across ordinary PA cycles. However, the isolated Linux candidate that forced the same register value produced an ugly/unsafe physical-speaker noise on cold boot and is rejected. This proves the surrounding Linux WSA884x/compander/class-H/PA lifecycle is not yet equivalent enough to copy `0x34b1` in isolation. Production UCM is restored to the last known-good pre-DRE state; next work is a full Windows codec-write/state lifecycle comparison before any replacement candidate. See `docs/findings/2026-08-15-WINDOWS-WSA-DRE-CTL1-LIFECYCLE-GAP.md`.
+- [ ] **RED H03 — WSA DRE/CSR fallback lifecycle is not yet Windows-equivalent.** Fresh Windows KDNET still proves both amplifiers initialize `DRE_CTL_1 0x34b1=0x00` and perform zero runtime writes to it across ordinary PA cycles. However, the isolated Linux candidate that forced the same register value produced an ugly/unsafe physical-speaker noise on cold boot and is rejected. This proves the surrounding Linux WSA884x/compander/class-H/PA lifecycle is not yet equivalent enough to copy `0x34b1` in isolation. Production UCM is restored to the last known-good pre-DRE state. The normal qcadcm boot path, marked speaker-playback path, and complete REV_0D ACDB/private-driver-data pool are now all proven not to carry the hidden WSA-macro register program; next work is ADSP/HAL-internal WSA-macro producer state or silicon/reset behavior before any replacement candidate. See `docs/findings/2026-08-15-WINDOWS-WSA-DRE-CTL1-LIFECYCLE-GAP.md` and `docs/findings/2026-08-15-QCADCM-HW-RSC-BOOTZERO.md`.
 - [x] **GREEN H04 — LPASS WSA macro v2.5 softclip/compander addressing.** Patch `0053` is live in v4. Both macro regmaps read `COMPANDER0_CTL9/17 = 0x00/0x24`, `COMPANDER1_CTL9/17 = 0x00/0x24`, and the true v2.5 softclip controls `0x644/0x664 = 0x38` with enable bit 0 clear. This closes the old v2.1-address corruption without enabling the unobserved softclip block; see `docs/findings/2026-08-14-LPASS-WSA-V2.5-SOFTCLIP-ADDRESS-CORRECTION.md`.
 - [x] **GREEN H05 — VISENSE / VI mixers reproduce the Windows slave width.** The corrected `sp11-audio-visense-parity` boot loaded WSA884x srcversion `782FC79EBBA505E52A2AE88`; both amplifiers requested DP5 ChannelEnable `0x03` at 8 kHz, matching the qcaucd slave FIFO, master-port-10/11 runtime tuples and static templates. VI feedback, SP/SPVI enable and bounded playback succeeded without PA fault, XRUN or port conflict, and both amplifiers returned to runtime suspend. Overall physical tonal parity remains W03, not part of this transport result.
 - [x] **GREEN H06 — PBR/protected high-output policy.** Current protected path includes the recovered PBR/current-limit state used for the high-output deployment.

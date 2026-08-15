@@ -1,0 +1,107 @@
+{
+  "date": "2026-08-15",
+  "scope": "SP11 Windows qcadcm hardware-resource traffic from qcadcm module load through normal boot completion",
+  "status": "GREEN negative closure for the normal qcadcm boot path",
+  "method": {
+    "debugger": "classic kd.exe over KDNET via SP7 ConPTY",
+    "loader_trap": "sxe ld:qcadcm8380.sys",
+    "loader_trap_uptime_seconds": 10.941,
+    "target_paused_while_breakpoints_installed": true,
+    "breakpoints": [
+      {
+        "rva": "0x89380",
+        "name": "AudioHwRscIoctl",
+        "observation": "arguments plus bounded host-memory buffer read"
+      },
+      {
+        "rva": "0x5c5d8",
+        "name": "gsl_command_hw_rsc_custom_config",
+        "observation": "request size, command, and bounded host-memory payload read"
+      }
+    ],
+    "direct_mmio_reads": false,
+    "target_register_writes": false,
+    "synthetic_resource_requests": false,
+    "capture_end_uptime_seconds": 108.901
+  },
+  "binary_identity": {
+    "qcadcm8380_sha256": "37F76305AC8051B0B03B6D2CE1DF7A353253DEBF546E512E447C9D95EC661429",
+    "target_and_sp7_reference_match": true
+  },
+  "raw_log": {
+    "path": "artifacts/reviewed/2026-08-15-qcadcm-hw-rsc-bootzero.log",
+    "sha256": "3ECBC53DDB96C9D44264BB5997338B16FF5697D15A9AA9BA8135CB99DAF670B1"
+  },
+  "strict_loader_trapped_segment": {
+    "transaction_count": 26,
+    "commands": {
+      "0x0100100f": "request",
+      "0x01001010": "release"
+    },
+    "resources": {
+      "0x08001032": {
+        "description": "hardware core",
+        "count": 10,
+        "request_count": 5,
+        "release_count": 5,
+        "request_size": "0x14",
+        "release_size": "0x14"
+      },
+      "0x0800102c": {
+        "description": "clocks",
+        "count": 12,
+        "request_count": 6,
+        "release_count": 6,
+        "request_size": "0x24",
+        "release_size": "0x18",
+        "clock_ids": ["0x30c", "0x314", "0x315"],
+        "request_rate_hz": 19200000,
+        "each_clock_requested_twice": true,
+        "each_clock_released_twice": true
+      },
+      "0x080014f3": {
+        "description": "endpoint DSP GPIO",
+        "count": 4,
+        "request_count": 4,
+        "release_count": 0,
+        "request_size": "0x48",
+        "unique_payload_variants": 2,
+        "each_variant_count": 2
+      }
+    },
+    "private_codec_register_resource": {
+      "resource_id": "0x0800131b",
+      "transaction_count": 0
+    },
+    "ordered_transactions": [
+      "08001032:0100100f:14",
+      "08001032:01001010:14",
+      "08001032:0100100f:14",
+      "080014f3:0100100f:48",
+      "0800102c:0100100f:24",
+      "0800102c:0100100f:24",
+      "0800102c:0100100f:24",
+      "0800102c:01001010:18",
+      "08001032:01001010:14",
+      "08001032:0100100f:14",
+      "0800102c:01001010:18",
+      "0800102c:01001010:18",
+      "080014f3:0100100f:48",
+      "08001032:01001010:14",
+      "08001032:0100100f:14",
+      "0800102c:0100100f:24",
+      "0800102c:0100100f:24",
+      "080014f3:0100100f:48",
+      "0800102c:0100100f:24",
+      "0800102c:01001010:18",
+      "08001032:01001010:14",
+      "08001032:0100100f:14",
+      "0800102c:01001010:18",
+      "0800102c:01001010:18",
+      "080014f3:0100100f:48",
+      "08001032:01001010:14"
+    ]
+  },
+  "conclusion": "A loader-trapped qcadcm boot trace captures the complete normal qcadcm hardware-resource request/release sequence from module load onward and contains only hardware-core, clock, and endpoint-GPIO resources. Qualcomm's private codec-register resource 0x0800131b is never requested. Combined with the REV_0D ACDB negative search and the marked speaker-playback trace, the normal SP11 internal-speaker host path does not source a hidden WSA-macro register program through qcadcm.",
+  "remaining_boundary": "The private DSP service may exist for other modes/clients, but it is not part of the observed normal boot or marked internal-speaker playback path. The remaining Windows-vs-Linux WSA producer difference must be sought inside ADSP/HAL/platform runtime state, silicon/reset behavior, or another non-qcadcm mechanism."
+}
