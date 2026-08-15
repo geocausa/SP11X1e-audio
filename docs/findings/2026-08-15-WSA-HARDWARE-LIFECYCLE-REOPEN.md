@@ -95,3 +95,28 @@ A future DRE-disabled candidate is forbidden until the trace proves all of the f
 - the Windows 500 ms clock-stop policy is either reproduced or explicitly shown not to affect the ordering under test.
 
 Only after those gates pass should `DRE_CTL_1=0` be reconsidered, and then as a separate one-variable candidate with UCM left at the known-good pre-DRE state unless evidence requires otherwise.
+
+## Erratum: prior CSR lifecycle assumption was false
+
+The reviewed 2026-08-14 WSA-init artifact stated that `0x34b1` was intentionally left alone because ordinary SP11 playback had COMP enabled and `CSR_GAIN_EN` disabled. That interpretation is false for the current native Linux driver.
+
+Static source ordering is explicit:
+
+1. WSA8845 speaker DAPM `POST_PMU` calls `wsa884x_set_gain_parameters()`.
+2. With the COMP port enabled, that function sets the exact Windows-matching amp-side state and clears `CSR_GAIN_EN`.
+3. The WSA8845 DAI declares `mute_unmute_on_trigger = true`.
+4. On START, `snd_soc_pcm_dai_trigger()` invokes `digital_mute(..., 0)` for that DAI.
+5. `wsa884x_mute_stream(..., 0)` unconditionally writes `CSR_GAIN_EN=1`, then `GLOBAL_PA_EN=1`.
+
+Therefore normal Linux playback finishes in CSR-assisted mode despite COMP being admitted. This matches the observed baseline `DRE_CTL_1=0x0f` and explains why the earlier reviewed rationale was internally inconsistent.
+
+The remaining fields written by `wsa884x_set_gain_parameters()` are now all tied to fresh Windows evidence:
+
+- `VSENSE1 = 0x67` — exact match;
+- `ISENSE2 = 0x07` — exact match;
+- `DRE_CTL_0 = 0xf0` — exact Windows init match;
+- `GAIN_RAMPING_MIN = 0x0e` — exact Windows init match.
+
+Thus the rejected COMP-only/DRE=0 experiment did not expose another known amp-side gain-register mismatch. It exposed that Linux currently relies on the generic CSR-assisted operating mode even though Windows remains in `0x34b1=0x00` through ordinary PA cycles.
+
+The strongest remaining parity suspect is therefore the COMP producer semantics/state (LPASS WSA macro and its sideband data), not another WSA8845 gain parameter. The Linux producer uses Qualcomm generic compander register defaults and no Surface-specific runtime curve has been recovered from Windows yet.
