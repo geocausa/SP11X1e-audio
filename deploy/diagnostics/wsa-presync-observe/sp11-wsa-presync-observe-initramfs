@@ -1,0 +1,13 @@
+#!/bin/sh
+# Override only snd-soc-lpass-wsa-macro in the isolated CPS-v3 pre-sync observation boot.
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+prereqs) prereqs; exit 0 ;;
+esac
+[ "${version:-}" = "7.1.5-sp11-cps-v3+" ] || exit 0
+candidate=/usr/local/lib/sp11-audio-candidates/wsa-presync-observe/snd-soc-lpass-wsa-macro.ko.zst
+destination="$DESTDIR/usr/lib/modules/$version/kernel/sound/soc/codecs/snd-soc-lpass-wsa-macro.ko.zst"
+[ -f "$candidate" ] || { echo "missing signed SP11 WSA pre-sync observation module: $candidate" >&2; exit 1; }
+mkdir -p "${destination%/*}"
+cp -p "$candidate" "$destination"
