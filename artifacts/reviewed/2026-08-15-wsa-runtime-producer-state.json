@@ -1,0 +1,72 @@
+{
+  "schema": "sp11-wsa-runtime-producer-state-v1",
+  "date": "2026-08-15",
+  "boot": {
+    "boot_id": "b4d1cd65-2535-4cf5-b0de-0b5d52353839",
+    "kernel": "7.1.5-sp11-cps-v3+",
+    "wsa_macro_srcversion": "F681186BB3D24B32621905D",
+    "persistent_grub_fallback": "sp11-audio-cps-v3"
+  },
+  "trace": {
+    "path": "artifacts/reviewed/2026-08-15-wsa-runtime-write-boot.trace",
+    "sha256": "9f7732546d805dcb5d0add234173257ea2a2d995f3de7de0584405538c06537d",
+    "size_bytes": 193358,
+    "meta_path": "artifacts/reviewed/2026-08-15-wsa-runtime-write-boot.meta",
+    "meta_sha256": "bce5f24e288bfd0805dbdca51b68a16ce4f970d2da36a3e40720dcef7f187220",
+    "started_monotonic_s": 12.28,
+    "snd_soc_component_update_bits_hits": 190,
+    "snd_soc_component_write_hits": 0,
+    "unique_component_pointers": ["0xffff000801517480"],
+    "interpretation": "All filtered ASoC update_bits events in the boot window belong to one component pointer, the LPASS WSA macro."
+  },
+  "production_pipewire_activation": {
+    "wsa884x_hw_params_first_s": 13.316321,
+    "soundwire_prepare_s": 13.316426,
+    "soundwire_enable_s": 13.320801,
+    "wsa_macro_interp_pre_left_s": 13.323787,
+    "wsa_macro_interp_pre_right_s": 13.323799,
+    "wsa_macro_interp_post_left_s": 13.323816,
+    "wsa_macro_interp_post_right_s": 13.323833,
+    "wsa884x_spkr_post_pmu_left_s": 13.323848,
+    "wsa884x_spkr_post_pmu_right_s": 13.323862,
+    "first_wsa884x_unmute_s": 13.353602,
+    "macro_post_right_to_first_unmute_ms": 29.769,
+    "soundwire_enable_to_first_unmute_ms": 32.801
+  },
+  "active_wsa_macro_updates": [
+    {"reg":"0x0400","name":"RX0_RX_PATH_CTL","mask":"0x20","value":"0x20","meaning":"RX path clock enable"},
+    {"reg":"0x0480","name":"RX1_RX_PATH_CTL","mask":"0x20","value":"0x20","meaning":"RX path clock enable"},
+    {"reg":"0x0408","name":"RX0_RX_PATH_CFG1","mask":"0x01","value":"0x01","meaning":"SmartBoost enable"},
+    {"reg":"0x0488","name":"RX1_RX_PATH_CFG1","mask":"0x01","value":"0x01","meaning":"SmartBoost enable"},
+    {"reg":"0x0500","name":"BOOST0_BOOST_PATH_CTL","mask":"0x10","value":"0x10","meaning":"Boost0 path clock enable"},
+    {"reg":"0x0540","name":"BOOST1_BOOST_PATH_CTL","mask":"0x10","value":"0x10","meaning":"Boost1 path clock enable"},
+    {"reg":"0x0580","name":"COMPANDER0_CTL0","mask":"0x01","value":"0x01","meaning":"Compander0 clock/path enable; reset state 0x60 becomes active low bit 1"},
+    {"reg":"0x05e0","name":"COMPANDER1_CTL0","mask":"0x01","value":"0x01","meaning":"Compander1 clock/path enable; reset state 0x60 becomes active low bit 1"},
+    {"reg":"0x0404","name":"RX0_RX_PATH_CFG0","mask":"0x02","value":"0x02","meaning":"COMP enable"},
+    {"reg":"0x0484","name":"RX1_RX_PATH_CFG0","mask":"0x02","value":"0x02","meaning":"COMP enable"},
+    {"reg":"0x0428","name":"RX0_RX_PATH_SEC1","mask":"0x01","value":"0x01","meaning":"half-dB PGA bit enabled"},
+    {"reg":"0x0444","name":"RX0_RX_PATH_MIX_SEC0","mask":"0x01","value":"0x01","meaning":"half-dB PGA bit enabled on mix path"},
+    {"reg":"0x04a8","name":"RX1_RX_PATH_SEC1","mask":"0x01","value":"0x01","meaning":"half-dB PGA bit enabled"},
+    {"reg":"0x04c4","name":"RX1_RX_PATH_MIX_SEC0","mask":"0x01","value":"0x01","meaning":"half-dB PGA bit enabled on mix path"}
+  ],
+  "macro_digital_gain": {
+    "alsa_controls": ["WSA WSA_RX0 Digital Volume", "WSA WSA_RX1 Digital Volume"],
+    "userspace_value": 81,
+    "alsa_reported_max": 81,
+    "alsa_db_scale_min_db": -84.0,
+    "alsa_db_step_db": 1.0,
+    "effective_db": -3.0,
+    "raw_register_value": "0xfd",
+    "registers": ["0x0414", "0x0494"],
+    "common_first_mclk_prestate": "0x00",
+    "provenance": "The X1E Linux machine driver explicitly describes the -3 dB Digital Volume limit as a temporary speaker-damage safety cap until active speaker protection is available. It is not currently backed by a direct Windows WSA-macro register observation.",
+    "windows_parity_status": "OPEN"
+  },
+  "source_provenance_gate": {
+    "production_binary_srcversion": "F681186BB3D24B32621905D",
+    "preserved_reconstruction_rebuild_srcversion": "EB4504CE396F67BCB14678E",
+    "candidate_deployed": false,
+    "reason": "The evolved reconstructed source no longer reproduces the production WSA-macro module identity. Runtime tracing therefore used the exact loaded production binary rather than a rebuilt module."
+  },
+  "conclusion": "The production Linux WSA macro is fully active before WSA8845 unmute and the exact runtime register transition is now captured on the canonical CPS-v3 binary. DP2 transport and startup ordering remain closed. Two producer-level parity items remain unproven against Windows: the macro Digital Volume safety cap at -3 dB and the active half-dB/gain-offset policy. Neither should be changed together with DRE/CSR; any candidate must isolate one variable and keep the rejected DRE-disabled cold-boot path off-limits until producer semantics are understood."
+}
