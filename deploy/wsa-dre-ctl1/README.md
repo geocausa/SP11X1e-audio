@@ -40,3 +40,9 @@ correctly kept clear.  A bounded live control test then set PA Volume 31 and
 both amplifiers immediately read `DRE_CTL_1=0x00` while PA/protection state
 remained healthy. UCM was therefore tightened to pin the inverted control at
 31 so it overrides mixer-state restore. A cold validation boot is pending.
+
+## REJECTED — cold-boot acoustic failure
+
+The cold validation boot on 2026-08-15 is rejected. With the candidate active, both amplifiers reached `DRE_CTL_1=0x00` as designed, but the built-in speakers produced an ugly/unsafe acoustic noise. The render path was stopped immediately, both PAs were quiesced, and the machine was returned to CPS-v3 with the pre-DRE UCM restored.
+
+This proves that matching `0x34b1` in isolation is insufficient. The Linux WSA884x/compander/class-H/PA lifecycle around that register is not yet proven equivalent to Windows. Do not arm `sp11-audio-wsa-dre-ctl1` again until the complete Windows codec-write lifecycle and corresponding Linux state are compared.

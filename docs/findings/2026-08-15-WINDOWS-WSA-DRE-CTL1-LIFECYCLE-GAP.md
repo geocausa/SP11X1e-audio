@@ -86,3 +86,9 @@ Windows live register `0x34b1=0x00`. Endpoint volume remains the already-proven
 AudioReach final `VOL_CTRL`/GainStep path.
 
 No EQ, fade, limiter, PBR or topology behavior is guessed by this correction.
+
+## Cold-boot correction: isolated DRE state is not sufficient
+
+The first cold boot with both the kernel patch and UCM pin active reached the intended `DRE_CTL_1=0x00` on both WSA8845 devices, but produced an ugly/unsafe physical-speaker noise. The candidate is rejected. Audio was stopped, the PAs were quiesced, and CPS-v3 was restored with the pre-DRE UCM.
+
+The Windows `0x34b1=0x00` observation remains valid, but the inference that Linux may safely force that value without reproducing the complete Windows codec lifecycle is invalid. The next discriminator is the full Windows qcaucd write sequence and surrounding compander/class-H/power-stage/PA state, compared against Linux at cold init, graph start, first audio, and stop.
