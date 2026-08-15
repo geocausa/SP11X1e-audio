@@ -1,0 +1,14 @@
+[Unit]
+Description=SP11 read-only WSA boot lifecycle trace
+DefaultDependencies=no
+After=systemd-modules-load.service local-fs.target
+Before=display-manager.service graphical.target
+ConditionPathExists=/sys/kernel/tracing/kprobe_events
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/sp11-wsa-boot-lifecycle-trace
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
