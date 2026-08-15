@@ -1,0 +1,37 @@
+{
+  "date": "2026-08-15",
+  "status": "CLOSED_NEGATIVE_FOR_REV_0D_ACDB",
+  "qcadsp_private_service": {
+    "resource_id": "0x0800131b",
+    "handler": "FUN_b0282f94",
+    "registration_evidence_file": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcadsp-audio-hw-cdc-neighbors.txt",
+    "registration_evidence_sha256": "cb774969a84c06fbfced8b95c779dbf6063c96e194309936b552f99a64f9c500",
+    "handler_evidence_file": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\qcadsp-audio-hw-cdc-reg-handler.txt",
+    "handler_evidence_sha256": "4d3aab53797014857b1b2d9349dc29c0cc0a797c276991f8033a094fac746cec",
+    "accepted_client_op_id_range": "1..3",
+    "notes": "The handler builds per-register codec operation lists from register IDs, physical addresses and operation/value pairs. It is a real ADSP hardware codec resource service, but its presence alone does not prove use by the SP11 speaker graph."
+  },
+  "acdb": {
+    "source_acdb_sha256": "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde",
+    "driver_data_json": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acdb-driver-data-0D-20260815.json",
+    "driver_data_json_sha256": "3b6a45ef31acbe4a6d7f1f3038e5aba9c8d29346a53d6076a884d9f3cfcd9b7e",
+    "inventory_json": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acdb-driver-inventory-current.json",
+    "inventory_json_sha256": "bd7914192751f830da4e707fd4c10e26213b2984aea34b8ffa34947928485f23",
+    "payload_blob_count": 189,
+    "searched_private_ids": [
+      "0x08001347", "0x08001348", "0x08001349", "0x0800134a", "0x0800134b",
+      "0x0800134c", "0x0800134d", "0x0800134e", "0x0800134f", "0x08001350", "0x08001351"
+    ],
+    "searched_wsa_addresses": ["0x06b00000", "0x06b00580", "0x06b005e0"],
+    "searched_wsa_range": "0x06b00000..0x06b00fff",
+    "results": {
+      "exact_private_id_payload_hits": 0,
+      "exact_wsa_address_payload_hits": 0,
+      "aligned_wsa_range_payload_hits": 0,
+      "param_ids_in_0x08001300_to_0x08001400": []
+    }
+  },
+  "conclusion": "The recovered Microsoft Surface REV_0D speaker ACDB/private-driver-data inventory does not carry the qcadsp audio_hw_cdc_reg_cfg private parameter family or any direct WSA-macro physical register address. Normal speaker ACDB calibration is therefore not the hidden source of a WSA register-operation list for this service.",
+  "remaining_question": "Whether resource 0x0800131b is ever requested through another graph/runtime path outside the recovered ACDB private-driver-data pool remains to be proven by boot-zero host tracing or deeper graph-manager RE.",
+  "production_change": false
+}
