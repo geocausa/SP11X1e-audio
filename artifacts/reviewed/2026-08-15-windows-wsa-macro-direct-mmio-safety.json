@@ -1,0 +1,29 @@
+{
+  "date": "2026-08-15",
+  "scope": "Windows KDNET direct APPS-side physical access to LPASS WSA macro",
+  "status": "REJECTED_UNSAFE",
+  "address_tested": "0x06b00580",
+  "command": "!dd [uc] 06b00580 L1",
+  "observations": [
+    {
+      "session": "SP11_WSA_MACRO_UC_20260815.log",
+      "result": "Physical memory read at 6b00580 failed; target remained alive",
+      "sha256": "f59cdf9dda55872ecb854e0068125fad5bface9ccc50064def22aae42a9553b2"
+    },
+    {
+      "session": "SP7 retained ConPTY KD job job_59bEJS6nUiw5Bms9wFYmKHgT",
+      "connected_target": "Windows 10 26100 ARM64",
+      "system_uptime": "0 days 0:37:08.317",
+      "result": "fatal 0x00000124 immediately after the same uncached physical read; KD transport was lost and SP11 later returned through the saved CPS-v3 fallback",
+      "bugcheck": "0x00000124 (0x11, 0xFFFFAE87C4F03028, 0, 0)"
+    }
+  ],
+  "control_path": {
+    "sp7_terminal_backend": "ConPTY",
+    "debugger": "kd.exe",
+    "transport": "KDNET port 50005",
+    "result": "PiMaster PTY can autonomously launch and control classic KD, including console break and debugger commands; no user click is required"
+  },
+  "conclusion": "Direct APPS/KD reads of the WSA macro physical aperture are non-deterministically unsafe. Do not repeat !dd/!db/!dq or equivalent physical reads anywhere under 0x06b00000 solely to recover WSA macro state. Use host-memory breakpoints, driver/FIFO observation, firmware static RE, or driver-owned powered-lifecycle instrumentation instead.",
+  "production_change": false
+}

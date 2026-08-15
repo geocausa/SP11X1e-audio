@@ -29,7 +29,7 @@ The firmware's stripped Hexagon ELF hardware map also identifies the ADSP-local 
 - COMPANDER0 / COMPANDER1: `0x00b00580` / `0x00b005e0`
 - WSA SoundWire master: `0x00b10000`
 
-A single safe Windows KD probe using `!dd [uc] 06b00580 L1` returned `Physical memory read ... failed` without crashing. The APPS/KD view is access-protected; direct Windows WSA-macro MMIO dumping is therefore not a viable oracle.
+An early Windows KD probe using `!dd [uc] 06b00580 L1` returned `Physical memory read ... failed` without crashing. A later repeat of the same uncached one-word read caused fatal bugcheck `0x124`. Direct APPS/KD WSA-macro MMIO is therefore not merely blocked but non-deterministically unsafe and is permanently excluded as a Windows oracle. See `2026-08-15-WINDOWS-WSA-MACRO-DIRECT-MMIO-UNSAFE.md`.
 
 ## Linux mechanism under test
 
