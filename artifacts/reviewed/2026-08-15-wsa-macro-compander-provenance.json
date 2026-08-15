@@ -1,0 +1,53 @@
+{
+  "date": "2026-08-15",
+  "scope": "SP11 WSA macro compander coefficient provenance",
+  "status": "AMBER",
+  "summary": "The Linux WSA macro compander coefficient curve is actively represented in mainline regmap defaults and can be restored to hardware by regcache_sync on first MCLK enable. The older Qualcomm vendor driver does not carry the full curve as a post-reset software table; it applies only selected masked compander/boost/path fixups and speaker-mode bits. Searches of the SP11 Windows host audio files and imported Windows ADSP image found no copy of the Linux coefficient byte sequence, including shorter distinctive subsequences. Therefore Windows may rely on silicon/reset state or establish equivalent state through a differently encoded mechanism. Direct live Windows WSA macro MMIO remains required before changing Linux compander coefficients or CSR/DRE policy again.",
+  "linux_mainline": {
+    "source_path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\linux-mainline-lpass-wsa-macro-current.c",
+    "sha256": "75FEB630D5CAD3BE34F46028EA6BCEDEF4A30A2467E6D458859ED2408FB39F75",
+    "observations": [
+      "wsa_defaults[] contains COMPANDER0_CTL0.. and corresponding COMPANDER1 defaults beginning 0x60,0xDB,0xFF,0x35,0xFF,0x00,0x01,0x28.",
+      "v2.5 defaults extend the compander register set with the known CTL8-19 values.",
+      "wsa_regmap_config uses REGCACHE_FLAT and receives wsa_defaults plus version-specific defaults at probe.",
+      "wsa_macro_mclk_enable() calls regcache_mark_dirty() followed by regcache_sync() when the first WSA MCLK user appears, so cached defaults can be pushed to hardware rather than remaining documentation only."
+    ]
+  },
+  "qualcomm_vendor": {
+    "source_path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\vendor-wsa-macro-48696dd.c",
+    "sha256": "24BED1B7623185156BFADF9819C92D2A00FD8641E5C6892FB27102E8F27E77ED",
+    "upstream_revision": "48696dd1a1e9bf42b32045253819137717020aa2",
+    "observations": [
+      "The driver defines wsa_macro_reg_mask_val as a structure used to update codec register defaults after reset.",
+      "wsa_macro_reg_init[] changes only selected boost fields, COMPANDER_CTL7 masked bits, COMPANDER_CTL3 bit 7, RX path bits, TOP bits and speaker-protection path bits; it does not contain the full 20-byte compander curve.",
+      "wsa_macro_spkr_mode1[] changes COMPANDER_CTL3 bit 7, COMPANDER_CTL7 bit 0 and BOOST_CTL masked bits only; it does not program a complete curve.",
+      "wsa_macro_config_compander() controls clock/reset/halt and RX_PATH_COMP_EN, not the coefficient curve."
+    ]
+  },
+  "windows_static_search": {
+    "adsp_full_image_patterns": {
+      "60 db ff 35 ff 00 01 28 00 00 06 12 1e 24 24 24 00 24 2a 16": 0,
+      "60 db ff 35 ff 00 01 28": 0,
+      "00 00 06 12 1e 24 24 24 00 24 2a 16": 0,
+      "06 12 1e 24 24 24": 0,
+      "00 24 2a 16": 0
+    },
+    "host_files": "Earlier project-wide scans across Windows audio/DSP/driver files also found no exact Linux curve serialization.",
+    "interpretation": "Absence of the byte pattern is not proof of a different Windows curve because reset-state equivalence or generated/encoded programming remain possible."
+  },
+  "live_windows_gate": {
+    "target_physical_base": "0x06b00000",
+    "translated_adsp_virtual_base": "0xeeb00000",
+    "priority_offsets": [
+      "0x0400 RX0 path",
+      "0x0480 RX1 path",
+      "0x0500/0x0540 boost",
+      "0x0580 COMPANDER0",
+      "0x05e0 COMPANDER1",
+      "0x0640/0x0660 softclip"
+    ],
+    "current_state": "A read-only SP7 WinDbg snapshot script is staged, but connector policy blocks remote debugger launch. User-side launch plus one Break action is still required unless another sanctioned read path is found.",
+    "safety": "No WSA register writes, no CSR/DRE experiment, no Linux production change."
+  },
+  "decision": "Do not alter the Linux compander curve or re-arm the rejected DRE_CTL_1=0 cold-boot candidate until live Windows macro state is captured and compared."
+}
