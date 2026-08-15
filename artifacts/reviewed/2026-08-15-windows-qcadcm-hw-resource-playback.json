@@ -1,0 +1,54 @@
+{
+  "schema": "sp11-windows-qcadcm-hw-resource-playback-v1",
+  "date": "2026-08-15",
+  "qcadcm_sha256": "37f76305c5ad4840153f940b608cb3756396973463744fb306f7f3d08180a903",
+  "raw_log": {
+    "sp7_path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\SP11_HW_RSC_RUNTIME_20260815.log",
+    "final_size_bytes": 83934,
+    "final_sha256": "b045f38185beb95714d5179fd9801353be56bb9c834d819e5cd9958ea9b80e42"
+  },
+  "review_files": {
+    "sp7_review_json_sha256": "34a7d5e47d0b2f9e3fb681cfa2c080531e77c81d014b04ed349ec9fd1f5c6ca4",
+    "sp7_marked_delta_sha256": "030584665ae2f270905e7bea94e146a786743e6c6706cf28b5bafa10d098cdc0"
+  },
+  "breakpoints": {
+    "AudioHwRscIoctl_rva": "0x89380",
+    "gsl_command_hw_rsc_custom_config_rva": "0x5c5d8",
+    "gpr_opcode": "0x2004"
+  },
+  "marked_playback_delta": {
+    "start_marker": "PLAYDELTA_START_20260815",
+    "end_marker": "PLAYDELTA_END_20260815",
+    "ahwr_hits": 12,
+    "hwresource_hits": 12,
+    "resource_ids": ["0x08001032", "0x0800102c", "0x080014f3"],
+    "resource_roles": {
+      "0x08001032": "hardware core enable/disable",
+      "0x0800102c": "clock enable/disable",
+      "0x080014f3": "endpoint DSP GPIO configuration"
+    },
+    "new_resource_ids_during_marked_native_speaker_playback": [],
+    "codec_register_operation_list_observed": false
+  },
+  "soundwire_comp_route": {
+    "left_wsa8845": {
+      "slave_dp": 2,
+      "master_port": 2,
+      "sinterval": "0x1f",
+      "offset1": "0x03",
+      "offset2": "0x07",
+      "slave_channel_mask": "0x0f"
+    },
+    "right_wsa8845": {
+      "slave_dp": 2,
+      "master_port": 5,
+      "sinterval": "0x1f",
+      "offset1": "0x04",
+      "offset2": "0x07",
+      "slave_channel_mask": "0x0f"
+    },
+    "linux_soundwire_core_runtime_channel_accounting": "hweight32(ch_mask)",
+    "linux_comp_max_ch_metadata_limits_runtime_allocation": false
+  },
+  "conclusion": "Ordinary Windows native-speaker start/stop sends no hidden qcadcm codec-register hardware-resource payload: every marked 0x2004 request is core, clock, or endpoint GPIO. Denali/Hamoa Linux also maps COMP to the same left/right master ports and Windows timing/offsets, and the SoundWire core allocates all four channels from ch_mask=0x0f. The remaining DRE/CSR parity gap is therefore inside WSA-macro COMP producer/runtime semantics or another downstream dependency, not an omitted host resource table or DP2 lane/mask allocation error."
+}
