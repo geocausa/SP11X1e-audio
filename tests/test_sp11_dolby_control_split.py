@@ -25,6 +25,10 @@ class DolbyControlSplitTests(unittest.TestCase):
         # Stream/Input/Audio and does not create a second desktop speaker.
         engine_capture = text[engine:text.index("playback.props", engine)]
         self.assertNotIn("media.class", engine_capture)
+        # The hidden input must be passive.  Otherwise the persistent unity
+        # monitor links pin the complete Dolby->ALSA speaker graph RUNNING at
+        # desktop idle, unlike Windows which disables the PA after playback.
+        self.assertIn("node.passive       = true", engine_capture)
 
     def test_control_copy_cannot_autoconnect(self):
         text = CONFIG.read_text()

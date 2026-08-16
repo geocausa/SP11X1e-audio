@@ -1,0 +1,28 @@
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 16/16   #P:12
+#
+#                                _-----=> irqs-off/BH-disabled
+#                               / _----=> need-resched
+#                              | / _---=> hardirq/softirq
+#                              || / _--=> preempt-depth
+#                              ||| / _-=> migrate-disable
+#                              |||| /     delay
+#           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+#              | |         |   |||||     |         |
+        pipewire-15879   [010] d....   672.422870: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633101005952 mute=1 stream=0
+        pipewire-15879   [010] d....   672.422905: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633114516608 mute=1 stream=0
+        pipewire-15879   [010] d....   672.422926: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633114505344 mute=1 stream=0
+        pipewire-15879   [010] d....   672.422928: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633114514048 mute=1 stream=0
+        pipewire-15879   [010] d....   672.422934: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633114515584 mute=1 stream=0
+        pipewire-15879   [010] d....   672.422935: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633114513536 mute=1 stream=0
+        pipewire-15879   [010] d....   672.423550: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157355008 event=4
+        pipewire-15879   [010] d....   672.423562: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157312512 event=4
+        pipewire-15879   [010] d....   672.423587: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157375488 event=8
+        pipewire-15879   [010] d....   672.423616: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157368320 event=8
+        pipewire-15879   [010] d....   672.423782: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633112535552
+        pipewire-15879   [010] d....   672.428640: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633112535552
+        pipewire-15879   [010] d....   672.433452: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633119547904
+        pipewire-15879   [010] d....   672.435742: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633119547904
+        pipewire-15879   [010] d....   672.438048: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633119547840
+        pipewire-15879   [010] d....   672.439465: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633119547840

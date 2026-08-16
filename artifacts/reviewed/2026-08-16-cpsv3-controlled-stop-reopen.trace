@@ -1,0 +1,91 @@
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 79/79   #P:12
+#
+#                                _-----=> irqs-off/BH-disabled
+#                               / _----=> need-resched
+#                              | / _---=> hardirq/softirq
+#                              || / _--=> preempt-depth
+#                              ||| / _-=> migrate-disable
+#                              |||| /     delay
+#           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+#              | |         |   |||||     |         |
+        pipewire-1858    [007] d....   329.799459: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633101005952 mute=1 stream=0
+        pipewire-1858    [007] d....   329.799479: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633114516608 mute=1 stream=0
+        pipewire-1858    [007] d....   329.799492: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633114505344 mute=1 stream=0
+        pipewire-1858    [007] d....   329.799493: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633114514048 mute=1 stream=0
+        pipewire-1858    [007] d....   329.799496: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633114515584 mute=1 stream=0
+        pipewire-1858    [007] d....   329.799497: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x190 [snd_soc_wsa884x]) dai=18446462633114513536 mute=1 stream=0
+        pipewire-1858    [007] d....   329.799685: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157355008 event=4
+        pipewire-1858    [007] d....   329.799691: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157312512 event=4
+        pipewire-1858    [007] d....   329.799703: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157375488 event=8
+        pipewire-1858    [007] d....   329.799720: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157368320 event=8
+        pipewire-1858    [007] d....   329.799765: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633112535552
+        pipewire-1858    [006] d....   329.804386: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633112535552
+        pipewire-1858    [006] d....   329.808866: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633112535488
+        pipewire-1858    [006] d....   329.811004: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633112535488
+        pipewire-1858    [006] d....   329.813163: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633112538816
+        pipewire-1858    [006] d....   329.814622: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633112538816
+     wireplumber-15880   [003] d....   332.031129: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109337600 params=18446603338742477624 dai=18446462633101005952
+     wireplumber-15880   [003] d....   332.031154: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109337600 params=18446603338742477624 dai=18446462633114516608
+     wireplumber-15880   [003] d....   332.031168: sp11_swr_hw_params: (qcom_swrm_hw_params+0x0/0x3b0 [soundwire_qcom]) substream=18446462633109337600 params=18446603338742477624 dai=18446462633114504832
+     wireplumber-15880   [003] d....   332.031179: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109337088 params=18446603338742477624 dai=18446462633114505344
+     wireplumber-15880   [003] d....   332.031188: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109337088 params=18446603338742477624 dai=18446462633114514048
+     wireplumber-15880   [003] d....   332.031196: sp11_swr_hw_params: (qcom_swrm_hw_params+0x0/0x3b0 [soundwire_qcom]) substream=18446462633109337088 params=18446603338742477624 dai=18446462633101001344
+     wireplumber-15880   [003] d....   332.031198: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109338624 params=18446603338742477624 dai=18446462633114515584
+     wireplumber-15880   [003] d....   332.031206: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109338624 params=18446603338742477624 dai=18446462633114513536
+     wireplumber-15880   [003] d....   332.031214: sp11_swr_hw_params: (qcom_swrm_hw_params+0x0/0x3b0 [soundwire_qcom]) substream=18446462633109338624 params=18446603338742477624 dai=18446462633101002880
+     wireplumber-15880   [003] d....   332.031264: sp11_sdw_prepare: (sdw_prepare_stream+0x0/0x340 [soundwire_bus]) stream=18446462633433036480
+     wireplumber-15880   [003] d....   332.035789: sp11_sdw_enable: (sdw_enable_stream+0x0/0x1e8 [soundwire_bus]) stream=18446462633433036480
+     wireplumber-15880   [003] d....   332.039161: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157375488 event=1
+     wireplumber-15880   [003] d....   332.039172: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157368320 event=1
+     wireplumber-15880   [003] d....   332.039185: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157375488 event=2
+     wireplumber-15880   [003] d....   332.039199: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157368320 event=2
+     wireplumber-15880   [003] d....   332.039209: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157355008 event=2
+     wireplumber-15880   [003] d....   332.039223: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157312512 event=2
+     wireplumber-15880   [003] d....   332.039337: sp11_sdw_prepare: (sdw_prepare_stream+0x0/0x340 [soundwire_bus]) stream=18446462633433036864
+     wireplumber-15880   [003] d....   332.043901: sp11_sdw_enable: (sdw_enable_stream+0x0/0x1e8 [soundwire_bus]) stream=18446462633433036864
+     wireplumber-15880   [003] d....   332.047722: sp11_sdw_prepare: (sdw_prepare_stream+0x0/0x340 [soundwire_bus]) stream=18446462633433035584
+     wireplumber-15880   [003] d....   332.052316: sp11_sdw_enable: (sdw_enable_stream+0x0/0x1e8 [soundwire_bus]) stream=18446462633433035584
+     wireplumber-15880   [003] d....   332.074125: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157355008 event=4
+     wireplumber-15880   [003] d....   332.074151: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157312512 event=4
+     wireplumber-15880   [003] d....   332.074171: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157375488 event=8
+     wireplumber-15880   [003] d....   332.074196: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157368320 event=8
+     wireplumber-15880   [003] d....   332.074315: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633433036480
+     wireplumber-15880   [003] d....   332.079048: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633433036480
+     wireplumber-15880   [003] d....   332.083736: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633433036864
+     wireplumber-15880   [003] d....   332.085934: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633433036864
+     wireplumber-15880   [003] d....   332.088161: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633433035584
+     wireplumber-15880   [003] d....   332.089535: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633433035584
+     wireplumber-15880   [003] d....   332.107638: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109337600 params=18446603338742477464 dai=18446462633101005952
+     wireplumber-15880   [003] d....   332.107678: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109337600 params=18446603338742477464 dai=18446462633114516608
+     wireplumber-15880   [003] d....   332.107705: sp11_swr_hw_params: (qcom_swrm_hw_params+0x0/0x3b0 [soundwire_qcom]) substream=18446462633109337600 params=18446603338742477464 dai=18446462633114504832
+     wireplumber-15880   [003] d....   332.107721: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109337088 params=18446603338742477464 dai=18446462633114505344
+     wireplumber-15880   [003] d....   332.107738: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109337088 params=18446603338742477464 dai=18446462633114514048
+     wireplumber-15880   [003] d....   332.107753: sp11_swr_hw_params: (qcom_swrm_hw_params+0x0/0x3b0 [soundwire_qcom]) substream=18446462633109337088 params=18446603338742477464 dai=18446462633101001344
+     wireplumber-15880   [003] d....   332.107756: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109338624 params=18446603338742477464 dai=18446462633114515584
+     wireplumber-15880   [003] d....   332.107772: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x4c8 [snd_soc_wsa884x]) substream=18446462633109338624 params=18446603338742477464 dai=18446462633114513536
+     wireplumber-15880   [003] d....   332.107787: sp11_swr_hw_params: (qcom_swrm_hw_params+0x0/0x3b0 [soundwire_qcom]) substream=18446462633109338624 params=18446603338742477464 dai=18446462633101002880
+     wireplumber-15880   [003] d....   332.107833: sp11_sdw_prepare: (sdw_prepare_stream+0x0/0x340 [soundwire_bus]) stream=18446462633433035584
+     wireplumber-15880   [003] d....   332.112519: sp11_sdw_enable: (sdw_enable_stream+0x0/0x1e8 [soundwire_bus]) stream=18446462633433035584
+     wireplumber-15880   [003] d....   332.116155: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157375488 event=1
+     wireplumber-15880   [003] d....   332.116167: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157368320 event=1
+     wireplumber-15880   [003] d....   332.116181: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157375488 event=2
+     wireplumber-15880   [003] d....   332.116196: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157368320 event=2
+     wireplumber-15880   [003] d....   332.116208: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157355008 event=2
+     wireplumber-15880   [003] d....   332.116226: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157312512 event=2
+     wireplumber-15880   [003] d....   332.116382: sp11_sdw_prepare: (sdw_prepare_stream+0x0/0x340 [soundwire_bus]) stream=18446462633433036864
+     wireplumber-15880   [003] d....   332.121044: sp11_sdw_enable: (sdw_enable_stream+0x0/0x1e8 [soundwire_bus]) stream=18446462633433036864
+     wireplumber-15880   [003] d....   332.124940: sp11_sdw_prepare: (sdw_prepare_stream+0x0/0x340 [soundwire_bus]) stream=18446462633433036480
+     wireplumber-15880   [003] d....   332.129604: sp11_sdw_enable: (sdw_enable_stream+0x0/0x1e8 [soundwire_bus]) stream=18446462633433036480
+     wireplumber-15880   [003] d....   332.153525: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157355008 event=4
+     wireplumber-15880   [003] d....   332.153554: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x290 [snd_soc_wsa884x]) widget=18446462633157312512 event=4
+     wireplumber-15880   [003] d....   332.153578: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157375488 event=8
+     wireplumber-15880   [003] d....   332.153605: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x750 [snd_soc_lpass_wsa_macro]) widget=18446462633157368320 event=8
+     wireplumber-15880   [003] d....   332.153743: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633433035584
+     wireplumber-15880   [003] d....   332.158489: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633433035584
+     wireplumber-15880   [003] d....   332.163169: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633433036864
+     wireplumber-15880   [003] d....   332.165390: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633433036864
+     wireplumber-15880   [003] d....   332.167608: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462633433036480
+     wireplumber-15880   [003] d....   332.168996: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462633433036480
+   kworker/u50:1-15924   [004] d....   336.013712: sp11_swr_suspend: (swrm_runtime_suspend+0x0/0x190 [soundwire_qcom]) dev=18446462633124984848
