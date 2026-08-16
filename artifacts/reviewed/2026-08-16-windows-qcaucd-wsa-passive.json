@@ -1,0 +1,41 @@
+﻿{
+  "schema": "sp11-windows-qcaucd-wsa-passive-v1",
+  "date": "2026-08-16",
+  "method": "KDNET software breakpoints on qcaucd's native platform register helper after its own MmMapIoSpaceEx access; no debugger physical MMIO read and no synthetic ADIE request",
+  "qcaucd_hooks": {
+    "platform_helper_rva": "0x1bce8",
+    "write_post_store_rva": "0x1be9c",
+    "read_value_rva": "0x1bef0",
+    "write_value_register": "w8",
+    "read_value_register": "w7",
+    "encoded_register_register": "w19"
+  },
+  "validation_pass": {
+    "all_namespace_writes": 186,
+    "all_namespace_reads": 154,
+    "wsa_0x2xxx_transactions": 330,
+    "stimulus_sha256": "C8782C7741B3ECE628362E785D2EC91B990EF453BEFA4A3E7D6C3E1CD1F8A208",
+    "endpoint_scalar": 0.12
+  },
+  "direct_windows_proofs": {
+    "rx0_volume": {"encoded_reg":"0x2414","child_reg":"0x0414","write":"0x00","meaning":"0 dB"},
+    "rx1_volume": {"encoded_reg":"0x2494","child_reg":"0x0494","write":"0x00","meaning":"0 dB"},
+    "rx0_primary_half_db": {"encoded_reg":"0x2428","child_reg":"0x0428","observed_values":["0x08","0x0c"],"bit0":0},
+    "rx1_primary_half_db": {"encoded_reg":"0x24a8","child_reg":"0x04a8","observed_values":["0x08","0x0c"],"bit0":0},
+    "comp0_ctl7": {"encoded_reg":"0x259c","child_reg":"0x059c","value":"0x2e","linux_mainline_default":"0x28"},
+    "comp1_ctl7": {"encoded_reg":"0x25fc","child_reg":"0x05fc","value":"0x2e","linux_mainline_default":"0x28"}
+  },
+  "surface_compander_curve_overrides": {
+    "channel0": {"0x05ac":"0x0c","0x05b0":"0x15","0x05b4":"0x15","0x05b8":"0x15","0x05bc":"0x15","0x05c0":"0x0f"},
+    "channel1": {"0x060c":"0x0c","0x0610":"0x15","0x0614":"0x15","0x0618":"0x15","0x061c":"0x15","0x0620":"0x0f"}
+  },
+  "softclip_clock_lifecycle": {
+    "softclip0_crc_reg":"0x0640",
+    "softclip1_crc_reg":"0x0660",
+    "startup":"0x00 -> 0x01",
+    "teardown":"0x01 -> 0x00",
+    "softclip_ctrl_regs_touched": false
+  },
+  "raw_log_sha256": "DD8EF0672EB28CD55719FBDE7D840D23A98D1BF8A9CF32A50A246E65F7B6A47F",
+  "extract_sha256": "87E636E3C65F149F9B0E60C80CF9BE61FAB9C034E7F7DF7F9F3C74F964417673"
+}
