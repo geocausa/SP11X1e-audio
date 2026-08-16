@@ -1,0 +1,69 @@
+{
+  "date": "2026-08-16",
+  "candidate": "rpv4-macro84-winproducer-nohd2-csren0-ucm31-v7-idlegated",
+  "status": "REJECTED",
+  "reason": "operator-observed static/noise during active 12% exact-chirp playback, corroborated by elevated broadband spectral flatness versus v5 while the no-playback capture and PCM-closed idle state remained clean",
+  "stimulus": {
+    "path": "/home/geoca/Documents/sp11-acoustic-chirp-40-16000Hz-24dBFS.wav",
+    "sha256": "c8782c7741b3ece628362e785d2ec91b990ef453befa4a3e7d6c3e1cd1f8a208",
+    "endpoint_percent": 12
+  },
+  "captures": {
+    "v7_5pct_program": {
+      "sp7_dir": "acoustic-safety-linux-rpv4-csren0-ucm31-v7-idlegated-real-5pct-20260816",
+      "file": "external-mic-20260816-222730.wav",
+      "sha256": "7A8706C4D8627D67DC5FC28ACA7E256FA21DD839C9F7F1AEDBD6CCEB7FA4066E"
+    },
+    "v7_12pct_run1": {
+      "sp7_dir": "acoustic-chirp-linux-rpv4-csren0-ucm31-v7-idlegated-exact-run1-12pct-20260816",
+      "file": "external-mic-20260816-222859.wav",
+      "sha256": "74997D4BBE4961E1A84039DC42A286D4536083971772ABCB6013CCE22BB5DC99"
+    },
+    "v7_no_playback_after_report": {
+      "sp7_dir": "acoustic-chirp-linux-rpv4-csren0-ucm31-v7-idlegated-exact-run2-12pct-20260816",
+      "file": "external-mic-20260816-223006.wav",
+      "sha256": "93CB9E8CADAD2BBD1B63C51FFF372DCC26D63409D5C84146CB10078DA5BC71BF",
+      "note": "recorder was already running when operator reported static; second playback had not been started"
+    }
+  },
+  "idle_no_playback_capture": {
+    "duration_seconds": 34.0,
+    "channel0_rms": 0.0000919623,
+    "channel1_rms": 0.0000896234,
+    "max_peak": 0.0004272461,
+    "interpretation": "normal low room/microphone floor; no sustained static signature once speaker PCM was closed"
+  },
+  "active_12pct_midband_spectral_flatness": {
+    "metric": "median spectral flatness of energy outside +/-10 STFT bins around dominant chirp ridge, 4096-point Hann STFT, 1024 hop, SP7 external mic channel 0",
+    "v7": {
+      "1200_2000_hz": 0.06471,
+      "2000_3500_hz": 0.07351,
+      "3500_5500_hz": 0.07459
+    },
+    "v5_five_run_median": {
+      "1200_2000_hz": 0.01860,
+      "2000_3500_hz": 0.02096,
+      "3500_5500_hz": 0.02313
+    },
+    "ratio_v7_over_v5": {
+      "1200_2000_hz": 3.48,
+      "2000_3500_hz": 3.51,
+      "3500_5500_hz": 3.23
+    }
+  },
+  "five_percent_control_check": {
+    "note": "after aligning the actual six-second MP3 windows, v7 and v5 had similar broad RMS and spectral balance; an earlier whole-file top-window comparison was rejected as contaminated by unrelated room impulses",
+    "v5_channel0_rms": 0.00511980,
+    "v7_channel0_rms": 0.00530896,
+    "v5_channel1_rms": 0.00601631,
+    "v7_channel1_rms": 0.00623461
+  },
+  "lifecycle": {
+    "during_run1_pcm": "RUNNING",
+    "after_suspend_pcm": "closed",
+    "after_operator_report_pcm": "closed",
+    "active_streams_after_stop": 0,
+    "graph_calibration_ar_eunsupported": "known accepted Qualcomm-GSL-compatible fallback, not a new v7 fault"
+  },
+  "decision": "Reject route-time-zero UCM31 v7. Do not continue the remaining 12% sweeps and do not promote PA Volume 31 / CSR gain code zero. Preserve v5 CSR-EN0 with stored gain code 7 as the strongest bounded-safe DRE/CSR experiment while H03 remains open."
+}

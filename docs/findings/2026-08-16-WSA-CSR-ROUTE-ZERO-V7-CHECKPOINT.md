@@ -105,3 +105,41 @@ Evidence:
 
 Do not promote v7 or rewrite production UCM until those gates pass. v6 remains
 rejected and must not be re-armed.
+
+## Final active-playback verdict — REJECTED
+
+The later 5% real-program gate completed with the physical PCM genuinely
+`RUNNING` and returning to `closed`. An initial whole-file level comparison was
+explicitly discarded because unrelated room impulses biased the selected
+windows; when the actual six-second MP3 windows were aligned, v7 and v5 had
+similar broad RMS and spectral balance.
+
+The first byte-identical 12% chirp run changed the verdict. The operator heard a
+clear static/noise component while the v7 speaker path was active. The next SP7
+external-mic recorder was already running when this was reported, but the second
+playback had not yet begun. That 34-second no-playback capture stayed at the
+normal microphone/room floor while SP11 was muted with zero streams and speaker
+PCM `closed`. The noise therefore did not persist as an idle room source.
+
+Frequency-banded STFT analysis of the active v7 chirp provides independent
+support for the report. In the stable midband, the median spectral flatness of
+energy outside +/-10 bins around the dominant chirp ridge was roughly three
+-times the five-run v5 median:
+
+- 1.2--2.0 kHz: v7 `0.06471`, v5 `0.01860`;
+- 2.0--3.5 kHz: v7 `0.07351`, v5 `0.02096`;
+- 3.5--5.5 kHz: v7 `0.07459`, v5 `0.02313`.
+
+This is consistent with excess broadband/static-like energy during active v7
+playback. It is not an absolute-SPL claim; the external recorder may adapt its
+level, so the discriminator is the within-capture spectral-noise ratio and the
+operator observation.
+
+**v7 is rejected.** The remaining four 12% runs were intentionally cancelled.
+Do not promote PA Volume 31 / route-time CSR gain code zero. v6 remains rejected
+for unmute-time write-history instability. v5 remains the strongest bounded-safe
+CSR-off experiment, but H03 stays AMBER because Windows' exact `DRE_CTL_1=0x00`
+state still cannot be reproduced with clean, repeatable Linux acoustics.
+
+Machine-readable evidence:
+`artifacts/reviewed/2026-08-16-v7-active-static-rejection.json`.

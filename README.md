@@ -16,10 +16,11 @@ separate layers so that an acoustic result is never mistaken for a driver fact.
 > initialization/PA ordering, RX84/0 dB producer gain, and demand-driven
 > PA-at-idle shutdown. The overall built-in-speaker gate remains **AMBER** while
 > H03 (DRE/CSR consumer semantics), the corrected-topology physical verdict and
-> seek-specific smoothing remain open. The current H03 route-time-zero v7
-> candidate has passed cold-boot provenance, a real 1% program-audio cycle and
-> a 90/90-sample closed-idle gate; its 5% and byte-identical 12% acoustic gates
-> are intentionally still pending. Start with
+> seek-specific smoothing remain open. The H03 route-time-zero v7
+> candidate has now been rejected: it passed cold/idle/1%/5% lifecycle gates,
+> but the first byte-identical 12% run produced operator-observed active-playback
+> static with an elevated broadband spectral floor versus v5. Exact-zero v6 and
+> v7 are both rejected; v5 remains the strongest bounded-safe CSR-off experiment. Start with
 > [`docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md)
 > and the
 > [`2026-08-16 repository consolidation checkpoint`](docs/checkpoints/2026-08-16-REPOSITORY-CONSOLIDATION-CHECKPOINT.md).
