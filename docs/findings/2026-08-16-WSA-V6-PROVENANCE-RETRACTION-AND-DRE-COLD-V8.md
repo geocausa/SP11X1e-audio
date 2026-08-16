@@ -1,7 +1,7 @@
 # WSA8845 v6 provenance retraction and DRE-cold v8 isolation
 
 Date: 2026-08-16
-Status: **v6 causal claim retracted; v8 staged one-shot, not yet validated**
+Status: **v6 causal claim retracted; v8 REJECTED by active digital-zero noise gate**
 
 ## Why the v6 conclusion had to be corrected
 
@@ -72,3 +72,57 @@ All three target modules are force-loaded in initramfs. The root module tree and
 ## Required gate
 
 Boot one-shot from 1% muted/PCM-closed. Before sound, verify marker, loaded module identities and idle close. Then use read-only write/lifecycle tracing during a six-second fixed MP3. The decisive trace requirement is: COMP-aware DRE setup may occur before the PA transaction, but ordinary SP11 2S `mute_stream()` must add **no `DRE_CTL_1` write** between the Windows Class-H/power-stage writes and PA enable/disable. Any static/crackle or PA/SoundWire/XRUN/ADSP fault rejects v8 immediately.
+
+## v8 runtime result
+
+The one-shot boot loaded the exact intended module:
+
+- WSA8845 srcversion `EFCD352343B5CD747194DDD`;
+- LPASS WSA macro srcversion `4AF6F542C17BA6DD46586DA`;
+- x1e machine-driver srcversion `13326073E27DFA035180C56`;
+- persistent fallback remained `sp11-audio-cps-v3`;
+- v7 UCM overlay was absent;
+- idle physical PCM was `closed`.
+
+A fixed MP3 at 1% reached physical PCM `RUNNING` and returned to `closed`. Read-only tracing proved the intended v8 write history. COMP-aware speaker POST_PMU still emitted one `DRE_CTL_1 mask=0x01 val=0` per amp before PA activation. At ordinary PA start, each amp then emitted exactly:
+
+```text
+CLSH_CTL_0  0x67
+PWRSTG_DBG  0x08
+PDRV_HS_CTL 0x52
+PA_FSM_EN   bit0=1
+PWRSTG_DBG  0x0c
+PDRV_HS_CTL 0x5a
+```
+
+with no `DRE_CTL_1` write inside `mute_stream()`. Stop was `PA_FSM_EN bit0=0` then `CLSH_CTL_0=0`, again with no DRE write. PCM closed cleanly and a 90-second idle watcher recorded `90/90 closed`.
+
+Evidence:
+
+- `artifacts/reviewed/2026-08-16-v8-1pct-write-lifecycle.trace`;
+- `artifacts/reviewed/2026-08-16-v8-idle90.log`.
+
+## Digital-zero discriminator and rejection
+
+Before any 5% or 12% escalation, a stricter noise test was run. The visible Windows-Dolby endpoint stayed at 1% and **muted** while a ten-second 48 kHz stereo S16_LE WAV containing only zero PCM samples was played. Stimulus SHA-256:
+
+`87d8420ddaf7d56d3f5068c6a74362451fc2859197445490d15e7b3d456fa22e`
+
+The zero stream correctly held the physical ALSA PCM `RUNNING`; it later returned to `closed`. SP7 external-mic capture SHA-256:
+
+`3A12957D596502F7EF92E912D15CB56B048787FE93A3E9B354BDFD18CADFF25F`
+
+Steady windows excluding the PA-start transition show:
+
+| channel | baseline RMS | active-zero RMS | ratio | baseline diff-RMS | active-zero diff-RMS |
+|---|---:|---:|---:|---:|---:|
+| 0 | 0.00010174 | 0.00127825 | 12.6x | 0.00001805 | 0.00072272 |
+| 1 | 0.00010549 | 0.00151195 | 14.3x | 0.00001907 | 0.00085739 |
+
+The elevated broadband floor persisted after the zero file ended while PipeWire still held the PA open for its suspend delay. This is not source content and cannot be explained by the requested waveform: the waveform is all zeros and the visible endpoint remained muted.
+
+Machine-readable result:
+
+`artifacts/reviewed/2026-08-16-v8-zero-stream-static-rejection.json`
+
+**Decision: reject v8 immediately.** No 5% MP3 or 12% chirp gate was run. The result proves that reproducing Windows' ordinary no-DRE-write PA transaction is still insufficient on the current Linux initialization state. An earlier WSA8845 initialization/latch/state dependency remains missing. Keep v5 as the bounded-safe reference and compare complete Windows/Linux amp write histories before another behavioral candidate.

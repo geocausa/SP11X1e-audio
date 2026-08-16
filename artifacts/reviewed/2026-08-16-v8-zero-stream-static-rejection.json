@@ -1,0 +1,91 @@
+{
+  "date": "2026-08-16",
+  "status": "REJECTED \u2014 PA-active digital-zero stream produces broadband static/noise",
+  "candidate": "DRE-cold v8 idle-gated",
+  "kernel_marker": "sp11_wsa_drecold_v8=1",
+  "wsa_module": {
+    "srcversion": "EFCD352343B5CD747194DDD",
+    "ko_zst_sha256": "3665795bb59112a6d0444b9cd21d416961047a010db0806e8c855f5f1607e357"
+  },
+  "initramfs_sha256": "2c36b5f0eb91135c89a27fa9f0fbb43b4ad986b1ff55a452f53a06c670fb5ab4",
+  "zero_stimulus": {
+    "path": "/tmp/sp11-zero-10s-48k-stereo-s16.wav",
+    "format": "48000 Hz stereo S16_LE, 10 s, all PCM samples zero",
+    "sha256": "87d8420ddaf7d56d3f5068c6a74362451fc2859197445490d15e7b3d456fa22e"
+  },
+  "endpoint": {
+    "visible_volume": 0.01,
+    "muted": true,
+    "physical_pcm_during": "RUNNING",
+    "physical_pcm_after_suspend": "closed"
+  },
+  "external_mic": {
+    "host": "SP7",
+    "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-rpv4-drecold-v8-idlegated-1pct-20260816\\external-mic-20260816-230214.wav",
+    "sha256": "3A12957D596502F7EF92E912D15CB56B048787FE93A3E9B354BDFD18CADFF25F",
+    "fs_hz": 48000,
+    "channels": 2,
+    "windows_seconds": {
+      "baseline": [
+        2,
+        10
+      ],
+      "steady_active_zero": [
+        13,
+        21
+      ],
+      "post_zero_pa_open": [
+        22,
+        25
+      ]
+    },
+    "channel0": {
+      "baseline_rms": 0.0001017423456467304,
+      "active_zero_rms": 0.0012782499854933412,
+      "rms_ratio": 12.563598542652818,
+      "baseline_diff_rms": 1.8047748264736012e-05,
+      "active_zero_diff_rms": 0.0007227211682268431,
+      "diff_ratio": 40.04494952087667,
+      "baseline_flatness_200_10000": 0.17325155978007833,
+      "active_zero_flatness_200_10000": 0.36358669505280233,
+      "baseline_power_200_10000": 0.003969614663689014,
+      "active_zero_power_200_10000": 5.015831536948819
+    },
+    "channel1": {
+      "baseline_rms": 0.00010548508224776182,
+      "active_zero_rms": 0.001511954190496973,
+      "rms_ratio": 14.33334608343687,
+      "baseline_diff_rms": 1.9065880232485237e-05,
+      "active_zero_diff_rms": 0.0008573870163470519,
+      "diff_ratio": 44.96970535282186,
+      "baseline_flatness_200_10000": 0.16846632044155557,
+      "active_zero_flatness_200_10000": 0.37173181958229856,
+      "baseline_power_200_10000": 0.004057627695051234,
+      "active_zero_power_200_10000": 7.0026174334991875
+    },
+    "note": "Large transition impulses around seconds 11-12 are excluded from steady metrics. The steady zero-stream interval alone remains >12x baseline RMS on both channels."
+  },
+  "write_history": {
+    "comp_post_pmu_dre_clear": "present once per amp before PA transaction: reg 0x34b1 mask 0x01 val 0",
+    "ordinary_pa_start_dre_write_count": 0,
+    "ordinary_pa_stop_dre_write_count": 0,
+    "pa_start_per_amp": [
+      "0x34d0=0x67",
+      "0x3067=0x08",
+      "0x304d=0x52",
+      "0x3430 bit0=1",
+      "0x3067=0x0c",
+      "0x304d=0x5a"
+    ],
+    "pa_stop_per_amp": [
+      "0x3430 bit0=0",
+      "0x34d0=0x00"
+    ]
+  },
+  "idle_gate": {
+    "samples": 90,
+    "closed": 90,
+    "nonclosed": 0
+  },
+  "decision": "Reject v8 immediately. Do not run 5% or 12% gates. Removing ordinary PA-boundary DRE writes makes the write sequence match Windows but leaves a strong analog/noise state under active digital silence, proving another initialization/state dependency is still missing."
+}
