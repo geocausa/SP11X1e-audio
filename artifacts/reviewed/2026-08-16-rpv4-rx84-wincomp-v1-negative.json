@@ -1,0 +1,43 @@
+{
+  "schema": "sp11-rpv4-rx84-wincomp-v1-negative-v1",
+  "date": "2026-08-16",
+  "candidate": "rpv4-macro84-wincomp-v1",
+  "kernel": "7.1.5-sp11-render-parity-v4+",
+  "live_wsa_srcversion": "0EAC059B39C96C5E3D44237",
+  "wsa_module_sha256": "8CD68ADC96256E30250E0842D6868533FA36C70F2F12BFB24FB33CB47E921E3A",
+  "wsa_module_zst_sha256": "61A13176A38CCE8D2FD20B1D1A48A90E8B502E39F790ABC15FD5B5B61973EEB2",
+  "initrd_sha256": "F35BBD908A6AACEC313EFF29328F007AA4657EE1DC5077F302232771E6F9D68D",
+  "rx": {"left":84,"right":84,"meaning":"0 dB"},
+  "endpoint_scalar": 0.12,
+  "dRE_CSR_policy": "unchanged safe CSR-assisted baseline",
+  "half_db_policy": "unchanged Linux M1P5 baseline",
+  "changed_compander_defaults": {
+    "comp0_ctl7":"0x2e","comp0_ctl11":"0x0c","comp0_ctl12":"0x15","comp0_ctl13":"0x15","comp0_ctl14":"0x15","comp0_ctl15":"0x15","comp0_ctl16":"0x0f",
+    "comp1_ctl7":"0x2e","comp1_ctl11":"0x0c","comp1_ctl12":"0x15","comp1_ctl13":"0x15","comp1_ctl14":"0x15","comp1_ctl15":"0x15","comp1_ctl16":"0x0f"
+  },
+  "runtime_safety": {
+    "bounded_chirps": 4,
+    "new_wsa_pa_soundwire_xrun_dsp_faults": 0,
+    "unsafe_noise": false
+  },
+  "ridge_analysis": {
+    "method": "channel 1; Hann STFT 8192; hop 1024; nearest exponential-chirp ridge; mean frames within +/-1/24 octave; shape normalized by 1-5 kHz median",
+    "baseline_rx84_windows_1_5khz_mae_db": 0.1819,
+    "baseline_rx84_windows_1_5khz_rmse_db": 0.2078,
+    "wincomp_median_windows_1_5khz_mae_db": 0.6441,
+    "wincomp_median_windows_1_5khz_rmse_db": 0.7037,
+    "wincomp_stable_windows_1_5khz_mae_db": 0.6490,
+    "wincomp_stable_windows_1_5khz_rmse_db": 0.7161,
+    "baseline_rx84_windows_630_6300_mae_db": 0.1838,
+    "baseline_rx84_windows_630_6300_rmse_db": 0.2144,
+    "wincomp_median_windows_630_6300_mae_db": 0.5633,
+    "wincomp_median_windows_630_6300_rmse_db": 0.6306,
+    "analysis_sha256": "96FC8969EFF3994CEF1FFD74376C588B391C7E484D8ED2F9BCEFAB001BFDF7CD"
+  },
+  "captures": [
+    {"sha256":"269B419FF10CFE7E06D5F9E8129F0887C1000C432FD75DEB0BCA0BC08D79FCC6","name":"external-mic-20260816-163150.wav"},
+    {"sha256":"9FFB608291CEADCCCA1E9455D106F6CB27755418319FC62BCFEEF8968E679991","name":"external-mic-20260816-163315.wav"},
+    {"sha256":"73BB8EAB8EC54739EE5CA98A46DC9983870D10A3CC3AC389DCAE1DEE27DDBE4E","name":"external-mic-20260816-163403.wav"}
+  ],
+  "decision": "REJECT curve-only as an acoustic parity improvement; next test must combine the directly Windows-proven curve with directly Windows-proven primary half-dB-off policy while retaining CSR-assisted safety."
+}
