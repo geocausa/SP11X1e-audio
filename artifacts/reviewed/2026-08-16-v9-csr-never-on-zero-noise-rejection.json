@@ -1,0 +1,62 @@
+{
+  "date": "2026-08-16",
+  "status": "REJECTED \u2014 early 2S CSR enable suppression does not improve CSR-off active-path noise",
+  "candidate": "CSR-never-on v9 idle-gated",
+  "purpose": "isolate the Linux-only early DRE_CTL_1.CSR_GAIN_EN 0->1->0 history; for SP11 2S only, skip the initial no-COMP CSR enable while leaving v5 stored gain/UCM/DRE0/watchdog/current-limit/producer/PA behavior unchanged",
+  "candidate_dir": "/home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/rpv4-macro84-winproducer-nohd2-csr-never-on-v9-idlegated-20260816",
+  "source": {
+    "v5_base_sha256": "f5555cfde5f8c72001a779ac9d0dc0aac527284e88c6333a450027af4f340f97",
+    "v9_sha256": "be26f394fc50c4482b17797bae9b30c236a37b01c9854906bc122f3b300fe235",
+    "patch_sha256": "a5960bdb5574238d12a2c36d92e59d8285787706cb3d5ec0227917605f4fde16"
+  },
+  "module": {
+    "srcversion": "02BFD40605ECF40F95A9646",
+    "signed_ko_sha256": "b92e8651936a42c8372b27fe17c503231e21ad722d3d85827f99882bfc9206d5",
+    "ko_zst_sha256": "e62879ff54dd9274badfa57c6a34a1a4beb4d4a9770f35aaef830ac6595a09d2",
+    "vermagic": "7.1.5-sp11-render-parity-v4+"
+  },
+  "initramfs": {
+    "sha256": "a52a6e23ca5640d24214bbf6d3457966862380bb9a05f46bdc277caa5d156407",
+    "producer_zst_sha256": "05d19a94c21b5a7683922e024f714877d744b588cf59c1152ea694f401e4b530",
+    "x1e_zst_sha256": "077a6e3f08c864c13f8b4864d0262e8c60018c18cea033323bc16903a12e0610",
+    "force_loaded": [
+      "snd_soc_wsa884x",
+      "snd_soc_lpass_wsa_macro",
+      "snd_soc_x1e80100"
+    ]
+  },
+  "boot": {
+    "grub_id": "sp11-audio-rpv4-macro84-winproducer-nohd2-csr-never-on-v9-idlegated",
+    "one_shot_consumed": true,
+    "persistent_fallback": "sp11-audio-cps-v3",
+    "idle_pcm_before_test": "closed"
+  },
+  "stimulus": {
+    "sha256": "87d8420ddaf7d56d3f5068c6a74362451fc2859197445490d15e7b3d456fa22e",
+    "description": "10 s 48 kHz stereo S16_LE all-zero PCM; visible Windows-Dolby endpoint 1% and muted; physical ALSA PCM observed RUNNING"
+  },
+  "external_mic": {
+    "host": "SP7",
+    "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-rpv4-csr-never-on-v9-idlegated-1pct-20260816\\external-mic-20260816-234943.wav",
+    "sha256": "4B6FD33F26B35A0A8CB2C3EA65BB093ADD92895592A81C09027A1806929683C",
+    "fs_hz": 48000,
+    "channels": 2,
+    "ch0": {
+      "baseline_rms": 7.908402756215903e-05,
+      "baseline_diff_rms": 1.7225452340351223e-05,
+      "steady_rms": 0.0010695264585438712,
+      "steady_diff_rms": 0.0006064657928002808
+    },
+    "ch1": {
+      "baseline_rms": 8.20797788674634e-05,
+      "baseline_diff_rms": 1.7397812509576326e-05,
+      "steady_rms": 0.0012746533260301755,
+      "steady_diff_rms": 0.0007220521833021872
+    },
+    "median_steady_diff_rms": 0.000664258988051234,
+    "vs_windows_active_diff_rms": 36.39131615531032,
+    "vs_v5_diff_rms": 0.98186055032375
+  },
+  "decision": "Reject v9 at the digital-silence gate. Skipping the early CSR enable leaves the CSR-off broadband-noise defect essentially unchanged from v5. Do not escalate to music/chirp and do not promote/re-arm for ordinary use.",
+  "implication": "The missing quiet-CSR-off state is not explained by Linux transiently enabling CSR during initial no-COMP gain setup. Continue with the Windows 63-write codec-init history; rank DRE0/PDM watchdog/current-limit/CKWD initialization timing rather than CSR value transitions."
+}

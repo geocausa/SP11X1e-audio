@@ -28,7 +28,10 @@ separate layers so that an acoustic result is never mistaken for a driver fact.
 > a strong 997-Hz marker. The original 63-write qcaucd codec-init transaction
 > also proves Linux reaches several Windows DRE/watchdog/current-limit states
 > only later at UCM/DAPM time. The active hypothesis is therefore an earlier
-> WSA8845 initialization/latch contract, not another DRE value sweep. Start with
+> WSA8845 initialization/latch contract, not another DRE value sweep. A v9
+> isolation also proved that suppressing Linux's early transient CSR enable
+> leaves the PA-open noise essentially unchanged (~36.4x Windows), closing that
+> specific history hypothesis. Start with
 > [`docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md)
 > and the
 > [`2026-08-16 repository consolidation checkpoint`](docs/checkpoints/2026-08-16-REPOSITORY-CONSOLIDATION-CHECKPOINT.md).
