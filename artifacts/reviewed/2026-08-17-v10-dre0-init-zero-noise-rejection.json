@@ -1,0 +1,50 @@
+{
+  "date": "2026-08-17",
+  "status": "REJECTED \u2014 early SP11 DRE_CTL_0=0xf0 init write does not improve CSR-off active-path noise",
+  "candidate": "DRE0-init v10 idle-gated",
+  "purpose": "move the Windows-proven DRE_CTL_0=0xf0 state into SP11 2S supply initialization immediately after DRE_IDLE=0x0f, leaving exact v5 behavior otherwise unchanged",
+  "source": {
+    "v5_base_sha256": "f5555cfde5f8c72001a779ac9d0dc0aac527284e88c6333a450027af4f340f97",
+    "v10_sha256": "1263d13f62b970f4fc03bfe50261b372d47000cb7052b13e71caa337898900ca",
+    "patch_sha256": "95f9351ccc0cde599402820c29dc0fb7da72acbb884e2daf446b743572db6809"
+  },
+  "module": {
+    "srcversion": "9F21FA41CC97569232967D3",
+    "signed_ko_sha256": "548a8e97330e377049dbcc95f4f30b9ea01d12e4781b89f2d37691b43ec606d5",
+    "ko_zst_sha256": "e28ea64da6d332edf9af95eeb071f991c286de0bd8b6952112f6b9fad1fdad81",
+    "vermagic": "7.1.5-sp11-render-parity-v4+"
+  },
+  "initramfs": {
+    "sha256": "70494e1f6ba9b002ae3607bbef1f5ff48220b175f1d9287def4c5cdb880bf58b",
+    "producer_zst_sha256": "05d19a94c21b5a7683922e024f714877d744b588cf59c1152ea694f401e4b530",
+    "x1e_zst_sha256": "077a6e3f08c864c13f8b4864d0262e8c60018c18cea033323bc16903a12e0610"
+  },
+  "boot": {
+    "grub_id": "sp11-audio-rpv4-macro84-winproducer-nohd2-dre0-init-v10-idlegated",
+    "one_shot_consumed": true,
+    "persistent_fallback": "sp11-audio-cps-v3",
+    "idle_pcm_before_test": "closed"
+  },
+  "stimulus": {
+    "sha256": "87d8420ddaf7d56d3f5068c6a74362451fc2859197445490d15e7b3d456fa22e",
+    "description": "10 s 48 kHz stereo S16_LE all-zero PCM; visible endpoint 1% muted; physical PCM observed RUNNING"
+  },
+  "external_mic": {
+    "host": "SP7",
+    "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-rpv4-dre0-init-v10-idlegated-1pct-20260816\\external-mic-20260817-000640.wav",
+    "sha256": "682EAA062132960BDCA4FB15FD1CB4E7806D0F7BE8E6F8BD69E9CF2558A0C4A3",
+    "ch0": {
+      "steady_rms": 0.0011080573059507226,
+      "steady_diff_rms": 0.0006277371433194328
+    },
+    "ch1": {
+      "steady_rms": 0.0013107445407945183,
+      "steady_diff_rms": 0.0007429044857686088
+    },
+    "median_steady_diff_rms": 0.0006853208145440208,
+    "vs_windows_active_diff_rms": 37.54518475249094,
+    "vs_v5_diff_rms": 1.0129926492836754
+  },
+  "decision": "Reject v10 at the digital-silence gate. Early DRE0=f0 timing leaves the CSR-off broadband-noise defect unchanged. No music/chirp escalation.",
+  "implication": "DRE_CTL_0 late-vs-init timing alone is not the missing quiet-state latch. The explicit Windows DRE_CTL_1=0 init write remains untested as a physical write; retired 0055 changed the regmap default and runtime policy rather than adding that explicit init transaction."
+}
