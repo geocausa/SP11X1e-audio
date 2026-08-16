@@ -1,0 +1,38 @@
+{
+  "status": "REJECTED",
+  "invalid_v12": {
+    "reason": "candidate source and packaged executable equal v5; not a current-limit experiment",
+    "packaged_zst_sha256": "feea9384643d37e041d86d63f84ca814d7f06a6e72036a5254cf5a8d8d646e76"
+  },
+  "v12r": {
+    "source_before_sha256": "f5555cfde5f8c72001a779ac9d0dc0aac527284e88c6333a450027af4f340f97",
+    "source_after_sha256": "edfbfd7d37f274723bea449387fdae19e30368531146d17a284750705533c8d9",
+    "patch_sha256": "bee1c856866ccdfdae6638f0559cb3c649c842387bd99d63e6377b6aec2da5db",
+    "signed_ko_sha256": "e388b627a80b277055199ff6d9389b401b1379a30701fdf983b383e35e2ab708",
+    "zst_sha256": "ecb7f3814b70ab0d66660b0841a2cbf8bc6197d4bd786473647285079b76a423",
+    "srcversion": "67590C1AADAD9EC262762E8",
+    "initrd_sha256": "77cbdcddaf4a8f3e284d531a1bed487bcc2ddae5ae251f794602aa1a08a57474",
+    "delta": "SP11 init: PWRSTAGE_CTRL2=0xf1 then explicit CURRENT_LIMIT=0x44"
+  },
+  "stimulus": {
+    "sha256": "87d8420ddaf7d56d3f5068c6a74362451fc2859197445490d15e7b3d456fa22e",
+    "format": "48000 Hz stereo PCM16 digital zero",
+    "endpoint": "1% muted"
+  },
+  "captures": [
+    {
+      "sha256": "FB4A2C22ED3EB54AA3714AFF1973D032601E827157B4492800759494558532CF",
+      "median_diff_rms_approx": 0.0001976758139948329,
+      "ratio_vs_v5_approx": 0.2922,
+      "note": "short/limited first active plateau"
+    },
+    {
+      "sha256": "6074A20E989F3381759D65F4C24863470A75A434923989BF3DAE230C5572FD40",
+      "median_diff_rms": 0.0038368802991342278,
+      "ratio_vs_v5": 5.671411909500286,
+      "ratio_vs_windows": 210.19394648483774,
+      "note": "sustained second-cycle broadband plateau"
+    }
+  ],
+  "decision": "Reject early final-current-limit v12R; initialization is cycle/history sensitive. Next work must use the corrected raw-address Windows ordered analog block."
+}

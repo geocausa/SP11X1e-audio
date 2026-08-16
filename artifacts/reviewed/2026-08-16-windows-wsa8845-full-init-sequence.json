@@ -276,7 +276,7 @@
       "reg": "0x34d2",
       "value": "0x13",
       "line": 1594,
-      "name": "CLSH_CTL_1"
+      "name": "CLSH_V_HD_PA"
     },
     {
       "position": 39,
@@ -318,7 +318,7 @@
       "reg": "0x300b",
       "value": "0xd1",
       "line": 1606,
-      "name": "BOP2_PROG"
+      "name": "REF_CTRL"
     },
     {
       "position": 45,
@@ -381,7 +381,7 @@
       "reg": "0x3040",
       "value": "0xd2",
       "line": 1624,
-      "name": "REF_CTRL"
+      "name": "TOP_CTRL1"
     },
     {
       "position": 54,
@@ -430,7 +430,7 @@
       "reg": "0x306a",
       "value": "0x02",
       "line": 1638,
-      "name": "PA_FSM_TIMER0"
+      "name": "DAC_VCM_CTRL_REG7"
     },
     {
       "position": 61,
@@ -510,5 +510,38 @@
       "linux": "default 0x12; set_gain_parameters later writes minimum-gain field to the 0 dB code, producing 0x0e outside the Windows ordering"
     }
   ],
-  "conclusion": "Final live register equality is insufficient. Windows deliberately establishes a coherent 2S/4-ohm DSM/DRE/watchdog/current-limit state during codec initialization, while Linux reaches several of those values only later during UCM/DAPM speaker activation. This is the leading explanation class for why Windows can run CSR-off quietly while Linux CSR-off v5/v8 exhibit a large PA-open broadband floor."
+  "conclusion": "Final live register equality is insufficient. Windows deliberately establishes a coherent 2S/4-ohm DSM/DRE/watchdog/current-limit state during codec initialization, while Linux reaches several of those values only later during UCM/DAPM speaker activation. This is the leading explanation class for why Windows can run CSR-off quietly while Linux CSR-off v5/v8 exhibit a large PA-open broadband floor.",
+  "symbol_audit_2026_08_17": {
+    "linux_source": "/home/geoca/Documents/SP11-PROJECT/02-kernel/sp11-softpause-src-20260813/sound/soc/codecs/wsa884x.c",
+    "linux_source_sha256": "f5555cfde5f8c72001a779ac9d0dc0aac527284e88c6333a450027af4f340f97",
+    "method": "mechanically resolve WSA884X_* register #defines and map exact 0x3000-0x3fff addresses",
+    "corrected_labels": [
+      {
+        "position": 38,
+        "reg": "0x34d2",
+        "old": "CLSH_CTL_1",
+        "correct": "CLSH_V_HD_PA"
+      },
+      {
+        "position": 44,
+        "reg": "0x300b",
+        "old": "BOP2_PROG",
+        "correct": "REF_CTRL"
+      },
+      {
+        "position": 53,
+        "reg": "0x3040",
+        "old": "REF_CTRL",
+        "correct": "TOP_CTRL1"
+      },
+      {
+        "position": 60,
+        "reg": "0x306a",
+        "old": "PA_FSM_TIMER0",
+        "correct": "DAC_VCM_CTRL_REG7"
+      }
+    ],
+    "irq_note": "0x3581/0x3582 remain identified as interrupt-mask registers from the regmap-IRQ analysis; those addresses are not named in the local wsa884x.c register define block.",
+    "raw_address_value_oracle_unchanged": true
+  }
 }

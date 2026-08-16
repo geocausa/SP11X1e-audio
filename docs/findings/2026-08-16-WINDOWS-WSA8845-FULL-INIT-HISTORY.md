@@ -22,6 +22,17 @@ Reviewed machine-readable sequence:
 
 This changes the interpretation of the earlier patch-0052 closure. Patch 0052 correctly reproduced a set of important SP11 board values and the Windows PA start/stop transaction, but it did **not** reproduce the complete Windows initialization history. H08 remains green for the proven board-value subset and SoundWire transport; the remaining initialization-history gap belongs to H03.
 
+## 2026-08-17 register-symbol audit correction
+
+A mechanical address audit against the exact v5 `wsa884x.c` register definitions found four incorrect symbolic labels in the first reviewed JSON. The **raw qcaucd addresses, values and ordering were always correct**; only these names were wrong:
+
+- `0x34d2` is `CLSH_V_HD_PA`, not `CLSH_CTL_1`;
+- `0x300b` is `REF_CTRL`, not `BOP2_PROG`;
+- `0x3040` is `TOP_CTRL1`, not `REF_CTRL`;
+- `0x306a` is `DAC_VCM_CTRL_REG7`, not `PA_FSM_TIMER0` (`PA_FSM_TIMER0` is `0x3433`).
+
+The reviewed JSON is corrected in place and now records the source hash/method. `0x3581/0x3582` remain classified as interrupt-mask registers from the independent regmap-IRQ analysis even though those exact addresses are not named in the local codec register define block. No behavioral conclusion may use an un-audited symbolic label when the raw address is available.
+
 ## Ordered Windows transaction
 
 The 63 writes per amp are:
