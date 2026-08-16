@@ -32,8 +32,8 @@ The repository had three open stacked draft PRs:
 
 PRs #2 and #3 were closed as superseded because their integrated branch content
 is already contained in the current render-parity line. PR #4 is retained as
-the single draft integration path and should be retargeted to `main` after this
-checkpoint commit.
+the single draft integration path and, after checkpoint commit `a343458`, was
+retargeted directly to `main`.
 
 There are no open GitHub issues.
 
@@ -152,13 +152,22 @@ dependencies.
 ## Remaining cleanup before main promotion
 
 1. Finish v7 5% and byte-identical 12% acoustic gates or record its rejection.
-2. Commit and push this checkpoint to `agent/render-parity-20260812` with the
-   GitHub `tests` workflow still disabled.
-3. Retarget draft PR #4 directly to `main`.
-4. After final technical review, fast-forward/merge main through the single
+2. Keep draft PR #4 as the single `agent/render-parity-20260812 -> main`
+   integration path while H03 remains AMBER.
+3. After final technical review, fast-forward/merge main through that single
    integration PR.
-5. Only after main contains the checkpoint: retire fully-contained remote
+4. Only after main contains the checkpoint: retire fully-contained remote
    branches and optionally replace valuable research branches with explicit
    archive tags/branches.
-6. Separately harvest the dirty `/01-audio` and untracked `/05-audio-integration`
+5. Separately harvest the dirty `/01-audio` and untracked `/05-audio-integration`
    worktrees before deleting their branches or directories.
+
+## Post-checkpoint publication state
+
+Checkpoint commit `a343458` was pushed to
+`origin/agent/render-parity-20260812` while GitHub workflow `tests` remained
+`disabled_manually`. No new Actions run was created by the push. PR #4 was then
+retargeted to `main` through the GitHub REST API (the installed `gh pr edit`
+client hit a deprecated Projects Classic GraphQL field). The retarget also
+created no Actions run. Main is intentionally **not merged yet** because v7's
+5% and 12% acoustic gates remain open.
