@@ -1,0 +1,33 @@
+{
+  "schema": "sp11-rpv4-rx84-wincomp-primaryhalf0-v2-negative-v1",
+  "date": "2026-08-16",
+  "candidate": "sp11-audio-rpv4-macro84-wincomp-primaryhalf0-v2",
+  "kernel": "7.1.5-sp11-render-parity-v4+",
+  "live_wsa_srcversion": "354F5F37490E6A8DE668870",
+  "wsa_module_sha256": "9549E16D8990F4B672B56FCF322BF5AA68129DFED508A9533194015B7FEB5124",
+  "wsa_module_zst_sha256": "5D3887B13096E360CA443413F7ABA9FB6947AF677C6DB3025D8814C356DDF0E5",
+  "initrd_sha256": "FF0FDFC472C2B9AF99ED4F50924F8072EE996C035026A1EB5ED8844AD1F0DBB2",
+  "rx": {"left":84,"right":84,"meaning":"0 dB"},
+  "endpoint_scalar": 0.12,
+  "producer_changes": ["Windows compander CTL7/CTL11-16 defaults on both channels", "primary RX0/RX1 PGA half-dB bit forced clear on POST_PMU"],
+  "unchanged": ["mix-path half-dB policy", "CSR-assisted WSA8845 lifecycle", "DRE/CSR safety state", "Dolby/AudioReach/protection/SoundWire"],
+  "runtime_safety": {"bounded_chirps": 5, "new_wsa_pa_soundwire_xrun_dsp_faults": 0, "unsafe_noise": false},
+  "ridge_analysis": {
+    "method": "channel1 Hann STFT 8192 hop1024; nearest exponential chirp ridge; mean frames +/-1/24 octave; normalize 1-5 kHz median",
+    "baseline_rx84_windows_1_5khz_mae_db": 0.1819,
+    "baseline_rx84_windows_1_5khz_rmse_db": 0.2078,
+    "candidate_median_windows_1_5khz_mae_db": 0.3760,
+    "candidate_median_windows_1_5khz_rmse_db": 0.4523,
+    "candidate_stable_windows_1_5khz_mae_db": 0.3597,
+    "candidate_stable_windows_1_5khz_rmse_db": 0.4463,
+    "candidate_median_windows_630_6300_mae_db": 0.3911,
+    "candidate_median_windows_630_6300_rmse_db": 0.4677,
+    "analysis_sha256": "745AF91177DE97DB804FDCCA29D3E49C97922E9275D20A7EC98E15B15833B74B"
+  },
+  "captures": [
+    {"sha256":"2F7BCDC9AAA3626A0A5B3117AFE079860082A046669812BC34A89FC161F0D6BC","name":"external-mic-20260816-164909.wav"},
+    {"sha256":"6C2A20D583BE0C68B5B630F6EF5F9CBA3FAB227B88B2048E5DF60AECCFFD99A0","name":"external-mic-20260816-164957.wav"},
+    {"sha256":"53921D7D05C962C8E8F22EBD696897B17E8D59FD35BF11D78419DFB7928256EA","name":"external-mic-20260816-165048.wav"}
+  ],
+  "decision": "REJECT as production parity improvement. Better than curve-only but still materially worse than RX84 generic-curve baseline. Pivot to direct Windows-vs-Linux WSA transaction/lifecycle diff before another candidate."
+}
