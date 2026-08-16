@@ -1,11 +1,11 @@
 # WSA8845 DRE_CTL_1 write-history reconstruction
 
 Date: 2026-08-16
-Status: **new lifecycle closure; explains why v6 was the wrong exact-value experiment**
+Status: **lifecycle closure retained; former v6 causal interpretation retracted after binary audit**
 
 ## Question
 
-`csren0-v5-idlegated` is stable with `CSR_GAIN_EN=0` while the stored CSR gain code remains 7 (`DRE_CTL_1 ~= 0x0e`). `csrgain0-v6-idlegated` additionally forced that stored code to zero immediately before PA enable and became wildly non-repeatable acoustically, even though its final active register value matched the Windows `0x00` snapshot.
+`csren0-v5-idlegated` is stable with `CSR_GAIN_EN=0` while the stored CSR gain code remains 7 (`DRE_CTL_1 ~= 0x0e`). `csrgain0-v6-idlegated` was intended to force that stored code to zero immediately before PA enable. A later binary audit proved the packaged v6 `mute_stream()` did not contain that source delta, so its acoustic run cannot be used as evidence about that intended transition.
 
 The key missing distinction was **final value versus write history**.
 
@@ -101,19 +101,15 @@ ordinary PA start/stop: zero observed DRE_CTL_1 runtime writes
 
 Windows therefore reaches its exact `0x00` state by initialization/history, not by forcing the gain field to zero at each PA unmute.
 
-## v6 reinterpretation
+## v6 provenance retraction
 
-v6's final active register value was correct, but its lifecycle was not. It inserted:
+The lifecycle reasoning above remains valid, but the prior v6 causal interpretation does not. The v6 source file contained an extra `mask=0x3e val=0x00` call before PA enable; the packaged module that was booted did not. Direct disassembly shows packaged v6 `wsa884x_mute_stream()` is machine-code identical to packaged v5. The fresh build had been emitted under the source-tree codec directory while packaging copied a stale module from the prepared `O=` output tree.
 
-```text
-mask=0x3e val=0x00
-```
-
-immediately before every already-proven v5 `CSR_GAIN_EN=0` PA enable. That transition does not exist in the normal Linux demand cycle and has no Windows evidence. The resulting 5--12 dB run-to-run acoustic instability is therefore consistent with a DRE state/latch disturbance caused by **when the field is rewritten**, not proof that the Windows gain code zero is intrinsically wrong.
+Therefore the old v6 captures are retained only as historical acoustic data. They do **not** prove a DRE latch disturbance from an unmute-time gain-field write, because that intended write was not in the running binary.
 
 ## Decision / next experiment
 
-- Keep v6 rejected; never re-arm it as an acoustic oracle.
+- Do not re-arm the old v6 image; its source-to-binary provenance is invalid.
 - Do not sweep arbitrary CSR gain values.
 - Test the next isolation at the **profile/route programming boundary**, where Linux already programs the field naturally:
   - use the proven v5 CSR-enable-off kernel semantics;

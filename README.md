@@ -19,8 +19,13 @@ separate layers so that an acoustic result is never mistaken for a driver fact.
 > seek-specific smoothing remain open. The H03 route-time-zero v7
 > candidate has now been rejected: it passed cold/idle/1%/5% lifecycle gates,
 > but the first byte-identical 12% run produced operator-observed active-playback
-> static with an elevated broadband spectral floor versus v5. Exact-zero v6 and
-> v7 are both rejected; v5 remains the strongest bounded-safe CSR-off experiment. Start with
+> static with an elevated broadband spectral floor versus v5. v7 remains a valid
+> route-time-zero rejection. A later build audit invalidated the old v6
+> source-to-binary attribution: its packaged `mute_stream()` did not contain the
+> intended gain-zero call, so v6 is retained only as historical acoustic data,
+> not as a causal gain-zero experiment. The next provenance-clean v8 candidate
+> keeps v5's DRE value but removes only the extra ordinary PA-boundary DRE writes
+> that Windows never issues. Start with
 > [`docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md)
 > and the
 > [`2026-08-16 repository consolidation checkpoint`](docs/checkpoints/2026-08-16-REPOSITORY-CONSOLIDATION-CHECKPOINT.md).

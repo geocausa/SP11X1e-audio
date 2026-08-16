@@ -1,5 +1,7 @@
 # WSA CSR route-time-zero v7 checkpoint — 2026-08-16
 
+> **Later provenance note:** references below to a “v6-style” unmute gain-field write describe the intended v6 source delta, not the packaged v6 binary. A later audit proved the old packaged v6 `mute_stream()` was functionally identical to v5. This does not affect v7 provenance: v7 intentionally reused the proven v5 module bytes and changed only the boot-scoped UCM route-time PA Volume values.
+
 ## Scope
 
 This is a **partial safety/lifecycle checkpoint**, not an acoustic parity

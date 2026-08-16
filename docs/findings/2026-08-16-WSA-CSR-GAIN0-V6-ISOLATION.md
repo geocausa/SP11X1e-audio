@@ -1,7 +1,9 @@
 # WSA8845 CSR stored-gain zero v6 isolation
 
 Date: 2026-08-16
-Status: **REJECTED — acoustic repeatability failure at 12%**
+Status: **RETRACTED AS A CAUSAL EXPERIMENT — packaged module provenance mismatch**
+
+> **2026-08-16 provenance correction:** the acoustic captures and their hashes remain valid historical measurements, but the claimed v5 -> v6 kernel delta was **not present in the packaged module that was booted**. A later binary audit proved that packaged v6 `wsa884x_mute_stream()` machine code is identical to packaged v5, despite the candidate source file containing the extra gain-field write. The build command emitted the fresh module in the source-tree codec directory while packaging copied a stale module from the prepared `O=` tree. Therefore none of the acoustic instability below may be causally attributed to the intended `CSR_GAIN[5:1]=0` unmute write. Do not use this document as proof that unmute-time gain-zero itself was tested.
 
 ## Question
 
@@ -116,7 +118,7 @@ This also explains why the older bundled raw `DRE_CTL_1=0x00` experiment could b
 
 ## Decision
 
-- **Reject v6. Do not promote or re-arm for ordinary playback.**
+- **Do not re-arm the old packaged v6 image. Its source-to-binary identity is invalid.**
 - Keep v5 (`CSR_GAIN_EN=0`, stored CSR code 7) as the current best H03 experimental state: bounded-safe, demand-driven at idle, and directionally closer to Windows in the matched stable band.
 - Do not sweep arbitrary CSR gain codes acoustically; that would optimize around an unexplained coupling instead of matching Windows.
 - Next target is to explain why `CSR_GAIN` affects response with `CSR_GAIN_EN` clear: inspect WSA8845 DRE/CSR register semantics and any remaining Windows/Linux producer-side state that gates that path, using existing qcaucd/static traces rather than unsafe MMIO.

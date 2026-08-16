@@ -1,0 +1,27 @@
+{
+  "date": "2026-08-16",
+  "status": "v6 causal source-delta attribution retracted; v8 staged",
+  "v5": {
+    "source_sha256": "f5555cfde5f8c72001a779ac9d0dc0aac527284e88c6333a450027af4f340f97",
+    "packaged_ko_sha256": "d0452d99c8bb8e1442b1e40b28e4ecce51087f2a65f407418819105534013c15",
+    "srcversion": "A6C0298DDDFCEF0A2C3605F"
+  },
+  "v6": {
+    "intended_source_delta": "extra CSR_GAIN[5:1]=0 write in wsa884x_mute_stream before PA enable",
+    "packaged_ko_sha256": "26da95d4e68f2e8374fba6367785eb05c4ef5dc25288df80cca1b532484096f8",
+    "srcversion": "E4EDBF0D41BABDB3E8A4B77",
+    "mute_stream_machine_code_vs_v5": "identical",
+    "conclusion": "packaged module did not implement intended source delta; acoustic captures cannot be causally attributed to gain-zero write"
+  },
+  "build_bug": "fresh M= module emitted under source-tree sound/soc/codecs while packaging copied stale prepared O= tree module",
+  "v8": {
+    "source_sha256": "ca99fb886f1fa2007d1580ceb7cdd4b9f906b7278af130283002cc63831d4a04",
+    "patch_sha256": "946884bbc36538d94c2c1e6a8df37d4a0bd0252b57d914d40d69299b2821fa7c",
+    "signed_ko_sha256": "2266681914cc1aface687345f81103509f78f777006427bdd68d70e208d8837b",
+    "ko_zst_sha256": "3665795bb59112a6d0444b9cd21d416961047a010db0806e8c855f5f1607e357",
+    "srcversion": "EFCD352343B5CD747194DDD",
+    "initramfs_sha256": "2c36b5f0eb91135c89a27fa9f0fbb43b4ad986b1ff55a452f53a06c670fb5ab4",
+    "grub_id": "sp11-audio-rpv4-macro84-winproducer-nohd2-drecold-v8-idlegated",
+    "armed_at_record_time": false
+  }
+}
