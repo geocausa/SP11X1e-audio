@@ -1,0 +1,46 @@
+{
+  "schema": "sp11-csrgain0-v6-exact-acoustic-summary",
+  "date": "2026-08-16",
+  "status": "REJECTED_ACOUSTIC_REPEATABILITY",
+  "stimulus_sha256": "c8782c7741b3ece628362e785d2ec91b990ef453befa4a3e7d6c3e1cd1f8a208",
+  "candidate_module_zst_sha256": "c00e2b0e28d9c2991bef4f9793ab2621c60cd50c7e725b02ef3d7c4aa2863246",
+  "candidate_srcversion": "E4EDBF0D41BABDB3E8A4B77",
+  "v5_to_v6_patch_sha256": "f6b40b113ed37d5592f6ecb31f97f97c51737b8dacfca7809d0655ed4078f420",
+  "sp7_analysis_json": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\ridge-csrgain0-v6-idlegated-exact-five-run-20260816.json",
+  "sp7_analysis_json_sha256": "92692e9fc4ca6ee7ce3eb20af728e1c0f5dde4d0b92f92b58d469c48457c6ae9",
+  "sp7_analysis_text": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\ridge-csrgain0-v6-idlegated-exact-five-analysis-20260816.txt",
+  "sp7_analysis_text_sha256": "576dcd5ed331369569271a7dde0fef8e6f0d0e2e31964c4e75d4c4a16a9588ff",
+  "alignment_quality": [0.1868570638411403, 0.2027340247894352, 0.20307844062936803, 0.18785869322932988, 0.17059296624023576],
+  "windows_error_metrics": {
+    "v5_median5": {
+      "1000_5000_mae_db": 0.4317,
+      "1000_5000_rmse_db": 0.4890,
+      "630_6300_mae_db": 0.4513,
+      "630_6300_rmse_db": 0.5257
+    },
+    "v6_median5": {
+      "1000_5000_mae_db": 5.9892,
+      "1000_5000_rmse_db": 6.4042,
+      "630_6300_mae_db": 5.6966,
+      "630_6300_rmse_db": 6.0934
+    }
+  },
+  "v6_per_run_1000_5000_mae_db": [7.7710, 6.6747, 7.3471, 5.3685, 0.5916],
+  "v6_run_spread_1000_5000": {
+    "max_db": 12.338,
+    "median_db": 10.194
+  },
+  "v6_minus_v5_shape_difference_1000_5000": {
+    "mae_db": 5.8420,
+    "rmse_db": 6.3288,
+    "max_abs_db": 8.7033
+  },
+  "structural_safety": {
+    "real_mp3_1pct": "PASS",
+    "real_mp3_5pct": "PASS",
+    "idle_90_of_90_pcm_closed": true,
+    "pcm_closed_after_all_five_12pct_sweeps": true,
+    "new_wsa_pa_soundwire_xrun_adsp_faults": false
+  },
+  "decision": "Reject v6. Exact stored CSR gain code zero is not acoustically repeatable on the current Linux producer/consumer state even though low-level lifecycle safety passes. Keep v5 CSR-enable-off with stored code 7 as the current best H03 candidate and investigate why CSR_GAIN bits remain functionally coupled when CSR_GAIN_EN is clear."
+}
