@@ -1,5 +1,19 @@
 # SP11 built-in-speaker Windows/Linux render parity ledger — 2026-08-12
 
+> **2026-08-16 WSA VBAT/BCL isolation:** passive native Windows `qcaucd` tracing
+> proved the legacy Qualcomm VBAT/BCL + v2.5 CB_DECODE producer stage is live
+> on both internal-speaker paths and missing from current upstream Linux.  A
+> one-shot RPV4/RX84 candidate restored only that lifecycle with CSR-assisted
+> amps and no new WSA/PA/SoundWire/XRUN fault.  The synchronized three-run
+> acoustic median nevertheless worsened from the RX84 generic baseline
+> `~0.182/0.208 dB` to `~0.529/0.567 dB` MAE/RMSE over 1--5 kHz.  Standalone
+> VBAT/BCL is therefore rejected as a parity improvement.  Because Windows
+> directly proves VBAT/BCL, the Surface compander curve, and primary half-dB
+> off simultaneously—and each partial transplant has been negative—the next
+> bounded discriminator is the complete Windows-proven producer combination,
+> still with safe CSR-assisted WSA8845 operation.  DRE/CSR-off remains rejected.
+> See `docs/findings/2026-08-16-WINDOWS-WSA-VBAT-BCL-ISOLATION.md`.
+
 
 > **2026-08-14 late volume-path closeout:** fresh SP11 Windows KDNET and
 > stationary WASAPI loopback corrected two lifecycle assumptions in the older

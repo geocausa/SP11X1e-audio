@@ -1,0 +1,39 @@
+{
+  "schema": "sp11-rpv4-macro84-vbatbcl-v1-result-v1",
+  "date": "2026-08-16",
+  "candidate": "sp11-audio-rpv4-macro84-vbatbcl-v1",
+  "kernel": "7.1.5-sp11-render-parity-v4+",
+  "loaded_wsa_srcversion": "670409B04CD7E0213A44E2D",
+  "wsa_module_sha256_zst": "b8880bf8f024c999c1083a45cd093ac3f37e61d6209f997eeff7eecbea0783c1",
+  "initrd_sha256": "99f1d5a466edb7dc48734430126bbf1a9e14e8fab2adce0e6a209c3399e9e47c",
+  "stimulus_sha256": "c8782c7741b3ece628362e785d2ec91b990ef453befa4a3e7d6c3e1cd1f8a208",
+  "conditions": {
+    "endpoint": 0.12,
+    "wsa_rx0": 84,
+    "wsa_rx1": 84,
+    "curve": "generic Linux RPV4",
+    "half_db_policy": "existing M1P5",
+    "wsa8845_csr": "safe assisted baseline",
+    "vbat_bcl": "Windows/vendor lifecycle restored",
+    "cb_decode_v2_5": true
+  },
+  "captures": [
+    {"run":"A","sha256":"54F0A1BB74B387AF26EA9478A47EBDE0DF225C190D0574DC667B1AC03031B1CB","bytes":7678124},
+    {"run":"B","sha256":"3AEA43D1C37CB3ADC124BA356B542970A42E4760EE0B6EAC92B821F61BCDB9D3","bytes":7676204},
+    {"run":"C","sha256":"FFBF8C3FD51A961FEE3D31F0913C667B8063668D3D43273217363EE15D3887FB","bytes":7676204}
+  ],
+  "ridge_method": "SP7 external mic channel 1; Hann STFT 8192 hop 1024; nearest exponential chirp ridge; +/-1/24 octave frame mean; normalize by 1-5 kHz median",
+  "metrics_db": {
+    "baseline_rx84_1000_5000": {"mae":0.18191580685611086,"rmse":0.20775562603326053,"n":8},
+    "vbatbcl_median_1000_5000": {"mae":0.5286451699363681,"rmse":0.5667138090852523,"n":8},
+    "baseline_rx84_630_6300": {"mae":0.18383387138892845,"rmse":0.21437529643992928,"n":11},
+    "vbatbcl_median_630_6300": {"mae":0.4824883018115649,"rmse":0.5345602279230086,"n":11}
+  },
+  "per_run_1000_5000": [
+    {"run":"A","mae":0.4255,"rmse":0.5131},
+    {"run":"B","mae":0.6075,"rmse":0.6885},
+    {"run":"C","mae":0.6403,"rmse":0.6914}
+  ],
+  "safety": {"playback_rc_all_zero":true,"new_wsa_pa_soundwire_xrun_fault":false,"unsafe_acoustic_behavior_observed_by_automation":false},
+  "decision": "REJECT standalone VBAT/BCL as an acoustic parity improvement; preserve as structural evidence and test only with its Windows-proven producer companions"
+}
