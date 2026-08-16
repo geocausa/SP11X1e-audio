@@ -1,0 +1,47 @@
+--- /home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/rpv4-macro84-winproducer-init-v2-20260816/lpass-wsa-macro.c.winproducer-init-v2	2026-08-16 18:08:55.613503641 +0100
++++ /home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/rpv4-macro84-winproducer-nohd2-v3-20260816/lpass-wsa-macro.c.winproducer-nohd2-v3	2026-08-16 18:17:56.655075925 +0100
+@@ -1650,40 +1650,10 @@
+ static void wsa_macro_hd2_control(struct snd_soc_component *component,
+ 				  u16 reg, int event)
+ {
+-	u16 hd2_scale_reg;
+-	u16 hd2_enable_reg;
+-
+-	if (reg == CDC_WSA_RX0_RX_PATH_CTL) {
+-		hd2_scale_reg = CDC_WSA_RX0_RX_PATH_SEC3;
+-		hd2_enable_reg = CDC_WSA_RX0_RX_PATH_CFG0;
+-	}
+-	if (reg == CDC_WSA_RX1_RX_PATH_CTL) {
+-		hd2_scale_reg = CDC_WSA_RX1_RX_PATH_SEC3;
+-		hd2_enable_reg = CDC_WSA_RX1_RX_PATH_CFG0;
+-	}
+-
+-	if (hd2_enable_reg && SND_SOC_DAPM_EVENT_ON(event)) {
+-		snd_soc_component_update_bits(component, hd2_scale_reg,
+-					      CDC_WSA_RX_PATH_HD2_ALPHA_MASK,
+-					      0x10);
+-		snd_soc_component_update_bits(component, hd2_scale_reg,
+-					      CDC_WSA_RX_PATH_HD2_SCALE_MASK,
+-					      0x1);
+-		snd_soc_component_update_bits(component, hd2_enable_reg,
+-					      CDC_WSA_RX_PATH_HD2_EN_MASK,
+-					      CDC_WSA_RX_PATH_HD2_ENABLE);
+-	}
+-
+-	if (hd2_enable_reg && SND_SOC_DAPM_EVENT_OFF(event)) {
+-		snd_soc_component_update_bits(component, hd2_enable_reg,
+-					      CDC_WSA_RX_PATH_HD2_EN_MASK, 0);
+-		snd_soc_component_update_bits(component, hd2_scale_reg,
+-					      CDC_WSA_RX_PATH_HD2_SCALE_MASK,
+-					      0);
+-		snd_soc_component_update_bits(component, hd2_scale_reg,
+-					      CDC_WSA_RX_PATH_HD2_ALPHA_MASK,
+-					      0);
+-	}
++	/* SP11 Windows native WSA lifecycle never enables generic HD2. */
++	(void)component;
++	(void)reg;
++	(void)event;
+ }
+ 
+ static int wsa_macro_config_compander(struct snd_soc_component *component,

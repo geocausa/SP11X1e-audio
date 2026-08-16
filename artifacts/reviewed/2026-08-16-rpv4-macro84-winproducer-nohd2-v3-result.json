@@ -1,0 +1,23 @@
+{
+  "schema":"sp11-rpv4-macro84-winproducer-nohd2-v3-result-v1",
+  "date":"2026-08-16",
+  "candidate":"sp11-audio-rpv4-macro84-winproducer-nohd2-v3",
+  "kernel":"7.1.5-sp11-render-parity-v4+",
+  "loaded_wsa_srcversion":"4AF6F542C17BA6DD46586DA",
+  "wsa_module_zst_sha256":"05d19a94c21b5a7683922e024f714877d744b588cf59c1152ea694f401e4b530",
+  "initrd_sha256":"7668ed49f0adc558a2647a7de1e8bf11296edff874eeec7650b5ae5ad2fcb935",
+  "conditions":{"endpoint":0.12,"wsa_rx0":84,"wsa_rx1":84,"surface_curve":true,"primary_half_db_off":true,"vbat_bcl":true,"cb_decode_v2_5":true,"top_cfg1":"0x03","rx_cfg1_base":"0x6c","hd2":false,"wsa8845_csr":"safe assisted baseline"},
+  "active_register_gate":{"rx0_cfg0":"0x02","rx1_cfg0":"0x02","rx0_sec3":"0x00","rx1_sec3":"0x00","rx0_cfg1":"0xef","rx1_cfg1":"0xef","rx0_vol":"0x00","rx1_vol":"0x00","top_cfg1":"0x03","gate":"PASS before and after real playback"},
+  "captures":[
+    {"run":"A","sha256":"27AEBCFC8735F3366155E58024FCA0AF13FAFBCE0CFC6037A7D8807FBE8DB349","bytes":7678124},
+    {"run":"B","sha256":"5B49A8DDE55F30855C7FAFB89B7DC3F42E171A43A14BA3FFFC783F1813935420","bytes":7678124},
+    {"run":"C","sha256":"17D788D62F6F740257CEC6CA935B7836C55BA38BBAAAE275ECB33614E18003B2","bytes":7676204},
+    {"run":"D","sha256":"ABB42B0F50DD5BB5315CCAEFE38E6094DBFB59495BA739B9895A886E8D11F811","bytes":7678124},
+    {"run":"E","sha256":"A4CCFD1FAEC103760890A619F0A0B121C709D8BE2049BA839738EF7325C76163","bytes":7676204}
+  ],
+  "analysis_sha256":"46BAF1D27B67297D0B7EB59DB7E9D996062E47A12AE5B2D68716DBEB19AF19E2",
+  "metrics_db":{"baseline_rx84_1_5k":{"mae":0.1819158069,"rmse":0.2077556260},"v3_median5_1_5k":{"mae":0.5272279813,"rmse":0.5712926674},"v3_median5_630_6300":{"mae":0.4541380515,"rmse":0.5320445668}},
+  "per_run_1_5k":[{"run":"A","mae":0.4718,"rmse":0.5411},{"run":"B","mae":3.6563,"rmse":4.2534},{"run":"C","mae":0.6410,"rmse":0.7014},{"run":"D","mae":0.2228,"rmse":0.2883},{"run":"E","mae":0.5439,"rmse":0.6760}],
+  "safety":{"playback_rc_all_zero":true,"new_wsa_pa_soundwire_xrun_fault":false,"hd2_state_stable_after_playback":true},
+  "decision":"HD2-off is a real SP11 Windows structural correction but is not an acoustic parity win with Linux CSR-assisted WSA8845 unmute. Preserve the correction; pivot to the remaining coupled amp lifecycle rather than re-enable generic HD2."
+}

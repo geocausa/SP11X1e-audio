@@ -1,5 +1,19 @@
 # SP11 built-in-speaker Windows/Linux render parity ledger — 2026-08-12
 
+> **2026-08-16 no-HD2 v3 result:** the one-variable HD2 correction passed
+> active hardware gates (`RX CFG0=0x02`, SEC3=`0x00`) before and after real
+> playback with all other Windows-proven WSA producer bytes intact and no new
+> WSA/PA/SoundWire/XRUN fault.  Five-run external-mic median was nevertheless
+> ~`0.527/0.571 dB` MAE/RMSE over 1--5 kHz versus RX84 generic
+> ~`0.182/0.208`; one run approached baseline and one was an obvious capture
+> outlier, so the structural correction is preserved but is not the final
+> acoustic lever.  With the macro producer now Windows-like, the remaining
+> high-value coupled difference is the WSA8845 consumer lifecycle: Windows
+> keeps `DRE_CTL_1=0`/CSR fallback off while Linux unmute sets CSR_GAIN_EN.
+> The rejected old forced-DRE0 experiment must not be repeated; any next test
+> must change the amp lifecycle semantically and only after producer readiness.
+> See `docs/findings/2026-08-16-WINDOWS-WSA-HD2-ISOLATION.md`.
+
 > **2026-08-16 HD2 producer gap:** active read-only Linux regmap validation on
 > `winproducer-init-v2` proves TOP_CFG1, RX84 volume, RX CFG1/CFG2, primary
 > half-dB state, Surface curve, VBAT/BCL, softclip clocks and CB_DECODE now
