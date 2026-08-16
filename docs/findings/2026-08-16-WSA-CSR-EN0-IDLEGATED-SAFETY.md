@@ -181,3 +181,39 @@ The old statement “CSR-off is unsafe on Linux” is now too broad. What is est
 - H03 should move from RED to AMBER because the enabling lifecycle problem is now understood and the isolated CSR-off state is no longer failing its bounded safety gate.
 
 Next: repeat synchronized v5 acoustic sweeps with the byte-identical `c878...208` source and compare against the retained Windows 12% oracle. Only after that should the stored CSR gain field (`DRE_CTL_1` non-enable bits) be considered as a separate final exact-state variable.
+
+## Byte-identical Windows-oracle acoustic result
+
+After recovering the original `c8782c...208` WAV from the Windows partition, five new v5 12% captures were taken with the byte-identical stimulus. Every run again returned PCM to `closed` and no new runtime fault appeared.
+
+Using the same accepted ridge method as the previous RX84/no-HD2 analysis, the five-run median versus the synchronized Windows 12% reference is:
+
+| State | 1--5 kHz MAE | 1--5 kHz RMSE | 630 Hz--6.3 kHz MAE | 630 Hz--6.3 kHz RMSE |
+|---|---:|---:|---:|---:|
+| RX84 historical baseline | 0.182 dB | 0.208 dB | 0.184 dB | 0.214 dB |
+| Windows-producer/no-HD2 v3 median5 | 0.527 dB | 0.571 dB | 0.454 dB | 0.532 dB |
+| **CSR-off v5 median5** | **0.432 dB** | **0.489 dB** | **0.451 dB** | **0.526 dB** |
+
+Relative to the otherwise-matched no-HD2 v3 state, CSR-off improves the absolute Windows residual at **7/8** points in the 1--5 kHz band and **7/11** points from 630 Hz--6.3 kHz. Mean 1--5 kHz absolute error drops by about 0.096 dB. The broader band is essentially neutral in aggregate.
+
+The result is therefore **directionally positive but not a full acoustic closure**. It is important not to compare v5 only to the older RX84-only baseline: later producer corrections are Windows-proven structural state even when this room/mic oracle ranks the simpler RX84 state more tightly on a given day. The correct isolated comparison for CSR is v5 versus no-HD2 v3, because CSR enable is the only intended hardware difference.
+
+Five-run leave-one-out 1--5 kHz MAEs for v5 are approximately:
+
+```text
+0.358, 0.299, 0.404, 0.452, 0.399 dB
+```
+
+so the direction is not dependent on one favorable capture.
+
+Reviewed summary:
+
+```text
+artifacts/reviewed/2026-08-16-csren0-v5-exact-acoustic-summary.json
+```
+
+The full analysis JSON/text and raw WAVs remain retained on SP7 with their SHA-256 values recorded in that summary.
+
+### Updated H03 interpretation
+
+`CSR_GAIN_EN=0` is now both bounded-safe under the corrected host lifecycle and directionally closer to Windows acoustically versus its matched predecessor. The remaining Windows/Linux `DRE_CTL_1` difference is the stored CSR fallback gain code: v5 disables the fallback path but intentionally leaves that field untouched. That field should be isolated next rather than forcing the complete raw register to zero in one step.

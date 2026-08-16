@@ -1,0 +1,35 @@
+{
+  "schema": "sp11-csren0-v5-exact-acoustic-summary",
+  "date": "2026-08-16",
+  "stimulus_sha256": "c8782c7741b3ece628362e785d2ec91b990ef453befa4a3e7d6c3e1cd1f8a208",
+  "windows_reference": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-chirp-windows-sync-12pct-20260816\\external-mic-20260816-123906.wav",
+  "sp7_analysis_json": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\ridge-csren0-v5-idlegated-exact-five-run-20260816.json",
+  "sp7_analysis_json_sha256": "0f8657eda8029c009e5c20e1b3e4cdab81e4f6a541d3363dd2bbbd1c98e3723b",
+  "sp7_analysis_text": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\ridge-csren0-v5-idlegated-exact-five-analysis-20260816.txt",
+  "sp7_analysis_text_sha256": "ad32db6b4fe982b6023c02c342a99c2afe30df7b653e856ba17edd931bc0d36c",
+  "alignment_quality": [0.1261479064605048, 0.14237559210665598, 0.15785712359917467, 0.16908475416439173, 0.16665130987824392],
+  "metrics": {
+    "rx84_baseline": {
+      "1000_5000_mae_db": 0.18191580685611086,
+      "1000_5000_rmse_db": 0.20775562603326053,
+      "630_6300_mae_db": 0.18383387138892845,
+      "630_6300_rmse_db": 0.21437529643992928
+    },
+    "nohd2_v3_median5": {
+      "1000_5000_mae_db": 0.5272279812858089,
+      "1000_5000_rmse_db": 0.5712926673897993,
+      "630_6300_mae_db": 0.45413805154880227,
+      "630_6300_rmse_db": 0.5320445668167096
+    },
+    "csren0_v5_median5": {
+      "1000_5000_mae_db": 0.4317,
+      "1000_5000_rmse_db": 0.4890,
+      "630_6300_mae_db": 0.4513,
+      "630_6300_rmse_db": 0.5257,
+      "points_improved_1000_5000": "7/8",
+      "points_improved_630_6300": "7/11"
+    }
+  },
+  "leave_one_out_1000_5000_mae_db": [0.3575, 0.2988, 0.4044, 0.4515, 0.3985],
+  "decision": "CSR_GAIN_EN=0 is directionally beneficial versus the otherwise-matched no-HD2 v3 state in the stable 1-5 kHz band and neutral over 630 Hz-6.3 kHz. Keep H03 AMBER; isolate the stored CSR gain field next."
+}
