@@ -1,0 +1,41 @@
+{
+  "date": "2026-08-16",
+  "status": "REJECTED_AS_PARITY_IMPROVEMENT",
+  "candidate": "RPV4 RX84 + WSA_MACRO_GAIN_OFFSET_0_DB",
+  "single_source_change": "spkr_gain_offset: WSA_MACRO_GAIN_OFFSET_M1P5_DB -> WSA_MACRO_GAIN_OFFSET_0_DB",
+  "candidate_lpass_srcversion": "842E1604E1CC981A2E50659",
+  "runtime": {
+    "kernel": "7.1.5-sp11-render-parity-v4+",
+    "rx_max": 84,
+    "measurement_rx": 84,
+    "endpoint_scalar": 0.12,
+    "new_audio_faults": 0,
+    "post_run_rx_restored": 81
+  },
+  "initramfs_finding": {
+    "root_cause_of_first_rx81_boot": "snd_soc_x1e80100 was present in the initramfs but missing from conf/modules, so the rootfs baseline machine driver loaded after switch-root",
+    "fix": "force-load snd_soc_x1e80100 in initramfs conf/modules",
+    "lesson": "initramfs module presence alone does not prove deployment provenance"
+  },
+  "three_run_capture_sha256": [
+    "C9ECFB859472A9E94DD80D3C7B6553A6361E2D264EED4DC5FCEC70A737A5963D",
+    "5A7561531311A0AB5C4F93682E1A0CEBF7A86D43B87C502FB24AE82E158FC05B",
+    "C9382FA5B920B5AEDA600A87EE933DA4C2B6164CEBBDF704AF114C1E25BB452F"
+  ],
+  "analysis_sha256": "3182BDC4AF024F7874D27E06B5C0DB9A765E2FDE6B0417CAB7AB4F42CA4624E1",
+  "stable_shape_error_db": {
+    "630_6300_hz": {
+      "rx84_m1p5_mae": 0.425,
+      "rx84_m1p5_rmse": 0.507,
+      "rx84_halfdb0_median_mae": 0.437,
+      "rx84_halfdb0_median_rmse": 0.600
+    },
+    "1000_5000_hz": {
+      "rx84_m1p5_mae": 0.419,
+      "rx84_m1p5_rmse": 0.489,
+      "rx84_halfdb0_median_mae": 0.431,
+      "rx84_halfdb0_median_rmse": 0.604
+    }
+  },
+  "decision": "Keep RX84 with the existing M1P5 half-dB policy; do not promote HalfDB0."
+}
