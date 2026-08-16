@@ -8,33 +8,27 @@ transactions, its REV_0D ACDB, the shipped ARM64 Qualcomm drivers and controlled
 Linux tests. Kernel/DT, DSP topology, ALSA UCM and PipeWire policy are kept as
 separate layers so that an acoustic result is never mistaken for a driver fact.
 
-> **Render-parity staging update (2026-08-14):** the isolated
-> `7.1.5-sp11-render-parity+` candidate consolidates the exact four-link DEFAULT
-> topology, final-volume/GainStep transaction, Windows SOFT_PAUSE and the
-> conservative WSA884x clock-stop correction with the full Wi-Fi, Phase91 touch,
-> OLED and protected-audio platform closure.  Its build, signed module tree,
-> initramfs and GRUB entry validate, but it is not armed or booted.  Runtime and
-> physical gates remain AMBER.  See
-> [`2026-08-14-render-parity-candidate.md`](docs/deployment/2026-08-14-render-parity-candidate.md).
+> **Integration checkpoint (2026-08-16):** active development is on
+> `agent/render-parity-20260812`; `origin/main` is a strict ancestor of that
+> branch, not a competing line. The live render-parity-v4 family has already
+> passed protected playback, exact channel-ordered endpoint-volume, Windows
+> SOFT_PAUSE, corrected LPASS WSA v2.5 softclip addressing, Windows WSA8845
+> initialization/PA ordering, RX84/0 dB producer gain, and demand-driven
+> PA-at-idle shutdown. The overall built-in-speaker gate remains **AMBER** while
+> H03 (DRE/CSR consumer semantics), the corrected-topology physical verdict and
+> seek-specific smoothing remain open. The current H03 route-time-zero v7
+> candidate has passed cold-boot provenance, a real 1% program-audio cycle and
+> a 90/90-sample closed-idle gate; its 5% and byte-identical 12% acoustic gates
+> are intentionally still pending. Start with
+> [`docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md)
+> and the
+> [`2026-08-16 repository consolidation checkpoint`](docs/checkpoints/2026-08-16-REPOSITORY-CONSOLIDATION-CHECKPOINT.md).
+>
+> The protected non-Dolby and CPS-v3 images remain rollback/lower-control
+> baselines. This remains research-quality hardware enablement, not an
+> upstream-ready driver or a general-purpose installation package.
 
-> **Project state (2026-08-11):** the protected, non-Dolby playback baseline
-> remains the accepted lower control. The isolated CPS V3 candidate now boots
-> the full platform, carries both per-amplifier CPS DP6 streams, starts the
-> VI+CPS graph and completes real playback; it is the operator-selected default.
-> A bounded live observer also proves distinct changing raw WSA telemetry and
-> the recovered PBR current policy on both active amplifiers. Local nonzero CPS
-> limiting action and calibrated physical telemetry remain unproven. The Windows ARM64
-> `DolbyAPOvlldp150 -> DolbyApoVr` path also executes on Linux as an experimental
-> overlay, but one-to-one Windows parity is **not** yet certified. A state-pinned
-> Aug-7 Windows run has now localized the remaining loud-75-Hz drive discrepancy
-> to **before the inner VLLDP DSP**: the live VLLDP input is ~3 dB hotter than the
-> deterministic source while normal production limiter controls are in force.
-> Start current Dolby work with
-> [`docs/audit/2026-08-08-DOLBY-INTEGRATION-STATUS.md`](docs/audit/2026-08-08-DOLBY-INTEGRATION-STATUS.md).
-> This remains research-quality hardware enablement, not an upstream-ready driver
-> or a general-purpose installation package.
-
-## Current baseline
+## Accepted rollback / lower-control baselines
 
 The accepted control is kernel `7.1.5-sp11-audio-clean+`, GRUB ID
 `sp11-audio-clean`, built after `mrproper` from source commit

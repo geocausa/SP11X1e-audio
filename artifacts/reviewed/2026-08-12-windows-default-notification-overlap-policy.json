@@ -1,0 +1,73 @@
+{
+  "date": "2026-08-12",
+  "scope": "Windows internal-speaker DEFAULT-owner overlap with explicit NOTIFICATION, plus isolated NOTIFICATION falsification",
+  "target": "Surface Pro 11 Windows one-shot boot",
+  "volume_policy": {
+    "endpoint_max_fraction": 0.10,
+    "verified_before_controlled_playback": true
+  },
+  "debugger": {
+    "host": "SP7",
+    "sole_owner": "kd.exe",
+    "breakpoint_kind": "ARM64 hardware execution breakpoint (ba e1)",
+    "physical_mmio_used": false,
+    "writes_to_dsp_soundwire_driver_state": false
+  },
+  "live_addresses_this_boot": {
+    "qcaudminiport_base": "0xfffff8004c6d0000",
+    "mode_translator_rva": "0x94080",
+    "mode_translator_va": "0xfffff8004c764080",
+    "qcadcm_base": "0xfffff800505b0000",
+    "selector_rva": "0x307a8",
+    "selector_va": "0xfffff800505e07a8"
+  },
+  "overlap_default_then_alerts": {
+    "stimulus_log_timeline_local": [
+      "MEDIA_START 2026-08-12T08:15:56.0720107+01:00",
+      "ALERT_START 2026-08-12T08:16:10.6548568+01:00",
+      "ALERT_STOP 2026-08-12T08:16:14.6859996+01:00",
+      "MEDIA_STOP 2026-08-12T08:16:19.3003982+01:00"
+    ],
+    "mode_hits": [
+      {"sequence": 1, "flag": "0x01", "meaning": "DEFAULT"},
+      {"sequence": 2, "flag": "0x0a", "meaning": "NOTIFICATION"}
+    ],
+    "qcadcm_selector_hits_before_notification_mode_hit": 10,
+    "qcadcm_selector_hits_after_notification_mode_hit_through_test_end": 0,
+    "observed_default_vector_prefix": [
+      ["0x01000001", 2],
+      ["0x01000002", 2],
+      ["0x01000003", 1]
+    ],
+    "result": "The alert was classified as NOTIFICATION by qcaudminiport, but no fresh qcadcm render-family selection occurred while the already-live DEFAULT endpoint graph remained active."
+  },
+  "isolated_alerts_after_audio_engine_cold_reset": {
+    "fresh_qcadcm_selector_sequence_observed": true,
+    "full_six_key_vector": [
+      ["0x01000001", 2],
+      ["0x01000002", 7],
+      ["0x01000003", 1],
+      ["0x01000004", 2],
+      ["0x01000005", 7],
+      ["0x01000006", 1]
+    ],
+    "meaning": "GKV 7 / NOTIFICATION family",
+    "result": "The same explicit Alerts class selects the NOTIFICATION lower family when it starts from an idle/cold audio-engine lifetime."
+  },
+  "interpretation": {
+    "directly_observed": "DEFAULT-first overlap keeps the existing lower qcadcm family selection even though the later stream is classified NOTIFICATION.",
+    "strong_inference": "Windows processing mode is an endpoint/audio-engine graph-lifetime choice rather than an independently opened AudioReach family per simultaneously mixed client stream.",
+    "not_yet_proven": "The reciprocal NOTIFICATION-first then DEFAULT overlap/switchover behavior. Do not generalize the one-way result to a universal first-stream-wins rule yet."
+  },
+  "raw_log_sha256": {
+    "SP11_RENDER_POLICY_20260812_0740BST.log": "750ca2445001b15bf34daa955f93f1149509d7814cebeee4b7116cb281932bbd",
+    "SP11_RENDER_OVERLAP_LIFECYCLE_20260812_0823BST.log": "2c6849b964d9d51be457b00d72b325442985712d096eca95624cd37532444a8b",
+    "SP11_RENDER_REVERSE_OVERLAP_20260812_0837BST.log": "e7b186dfd7875ac9a141d53db138cd7f00858fbe3902e4e36e0f95764c81a44c"
+  },
+  "tooling_notes": [
+    "qcadcm and QCAUD PnP images were recovered through !drvobj and PE AddressOfEntryPoint because they were not exposed through normal lm enumeration in this session.",
+    "The successful mode capture mechanism is ba e1, matching the earlier reviewed ARM64 capture. Software bp/bu was not a valid substitute here.",
+    "Repeated qcadcm selector hardware trapping can produce unmatched ARM64 single-step stops on unrelated ACDB calls; future selector captures should be cold, bounded, and avoid automatic pointer dereferences.",
+    "A qualifying 0x5aa34 OOB hook did not fire in these lifecycle tests; that absence is not used as the primary graph-lifetime conclusion."
+  ]
+}

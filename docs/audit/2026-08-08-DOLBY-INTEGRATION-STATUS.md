@@ -72,41 +72,44 @@ docs/findings/2026-08-07-STATE-PINNED-DYNAMIC-VLLDP-PRELIMITER-DRIVE.md
 
 ## What is not proved
 
-The following must remain hypotheses or diagnostics:
+The current Linux candidate is still not certified one-to-one with Windows for
+arbitrary content, transitions and lifecycle state. In particular, the final
+built-in-speaker completion gate still depends on downstream AudioReach/WSA8845
+state and physical listening, not only the Dolby waveform.
 
-- that the missing ~3 dB is a blanket gain;
-- that `peak=-48` is an authentic production state;
-- that `VlldpSystemGain` is nonzero on this SP11;
-- that a specific L/R matrix such as `(L+R)/sqrt(2)` is the missing operation;
-- that the current Linux candidate has one-to-one Windows parity for arbitrary
-  stereo content, transitions and lifecycle state.
+The older hypotheses that the pre-VLLDP discrepancy was a blanket ~3 dB gain or
+an unknown L/R matrix are now **closed/rejected**. Later controlled Windows
+captures prove source amplitude is unchanged at VR input, the level/state-
+dependent increase occurs inside `DolbyApoVr`, and the valid VR output bytes are
+exactly the bytes delivered to VLLDP. See:
 
-Do not encode those hypotheses into production defaults.
+- `docs/findings/2026-08-12-WINDOWS-VR-OWNS-PRE-VLLDP-DRIVE.md`
+- `docs/findings/2026-08-12-WINDOWS-VLLDP-STEREO-MATRIX-FALSIFICATION.md`
 
-## Remaining decisive experiment
+## Resolution of the former “remaining decisive experiment”
 
-The cloud is now narrow enough for a single discriminating capture rather than
-more broad reverse engineering.
-
-Generate the tracked diagnostic matrix stimulus locally:
-
-```sh
-python tools/dolby/generate_stereo_matrix_probe.py diagnostic-stereo-matrix-75hz.wav
-```
-
-Run the three cases through a fresh Windows Dynamic graph while preserving
-endpoint/profile state:
+The Aug-8 matrix experiment described by older revisions of this document has
+been completed and should no longer be treated as the next code-changing
+milestone. The later evidence establishes the ordinary stereo path as:
 
 ```text
-in-phase     L=+x, R=+x
-left-only    L=+x, R=0
-anti-phase   L=+x, R=-x
+source PCM
+  -> VR input staging (source amplitude preserved)
+  -> DolbyApoVr (state/level-dependent processing)
+  -> VR output staging
+  == VLLDP input staging
+  -> DolbyAPOvlldp150
 ```
 
-For each case capture the sample values immediately before and after the
-remaining outer-wrapper boundary, plus the inner staging buffer. The observed
-ratios identify the actual 2x2 matrix. Only then should Linux production code be
-changed.
+Separate Aug-9/10 research also proved that the original ARM64 Dolby
+ASAR/HRTF+DAP objects can be hosted on Linux and staged a genuine Windows
+Spatial Audio object oracle. That work is useful provenance and future spatial
+scope, but ordinary two-channel built-in-speaker parity must not be confused
+with a spatial-object/HRTF completion requirement. See:
+
+- `docs/findings/2026-08-09-ASAR-WINDOWS-DOLBY-LINUX-HOST-BREAKTHROUGH.md`
+- `docs/findings/2026-08-09-ASAR-DAX-LIFECYCLE-AND-CORE-STATE-CLOSURE.md`
+- `docs/findings/2026-08-10-WINDOWS-GENUINE-SPATIAL-OBJECT-ORACLE-STAGED.md`
 
 ## Repository/publication policy
 
@@ -139,9 +142,13 @@ A Dolby code change is ready for `main` only if:
 
 ## Current engineering decision
 
-The Aug-5/6 source/research body is valuable and should be integrated after
-publication cleanup. The Aug-7 result changes the next technical target but does
-**not** justify a production DSP gain change yet.
+The old Aug-8 “recover an unknown stereo matrix” target is retired. The Dolby
+stereo drive/localization question is closed strongly enough that current
+built-in-speaker work should remain downstream: exact AudioReach/LPASS/WSA8845
+producer-consumer semantics, demand lifecycle and physical parity. Do not add a
+blanket gain or psychoacoustic substitute to compensate for a hardware-side
+mismatch.
 
-The next code-changing milestone is exact recovery of the outer/upstream stereo
-matrix (or other operation) responsible for the observed pre-VLLDP ~3 dB drive.
+The ASAR/spatial-object branch remains valuable and its final public findings
+and native Windows oracle source are preserved in the canonical branch, while
+the full exploratory harness branch remains archived for provenance.

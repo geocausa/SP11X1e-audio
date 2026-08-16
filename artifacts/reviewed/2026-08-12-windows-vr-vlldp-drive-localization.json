@@ -1,0 +1,113 @@
+{
+  "date": "2026-08-12",
+  "scope": "Full-memory localization of the Windows Dynamic-profile pre-VLLDP drive using three low-volume stereo discriminator captures",
+  "safety": {
+    "windows_endpoint_volume_scalar": 0.06,
+    "verified_before_every_playback": true,
+    "kdnet_used": false,
+    "physical_mmio_used": false,
+    "raw_dumps_committed": false
+  },
+  "target": {
+    "audiodg_pid": 11776,
+    "same_process_all_cases": true,
+    "same_vr_wrapper_all_cases": "0x16da813c2f0",
+    "same_vr_core_all_cases": "0x16da81dd808",
+    "same_vlldp_wrapper_all_cases": "0x16da868c1f8"
+  },
+  "profile_resolution": {
+    "profile": "Dynamic",
+    "direct_live_vr_core": {
+      "effective_output_mode_core_0x118": 1,
+      "postgain_core_0x61c": 0,
+      "leveler_amount_core_0x6d4": 5,
+      "leveler_enable_core_0x6dc": 1,
+      "leveler_drc_core_0x6e4": 1,
+      "bass_enhancer_enable_core_0xc90": 0,
+      "bass_enhancer_boost_core_0xc98": 0,
+      "bass_enhancer_cutoff_core_0xca0": 200,
+      "bass_enhancer_width_core_0xca8": 16,
+      "bass_extraction_enable_core_0xd60": 0,
+      "bass_extraction_cutoff_core_0xd68": 200,
+      "dirty_core_0x1278": 0
+    },
+    "basis": "Recovered seven-profile table has leveler amount 5 only for Dynamic; all three dumps report the same live core values."
+  },
+  "vr_geometry": {
+    "dolbyapovr_module_base": "0x7ffeda210000",
+    "libwrapper_vtable": "0x7ffeda3e8ae0",
+    "wrapper": "0x16da813c2f0",
+    "config_pointer": "0x16da813c0f0",
+    "input_staging": "0x16da8257d78",
+    "output_staging": "0x16da8258578",
+    "core": "0x16da81dd808",
+    "block_frames": 256,
+    "outer_geometry": 512,
+    "fills": {
+      "in_phase": 128,
+      "left_only": 192,
+      "anti_phase": 32
+    }
+  },
+  "cases": {
+    "in_phase": {
+      "source_sha256": "1ec9c86383dc4f77ee1340a9008dcf731a557a7ea9a91efe0e365e5e9a9c218f",
+      "dump_sha256": "fbfe443f318fcd5e1a47851d8538ecf2dfcfe1bea96f820819baf4c5ef1b8d8d",
+      "vr_input": {
+        "left_peak": 0.25,
+        "right_peak": 0.25
+      },
+      "vr_output": {
+        "left_peak": 0.5349301695823669,
+        "right_peak": 0.5349301695823669
+      },
+      "vlldp_input": {
+        "left_peak": 0.5349301695823669,
+        "right_peak": 0.5349301695823669
+      },
+      "vr_output_equals_vlldp_input_for_valid_fill": true
+    },
+    "left_only": {
+      "source_sha256": "b49f03ca41457305473012f395c04f9a3958512b447ab9d79f50a5bbd1b27107",
+      "dump_sha256": "5f50be3f3b50e4c04c45a387b261193ad6bc94cdbb8993c7a35af2d4389a552c",
+      "vr_input": {
+        "left_peak": 0.25,
+        "right_peak": 0.0
+      },
+      "vr_output": {
+        "left_peak": 0.5528902411460876,
+        "right_peak": 6.3356947066495195e-06
+      },
+      "vlldp_input": {
+        "left_peak": 0.5528902411460876,
+        "right_peak": 6.3356947066495195e-06
+      },
+      "vr_output_equals_vlldp_input_for_valid_fill": true
+    },
+    "anti_phase": {
+      "source_sha256": "02b61a8104b144100bb4f41c5bbd73fe6f093f505e6e51dc090e248896289b77",
+      "dump_sha256": "8a971a0a0dedb2b67d40a39341aa6b9d3ad70186742dbd9ca9c97dac870d4168",
+      "vr_input": {
+        "left_peak": 0.25,
+        "right_peak": 0.25
+      },
+      "vr_output": {
+        "left_peak": 0.545288622379303,
+        "right_peak": 0.545288622379303
+      },
+      "vlldp_input": {
+        "left_peak": 0.5452863574028015,
+        "right_peak": 0.5452863574028015
+      },
+      "vr_output_equals_vlldp_input_for_valid_fill": true
+    }
+  },
+  "conclusions": {
+    "pre_vr_gain": "none observed: VR input is exactly the 0.25 source on every active channel",
+    "drive_owner": "DolbyApoVr",
+    "post_vr_pre_vlldp_gain_or_matrix": "none observed over the valid captured fill: VR output is byte-for-byte VLLDP input",
+    "stereo_sum_or_crossfeed": "falsified by left-only isolation and anti-phase preservation",
+    "fixed_plus_3db_rule": "falsified: a 0.25 probe is raised to about 0.54, roughly +6.6 to +6.9 dB depending on case/history",
+    "production_implication": "Do not add an external +3 dB or matrix stage. Linux parity must reproduce the original VR leveler/regulator/history behavior already executed by the native VR bridge."
+  }
+}
