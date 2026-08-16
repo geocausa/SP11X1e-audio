@@ -1,5 +1,18 @@
 # SP11 built-in-speaker Windows/Linux render parity ledger — 2026-08-12
 
+> **2026-08-16 complete-producer v1 correction:** the first combined RX84 +
+> Surface-curve + primary-half-dB-off + VBAT/BCL/CB_DECODE candidate was safe
+> at the kernel/transport layer but acoustically worse and non-stationary; its
+> five-run 1--5 kHz median was ~`0.496/0.570 dB` MAE/RMSE versus RX84 generic
+> ~`0.182/0.208`.  Re-auditing the full 330 native Windows WSA transactions
+> then exposed two producer init values v1 still lacked: both RX CFG1 bases need
+> vendor/Windows bit `0x08` (Linux default `0x64`; active Windows `0x6d`) and
+> TOP_CFG1 is Windows/vendor `0x03` while mainline defaults `0x00`.  These are
+> independently corroborated by the old Qualcomm `wsa_macro_reg_init[]`; other
+> vendor init entries remain unproven and will not be copied.  A narrowly scoped
+> v2 must test only those two init corrections before any CSR/DRE revisit. See
+> `docs/findings/2026-08-16-WINDOWS-PRODUCER-V1-INIT-GAP.md`.
+
 > **2026-08-16 WSA VBAT/BCL isolation:** passive native Windows `qcaucd` tracing
 > proved the legacy Qualcomm VBAT/BCL + v2.5 CB_DECODE producer stage is live
 > on both internal-speaker paths and missing from current upstream Linux.  A

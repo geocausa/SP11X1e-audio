@@ -1,0 +1,23 @@
+{
+  "schema":"sp11-rpv4-macro84-winproducer-v1-result-v1",
+  "date":"2026-08-16",
+  "candidate":"sp11-audio-rpv4-macro84-winproducer-v1",
+  "kernel":"7.1.5-sp11-render-parity-v4+",
+  "loaded_wsa_srcversion":"269A524D9743AD9FAA72A6B",
+  "wsa_module_zst_sha256":"5374b7bf739ea9236bbee5e5a80b56d4d79829555ce9ce0729807b091e705998",
+  "initrd_sha256":"18d5a9c2a0c4c2ab4c59608ec3cace7fe4e3436f961437c7d18ce67b489033eb",
+  "conditions":{"endpoint":0.12,"wsa_rx0":84,"wsa_rx1":84,"surface_curve":true,"primary_half_db_off":true,"vbat_bcl":true,"cb_decode_v2_5":true,"wsa8845_csr":"safe assisted baseline"},
+  "captures":[
+    {"run":"A","sha256":"F0EFDA34110D56E68365C2AB35E8BBF39E8D76FDF73385DBDA9DFD2F5F1E2A1A"},
+    {"run":"B","sha256":"E61D6E290AFE2DFDAB677EBF5561F140C78F71EB89BB7158493BD2A0F14BCB1C"},
+    {"run":"C","sha256":"47D56A98169F2E3192A80A4E3D491E93432A127E68B01D5870A0FC719FD427F5"},
+    {"run":"D","sha256":"AF4E912450A2E79BD37128AAF9B928C5B950AA1C41DB81C305F78A95F2563901"},
+    {"run":"E","sha256":"63C3191C426CD5CA89DF746BA12F7306B1DDEA3811BAF3B095BC2908897E0897"}
+  ],
+  "ridge_analysis_sha256":"9BB01457F025733C35826D760F56873B0E9EF822CF0B8D62C4AB686C7D14F54A",
+  "metrics_db":{"baseline_rx84_1_5k":{"mae":0.1819158069,"rmse":0.2077556260},"candidate_median5_1_5k":{"mae":0.4959432539,"rmse":0.5698644044},"candidate_median5_630_6300":{"mae":0.5417632463,"rmse":0.6201615522}},
+  "per_run_1_5k":[{"run":"A","mae":0.5731,"rmse":0.7259},{"run":"B","mae":0.4105,"rmse":0.5277},{"run":"C","mae":2.7924,"rmse":4.3748},{"run":"D","mae":2.3315,"rmse":2.8715},{"run":"E","mae":2.8981,"rmse":3.4998}],
+  "safety":{"playback_rc_all_zero":true,"new_wsa_pa_soundwire_xrun_fault":false},
+  "new_structural_gap":{"linux_rx_cfg1_default":"0x64","windows_active_pre_vbat":"0x6d","vendor_init_sets_bit":"0x08","linux_top_cfg1_default":"0x00","windows_write":"0x03","vendor_init_sets":"0x03"},
+  "decision":"Do not promote v1. It was not actually a complete Windows producer state: two Windows/vendor-corroborated WSA init settings were still absent. Test those settings before any CSR/DRE experiment."
+}

@@ -1,0 +1,286 @@
+--- /home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/rpv4-macro84-wincomp-primaryhalf0-v2-20260816/lpass-wsa-macro.c.rpv4-baseline	2026-08-16 16:45:37.343769178 +0100
++++ /home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/rpv4-macro84-winproducer-v1-20260816/lpass-wsa-macro.c.winproducer-v1	2026-08-16 17:54:44.294965940 +0100
+@@ -54,6 +54,18 @@
+ #define CDC_WSA_RX_MIX_TX0_SEL_MASK		GENMASK(2, 0)
+ #define CDC_WSA_RX_INP_MUX_RX_EC_CFG0		(0x0114)
+ #define CDC_WSA_RX_INP_MUX_SOFTCLIP_CFG0	(0x0118)
++/* SP11 Windows qcaucd-proven VBAT/BCL producer block */
++#define CDC_WSA_VBAT_BCL_VBAT_PATH_CTL		(0x0180)
++#define CDC_WSA_VBAT_BCL_VBAT_CFG		(0x0184)
++#define CDC_WSA_VBAT_BCL_GAIN_UPD1		(0x01DC)
++#define CDC_WSA_VBAT_BCL_GAIN_UPD2		(0x01E0)
++#define CDC_WSA_VBAT_BCL_GAIN_UPD3		(0x01E4)
++#define CDC_WSA_VBAT_BCL_GAIN_UPD4		(0x01E8)
++#define CDC_WSA_VBAT_BCL_GAIN_UPD5		(0x01EC)
++#define CDC_WSA_VBAT_BCL_GAIN_UPD6		(0x01F0)
++#define CDC_WSA_VBAT_BCL_GAIN_UPD7		(0x01F4)
++#define CDC_WSA_VBAT_BCL_GAIN_UPD8		(0x01F8)
++#define CDC_WSA_VBAT_BCL_GAIN_UPD9		(0x01FC)
+ #define CDC_WSA_TX0_SPKR_PROT_PATH_CTL		(0x0244)
+ #define CDC_WSA_TX_SPKR_PROT_RESET_MASK		BIT(5)
+ #define CDC_WSA_TX_SPKR_PROT_RESET		BIT(5)
+@@ -201,7 +213,7 @@
+ #define CDC_WSA_SPLINE_ASRC1_STATUS_FMAX_CNTR_LSB (0x0758)
+ #define CDC_WSA_SPLINE_ASRC1_STATUS_FMAX_CNTR_MSB (0x075C)
+ #define CDC_WSA_SPLINE_ASRC1_STATUS_FIFO	(0x0760)
+-#define WSA_MAX_OFFSET				(0x0760)
++#define WSA_MAX_OFFSET				(0x0908)
+ 
+ /* LPASS codec version <=2.4 register offsets */
+ #define CDC_WSA_COMPANDER1_CTL0			(0x05C0)
+@@ -261,6 +273,9 @@
+ #define CDC_2_5_WSA_SOFTCLIP0_SOFTCLIP_CTRL	(0x0644)
+ #define CDC_2_5_WSA_SOFTCLIP1_CRC		(0x0660)
+ #define CDC_2_5_WSA_SOFTCLIP1_SOFTCLIP_CTRL	(0x0664)
++#define CDC_2_5_WSA_CB_DECODE_CTL0		(0x0900)
++#define CDC_2_5_WSA_CB_DECODE_CTL1		(0x0904)
++#define CDC_2_5_WSA_CB_DECODE_CMD		(0x0908)
+ 
+ #define WSA_MACRO_RX_RATES (SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_16000 |\
+ 			SNDRV_PCM_RATE_32000 | SNDRV_PCM_RATE_48000 |\
+@@ -704,7 +719,7 @@
+ 	{ CDC_WSA_COMPANDER0_CTL4, 0xFF},
+ 	{ CDC_WSA_COMPANDER0_CTL5, 0x00},
+ 	{ CDC_WSA_COMPANDER0_CTL6, 0x01},
+-	{ CDC_WSA_COMPANDER0_CTL7, 0x28},
++	{ CDC_WSA_COMPANDER0_CTL7, 0x2E},
+ 	{ CDC_WSA_EC_HQ0_EC_REF_HQ_PATH_CTL, 0x00},
+ 	{ CDC_WSA_EC_HQ0_EC_REF_HQ_CFG0, 0x01},
+ 	{ CDC_WSA_EC_HQ1_EC_REF_HQ_PATH_CTL, 0x00},
+@@ -767,12 +782,12 @@
+ 	{ CDC_2_5_WSA_COMPANDER0_CTL8, 0x00},
+ 	{ CDC_2_5_WSA_COMPANDER0_CTL9, 0x00},
+ 	{ CDC_2_5_WSA_COMPANDER0_CTL10, 0x06},
+-	{ CDC_2_5_WSA_COMPANDER0_CTL11, 0x12},
+-	{ CDC_2_5_WSA_COMPANDER0_CTL12, 0x1E},
+-	{ CDC_2_5_WSA_COMPANDER0_CTL13, 0x24},
+-	{ CDC_2_5_WSA_COMPANDER0_CTL14, 0x24},
+-	{ CDC_2_5_WSA_COMPANDER0_CTL15, 0x24},
+-	{ CDC_2_5_WSA_COMPANDER0_CTL16, 0x00},
++	{ CDC_2_5_WSA_COMPANDER0_CTL11, 0x0C},
++	{ CDC_2_5_WSA_COMPANDER0_CTL12, 0x15},
++	{ CDC_2_5_WSA_COMPANDER0_CTL13, 0x15},
++	{ CDC_2_5_WSA_COMPANDER0_CTL14, 0x15},
++	{ CDC_2_5_WSA_COMPANDER0_CTL15, 0x15},
++	{ CDC_2_5_WSA_COMPANDER0_CTL16, 0x0F},
+ 	{ CDC_2_5_WSA_COMPANDER0_CTL17, 0x24},
+ 	{ CDC_2_5_WSA_COMPANDER0_CTL18, 0x2A},
+ 	{ CDC_2_5_WSA_COMPANDER0_CTL19, 0x16},
+@@ -783,16 +798,16 @@
+ 	{ CDC_2_5_WSA_COMPANDER1_CTL4, 0xFF},
+ 	{ CDC_2_5_WSA_COMPANDER1_CTL5, 0x00},
+ 	{ CDC_2_5_WSA_COMPANDER1_CTL6, 0x01},
+-	{ CDC_2_5_WSA_COMPANDER1_CTL7, 0x28},
++	{ CDC_2_5_WSA_COMPANDER1_CTL7, 0x2E},
+ 	{ CDC_2_5_WSA_COMPANDER1_CTL8, 0x00},
+ 	{ CDC_2_5_WSA_COMPANDER1_CTL9, 0x00},
+ 	{ CDC_2_5_WSA_COMPANDER1_CTL10, 0x06},
+-	{ CDC_2_5_WSA_COMPANDER1_CTL11, 0x12},
+-	{ CDC_2_5_WSA_COMPANDER1_CTL12, 0x1E},
+-	{ CDC_2_5_WSA_COMPANDER1_CTL13, 0x24},
+-	{ CDC_2_5_WSA_COMPANDER1_CTL14, 0x24},
+-	{ CDC_2_5_WSA_COMPANDER1_CTL15, 0x24},
+-	{ CDC_2_5_WSA_COMPANDER1_CTL16, 0x00},
++	{ CDC_2_5_WSA_COMPANDER1_CTL11, 0x0C},
++	{ CDC_2_5_WSA_COMPANDER1_CTL12, 0x15},
++	{ CDC_2_5_WSA_COMPANDER1_CTL13, 0x15},
++	{ CDC_2_5_WSA_COMPANDER1_CTL14, 0x15},
++	{ CDC_2_5_WSA_COMPANDER1_CTL15, 0x15},
++	{ CDC_2_5_WSA_COMPANDER1_CTL16, 0x0F},
+ 	{ CDC_2_5_WSA_COMPANDER1_CTL17, 0x24},
+ 	{ CDC_2_5_WSA_COMPANDER1_CTL18, 0x2A},
+ 	{ CDC_2_5_WSA_COMPANDER1_CTL19, 0x16},
+@@ -876,6 +891,9 @@
+ 	case CDC_2_5_WSA_SOFTCLIP0_SOFTCLIP_CTRL:
+ 	case CDC_2_5_WSA_SOFTCLIP1_CRC:
+ 	case CDC_2_5_WSA_SOFTCLIP1_SOFTCLIP_CTRL:
++	case CDC_2_5_WSA_CB_DECODE_CTL0:
++	case CDC_2_5_WSA_CB_DECODE_CTL1:
++	case CDC_2_5_WSA_CB_DECODE_CMD:
+ 		return true;
+ 	}
+ 
+@@ -908,6 +926,17 @@
+ 	case CDC_WSA_RX_INP_MUX_RX_MIX_CFG0:
+ 	case CDC_WSA_RX_INP_MUX_RX_EC_CFG0:
+ 	case CDC_WSA_RX_INP_MUX_SOFTCLIP_CFG0:
++	case CDC_WSA_VBAT_BCL_VBAT_PATH_CTL:
++	case CDC_WSA_VBAT_BCL_VBAT_CFG:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD1:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD2:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD3:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD4:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD5:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD6:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD7:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD8:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD9:
+ 	case CDC_WSA_TX0_SPKR_PROT_PATH_CTL:
+ 	case CDC_WSA_TX0_SPKR_PROT_PATH_CFG0:
+ 	case CDC_WSA_TX1_SPKR_PROT_PATH_CTL:
+@@ -1071,6 +1100,9 @@
+ {
+ 	switch (reg) {
+ 	case CDC_2_5_WSA_COMPANDER1_CTL6:
++	case CDC_2_5_WSA_CB_DECODE_CTL0:
++	case CDC_2_5_WSA_CB_DECODE_CTL1:
++	case CDC_2_5_WSA_CB_DECODE_CMD:
+ 		return true;
+ 	}
+ 
+@@ -1086,6 +1118,17 @@
+ 	case CDC_WSA_INTR_CTRL_PIN1_STATUS0:
+ 	case CDC_WSA_INTR_CTRL_PIN2_STATUS0:
+ 	case CDC_WSA_COMPANDER0_CTL6:
++	case CDC_WSA_VBAT_BCL_VBAT_PATH_CTL:
++	case CDC_WSA_VBAT_BCL_VBAT_CFG:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD1:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD2:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD3:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD4:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD5:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD6:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD7:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD8:
++	case CDC_WSA_VBAT_BCL_GAIN_UPD9:
+ 	case CDC_WSA_SPLINE_ASRC0_STATUS_FMIN_CNTR_LSB:
+ 	case CDC_WSA_SPLINE_ASRC0_STATUS_FMIN_CNTR_MSB:
+ 	case CDC_WSA_SPLINE_ASRC0_STATUS_FMAX_CNTR_LSB:
+@@ -1729,6 +1772,85 @@
+ 	}
+ }
+ 
++/*
++ * SP11 Windows uses the legacy Qualcomm WSA VBAT/BCL attenuation stage on
++ * both internal-speaker paths. Keep this event independent of compander and
++ * WSA8845 CSR state so the candidate isolates producer topology only.
++ */
++static int wsa_macro_enable_vbat(struct snd_soc_dapm_widget *w,
++				 struct snd_kcontrol *kcontrol, int event)
++{
++	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
++	struct wsa_macro *wsa = snd_soc_component_get_drvdata(component);
++	u16 vbat_path_cfg;
++	int softclip_path;
++	static const u16 bcl_regs[] = {
++		CDC_WSA_VBAT_BCL_GAIN_UPD1, CDC_WSA_VBAT_BCL_GAIN_UPD2,
++		CDC_WSA_VBAT_BCL_GAIN_UPD3, CDC_WSA_VBAT_BCL_GAIN_UPD4,
++		CDC_WSA_VBAT_BCL_GAIN_UPD5, CDC_WSA_VBAT_BCL_GAIN_UPD6,
++		CDC_WSA_VBAT_BCL_GAIN_UPD7, CDC_WSA_VBAT_BCL_GAIN_UPD8,
++		CDC_WSA_VBAT_BCL_GAIN_UPD9,
++	};
++	static const u8 bcl_gain[] = { 0xff, 0x03, 0x00, 0xff, 0x03, 0x00,
++				       0xff, 0x03, 0x00 };
++	int i;
++
++	if (!snd_soc_dapm_widget_name_cmp(w, "WSA_RX INT0 VBAT")) {
++		vbat_path_cfg = CDC_WSA_RX0_RX_PATH_CFG1;
++		softclip_path = WSA_MACRO_SOFTCLIP0;
++	} else if (!snd_soc_dapm_widget_name_cmp(w, "WSA_RX INT1 VBAT")) {
++		vbat_path_cfg = CDC_WSA_RX1_RX_PATH_CFG1;
++		softclip_path = WSA_MACRO_SOFTCLIP1;
++	} else {
++		return -EINVAL;
++	}
++
++	switch (event) {
++	case SND_SOC_DAPM_PRE_PMU:
++		snd_soc_component_update_bits(component, CDC_WSA_VBAT_BCL_VBAT_PATH_CTL,
++					      0x10, 0x10);
++		snd_soc_component_update_bits(component, CDC_WSA_VBAT_BCL_VBAT_CFG,
++					      0x01, 0x01);
++		snd_soc_component_update_bits(component, vbat_path_cfg, 0x80, 0x80);
++		snd_soc_component_update_bits(component, CDC_WSA_VBAT_BCL_VBAT_CFG,
++					      0x02, 0x00);
++		wsa_macro_enable_softclip_clk(component, wsa, softclip_path, true);
++		snd_soc_component_update_bits(component, vbat_path_cfg, 0x02, 0x02);
++		for (i = 0; i < ARRAY_SIZE(bcl_regs); i++)
++			snd_soc_component_write(component, bcl_regs[i], bcl_gain[i]);
++
++		if (wsa->codec_version >= LPASS_CODEC_VERSION_2_5) {
++			snd_soc_component_write(component, CDC_2_5_WSA_CB_DECODE_CTL0, 0x01);
++			snd_soc_component_write(component, CDC_2_5_WSA_CB_DECODE_CTL1, 0x01);
++			snd_soc_component_write(component, CDC_2_5_WSA_CB_DECODE_CMD, 0x01);
++		}
++		dev_info(component->dev, "SP11VBAT: %s enabled\n", w->name);
++		break;
++
++	case SND_SOC_DAPM_POST_PMD:
++		if (wsa->codec_version >= LPASS_CODEC_VERSION_2_5) {
++			snd_soc_component_write(component, CDC_2_5_WSA_CB_DECODE_CMD, 0x00);
++			snd_soc_component_write(component, CDC_2_5_WSA_CB_DECODE_CTL1, 0x00);
++			snd_soc_component_write(component, CDC_2_5_WSA_CB_DECODE_CTL0, 0x00);
++		}
++		snd_soc_component_update_bits(component, vbat_path_cfg, 0x80, 0x00);
++		snd_soc_component_update_bits(component, CDC_WSA_VBAT_BCL_VBAT_CFG,
++					      0x02, 0x02);
++		snd_soc_component_update_bits(component, vbat_path_cfg, 0x02, 0x00);
++		for (i = 0; i < ARRAY_SIZE(bcl_regs); i++)
++			snd_soc_component_write(component, bcl_regs[i], 0x00);
++		wsa_macro_enable_softclip_clk(component, wsa, softclip_path, false);
++		snd_soc_component_update_bits(component, CDC_WSA_VBAT_BCL_VBAT_CFG,
++					      0x01, 0x00);
++		snd_soc_component_update_bits(component, CDC_WSA_VBAT_BCL_VBAT_PATH_CTL,
++					      0x10, 0x00);
++		dev_info(component->dev, "SP11VBAT: %s disabled\n", w->name);
++		break;
++	}
++
++	return 0;
++}
++
+ static int wsa_macro_config_softclip(struct snd_soc_component *component,
+ 				     int path, int event)
+ {
+@@ -1910,7 +2032,7 @@
+ 			snd_soc_component_update_bits(component,
+ 					CDC_WSA_RX0_RX_PATH_SEC1,
+ 					CDC_WSA_RX_PGA_HALF_DB_MASK,
+-					CDC_WSA_RX_PGA_HALF_DB_ENABLE);
++					CDC_WSA_RX_PGA_HALF_DB_DISABLE);
+ 			snd_soc_component_update_bits(component,
+ 					CDC_WSA_RX0_RX_PATH_MIX_SEC0,
+ 					CDC_WSA_RX_PGA_HALF_DB_MASK,
+@@ -1918,7 +2040,7 @@
+ 			snd_soc_component_update_bits(component,
+ 					CDC_WSA_RX1_RX_PATH_SEC1,
+ 					CDC_WSA_RX_PGA_HALF_DB_MASK,
+-					CDC_WSA_RX_PGA_HALF_DB_ENABLE);
++					CDC_WSA_RX_PGA_HALF_DB_DISABLE);
+ 			snd_soc_component_update_bits(component,
+ 					CDC_WSA_RX1_RX_PATH_MIX_SEC0,
+ 					CDC_WSA_RX_PGA_HALF_DB_MASK,
+@@ -2415,6 +2537,13 @@
+ 			     SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+ 			     SND_SOC_DAPM_POST_PMD),
+ 
++	SND_SOC_DAPM_MIXER_E("WSA_RX INT0 VBAT", SND_SOC_NOPM, 0, 0,
++				     NULL, 0, wsa_macro_enable_vbat,
++				     SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
++	SND_SOC_DAPM_MIXER_E("WSA_RX INT1 VBAT", SND_SOC_NOPM, 0, 0,
++				     NULL, 0, wsa_macro_enable_vbat,
++				     SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
++
+ 	SND_SOC_DAPM_MIXER_E("WSA_RX INT0 CHAIN", SND_SOC_NOPM, 0, 0,
+ 			     NULL, 0, wsa_macro_spk_boost_event,
+ 			     SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+@@ -2539,7 +2668,8 @@
+ 	{"WSA_RX INT0 INTERP", NULL, "WSA_RX INT0 SEC MIX"},
+ 	{"WSA_RX0 INT0 SIDETONE MIX", "SRC0", "WSA SRC0_INP"},
+ 	{"WSA_RX INT0 INTERP", NULL, "WSA_RX0 INT0 SIDETONE MIX"},
+-	{"WSA_RX INT0 CHAIN", NULL, "WSA_RX INT0 INTERP"},
++	{"WSA_RX INT0 VBAT", NULL, "WSA_RX INT0 INTERP"},
++	{"WSA_RX INT0 CHAIN", NULL, "WSA_RX INT0 VBAT"},
+ 
+ 	{"WSA_SPK1 OUT", NULL, "WSA_RX INT0 CHAIN"},
+ 	{"WSA_SPK1 OUT", NULL, "WSA_MCLK"},
+@@ -2579,7 +2709,8 @@
+ 	{"WSA_RX INT1 SEC MIX", NULL, "WSA_RX INT1 MIX"},
+ 	{"WSA_RX INT1 INTERP", NULL, "WSA_RX INT1 SEC MIX"},
+ 
+-	{"WSA_RX INT1 CHAIN", NULL, "WSA_RX INT1 INTERP"},
++	{"WSA_RX INT1 VBAT", NULL, "WSA_RX INT1 INTERP"},
++	{"WSA_RX INT1 CHAIN", NULL, "WSA_RX INT1 VBAT"},
+ 	{"WSA_SPK2 OUT", NULL, "WSA_RX INT1 CHAIN"},
+ 	{"WSA_SPK2 OUT", NULL, "WSA_MCLK"},
+ };
