@@ -1,0 +1,48 @@
+{
+  "date": "2026-08-17",
+  "status": "REJECTED \u2014 explicit physical DRE_CTL_1=0x00 init write does not improve CSR-off active-path noise",
+  "candidate": "DRE1-explicit-init v11 idle-gated",
+  "purpose": "add only the explicit SP11 physical DRE_CTL_1=0x00 supply-init write observed in the Windows 63-write codec initialization transaction; retain exact v5 behavior otherwise",
+  "source": {
+    "v5_base_sha256": "f5555cfde5f8c72001a779ac9d0dc0aac527284e88c6333a450027af4f340f97",
+    "v11_sha256": "97602f06ae0b301858808323a30637774385c2f6b18a2a6163a4c0dfc065c765",
+    "patch_sha256": "8832983c6ee0f4e850113d547449b4fa875188c0063a6b6a4f57cd787758411d"
+  },
+  "module": {
+    "srcversion": "0D82C04C3F28B7F468719F2",
+    "signed_ko_sha256": "5a82ae79586a5d1b66506661c23d5a9aa61bdd135d9062782ab824a48c28f5da",
+    "ko_zst_sha256": "e49373b91d64f1eb88e540f5b3e5de5a9e07e59161dd2c15ba983f06661c23d5",
+    "vermagic": "7.1.5-sp11-render-parity-v4+"
+  },
+  "initramfs": {
+    "sha256": "e91795adcafcc7b46843dc49c504a8484340768eb1769373a4a173c70c303f05"
+  },
+  "boot": {
+    "grub_id": "sp11-audio-rpv4-macro84-winproducer-nohd2-dre1-explicit-init-v11-idlegated",
+    "one_shot_consumed": true,
+    "persistent_fallback": "sp11-audio-cps-v3",
+    "idle_pcm_before_test": "closed"
+  },
+  "stimulus": {
+    "sha256": "87d8420ddaf7d56d3f5068c6a74362451fc2859197445490d15e7b3d456fa22e",
+    "description": "10 s 48 kHz stereo S16_LE all-zero PCM; visible endpoint 1% muted; physical PCM observed RUNNING"
+  },
+  "external_mic": {
+    "host": "SP7",
+    "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-rpv4-dre1-explicit-init-v11-idlegated-1pct-20260817\\external-mic-20260817-002040.wav",
+    "sha256": "636C056B2B45C5981590550FA52081757844C9173E66D7401874720F3D99AD29",
+    "ch0": {
+      "steady_rms": 0.0011043691702993434,
+      "steady_diff_rms": 0.0006249320521963612
+    },
+    "ch1": {
+      "steady_rms": 0.0013207238374500928,
+      "steady_diff_rms": 0.0007480486403322378
+    },
+    "median_steady_diff_rms": 0.0006864903462642995,
+    "vs_windows_active_diff_rms": 37.60925991386777,
+    "vs_v5_diff_rms": 1.014722847324204
+  },
+  "decision": "Reject v11 at the digital-silence gate. The explicit physical DRE_CTL_1=0 init transaction alone does not recover Windows quiet CSR-off behavior. No music/chirp escalation.",
+  "implication": "Together v9-v11 close the single DRE-history candidates: transient CSR enable, early DRE0, and explicit DRE1 zero. Move to the Windows board/supply analog initialization transitions, especially CURRENT_LIMIT d4->44 and CKWD 1b->13."
+}
