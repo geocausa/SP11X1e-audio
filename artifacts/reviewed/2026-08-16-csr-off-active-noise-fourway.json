@@ -1,0 +1,99 @@
+{
+  "date": "2026-08-16",
+  "status": "GREEN physical discriminator for H03: Windows active path and Linux CPS-v3 are quiet; CSR-off Linux v5/v8 are broadband-noisy",
+  "recorder": "SP7 fixed external microphone geometry, 48 kHz stereo capture",
+  "sp7_analysis": {
+    "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\csr-off-active-noise-fourway-20260816.json",
+    "sha256": "27B1D8B18BA537C9147A046AB46CDAE261B837586E468A6FF9EF5ABE55E841EE"
+  },
+  "windows_active_minus80": {
+    "capture": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-minus80-windows-997marker-tail-12pct-20260816\\external-mic-20260816-233343.wav",
+    "sha256": "785369E8E092D56B7417B3714E3238A604BCC56CA1211956E707C84D4E5DEEF6",
+    "endpoint": {
+      "volume": 0.12,
+      "muted": false
+    },
+    "stimulus": "continuous 12 s shared-mode WASAPI: first second 997 Hz amplitude 0.25, following 11 s 997 Hz amplitude 0.0001 (-80 dBFS); format 48 kHz stereo float32",
+    "marker_proof": {
+      "ch0_997_amplitude": 0.008729028322538069,
+      "ch1_997_amplitude": 0.010516119945954116
+    },
+    "median_steady_rms": 9.448895120577786e-05,
+    "median_steady_diff_rms": 1.8253227918889202e-05,
+    "channels": [
+      {
+        "steady_rms": 9.408790537522627e-05,
+        "steady_diff_rms": 1.7871788358202726e-05,
+        "steady_flatness_200_10000": 0.18618865050854402
+      },
+      {
+        "steady_rms": 9.488999703632945e-05,
+        "steady_diff_rms": 1.8634667479575675e-05,
+        "steady_flatness_200_10000": 0.1967196088950268
+      }
+    ],
+    "interpretation": "The strong 997 Hz marker proves the real Windows speaker path opened. The tail remains non-zero for all 11 s, preventing an exact-zero-content gating explanation; its broadband/difference floor remains at room baseline."
+  },
+  "linux_cpsv3_zero": {
+    "capture": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-cpsv3-1pct-20260816\\external-mic-20260816-232131.wav",
+    "sha256": "0BE1C590BF96A1B07300D88C7AED265986B771F07DA0C18E76E7F36BBC997B8C",
+    "endpoint": {
+      "volume": 0.01,
+      "muted": true
+    },
+    "stimulus": "10 s 48 kHz stereo S16_LE all-zero PCM; physical ALSA PCM observed RUNNING",
+    "median_steady_rms": 8.844721680049855e-05,
+    "median_steady_diff_rms": 1.8615030398551657e-05,
+    "diff_rms_vs_windows": 1.0198212875700767
+  },
+  "linux_v5_csroff_zero": {
+    "capture": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-rpv4-csren0-v5-idlegated-1pct-20260816\\external-mic-20260816-231808.wav",
+    "sha256": "58ED278A55A4CC23719B2B98FD2B737F59D2B5D5FD4CBC53798E51608190BA65",
+    "endpoint": {
+      "volume": 0.01,
+      "muted": true
+    },
+    "stimulus": "same 10 s all-zero PCM; physical ALSA PCM observed RUNNING",
+    "median_steady_rms": 0.0012002289558311217,
+    "median_steady_diff_rms": 0.0006765308860124863,
+    "diff_rms_vs_windows": 37.063630006634824,
+    "channels": [
+      {
+        "steady_rms": 0.0011028318736089951,
+        "steady_diff_rms": 0.0006201021693772162,
+        "steady_flatness_200_10000": 0.38184818355239536
+      },
+      {
+        "steady_rms": 0.0012976260380532483,
+        "steady_diff_rms": 0.0007329596026477564,
+        "steady_flatness_200_10000": 0.3880109753148589
+      }
+    ]
+  },
+  "linux_v8_drecold_zero": {
+    "capture": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-rpv4-drecold-v8-idlegated-1pct-20260816\\external-mic-20260816-230214.wav",
+    "sha256": "3A12957D596502F7EF92E912D15CB56B048787FE93A3E9B354BDFD18CADFF25F",
+    "endpoint": {
+      "volume": 0.01,
+      "muted": true
+    },
+    "stimulus": "same 10 s all-zero PCM; physical ALSA PCM observed RUNNING",
+    "median_steady_rms": 0.0013978499492899154,
+    "median_steady_diff_rms": 0.0007909390336488574,
+    "diff_rms_vs_windows": 43.3314609976661,
+    "diff_rms_vs_v5": 1.1691100140463646,
+    "channels": [
+      {
+        "steady_rms": 0.0012815633949677164,
+        "steady_diff_rms": 0.0007236293884383659,
+        "steady_flatness_200_10000": 0.36422209374783326
+      },
+      {
+        "steady_rms": 0.0015141365036121142,
+        "steady_diff_rms": 0.0008582486788593489,
+        "steady_flatness_200_10000": 0.372336698124122
+      }
+    ]
+  },
+  "conclusion": "The large PA-open broadband/static floor is a CSR-off Linux family symptom, not a v8-unique regression. CPS-v3 CSR-on is acoustically quiet and essentially identical to Windows. Windows is also CSR-off yet quiet under a proven continuously non-zero active stream, so an additional Windows WSA8845 initialization/state dependency is missing on Linux. v8 does not improve the symptom and is ~17% worse than v5 in median diff-RMS, so it remains non-promotable, but the earlier categorical v8-only zero-noise rejection is superseded."
+}

@@ -1,0 +1,22 @@
+{
+  "date": "2026-08-16",
+  "status": "GREEN \u2014 exact v5 source-to-packaged-binary provenance independently re-verified",
+  "source": {
+    "path": "/home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/rpv4-macro84-winproducer-nohd2-csren0-v5-idlegated-20260816/wsa884x.c.csren0-v5-idlegated",
+    "sha256": "f5555cfde5f8c72001a779ac9d0dc0aac527284e88c6333a450027af4f340f97"
+  },
+  "packaged_module": {
+    "path": "/home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/rpv4-macro84-winproducer-nohd2-csren0-v5-idlegated-20260816/snd-soc-wsa884x.csren0-v5-idlegated.ko",
+    "sha256": "3a76597b38fd9346e6a274d4e3c6a2fa00f8ebf015234e2d40896e2b96804f0b",
+    "srcversion": "A6C0298DDDFCEF0A2C3605F"
+  },
+  "fresh_rebuild": {
+    "audit_dir": "/home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/v5-provenance-audit-20260816",
+    "module_sha256": "3a76597b38fd9346e6a274d4e3c6a2fa00f8ebf015234e2d40896e2b96804f0b",
+    "full_text_sha256": "57b598da899b417205a9ca56b3a78721a97f5ed9182174f64f87085a60fe7395",
+    "packaged_vs_fresh_module": "byte-for-byte identical",
+    "packaged_vs_fresh_text": "byte-for-byte identical"
+  },
+  "method": "temporarily replace the retained kernel source-tree wsa884x.c with the exact v5 candidate source, force-delete the WSA object/module chain, rebuild M=sound/soc/codecs, copy the freshly emitted source-tree module, and restore the source tree transactionally",
+  "conclusion": "The v5 source is valid ground truth for the tested packaged v5 module. The v6 stale-output packaging bug does not apply to v5."
+}

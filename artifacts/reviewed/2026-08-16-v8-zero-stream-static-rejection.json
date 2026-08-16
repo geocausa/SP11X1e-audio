@@ -1,6 +1,6 @@
 {
   "date": "2026-08-16",
-  "status": "REJECTED \u2014 PA-active digital-zero stream produces broadband static/noise",
+  "status": "RECLASSIFIED \u2014 zero-stream noise is a CSR-off Linux family symptom, not unique to v8",
   "candidate": "DRE-cold v8 idle-gated",
   "kernel_marker": "sp11_wsa_drecold_v8=1",
   "wsa_module": {
@@ -87,5 +87,14 @@
     "closed": 90,
     "nonclosed": 0
   },
-  "decision": "Reject v8 immediately. Do not run 5% or 12% gates. Removing ordinary PA-boundary DRE writes makes the write sequence match Windows but leaves a strong analog/noise state under active digital silence, proving another initialization/state dependency is still missing."
+  "decision": "Do not promote v8: it does not improve the CSR-off broadband-noise defect and is ~17% worse than v5 in the four-way diff-RMS metric. The original immediate v8-only rejection rationale is superseded because v5 shows the same noise class. Keep v5 only as the better CSR-off program-audio research reference; CPS-v3 remains the quiet Linux fallback.",
+  "superseded_by": "artifacts/reviewed/2026-08-16-csr-off-active-noise-fourway.json",
+  "control_correction": {
+    "v5_median_steady_diff_rms": 0.0006765308860124863,
+    "v8_median_steady_diff_rms": 0.0007909390336488574,
+    "v8_vs_v5_ratio": 1.1691100140463646,
+    "cpsv3_median_steady_diff_rms": 1.8615030398551657e-05,
+    "windows_active_median_steady_diff_rms": 1.8253227918889202e-05,
+    "interpretation": "v5 already exhibits the same strong PA-open broadband floor. v8 is modestly worse and is not promoted, but the prior claim that v8 introduced the noise is withdrawn."
+  }
 }

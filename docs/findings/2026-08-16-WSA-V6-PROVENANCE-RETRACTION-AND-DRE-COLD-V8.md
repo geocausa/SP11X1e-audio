@@ -1,7 +1,7 @@
 # WSA8845 v6 provenance retraction and DRE-cold v8 isolation
 
 Date: 2026-08-16
-Status: **v6 causal claim retracted; v8 REJECTED by active digital-zero noise gate**
+Status: **v6 causal claim retracted; v8 not promoted, original v8-only noise rationale reclassified by controls**
 
 ## Why the v6 conclusion had to be corrected
 
@@ -15,6 +15,19 @@ Consequences:
 - the previous claim that their instability was *caused by an unmute-time gain-zero write* is retracted;
 - the old v6 boot image must not be used as a source-delta oracle;
 - v7 remains independently valid because it deliberately reused known v5 module bytes and changed only UCM route-time programming.
+
+## v5 provenance was independently re-verified
+
+Because later H03 analysis uses the v5 source as the tested baseline, v5 was rebuilt again with the stale-output ambiguity explicitly removed. The WSA object/module chain was force-deleted before rebuilding from the exact v5 candidate source. The freshly emitted source-tree module is byte-for-byte identical to the packaged v5 module:
+
+- exact v5 source SHA-256 `f5555cfde5f8c72001a779ac9d0dc0aac527284e88c6333a450027af4f340f97`;
+- packaged/fresh `.ko` SHA-256 `3a76597b38fd9346e6a274d4e3c6a2fa00f8ebf015234e2d40896e2b96804f0b`;
+- srcversion `A6C0298DDDFCEF0A2C3605F`;
+- full `.text` SHA-256 `57b598da899b417205a9ca56b3a78721a97f5ed9182174f64f87085a60fe7395`, identical packaged vs fresh.
+
+Machine-readable audit: `artifacts/reviewed/2026-08-16-v5-source-binary-provenance-audit.json`.
+
+Thus the v6 packaging correction does **not** weaken conclusions drawn from the exact v5 source.
 
 ## Remaining Windows/Linux write-history mismatch
 
@@ -102,7 +115,7 @@ Evidence:
 - `artifacts/reviewed/2026-08-16-v8-1pct-write-lifecycle.trace`;
 - `artifacts/reviewed/2026-08-16-v8-idle90.log`.
 
-## Digital-zero discriminator and rejection
+## Digital-zero discriminator and later control correction
 
 Before any 5% or 12% escalation, a stricter noise test was run. The visible Windows-Dolby endpoint stayed at 1% and **muted** while a ten-second 48 kHz stereo S16_LE WAV containing only zero PCM samples was played. Stimulus SHA-256:
 
@@ -125,4 +138,8 @@ Machine-readable result:
 
 `artifacts/reviewed/2026-08-16-v8-zero-stream-static-rejection.json`
 
-**Decision: reject v8 immediately.** No 5% MP3 or 12% chirp gate was run. The result proves that reproducing Windows' ordinary no-DRE-write PA transaction is still insufficient on the current Linux initialization state. An earlier WSA8845 initialization/latch/state dependency remains missing. Keep v5 as the bounded-safe reference and compare complete Windows/Linux amp write histories before another behavioral candidate.
+The first interpretation treated this as a v8-specific rejection. That causal reading is superseded by matched controls. Exact v5, using the same zero WAV / endpoint / recorder geometry, produces the same PA-open broadband-noise class (`6.765e-4` median diff-RMS versus v8 `7.909e-4`). CPS-v3 CSR-on stays at `1.862e-5`, essentially identical to the Windows active non-zero control at `1.825e-5`.
+
+Therefore v8 did **not** introduce the noise. It also does not improve it: v8 is about 1.17x worse than v5 in this metric and has no promotion case. The important v8 result is structural: removing the extra ordinary DRE writes is insufficient to obtain Windows' quiet CSR-off behavior. See `2026-08-16-CSR-OFF-ACTIVE-NOISE-ORACLE.md`.
+
+**Decision:** keep v8 non-promoted and do not re-arm it for ordinary use. Retain v5 only as the better CSR-off research reference; CPS-v3 remains the quiet Linux fallback. Pursue the earlier initialization/latch state exposed by the full 63-write Windows init oracle.

@@ -1,0 +1,514 @@
+{
+  "date": "2026-08-16",
+  "status": "GREEN ordered Windows WSA8845 initialization oracle; remaining Linux mismatch is initialization history, not only final values",
+  "raw_log": {
+    "path": "/home/geoca/Documents/SP11-PROJECT/01-audio/11.08.2026/CPS_SWR_RUNTIME_20260810_1909Z_2d7c_2026-08-10_19-09-12-880.log",
+    "sha256": "EE8CB66EB3D7A44BF7FE4AADD61F04BB29BA85520DF5E15E5DED95D2C1B3DC36"
+  },
+  "decoder": "tools/decode_qcaucd_command_fifo.py --records",
+  "counts": {
+    "v2_records_total": 133,
+    "codec_writes_per_amp": 63,
+    "left_right_sequence_identical": true
+  },
+  "windows_ordered_writes": [
+    {
+      "position": 1,
+      "reg": "0x3067",
+      "value": "0x0c",
+      "line": 1510,
+      "name": "PWRSTG_DBG"
+    },
+    {
+      "position": 2,
+      "reg": "0x304d",
+      "value": "0x5a",
+      "line": 1512,
+      "name": "PDRV_HS_CTL"
+    },
+    {
+      "position": 3,
+      "reg": "0x3414",
+      "value": "0x07",
+      "line": 1514,
+      "name": "SWR_RESET_EN"
+    },
+    {
+      "position": 4,
+      "reg": "0x3581",
+      "value": "0xff",
+      "line": 1516,
+      "name": "INTR_MASK0"
+    },
+    {
+      "position": 5,
+      "reg": "0x3582",
+      "value": "0x03",
+      "line": 1518,
+      "name": "INTR_MASK1"
+    },
+    {
+      "position": 6,
+      "reg": "0x343c",
+      "value": "0x00",
+      "line": 1520,
+      "name": "PA_FSM_BYP_CTL"
+    },
+    {
+      "position": 7,
+      "reg": "0x3014",
+      "value": "0x20",
+      "line": 1522,
+      "name": "VBAT_SNS"
+    },
+    {
+      "position": 8,
+      "reg": "0x30ba",
+      "value": "0x1b",
+      "line": 1534,
+      "name": "CKWD_CTL_1"
+    },
+    {
+      "position": 9,
+      "reg": "0x3473",
+      "value": "0x0a",
+      "line": 1536,
+      "name": "CDC_SPK_DSM_A2_0"
+    },
+    {
+      "position": 10,
+      "reg": "0x3474",
+      "value": "0x08",
+      "line": 1538,
+      "name": "CDC_SPK_DSM_A2_1"
+    },
+    {
+      "position": 11,
+      "reg": "0x3475",
+      "value": "0xf3",
+      "line": 1540,
+      "name": "CDC_SPK_DSM_A3_0"
+    },
+    {
+      "position": 12,
+      "reg": "0x3476",
+      "value": "0x07",
+      "line": 1542,
+      "name": "CDC_SPK_DSM_A3_1"
+    },
+    {
+      "position": 13,
+      "reg": "0x3477",
+      "value": "0x79",
+      "line": 1544,
+      "name": "CDC_SPK_DSM_A4_0"
+    },
+    {
+      "position": 14,
+      "reg": "0x3478",
+      "value": "0x02",
+      "line": 1546,
+      "name": "CDC_SPK_DSM_A4_1"
+    },
+    {
+      "position": 15,
+      "reg": "0x3479",
+      "value": "0x0b",
+      "line": 1548,
+      "name": "CDC_SPK_DSM_A5_0"
+    },
+    {
+      "position": 16,
+      "reg": "0x347a",
+      "value": "0x02",
+      "line": 1550,
+      "name": "CDC_SPK_DSM_A5_1"
+    },
+    {
+      "position": 17,
+      "reg": "0x347b",
+      "value": "0x8a",
+      "line": 1552,
+      "name": "CDC_SPK_DSM_A6_0"
+    },
+    {
+      "position": 18,
+      "reg": "0x347c",
+      "value": "0x9b",
+      "line": 1554,
+      "name": "CDC_SPK_DSM_A7_0"
+    },
+    {
+      "position": 19,
+      "reg": "0x347d",
+      "value": "0x68",
+      "line": 1556,
+      "name": "CDC_SPK_DSM_C_0"
+    },
+    {
+      "position": 20,
+      "reg": "0x347f",
+      "value": "0xf2",
+      "line": 1558,
+      "name": "CDC_SPK_DSM_C_2"
+    },
+    {
+      "position": 21,
+      "reg": "0x3480",
+      "value": "0x20",
+      "line": 1560,
+      "name": "CDC_SPK_DSM_C_3"
+    },
+    {
+      "position": 22,
+      "reg": "0x3481",
+      "value": "0x83",
+      "line": 1562,
+      "name": "CDC_SPK_DSM_R1"
+    },
+    {
+      "position": 23,
+      "reg": "0x3482",
+      "value": "0x7f",
+      "line": 1564,
+      "name": "CDC_SPK_DSM_R2"
+    },
+    {
+      "position": 24,
+      "reg": "0x3483",
+      "value": "0x9d",
+      "line": 1566,
+      "name": "CDC_SPK_DSM_R3"
+    },
+    {
+      "position": 25,
+      "reg": "0x3484",
+      "value": "0x82",
+      "line": 1568,
+      "name": "CDC_SPK_DSM_R4"
+    },
+    {
+      "position": 26,
+      "reg": "0x3485",
+      "value": "0x8b",
+      "line": 1570,
+      "name": "CDC_SPK_DSM_R5"
+    },
+    {
+      "position": 27,
+      "reg": "0x3486",
+      "value": "0x9b",
+      "line": 1572,
+      "name": "CDC_SPK_DSM_R6"
+    },
+    {
+      "position": 28,
+      "reg": "0x3487",
+      "value": "0x3f",
+      "line": 1574,
+      "name": "CDC_SPK_DSM_R7"
+    },
+    {
+      "position": 29,
+      "reg": "0x34b2",
+      "value": "0x0f",
+      "line": 1576,
+      "name": "DRE_IDLE_DET_CTL"
+    },
+    {
+      "position": 30,
+      "reg": "0x348b",
+      "value": "0x01",
+      "line": 1578,
+      "name": "PDM_WD_CTL"
+    },
+    {
+      "position": 31,
+      "reg": "0x34b0",
+      "value": "0xf0",
+      "line": 1580,
+      "name": "DRE_CTL_0"
+    },
+    {
+      "position": 32,
+      "reg": "0x34b1",
+      "value": "0x00",
+      "line": 1582,
+      "name": "DRE_CTL_1"
+    },
+    {
+      "position": 33,
+      "reg": "0x3461",
+      "value": "0x11",
+      "line": 1584,
+      "name": null
+    },
+    {
+      "position": 34,
+      "reg": "0x3459",
+      "value": "0x05",
+      "line": 1586,
+      "name": null
+    },
+    {
+      "position": 35,
+      "reg": "0x3458",
+      "value": "0x79",
+      "line": 1588,
+      "name": null
+    },
+    {
+      "position": 36,
+      "reg": "0x34b9",
+      "value": "0x0e",
+      "line": 1590,
+      "name": "GAIN_RAMPING_MIN"
+    },
+    {
+      "position": 37,
+      "reg": "0x34d0",
+      "value": "0x00",
+      "line": 1592,
+      "name": "CLSH_CTL_0"
+    },
+    {
+      "position": 38,
+      "reg": "0x34d2",
+      "value": "0x13",
+      "line": 1594,
+      "name": "CLSH_CTL_1"
+    },
+    {
+      "position": 39,
+      "reg": "0x34d6",
+      "value": "0xff",
+      "line": 1596,
+      "name": "CLSH_SOFT_MAX"
+    },
+    {
+      "position": 40,
+      "reg": "0x3504",
+      "value": "0x9d",
+      "line": 1598,
+      "name": "ANA_WO_CTL_0"
+    },
+    {
+      "position": 41,
+      "reg": "0x3505",
+      "value": "0x00",
+      "line": 1600,
+      "name": "ANA_WO_CTL_1"
+    },
+    {
+      "position": 42,
+      "reg": "0x38a6",
+      "value": "0x08",
+      "line": 1602,
+      "name": "OTP_REG_38"
+    },
+    {
+      "position": 43,
+      "reg": "0x38a8",
+      "value": "0x20",
+      "line": 1604,
+      "name": "OTP_REG_40"
+    },
+    {
+      "position": 44,
+      "reg": "0x300b",
+      "value": "0xd1",
+      "line": 1606,
+      "name": "BOP2_PROG"
+    },
+    {
+      "position": 45,
+      "reg": "0x3005",
+      "value": "0x33",
+      "line": 1608,
+      "name": "UVLO_PROG"
+    },
+    {
+      "position": 46,
+      "reg": "0x3006",
+      "value": "0x60",
+      "line": 1610,
+      "name": "UVLO_PROG1"
+    },
+    {
+      "position": 47,
+      "reg": "0x3003",
+      "value": "0x22",
+      "line": 1612,
+      "name": null
+    },
+    {
+      "position": 48,
+      "reg": "0x3004",
+      "value": "0x44",
+      "line": 1614,
+      "name": null
+    },
+    {
+      "position": 49,
+      "reg": "0x30a0",
+      "value": "0xf8",
+      "line": 1616,
+      "name": null
+    },
+    {
+      "position": 50,
+      "reg": "0x3090",
+      "value": "0x6a",
+      "line": 1618,
+      "name": null
+    },
+    {
+      "position": 51,
+      "reg": "0x30aa",
+      "value": "0xe3",
+      "line": 1620,
+      "name": null
+    },
+    {
+      "position": 52,
+      "reg": "0x3091",
+      "value": "0xd4",
+      "line": 1622,
+      "name": "CURRENT_LIMIT"
+    },
+    {
+      "position": 53,
+      "reg": "0x3040",
+      "value": "0xd2",
+      "line": 1624,
+      "name": "REF_CTRL"
+    },
+    {
+      "position": 54,
+      "reg": "0x304c",
+      "value": "0xf6",
+      "line": 1626,
+      "name": "OCP_CTL"
+    },
+    {
+      "position": 55,
+      "reg": "0x3045",
+      "value": "0x06",
+      "line": 1628,
+      "name": "DAC_VCM_CTRL_REG2"
+    },
+    {
+      "position": 56,
+      "reg": "0x3046",
+      "value": "0x14",
+      "line": 1630,
+      "name": "DAC_VCM_CTRL_REG3"
+    },
+    {
+      "position": 57,
+      "reg": "0x3047",
+      "value": "0x19",
+      "line": 1632,
+      "name": "DAC_VCM_CTRL_REG4"
+    },
+    {
+      "position": 58,
+      "reg": "0x3048",
+      "value": "0x1b",
+      "line": 1634,
+      "name": "DAC_VCM_CTRL_REG5"
+    },
+    {
+      "position": 59,
+      "reg": "0x3049",
+      "value": "0x1c",
+      "line": 1636,
+      "name": "DAC_VCM_CTRL_REG6"
+    },
+    {
+      "position": 60,
+      "reg": "0x306a",
+      "value": "0x02",
+      "line": 1638,
+      "name": "PA_FSM_TIMER0"
+    },
+    {
+      "position": 61,
+      "reg": "0x30ba",
+      "value": "0x13",
+      "line": 1640,
+      "name": "CKWD_CTL_1"
+    },
+    {
+      "position": 62,
+      "reg": "0x30a5",
+      "value": "0xf1",
+      "line": 1642,
+      "name": "PWRSTAGE_CTRL2"
+    },
+    {
+      "position": 63,
+      "reg": "0x3091",
+      "value": "0x44",
+      "line": 1644,
+      "name": "CURRENT_LIMIT"
+    }
+  ],
+  "static_qcaucd": {
+    "function": "FUN_140032e10 in SP7 qcaucd-wsa-vbat-adjacent-path.txt",
+    "confirmed_semantics": [
+      "supply branch local_74 == 2 selects SP11 2S values including DRE_CTL_0=0xf0, ANA_WO_CTL_0=0x9d and DAC VCM 06/14/19/1b/1c",
+      "load value 4 or 6 selects OCP_CTL=0xf6",
+      "PWRSTAGE_CTRL2=0xf1 is written before final CURRENT_LIMIT specialization",
+      "codec-config object +0x28 == 1 selects final CURRENT_LIMIT=0x44; symbolic field name remains unresolved and is intentionally not guessed"
+    ]
+  },
+  "linux_v5_initialization_history_mismatches": [
+    {
+      "register": "DRE_CTL_0 0x34b0",
+      "windows": "explicit 0xf0 during coherent codec init",
+      "linux": "regmap default 0x70; generic init explicitly writes 0x70; SP11 supply correction does not write 0xf0; speaker POST_PMU later changes PROG_DELAY high nibble to 0xf, yielding 0xf0 only immediately before PA use"
+    },
+    {
+      "register": "DRE_CTL_1 0x34b1",
+      "windows": "explicit 0x00 during codec init and zero ordinary runtime writes",
+      "linux": "regmap default 0x04; generic init has no write; initial set_gain_parameters runs before COMP port is enabled and sets CSR_GAIN_EN=1 (0x05 at that point); UCM PA Volume later programs stored gain bits; COMP-aware POST_PMU later clears bit0"
+    },
+    {
+      "register": "PDM_WD_CTL 0x348b",
+      "windows": "explicit 0x01 during codec init",
+      "linux": "regmap default 0x00; no generic/SP11 supply explicit enable; DAPM speaker POST_PMU sets enable=1 and PRE_PMD clears it"
+    },
+    {
+      "register": "CURRENT_LIMIT 0x3091",
+      "windows": "explicit 0xd4 then later 0x44 inside the same board/supply configuration transaction",
+      "linux": "generic init computes 0x24 from current-limit code 9 with override clear; SP11 supply correction does not reproduce d4->44; PBR-enabled speaker POST_PMU later writes code 0x11/override0, yielding active 0x44"
+    },
+    {
+      "register": "CKWD_CTL_1 0x30ba",
+      "windows": "explicit 0x1b early then 0x13 late in codec init",
+      "linux": "generic init writes 0x13 directly; no 0x1b precursor in SP11 correction"
+    },
+    {
+      "register": "DRE_IDLE_DET_CTL 0x34b2",
+      "windows": "explicit 0x0f immediately before DRE_CTL_0/DRE_CTL_1",
+      "linux": "regmap default 0x2f; generic init omits it; SP11 supply correction later writes 0x0f, but not as part of the same Windows DRE block"
+    },
+    {
+      "register": "DSM A4_1/A5_1 0x3478/0x347a",
+      "windows": "explicit 0x02/0x02",
+      "linux": "values are represented by defaults rather than explicit generic init writes"
+    },
+    {
+      "register": "PA_FSM_BYP_CTL 0x343c",
+      "windows": "explicit 0x00",
+      "linux": "relies on regmap default 0x00 rather than explicit SP11 init write"
+    },
+    {
+      "register": "GAIN_RAMPING_MIN 0x34b9",
+      "windows": "explicit 0x0e inside DRE/DSM/Class-H initialization block",
+      "linux": "default 0x12; set_gain_parameters later writes minimum-gain field to the 0 dB code, producing 0x0e outside the Windows ordering"
+    }
+  ],
+  "conclusion": "Final live register equality is insufficient. Windows deliberately establishes a coherent 2S/4-ohm DSM/DRE/watchdog/current-limit state during codec initialization, while Linux reaches several of those values only later during UCM/DAPM speaker activation. This is the leading explanation class for why Windows can run CSR-off quietly while Linux CSR-off v5/v8 exhibit a large PA-open broadband floor."
+}

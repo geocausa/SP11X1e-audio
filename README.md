@@ -13,23 +13,22 @@ separate layers so that an acoustic result is never mistaken for a driver fact.
 > branch, not a competing line. The live render-parity-v4 family has already
 > passed protected playback, exact channel-ordered endpoint-volume, Windows
 > SOFT_PAUSE, corrected LPASS WSA v2.5 softclip addressing, Windows WSA8845
-> initialization/PA ordering, RX84/0 dB producer gain, and demand-driven
+> board-value/PA ordering, RX84/0 dB producer gain, and demand-driven
 > PA-at-idle shutdown. The overall built-in-speaker gate remains **AMBER** while
 > H03 (DRE/CSR consumer semantics), the corrected-topology physical verdict and
-> seek-specific smoothing remain open. The H03 route-time-zero v7
-> candidate has now been rejected: it passed cold/idle/1%/5% lifecycle gates,
-> but the first byte-identical 12% run produced operator-observed active-playback
-> static with an elevated broadband spectral floor versus v5. v7 remains a valid
-> route-time-zero rejection. A later build audit invalidated the old v6
-> source-to-binary attribution: its packaged `mute_stream()` did not contain the
-> intended gain-zero call, so v6 is retained only as historical acoustic data,
-> not as a causal gain-zero experiment. Provenance-clean v8 then kept v5's DRE
-> value and removed only the extra ordinary PA-boundary DRE writes that Windows
-> never issues. Its register trace matched the Windows PA transaction exactly,
-> but a muted 10-second digital-zero stream produced a 12--14x external-mic RMS
-> rise while the PA was active. v8 is therefore rejected; v5 remains the current
-> bounded-safe H03 reference while earlier WSA8845 initialization/state is
-> investigated. Start with
+> seek-specific smoothing remain open. The old v6 source-delta attribution is
+> retracted because its packaged module was stale. v7 remains rejected after
+> operator-observed active static. v8 correctly removed the extra ordinary
+> DRE writes and matched the Windows PA transaction, but a later control showed
+> its digital-silence hiss is **not v8-specific**: v5 already has the same
+> CSR-off noise class. A four-way fixed-mic oracle now localizes H03 sharply:
+> Windows active CSR-off and Linux CPS-v3 CSR-on both sit at about `1.8e-5`
+> median diff-RMS, while Linux CSR-off v5/v8 are about **37x/43x Windows**.
+> Windows stays quiet even during a continuously non-zero -80 dBFS tail after
+> a strong 997-Hz marker. The original 63-write qcaucd codec-init transaction
+> also proves Linux reaches several Windows DRE/watchdog/current-limit states
+> only later at UCM/DAPM time. The active hypothesis is therefore an earlier
+> WSA8845 initialization/latch contract, not another DRE value sweep. Start with
 > [`docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md)
 > and the
 > [`2026-08-16 repository consolidation checkpoint`](docs/checkpoints/2026-08-16-REPOSITORY-CONSOLIDATION-CHECKPOINT.md).
