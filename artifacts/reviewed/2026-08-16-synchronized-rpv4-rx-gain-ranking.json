@@ -1,0 +1,43 @@
+{
+  "date": "2026-08-16",
+  "status": "GREEN_DIRECTIONAL_DISCRIMINATOR",
+  "stimulus_sha256": "C8782C7741B3ECE628362E785D2EC91B990EF453BEFA4A3E7D6C3E1CD1F8A208",
+  "windows_endpoint_scalar": 0.12,
+  "linux_endpoint_scalar": 0.12,
+  "linux_kernel": "7.1.5-sp11-render-parity-v4+",
+  "linux_candidate_flag": "sp11_wsa_macro0db_oracle=1",
+  "metric": "frequency-indexed external-mic response shape normalized by 1-5 kHz median; absolute level excluded because recorder AGC/level adaptation is not ruled out",
+  "rank_1_5khz": [
+    {"rx": 84, "nominal_db": 0, "mae_db": 0.219, "rmse_db": 0.258},
+    {"rx": 82, "nominal_db": -2, "mae_db": 0.368, "rmse_db": 0.393},
+    {"rx": 81, "nominal_db": -3, "mae_db": 0.474, "rmse_db": 0.612},
+    {"rx": 83, "nominal_db": -1, "mae_db": 0.640, "rmse_db": 0.767}
+  ],
+  "rank_630_6300hz": [
+    {"rx": 84, "mae_db": 0.274, "rmse_db": 0.395},
+    {"rx": 81, "mae_db": 0.513, "rmse_db": 0.674},
+    {"rx": 83, "mae_db": 0.868, "rmse_db": 1.054},
+    {"rx": 82, "mae_db": 1.412, "rmse_db": 2.608}
+  ],
+  "rx84_residual_1_5khz_db": {
+    "1000": 0.04,
+    "1250": -0.44,
+    "1600": -0.37,
+    "2000": 0.17,
+    "2500": -0.16,
+    "3150": -0.17,
+    "4000": 0.07,
+    "5000": -0.34
+  },
+  "runtime_faults": 0,
+  "post_test_rx_restored": 81,
+  "capture_sha256": {
+    "windows": "DB648A04908B56C23B329E8CD1528B8456D9CBCDCEFDC78EF44FD94413D4F23F",
+    "rx81": "C51A8D84EFAB7B8EBBA1179A00496B66752B289A82C5D7CCE0708642204ADE14",
+    "rx82": "73A1A2B5D3EF0ECF4B6A4CDB8DFCD23D59F657BC0AF08C0A5CBF5C005B9CC0A1",
+    "rx83": "C1F1FE677FCEB2B1001A652106F2369F7A6253E05203BC6BDAA2104C7092C409",
+    "rx84": "773A3A33A98D4409478768D10052109CA664AC6CE19F7F649C1165848A34ABFD"
+  },
+  "analysis_summary_sha256": "B7789CEC80F5F6C6A6F5B02BA549DBE91A7FB6BCBE0F6996CB7ADE72D1E460FC",
+  "decision": "RX84/0 dB is the preferred current producer setting for the next isolated parity candidate; next variable is the four-bit generic half-dB WSA macro policy with DRE/CSR unchanged."
+}
