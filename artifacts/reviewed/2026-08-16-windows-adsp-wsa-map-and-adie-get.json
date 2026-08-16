@@ -1,0 +1,44 @@
+{
+  "date": "2026-08-16",
+  "scope": "Windows ADSP WSA descriptor map and qcadcm read-only ADIE register path",
+  "qcadsp_sha256": "921870A839EE2ABA647B04598D62ED96F3D2D5DFBB2499FC842F9A6FF0E0DA13",
+  "address_translation": {
+    "lpass_physical_parent": "0x06000000",
+    "lpass_adsp_virtual_parent": "0xee000000",
+    "wsa_child": "0x00b00000",
+    "wsa_physical": "0x06b00000",
+    "wsa_adsp_virtual": "0xeeb00000"
+  },
+  "wsa_blocks": {
+    "rx0": ["0x00b00400", "0x50"],
+    "rx1": ["0x00b00480", "0x50"],
+    "boost0": ["0x00b00500", "0x20"],
+    "boost1": ["0x00b00540", "0x20"],
+    "compander0": ["0x00b00580", "0x50"],
+    "compander1": ["0x00b005e0", "0x50"],
+    "softclip0": ["0x00b00640", "0x10"],
+    "softclip1": ["0x00b00660", "0x10"],
+    "pbr": ["0x00b00b00", "0x100"],
+    "soundwire_master": ["0x00b10000", "0x10000"]
+  },
+  "immediate_reference_scan": {
+    "child_full_addresses": 0,
+    "adsp_virtual_full_addresses": 0,
+    "interpretation": "descriptor-driven/dynamically mapped access; raw byte hits are not instruction provenance"
+  },
+  "qcadcm_adie_get": {
+    "status": "STATIC_ONLY_NOT_INVOKED",
+    "single_get_command_id": 2,
+    "single_get_input_bytes": 12,
+    "single_get_fields": ["handle", "register_id", "mask"],
+    "single_get_output_bytes": 4,
+    "multi_get_command_id": 3,
+    "live_transport_resolved": false,
+    "wsa_handle_resolved": false
+  },
+  "safety": {
+    "direct_apps_mmio": "REJECTED_DO_NOT_REPEAT",
+    "adie_setters": "DO_NOT_INVOKE",
+    "live_get": "WAIT_FOR_TRANSPORT_AND_HANDLE_PROOF"
+  }
+}
