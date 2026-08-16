@@ -71,3 +71,39 @@ Fresh 2026-08-16 Ghidra DumpBytesAt confirmation on SP7:
     14004bd08 04 24 08 80 00 00 00 00
 
 which decodes to 0x80082400 followed by 0x80082404.
+
+## Exact Diag command and ACTP envelope
+
+Further static recovery on the same binary pins the actual qcadcm ATS Diag command, not merely the registered range:
+
+- qcadcm embeds the four-byte response/request subsystem header `4b 11 03 08` at 0x14004c838.
+- This is `DIAG_SUBSYS_CMD_F` (`0x4b`), subsystem `0x11`, command `0x0803` little-endian.
+- qcadcm registers subsystem `0x11` for command range `0x0803..0x0834`, but the ATS response builder specifically reuses the fixed `0x0803` header.
+- The DiagRouter write IOCTL beside this path is 0x80082410.
+
+The 16-byte ACTP header immediately after the four-byte Diag header is now structurally decoded from `DiagATSProcessCommands` and the response-fragment builder:
+
+- byte 0: fixed protocol/version value `0x01`
+- byte 1: fixed header-size/type value `0x10`
+- byte 2: fragment sequence index (generated fragments start at 1)
+- byte 3: flags; bit 1 marks final fragment, bit 2 marks response, bit 3 marks fragmented transfer; normal request path has bit 0 clear
+- uint32 at +4: fragment payload offset
+- uint16 at +8: fragment payload length
+- uint16 at +10: preserved/reserved by this implementation
+- uint32 at +12: total payload length for fragmented transfer
+
+For a non-fragmented inbound packet, qcadcm copies the 16-byte ACTP header, allocates exactly the uint16 payload length at +8, and passes that payload to the ATS callback. The response path copies the same header and sets ACTP response flag bit 2.
+
+This reduces the candidate read-only codec-info request to a fully bounded stack:
+
+1. Diag header `4b 11 03 08`
+2. 16-byte ACTP header
+3. ATS header `{ command_id=0x41520001, payload_length=0 }`
+
+The next Windows experiment can therefore begin with codec-info enumeration before any register GET. SET commands 0x41520004/05 remain forbidden.
+
+Additional SP7 evidence:
+
+- `qcadcm-ats-callback-xrefs-20260816.txt`
+- `qcadcm-diag-header-helpers-20260816.txt`
+- Ghidra bytes: `14004c838 4b 11 03 08 10 24 08 80`
