@@ -67,3 +67,19 @@ Do not fabricate a public IOCTL against qcadcm's ADCM interfaces: those interfac
 The useful result is not lost: the full qcadcm -> qcaucd read chain, public handle `0x1010`, and encoded WSA register namespace are already known. The next observation mechanism must avoid dependency on the absent lab DiagRouter. Preferred options are passive tracing of qcaucd's own sanctioned platform read/write helpers during native Windows lifecycle, or a narrowly scoped read-only diagnostic client only if its loading/provenance can be made safer than debugger execution injection.
 
 Raw KD/APPS reads of physical `0x06b00000` remain permanently forbidden after the prior WHEA 0x124.
+
+## Surface retail suppression corroboration
+
+A second live Windows pass on 2026-08-16 resolved why the retail image has no DiagRouter provider. The Microsoft-signed `SurfaceNullDriver` (`oem65.inf`, original `surfacenulldriver.inf`, version 1.79.7.0) explicitly labels these Qualcomm diagnostic ACPI IDs as components "that are not needed":
+
+```text
+ACPI\QCOM0C56  QC QDSS device
+ACPI\QCOM06DE  QC DiagBridge device
+ACPI\QCOM0C13  QC Diag Router device
+```
+
+The install section has no functional service (`AddService = ,2`) and presents matching hardware as `Generic Surface Device`.
+
+Live PnP enumeration on this SP11 shows only `QCOM0C56`, bound to that null driver. There is no devnode or Enum record for `QCOM06DE` or `QCOM0C13`, and `pnputil /enum-devices /deviceid ACPI\QCOM0C13` returns no devices. No `qcdiagrouter8380` package is staged in DriverStore.
+
+This strengthens the retail closeout: the missing DiagRouter is not a user-visible device merely lacking a service. The Surface retail policy suppresses diagnostic components, and this firmware/ACPI boot does not enumerate the DiagRouter/DiagBridge nodes at all. Installing an unrelated package would therefore have no legitimate present devnode to bind and is not an acceptable observation method.
