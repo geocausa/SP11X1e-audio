@@ -143,3 +143,29 @@ Reviewed traces:
 - `artifacts/reviewed/2026-08-16-cpsv3-controlled-stop-reopen.trace`
 - `artifacts/reviewed/2026-08-16-engine-capture-passive-idle.trace`
 - `artifacts/reviewed/2026-08-16-engine-passive-mp3-wake-suspend.trace`
+
+## Deployment provenance correction discovered by the CSR v5 gate
+
+The first CSR-v5 safety attempt after commit `1523015` produced no WSA/SoundWire trace events even though `pw-play` accepted the visible sink. Inspection showed that the hidden Dolby engine had not instantiated, so that attempt **did not reach the speaker hardware and is not a CSR safety result**.
+
+The cause was an older tracked/live deployment divergence that `1523015` accidentally exposed when the tracked file was copied into the user's active PipeWire directory. The long-running validated live configuration used:
+
+```text
+/home/geoca/.local/lib/sp11-dolby/sp11_dolby_windows_chain.so
+```
+
+whereas the tracked deploy fragment still referenced:
+
+```text
+/usr/lib/ladspa/sp11_dolby_windows_chain.so
+```
+
+The latter path does not exist on the SP11. The actual ARM64 LADSPA bridge exists at the user-local path and has SHA-256:
+
+```text
+ee02ff299146b0ed8387fda1da820a8ed7c9612fc4a5946ed921e5c0dca715d9
+```
+
+Restoring the user-local path and restarting `filter-chain.service` immediately recreated both hidden engine nodes, the exact monitor-to-engine links and the engine-to-physical-speaker passive links. With no application stream all of them remained suspended and ALSA PCM remained `closed`.
+
+The regression test now pins both the hidden-input passive property and the validated plugin path so a future tracked deployment cannot silently create a visible control sink with no Dolby render engine.

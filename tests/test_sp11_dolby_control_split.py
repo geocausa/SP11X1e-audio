@@ -20,6 +20,10 @@ class DolbyControlSplitTests(unittest.TestCase):
         self.assertLess(plugin, engine)
         self.assertIn("copy_l", text[:plugin])
         self.assertIn("copy_r", text[:plugin])
+        self.assertIn(
+            'plugin = "/home/geoca/.local/lib/sp11-dolby/sp11_dolby_windows_chain.so"',
+            text,
+        )
         self.assertIn('media.class      = Audio/Sink', text[:engine])
         # The hidden capture side deliberately omits Audio/Sink so it is a
         # Stream/Input/Audio and does not create a second desktop speaker.
