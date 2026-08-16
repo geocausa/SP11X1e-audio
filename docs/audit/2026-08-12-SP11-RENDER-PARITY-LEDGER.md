@@ -1,5 +1,19 @@
 # SP11 built-in-speaker Windows/Linux render parity ledger — 2026-08-12
 
+> **2026-08-16 HD2 producer gap:** active read-only Linux regmap validation on
+> `winproducer-init-v2` proves TOP_CFG1, RX84 volume, RX CFG1/CFG2, primary
+> half-dB state, Surface curve, VBAT/BCL, softclip clocks and CB_DECODE now
+> match the passive native Windows WSA corpus.  One direct RX mismatch remains:
+> Linux primary-interpolator bring-up enables generic HD2 compensation
+> (`CFG0=0x06`, SEC3=`0x11`) while Windows uses `CFG0=0x02` and its complete
+> 330-transaction speaker lifecycle never accesses RX SEC3.  Mainline and the
+> old generic Qualcomm driver both identify bit `0x04` as HD2, so SP11 Windows
+> explicitly diverges from the generic Qualcomm policy.  The next one-variable
+> candidate disables only HD2 and must verify `CFG0=0x02` before acoustic use.
+> TX protection-path register timing is kept separate because independent live
+> DP5/VI/SP evidence already validates the protection transport. See
+> `docs/findings/2026-08-16-WINDOWS-WSA-HD2-GAP.md`.
+
 > **2026-08-16 complete-producer v1 correction:** the first combined RX84 +
 > Surface-curve + primary-half-dB-off + VBAT/BCL/CB_DECODE candidate was safe
 > at the kernel/transport layer but acoustically worse and non-stationary; its

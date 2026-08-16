@@ -1,0 +1,25 @@
+{
+  "schema":"sp11-rpv4-macro84-winproducer-init-v2-active-state-v1",
+  "date":"2026-08-16",
+  "candidate":"sp11-audio-rpv4-macro84-winproducer-init-v2",
+  "kernel":"7.1.5-sp11-render-parity-v4+",
+  "loaded_wsa_srcversion":"A37D41B73EBF11162C751E2",
+  "wsa_module_zst_sha256":"8ad8cfdb15ac6741c44d94ee59f6254e48cb30904ab42c962a8fb11ab1cd4604",
+  "initrd_sha256":"ecf6d1224cd43b675a28abf2da367ce4cffedada9813d3dc4d1c1c6b4db1efb2",
+  "test_state":{"endpoint":0.12,"rx0":84,"rx1":84,"wsa_runtime":"active","stimulus":"deterministic chirp during snapshot"},
+  "windows_matched_active_registers":{
+    "0x0084":"0x03","0x0118":"0x03","0x0180":"0x10","0x0184":"0x11",
+    "0x01dc":"0xff","0x01e0":"0x03","0x01e4":"0x00","0x01e8":"0xff","0x01ec":"0x03","0x01f0":"0x00","0x01f4":"0xff","0x01f8":"0x03","0x01fc":"0x00",
+    "0x0408":"0xef","0x040c":"0x8f","0x0414":"0x00","0x0428":"0x08","0x044c":"0x01",
+    "0x0488":"0xef","0x048c":"0x8f","0x0494":"0x00","0x04a8":"0x08","0x04cc":"0x01",
+    "0x0500":"0x10","0x0540":"0x10","0x0580":"0x61","0x059c":"0x2e","0x05ac":"0x0c","0x05b0":"0x15","0x05b4":"0x15","0x05b8":"0x15","0x05bc":"0x15","0x05c0":"0x0f","0x05e0":"0x61","0x05fc":"0x2e","0x060c":"0x0c","0x0610":"0x15","0x0614":"0x15","0x0618":"0x15","0x061c":"0x15","0x0620":"0x0f","0x0640":"0x01","0x0660":"0x01","0x0900":"0x01","0x0904":"0x01","0x0908":"0x00"
+  },
+  "remaining_direct_rx_mismatch":{
+    "linux_rx0_cfg0":"0x06","windows_rx0_cfg0":"0x02","linux_rx1_cfg0":"0x06","windows_rx1_cfg0":"0x02",
+    "linux_rx0_sec3":"0x11","windows_native_transactions":"none at 0x0430",
+    "linux_rx1_sec3":"0x11","windows_native_transactions_2":"none at 0x04b0",
+    "meaning":"extra Linux bit 0x04 is HD2 compensation; SEC3 0x11 is the associated HD2 alpha/scale programming"
+  },
+  "protection_note":"TX speaker-protection path-control registers were at v2.5 defaults in this render snapshot. Do not infer protection failure from this alone: separate retained evidence already proves both WSA8845 DP5 VISENSE streams at 8 kHz, VI feedback ready, SP/SPVI accepted, and no protection bypass. TX behavior remains a separate lifecycle audit, not part of the HD2 candidate.",
+  "decision":"Build a one-variable v3 that disables only generic WSA HD2 programming on the SP11 producer path; preserve all other v2 state and safe CSR-assisted amps."
+}
