@@ -1,0 +1,16 @@
+{
+  "candidate": "v21 analog-tail pre-SoundWire re-arm",
+  "status": "AMBER_PROMISING",
+  "module_srcversion": "9215F2AB055FE5E03F04D9D",
+  "module_zst_sha256": "d00fd87a4e5f732922368e2f2da38d193627db6eee89913c2fc918263b41b853",
+  "initramfs_sha256": "e7cb390b520af6a9c1f8b121b33b4c4b8383cfc4925ce6b23ee0c6cb3174f35f",
+  "force_list_sha256": "63924610ab0def67421078432948696856fc15cedada16d95e9bd7b53cec2c7e",
+  "cycleB_median_diff_rms": 0.0005666342067374391,
+  "cycleC_median_diff_rms": 0.00048041932744604033,
+  "windows_reference_diff_rms": 1.8257e-05,
+  "v5_reference_diff_rms": 0.00067653,
+  "cycleC_ratio_to_windows": 26.314253571016064,
+  "cycleC_ratio_to_v5": 0.7101227254460857,
+  "regwrite_trace_sha256": "de11dc66b833c055474217b0543963ca05387481ee39394d672a292691239b4d",
+  "conclusion": "Pre-SoundWire replay of the exact Windows 20-write analog tail prevents the v13 catastrophic repeat-cycle collapse and remains better than v5 across repeated cycles, but residual noise remains ~26x Windows. Next isolate Windows prerequisite ordering before the tail."
+}

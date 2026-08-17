@@ -1,0 +1,17 @@
+{
+  "file": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-v21-rearm-pre-sdw-cycleC-1pct-20260817\\external-mic-20260817-071640.wav",
+  "sha256": "F66260A94447D78AC9C079ACE1CF4B153C63AC48E282FBE2E8C02703820862E4",
+  "duration_s": 27.98,
+  "baseline_diff_rms": [2.1531291610067807e-05, 2.02598317841414e-05],
+  "onset_s": 14.5,
+  "steady_diff_rms": [0.00043856989057353645, 0.0005222687643185442],
+  "median_steady_diff_rms": 0.00048041932744604033,
+  "ratios": {
+    "windows": 26.314253571016064,
+    "cps_v3": 25.80125281665093,
+    "v5": 0.7101227254460857,
+    "v13_cycle1": 1.5130173701705707,
+    "v13_cycle2": 0.12233655649333984,
+    "v21_cycleB": 0.8478473797270271
+  }
+}

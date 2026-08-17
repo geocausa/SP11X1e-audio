@@ -1,0 +1,28 @@
+--- /home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/rpv4-macro84-winproducer-nohd2-win-analog-tail-rearm-pre-sdw-v21-idlegated-20260817/wsa884x.c.v13-before	2026-08-17 07:08:17.067951986 +0100
++++ /home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/rpv4-macro84-winproducer-nohd2-win-analog-tail-rearm-pre-sdw-v21-idlegated-20260817/wsa884x.c.v21-after	2026-08-17 07:08:17.091415851 +0100
+@@ -739,6 +739,12 @@
+ 
+ static unsigned int sp11_observe_samples;
+ module_param_named(sp11_observe_samples, sp11_observe_samples, uint, 0644);
++
++static bool sp11_rearm_windows_analog_tail_pre_sdw;
++module_param_named(sp11_rearm_windows_analog_tail_pre_sdw,
++		   sp11_rearm_windows_analog_tail_pre_sdw, bool, 0644);
++MODULE_PARM_DESC(sp11_rearm_windows_analog_tail_pre_sdw,
++		 "Replay exact SP11 Windows analog tail in speaker hw_params before SoundWire add/prepare");
+ MODULE_PARM_DESC(sp11_observe_samples,
+ 		 "read-only 100 ms WSA status snapshots on each speaker start (0=off, max=40)");
+ 
+@@ -2152,6 +2158,12 @@
+ 	int active_ports = 0;
+ 	int i;
+ 
++	if (sp11_rearm_windows_analog_tail_pre_sdw && dai->id == 0) {
++		wsa884x_apply_sp11_windows_analog_tail(wsa884x);
++		dev_info(dai->dev,
++			 "SP11 WSA884x: replayed exact Windows analog tail in hw_params before SoundWire add\n");
++	}
++
+ 	for (i = 0; i < WSA884X_MAX_SWR_PORTS; i++) {
+ 		if (!wsa884x->port_enable[i])
+ 			continue;

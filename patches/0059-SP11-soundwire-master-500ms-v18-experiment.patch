@@ -1,0 +1,30 @@
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -27,6 +27,11 @@
+ MODULE_PARM_DESC(sp11_wait_clk_stop_complete,
+ 		 "Wait for SP11 SoundWire frame generator stop before gating hclk");
+ 
++static unsigned int sp11_wsa_autosuspend_ms;
++module_param_named(sp11_wsa_autosuspend_ms, sp11_wsa_autosuspend_ms, uint, 0644);
++MODULE_PARM_DESC(sp11_wsa_autosuspend_ms,
++		 "Override autosuspend delay for SP11 WSA SoundWire controller only");
++
+ #define SWRM_COMP_SW_RESET					0x008
+ #define SWRM_COMP_STATUS					0x014
+ #define SWRM_LINK_MANAGER_EE					0x018
+@@ -1745,7 +1750,14 @@
+ 		(ctrl->version >> 24) & 0xff, (ctrl->version >> 16) & 0xff,
+ 		ctrl->version & 0xffff);
+ 
+-	pm_runtime_set_autosuspend_delay(dev, 3000);
++	if (sp11_wsa_autosuspend_ms &&
++	    !strcmp(dev_name(dev), "6b10000.soundwire")) {
++		pm_runtime_set_autosuspend_delay(dev, sp11_wsa_autosuspend_ms);
++		dev_info(dev, "SP11 SoundWire: WSA autosuspend delay %u ms\n",
++			 sp11_wsa_autosuspend_ms);
++	} else {
++		pm_runtime_set_autosuspend_delay(dev, 3000);
++	}
+ 	pm_runtime_use_autosuspend(dev);
+ 	pm_runtime_mark_last_busy(dev);
+ 	pm_runtime_set_active(dev);

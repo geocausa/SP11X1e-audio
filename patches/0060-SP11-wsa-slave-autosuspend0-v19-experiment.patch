@@ -1,0 +1,25 @@
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -739,6 +739,11 @@
+ 
+ static unsigned int sp11_observe_samples;
+ module_param_named(sp11_observe_samples, sp11_observe_samples, uint, 0644);
++
++static unsigned int sp11_wsa_autosuspend_ms = 3000;
++module_param_named(sp11_wsa_autosuspend_ms, sp11_wsa_autosuspend_ms, uint, 0644);
++MODULE_PARM_DESC(sp11_wsa_autosuspend_ms,
++		 "WSA884x autosuspend delay; SP11 timing experiment, default 3000 ms");
+ MODULE_PARM_DESC(sp11_observe_samples,
+ 		 "read-only 100 ms WSA status snapshots on each speaker start (0=off, max=40)");
+ 
+@@ -2669,7 +2674,9 @@
+ 					     "Failed to register hwmon sensor\n");
+ 	}
+ 
+-	pm_runtime_set_autosuspend_delay(dev, 3000);
++	pm_runtime_set_autosuspend_delay(dev, sp11_wsa_autosuspend_ms);
++	dev_info(dev, "SP11 WSA884x: autosuspend delay %u ms\n",
++		 sp11_wsa_autosuspend_ms);
+ 	pm_runtime_use_autosuspend(dev);
+ 	pm_runtime_mark_last_busy(dev);
+ 	pm_runtime_set_active(dev);
