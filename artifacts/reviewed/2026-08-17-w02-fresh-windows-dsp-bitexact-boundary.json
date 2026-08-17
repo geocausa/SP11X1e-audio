@@ -1,0 +1,43 @@
+{
+  "date": "2026-08-17",
+  "status": "W02 residual moved to WASAPI loopback/tap boundary",
+  "fresh_windows_clean": {
+    "sha256": "1B60EE975937FFA519E76F14DE6B7FC6CF11DC3C36A13591BD3FA6A3920EA09B",
+    "relation_to_aug12": "sample-for-sample identical after source alignment"
+  },
+  "audiodg_dump": {
+    "sha256": "9B5D2C104C98447068233AE3C5D00E7868E1E474BD9FCF974823DA684CEED680",
+    "bytes": 119217888,
+    "source_time_s_approx": 26.17
+  },
+  "windows_exact_stages": [
+    "VR input",
+    "VR output",
+    "VLLDP input",
+    "VLLDP output",
+    "Surface MFX copy",
+    "AudioLimiter 480-frame captured block"
+  ],
+  "audio_limiter": {
+    "input_windows_linux_exact": true,
+    "output_windows_linux_exact": true,
+    "max_diff": 0.0,
+    "rmse": 0.0
+  },
+  "final_format": {
+    "input": "stereo float32 48k",
+    "output": "stereo int16 48k",
+    "callback": "CAudioFormatConvert::ConvertFloat32ToInt16Dither_NEON",
+    "runtime_va": "0x7ff803779e70",
+    "dither_std": 1.2458748642529827e-05,
+    "dither_max": 4.55059707746841e-05,
+    "all_4096_cursor_best_loopback_residual_lsb_rms": 28.50506,
+    "decision": "terminal h60 stream is not the WASAPI loopback oracle"
+  },
+  "rateconvert": {
+    "live_node": "h48->h49",
+    "overlap_exact": true,
+    "decision": "not W02 source"
+  },
+  "next": "Fresh raw WASAPI loopback packet capture with exact GetMixFormat logging; locate raw mix buffer in existing audiodg dump."
+}
