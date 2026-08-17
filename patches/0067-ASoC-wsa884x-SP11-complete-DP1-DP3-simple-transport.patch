@@ -1,0 +1,37 @@
+From: OpenAI Codex <codex@openai.com>
+Date: Tue, 18 Aug 2026 00:29:00 +0100
+Subject: [PATCH] ASoC: wsa884x: complete SP11 DP1/DP3 SIMPLE transport fields
+
+After the DP2/COMP OffsetCtrl2=0x07 correction in patch 0065, two known
+Windows slave-transport fields remain absent from the SP11 WSA8845 SIMPLE
+port declarations.  qcaucd programs DP1/DAC BlockCtrl3=0x00 and
+DP3/BOOST OffsetCtrl2=0x1f on both amplifiers.
+
+The SoundWire core already derives both values from the Qualcomm master
+schedule and patch 0065 already provides optional SIMPLE register support.
+Advertise BlockCtrl3 for DP1/DAC and OffsetCtrl2 for DP3/BOOST.  No constant
+register value, gain, PA state, lifecycle policy or DSP calibration changes.
+
+This patch is incremental on top of 0065 and is structural parity work; it
+is not part of the causal DP2 broadband-static fix.
+
+Signed-off-by: OpenAI Codex <codex@openai.com>
+---
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -860,6 +860,7 @@
+ 		.max_ch = 1,
+ 		.simple_ch_prep_sm = true,
+ 		.read_only_wordlength = true,
++		.simple_transport_registers = SDW_DPN_SIMPLE_TRANSPORT_BLOCKCTRL3,
+ 	},
+ 	[WSA884X_PORT_COMP] = {
+ 		.num = WSA884X_PORT_COMP + 1,
+@@ -877,6 +878,7 @@
+ 		.max_ch = 1,
+ 		.simple_ch_prep_sm = true,
+ 		.read_only_wordlength = true,
++		.simple_transport_registers = SDW_DPN_SIMPLE_TRANSPORT_OFFSETCTRL2,
+ 	},
+ 	[WSA884X_PORT_PBR] = {
+ 		.num = WSA884X_PORT_PBR + 1,

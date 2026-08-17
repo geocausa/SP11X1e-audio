@@ -48,10 +48,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
                           calls.append(("transaction", q28, len(delta)))), \
              patch.object(sync.base, "set_hardware_volume",
                           side_effect=lambda node, scalar, wpctl:
-                          calls.append(("host", scalar))), \
-             patch.object(sync.base, "set_hardware_mute",
-                          side_effect=lambda node, muted, wpctl:
-                          calls.append(("mute", muted))):
+                          calls.append(("host", scalar))):
             signature = sync.apply_transaction(
                 (0.25 ** 3, False), 69, deltas,
                 Path("tlv_write"), "hw:0", 321, "wpctl"
@@ -60,9 +57,42 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         self.assertEqual(calls[0][0], "transaction")
         self.assertEqual(calls[0][2], 272)
         self.assertEqual(calls[1], ("host", 1.0))
-        self.assertEqual(calls[2], ("mute", False))
         expected_q28 = sync.qcadcm_q28_from_db(-20.7474098205566)
-        self.assertEqual(signature, (expected_q28, 3, False))
+        self.assertEqual(signature, (expected_q28, 3))
+
+    def test_exact_endpoint_mute_selector_is_one_u32(self):
+        calls = []
+
+        class CP:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+
+        with patch.object(
+            sync.subprocess, "run",
+            side_effect=lambda argv, **kwargs: calls.append(argv) or CP(),
+        ):
+            sync.write_endpoint_mute(
+                True, helper=Path("tlv_write"), card="hw:0", numid=77
+            )
+            sync.write_endpoint_mute(
+                False, helper=Path("tlv_write"), card="hw:0", numid=77
+            )
+
+        self.assertEqual(calls[0][-1], "01000000")
+        self.assertEqual(calls[1][-1], "00000000")
+
+    def test_named_mute_control_discovery(self):
+        class CP:
+            returncode = 0
+            stdout = (
+                "numid=33,iface=MIXER,name='SP11 Windows Volume Transaction'\n"
+                "numid=34,iface=MIXER,name='SP11 Windows Endpoint Mute'\n"
+            )
+
+        with patch.object(sync.subprocess, "run", return_value=CP()):
+            self.assertEqual(sync.find_control_numid(), 33)
+            self.assertEqual(sync.find_mute_control_numid(), 34)
 
     def test_postgain_is_queued_once_per_dolby_generation(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -105,9 +135,9 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
              patch.object(sync.base, "set_hardware_mute"):
             result = sync.apply_transaction(
                 (0.17 ** 3, False), 69, deltas, Path("tlv"), "hw:0", 33,
-                "wpctl", previous=(q8, 1, False), stereo_sequence=True,
+                "wpctl", previous=(q8, 1), stereo_sequence=True,
             )
-        self.assertEqual(result, (q17, 2, False))
+        self.assertEqual(result, (q17, 2))
         self.assertEqual(calls, [(q17, q8, 2), (q17, q17, 2)])
 
     def test_windows_lr_sequence_matches_kdnet_downward_transition(self):
@@ -123,9 +153,9 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
              patch.object(sync.base, "set_hardware_mute"):
             result = sync.apply_transaction(
                 (0.08 ** 3, False), 69, deltas, Path("tlv"), "hw:0", 33,
-                "wpctl", previous=(q17, 2, False), stereo_sequence=True,
+                "wpctl", previous=(q17, 2), stereo_sequence=True,
             )
-        self.assertEqual(result, (q8, 1, False))
+        self.assertEqual(result, (q8, 1))
         self.assertEqual(calls, [(q8, q17, 2), (q8, q8, 1)])
 
     def test_dispatch_selects_candidate_only_when_control_exists(self):
@@ -146,6 +176,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         )
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync, "find_mute_control_numid", return_value=None), \
              patch.object(sync.base, "snapshot", return_value=[]), \
              patch.object(sync.base, "extract_node_volume",
                           return_value=(0.25 ** 3, False)), \
@@ -205,6 +236,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         applied = []
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync, "find_mute_control_numid", return_value=None), \
              patch.object(sync, "find_control_values", return_value=284), \
              patch.object(sync.subprocess, "Popen", return_value=FakeProc()), \
              patch.object(sync.base, "snapshot",
@@ -216,8 +248,9 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
              patch.object(sync.msiir, "graph_running", return_value=True), \
              patch.object(sync, "apply_transaction",
                           side_effect=lambda state, *a, **k:
-                          applied.append(state) or (123, 2, state[1])), \
-             patch.object(sync, "restore_host_attenuation"):
+                          applied.append(state) or (123, 2)), \
+             patch.object(sync, "restore_host_attenuation"), \
+             patch.object(sync.base, "set_hardware_mute"):
             self.assertEqual(sync.run(args), 0)
 
         self.assertEqual(len(snapshots), 1)
@@ -275,10 +308,11 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
             applied.append(state)
             _ui, db, postgain, _host = sync.base.derive_windows_state(*state)
             q28 = sync.qcadcm_q28_from_db(db)
-            return q28, sync.msiir.select_ckv_step_q28(q28), state[1]
+            return q28, sync.msiir.select_ckv_step_q28(q28)
 
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync, "find_mute_control_numid", return_value=None), \
              patch.object(sync, "find_control_values", return_value=284), \
              patch.object(sync.subprocess, "Popen", return_value=FakeProc()), \
              patch.object(sync.base, "snapshot", return_value=initial), \
@@ -291,13 +325,107 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
              patch.object(sync, "restore_visible_control_state",
                           side_effect=lambda state, node_id, wpctl:
                           restored.append((state, node_id)) or 0.25), \
-             patch.object(sync, "restore_host_attenuation"):
+             patch.object(sync, "restore_host_attenuation"), \
+             patch.object(sync.base, "set_hardware_mute"):
             self.assertEqual(sync.run(args), 0)
 
         self.assertEqual(restored, [((old_gain, False), 42)])
         self.assertEqual(queue.call_count, 2)
         self.assertTrue(applied)
         self.assertTrue(all(state == (old_gain, False) for state in applied))
+
+    def test_exact_dsp_mute_change_does_not_resend_volume_transaction(self):
+        args = Namespace(
+            delta_table=Path("deltas.json"), card="hw:0", amixer="amixer",
+            tlv_write=Path(__file__), pw_dump="pw-dump", node="virtual",
+            hardware_node="hardware", pcm_status=Path("status"),
+            wpctl="wpctl", control=Path("control"), interval_ms=100,
+            once=False, settle_ms=0, bootstrap_ms=0, bootstrap_guard_ms=0,
+            node_settle_ms=0,
+        )
+
+        class FakeStdout:
+            def fileno(self): return 9
+        class FakeProc:
+            stdout = FakeStdout(); returncode = 0
+            def poll(self): return 0
+            def terminate(self): raise AssertionError
+            def wait(self): return 0
+
+        initial = [{
+            "id": 41,
+            "info": {"props": {"node.name": "virtual"},
+                     "params": {"Props": [{"channelVolumes": [0.25 ** 3], "mute": False}]}},
+        }, {"id": 69, "info": {"props": {"node.name": "hardware"}}}]
+        muted_event = [{
+            "id": 41,
+            "info": {"props": {"node.name": "virtual"},
+                     "params": {"Props": [{"channelVolumes": [0.25 ** 3], "mute": True}]}},
+        }]
+        applied = []
+        dsp_mutes = []
+        hardware_mutes = []
+        with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
+             patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync, "find_mute_control_numid", return_value=322), \
+             patch.object(sync, "find_control_values", return_value=288), \
+             patch.object(sync.subprocess, "Popen", return_value=FakeProc()), \
+             patch.object(sync.base, "snapshot", return_value=initial), \
+             patch.object(sync.base, "iter_json_stream", return_value=iter((muted_event,))), \
+             patch.object(sync, "queue_dolby_postgain_for_generation", return_value=-332), \
+             patch.object(sync.msiir, "graph_running", return_value=True), \
+             patch.object(sync, "write_endpoint_mute",
+                          side_effect=lambda muted, **kw: dsp_mutes.append(muted)), \
+             patch.object(sync, "apply_transaction",
+                          side_effect=lambda state, *a, **k: (
+                              applied.append(state) or (
+                                  sync.qcadcm_q28_from_db(
+                                      sync.base.derive_windows_state(*state)[1]
+                                  ),
+                                  sync.msiir.select_ckv_step_q28(
+                                      sync.qcadcm_q28_from_db(
+                                          sync.base.derive_windows_state(*state)[1]
+                                      )
+                                  ),
+                              )
+                          )), \
+             patch.object(sync.base, "set_hardware_mute",
+                          side_effect=lambda _id, muted, _wp: hardware_mutes.append(muted)), \
+             patch.object(sync, "restore_host_attenuation"):
+            self.assertEqual(sync.run(args), 0)
+
+        self.assertEqual(applied, [(0.25 ** 3, False)])
+        self.assertEqual(dsp_mutes, [False, True])
+        self.assertEqual(hardware_mutes[:2], [False, True])
+
+    def test_failed_exact_dsp_unmute_keeps_hardware_muted(self):
+        args = Namespace(
+            delta_table=Path("deltas.json"), card="hw:0", amixer="amixer",
+            tlv_write=Path(__file__), pw_dump="pw-dump", node="virtual",
+            hardware_node="hardware", pcm_status=Path("status"),
+            wpctl="wpctl", control=Path("control"), interval_ms=100, once=True,
+        )
+        hardware_mutes = []
+        hardware_volumes = []
+        with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
+             patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync, "find_mute_control_numid", return_value=322), \
+             patch.object(sync, "find_control_values", return_value=288), \
+             patch.object(sync.base, "snapshot", return_value=[]), \
+             patch.object(sync.base, "extract_node_volume", return_value=(0.25 ** 3, False)), \
+             patch.object(sync.base, "extract_node_id", return_value=69), \
+             patch.object(sync, "queue_dolby_postgain_for_generation", return_value=-332), \
+             patch.object(sync.msiir, "graph_running", return_value=True), \
+             patch.object(sync, "write_endpoint_mute", side_effect=RuntimeError("DSP reject")), \
+             patch.object(sync.base, "set_hardware_volume",
+                          side_effect=lambda _id, scalar, _wp: hardware_volumes.append(scalar)), \
+             patch.object(sync.base, "set_hardware_mute",
+                          side_effect=lambda _id, muted, _wp: hardware_mutes.append(muted)), \
+             patch.object(sync, "apply_transaction") as apply_tx:
+            self.assertEqual(sync.run(args), 0)
+        apply_tx.assert_not_called()
+        self.assertEqual(hardware_mutes[-1], True)
+        self.assertTrue(hardware_volumes)
 
     def test_load_module_accepts_extensionless_installed_helper(self):
         with tempfile.TemporaryDirectory() as tmpdir:

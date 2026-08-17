@@ -1,0 +1,149 @@
+From: OpenAI Codex <codex@openai.com>
+Date: Tue, 18 Aug 2026 00:28:00 +0100
+Subject: [PATCH] ASoC: q6apm: add exact SP11 Windows endpoint mute control
+
+Windows qcadcm handles AUDIO_DSP_IOCTL_GRAPH_SET_ENDPOINT_MUTE as a
+separate SetMute operation on the final render VOL_CTRL.  The hash-matched
+qcadcm SetMute routine at RVA 0x6ee58 constructs parameter 0x08001039 for
+instance 0x4a63 as an eight-entry multichannel body.  The ordinary speaker
+endpoint uses channel masks 0x2/0x4 and copies mute selector 1/0 directly
+into the corresponding dwords.
+
+Add the same fixed-target 104-byte body builder and expose a dedicated TLV
+control that accepts only one u32 selector, 0 or 1.  Keep it separate from
+the already-proven final-volume/GainStep transaction, matching the Windows
+IOCTL boundary.  Require a running protected graph and serialize the write
+under the same endpoint transaction lock.
+
+The generated unmute body is byte-identical to the preserved Windows body:
+SHA-256 441d3acf732158b63bea99b8581e172ec2385c0e5531ff7a4e7bf69cb46f4bea.
+
+Signed-off-by: OpenAI Codex <codex@openai.com>
+---
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1966,6 +1966,7 @@
+ 
+ #define SP11_FINAL_VOL_CTRL_IID		0x4a63
+ #define SP11_PARAM_VOL_CTRL_MULTICH_GAIN	0x08001038
++#define SP11_PARAM_VOL_CTRL_MULTICH_MUTE	0x08001039
+ #define SP11_VOL_CTRL_Q28_UNITY		0x10000000
+ #define SP11_VOL_CTRL_NUM_CONFIGS		8
+ 
+@@ -1982,6 +1983,20 @@
+ } __packed;
+ 
+ static_assert(sizeof(struct sp11_vol_ctrl_multichannel_gain) == 0x68);
++
++struct sp11_vol_ctrl_channel_mute {
++	u32 channel_mask_lsw;
++	u32 channel_mask_msw;
++	u32 mute;
++} __packed;
++
++struct sp11_vol_ctrl_multichannel_mute {
++	u32 num_config;
++	struct sp11_vol_ctrl_channel_mute channel[SP11_VOL_CTRL_NUM_CONFIGS];
++	u32 padding;
++} __packed;
++
++static_assert(sizeof(struct sp11_vol_ctrl_multichannel_mute) == 0x68);
+ 
+ int audioreach_sp11_set_final_volume_q28(struct q6apm *apm, u32 left_q28,
+ 					 u32 right_q28)
+@@ -2000,6 +2015,22 @@
+ 			SP11_PARAM_VOL_CTRL_MULTICH_GAIN, &cfg, sizeof(cfg));
+ }
+ EXPORT_SYMBOL_GPL(audioreach_sp11_set_final_volume_q28);
++
++int audioreach_sp11_set_final_mute(struct q6apm *apm, bool muted)
++{
++	struct sp11_vol_ctrl_multichannel_mute cfg = {
++		.num_config = SP11_VOL_CTRL_NUM_CONFIGS,
++		.channel[0] = { .channel_mask_lsw = 0x2, .mute = muted ? 1 : 0 },
++		.channel[1] = { .channel_mask_lsw = 0x4, .mute = muted ? 1 : 0 },
++	};
++
++	if (!apm)
++		return -EINVAL;
++
++	return audioreach_sp11_send_module_param(apm, SP11_FINAL_VOL_CTRL_IID,
++			SP11_PARAM_VOL_CTRL_MULTICH_MUTE, &cfg, sizeof(cfg));
++}
++EXPORT_SYMBOL_GPL(audioreach_sp11_set_final_mute);
+ 
+ static int audioreach_gain_set(struct q6apm_graph *graph,
+ 			       const struct audioreach_module *module)
+--- a/sound/soc/qcom/qdsp6/audioreach.h
++++ b/sound/soc/qcom/qdsp6/audioreach.h
+@@ -927,6 +927,7 @@
+ 					const void *payload, size_t size);
+ int audioreach_sp11_set_final_volume_q28(struct q6apm *apm, u32 left_q28,
+ 					 u32 right_q28);
++int audioreach_sp11_set_final_mute(struct q6apm *apm, bool muted);
+ int audioreach_send_u32_param(struct q6apm_graph *graph,
+ 			      const struct audioreach_module *module,
+ 			      uint32_t param_id, uint32_t param_val);
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -1526,6 +1526,7 @@
+ #define SP11_VOLUME_TRANSACTION_CONTROL_MAX	(SND_SOC_TLV_HDR + \
+ 						 SP11_VOLUME_TRANSACTION_PAYLOAD_MAX)
+ #define SP11_GAINSTEP_IID			0x489e
++#define SP11_ENDPOINT_MUTE_CONTROL_MAX		(SND_SOC_TLV_HDR + sizeof(u32))
+ 
+ static DEFINE_MUTEX(sp11_volume_transaction_lock);
+ 
+@@ -1620,6 +1621,42 @@
+ 		dev_dbg(apm->dev,
+ 			"SP11 volume transaction L %#x R %#x delta %zu -> %d\n",
+ 			left_q28, right_q28, delta_size, ret);
++
++	kref_put(&graph->refcount, q6apm_put_audioreach_graph);
++	return ret;
++}
++
++static int
++q6apm_sp11_endpoint_mute_put(struct snd_kcontrol *kcontrol,
++				     const unsigned int __user *bytes,
++				     unsigned int size)
++{
++	struct snd_soc_component *c = snd_kcontrol_chip(kcontrol);
++	struct q6apm *apm = dev_get_drvdata(c->dev);
++	struct audioreach_graph *graph;
++	u32 mute;
++	int ret;
++
++	if (size != SP11_ENDPOINT_MUTE_CONTROL_MAX)
++		return -EINVAL;
++
++	bytes += 2;
++	if (copy_from_user(&mute, bytes, sizeof(mute)))
++		return -EFAULT;
++	mute = le32_to_cpu(mute);
++	if (mute > 1)
++		return -EINVAL;
++
++	graph = q6apm_sp11_get_running_protected_graph(apm);
++	if (IS_ERR(graph))
++		return PTR_ERR(graph);
++
++	mutex_lock(&sp11_volume_transaction_lock);
++	ret = audioreach_sp11_set_final_mute(apm, mute != 0);
++	mutex_unlock(&sp11_volume_transaction_lock);
++
++	if (ret)
++		dev_dbg(apm->dev, "SP11 endpoint mute %u -> %d\n", mute, ret);
+ 
+ 	kref_put(&graph->refcount, q6apm_put_audioreach_graph);
+ 	return ret;
+@@ -1728,6 +1765,9 @@
+ 	SND_SOC_BYTES_TLV("SP11 Windows Volume Transaction",
+ 			  SP11_VOLUME_TRANSACTION_CONTROL_MAX, NULL,
+ 			  q6apm_sp11_volume_transaction_put),
++	SND_SOC_BYTES_TLV("SP11 Windows Endpoint Mute",
++			  SP11_ENDPOINT_MUTE_CONTROL_MAX, NULL,
++			  q6apm_sp11_endpoint_mute_put),
+ };
+ 
+ static int q6apm_audio_probe(struct snd_soc_component *component)

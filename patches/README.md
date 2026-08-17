@@ -704,3 +704,21 @@ SOFT_PAUSE completion from reaching its waiter. The patch enters stopped state
 before sending PAUSE, suppressing watermark period callbacks during the wait,
 and restores running state if the DSP command itself is rejected. This also
 matches the recovered Windows PAUSE/state-3 ordering.
+
+## `0066-ASoC-q6apm-SP11-exact-Windows-endpoint-mute.patch`
+
+Golden-v30 candidate delta. Hash-matched qcadcm routes endpoint mute through a
+separate SetMute operation, not SetVolume. The patch adds a fixed-target
+`0x4a63/0x08001039` 104-byte multichannel body builder and one tightly
+validated `SP11 Windows Endpoint Mute` TLV that accepts only selector 0/1 on a
+running protected graph. The generated unmute body is byte-identical to the
+retained Windows payload (SHA-256 `441d3acf...f69cb46f4bea`). It deliberately
+does not alter the proven final-volume/GainStep ABI.
+
+## `0067-ASoC-wsa884x-SP11-complete-DP1-DP3-simple-transport.patch`
+
+Incremental on patch `0065`. Advertises the already-supported SIMPLE
+BlockCtrl3 register for DP1/DAC and SIMPLE OffsetCtrl2 for DP3/BOOST. The
+Qualcomm master schedule supplies Windows values `0x00` and `0x1f`
+respectively; no constant transport values are invented. This is structural
+fidelity only and does not change the causal DP2/static conclusion.

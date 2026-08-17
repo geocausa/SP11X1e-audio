@@ -1,0 +1,43 @@
+{
+  "date": "2026-08-18",
+  "status": "staged-local-candidate",
+  "name": "golden-v30-mute-dp1-dp3",
+  "branch": "agent/golden-v30-mute-transport-20260818",
+  "base": "Golden v28 / 7.1.5-sp11-render-parity-v4+",
+  "deltas": [
+    "final VOL_CTRL 0x4a63/0x08001039 exact endpoint mute",
+    "DP1 DAC SIMPLE BlockCtrl3",
+    "DP3 BOOST SIMPLE OffsetCtrl2"
+  ],
+  "windows_mute": {
+    "qcadcm_rva": "0x6ee58",
+    "endpoint_ioctl_case": "0x11",
+    "subgraph_selector": 3,
+    "iid": "0x4a63",
+    "pid": "0x08001039",
+    "body_bytes": 104,
+    "mute_selector": 1,
+    "unmute_selector": 0,
+    "unmute_sha256": "441d3acf732158b63bea99b8581e172ec2385c0e5531ff7a4e7bf69cb46f4bea",
+    "mute_sha256": "7a0f0e11feeaf778367aa7f9883871dc39dbbc8162f01451de4cb003ed188e65"
+  },
+  "modules": {
+    "snd_q6apm": {
+      "srcversion": "F50BA24BDA6FAC8AE991A54",
+      "signed_sha256": "110b6d1e71105db7c5b203b68fd1c2d249f14aff328e51d6f67a76787991bbf4",
+      "zst_sha256": "8aa9cdc4fc099f8eab21bbd2ba91efd401b7275aff76f46947ddbc29eefe740b"
+    },
+    "snd_soc_wsa884x": {
+      "srcversion": "A4F2E38C5C27D13E327887B",
+      "signed_sha256": "cf136a78b104e283b3142bfa0d5629a07a2aaa1bc448cad7d3c1470efcdeaf73",
+      "zst_sha256": "1a1163c297f4a335ec8fc9d515ffbc2f1313f1bf8194857cf26b24cdfc1c65b2"
+    }
+  },
+  "tests": {
+    "focused": 33,
+    "broader": 54,
+    "subtests": 6
+  },
+  "actions_runner_used": false,
+  "saved_default_must_remain": "sp11-audio-golden-v28"
+}

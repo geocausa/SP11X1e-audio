@@ -74,6 +74,7 @@ msiir = load_module(
 )
 
 CONTROL_NAME = "SP11 Windows Volume Transaction"
+MUTE_CONTROL_NAME = "SP11 Windows Endpoint Mute"
 DEFAULT_CARD = "hw:0"
 DEFAULT_PCM_STATUS = Path("/proc/asound/card0/pcm0p/sub0/status")
 DEFAULT_TLV_WRITE = Path.home() / ".local/lib/sp11-dolby/tlv_write"
@@ -124,16 +125,26 @@ def load_deltas(path: Path) -> tuple[bytes, ...]:
     return tuple(result)
 
 
-def find_control_numid(card: str = DEFAULT_CARD, amixer: str = "amixer") -> int | None:
+def find_named_control_numid(name: str, card: str = DEFAULT_CARD,
+                             amixer: str = "amixer") -> int | None:
     cp = subprocess.run(
         [amixer, "-D", card, "controls"], capture_output=True, text=True
     )
     if cp.returncode:
         return None
     for line in cp.stdout.splitlines():
-        if CONTROL_NAME.lower() in line.lower() and "numid=" in line:
+        if name.lower() in line.lower() and "numid=" in line:
             return int(line.split("numid=", 1)[1].split(",", 1)[0])
     return None
+
+
+def find_control_numid(card: str = DEFAULT_CARD, amixer: str = "amixer") -> int | None:
+    return find_named_control_numid(CONTROL_NAME, card, amixer)
+
+
+def find_mute_control_numid(card: str = DEFAULT_CARD,
+                            amixer: str = "amixer") -> int | None:
+    return find_named_control_numid(MUTE_CONTROL_NAME, card, amixer)
 
 
 def find_control_values(card: str, numid: int, amixer: str = "amixer") -> int | None:
@@ -171,6 +182,22 @@ def write_transaction(left_q28: int, delta: bytes, *, helper: Path, card: str,
     if cp.returncode:
         output = (cp.stdout + cp.stderr).strip()
         raise RuntimeError(output or f"tlv_write rc={cp.returncode}")
+
+
+def write_endpoint_mute(muted: bool, *, helper: Path, card: str,
+                        numid: int) -> None:
+    """Send the exact qcadcm final VOL_CTRL multichannel mute selector.
+
+    The kernel constructs the captured 104-byte 0x4a63/0x08001039 body.
+    Userspace supplies only the validated Windows mute selector 0/1.
+    """
+    blob = struct.pack("<I", 1 if muted else 0)
+    cp = subprocess.run(
+        [str(helper), card, str(numid), blob.hex()], capture_output=True, text=True
+    )
+    if cp.returncode:
+        output = (cp.stdout + cp.stderr).strip()
+        raise RuntimeError(output or f"endpoint mute tlv_write rc={cp.returncode}")
 
 
 def restore_host_attenuation(state: tuple[float, bool], hardware_id: int,
@@ -258,8 +285,8 @@ def queue_dolby_postgain_for_generation(
 def apply_transaction(state: tuple[float, bool], hardware_id: int,
                       deltas: tuple[bytes, ...], helper: Path,
                       card: str, numid: int, wpctl: str,
-                      previous: tuple[int, int, bool] | None = None,
-                      stereo_sequence: bool = False) -> tuple[int, int, bool]:
+                      previous: tuple[int, int] | None = None,
+                      stereo_sequence: bool = False) -> tuple[int, int]:
     pipewire_gain, muted = state
     ui_scalar, endpoint_db, _postgain, _host_scalar = base.derive_windows_state(
         pipewire_gain, muted
@@ -270,7 +297,7 @@ def apply_transaction(state: tuple[float, bool], hardware_id: int,
 
     if stereo_sequence:
         if previous is not None and previous[0] != q28:
-            old_q28, old_step, _old_muted = previous
+            old_q28, old_step = previous
             # Fresh Windows KDNET shows master volume is delivered as left
             # channel first and right channel second. GetGraphCkv keeps the
             # louder of the two channel states during that intermediate body.
@@ -294,7 +321,6 @@ def apply_transaction(state: tuple[float, bool], hardware_id: int,
         write_transaction(q28, deltas[step - 1], helper=helper, card=card, numid=numid)
 
     base.set_hardware_volume(hardware_id, 1.0, wpctl)
-    base.set_hardware_mute(hardware_id, muted, wpctl)
     print(
         f"pipewire_gain={pipewire_gain:.9g} ui_scalar={ui_scalar:.6f} "
         f"windows_db={endpoint_db:.3f} final_q28=0x{q28:08x} "
@@ -303,7 +329,7 @@ def apply_transaction(state: tuple[float, bool], hardware_id: int,
         f"muted={'yes' if muted else 'no'}",
         flush=True,
     )
-    return q28, step, muted
+    return q28, step
 
 
 def event_mentions_node(value: object, node_name: str) -> bool:
@@ -327,6 +353,7 @@ def run(args: argparse.Namespace) -> int:
     if not args.tlv_write.exists():
         print(f"missing TLV helper: {args.tlv_write}", file=sys.stderr)
         return 5
+    mute_numid = find_mute_control_numid(args.card, args.amixer)
     control_values = find_control_values(args.card, numid, args.amixer)
     stereo_sequence = (
         control_values is not None
@@ -334,11 +361,13 @@ def run(args: argparse.Namespace) -> int:
     )
     print(
         f"volume_transaction_control_values={control_values} "
-        f"mode={'windows-lr' if stereo_sequence else 'legacy-stereo'}",
+        f"mode={'windows-lr' if stereo_sequence else 'legacy-stereo'} "
+        f"endpoint_mute={'exact-dsp' if mute_numid is not None else 'hardware-fallback'}",
         flush=True,
     )
 
-    last: tuple[int, int, bool] | None = None
+    last: tuple[int, int] | None = None
+    last_dsp_mute: bool | None = None
     last_host: tuple[int, int, bool] | None = None
     transaction_active = False
     current_state: tuple[float, bool] | None = None
@@ -348,7 +377,7 @@ def run(args: argparse.Namespace) -> int:
     generation_state = getattr(args, "generation_state", default_generation_state())
 
     def reconcile(state: tuple[float, bool], hardware_id: int) -> None:
-        nonlocal last, last_host, transaction_active
+        nonlocal last, last_host, last_dsp_mute, transaction_active
         nonlocal current_state, current_hardware_id
         current_state = state
         current_hardware_id = hardware_id
@@ -362,6 +391,7 @@ def run(args: argparse.Namespace) -> int:
             if transaction_active or host_signature != last_host:
                 last_host = restore_host_attenuation(state, hardware_id, args.wpctl)
             transaction_active = False
+            last_dsp_mute = None
             return
 
         pipewire_gain, muted = state
@@ -370,7 +400,42 @@ def run(args: argparse.Namespace) -> int:
         )
         q28 = qcadcm_q28_from_db(endpoint_db)
         step = msiir.select_ckv_step_q28(q28)
-        signature = (q28, step, muted)
+        signature = (q28, step)
+
+        mute_changed = last_dsp_mute is None or muted != last_dsp_mute
+        if mute_numid is not None and mute_changed:
+            try:
+                write_endpoint_mute(
+                    muted, helper=args.tlv_write, card=args.card, numid=mute_numid
+                )
+                last_dsp_mute = muted
+                # Keep the downstream mute as a fail-safe backstop.  On
+                # unmute this is released only after the DSP accepted 0x1039.
+                base.set_hardware_mute(hardware_id, muted, args.wpctl)
+                print(
+                    f"endpoint_dsp_mute={'1' if muted else '0'} hardware_backstop="
+                    f"{'muted' if muted else 'open'}", flush=True
+                )
+            except RuntimeError as exc:
+                _ui, _db, _postgain, host_scalar = base.derive_windows_state(
+                    pipewire_gain, muted
+                )
+                base.set_hardware_volume(hardware_id, host_scalar, args.wpctl)
+                # A failed DSP unmute must fail closed instead of exposing audio
+                # whose graph mute state is unknown.
+                base.set_hardware_mute(hardware_id, True, args.wpctl)
+                transaction_active = False
+                last_dsp_mute = None
+                print(
+                    f"endpoint DSP mute failed closed: {exc}",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                return
+        elif mute_numid is None:
+            # Rollback kernels retain the proven downstream-only mute actuator.
+            base.set_hardware_mute(hardware_id, muted, args.wpctl)
+
         if transaction_active and signature == last:
             return
         try:
@@ -385,6 +450,7 @@ def run(args: argparse.Namespace) -> int:
         except RuntimeError as exc:
             last_host = restore_host_attenuation(state, hardware_id, args.wpctl)
             transaction_active = False
+            last_dsp_mute = None
             print(
                 f"transaction failed safely: {exc}",
                 file=sys.stderr,
