@@ -1,0 +1,68 @@
+{
+  "date": "2026-08-17",
+  "status": "GREEN",
+  "candidate": "v26",
+  "kernel": "7.1.5-sp11-render-parity-v4+",
+  "loaded_srcversion": "86C5EDC920418F8B1306346",
+  "windows_oracle": {
+    "cold_init_writes": 63,
+    "runtime_start_writes": 10,
+    "runtime_stop_writes": 6
+  },
+  "linux_runtime_validation": {
+    "cycles": 3,
+    "amps": 2,
+    "total_wsa_writes": 96,
+    "per_regmap": {
+      "18446462633211068416": [
+        {
+          "start_exact": true,
+          "stop_exact": true,
+          "writes": 16
+        },
+        {
+          "start_exact": true,
+          "stop_exact": true,
+          "writes": 16
+        },
+        {
+          "start_exact": true,
+          "stop_exact": true,
+          "writes": 16
+        }
+      ],
+      "18446462633211082752": [
+        {
+          "start_exact": true,
+          "stop_exact": true,
+          "writes": 16
+        },
+        {
+          "start_exact": true,
+          "stop_exact": true,
+          "writes": 16
+        },
+        {
+          "start_exact": true,
+          "stop_exact": true,
+          "writes": 16
+        }
+      ]
+    },
+    "verdict": "PASS"
+  },
+  "final_state": {
+    "left_soundwire": "suspended",
+    "right_soundwire": "suspended",
+    "alsa_pcm": "closed",
+    "kernel_relevant_fault_lines": 0
+  },
+  "hashes": {
+    "source_before_sha256": "5b747b52a4733604d994bf7a37831d168691a2296d1f8c8b9a7eb26608491f1e",
+    "source_after_sha256": "9dc07c5c419f0fc35e54cc3e2df0af9a6e3d0b5b6b8307c1cd578a0efe8b2c3b",
+    "signed_module_sha256": "6c6ba13a349b3f89bb12a76c957cfc114001b579b3f6656b5f137788f307d837",
+    "compressed_module_sha256": "264413c5d3fb59eb0fffc11bc44fdae9a1d9779234705e91efdd7696b8be0019",
+    "initrd_sha256": "94434eb3cb3b5e83c12c0bf0054c0ee3803b62fc14f3c2a7372db08a292bb801",
+    "three_cycle_trace_sha256": "e1f7f0f73d7922c1512db72d7521d0bad22bad60f69fc2f1afe56021ef01a430"
+  }
+}

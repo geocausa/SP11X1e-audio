@@ -1,0 +1,228 @@
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -14,6 +14,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
++#include <linux/of.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/regmap.h>
+ #include <linux/regulator/consumer.h>
+@@ -751,6 +752,7 @@
+ 	u8 cps_offset1;
+ 	u8 visense_channel_mask;
+ 	bool cps_enabled;
++	bool sp11_windows_lifecycle;
+ 	struct gpio_desc *sd_n;
+ 	struct reset_control *sd_reset;
+ 	bool port_prepared[WSA884X_MAX_SWR_PORTS];
+@@ -1680,6 +1682,117 @@
+ 	regmap_write(regmap, WSA884X_CURRENT_LIMIT, 0x44);        /* 0x3091 */
+ }
+ 
++/*
++ * Surface Pro 11 / Denali shipping Windows codec lifecycle, recovered from
++ * the complete qcaucd WSA8845 write oracle.  The cold transaction is emitted
++ * once after SoundWire attachment; ordinary playback then uses only START and
++ * STOP below.  Keep every write full-width and ordered: the transition history
++ * is part of the hardware contract.
++ */
++static const struct reg_sequence sp11_windows_cold_init[] = {
++	{ WSA884X_PWRSTG_DBG, 0x0c },
++	{ WSA884X_PDRV_HS_CTL, 0x5a },
++	{ WSA884X_SWR_RESET_EN, 0x07 },
++	{ WSA884X_INTR_MASK0, 0xff },
++	{ WSA884X_INTR_MASK1, 0x03 },
++	{ WSA884X_PA_FSM_BYP_CTL, 0x00 },
++	{ WSA884X_VBAT_SNS, 0x20 },
++	{ WSA884X_CKWD_CTL_1, 0x1b },
++	{ WSA884X_CDC_SPK_DSM_A2_0, 0x0a },
++	{ WSA884X_CDC_SPK_DSM_A2_1, 0x08 },
++	{ WSA884X_CDC_SPK_DSM_A3_0, 0xf3 },
++	{ WSA884X_CDC_SPK_DSM_A3_1, 0x07 },
++	{ WSA884X_CDC_SPK_DSM_A4_0, 0x79 },
++	{ WSA884X_CDC_SPK_DSM_A4_1, 0x02 },
++	{ WSA884X_CDC_SPK_DSM_A5_0, 0x0b },
++	{ WSA884X_CDC_SPK_DSM_A5_1, 0x02 },
++	{ WSA884X_CDC_SPK_DSM_A6_0, 0x8a },
++	{ WSA884X_CDC_SPK_DSM_A7_0, 0x9b },
++	{ WSA884X_CDC_SPK_DSM_C_0, 0x68 },
++	{ WSA884X_CDC_SPK_DSM_C_2, 0xf2 },
++	{ WSA884X_CDC_SPK_DSM_C_3, 0x20 },
++	{ WSA884X_CDC_SPK_DSM_R1, 0x83 },
++	{ WSA884X_CDC_SPK_DSM_R2, 0x7f },
++	{ WSA884X_CDC_SPK_DSM_R3, 0x9d },
++	{ WSA884X_CDC_SPK_DSM_R4, 0x82 },
++	{ WSA884X_CDC_SPK_DSM_R5, 0x8b },
++	{ WSA884X_CDC_SPK_DSM_R6, 0x9b },
++	{ WSA884X_CDC_SPK_DSM_R7, 0x3f },
++	{ WSA884X_DRE_IDLE_DET_CTL, 0x0f },
++	{ WSA884X_PDM_WD_CTL, 0x01 },
++	{ WSA884X_DRE_CTL_0, 0xf0 },
++	{ WSA884X_DRE_CTL_1, 0x00 },
++	{ WSA884X_BOP_DEGLITCH_CTL, 0x11 },
++	{ WSA884X_VBAT_CAL_CTL, 0x05 },
++	{ WSA884X_VBAT_THRM_FLT_CTL, 0x79 },
++	{ WSA884X_GAIN_RAMPING_MIN, 0x0e },
++	{ WSA884X_CLSH_CTL_0, 0x00 },
++	{ WSA884X_CLSH_V_HD_PA, 0x13 },
++	{ WSA884X_CLSH_SOFT_MAX, 0xff },
++	{ WSA884X_ANA_WO_CTL_0, 0x9d },
++	{ WSA884X_ANA_WO_CTL_1, 0x00 },
++	{ WSA884X_OTP_REG_38, 0x08 },
++	{ WSA884X_OTP_REG_40, 0x20 },
++	{ WSA884X_REF_CTRL, 0xd1 },
++	{ WSA884X_UVLO_PROG, 0x33 },
++	{ WSA884X_UVLO_PROG1, 0x60 },
++	{ WSA884X_BOP1_PROG, 0x22 },
++	{ WSA884X_BOP2_PROG, 0x44 },
++	{ WSA884X_ZX_CTRL1, 0xf8 },
++	{ WSA884X_STB_CTRL1, 0x6a },
++	{ WSA884X_ILIM_CTRL1, 0xe3 },
++	{ WSA884X_CURRENT_LIMIT, 0xd4 },
++	{ WSA884X_TOP_CTRL1, 0xd2 },
++	{ WSA884X_OCP_CTL, 0xf6 },
++	{ WSA884X_DAC_VCM_CTRL_REG2, 0x06 },
++	{ WSA884X_DAC_VCM_CTRL_REG3, 0x14 },
++	{ WSA884X_DAC_VCM_CTRL_REG4, 0x19 },
++	{ WSA884X_DAC_VCM_CTRL_REG5, 0x1b },
++	{ WSA884X_DAC_VCM_CTRL_REG6, 0x1c },
++	{ WSA884X_DAC_VCM_CTRL_REG7, 0x02 },
++	{ WSA884X_CKWD_CTL_1, 0x13 },
++	{ WSA884X_PWRSTAGE_CTRL2, 0xf1 },
++	{ WSA884X_CURRENT_LIMIT, 0x44 },
++};
++
++static const struct reg_sequence sp11_windows_start[] = {
++	{ WSA884X_ISENSE2, 0x07 },
++	{ WSA884X_VSENSE1, 0x67 },
++	{ WSA884X_INTR_MASK0, 0x90 },
++	{ WSA884X_INTR_MASK1, 0x00 },
++	{ WSA884X_CLSH_CTL_0, 0x67 },
++	{ WSA884X_PWRSTG_DBG, 0x08 },
++	{ WSA884X_PDRV_HS_CTL, 0x52 },
++	{ WSA884X_PA_FSM_EN, 0x01 },
++	{ WSA884X_PWRSTG_DBG, 0x0c },
++	{ WSA884X_PDRV_HS_CTL, 0x5a },
++};
++
++static const struct reg_sequence sp11_windows_stop[] = {
++	{ WSA884X_PA_FSM_EN, 0x00 },
++	{ WSA884X_INTR_MASK0, 0xff },
++	{ WSA884X_INTR_MASK1, 0x03 },
++	{ WSA884X_INTR_CLEAR0, 0xff },
++	{ WSA884X_INTR_CLEAR1, 0x03 },
++	{ WSA884X_CLSH_CTL_0, 0x00 },
++};
++
++static bool wsa884x_sp11_windows_profile(struct wsa884x_priv *wsa884x)
++{
++	return wsa884x->sp11_windows_lifecycle &&
++	       wsa884x->supply_config == WSA884X_SUPPLY_2S;
++}
++
++static void wsa884x_sp11_write_sequence(struct wsa884x_priv *wsa884x,
++					const struct reg_sequence *sequence,
++					size_t count)
++{
++	size_t i;
++
++	for (i = 0; i < count; i++)
++		regmap_write(wsa884x->regmap, sequence[i].reg, sequence[i].def);
++}
++
+ static void wsa884x_init(struct wsa884x_priv *wsa884x)
+ {
+ 	unsigned int wo_ctl_0;
+@@ -1705,6 +1818,13 @@
+ 				 supply_config);
+ 	}
+ 
++	if (wsa884x_sp11_windows_profile(wsa884x)) {
++		wsa884x_sp11_write_sequence(wsa884x, sp11_windows_cold_init,
++					    ARRAY_SIZE(sp11_windows_cold_init));
++		wsa884x->hw_init = true;
++		return;
++	}
++
+ 	regmap_multi_reg_write(wsa884x->regmap, wsa884x_reg_init,
+ 			       ARRAY_SIZE(wsa884x_reg_init));
+ 	wsa884x_apply_supply_config(wsa884x);
+@@ -2010,6 +2130,9 @@
+ {
+ 	unsigned int curr_limit, curr_ovrd_en;
+ 
++	if (wsa884x_sp11_windows_profile(wsa884x))
++		return;
++
+ 	wsa884x_set_gain_parameters(wsa884x);
+ 	if (wsa884x->dev_mode == WSA884X_RECEIVER) {
+ 		snd_soc_component_write_field(component, WSA884X_DRE_CTL_0,
+@@ -2071,9 +2194,10 @@
+ 
+ 		wsa884x_spkr_post_pmu(component, wsa884x);
+ 
+-		snd_soc_component_write_field(component, WSA884X_PDM_WD_CTL,
+-					      WSA884X_PDM_WD_CTL_PDM_WD_EN_MASK,
+-					      0x1);
++		if (!wsa884x_sp11_windows_profile(wsa884x))
++			snd_soc_component_write_field(component, WSA884X_PDM_WD_CTL,
++						      WSA884X_PDM_WD_CTL_PDM_WD_EN_MASK,
++						      0x1);
+ 
+ 		mod_delayed_work(system_wq, &wsa884x->pa_health_work,
+ 				 msecs_to_jiffies(WSA884X_PA_HEALTH_INTERVAL_MS));
+@@ -2085,9 +2209,10 @@
+ 		mutex_unlock(&wsa884x->sp_lock);
+ 		cancel_delayed_work_sync(&wsa884x->pa_health_work);
+ 
+-		snd_soc_component_write_field(component, WSA884X_PDM_WD_CTL,
+-					      WSA884X_PDM_WD_CTL_PDM_WD_EN_MASK,
+-					      0x0);
++		if (!wsa884x_sp11_windows_profile(wsa884x))
++			snd_soc_component_write_field(component, WSA884X_PDM_WD_CTL,
++						      WSA884X_PDM_WD_CTL_PDM_WD_EN_MASK,
++						      0x0);
+ 		break;
+ 	}
+ 
+@@ -2238,6 +2363,28 @@
+ 
+ 	guard(mutex)(&wsa884x->sp_lock);
+ 
++	if (wsa884x_sp11_windows_profile(wsa884x)) {
++		if (mute) {
++			wsa884x_sp11_write_sequence(wsa884x, sp11_windows_stop,
++						    ARRAY_SIZE(sp11_windows_stop));
++		} else {
++			/* Recovery is contingency-only; the clean path adds no writes. */
++			if (!regmap_read(wsa884x->regmap, WSA884X_PA_FSM_STA1, &sta1) &&
++			    (sta1 & WSA884X_PA_ERROR_MASK))
++				wsa884x_recover_pa(wsa884x, false);
++
++			wsa884x_sp11_write_sequence(wsa884x, sp11_windows_start,
++						    ARRAY_SIZE(sp11_windows_start));
++			usleep_range(1000, 1100);
++
++			if (!regmap_read(wsa884x->regmap, WSA884X_PA_FSM_STA1, &sta1) &&
++			    (sta1 & WSA884X_PA_ERROR_MASK))
++				wsa884x_recover_pa(wsa884x, true);
++		}
++
++		return 0;
++	}
++
+ 	if (mute) {
+ 		snd_soc_component_write_field(component, WSA884X_DRE_CTL_1,
+ 					      WSA884X_DRE_CTL_1_CSR_GAIN_EN_MASK,
+@@ -2593,6 +2740,10 @@
+ 	wsa884x->slave = pdev;
+ 	wsa884x->dev = dev;
+ 	wsa884x->dev_mode = WSA884X_SPEAKER;
++	wsa884x->sp11_windows_lifecycle =
++		of_machine_is_compatible("microsoft,denali");
++	if (wsa884x->sp11_windows_lifecycle)
++		dev_info(dev, "SP11 Windows WSA8845 three-state lifecycle enabled\n");
+ 	wsa884x->visense_channel_mask =
+ 		wsa884x_pconfig[WSA884X_PORT_VISENSE].ch_mask;
+ 	if (!of_property_read_u32(dev->of_node, "qcom,visense-channel-mask",
