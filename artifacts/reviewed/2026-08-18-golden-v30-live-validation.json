@@ -1,0 +1,115 @@
+{
+  "date": "2026-08-18",
+  "candidate": "Golden v30 exact mute + DP1/DP3",
+  "status": "technical_gates_green_user_listening_pending",
+  "branch": "agent/golden-v30-mute-transport-20260818",
+  "boot": {
+    "kernel": "7.1.5-sp11-render-parity-v4+",
+    "boot_id": "01ae2095-f6c3-4dbb-9f35-396c82d15644",
+    "marker": "7.1.5-sp11-golden-v30-mute-dp1-dp3",
+    "saved_default": "sp11-audio-golden-v28",
+    "next_entry": "",
+    "vmlinuz_sha256": "bca0a336c15d2995c61b8df9d449afb9df5fc8776a3da1ad034616f917bb428a",
+    "initrd_sha256": "51e17bd4952d785ef511b925f8835a415d7243ff95a7dcb97670e0879d5f0944",
+    "dtb_sha256": "3530e3426c500d664be6ed3ef066d1b548025ba8286a5810e8b98c591b6555ca"
+  },
+  "loaded_srcversions": {
+    "snd_q6apm": "F50BA24BDA6FAC8AE991A54",
+    "snd_soc_wsa884x": "A4F2E38C5C27D13E327887B",
+    "snd_soc_lpass_wsa_macro": "4AF6F542C17BA6DD46586DA",
+    "soundwire_qcom": "406975A3ED60935B31491BF"
+  },
+  "mute": {
+    "control": "SP11 Windows Endpoint Mute",
+    "numid": 34,
+    "control_values_bytes": 12,
+    "iid": "0x4a63",
+    "pid": "0x08001039",
+    "direct_sequence": [
+      1,
+      0,
+      1
+    ],
+    "direct_tlv_rc": [
+      0,
+      0,
+      0
+    ],
+    "established_baseline_mute_only_has_final_volume_calls": false,
+    "hardware_fail_safe_retained": true,
+    "windows_unmute_body_sha256": "441d3acf732158b63bea99b8581e172ec2385c0e5531ff7a4e7bf69cb46f4bea",
+    "mute_body_sha256": "7a0f0e11feeaf778367aa7f9883871dc39dbbc8162f01451de4cb003ed188e65"
+  },
+  "soundwire": {
+    "amps_observed": 2,
+    "banks_observed": 2,
+    "dp1_blockctrl3": "0x00",
+    "dp2_offsetctrl2": "0x07",
+    "dp3_offsetctrl2": "0x1f",
+    "all_values_exact": true
+  },
+  "retention": {
+    "idle_seconds": 20,
+    "total_wsa_writes": 32,
+    "writes_per_amp": 16,
+    "start_writes_per_amp": 10,
+    "stop_writes_per_amp": 6,
+    "exact_windows_sequence": true,
+    "cold_63_write_replay": false,
+    "lifecycle_enable_marker_count": 2,
+    "final_pcm": "closed",
+    "final_soundwire_devices": "suspended"
+  },
+  "sp7_external_mic": {
+    "provenance": "SP7 microphone externally recording SP11 speakers; SP11 microphone path unused",
+    "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-v30-mute-dp1-dp3-1pct-20260818\\external-mic-20260818-004136.wav",
+    "sha256": "B791573E99386585E4ED938F862412055B483BABFB0394E45878F4FDA60728A6",
+    "sample_rate": 48000,
+    "channels": 2,
+    "bits_per_sample": 16,
+    "seconds": 29.99,
+    "visible_endpoint_percent": 1,
+    "muted": true,
+    "digital_zero_seconds": 20,
+    "whole_capture_median_combined_diff_rms": 1.8148076164603558e-05,
+    "v28_same_recalculation": 1.818919259777128e-05,
+    "v30_over_v28": 0.9977395130131966,
+    "published_v28_reference": 1.8179778081257844e-05,
+    "retained_windows_reference": 1.8253227918889202e-05,
+    "active_3_to_22_5s_median": 1.8531597502830225e-05,
+    "v28_same_window_median": 1.8510120695455838e-05,
+    "active_window_ratio_v30_over_v28": 1.0011602737619998,
+    "result": "room_floor_no_regression"
+  },
+  "tests": {
+    "focused": "33 passed",
+    "broader": "54 passed, 6 subtests passed"
+  },
+  "promotion": {
+    "technical_gate": "green",
+    "user_listening_gate": "pending",
+    "saved_default_changed": false
+  },
+  "local_trace_provenance": {
+    "directory": "/home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/golden-v30-mute-dp1-dp3-20260818",
+    "zero_mute_soundwire_trace": {
+      "file": "v30-zero-mute-sdw-trace.txt",
+      "sha256": "44af8301c3a3efda7c3d92bb8ae855ffd5ba931939d2ed039546efb02662ec4d",
+      "bytes": 38311
+    },
+    "retention_wsa_trace": {
+      "file": "v30-retention-wsa-write.trace",
+      "sha256": "ba10c97671630a5862f19db3bdd4770498875831616830b8c9c1dd03bdef479b",
+      "bytes": 11988
+    },
+    "audible_smoke_trace": {
+      "file": "v30-audible-seven-mute-trace.txt",
+      "sha256": "f0a74d1cfb9d1ed024d8aecb4aa31c2619bd152a42a58a73ae330b890bb341b9",
+      "bytes": 6436
+    },
+    "initrd_roundtrip_diff": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

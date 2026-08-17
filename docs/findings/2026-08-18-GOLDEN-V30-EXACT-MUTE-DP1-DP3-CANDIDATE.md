@@ -90,3 +90,13 @@ Do not replace Golden v28 by construction. A one-shot v30 boot must prove:
 
 Only after those gates pass and the user accepts the listening result should v30
 be considered for promotion/default.
+
+## Live validation update
+
+The candidate has now completed its one-shot live technical gate. Exact DSP
+mute, DP1/DP2/DP3 transport writes, 20-second resident WSA lifecycle retention
+and SP7-external physical static regression all passed. Golden v28 remains the
+saved default pending the user's subjective listening/promotion verdict.
+
+Canonical live result:
+[`2026-08-18-GOLDEN-V30-LIVE-MUTE-TRANSPORT-STATIC-VALIDATION.md`](2026-08-18-GOLDEN-V30-LIVE-MUTE-TRANSPORT-STATIC-VALIDATION.md).

@@ -19,6 +19,16 @@ dual WSA884x amplifiers.
 > [`Golden v28 consolidation`](docs/deployment/2026-08-17-GOLDEN-V28-CONSOLIDATION.md)
 > and the canonical
 > [`render-parity ledger`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md).
+>
+> **Development branch note — Golden v30 candidate (2026-08-18):** this branch
+> adds only exact Windows final-VOL_CTRL endpoint mute plus the remaining DP1/DAC
+> BlockCtrl3 and DP3/BOOST OffsetCtrl2 slave-transport declarations. All objective
+> local gates are GREEN: exact mute-only DSP sequencing, both-amp/both-bank
+> DP1=`0x00` / DP2=`0x07` / DP3=`0x1f`, exact 10+6 WSA lifecycle after 20 s
+> idle, and SP7-external physical noise still at the v28/Windows room floor.
+> **Golden v28 remains the saved default until the user's v30 listening verdict.**
+> See [`deploy/golden-v30-candidate/`](deploy/golden-v30-candidate/) and the
+> [`v30 live validation`](docs/findings/2026-08-18-GOLDEN-V30-LIVE-MUTE-TRANSPORT-STATIC-VALIDATION.md).
 
 ## Recommended boot set
 
@@ -26,7 +36,8 @@ dual WSA884x amplifiers.
 |---|---|---|
 | `sp11-audio-golden-v28` | Daily driver | **Recommended/default** |
 | `sp11-audio-cps-v3` | Conservative rescue | **Keep** |
-| `sp11-audio-v29-structural-test` | DP3 OffsetCtrl2 structural comparison | **Test only** |
+| `sp11-audio-v29-structural-test` | DP3 OffsetCtrl2 structural comparison | **Test only / superseded if v30 is accepted** |
+| `sp11-audio-golden-v30-candidate` | Exact DSP mute + DP1/DP3 completion | **Objective gates GREEN; user verdict pending** |
 
 Historical one-off candidates are retained in findings/patches/candidate
 archives, not as dozens of active GRUB entries.
@@ -56,8 +67,9 @@ The remaining work is much narrower than the historical README implied:
 
 1. **Bass / psychoacoustic-bass A/B.** Compare Golden v28 directly with Windows
    at matched level using the same material and SP7 external capture where useful.
-2. **Exact runtime DSP mute.** User-facing mute works; Windows' exact
-   `0x4a63/0x08001039` runtime transaction is still to be promoted separately.
+2. **Golden-v30 promotion verdict.** Exact runtime DSP mute and DP1/DP3 transport
+   are now technically proven on the isolated v30 candidate; normal user listening
+   must confirm the Golden v28 sound quality before it becomes the saved default.
 3. **Non-blocking research items.** W02 is a dedicated Windows WASAPI-loopback
    branch identity question, not a speaker-quality blocker. Protection telemetry
    naming and HLOS CPS private-field semantics remain incomplete but are not

@@ -1,0 +1,47 @@
+{
+  "name": "SP11 Audio Golden v30 candidate",
+  "date": "2026-08-18",
+  "status": "technical-gates-green-user-listening-pending",
+  "kernel_release": "7.1.5-sp11-render-parity-v4+",
+  "boot_marker": "7.1.5-sp11-golden-v30-mute-dp1-dp3",
+  "grub_id": "sp11-audio-golden-v30-candidate",
+  "saved_default_during_validation": "sp11-audio-golden-v28",
+  "boot_directory": "/boot/sp11-7.1.5-audio-golden-v30-mute-dp1-dp3",
+  "boot_artifacts": {
+    "vmlinuz-7.1.5-sp11-render-parity-v4+": "bca0a336c15d2995c61b8df9d449afb9df5fc8776a3da1ad034616f917bb428a",
+    "initrd.img-7.1.5-sp11-render-parity-v4+": "51e17bd4952d785ef511b925f8835a415d7243ff95a7dcb97670e0879d5f0944",
+    "x1e80100-microsoft-denali-sp11-audio-rpv4-macro84-winproducer-nohd2-wsa-windows-3state-retain-dp2offset2-v28-idlegated.dtb": "3530e3426c500d664be6ed3ef066d1b548025ba8286a5810e8b98c591b6555ca"
+  },
+  "module_srcversions": {
+    "snd_q6apm": "F50BA24BDA6FAC8AE991A54",
+    "snd_soc_wsa884x": "A4F2E38C5C27D13E327887B",
+    "snd_soc_lpass_wsa_macro": "4AF6F542C17BA6DD46586DA",
+    "soundwire_qcom": "406975A3ED60935B31491BF"
+  },
+  "candidate_module_sha256": {
+    "snd_q6apm_signed_uncompressed": "110b6d1e71105db7c5b203b68fd1c2d249f14aff328e51d6f67a76787991bbf4",
+    "snd_q6apm_zst": "8aa9cdc4fc099f8eab21bbd2ba91efd401b7275aff76f46947ddbc29eefe740b",
+    "snd_soc_wsa884x_signed_uncompressed": "cf136a78b104e283b3142bfa0d5629a07a2aaa1bc448cad7d3c1470efcdeaf73",
+    "snd_soc_wsa884x_zst": "1a1163c297f4a335ec8fc9d515ffbc2f1313f1bf8194857cf26b24cdfc1c65b2"
+  },
+  "runtime": {
+    "dolby_host_sha256": "ee02ff299146b0ed8387fda1da820a8ed7c9612fc4a5946ed921e5c0dca715d9",
+    "sp11_windows_volume_transaction_sync_sha256": "27ff5951d55f249147bd738ee1eeecd92fa0e3203329b0a185fa968c3abe7726",
+    "profile": "movie",
+    "exact_endpoint_mute_control": "SP11 Windows Endpoint Mute"
+  },
+  "windows_mute": {
+    "iid": "0x4a63",
+    "pid": "0x08001039",
+    "body_bytes": 104,
+    "unmute_body_sha256": "441d3acf732158b63bea99b8581e172ec2385c0e5531ff7a4e7bf69cb46f4bea",
+    "mute_body_sha256": "7a0f0e11feeaf778367aa7f9883871dc39dbbc8162f01451de4cb003ed188e65"
+  },
+  "physical_gate": {
+    "recorder": "SP7 external microphone",
+    "wav_sha256": "B791573E99386585E4ED938F862412055B483BABFB0394E45878F4FDA60728A6",
+    "v30_whole_capture_combined_diff_rms": 0.000018148076164603558,
+    "same_recalculation_v28": 0.00001818919259777128,
+    "retained_windows_reference": 0.000018253227918889202
+  }
+}
