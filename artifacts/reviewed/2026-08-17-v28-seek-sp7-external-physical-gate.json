@@ -1,0 +1,85 @@
+{
+  "date": "2026-08-17",
+  "status": "objective_physical_pass_user_listening_pending",
+  "recorder": "SP7 external microphone recording SP11 speakers",
+  "sp11_capture_path_used": false,
+  "stack": {
+    "kernel": "7.1.5-sp11-render-parity-v4+",
+    "wsa884x_srcversion": "EB74C0F5E4405EEE429136C",
+    "soundwire_srcversion": "31EA655550AE70F3DF2951E",
+    "soundwire_build_id": "481d2bae6f96852d33f03d3dbfd6c81caebd5fc6",
+    "wsa_macro_srcversion": "4AF6F542C17BA6DD46586DA"
+  },
+  "source": {
+    "file": "/home/geoca/Documents/The White Stripes - Seven Nation Army (Official Music Video).mp3",
+    "sha256": "951a65cc63fee17622485c1d94708614005524c7e20f86d3d815327f6bd0e8b3"
+  },
+  "endpoint": {
+    "volume": 0.25,
+    "muted": false,
+    "restored_volume": 0.01
+  },
+  "seeks": [
+    {
+      "name": "seek1",
+      "from_s": 25.752,
+      "to_s": 55.0,
+      "wav_offset_s": 24.921065,
+      "ratio_to_local_p999": [
+        0.6674511277451937,
+        0.8235294117647058
+      ],
+      "ratio_to_local_p9999": [
+        0.5464058435474272,
+        0.6393238302412807
+      ]
+    },
+    {
+      "name": "seek2",
+      "from_s": 58.914,
+      "to_s": 12.0,
+      "wav_offset_s": 28.924141,
+      "ratio_to_local_p999": [
+        0.08448086508405779,
+        0.08516483516483517
+      ],
+      "ratio_to_local_p9999": [
+        0.06370391205724152,
+        0.06206146567560572
+      ]
+    },
+    {
+      "name": "seek3",
+      "from_s": 15.999,
+      "to_s": 90.0,
+      "wav_offset_s": 32.927675,
+      "ratio_to_local_p999": [
+        1.888185722336283,
+        2.052941176470588
+      ],
+      "ratio_to_local_p9999": [
+        1.0025712599448962,
+        0.9909207243545605
+      ]
+    }
+  ],
+  "wav": {
+    "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-seek-v28-seven-nation-25pct-20260817\\external-mic-20260817-205041.wav",
+    "sha256": "0EBFA4062D2450CAB840EB6C094570FE2CBAF90C9D3798A28E0A97D86D8C3088",
+    "sample_rate_hz": 48000,
+    "channels": 2,
+    "duration_s": 33.99,
+    "music_onset_est_s": 18.12
+  },
+  "fault_scan": {
+    "xrun": 0,
+    "qcom_apm_error": 0,
+    "wsa_fault": 0,
+    "soundwire_fault": 0,
+    "pa_fault": 0
+  },
+  "post": {
+    "pcm": "closed"
+  },
+  "conclusion": "No seek produces an extreme needle/pop transient beyond surrounding program material; objective v28 external physical seek gate passes. User listening verdict remains final L03 gate."
+}
