@@ -1,0 +1,35 @@
+{
+  "date": "2026-08-17",
+  "status": "GREEN causal discriminator; missing Windows prerequisite remains open",
+  "recorder": "SP7 microphone externally capturing SP11 speakers; SP11 microphone path not used",
+  "baseline": {
+    "kernel": "7.1.5-sp11-cps-v3+",
+    "wsa_srcversion": "E084BC31719EE85BB8DEABD",
+    "wsa_source_sha256": "1f3a72c33c97b41c760784cea60e78669f2de8fcb704957c8e348b4fe49e64b5"
+  },
+  "a1": {
+    "change": "only final playback-unmute DRE_CTL_1.CSR_GAIN_EN 1 -> 0, plus comment",
+    "module_name": "snd_soc_wsa884x_a1",
+    "srcversion": "F79155E08F639AF76F72039",
+    "module_sha256": "1feeef1c9193c5f4840552616d7b60a0cb92dbe8754ec225829d715a0fe99ab4",
+    "wav_sha256": "2EE49C3F00DBD9640705F35FE5F6BEC0764E28DDF46204D6977E980E09E05391",
+    "median_steady_diff_rms": 0.0027757949639826114
+  },
+  "same_boot_control": {
+    "source": "byte-identical CPS-v3 wsa884x.c under alternate module container name",
+    "module_name": "snd_soc_wsa884x_ctrl",
+    "srcversion": "B7F5D7D97DD31C77EFB6F01",
+    "module_sha256": "b6fc6126d7eefa711c03ff73cd713db1736c345f1eb987ff9a2678a3ebeab55a",
+    "wav_sha256": "47F15A21BCD9044F5141D901A31866CB3B82D86F04867BC0B1AB7BA571D805EE",
+    "median_steady_diff_rms": 1.9755842393131636e-05
+  },
+  "references": {
+    "windows_active_diff_rms": 1.8253227918889202e-05,
+    "historical_cpsv3_diff_rms": 1.8615030398551657e-05,
+    "fresh_normal_cpsv3_active_diff_rms": 4.679263132194288e-05,
+    "old_v5_windows_producer_csroff_diff_rms": 0.0006765308860124863,
+    "v27_cleanA_diff_rms": 0.0021256791634278417
+  },
+  "ratio_a1_over_same_boot_control": 140.5076266716906,
+  "conclusion": "CSR_GAIN_EN=0 alone causally exposes the Linux broadband static. Native Windows proves CSR-off can be quiet, so the remaining target is the missing prerequisite that makes the COMP/producer/WSA consumer contract safe with CSR fallback disabled."
+}

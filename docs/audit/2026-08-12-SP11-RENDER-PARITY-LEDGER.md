@@ -1,5 +1,8 @@
 # SP11 built-in-speaker Windows/Linux render parity ledger — 2026-08-12
 
+> **2026-08-17 CSR one-bit causal boundary:** a same-boot late-load A/B on exact CPS-v3 proves the remaining broadband floor is exposed by the single final-unmute `DRE_CTL_1.CSR_GAIN_EN` bit. Byte-identical CPS-v3 source with CSR enabled measured `1.976e-5` median steady diff-RMS (essentially Windows/room floor); changing only CSR enable `1 -> 0` measured `2.776e-3`, about **140x** higher. This closes the trigger question but not the Windows prerequisite: Windows remains quiet with CSR disabled, so the next target is the COMP/WSA-macro/consumer state that makes CSR-off safe. See `docs/findings/2026-08-17-CPSV3-CSR-ENABLE-ONE-BIT-CAUSAL-BOUNDARY.md`.
+
+
 > **2026-08-16 no-HD2 v3 result:** the one-variable HD2 correction passed
 > active hardware gates (`RX CFG0=0x02`, SEC3=`0x00`) before and after real
 > playback with all other Windows-proven WSA producer bytes intact and no new
