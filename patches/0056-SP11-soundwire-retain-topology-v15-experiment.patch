@@ -1,0 +1,143 @@
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -739,6 +739,9 @@
+ 
+ static unsigned int sp11_observe_samples;
+ module_param_named(sp11_observe_samples, sp11_observe_samples, uint, 0644);
++static bool sp11_retain_sdw_topology;
++module_param_named(sp11_retain_sdw_topology, sp11_retain_sdw_topology, bool, 0644);
++MODULE_PARM_DESC(sp11_retain_sdw_topology, "Retain SP11 WSA slave/port topology across hw_free");
+ MODULE_PARM_DESC(sp11_observe_samples,
+ 		 "read-only 100 ms WSA status snapshots on each speaker start (0=off, max=40)");
+ 
+@@ -2221,6 +2224,14 @@
+ {
+ 	struct wsa884x_priv *wsa884x = dev_get_drvdata(dai->dev);
+ 
++	if (sp11_retain_sdw_topology &&
++	    wsa884x->supply_config == WSA884X_SUPPLY_2S) {
++		dev_info(dai->dev,
++			 "SP11 SoundWire: retaining slave/port topology for DAI %d\n",
++			 dai->id);
++		return 0;
++	}
++
+ 	sdw_stream_remove_slave(wsa884x->slave, wsa884x->sruntime[dai->id]);
+ 
+ 	return 0;
+--- a/sound/soc/qcom/sdw.c
++++ b/sound/soc/qcom/sdw.c
+@@ -8,6 +8,18 @@
+ #include <sound/soc.h>
+ #include "sdw.h"
+ 
++static bool sp11_retain_sdw_topology;
++module_param_named(sp11_retain_sdw_topology, sp11_retain_sdw_topology, bool, 0644);
++MODULE_PARM_DESC(sp11_retain_sdw_topology,
++		 "Retain SP11 WSA SoundWire topology runtimes across ordinary ALSA close");
++
++static bool qcom_snd_is_sp11_wsa_dai(int id)
++{
++	return id == WSA_CODEC_DMA_RX_0 ||
++	       id == WSA_CODEC_DMA_TX_0 ||
++	       id == WSA_CODEC_DMA_TX_1;
++}
++
+ static bool qcom_snd_is_sdw_dai(int id)
+ {
+ 	switch (id) {
+@@ -74,9 +86,33 @@
+ 	if (!qcom_snd_is_sdw_dai(cpu_dai->id))
+ 		return 0;
+ 
+-	sruntime = sdw_alloc_stream(cpu_dai->name, SDW_STREAM_PCM);
+-	if (!sruntime)
+-		return -ENOMEM;
++	bool allocated = false;
++
++	sruntime = NULL;
++	if (sp11_retain_sdw_topology && qcom_snd_is_sp11_wsa_dai(cpu_dai->id)) {
++		sruntime = qcom_snd_sdw_get_stream(substream);
++		if (sruntime && sruntime->state != SDW_STREAM_RELEASED) {
++			/*
++			 * Keep the master/slave/port topology nodes allocated, but
++			 * restart the per-open aggregate parameters. sdw_config_stream()
++			 * increments ch_count for each slave on every hw_params pass.
++			 */
++			memset(&sruntime->params, 0, sizeof(sruntime->params));
++			sruntime->state = SDW_STREAM_ALLOCATED;
++			dev_info(rtd->dev,
++				 "SP11 SoundWire: reusing retained topology for %s\n",
++				 cpu_dai->name);
++		} else {
++			sruntime = NULL;
++		}
++	}
++
++	if (!sruntime) {
++		sruntime = sdw_alloc_stream(cpu_dai->name, SDW_STREAM_PCM);
++		if (!sruntime)
++			return -ENOMEM;
++		allocated = true;
++	}
+ 
+ 	for_each_rtd_codec_dais(rtd, i, codec_dai) {
+ 		ret = snd_soc_dai_set_stream(codec_dai, sruntime,
+@@ -117,7 +153,8 @@
+ 	return 0;
+ 
+ err_set_stream:
+-	sdw_release_stream(sruntime);
++	if (allocated)
++		sdw_release_stream(sruntime);
+ 
+ 	return ret;
+ }
+@@ -187,8 +224,17 @@
+ 
+ void qcom_snd_sdw_shutdown(struct snd_pcm_substream *substream)
+ {
++	struct snd_soc_pcm_runtime *rtd = snd_soc_substream_to_rtd(substream);
++	struct snd_soc_dai *cpu_dai = snd_soc_rtd_to_cpu(rtd, 0);
+ 	struct sdw_stream_runtime *sruntime = qcom_snd_sdw_get_stream(substream);
+ 
++	if (sp11_retain_sdw_topology && qcom_snd_is_sp11_wsa_dai(cpu_dai->id)) {
++		dev_info(rtd->dev,
++			 "SP11 SoundWire: retaining topology runtime for %s at shutdown\n",
++			 cpu_dai->name);
++		return;
++	}
++
+ 	sdw_release_stream(sruntime);
+ }
+ EXPORT_SYMBOL_GPL(qcom_snd_sdw_shutdown);
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -22,6 +22,11 @@
+ #include <sound/soc.h>
+ #include "bus.h"
+ 
++static bool sp11_retain_sdw_topology;
++module_param_named(sp11_retain_sdw_topology, sp11_retain_sdw_topology, bool, 0644);
++MODULE_PARM_DESC(sp11_retain_sdw_topology,
++		 "Retain SP11 WSA SoundWire master topology across hw_free");
++
+ #define SWRM_COMP_SW_RESET					0x008
+ #define SWRM_COMP_STATUS					0x014
+ #define SWRM_LINK_MANAGER_EE					0x018
+@@ -1333,6 +1338,15 @@
+ 	struct sdw_stream_runtime *sruntime = ctrl->sruntime[dai->id];
+ 
+ 	qcom_swrm_stream_free_ports(ctrl, sruntime);
++	if (sp11_retain_sdw_topology && sruntime && sruntime->name &&
++	    !strncmp(sruntime->name, "WSA_CODEC_DMA_",
++	             sizeof("WSA_CODEC_DMA_") - 1)) {
++		dev_info(ctrl->dev,
++			 "SP11 SoundWire: retaining master topology for %s\n",
++			 sruntime->name);
++		return 0;
++	}
++
+ 	sdw_stream_remove_master(&ctrl->bus, sruntime);
+ 
+ 	return 0;

@@ -1,0 +1,46 @@
+{
+  "date": "2026-08-17",
+  "candidate": "rpv4-macro84-winproducer-nohd2-win-analog-tail-sdw-retain-v15-idlegated",
+  "question": "Does retaining SP11 WSA SoundWire topology runtime objects across ordinary PA-off idle preserve the materially better v13 cold analog state across the next PA wake?",
+  "base": "exact v13 coherent Windows analog-tail WSA behavior plus exact proven v5 producer/x1e modules",
+  "source_sha256": {
+    "wsa_v13_before": "5b747b52a4733604d994bf7a37831d168691a2296d1f8c8b9a7eb26608491f1e",
+    "wsa_v15_after": "d20d5eed3c622cde204c9e9665fcc4d84f4b1c478aeca9ab3b9b0a7323265341",
+    "qcom_sdw_before": "9f9689be256151114ae4355709bd43e12389ae566f0e4a3217a52466946117a7",
+    "qcom_sdw_v15_after": "d97b2e34219f588360b4b47a92737f99c773693f460b49243c46636463faccf6",
+    "soundwire_qcom_before": "161199a2a2a7d18dd25262857ce1fba792ce0bab5a01bf68080c7299f9196884",
+    "soundwire_qcom_v15_after": "7296e0e17ce5a0baf421a6bf471031503cbb3489a9875ba1458e088e2a4b68ff"
+  },
+  "modules": {
+    "snd_soc_wsa884x": {"srcversion": "7B446DEBA02FF289314A3ED", "signed_sha256": "34628ec3e89ff85dd337bdedba2d747560890943cbf09658a2c6c0e58f80c10e", "compressed_sha256": "dbbfbb5e255769f44fddfcbfaafc6bf1a3df53156722badcca5da5391bb019d4"},
+    "snd_soc_qcom_sdw": {"srcversion": "3DCE64C447D38532A12B142", "signed_sha256": "4f1929c41e8092899d054c2ffb9fe7854bcdc653501c6aabeae3f0e494791cfc", "compressed_sha256": "8b093e535cf232be5a9c81c70bdd67d49542f528b42f57d9ef0e18d79fb0f24d"},
+    "soundwire_qcom": {"srcversion": "54BD4656E9CBE6709657B68", "signed_sha256": "a500380a850ce1716422454859e9cffb35eb311c5b2f20d9b82cf4df3953c881", "compressed_sha256": "6bfaa753303273aad09c39038f18b04dc6a1e417b170afac630fb66264eaa528"},
+    "snd_soc_lpass_wsa_macro": {"srcversion": "4AF6F542C17BA6DD46586DA", "compressed_sha256": "05d19a94c21b5a7683922e024f714877d744b588cf59c1152ea694f401e4b530"},
+    "snd_soc_x1e80100": {"srcversion": "13326073E27DFA035180C56", "compressed_sha256": "077a6e3f08c864c13f8b4864d0262e8c60018c18cea033323bc16903a12e0610"}
+  },
+  "initramfs_sha256": "8c1611aa72f6d790498ec374b4ce92850cec6363565fa64ad5473ea27d8fdc7f",
+  "behavior": {
+    "retained": ["sdw_stream_runtime", "sdw_master_runtime/master ports", "WSA8845 slave runtime/slave ports"],
+    "still_torn_down": ["PA muted/off", "WSA producer/interpolators", "sdw_disable_stream", "sdw_deprepare_stream"],
+    "runtime_pm": "SoundWire master and both WSA8845 slaves reached runtime_status=suspended after idle",
+    "next_start": "kernel logs confirmed reuse of WSA_CODEC_DMA_RX_0, WSA_CODEC_DMA_TX_0 and WSA_CODEC_DMA_TX_1 retained runtimes",
+    "state_errors": "none"
+  },
+  "stimulus": {
+    "source": "/home/geoca/Documents/sp11-zero-10s-48k-stereo-s16.wav",
+    "source_sha256": "87d8420ddaf7d56d3f5068c6a74362451fc2859197445490d15e7b3d456fa22e",
+    "endpoint": "1 percent muted",
+    "physical_pcm": "RUNNING during stimulus, closed afterward",
+    "context": "The mic-measured cycle followed one prior deliberate v15 structural zero-stream PA cycle on the same boot, so it directly tests preservation into a subsequent wake."
+  },
+  "capture": {
+    "host_path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-v15-sdw-retain-cycleA-1pct-20260817\\external-mic-20260817-025506.wav",
+    "sha256": "3F8E48299EF46A88F7C1B035671FE2A0274EF938DF4FE33D98E98C70184CC2AA",
+    "baseline_diff_rms": [0.000017364568407284397, 0.0000180273756334643],
+    "steady_diff_rms": [0.002736633842978534, 0.002996628531828063],
+    "median_steady_diff_rms": 0.0028666311874032983,
+    "ratios": {"vs_windows": 157.0756815015506, "vs_v5": 4.237256570149585, "vs_v13_cycle1": 9.028077208032459, "vs_v13_cycle2": 0.7299743540037378}
+  },
+  "decision": "REJECT",
+  "conclusion": "Retaining Linux SoundWire topology C objects while still disabling/depreparing and clock-stopping the bus is not sufficient to preserve v13's improved cold analog state. The remaining state loss lies below topology object allocation, in physical SoundWire clock-stop/slave/master state or another lower producer/transport transition."
+}
