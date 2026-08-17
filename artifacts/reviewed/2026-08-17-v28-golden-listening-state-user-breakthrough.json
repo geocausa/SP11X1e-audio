@@ -1,0 +1,38 @@
+{
+  "date": "2026-08-17",
+  "status": "golden-listening-checkpoint",
+  "kernel": "7.1.5-sp11-render-parity-v4+",
+  "boot_entry": "7.1.5-sp11-rpv4-macro84-winproducer-nohd2-wsa-windows-3state-retain-dp2offset2-v28-idlegated",
+  "module_srcversions": {
+    "snd_soc_wsa884x": "EB74C0F5E4405EEE429136C",
+    "snd_soc_lpass_wsa_macro": "4AF6F542C17BA6DD46586DA",
+    "soundwire_qcom": "406975A3ED60935B31491BF"
+  },
+  "dolby_host_sha256": "ee02ff299146b0ed8387fda1da820a8ed7c9612fc4a5946ed921e5c0dca715d9",
+  "profile": "movie",
+  "custom_geq": false,
+  "dolby_generation": 90,
+  "vlldp_postgain_q4": -785,
+  "vlldp_postgain_db": -49.0625,
+  "subjective_user_observation": {
+    "best_linux_quality_so_far": true,
+    "music_stable_and_coherent": true,
+    "volume_leveler_subjectively_good": true,
+    "manual_youtube_seek_spike_observed": false,
+    "mute_button_silences_audio": false,
+    "bass_parity_vs_windows": "pending direct comparison"
+  },
+  "mute_localization": {
+    "mute_state_detected_by_volume_sync": true,
+    "hardware_mute_actuated": false,
+    "current_apply_state_actuators": [
+      "dolby_postgain_request",
+      "hidden_hardware_volume"
+    ],
+    "likely_reason_for_noop": "active VLLDP generation retains frozen postgain and hidden hardware sink is never explicitly muted"
+  },
+  "safety": {
+    "do_not_change_kernel_for_mute_fix": true,
+    "preserve_v28_as_reference": true
+  }
+}
