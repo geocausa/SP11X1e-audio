@@ -1,0 +1,1248 @@
+{
+  "date": "2026-08-17",
+  "status": "GREEN complete live Windows WSA8845 codec lifecycle oracle",
+  "source_binary": {
+    "name": "qcaucd8380.sys",
+    "version": "1.0.0.10344",
+    "sha256": "BD0C8276C51FC7A020C616E904DD613B6CCF187EC3E1FE6F94C2C811C8ADC8BF"
+  },
+  "evidence": {
+    "kd_log": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\SP11_WINDOWS_AUDIO_ORACLE_BOOT_PLAY_STOP_20260817_2920_2026-08-17_08-59-27-499.log",
+      "sha256": "386E44CC7CB44120A2935DE34D0974EF7D5D04B1BFCC277F9C0FED9BCC69299C"
+    },
+    "wpp_etl": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\SP11-Windows-Full-Oracle-20260817\\windows\\qcaucd-full-oracle.etl",
+      "sha256": "4C43FC787C8F817902F5A4DF800624F15E4E3120CAF733E971E5328DD1F360B4"
+    },
+    "ghidra_runtime_decompile": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\SP11-Windows-Full-Oracle-20260817\\ghidra-runtime-hot-decompile.txt",
+      "sha256": "2FD975D6374275915CED932EA9D05271ED1CA6FF1F20C38A69EC02DFB7AB3EC1"
+    },
+    "callstack_events": {
+      "path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\SP11-Windows-Full-Oracle-20260817\\kd-swr-callstack-events.json",
+      "sha256": "3BAA3F90C2AE9C83F0F09558BAA9BA80D1FEA62DB8C1B68998F62DF7BE2BE8C6"
+    }
+  },
+  "ghidra_semantics": {
+    "lifecycle_dispatcher": "FUN_140032e10 @ 0x140032e10",
+    "dispatch": {
+      "0": "full codec/board initialization",
+      "1": "ordinary speaker START",
+      "2": "ordinary speaker STOP"
+    },
+    "register_state_machine": "FUN_1400328b8 @ 0x1400328b8",
+    "common_codec_write_builder": "FUN_140031188 @ 0x140031188",
+    "start_owner": "FUN_140036510 @ 0x140036510; indirect lifecycle call uses w0=1",
+    "stop_owner": "FUN_140036bc0 @ 0x140036bc0; indirect lifecycle call uses w0=2"
+  },
+  "live_completeness": {
+    "per_amp": {
+      "cold_init_writes": 63,
+      "start_transaction_writes": 10,
+      "start_transactions_observed": 3,
+      "stop_transaction_writes": 6,
+      "stop_transactions_observed": 3,
+      "unclassified_wsa8845_writes": 0
+    },
+    "amps": [
+      1,
+      2
+    ],
+    "left_right_sequences_identical": true,
+    "interpretation": "One cold init plus boot/login activation and two real MP3 start/stop cycles. No other WSA8845 register-write path was observed."
+  },
+  "cold_init": [
+    {
+      "position": 1,
+      "reg": "0x3067",
+      "value": "0x0c",
+      "name": "PWRSTG_DBG",
+      "return_site": "qcaucd+0x32ed8",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32ed8",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 2,
+      "reg": "0x304d",
+      "value": "0x5a",
+      "name": "PDRV_HS_CTL",
+      "return_site": "qcaucd+0x32ee8",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32ee8",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 3,
+      "reg": "0x3414",
+      "value": "0x07",
+      "name": "SWR_RESET_EN",
+      "return_site": "qcaucd+0x32ef8",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32ef8",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 4,
+      "reg": "0x3581",
+      "value": "0xff",
+      "name": "INTR_MASK0",
+      "return_site": "qcaucd+0x32f08",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32f08",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 5,
+      "reg": "0x3582",
+      "value": "0x03",
+      "name": "INTR_MASK1",
+      "return_site": "qcaucd+0x32f18",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32f18",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 6,
+      "reg": "0x343c",
+      "value": "0x00",
+      "name": "PA_FSM_BYP_CTL",
+      "return_site": "qcaucd+0x32f28",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32f28",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 7,
+      "reg": "0x3014",
+      "value": "0x20",
+      "name": "VBAT_SNS",
+      "return_site": "qcaucd+0x32f3c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32f3c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 8,
+      "reg": "0x30ba",
+      "value": "0x1b",
+      "name": "CKWD_CTL_1",
+      "return_site": "qcaucd+0x330bc",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x330bc",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 9,
+      "reg": "0x3473",
+      "value": "0x0a",
+      "name": "CDC_SPK_DSM_A2_0",
+      "return_site": "qcaucd+0x330cc",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x330cc",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 10,
+      "reg": "0x3474",
+      "value": "0x08",
+      "name": "CDC_SPK_DSM_A2_1",
+      "return_site": "qcaucd+0x330dc",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x330dc",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 11,
+      "reg": "0x3475",
+      "value": "0xf3",
+      "name": "CDC_SPK_DSM_A3_0",
+      "return_site": "qcaucd+0x330ec",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x330ec",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 12,
+      "reg": "0x3476",
+      "value": "0x07",
+      "name": "CDC_SPK_DSM_A3_1",
+      "return_site": "qcaucd+0x330fc",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x330fc",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 13,
+      "reg": "0x3477",
+      "value": "0x79",
+      "name": "CDC_SPK_DSM_A4_0",
+      "return_site": "qcaucd+0x3310c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3310c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 14,
+      "reg": "0x3478",
+      "value": "0x02",
+      "name": "CDC_SPK_DSM_A4_1",
+      "return_site": "qcaucd+0x3311c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3311c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 15,
+      "reg": "0x3479",
+      "value": "0x0b",
+      "name": "CDC_SPK_DSM_A5_0",
+      "return_site": "qcaucd+0x3312c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3312c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 16,
+      "reg": "0x347a",
+      "value": "0x02",
+      "name": "CDC_SPK_DSM_A5_1",
+      "return_site": "qcaucd+0x3313c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3313c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 17,
+      "reg": "0x347b",
+      "value": "0x8a",
+      "name": "CDC_SPK_DSM_A6_0",
+      "return_site": "qcaucd+0x3314c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3314c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 18,
+      "reg": "0x347c",
+      "value": "0x9b",
+      "name": "CDC_SPK_DSM_A7_0",
+      "return_site": "qcaucd+0x3315c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3315c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 19,
+      "reg": "0x347d",
+      "value": "0x68",
+      "name": "CDC_SPK_DSM_C_0",
+      "return_site": "qcaucd+0x3316c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3316c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 20,
+      "reg": "0x347f",
+      "value": "0xf2",
+      "name": "CDC_SPK_DSM_C_2",
+      "return_site": "qcaucd+0x3317c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3317c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 21,
+      "reg": "0x3480",
+      "value": "0x20",
+      "name": "CDC_SPK_DSM_C_3",
+      "return_site": "qcaucd+0x3318c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3318c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 22,
+      "reg": "0x3481",
+      "value": "0x83",
+      "name": "CDC_SPK_DSM_R1",
+      "return_site": "qcaucd+0x3319c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3319c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 23,
+      "reg": "0x3482",
+      "value": "0x7f",
+      "name": "CDC_SPK_DSM_R2",
+      "return_site": "qcaucd+0x331ac",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x331ac",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 24,
+      "reg": "0x3483",
+      "value": "0x9d",
+      "name": "CDC_SPK_DSM_R3",
+      "return_site": "qcaucd+0x331bc",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x331bc",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 25,
+      "reg": "0x3484",
+      "value": "0x82",
+      "name": "CDC_SPK_DSM_R4",
+      "return_site": "qcaucd+0x331cc",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x331cc",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 26,
+      "reg": "0x3485",
+      "value": "0x8b",
+      "name": "CDC_SPK_DSM_R5",
+      "return_site": "qcaucd+0x331dc",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x331dc",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 27,
+      "reg": "0x3486",
+      "value": "0x9b",
+      "name": "CDC_SPK_DSM_R6",
+      "return_site": "qcaucd+0x331ec",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x331ec",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 28,
+      "reg": "0x3487",
+      "value": "0x3f",
+      "name": "CDC_SPK_DSM_R7",
+      "return_site": "qcaucd+0x331fc",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x331fc",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 29,
+      "reg": "0x34b2",
+      "value": "0x0f",
+      "name": "DRE_IDLE_DET_CTL",
+      "return_site": "qcaucd+0x3320c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3320c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 30,
+      "reg": "0x348b",
+      "value": "0x01",
+      "name": "PDM_WD_CTL",
+      "return_site": "qcaucd+0x3321c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3321c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 31,
+      "reg": "0x34b0",
+      "value": "0xf0",
+      "name": "DRE_CTL_0",
+      "return_site": "qcaucd+0x33230",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33230",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 32,
+      "reg": "0x34b1",
+      "value": "0x00",
+      "name": "DRE_CTL_1",
+      "return_site": "qcaucd+0x33248",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33248",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 33,
+      "reg": "0x3461",
+      "value": "0x11",
+      "name": "BOP_DEGLITCH_CTL",
+      "return_site": "qcaucd+0x3325c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3325c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 34,
+      "reg": "0x3459",
+      "value": "0x05",
+      "name": "VBAT_CAL_CTL",
+      "return_site": "qcaucd+0x33270",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33270",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 35,
+      "reg": "0x3458",
+      "value": "0x79",
+      "name": "VBAT_THRM_FLT_CTL",
+      "return_site": "qcaucd+0x33284",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33284",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 36,
+      "reg": "0x34b9",
+      "value": "0x0e",
+      "name": "GAIN_RAMPING_MIN",
+      "return_site": "qcaucd+0x33298",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33298",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 37,
+      "reg": "0x34d0",
+      "value": "0x00",
+      "name": "CLSH_CTL_0",
+      "return_site": "qcaucd+0x332ac",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x332ac",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 38,
+      "reg": "0x34d2",
+      "value": "0x13",
+      "name": "CLSH_V_HD_PA",
+      "return_site": "qcaucd+0x332c4",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x332c4",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 39,
+      "reg": "0x34d6",
+      "value": "0xff",
+      "name": "CLSH_SOFT_MAX",
+      "return_site": "qcaucd+0x332d8",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x332d8",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 40,
+      "reg": "0x3504",
+      "value": "0x9d",
+      "name": "ANA_WO_CTL_0",
+      "return_site": "qcaucd+0x332ec",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x332ec",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 41,
+      "reg": "0x3505",
+      "value": "0x00",
+      "name": "ANA_WO_CTL_1",
+      "return_site": "qcaucd+0x33300",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33300",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 42,
+      "reg": "0x38a6",
+      "value": "0x08",
+      "name": "OTP_REG_38",
+      "return_site": "qcaucd+0x33314",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33314",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 43,
+      "reg": "0x38a8",
+      "value": "0x20",
+      "name": "OTP_REG_40",
+      "return_site": "qcaucd+0x33328",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33328",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 44,
+      "reg": "0x300b",
+      "value": "0xd1",
+      "name": "REF_CTRL",
+      "return_site": "qcaucd+0x3333c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3333c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 45,
+      "reg": "0x3005",
+      "value": "0x33",
+      "name": "UVLO_PROG",
+      "return_site": "qcaucd+0x333cc",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x333cc",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 46,
+      "reg": "0x3006",
+      "value": "0x60",
+      "name": "UVLO_PROG1",
+      "return_site": "qcaucd+0x333e0",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x333e0",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 47,
+      "reg": "0x3003",
+      "value": "0x22",
+      "name": "BOP1_PROG",
+      "return_site": "qcaucd+0x333f4",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x333f4",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 48,
+      "reg": "0x3004",
+      "value": "0x44",
+      "name": "BOP2_PROG",
+      "return_site": "qcaucd+0x33408",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33408",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 49,
+      "reg": "0x30a0",
+      "value": "0xf8",
+      "name": "ZX_CTRL1",
+      "return_site": "qcaucd+0x3344c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3344c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 50,
+      "reg": "0x3090",
+      "value": "0x6a",
+      "name": "STB_CTRL1",
+      "return_site": "qcaucd+0x33460",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33460",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 51,
+      "reg": "0x30aa",
+      "value": "0xe3",
+      "name": "ILIM_CTRL1",
+      "return_site": "qcaucd+0x33474",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33474",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 52,
+      "reg": "0x3091",
+      "value": "0xd4",
+      "name": "CURRENT_LIMIT",
+      "return_site": "qcaucd+0x33488",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33488",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 53,
+      "reg": "0x3040",
+      "value": "0xd2",
+      "name": "TOP_CTRL1",
+      "return_site": "qcaucd+0x3349c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3349c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 54,
+      "reg": "0x304c",
+      "value": "0xf6",
+      "name": "OCP_CTL",
+      "return_site": "qcaucd+0x334c0",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x334c0",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 55,
+      "reg": "0x3045",
+      "value": "0x06",
+      "name": "DAC_VCM_CTRL_REG2",
+      "return_site": "qcaucd+0x334dc",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x334dc",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 56,
+      "reg": "0x3046",
+      "value": "0x14",
+      "name": "DAC_VCM_CTRL_REG3",
+      "return_site": "qcaucd+0x334f8",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x334f8",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 57,
+      "reg": "0x3047",
+      "value": "0x19",
+      "name": "DAC_VCM_CTRL_REG4",
+      "return_site": "qcaucd+0x33514",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33514",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 58,
+      "reg": "0x3048",
+      "value": "0x1b",
+      "name": "DAC_VCM_CTRL_REG5",
+      "return_site": "qcaucd+0x33530",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33530",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 59,
+      "reg": "0x3049",
+      "value": "0x1c",
+      "name": "DAC_VCM_CTRL_REG6",
+      "return_site": "qcaucd+0x33548",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33548",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 60,
+      "reg": "0x306a",
+      "value": "0x02",
+      "name": "DAC_VCM_CTRL_REG7",
+      "return_site": "qcaucd+0x33560",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33560",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 61,
+      "reg": "0x30ba",
+      "value": "0x13",
+      "name": "CKWD_CTL_1",
+      "return_site": "qcaucd+0x33574",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x33574",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 62,
+      "reg": "0x30a5",
+      "value": "0xf1",
+      "name": "PWRSTAGE_CTRL2",
+      "return_site": "qcaucd+0x335b0",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x335b0",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    },
+    {
+      "position": 63,
+      "reg": "0x3091",
+      "value": "0x44",
+      "name": "CURRENT_LIMIT",
+      "return_site": "qcaucd+0x3360c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x3360c",
+        "qcaucd+0x21fd4",
+        "qcaucd+0x3c89c"
+      ]
+    }
+  ],
+  "runtime_start": [
+    {
+      "position": 1,
+      "reg": "0x3021",
+      "value": "0x07",
+      "name": "ISENSE2",
+      "return_site": "qcaucd+0x32b74",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32b74",
+        "qcaucd+0x32e64",
+        "qcaucd+0x369cc"
+      ]
+    },
+    {
+      "position": 2,
+      "reg": "0x3020",
+      "value": "0x67",
+      "name": "VSENSE1",
+      "return_site": "qcaucd+0x32c54",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32c54",
+        "qcaucd+0x32e64",
+        "qcaucd+0x369cc"
+      ]
+    },
+    {
+      "position": 3,
+      "reg": "0x3581",
+      "value": "0x90",
+      "name": "INTR_MASK0",
+      "return_site": "qcaucd+0x32c94",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32c94",
+        "qcaucd+0x32e64",
+        "qcaucd+0x369cc"
+      ]
+    },
+    {
+      "position": 4,
+      "reg": "0x3582",
+      "value": "0x00",
+      "name": "INTR_MASK1",
+      "return_site": "qcaucd+0x32ca8",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32ca8",
+        "qcaucd+0x32e64",
+        "qcaucd+0x369cc"
+      ]
+    },
+    {
+      "position": 5,
+      "reg": "0x34d0",
+      "value": "0x67",
+      "name": "CLSH_CTL_0",
+      "return_site": "qcaucd+0x32cbc",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32cbc",
+        "qcaucd+0x32e64",
+        "qcaucd+0x369cc"
+      ]
+    },
+    {
+      "position": 6,
+      "reg": "0x3067",
+      "value": "0x08",
+      "name": "PWRSTG_DBG",
+      "return_site": "qcaucd+0x32cd0",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32cd0",
+        "qcaucd+0x32e64",
+        "qcaucd+0x369cc"
+      ]
+    },
+    {
+      "position": 7,
+      "reg": "0x304d",
+      "value": "0x52",
+      "name": "PDRV_HS_CTL",
+      "return_site": "qcaucd+0x32ce4",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32ce4",
+        "qcaucd+0x32e64",
+        "qcaucd+0x369cc"
+      ]
+    },
+    {
+      "position": 8,
+      "reg": "0x3430",
+      "value": "0x01",
+      "name": "PA_FSM_EN",
+      "return_site": "qcaucd+0x32cf8",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32cf8",
+        "qcaucd+0x32e64",
+        "qcaucd+0x369cc"
+      ]
+    },
+    {
+      "position": 9,
+      "reg": "0x3067",
+      "value": "0x0c",
+      "name": "PWRSTG_DBG",
+      "return_site": "qcaucd+0x32d0c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32d0c",
+        "qcaucd+0x32e64",
+        "qcaucd+0x369cc"
+      ]
+    },
+    {
+      "position": 10,
+      "reg": "0x304d",
+      "value": "0x5a",
+      "name": "PDRV_HS_CTL",
+      "return_site": "qcaucd+0x32d20",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32d20",
+        "qcaucd+0x32e64",
+        "qcaucd+0x369cc"
+      ]
+    }
+  ],
+  "runtime_stop": [
+    {
+      "position": 1,
+      "reg": "0x3430",
+      "value": "0x00",
+      "name": "PA_FSM_EN",
+      "return_site": "qcaucd+0x32d38",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32d38",
+        "qcaucd+0x32e64",
+        "qcaucd+0x36f14"
+      ]
+    },
+    {
+      "position": 2,
+      "reg": "0x3581",
+      "value": "0xff",
+      "name": "INTR_MASK0",
+      "return_site": "qcaucd+0x32d4c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32d4c",
+        "qcaucd+0x32e64",
+        "qcaucd+0x36f14"
+      ]
+    },
+    {
+      "position": 3,
+      "reg": "0x3582",
+      "value": "0x03",
+      "name": "INTR_MASK1",
+      "return_site": "qcaucd+0x32d60",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32d60",
+        "qcaucd+0x32e64",
+        "qcaucd+0x36f14"
+      ]
+    },
+    {
+      "position": 4,
+      "reg": "0x3585",
+      "value": "0xff",
+      "name": "INTR_CLEAR0",
+      "return_site": "qcaucd+0x32d74",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32d74",
+        "qcaucd+0x32e64",
+        "qcaucd+0x36f14"
+      ]
+    },
+    {
+      "position": 5,
+      "reg": "0x3586",
+      "value": "0x03",
+      "name": "INTR_CLEAR1",
+      "return_site": "qcaucd+0x32d88",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32d88",
+        "qcaucd+0x32e64",
+        "qcaucd+0x36f14"
+      ]
+    },
+    {
+      "position": 6,
+      "reg": "0x34d0",
+      "value": "0x00",
+      "name": "CLSH_CTL_0",
+      "return_site": "qcaucd+0x32d9c",
+      "stack": [
+        "qcaucd+0x3ac60",
+        "qcaucd+0x3e9c8",
+        "qcaucd+0x31228",
+        "qcaucd+0x32d9c",
+        "qcaucd+0x32e64",
+        "qcaucd+0x36f14"
+      ]
+    }
+  ],
+  "timing_note": "KD stacks are authoritative for order/caller/arguments but perturb wall timing. qcaucd WPP is the timing oracle; independent low-overhead WPP already proved Surface ~500 ms delayed SoundWire clock stop.",
+  "linux_implication": "Do not replay cold-only DSM/DRE/watchdog/current-limit/CKWD/analog-init state every DAPM cycle. For SP11, cold-init once and implement the exact 10-write START / 6-write STOP transaction at the playback mute/unmute boundary."
+}
