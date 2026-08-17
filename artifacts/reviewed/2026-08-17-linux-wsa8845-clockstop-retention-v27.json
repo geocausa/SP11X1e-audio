@@ -76,5 +76,11 @@
     "mute_over_pre": 0.9846334484621023,
     "mute_over_post": 0.9938756669543828,
     "conclusion": "static is downstream of or independent from the normal WSA-macro RX digital sample path; do not reopen Dolby/q6apm/sample-data processing as its cause"
+  },
+  "acoustic_capture_provenance": {
+    "recorder_host": "Surface Pro 7 (SP7)",
+    "microphone": "SP7 microphone used externally to capture sound from SP11 speakers",
+    "sp11_microphone_status": "not deployed or reverse-engineered; not used in any acoustic measurement",
+    "interpretation_rule": "all acoustic RMS/diff-RMS values in this artifact are SP7 microphone captures of SP11 playback"
   }
 }

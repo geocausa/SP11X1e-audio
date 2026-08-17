@@ -35,7 +35,7 @@ The dedicated WSA register trace contains exactly **32 ordinary writes**: two am
 
 ## The physical static remains, now stationary
 
-The standard external-microphone digital-zero gate was repeated at RX81, PA Volume 24 / raw `DRE_CTL_1=0x0e`, visible endpoint 1% and muted. v27 stayed initialized (`init_count=2`), retained raw `0x0e`, and reached RUNNING in 100–150 ms on repeated cycles.
+The standard digital-zero acoustic gate was repeated using the **SP7 microphone as an external recorder positioned at the SP11 speakers**; the SP11 microphone/capture path is not deployed or reverse-engineered. The SP11 playback state was RX81, PA Volume 24 / raw `DRE_CTL_1=0x0e`, visible endpoint 1% and muted. v27 stayed initialized (`init_count=2`), retained raw `0x0e`, and reached RUNNING in 100–150 ms on repeated cycles.
 
 Yet the active physical noise remained large and reproducible:
 
@@ -51,9 +51,9 @@ A one-variable v26 test explicitly set both `Spkr* PA Volume` controls to 31, pr
 
 ## Decisive mid-stream RX digital-mute boundary
 
-To determine whether the static was carried by ordinary digital audio, a 16-second zero stream was started on v27 and allowed to reach RUNNING. With the PA remaining active, both `WSA WSA_RX0/RX1 Digital Mute` controls were then switched ON, verified ON, held for about five seconds, and switched OFF again while SP7 continuously recorded the external microphone.
+To determine whether the static was carried by ordinary digital audio, a 16-second zero stream was started on v27 and allowed to reach RUNNING. With the PA remaining active, both `WSA WSA_RX0/RX1 Digital Mute` controls were then switched ON, verified ON, held for about five seconds, and switched OFF again while the **SP7 microphone** continuously recorded the SP11 speakers. The SP11 microphone path was not involved.
 
-Median microphone diff-RMS was:
+Median **SP7-captured** microphone diff-RMS was:
 
 - room before PA wake: `0.0000177298`;
 - active before RX mute: `0.002325299`;

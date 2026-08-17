@@ -3,7 +3,7 @@
 > **2026-08-16 no-HD2 v3 result:** the one-variable HD2 correction passed
 > active hardware gates (`RX CFG0=0x02`, SEC3=`0x00`) before and after real
 > playback with all other Windows-proven WSA producer bytes intact and no new
-> WSA/PA/SoundWire/XRUN fault.  Five-run external-mic median was nevertheless
+> WSA/PA/SoundWire/XRUN fault.  Five-run **SP7 external-mic** median was nevertheless
 > ~`0.527/0.571 dB` MAE/RMSE over 1--5 kHz versus RX84 generic
 > ~`0.182/0.208`; one run approached baseline and one was an obvious capture
 > outlier, so the structural correction is preserved but is not the final
@@ -239,7 +239,7 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 
 - [x] **GREEN W01 — fresh deterministic Windows-vs-Linux Movie oracle.** Same-source/state comparison reached correlation ~0.99999947 with fitted gain ~1.00016 and ~59.8 dB residual SNR; cold-state comparison was even closer (~84.7 dB residual SNR).
 - [~] **AMBER W02 — strict sample identity.** The remaining ~60 dB full-file residual is tiny and concentrated around transient/state behavior but is not literal bit identity.
-- [~] **AMBER W03 — fresh corrected-topology measurement confirms a downstream physical static remains.** On v27, repeated 1%-muted digital-zero captures with the exact WSA8845 runtime lifecycle stable produced median steady microphone diff-RMS `0.002126` and `0.002350`, versus the Windows reference `0.00001825`. The failure is therefore current, not historical. A synchronized mid-stream A/B switched both WSA-macro RX Digital Mutes ON while the PA stayed active; noise changed only ~1% (`0.002325` pre, `0.002290` muted, `0.002304` post). The static is downstream of or independent from the ordinary WSA-macro RX sample path, so Dolby/q6apm/PCM processing is excluded as its direct source. Continue at WSA8845 analog/PA state and SoundWire clock/transport state; do not invent an upstream processing block. See `docs/findings/2026-08-17-WSA8845-CLOCKSTOP-RETENTION-V27-AND-STATIC-BOUNDARY.md`.
+- [~] **AMBER W03 — fresh corrected-topology measurement confirms a downstream physical static remains.** On v27, repeated 1%-muted digital-zero captures with the exact WSA8845 runtime lifecycle stable produced median steady **SP7 external-microphone** diff-RMS `0.002126` and `0.002350`, versus the Windows reference `0.00001825`. The failure is therefore current, not historical. A synchronized mid-stream A/B switched both WSA-macro RX Digital Mutes ON while the PA stayed active; noise changed only ~1% (`0.002325` pre, `0.002290` muted, `0.002304` post). The static is downstream of or independent from the ordinary WSA-macro RX sample path, so Dolby/q6apm/PCM processing is excluded as its direct source. Continue at WSA8845 analog/PA state and SoundWire clock/transport state; do not invent an upstream processing block. See `docs/findings/2026-08-17-WSA8845-CLOCKSTOP-RETENTION-V27-AND-STATIC-BOUNDARY.md`.
 
 ## 8. Seek / discontinuity / lifecycle behavior
 
