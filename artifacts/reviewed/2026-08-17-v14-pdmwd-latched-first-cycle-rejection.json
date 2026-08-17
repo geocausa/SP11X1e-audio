@@ -1,0 +1,39 @@
+{
+  "date": "2026-08-17",
+  "candidate": "v14 coherent Windows analog tail + PDM watchdog latched across SP11 PRE_PMD",
+  "status": "REJECTED_FIRST_CYCLE",
+  "parent": "v13 coherent Windows analog tail",
+  "source": {
+    "v13_before_sha256": "5b747b52a4733604d994bf7a37831d168691a2296d1f8c8b9a7eb26608491f1e",
+    "v14_after_sha256": "ee284b4e9a5dc43e9ed32579deca4be7db285e87a4c5655c64f4b0b23092ec55",
+    "patch_sha256": "2d03b1cf75857ad75496acdb9b392ed1c10646637ddaab85c9741d906e0c5b49",
+    "delta": "SP11 2S only: PRE_PMD does not clear PDM_WD_EN; generic supplies retain upstream clear. POST_PMU still sets PDM_WD_EN=1."
+  },
+  "binary": {
+    "unsigned_sha256": "29a8d036e90d669c73101c494d14af825572beff6d8c91b8bc24aa4bd69c0453",
+    "signed_sha256": "bb5304e5fb1486dc40e5ff094a5dafe2be930605186acb668e2be426880dc1bf",
+    "zst_sha256": "4b5a5a4dfea09ecbeffc3971b4be40c3112ad19550de5163c25e3a35e14c2cb6",
+    "srcversion": "C639E72843D5AF566FC255B",
+    "initrd_sha256": "b26832176d4297c3df0455b3fe32a2725fff41789f450f5c782727a6bb99bbfc"
+  },
+  "stimulus": {
+    "sha256": "87d8420ddaf7d56d3f5068c6a74362451fc2859197445490d15e7b3d456fa22e",
+    "format": "48 kHz stereo PCM16 all-zero",
+    "endpoint": "1% muted"
+  },
+  "cycle1": {
+    "capture_sha256": "4A59D8447B4FF9563FF0C1AD6161D54ACB2219767DABCC517F8C95D1B8B3B7F7",
+    "baseline_diff_rms": [
+      1.719444737495331e-05,
+      1.7451182724162186e-05
+    ],
+    "steady_diff_rms": [
+      0.004066764509991111,
+      0.004663007666458465
+    ],
+    "median_steady_diff_rms": 0.004364886088224788,
+    "ratio_vs_windows": 239.119430712435,
+    "ratio_vs_v5": 6.451873661515067
+  },
+  "decision": "Reject v14 after cycle 1; no cycle 2/program audio. Windows-latched PDM watchdog cannot be copied in isolation while Linux fully tears down its producer/SoundWire lifecycle. Move H03 to transport/clock-stop state preservation."
+}
