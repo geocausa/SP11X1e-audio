@@ -1,0 +1,40 @@
+{
+  "date": "2026-08-17",
+  "candidate": "v13 coherent Windows analog tail",
+  "status": "REJECTED_CYCLE_INSTABILITY",
+  "source": {
+    "base_v5_sha256": "f5555cfde5f8c72001a779ac9d0dc0aac527284e88c6333a450027af4f340f97",
+    "after_sha256": "5b747b52a4733604d994bf7a37831d168691a2296d1f8c8b9a7eb26608491f1e",
+    "patch_sha256": "7d27d6f61f513530ab59d24d78c45d9d2d3ce667ac53491f655a0b6aae5caf27",
+    "delta": "SP11 2S only: after initial gain setup, issue Windows qcaucd positions 44-63 as 20 ordered direct regmap writes"
+  },
+  "binary": {
+    "unsigned_sha256": "9b8d8bb450dae49d3fde582cc4948278e5cbb9a235aea5e00054cf15ad2af8b4",
+    "signed_sha256": "ed77754f889fa19202d52dacb300b5647b7510abd5ed3eb070fd3ecae29b62bb",
+    "zst_sha256": "2b6c7b8c5a54cb68b6f0cf26484277022672a4e3e886ce3045a13e6ec49c45df",
+    "srcversion": "03E2506672EEBB27B234000",
+    "initrd_sha256": "3dda06a7718bcf9d22f570e706d05672cb24afba3c26f6cd0eef1d4b15374e1b"
+  },
+  "stimulus": {
+    "sha256": "87d8420ddaf7d56d3f5068c6a74362451fc2859197445490d15e7b3d456fa22e",
+    "format": "48 kHz stereo PCM16 all-zero",
+    "endpoint": "1% muted"
+  },
+  "cycles": [
+    {
+      "index": 1,
+      "capture_sha256": "C366B0C5CDB07A9D2467C7AA090C87BB788044F6F548BFA8105EBE7C74A326EB",
+      "median_diff_rms": 0.0003175238567868776,
+      "ratio_vs_windows": 17.394754946142086,
+      "ratio_vs_v5": 0.4693418721813927
+    },
+    {
+      "index": 2,
+      "capture_sha256": "F259A4E5A2F12C93503A8F906F59C96BD73DEA6A72EDC0E65D34924B7D584F14",
+      "median_diff_rms": 0.003927027586695365,
+      "ratio_vs_windows": 215.132441475587,
+      "ratio_vs_v5": 5.804661414416752
+    }
+  ],
+  "decision": "Reject v13 without cycle 3 or program audio. Coherent cold analog-tail replay improves cycle 1 but does not survive PA teardown/reopen. Next oracle must determine Windows WSA8845 analog-register writes at repeated PA-cycle boundaries using passive qcaucd helper tracing, not direct MMIO."
+}

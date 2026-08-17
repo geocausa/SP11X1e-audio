@@ -1,0 +1,240 @@
+{
+  "date": "2026-08-17",
+  "status": "address-audited coherent analog-tail candidate map",
+  "source_windows": "artifacts/reviewed/2026-08-16-windows-wsa8845-full-init-sequence.json positions 44-63",
+  "linux_source": "/home/geoca/Documents/SP11-PROJECT/02-kernel/sp11-softpause-src-20260813/sound/soc/codecs/wsa884x.c",
+  "linux_source_sha256": "f5555cfde5f8c72001a779ac9d0dc0aac527284e88c6333a450027af4f340f97",
+  "safety": {
+    "regmap_writeability": "all 20 addresses are not listed by wsa884x_readonly_register and therefore pass wsa884x_writeable_register",
+    "pa_state": "candidate block is intended only during codec init before normal PA enable",
+    "novel_transient": "0x3091=0xd4 is the only Windows tail value not already used as a Linux steady/init value on the current SP11 path; it is Windows-proven pre-PA",
+    "no_direct_mmio": true
+  },
+  "windows_tail": [
+    {
+      "position": 44,
+      "reg": "0x300b",
+      "value": "0xd1",
+      "line": 1606,
+      "name": "REF_CTRL",
+      "linux_v5_occurrences": [
+        "generic_init=0xd1"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 45,
+      "reg": "0x3005",
+      "value": "0x33",
+      "line": 1608,
+      "name": "UVLO_PROG",
+      "linux_v5_occurrences": [
+        "sp11_supply=0x33"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 46,
+      "reg": "0x3006",
+      "value": "0x60",
+      "line": 1610,
+      "name": "UVLO_PROG1",
+      "linux_v5_occurrences": [
+        "sp11_supply=0x60"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 47,
+      "reg": "0x3003",
+      "value": "0x22",
+      "line": 1612,
+      "name": "BOP1_PROG",
+      "linux_v5_occurrences": [
+        "default/generic state; no SP11 explicit tail replay"
+      ],
+      "windows_tail_value_already_used_by_linux": false
+    },
+    {
+      "position": 48,
+      "reg": "0x3004",
+      "value": "0x44",
+      "line": 1614,
+      "name": "BOP2_PROG",
+      "linux_v5_occurrences": [
+        "generic_init=0x66",
+        "sp11_supply=0x44"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 49,
+      "reg": "0x30a0",
+      "value": "0xf8",
+      "line": 1616,
+      "name": "ZX_CTRL1",
+      "linux_v5_occurrences": [
+        "generic_init=0xf8"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 50,
+      "reg": "0x3090",
+      "value": "0x6a",
+      "line": 1618,
+      "name": "STB_CTRL1",
+      "linux_v5_occurrences": [
+        "generic_init=0x6a"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 51,
+      "reg": "0x30aa",
+      "value": "0xe3",
+      "line": 1620,
+      "name": "ILIM_CTRL1",
+      "linux_v5_occurrences": [
+        "generic_init=0xe3"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 52,
+      "reg": "0x3091",
+      "value": "0xd4",
+      "line": 1622,
+      "name": "CURRENT_LIMIT",
+      "linux_v5_occurrences": [
+        "generic_init=0x24",
+        "speaker_POST_PMU(PBR,2S)=0x44"
+      ],
+      "windows_tail_value_already_used_by_linux": false
+    },
+    {
+      "position": 53,
+      "reg": "0x3040",
+      "value": "0xd2",
+      "line": 1624,
+      "name": "TOP_CTRL1",
+      "linux_v5_occurrences": [
+        "sp11_supply update bit0 clear -> 0xd2"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 54,
+      "reg": "0x304c",
+      "value": "0xf6",
+      "line": 1626,
+      "name": "OCP_CTL",
+      "linux_v5_occurrences": [
+        "sp11_supply=0xf6"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 55,
+      "reg": "0x3045",
+      "value": "0x06",
+      "line": 1628,
+      "name": "DAC_VCM_CTRL_REG2",
+      "linux_v5_occurrences": [
+        "sp11_supply=0x06"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 56,
+      "reg": "0x3046",
+      "value": "0x14",
+      "line": 1630,
+      "name": "DAC_VCM_CTRL_REG3",
+      "linux_v5_occurrences": [
+        "sp11_supply=0x14"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 57,
+      "reg": "0x3047",
+      "value": "0x19",
+      "line": 1632,
+      "name": "DAC_VCM_CTRL_REG4",
+      "linux_v5_occurrences": [
+        "sp11_supply=0x19"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 58,
+      "reg": "0x3048",
+      "value": "0x1b",
+      "line": 1634,
+      "name": "DAC_VCM_CTRL_REG5",
+      "linux_v5_occurrences": [
+        "sp11_supply=0x1b"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 59,
+      "reg": "0x3049",
+      "value": "0x1c",
+      "line": 1636,
+      "name": "DAC_VCM_CTRL_REG6",
+      "linux_v5_occurrences": [
+        "sp11_supply=0x1c"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 60,
+      "reg": "0x306a",
+      "value": "0x02",
+      "line": 1638,
+      "name": "DAC_VCM_CTRL_REG7",
+      "linux_v5_occurrences": [
+        "sp11_supply final_override bit -> 0x02"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 61,
+      "reg": "0x30ba",
+      "value": "0x13",
+      "line": 1640,
+      "name": "CKWD_CTL_1",
+      "linux_v5_occurrences": [
+        "generic_init=0x13"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 62,
+      "reg": "0x30a5",
+      "value": "0xf1",
+      "line": 1642,
+      "name": "PWRSTAGE_CTRL2",
+      "linux_v5_occurrences": [
+        "sp11_supply=0xf1"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    },
+    {
+      "position": 63,
+      "reg": "0x3091",
+      "value": "0x44",
+      "line": 1644,
+      "name": "CURRENT_LIMIT",
+      "linux_v5_occurrences": [
+        "generic_init=0x24",
+        "speaker_POST_PMU(PBR,2S)=0x44"
+      ],
+      "windows_tail_value_already_used_by_linux": true
+    }
+  ],
+  "candidate_policy": "If tested, replay all 20 raw-address-equivalent named writes in Windows order on SP11 2S only, after existing generic/SP11 configuration, rather than isolating 0xd4 or 0x44. Preserve v5 PA/DRE/UCM/producer behavior otherwise. Gate with at least 3 repeated muted digital-zero PA cycles on one boot.",
+  "critical_transition": "CURRENT_LIMIT 0xd4 (override=1,current-code=0x15) -> [TOP_CTRL1/OCP/VCM/CKWD/PWRSTAGE setup] -> CURRENT_LIMIT 0x44 (override=0,current-code=0x11)"
+}

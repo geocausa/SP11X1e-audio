@@ -241,21 +241,21 @@
       "reg": "0x3461",
       "value": "0x11",
       "line": 1584,
-      "name": null
+      "name": "BOP_DEGLITCH_CTL"
     },
     {
       "position": 34,
       "reg": "0x3459",
       "value": "0x05",
       "line": 1586,
-      "name": null
+      "name": "VBAT_CAL_CTL"
     },
     {
       "position": 35,
       "reg": "0x3458",
       "value": "0x79",
       "line": 1588,
-      "name": null
+      "name": "VBAT_THRM_FLT_CTL"
     },
     {
       "position": 36,
@@ -339,35 +339,35 @@
       "reg": "0x3003",
       "value": "0x22",
       "line": 1612,
-      "name": null
+      "name": "BOP1_PROG"
     },
     {
       "position": 48,
       "reg": "0x3004",
       "value": "0x44",
       "line": 1614,
-      "name": null
+      "name": "BOP2_PROG"
     },
     {
       "position": 49,
       "reg": "0x30a0",
       "value": "0xf8",
       "line": 1616,
-      "name": null
+      "name": "ZX_CTRL1"
     },
     {
       "position": 50,
       "reg": "0x3090",
       "value": "0x6a",
       "line": 1618,
-      "name": null
+      "name": "STB_CTRL1"
     },
     {
       "position": 51,
       "reg": "0x30aa",
       "value": "0xe3",
       "line": 1620,
-      "name": null
+      "name": "ILIM_CTRL1"
     },
     {
       "position": 52,
