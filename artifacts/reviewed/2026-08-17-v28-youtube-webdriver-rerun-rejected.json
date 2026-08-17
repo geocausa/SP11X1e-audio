@@ -1,0 +1,41 @@
+{
+  "date": "2026-08-17",
+  "status": "REJECTED_HARNESS_NO_AUDIO_VERDICT",
+  "stack": "v28",
+  "video": {
+    "title": "Benny Benassi - Satisfaction",
+    "youtube_id": "a0fkNdPiIL4",
+    "duration_s": 146.701
+  },
+  "audio_generation": {
+    "profile": "movie",
+    "endpoint_fraction": 0.25,
+    "vlldp_postgain_q4": -332,
+    "postgain_acknowledged": true
+  },
+  "trusted_pointer_seek_readback_s": {
+    "74": 73.99602677110445,
+    "57": 57.05167811299476,
+    "95": 95.0480963160286,
+    "42_return": 41.990034861341705
+  },
+  "rejection": {
+    "reason": "temporary Firefox/WebDriver YouTube session reset MediaSource/buffer state on seek to 74 s and did not sustain an accepted three-seek sequence",
+    "prewarm_42_buffered_range_s": [40.001, 60.001],
+    "seek_74_failure_state": -1,
+    "seek_74_ready_state": 0,
+    "seek_74_buffered_ranges": []
+  },
+  "sp7_external_capture": {
+    "directory": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-youtube-seek-v28-25pct-20260817",
+    "provenance": "SP7 external microphone recording SP11 speakers",
+    "disposition": "REJECTED.txt present; do not cite as an acoustic result"
+  },
+  "restore": {
+    "profile": "movie",
+    "vlldp_postgain_q4": -785,
+    "visible_endpoint_fraction": 0.17,
+    "pcm_final": "closed",
+    "saved_grub_fallback": "sp11-audio-cps-v3"
+  }
+}
