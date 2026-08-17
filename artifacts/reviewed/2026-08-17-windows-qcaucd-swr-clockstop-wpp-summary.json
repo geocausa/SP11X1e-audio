@@ -1,0 +1,60 @@
+{
+  "date": "2026-08-17",
+  "scope": "SP11 Windows qcaucd SoundWire ordinary two-cycle speaker lifecycle",
+  "windows_policy": {
+    "SwrSleep": 1,
+    "SwrClockStopTimerMS": 500,
+    "source": "live Surface AUCD registry plus Surface extension INF"
+  },
+  "qcaucd": {
+    "wpp_control_guid": "D3D7C968-4842-4C61-994E-2AAD4DBA2C18",
+    "soundwire_message_guid": "90ACBF0B-3924-3169-10C3-949A4505D136",
+    "zero_user_function": "FUN_14003b678",
+    "timer_callback_function": "FUN_14003b450",
+    "clock_stop_function": "FUN_14003b230",
+    "dataport_programmer_function": "FUN_14003bf40",
+    "wpp_event_id_ranges": {
+      "clock_stop": [26, 31],
+      "delayed_timer": [32, 37],
+      "zero_user_sleep_decision": [38, 44],
+      "dataport_programmer": [55, 62],
+      "dataport_apply": [63, 67]
+    }
+  },
+  "windows_capture": {
+    "host_path": "C:\\Users\\Geoca\\Documents\\SP11-Windows-SWR-Trace-20260817\\qcaucd-wpp-two-cycle.etl",
+    "sha256": "FE72BDA84CF383C811F6521AA17C68D80602F20D9EC7F54BD9408EA50F57F0DC",
+    "endpoint": "1 percent, unmuted during controlled marker/tail stream; restored to 1 percent muted after capture",
+    "cycle1": {
+      "begin_local": "2026-08-17T02:35:44.9520481+01:00",
+      "end_local": "2026-08-17T02:35:51.5332360+01:00",
+      "delayed_clock_stop_burst_after_end_s": [0.485060, 0.496683]
+    },
+    "cycle2": {
+      "begin_local": "2026-08-17T02:35:54.5364508+01:00",
+      "end_local": "2026-08-17T02:36:01.1125763+01:00",
+      "delayed_clock_stop_burst_after_end_s": [0.485568, 0.499054]
+    },
+    "dataport_programming": "IDs 55-67 recur at both starts and both stops; Windows reapplies dataport hardware state rather than leaving ports active."
+  },
+  "linux_capture": {
+    "repo_path": "artifacts/reviewed/2026-08-17-cpsv3-sdw-clockstop-two-cycle.trace",
+    "sha256": "1b694d8fadfa821a062577af6ba387fa3d2a2d1eb66f861b3bb764b93ae0a097",
+    "observed_idle_teardown": [
+      "sdw_disable_stream",
+      "sdw_deprepare_stream",
+      "sdw_stream_remove_slave for both WSA8845 slaves on playback/VI/CPS runtimes",
+      "swrm_runtime_suspend",
+      "sdw_bus_prep_clk_stop",
+      "sdw_bus_clk_stop"
+    ],
+    "next_wake": "new hw_params/add-slave/prepare/enable sequence before producer/PA wake"
+  },
+  "source_ownership": {
+    "qcom_snd_sdw_startup": "allocates a new sdw_stream_runtime on every ALSA startup",
+    "wsa884x_hw_params": "calls sdw_stream_add_slave",
+    "wsa884x_hw_free": "calls sdw_stream_remove_slave, which frees slave port runtime and slave runtime",
+    "qcom_snd_sdw_shutdown": "calls sdw_release_stream, which frees the sdw_stream_runtime"
+  },
+  "conclusion": "Windows live tracing proves delayed 500 ms clock-stop plus start/stop dataport reprogramming. Linux additionally destroys and reallocates SoundWire topology runtime objects on every ordinary close. The next isolation should retain SP11 WSA topology objects across PA-off idle while still disabling/depreparing streams, shutting down producer/PA, and allowing bus clock-stop."
+}
