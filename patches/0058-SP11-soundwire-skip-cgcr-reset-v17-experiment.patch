@@ -1,0 +1,27 @@
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -27,6 +27,11 @@
+ MODULE_PARM_DESC(sp11_wait_clk_stop_complete,
+ 		 "Wait for SP11 SoundWire frame generator stop before gating hclk");
+ 
++static bool sp11_skip_audio_cgcr_reset;
++module_param_named(sp11_skip_audio_cgcr_reset, sp11_skip_audio_cgcr_reset, bool, 0644);
++MODULE_PARM_DESC(sp11_skip_audio_cgcr_reset,
++		 "Skip SP11 WSA AudioCC SWR CGCR reset pulse on clock-stop resume");
++
+ #define SWRM_COMP_SW_RESET					0x008
+ #define SWRM_COMP_STATUS					0x014
+ #define SWRM_LINK_MANAGER_EE					0x018
+@@ -1804,7 +1809,11 @@
+ 		qcom_swrm_get_device_status(ctrl);
+ 		sdw_handle_slave_status(&ctrl->bus, ctrl->status);
+ 	} else {
+-		reset_control_reset(ctrl->audio_cgcr);
++		if (!sp11_skip_audio_cgcr_reset)
++			reset_control_reset(ctrl->audio_cgcr);
++		else
++			dev_info(ctrl->dev,
++				 "SP11 SoundWire: skipping AudioCC WSA CGCR reset pulse on resume\n");
+ 
+ 		if (ctrl->version == SWRM_VERSION_1_7_0) {
+ 			ctrl->reg_write(ctrl, SWRM_LINK_MANAGER_EE, SWRM_EE_CPU);

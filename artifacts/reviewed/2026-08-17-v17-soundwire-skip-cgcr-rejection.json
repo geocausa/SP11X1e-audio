@@ -1,0 +1,47 @@
+{
+  "date": "2026-08-17",
+  "candidate": "rpv4-macro84-winproducer-nohd2-win-analog-tail-swr-stopwait-nocgcr-v17-idlegated",
+  "base": "exact v16 stop-completion-wait behavior on exact v13 WSA analog-tail bundle",
+  "question": "Is Linux's normal-resume LPASS AudioCC WSA SWR CGCR reset pulse an unmatched state-destroying operation relative to the Windows qcaucd wake sequence?",
+  "delta": {
+    "parameter": "soundwire_qcom.sp11_skip_audio_cgcr_reset=1",
+    "behavior": "skip only reset_control_reset(audio_cgcr) in normal clock-stop resume; retain v16 post-stop COMP_STATUS wait, all v13 amp/producer behavior and the 3000 ms autosuspend timing",
+    "source_before_sha256": "c487734ad282f6dc8d10d4c4c9673956802bf1238210e0c323275d87706f0ce9",
+    "source_after_sha256": "dd334426277cce750fa6af970aab9c3ada531edae328a535c8556b279bbd4180",
+    "patch_sha256": "7197e1040ad55b796beaa010b2169e6d1b815c83eb483ad5182e6bdd833fa121"
+  },
+  "module": {
+    "srcversion": "657816E3B9B1A6A61E290CE",
+    "signed_sha256": "94f68ccb59fa280fe68f3b279ac8774fde00dffa8da352dbaf314110a7c81e02",
+    "compressed_sha256": "d101bd755d536c2a5da4d072787dfcbd8247da57a48af58885c2dbe55ceb250f"
+  },
+  "initramfs_sha256": "dbcca1f0f65d6d656305f505565ed77ede287a37a02a45d19a1b0c40c394206a",
+  "structural_gate": {
+    "result": "PASS",
+    "wake_log": "SP11 SoundWire: skipping AudioCC WSA CGCR reset pulse on resume",
+    "stop_log": "SP11 SoundWire: frame generator stopped before hclk gate",
+    "pcm": "RUNNING during zero stream, closed afterward",
+    "runtime_pm": "master and both WSA8845 slaves suspended",
+    "faults": "none"
+  },
+  "acoustic_gate": {
+    "context": "measured PA wake followed one prior complete structural v17 PA cycle on same boot",
+    "stimulus": "10 s 48 kHz stereo S16_LE all-zero PCM at 1 percent muted endpoint",
+    "capture_path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-v17-nocgcr-cycleB-1pct-20260817\\external-mic-20260817-033138.wav",
+    "capture_sha256": "847522CCA7AB2EDD5EFF8785241C50F7048F828F5969E91D63E7896E21E72486",
+    "baseline_diff_rms": [0.000017245001138808823, 0.000017532481694410448],
+    "steady_diff_rms": [0.002694670322038307, 0.0029869313441022614],
+    "median_steady_diff_rms": 0.0028408008330702843,
+    "ratios": {
+      "vs_windows": 155.66031962028956,
+      "vs_cps_v3": 152.56717685662105,
+      "vs_v5": 4.199075921349067,
+      "vs_v13_cycle1": 8.946727910552537,
+      "vs_v13_cycle2": 0.7233967739157288,
+      "vs_v15": 0.990989299758365,
+      "vs_v16": 1.3486836323147846
+    }
+  },
+  "decision": "REJECT",
+  "conclusion": "Skipping the Linux WSA CGCR reset pulse is structurally viable but acoustically regresses the repeat-cycle state versus v16. The pulse is therefore not the missing Windows mismatch and should remain. The next isolated master-lifecycle difference is Windows 500 ms clock-stop timing versus Linux qcom 3000 ms autosuspend."
+}
