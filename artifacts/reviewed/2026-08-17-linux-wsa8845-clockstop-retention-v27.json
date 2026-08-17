@@ -1,0 +1,80 @@
+{
+  "date": "2026-08-17",
+  "status": "GREEN lifecycle retention / RED physical zero-noise parity",
+  "candidate": "v27",
+  "kernel": "7.1.5-sp11-render-parity-v4+",
+  "module_srcversion": "74B81D565B3BFEAB48F9452",
+  "persistent_fallback": "sp11-audio-cps-v3",
+  "root_cause": {
+    "v26_behavior": "ordinary SoundWire clock-stop could report SDW_SLAVE_UNATTACHED; the generic callback cleared hw_init, marked the full regcache dirty, and replayed the 63-write cold init on ATTACHED",
+    "direct_evidence": "v26 kprobe captured status=0/1 during ordinary playback and raw DRE_CTL_1 changed from UCM-safe 0x0e to cold-oracle 0x00 while boot init messages repeated",
+    "effect": "runtime/UCM state was overwritten and multi-second cold-start behavior returned"
+  },
+  "v27_change": {
+    "scope": "SP11/Denali Windows profile only, when hw_init is already true",
+    "unattached": "cache_only=true; retain hw_init; do not mark the entire cache dirty",
+    "attached": "cache_only=false; sync only genuine cached writes; do not rerun cold init",
+    "first_attach": "unchanged",
+    "system_suspend_resume": "deferred / not claimed"
+  },
+  "build_hashes": {
+    "source_v26_before_sha256": "9dc07c5c419f0fc35e54cc3e2df0af9a6e3d0b5b6b8307c1cd578a0efe8b2c3b",
+    "source_v27_after_sha256": "350d8a69d4467259583ff23c4b44baf11399af82ba73a994693c9428e2f04a1e",
+    "unsigned_module_sha256": "b909a32be257cceb4214a6298cb29b3fdec003eb49eb696770e68ab2a35b8c2e",
+    "signed_module_sha256": "84655017b1bb1510f9a96c0220cde035e0ddf01d0ed2d7271d077cc27c2d8bcf",
+    "compressed_module_sha256": "a2f22686dcf9047971147b9644132cf0cc9b61ecb382ea7d26b9b9f37277b736",
+    "initrd_sha256": "afc918eaaa56b1530bf49cc222a9cfe75ccd68cc697132b2024660e7da5527f2",
+    "deep_idle_trace_sha256": "d0caf84ed03bbd96c8c3c597a7f6925dde7baf1a3451bf0a8ee0d8e4bda541ec"
+  },
+  "initrd_gate": {
+    "entries_v26": 4394,
+    "entries_v27": 4394,
+    "differences_excluding_wsa_module": 0
+  },
+  "live_deep_idle_gate": {
+    "pre_idle_seconds": 20,
+    "pcm_running_ms": 150,
+    "boot_init_count_before": 2,
+    "boot_init_count_after": 2,
+    "raw_dre_ctl_1_left": "0x0e",
+    "raw_dre_ctl_1_right": "0x0e",
+    "total_wsa_runtime_writes": 32,
+    "interpretation": "2 amplifiers x (10 exact START + 6 exact STOP); no cold replay"
+  },
+  "repeated_acoustic_zero": {
+    "conditions": "RX81, PA Volume 24 / raw DRE_CTL_1 0x0e, visible endpoint 1% muted, exact digital zero",
+    "windows_reference_median_diff_rms": 1.8253227918889202e-05,
+    "cleanA": {
+      "wav_sha256": "EA0D12208713266415B80FB2A52605AF4DB6D71793AE84CF21A54621B0F5B46A",
+      "analysis_sha256": "B70E046CE246633BF6E0B850E06E5147F2A28C35ED94DF953414B029E2B1A261",
+      "pcm_running_ms": 100,
+      "median_steady_diff_rms": 0.0021256791634278417,
+      "windows_ratio": 116.4549729436129
+    },
+    "cleanB": {
+      "wav_sha256": "D734E1732940D0657C87711273E15CD5984104FB828061D59823C910D65DE9E0",
+      "analysis_sha256": "99344212B919E69A60C177CE3C64F0DC838BE51333E0E7C392F2BB656A3548A7",
+      "pcm_running_ms": 150,
+      "median_steady_diff_rms": 0.0023499975012843946,
+      "windows_ratio": 128.7442150904454
+    },
+    "interpretation": "v27 makes the failure stationary/repeatable; it does not close the physical noise floor"
+  },
+  "dre0_rejection": {
+    "description": "forcing PA Volume 31 / raw DRE_CTL_1=0x00 on v26 was an attenuation-independent hard reject and is not a production direction",
+    "median_steady_diff_rms": 0.0021184706960905553,
+    "windows_ratio_approx": 116.1,
+    "analysis_sha256": "35E892B2F3BC3BFDEBB04697EC3A24CBD41AA8CC44110C5B15EC8837BFC5D475"
+  },
+  "midstream_rx_digital_mute_ab": {
+    "wav_sha256": "784008562976CB60437D5CA0C59943F91F1D9577977F41A1556A98B70511F069",
+    "analysis_sha256": "D229A803998F284F80A6506EDF85EB069DC49041B076715DEAC4284F99F9BF26",
+    "room_diff_rms": 1.772981521385112e-05,
+    "active_pre_diff_rms": 0.002325298864611855,
+    "rx_mute_on_diff_rms": 0.002289567039767782,
+    "active_post_diff_rms": 0.0023036755158559177,
+    "mute_over_pre": 0.9846334484621023,
+    "mute_over_post": 0.9938756669543828,
+    "conclusion": "static is downstream of or independent from the normal WSA-macro RX digital sample path; do not reopen Dolby/q6apm/sample-data processing as its cause"
+  }
+}

@@ -1,0 +1,37 @@
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -2000,6 +2000,34 @@
+ 	struct wsa884x_priv *wsa884x = dev_get_drvdata(&slave->dev);
+ 	int ret;
+ 
++	/*
++	 * On Denali the ordinary SoundWire clock-stop path transiently reports
++	 * UNATTACHED even though the WSA8845 supplies/reset stay resident.
++	 * Shipping Windows initializes the codec once and does not replay its
++	 * 63-write cold transaction on normal speaker wakes.  Retain that
++	 * initialized state across the resident clock-stop detach/attach pair;
++	 * cache-only still protects accesses while the link is unavailable.
++	 *
++	 * The first attach is unchanged because hw_init is false.  Full context
++	 * loss/system-suspend recovery remains a separate lifecycle gate.
++	 */
++	if (wsa884x_sp11_windows_profile(wsa884x) && wsa884x->hw_init) {
++		if (status == SDW_SLAVE_UNATTACHED) {
++			regcache_cache_only(wsa884x->regmap, true);
++			return 0;
++		}
++
++		if (status == SDW_SLAVE_ATTACHED) {
++			regcache_cache_only(wsa884x->regmap, false);
++			ret = regcache_sync(wsa884x->regmap);
++			if (ret < 0) {
++				dev_err(&slave->dev, "Cannot sync retained regmap cache\n");
++				return ret;
++			}
++			return 0;
++		}
++	}
++
+ 	if (status == SDW_SLAVE_UNATTACHED) {
+ 		wsa884x->hw_init = false;
+ 		regcache_cache_only(wsa884x->regmap, true);
