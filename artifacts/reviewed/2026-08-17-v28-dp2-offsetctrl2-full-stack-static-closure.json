@@ -1,0 +1,50 @@
+{
+  "date": "2026-08-17",
+  "status": "GREEN — W03 broadband static closed on full render-parity stack",
+  "recorder": "SP7 microphone externally capturing SP11 speakers; SP11 microphone path not used",
+  "base": "v27 exact Windows WSA8845 63/10/6 lifecycle plus clock-stop retention",
+  "delta": "generic SIMPLE OffsetCtrl2 support plus WSA8845 DP2/COMP capability only",
+  "soundwire": {
+    "srcversion": "31EA655550AE70F3DF2951E",
+    "v27_build_id": "d59ebe0e12aa5e9ba7a5e1148c9215528f53b6bc",
+    "v28_build_id": "481d2bae6f96852d33f03d3dbfd6c81caebd5fc6",
+    "v28_ko_sha256": "9ad4fb208df302ab2737cefdf6790554265373126cce4a95e0fa377db404d753",
+    "v28_zst_sha256": "7ba04a6bb25c340a67c2bc5780eca3f33e4692063f7cdb087949a4b51bc82d93",
+    "live_build_id_verified": true
+  },
+  "wsa8845": {
+    "v27_source_sha256": "350d8a69d4467259583ff23c4b44baf11399af82ba73a994693c9428e2f04a1e",
+    "v28_source_sha256": "e26775843baf3315101f24dbfa1a44f220c35ed6d2d46f66db835e32f1399551",
+    "v27_unsigned_rebuild_byte_identical": true,
+    "v28_srcversion": "EB74C0F5E4405EEE429136C",
+    "v28_unsigned_sha256": "2d2b144e489b7bb742d8f9febf4b4e58c54096d7ce2d92125b9d1c2e4a11a57b",
+    "v28_signed_sha256": "963e0353b06afdc48d8729639a99e9c2be1b253256ab84f6025e4094c855287c",
+    "v28_zst_sha256": "003427fc7388a5674f1c8c0ec184339d5ff57192f83868d96567f7217bba84a2",
+    "v28_build_id": "e4023c989b2aaf12ead3bc3f37c359c9d1e5cffa"
+  },
+  "packaging": {
+    "v27_initrd_sha256": "afc918eaaa56b1530bf49cc222a9cfe75ccd68cc697132b2024660e7da5527f2",
+    "v28_initrd_sha256": "94f6716ea210c0b3d82eb3403f08102de90be13ea526c1fb4f273324db9f754d",
+    "semantic_diff_count": 2,
+    "kernel_sha256": "bca0a336c15d2995c61b8df9d449afb9df5fc8776a3da1ad034616f917bb428a",
+    "dtb_sha256": "3530e3426c500d664be6ed3ef066d1b548025ba8286a5810e8b98c591b6555ca"
+  },
+  "first_cycle": {
+    "wav_sha256": "975DC05819D7DEEA3B59295EEE7B64C3C289C424E8A1688068D2C47211DDF9C4",
+    "median_steady_diff_rms": 2.4665239517531827e-05,
+    "improvement_vs_v27_cleanA": 86.18116851924054,
+    "improvement_vs_v27_cleanB": 95.2756813739448
+  },
+  "repeat_after_20s_idle": {
+    "wav_sha256": "78FC305042BA34E7E136F778FB7C6A7512660365C88A3F113094692F668239F5",
+    "median_steady_diff_rms": 1.8179778081257844e-05,
+    "ratio_vs_windows_active_reference": 0.9959760630855132,
+    "improvement_vs_v27_cleanA": 116.92547367337103,
+    "improvement_vs_v27_cleanB": 129.26436674752853,
+    "codec_init_count_after_idle": 2,
+    "pcm_final": "closed",
+    "faults": "none observed"
+  },
+  "windows_reference_diff_rms": 1.8253227918889202e-05,
+  "conclusion": "DP2/COMP OffsetCtrl2=0x07 is the missing SoundWire prerequisite for the Windows CSR-off WSA8845 state. v28 retains v27 lifecycle/clock-stop behavior and returns the physical active-zero floor to Windows/room-floor level."
+}

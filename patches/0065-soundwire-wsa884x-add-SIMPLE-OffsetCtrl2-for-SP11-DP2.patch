@@ -1,0 +1,78 @@
+From: OpenAI Codex <codex@openai.com>
+Date: Mon, 17 Aug 2026 20:10:00 +0100
+Subject: [PATCH] soundwire: program SIMPLE OffsetCtrl2 for WSA8845 COMP
+
+Qualcomm's WSA8845 COMP dataport is described as a SIMPLE SoundWire
+port, but Windows programs its banked OffsetCtrl2 register as part of
+the normal protected-speaker transport.  Linux SIMPLE-port support did
+not provide a capability for OffsetCtrl2, leaving the register at zero
+while the qcom master already supplied the correct offset2 value (0x07
+for DP2/COMP).
+
+Add an optional SIMPLE OffsetCtrl2 capability and have WSA8845 advertise
+it for DP2/COMP only.  This preserves all other SIMPLE dataport behavior.
+
+On Surface Pro 11 this is the prerequisite that makes the Windows
+CSR-fallback-off WSA8845 state quiet: matched CPS-v3 CSR-off digital-zero
+noise falls from 2.776e-3 to the ~2e-5 room floor, and the full v28
+Windows-lifecycle stack repeats at 1.818e-5 after clock-stop idle.
+
+Signed-off-by: OpenAI Codex <codex@openai.com>
+---
+--- a/include/linux/soundwire/sdw.h
++++ b/include/linux/soundwire/sdw.h
+@@ -310,6 +310,7 @@
+ #define SDW_DPN_SIMPLE_TRANSPORT_BLOCKCTRL3	BIT(0)
+ #define SDW_DPN_SIMPLE_TRANSPORT_SAMPLECTRL2	BIT(1)
+ #define SDW_DPN_SIMPLE_TRANSPORT_HCTRL		BIT(2)
++#define SDW_DPN_SIMPLE_TRANSPORT_OFFSETCTRL2	BIT(3)
+ 
+ struct sdw_dpn_prop {
+ 	u32 num;
+--- a/drivers/soundwire/stream.c
++++ b/drivers/soundwire/stream.c
+@@ -67,7 +67,7 @@
+ 				  struct sdw_transport_params *t_params,
+ 				  u32 registers)
+ {
+-	u32 blockctrl3, samplectrl2, hctrl;
++	u32 blockctrl3, samplectrl2, hctrl, offsetctrl2;
+ 	u16 wbuf;
+ 	int ret;
+ 
+@@ -75,10 +75,12 @@
+ 		blockctrl3 = SDW_DPN_BLOCKCTRL3_B1(t_params->port_num);
+ 		samplectrl2 = SDW_DPN_SAMPLECTRL2_B1(t_params->port_num);
+ 		hctrl = SDW_DPN_HCTRL_B1(t_params->port_num);
++		offsetctrl2 = SDW_DPN_OFFSETCTRL2_B1(t_params->port_num);
+ 	} else {
+ 		blockctrl3 = SDW_DPN_BLOCKCTRL3_B0(t_params->port_num);
+ 		samplectrl2 = SDW_DPN_SAMPLECTRL2_B0(t_params->port_num);
+ 		hctrl = SDW_DPN_HCTRL_B0(t_params->port_num);
++		offsetctrl2 = SDW_DPN_OFFSETCTRL2_B0(t_params->port_num);
+ 	}
+ 
+ 	if (registers & SDW_DPN_SIMPLE_TRANSPORT_BLOCKCTRL3) {
+@@ -102,6 +104,12 @@
+ 		if (ret < 0)
+ 			return ret;
+ 	}
++
++	if (registers & SDW_DPN_SIMPLE_TRANSPORT_OFFSETCTRL2) {
++		ret = sdw_write_no_pm(slave, offsetctrl2, t_params->offset2);
++		if (ret < 0)
++			return ret;
++	}
+ 
+ 	return 0;
+ }
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -868,6 +868,7 @@
+ 		.max_ch = 1,
+ 		.simple_ch_prep_sm = true,
+ 		.read_only_wordlength = true,
++		.simple_transport_registers = SDW_DPN_SIMPLE_TRANSPORT_OFFSETCTRL2,
+ 	},
+ 	[WSA884X_PORT_BOOST] = {
+ 		.num = WSA884X_PORT_BOOST + 1,

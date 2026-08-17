@@ -1,5 +1,8 @@
 # SP11 built-in-speaker Windows/Linux render parity ledger — 2026-08-12
 
+> **2026-08-17 v28 full-stack static closure:** carrying only the proven WSA8845 DP2/COMP `OffsetCtrl2=0x07` prerequisite onto v27 eliminates the confirmed broadband static while preserving the exact Windows 63/10/6 WSA lifecycle and clock-stop retention. v28 first muted-zero measured `2.467e-5` SP7-external-mic diff-RMS; after teardown + 20 s idle the repeat measured `1.818e-5`, effectively the retained Windows `1.825e-5` reference. Codec init count remained two total and no WSA/SoundWire/XRUN fault appeared. W03 is GREEN. See `docs/findings/2026-08-17-V28-DP2-OFFSETCTRL2-FULL-STACK-STATIC-CLOSURE.md` and patch `0065`.
+
+
 > **2026-08-17 DP2/CSR coupled-prerequisite closure:** after the one-bit CSR-off causal proof, the previously deprioritized WSA8845 DP2/COMP `OffsetCtrl2` mismatch became a coupled-prerequisite candidate. A surgically rebuilt CPS-v3 SoundWire B1 programmed Windows `OffsetCtrl2=0x07` on DP2 only, proven live on both amps. With CSR ON the path stayed quiet (`2.638e-5` diff-RMS). With CSR OFF, the prior `2.776e-3` broadband floor collapsed to `1.923e-5`; a second wake after 20 s idle measured `2.581e-5` with no sustained PA floor. Thus DP2 `OffsetCtrl2=0x07` is the missing prerequisite that makes CSR-off quiet in the CPS-v3 causal matrix. Next: carry only this fix onto v27 as v28. See `docs/findings/2026-08-17-DP2-OFFSETCTRL2-CSR-OFF-QUIET-CLOSURE.md`.
 
 
@@ -159,7 +162,7 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 
 ## Overall gate
 
-**AMBER — the major Windows render/control state machines are now structurally reproduced, including the exact WSA8845 63/10/6 lifecycle and v27 resident clock-stop retention, but fresh synchronized muted-zero measurements confirm a large physical static remains. A mid-stream WSA-macro RX digital-mute A/B leaves that static unchanged, placing it downstream of or independent from ordinary PCM sample data. W03 therefore remains open as a confirmed hardware/transport-side physical failure; do not call playback complete until that boundary is closed and L03 receives its final physical verdict.**
+**AMBER — the major Windows render/control state machines are structurally reproduced and the v28 DP2/COMP OffsetCtrl2 correction closes the previously confirmed downstream broadband static at the physical speaker output. Repeated muted-zero after ordinary clock-stop is now at the retained Windows/room floor, while the exact WSA8845 63/10/6 lifecycle and resident retention remain intact. The remaining built-in-speaker completion gates are the seek/discontinuity-specific physical verdict (L03) and strict residual digital identity (W02), not a steady-state static defect.**
 
 ## 1. Base Linux render path
 
@@ -245,7 +248,7 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 
 - [x] **GREEN W01 — fresh deterministic Windows-vs-Linux Movie oracle.** Same-source/state comparison reached correlation ~0.99999947 with fitted gain ~1.00016 and ~59.8 dB residual SNR; cold-state comparison was even closer (~84.7 dB residual SNR).
 - [~] **AMBER W02 — strict sample identity.** The remaining ~60 dB full-file residual is tiny and concentrated around transient/state behavior but is not literal bit identity.
-- [~] **AMBER W03 — fresh corrected-topology measurement confirms a downstream physical static remains.** On v27, repeated 1%-muted digital-zero captures with the exact WSA8845 runtime lifecycle stable produced median steady **SP7 external-microphone** diff-RMS `0.002126` and `0.002350`, versus the Windows reference `0.00001825`. The failure is therefore current, not historical. A synchronized mid-stream A/B switched both WSA-macro RX Digital Mutes ON while the PA stayed active; noise changed only ~1% (`0.002325` pre, `0.002290` muted, `0.002304` post). The static is downstream of or independent from the ordinary WSA-macro RX sample path, so Dolby/q6apm/PCM processing is excluded as its direct source. Continue at WSA8845 analog/PA state and SoundWire clock/transport state; do not invent an upstream processing block. See `docs/findings/2026-08-17-WSA8845-CLOCKSTOP-RETENTION-V27-AND-STATIC-BOUNDARY.md`.
+- [x] **GREEN W03 — v28 closes the downstream physical broadband static at the Windows/room floor.** The one-bit CPS-v3 A/B proved Windows `DRE_CTL_1.CSR_GAIN_EN=0` exposes the Linux floor only when the COMP sideband is malformed; a matched B1 matrix then identified WSA8845 DP2/COMP `OffsetCtrl2=0x07` as the missing prerequisite. Carrying only that field onto the full v27 Windows-lifecycle stack produces v28: first 1%-muted zero measured `2.467e-5` SP7-external-mic diff-RMS and a second wake after teardown + 20 s idle measured `1.818e-5`, versus retained Windows `1.825e-5`. v27 had been `0.002126/0.002350`, so v28 is roughly 86–129x quieter with no sustained PA floor. Codec init count stayed at two total across idle and no WSA/SoundWire/XRUN fault appeared. See `docs/findings/2026-08-17-DP2-OFFSETCTRL2-CSR-OFF-QUIET-CLOSURE.md`, `docs/findings/2026-08-17-V28-DP2-OFFSETCTRL2-FULL-STACK-STATIC-CLOSURE.md`, and patch `0065`.
 
 ## 8. Seek / discontinuity / lifecycle behavior
 
@@ -277,10 +280,9 @@ Status meanings: **GREEN** = deployed and evidence-backed Windows parity/on-par 
 
 ## Ordered closure queue
 
-1. **W03 — localize the confirmed downstream physical static:** v27 stabilizes the exact WSA8845 lifecycle and clock-stop retention, and mid-stream WSA-macro digital mute proves ordinary PCM data is not the noise source. Compare read-only WSA8845 analog/PA and SoundWire transport/clock state against Windows before another actuator experiment.
-2. **L03 — isolate the seek/discontinuity-specific physical smoothing:** ordinary live volume sequencing (L03a/V04/L03b), SOFT_PAUSE and the pause-drain path are structurally closed. Re-capture a matched seek on the corrected topology and compare Windows qcad/AudioReach control activity around the discontinuity rather than reopening the ordinary slider path.
-3. **W02 — strict digital identity:** revisit only after the current physical gates are resolved; the existing ~60 dB residual is too small to justify a large guessed coloration stage.
-4. Publish/merge the clean integration branch and archive obsolete contradictory docs.
+1. **L03 — isolate the seek/discontinuity-specific physical smoothing:** ordinary live volume sequencing (L03a/V04/L03b), SOFT_PAUSE, the pause-drain path and steady-state W03 speaker noise are closed. Re-capture a matched seek on v28 and compare Windows qcad/AudioReach control activity around the discontinuity rather than reopening the ordinary slider or WSA static path.
+2. **W02 — strict digital identity:** revisit after the seek-specific physical gate; the existing ~60 dB residual is too small to justify a large guessed coloration stage.
+3. Publish/merge the clean integration branch and archive obsolete contradictory docs.
 
 ## Completion rule
 
