@@ -81,5 +81,31 @@
   "post": {
     "pcm": "closed"
   },
-  "conclusion": "No seek produces an extreme needle/pop transient beyond surrounding program material; objective v28 external physical seek gate passes. User listening verdict remains final L03 gate."
+  "conclusion": "No seek produces an extreme needle/pop transient beyond surrounding program material; objective v28 external physical seek gate passes. User listening verdict remains final L03 gate.",
+  "direct_user_audition_rerun": {
+    "status": "pending_user_listening_verdict",
+    "profile": "movie",
+    "visible_endpoint_fraction": 0.17,
+    "vlldp_postgain_q4": -785,
+    "play_wall": "2026-08-17T23:10:58.366131+01:00",
+    "seeks": [
+      {
+        "from_s": 25.669,
+        "target_s": 55.0,
+        "after_s": 55.127
+      },
+      {
+        "from_s": 58.916,
+        "target_s": 12.0,
+        "after_s": 12.212
+      },
+      {
+        "from_s": 15.998,
+        "target_s": 90.0,
+        "after_s": 90.142
+      }
+    ],
+    "fault_hits": 0,
+    "pcm_final": "closed"
+  }
 }

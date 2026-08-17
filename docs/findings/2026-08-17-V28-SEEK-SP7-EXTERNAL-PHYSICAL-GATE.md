@@ -115,3 +115,24 @@ After playback:
 The full v28 stack passes the objective SP7-external acoustic seek gate: none of the three deterministic discontinuities produces a waveform transient distinguishable as an extreme needle/pop beyond surrounding program material, and the lower stack remains fault-free with normal teardown.
 
 This materially strengthens L03 beyond the older structural-only result. The final L03 closure remains the user's direct listening verdict because the historical RED was an audible sharp seek/transition complaint and the ledger explicitly reserves that subjective gate.
+
+## Direct user-audition rerun at restored everyday state
+
+A second deterministic local-file seek sequence was played on v28 at the user's restored current state rather than the earlier 25% measurement state:
+
+- profile: Movie;
+- visible Dolby endpoint: 17%;
+- frozen VLLDP postgain: `-785` (`-49.062 dB`);
+- source SHA-256 unchanged: `951a65cc63fee17622485c1d94708614005524c7e20f86d3d815327f6bd0e8b3`.
+
+Timed seeks:
+
+```text
+2026-08-17T23:10:58.366131+01:00 PLAY start=19
+2026-08-17T23:11:05.166603+01:00 SEEK1 25.669 -> 55.127
+2026-08-17T23:11:09.171101+01:00 SEEK2 58.916 -> 12.212
+2026-08-17T23:11:13.176962+01:00 SEEK3 15.998 -> 90.142
+2026-08-17T23:11:17.179275+01:00 END pos=93.927
+```
+
+The post-run fault scan again found zero XRUN/underrun/overrun, q6apm/APM, WSA, SoundWire or PA fault hits. ALSA PCM returned `closed` after teardown. This rerun is intentionally recorded as **user-audition pending**: it provides a fresh, current-state listening opportunity but does not substitute an inferred subjective verdict for the operator's own report.
