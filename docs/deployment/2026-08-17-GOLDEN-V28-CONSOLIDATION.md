@@ -100,3 +100,24 @@ saved_entry=sp11-audio-golden-v28
 
 There is no queued `next_entry`. The normal Ubuntu and Windows boot entries are
 not part of this pruning and remain generated normally.
+
+## Cold-boot validation and module-copy normalization
+
+The first intentional reboot after consolidation selected
+`sp11-audio-golden-v28` from the saved GRUB default and loaded the exact Golden
+boot marker. The authoritative `/sys/module/*/srcversion` values matched the
+preserved checkpoint:
+
+- WSA8845 `EB74C0F5E4405EEE429136C`;
+- LPASS WSA macro `4AF6F542C17BA6DD46586DA`;
+- QCOM SoundWire `406975A3ED60935B31491BF`.
+
+The initrd copies were correct, but two stale experimental files remained under
+`/lib/modules`: WSA8845 and LPASS WSA macro. They were backed up and replaced
+with the exact modules embedded in the Golden initrd, then `depmod` was run.
+`modinfo` and the loaded `/sys/module` identities now agree, eliminating a
+future manual-reload trap.
+
+After cold boot, both Golden userspace services were active, the speaker PCM was
+`closed` at idle, and the visible-mute -> hidden-hardware-mute test passed again
+without opening the PCM.

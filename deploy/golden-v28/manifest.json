@@ -44,5 +44,10 @@
     "vendor_dolby_dlls_in_git": false,
     "vendor_acdb_or_private_firmware_in_git": false,
     "reason": "Redistribution rights are not assumed; users must supply their own matching files."
+  },
+  "module_binary_sha256_decompressed": {
+    "snd_soc_wsa884x": "963e0353b06afdc48d8729639a99e9c2be1b253256ab84f6025e4094c855287c",
+    "snd_soc_lpass_wsa_macro": "2ce0bfaf653137b7fe5dba119281132d0d9403223139db7cb1a0925afca655f6",
+    "soundwire_qcom": "67ded901453f477598c8696ef4034ad65e6f0517f6f805e2d63a73008b17cb73"
   }
 }

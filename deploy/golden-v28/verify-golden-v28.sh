@@ -24,3 +24,22 @@ fi
 if grep -qw 'sp11_wsa_dp2_offsetctrl2_v28=1' /proc/cmdline; then
   echo "LIVE: v28 DP2 prerequisite present"
 fi
+
+check_srcversion() {
+  local module=$1 expected=$2
+  if [[ -r "/sys/module/$module/srcversion" ]]; then
+    local live
+    live=$(cat "/sys/module/$module/srcversion")
+    [[ "$live" == "$expected" ]] || { echo "LIVE SRCVERSION FAIL $module expected=$expected got=$live" >&2; return 1; }
+    echo "OK live srcversion $module=$live"
+  fi
+  if modinfo "$module" >/dev/null 2>&1; then
+    local disk
+    disk=$(modinfo -F srcversion "$module")
+    [[ "$disk" == "$expected" ]] || { echo "DISK SRCVERSION FAIL $module expected=$expected got=$disk" >&2; return 1; }
+    echo "OK disk srcversion $module=$disk"
+  fi
+}
+check_srcversion snd_soc_wsa884x EB74C0F5E4405EEE429136C
+check_srcversion snd_soc_lpass_wsa_macro 4AF6F542C17BA6DD46586DA
+check_srcversion soundwire_qcom 406975A3ED60935B31491BF

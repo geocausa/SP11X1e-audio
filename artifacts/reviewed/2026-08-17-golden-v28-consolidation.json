@@ -23,5 +23,17 @@
     "L03": "GREEN"
   },
   "remaining_primary_gate": "matched Windows-vs-Golden-v28 low-bass / psychoacoustic-bass comparison",
-  "no_reboot_during_cleanup": true
+  "no_reboot_during_cleanup": true,
+  "cold_boot_validation": {
+    "booted_golden_v28": true,
+    "saved_default_remains_golden_v28": true,
+    "pcm_idle_closed": true,
+    "mute_visible_to_hidden_on_golden": "passed",
+    "loaded_module_srcversions_match_manifest": true,
+    "rootfs_stale_module_copies_found": [
+      "snd_soc_wsa884x",
+      "snd_soc_lpass_wsa_macro"
+    ],
+    "rootfs_module_copies_synchronized_to_initrd": true
+  }
 }
