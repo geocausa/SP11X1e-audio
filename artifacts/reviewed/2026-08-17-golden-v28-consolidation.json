@@ -1,0 +1,27 @@
+{
+  "date": "2026-08-17",
+  "decision": "promote Golden v28 as daily-driver default",
+  "golden_grub_id": "sp11-audio-golden-v28",
+  "rollback_grub_id": "sp11-audio-cps-v3",
+  "comparison_grub_id": "sp11-audio-v29-structural-test",
+  "grub_saved_entry": "sp11-audio-golden-v28",
+  "historical_sp11_boot_directories_before": 52,
+  "retained_sp11_boot_directories_after": 3,
+  "sp11_boot_disk_usage_before": "approximately 11 GiB",
+  "sp11_boot_disk_usage_after": "approximately 1.1 GiB",
+  "pre_cleanup_top_level_boot_artifact_hash_records": 188,
+  "mute_fix": {
+    "scope": "userspace fail-safe downstream endpoint mute",
+    "visible_to_hidden_live_test": "passed",
+    "focused_tests": "29/29",
+    "broader_tests": "48 tests + 6 subtests",
+    "exact_windows_dsp_mute_0x08001039": "not yet promoted; non-blocking parity task"
+  },
+  "seek_gate": {
+    "objective_sp7_external": "passed",
+    "user_direct_youtube_verdict": "no forward/reverse loudness spike observed",
+    "L03": "GREEN"
+  },
+  "remaining_primary_gate": "matched Windows-vs-Golden-v28 low-bass / psychoacoustic-bass comparison",
+  "no_reboot_during_cleanup": true
+}

@@ -78,3 +78,25 @@ kernel lineage is official Linux 7.1.5 plus the SP11 Phase91 platform port and
 the reviewed integration patches. A pristine upstream one-command kernel build
 is not claimed until the historical Phase91 port is normalized and replayed as
 a clean patch series.
+
+## Completed boot cleanup
+
+The consolidation was applied live without rebooting the running v29 comparison
+session. Before pruning, every top-level artifact under the 52 historical
+`/boot/sp11-*` directories was SHA-256 inventoried and all old SP11 audio GRUB
+generators were archived. The reviewed copies are:
+
+- `artifacts/reviewed/2026-08-17-pre-golden-boot-artifacts.sha256` — 188 file hashes;
+- `artifacts/reviewed/2026-08-17-pre-golden-boot-dirs.txt` — 52 old boot directories;
+- `artifacts/reviewed/2026-08-17-golden-v28-consolidation.json` — cleanup decision summary.
+
+The active system now retains exactly three custom SP11 audio boot directories
+and three custom audio GRUB generators. SP11 candidate usage under `/boot`
+dropped from roughly 11 GiB to 1.1 GiB. `grubenv` now contains only:
+
+```text
+saved_entry=sp11-audio-golden-v28
+```
+
+There is no queued `next_entry`. The normal Ubuntu and Windows boot entries are
+not part of this pruning and remain generated normally.
