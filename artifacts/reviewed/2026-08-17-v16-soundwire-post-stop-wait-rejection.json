@@ -1,0 +1,52 @@
+{
+  "date": "2026-08-17",
+  "candidate": "rpv4-macro84-winproducer-nohd2-win-analog-tail-swr-stopwait-v16-idlegated",
+  "base": "exact v13 coherent Windows WSA8845 analog-tail boot bundle",
+  "question": "Does matching Windows qcaucd's bounded post-CLOCK_STOP_NOW frame-generator completion wait preserve the improved v13 cold state across a subsequent PA wake?",
+  "windows_evidence": {
+    "clock_stop_mode": "SoundWire simple Mode 0",
+    "stop_command": "broadcast device 0xF, SCP_CTRL 0x44 = CLK_STOP_NOW 0x02",
+    "post_stop_behavior": "qcaucd polls SWRM_COMP_STATUS 0x14 bit0 at approximately 1 ms cadence for approximately 30 ms before gating the lower SoundWire resource/clock path"
+  },
+  "linux_delta": {
+    "file": "drivers/soundwire/qcom.c",
+    "source_before_sha256": "161199a2a2a7d18dd25262857ce1fba792ce0bab5a01bf68080c7299f9196884",
+    "source_after_sha256": "c487734ad282f6dc8d10d4c4c9673956802bf1238210e0c323275d87706f0ce9",
+    "patch_sha256": "ea05b81c61a808205799c9b1d149952879047cdf4190a34717dc88e5a1cc3bf2",
+    "module_parameter": "soundwire_qcom.sp11_wait_clk_stop_complete=1",
+    "behavior": "after sdw_bus_clk_stop(), poll SWRM_COMP_STATUS bit0 up to 30 times with usleep_range(1000,1100), then gate hclk; all other v13 behavior and 3000 ms autosuspend timing unchanged"
+  },
+  "module": {
+    "srcversion": "2D070888203825563207B6F",
+    "signed_sha256": "66dc02c6e223e76342366653619b6b7f4b773ebd585e5fe2c89f62b60bd52264",
+    "compressed_sha256": "ef786378021d31a458f7aaa35e23b8e93ae396c9fe8c93805b50500ce7299c46"
+  },
+  "initramfs_sha256": "4a76e05b9492265f0251017f90456176a5987561bd87c0c9530fb642cbfbdf9c",
+  "structural_gate": {
+    "result": "PASS",
+    "kernel_message": "SP11 SoundWire: frame generator stopped before hclk gate",
+    "physical_pcm": "RUNNING during zero stream and closed after idle",
+    "runtime_pm": "SoundWire master and both WSA8845 slaves suspended",
+    "faults": "no SoundWire, state, PA or XRUN faults"
+  },
+  "acoustic_gate": {
+    "context": "mic-measured PA cycle occurred after one prior complete v16 structural PA cycle on the same boot",
+    "stimulus": "10 s, 48 kHz stereo S16_LE all-zero PCM, endpoint 1 percent muted",
+    "stimulus_sha256": "87d8420ddaf7d56d3f5068c6a74362451fc2859197445490d15e7b3d456fa22e",
+    "capture_path": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-v16-stopwait-cycleB-1pct-20260817\\external-mic-20260817-030929.wav",
+    "capture_sha256": "087606C3AC0FB4E2FBE544CFA70D403B7A2F7507B780C0EB1D73323398479ABF",
+    "baseline_diff_rms": [0.00001724287952237725, 0.000017463689352084122],
+    "steady_diff_rms": [0.001912553861694742, 0.0023001477163536784],
+    "median_steady_diff_rms": 0.0021063507890242104,
+    "ratios": {
+      "vs_windows": 115.4164815903677,
+      "vs_cps_v3": 113.12302841161173,
+      "vs_v5": 3.113462505763544,
+      "vs_v13_cycle1": 6.633674270367627,
+      "vs_v13_cycle2": 0.5363724720779344,
+      "vs_v15": 0.7347826250827271
+    }
+  },
+  "decision": "REJECT",
+  "conclusion": "Waiting for the physical SoundWire frame generator to stop before hclk gating is a real contributor and materially reduces the catastrophic second-cycle noise versus v13 cycle2/v15, but it remains about 115x Windows and 3.11x v5. The post-stop wait is necessary-direction evidence, not sufficient parity."
+}

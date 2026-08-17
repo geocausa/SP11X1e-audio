@@ -1,0 +1,58 @@
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -22,6 +22,11 @@
+ #include <sound/soc.h>
+ #include "bus.h"
+ 
++static bool sp11_wait_clk_stop_complete;
++module_param_named(sp11_wait_clk_stop_complete, sp11_wait_clk_stop_complete, bool, 0644);
++MODULE_PARM_DESC(sp11_wait_clk_stop_complete,
++		 "Wait for SP11 SoundWire frame generator stop before gating hclk");
++
+ #define SWRM_COMP_SW_RESET					0x008
+ #define SWRM_COMP_STATUS					0x014
+ #define SWRM_LINK_MANAGER_EE					0x018
+@@ -857,6 +862,33 @@
+ 	return ret;
+ }
+ 
++static void swrm_wait_for_frame_gen_disabled_sp11(struct qcom_swrm_ctrl *ctrl)
++{
++	int retry = 30;
++	u32 comp_sts = 0;
++
++	/*
++	 * SP11 Windows qcaucd sends broadcast SCP_CTRL.CLOCK_STOP_NOW, then
++	 * polls SWRM_COMP_STATUS bit 0 at roughly 1 ms cadence before gating
++	 * the lower SoundWire clock/resource path. Keep this bounded and
++	 * proceed on timeout, matching the Windows error/fallback behavior.
++	 */
++	do {
++		ctrl->reg_read(ctrl, SWRM_COMP_STATUS, &comp_sts);
++		if (!(comp_sts & SWRM_FRM_GEN_ENABLED)) {
++			dev_info(ctrl->dev,
++				 "SP11 SoundWire: frame generator stopped before hclk gate\n");
++			return;
++		}
++
++		usleep_range(1000, 1100);
++	} while (--retry);
++
++	dev_warn(ctrl->dev,
++		 "SP11 SoundWire: frame generator still active before hclk gate (COMP_STATUS=%#x)\n",
++		 comp_sts);
++}
++
+ static bool swrm_wait_for_frame_gen_enabled(struct qcom_swrm_ctrl *ctrl)
+ {
+ 	int retry = SWRM_LINK_STATUS_RETRY_CNT;
+@@ -1835,6 +1867,9 @@
+ 			dev_err(dev, "bus clock stop failed %d", ret);
+ 			return ret;
+ 		}
++
++		if (sp11_wait_clk_stop_complete)
++			swrm_wait_for_frame_gen_disabled_sp11(ctrl);
+ 	}
+ 
+ 	clk_disable_unprepare(ctrl->hclk);
