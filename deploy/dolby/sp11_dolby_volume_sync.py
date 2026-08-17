@@ -293,6 +293,19 @@ def set_hardware_volume(node_id: int, scalar: float, wpctl: str = "wpctl") -> No
                    stdout=subprocess.DEVNULL)
 
 
+def set_hardware_mute(node_id: int, muted: bool, wpctl: str = "wpctl") -> None:
+    """Fail-safe endpoint mute below the protected DSP graph.
+
+    Windows has a dedicated final VOL_CTRL multichannel-mute transaction
+    (0x4a63/0x08001039).  The current Linux kernel transaction control carries
+    gain + GainStep only, so until that exact DSP mute actuator is promoted we
+    mirror the endpoint mute at the hidden downstream sink.  Volume is always
+    established before this switch is changed so unmute cannot expose unity.
+    """
+    subprocess.run([wpctl, "set-mute", str(node_id), "1" if muted else "0"],
+                   check=True, stdout=subprocess.DEVNULL)
+
+
 def derive_windows_state(pipewire_gain: float, muted: bool = False) -> tuple[float, float, int, float]:
     ui_scalar = pipewire_ui_scalar_from_linear_gain(pipewire_gain)
     endpoint_db = windows_endpoint_db_from_ui_scalar(ui_scalar)
@@ -309,12 +322,13 @@ def describe(pipewire_gain: float, muted: bool, ui_scalar: float, endpoint_db: f
 
 
 def apply_state(state: tuple[float, bool], hardware_id: int | None, control: Path,
-                dry_run: bool, last: tuple[int, int] | None, wpctl: str = "wpctl") -> tuple[int, int] | None:
+                dry_run: bool, last: tuple[int, int, bool] | None,
+                wpctl: str = "wpctl") -> tuple[int, int, bool] | None:
     pipewire_gain, muted = state
     ui_scalar, endpoint_db, postgain, hardware_scalar = derive_windows_state(pipewire_gain, muted)
     # Signature is stable enough to suppress monitor echoes from our hardware
     # update while still responding immediately to a user slider/mute change.
-    signature = (postgain, int(round(hardware_scalar * 1_000_000_000)))
+    signature = (postgain, int(round(hardware_scalar * 1_000_000_000)), muted)
     if signature == last:
         return last
     if hardware_id is None and not dry_run:
@@ -326,6 +340,7 @@ def apply_state(state: tuple[float, bool], hardware_id: int | None, control: Pat
         # visible user scalar untouched; passive PipeWire forwarding is thus
         # converted from its cubic taper to the pinned Windows taper here.
         set_hardware_volume(hardware_id, hardware_scalar, wpctl)
+        set_hardware_mute(hardware_id, muted, wpctl)
     print(describe(pipewire_gain, muted, ui_scalar, endpoint_db, postgain, hardware_scalar), flush=True)
     return signature
 
@@ -355,7 +370,7 @@ def run_monitor(args: argparse.Namespace) -> int:
     # a complete initial Props object is not sufficient.
     proc = subprocess.Popen([args.pw_dump, "-m"], stdout=subprocess.PIPE, stderr=None)
     assert proc.stdout is not None
-    last: tuple[int, int] | None = None
+    last: tuple[int, int, bool] | None = None
     hardware_id: int | None = None
     try:
         # filter-chain.service starts in the same user-session transaction and

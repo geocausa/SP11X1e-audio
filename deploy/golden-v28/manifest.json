@@ -1,0 +1,48 @@
+{
+  "name": "SP11 Audio GOLDEN v28",
+  "date": "2026-08-17",
+  "kernel_release": "7.1.5-sp11-render-parity-v4+",
+  "boot_marker": "7.1.5-sp11-rpv4-macro84-winproducer-nohd2-wsa-windows-3state-retain-dp2offset2-v28-idlegated",
+  "boot_directory": "/boot/sp11-7.1.5-audio-rpv4-macro84-winproducer-nohd2-wsa-windows-3state-retain-dp2offset2-v28-idlegated",
+  "boot_artifacts": {
+    "vmlinuz-7.1.5-sp11-render-parity-v4+": "bca0a336c15d2995c61b8df9d449afb9df5fc8776a3da1ad034616f917bb428a",
+    "initrd.img-7.1.5-sp11-render-parity-v4+": "94f6716ea210c0b3d82eb3403f08102de90be13ea526c1fb4f273324db9f754d",
+    "x1e80100-microsoft-denali-sp11-audio-rpv4-macro84-winproducer-nohd2-wsa-windows-3state-retain-dp2offset2-v28-idlegated.dtb": "3530e3426c500d664be6ed3ef066d1b548025ba8286a5810e8b98c591b6555ca"
+  },
+  "module_srcversions": {
+    "snd_soc_wsa884x": "EB74C0F5E4405EEE429136C",
+    "snd_soc_lpass_wsa_macro": "4AF6F542C17BA6DD46586DA",
+    "soundwire_qcom": "406975A3ED60935B31491BF"
+  },
+  "runtime": {
+    "dolby_host_sha256": "ee02ff299146b0ed8387fda1da820a8ed7c9612fc4a5946ed921e5c0dca715d9",
+    "sp11_dolby_volume_sync_sha256_with_mute_fix": "c1207fd5ffc134650276905ecbca22ceddfd282a261db30cc4b8d0386fe213c5",
+    "sp11_windows_volume_transaction_sync_sha256_with_mute_fix": "19ec64ba0275e6c2cead1fde6d097eac428a80fca34bfece87380d3229455f4b",
+    "profile": "movie",
+    "custom_geq": false
+  },
+  "required_kernel_markers": [
+    "sp11_cps_parity_v2=1",
+    "sp11_cps_v3=1",
+    "sp11_volume_transaction=1",
+    "sp11_softpause=1",
+    "sp11_headroom_link=1",
+    "sp11_wsa_clockstop=1",
+    "sp11_visense_parity=1",
+    "sp11_wsa_windows_init=1",
+    "sp11_wsa_macro0db_oracle=1",
+    "sp11_wsa_winproducer_nohd2_v3=1",
+    "sp11_wsa_csren0_v4=1",
+    "sp11_wsa_csren0_v5_idlegated=1",
+    "sp11_wsa_windows_3state_v26=1",
+    "sp11_wsa_windows_3state_retain_v27=1",
+    "sp11_wsa_dp2_offsetctrl2_v28=1"
+  ],
+  "rollback_grub_id": "sp11-audio-cps-v3",
+  "comparison_grub_id": "sp11-audio-v29-structural-test",
+  "redistribution": {
+    "vendor_dolby_dlls_in_git": false,
+    "vendor_acdb_or_private_firmware_in_git": false,
+    "reason": "Redistribution rights are not assumed; users must supply their own matching files."
+  }
+}

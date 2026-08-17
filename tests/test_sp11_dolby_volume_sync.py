@@ -118,19 +118,35 @@ def test_control_update_preserves_plugin_ack(tmp_path):
 def test_apply_state_coordinates_postgain_and_hidden_hardware(tmp_path, monkeypatch):
     writes = []
     volumes = []
+    mutes = []
     monkeypatch.setattr(mod, "write_postgain_request", lambda path, value: writes.append((path, value)))
     monkeypatch.setattr(mod, "set_hardware_volume", lambda node_id, scalar, wpctl="wpctl": volumes.append((node_id, scalar, wpctl)))
+    monkeypatch.setattr(mod, "set_hardware_mute", lambda node_id, muted, wpctl="wpctl": mutes.append((node_id, muted, wpctl)))
     control = tmp_path / "control"
     sig = mod.apply_state((0.25 ** 3, False), 69, control, False, None, "wpctl")
     assert sig is not None
     assert writes == [(control, -332)]
     assert len(volumes) == 1 and volumes[0][0] == 69
     assert math.isclose(volumes[0][1], 0.451034576472, abs_tol=1e-10)
+    assert mutes == [(69, False, "wpctl")]
     # Echo/repeated state should not write either target again.
     sig2 = mod.apply_state((0.25 ** 3, False), 69, control, False, sig, "wpctl")
     assert sig2 == sig
     assert len(writes) == 1
     assert len(volumes) == 1
+    assert len(mutes) == 1
+
+
+def test_mute_toggle_is_a_distinct_hardware_actuation(tmp_path, monkeypatch):
+    calls = []
+    monkeypatch.setattr(mod, "write_postgain_request", lambda *a: None)
+    monkeypatch.setattr(mod, "set_hardware_volume", lambda _node, scalar, _wpctl="wpctl": calls.append(("volume", scalar)))
+    monkeypatch.setattr(mod, "set_hardware_mute", lambda _node, muted, _wpctl="wpctl": calls.append(("mute", muted)))
+    control = tmp_path / "control"
+    sig = mod.apply_state((0.25 ** 3, False), 69, control, False, None)
+    sig2 = mod.apply_state((0.25 ** 3, True), 69, control, False, sig)
+    assert sig2 != sig
+    assert calls[-1] == ("mute", True)
 
 
 def test_dry_run_never_requires_hardware_node(tmp_path):

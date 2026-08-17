@@ -174,13 +174,14 @@ def write_transaction(left_q28: int, delta: bytes, *, helper: Path, card: str,
 
 
 def restore_host_attenuation(state: tuple[float, bool], hardware_id: int,
-                             wpctl: str) -> tuple[int, int]:
+                             wpctl: str) -> tuple[int, int, bool]:
     pipewire_gain, muted = state
     _ui, _db, postgain, host_scalar = base.derive_windows_state(
         pipewire_gain, muted
     )
     base.set_hardware_volume(hardware_id, host_scalar, wpctl)
-    return postgain, round(host_scalar * 1_000_000_000)
+    base.set_hardware_mute(hardware_id, muted, wpctl)
+    return postgain, round(host_scalar * 1_000_000_000), muted
 
 
 def restore_visible_control_state(state: tuple[float, bool], node_id: int,
@@ -257,8 +258,8 @@ def queue_dolby_postgain_for_generation(
 def apply_transaction(state: tuple[float, bool], hardware_id: int,
                       deltas: tuple[bytes, ...], helper: Path,
                       card: str, numid: int, wpctl: str,
-                      previous: tuple[int, int] | None = None,
-                      stereo_sequence: bool = False) -> tuple[int, int]:
+                      previous: tuple[int, int, bool] | None = None,
+                      stereo_sequence: bool = False) -> tuple[int, int, bool]:
     pipewire_gain, muted = state
     ui_scalar, endpoint_db, _postgain, _host_scalar = base.derive_windows_state(
         pipewire_gain, muted
@@ -269,7 +270,7 @@ def apply_transaction(state: tuple[float, bool], hardware_id: int,
 
     if stereo_sequence:
         if previous is not None and previous[0] != q28:
-            old_q28, old_step = previous
+            old_q28, old_step, _old_muted = previous
             # Fresh Windows KDNET shows master volume is delivered as left
             # channel first and right channel second. GetGraphCkv keeps the
             # louder of the two channel states during that intermediate body.
@@ -293,6 +294,7 @@ def apply_transaction(state: tuple[float, bool], hardware_id: int,
         write_transaction(q28, deltas[step - 1], helper=helper, card=card, numid=numid)
 
     base.set_hardware_volume(hardware_id, 1.0, wpctl)
+    base.set_hardware_mute(hardware_id, muted, wpctl)
     print(
         f"pipewire_gain={pipewire_gain:.9g} ui_scalar={ui_scalar:.6f} "
         f"windows_db={endpoint_db:.3f} final_q28=0x{q28:08x} "
@@ -301,7 +303,7 @@ def apply_transaction(state: tuple[float, bool], hardware_id: int,
         f"muted={'yes' if muted else 'no'}",
         flush=True,
     )
-    return q28, step
+    return q28, step, muted
 
 
 def event_mentions_node(value: object, node_name: str) -> bool:
@@ -336,8 +338,8 @@ def run(args: argparse.Namespace) -> int:
         flush=True,
     )
 
-    last: tuple[int, int] | None = None
-    last_host: tuple[int, int] | None = None
+    last: tuple[int, int, bool] | None = None
+    last_host: tuple[int, int, bool] | None = None
     transaction_active = False
     current_state: tuple[float, bool] | None = None
     current_node_id: int | None = None
@@ -356,7 +358,7 @@ def run(args: argparse.Namespace) -> int:
             _ui, _db, postgain, host_scalar = base.derive_windows_state(
                 pipewire_gain, muted
             )
-            host_signature = (postgain, round(host_scalar * 1_000_000_000))
+            host_signature = (postgain, round(host_scalar * 1_000_000_000), muted)
             if transaction_active or host_signature != last_host:
                 last_host = restore_host_attenuation(state, hardware_id, args.wpctl)
             transaction_active = False
@@ -368,7 +370,7 @@ def run(args: argparse.Namespace) -> int:
         )
         q28 = qcadcm_q28_from_db(endpoint_db)
         step = msiir.select_ckv_step_q28(q28)
-        signature = (q28, step)
+        signature = (q28, step, muted)
         if transaction_active and signature == last:
             return
         try:

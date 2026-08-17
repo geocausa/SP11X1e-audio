@@ -48,7 +48,10 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
                           calls.append(("transaction", q28, len(delta)))), \
              patch.object(sync.base, "set_hardware_volume",
                           side_effect=lambda node, scalar, wpctl:
-                          calls.append(("host", scalar))):
+                          calls.append(("host", scalar))), \
+             patch.object(sync.base, "set_hardware_mute",
+                          side_effect=lambda node, muted, wpctl:
+                          calls.append(("mute", muted))):
             signature = sync.apply_transaction(
                 (0.25 ** 3, False), 69, deltas,
                 Path("tlv_write"), "hw:0", 321, "wpctl"
@@ -57,8 +60,9 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         self.assertEqual(calls[0][0], "transaction")
         self.assertEqual(calls[0][2], 272)
         self.assertEqual(calls[1], ("host", 1.0))
+        self.assertEqual(calls[2], ("mute", False))
         expected_q28 = sync.qcadcm_q28_from_db(-20.7474098205566)
-        self.assertEqual(signature, (expected_q28, 3))
+        self.assertEqual(signature, (expected_q28, 3, False))
 
     def test_postgain_is_queued_once_per_dolby_generation(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -97,12 +101,13 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         with patch.object(sync, "write_transaction",
                           side_effect=lambda left, delta, **kw:
                           calls.append((left, kw.get("right_q28"), delta[0]))), \
-             patch.object(sync.base, "set_hardware_volume"):
+             patch.object(sync.base, "set_hardware_volume"), \
+             patch.object(sync.base, "set_hardware_mute"):
             result = sync.apply_transaction(
                 (0.17 ** 3, False), 69, deltas, Path("tlv"), "hw:0", 33,
-                "wpctl", previous=(q8, 1), stereo_sequence=True,
+                "wpctl", previous=(q8, 1, False), stereo_sequence=True,
             )
-        self.assertEqual(result, (q17, 2))
+        self.assertEqual(result, (q17, 2, False))
         self.assertEqual(calls, [(q17, q8, 2), (q17, q17, 2)])
 
     def test_windows_lr_sequence_matches_kdnet_downward_transition(self):
@@ -114,12 +119,13 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         with patch.object(sync, "write_transaction",
                           side_effect=lambda left, delta, **kw:
                           calls.append((left, kw.get("right_q28"), delta[0]))), \
-             patch.object(sync.base, "set_hardware_volume"):
+             patch.object(sync.base, "set_hardware_volume"), \
+             patch.object(sync.base, "set_hardware_mute"):
             result = sync.apply_transaction(
                 (0.08 ** 3, False), 69, deltas, Path("tlv"), "hw:0", 33,
-                "wpctl", previous=(q17, 2), stereo_sequence=True,
+                "wpctl", previous=(q17, 2, False), stereo_sequence=True,
             )
-        self.assertEqual(result, (q8, 1))
+        self.assertEqual(result, (q8, 1, False))
         self.assertEqual(calls, [(q8, q17, 2), (q8, q8, 1)])
 
     def test_dispatch_selects_candidate_only_when_control_exists(self):
@@ -210,7 +216,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
              patch.object(sync.msiir, "graph_running", return_value=True), \
              patch.object(sync, "apply_transaction",
                           side_effect=lambda state, *a, **k:
-                          applied.append(state) or (123, 2)), \
+                          applied.append(state) or (123, 2, state[1])), \
              patch.object(sync, "restore_host_attenuation"):
             self.assertEqual(sync.run(args), 0)
 
@@ -269,7 +275,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
             applied.append(state)
             _ui, db, postgain, _host = sync.base.derive_windows_state(*state)
             q28 = sync.qcadcm_q28_from_db(db)
-            return q28, sync.msiir.select_ckv_step_q28(q28)
+            return q28, sync.msiir.select_ckv_step_q28(q28), state[1]
 
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \

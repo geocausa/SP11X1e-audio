@@ -1,149 +1,111 @@
 # Surface Pro 11 (X1E) audio for Linux
 
-Evidence-driven Linux audio bring-up for the Microsoft Surface Pro 11 with the
-Qualcomm X1E80100 AudioReach, SoundWire and dual WSA884x stack.
+Evidence-driven Linux built-in-speaker enablement and Windows-parity work for
+the Microsoft Surface Pro 11 with Qualcomm X1E80100 AudioReach, SoundWire and
+dual WSA884x amplifiers.
 
-This project reconstructs the machine's Windows speaker pipeline from captured
-transactions, its REV_0D ACDB, the shipped ARM64 Qualcomm drivers and controlled
-Linux tests. Kernel/DT, DSP topology, ALSA UCM and PipeWire policy are kept as
-separate layers so that an acoustic result is never mistaken for a driver fact.
-
-> **Integration checkpoint (2026-08-16):** active development is on
-> `agent/render-parity-20260812`; `origin/main` is a strict ancestor of that
-> branch, not a competing line. The live render-parity-v4 family has already
-> passed protected playback, exact channel-ordered endpoint-volume, Windows
-> SOFT_PAUSE, corrected LPASS WSA v2.5 softclip addressing, Windows WSA8845
-> board-value/PA ordering, RX84/0 dB producer gain, and demand-driven
-> PA-at-idle shutdown. The overall built-in-speaker gate remains **AMBER** while
-> H03 (DRE/CSR consumer semantics), the corrected-topology physical verdict and
-> seek-specific smoothing remain open. The old v6 source-delta attribution is
-> retracted because its packaged module was stale. v7 remains rejected after
-> operator-observed active static. v8 correctly removed the extra ordinary
-> DRE writes and matched the Windows PA transaction, but a later control showed
-> its digital-silence hiss is **not v8-specific**: v5 already has the same
-> CSR-off noise class. A four-way fixed-mic oracle now localizes H03 sharply:
-> Windows active CSR-off and Linux CPS-v3 CSR-on both sit at about `1.8e-5`
-> median diff-RMS, while Linux CSR-off v5/v8 are about **37x/43x Windows**.
-> Windows stays quiet even during a continuously non-zero -80 dBFS tail after
-> a strong 997-Hz marker. The original 63-write qcaucd codec-init transaction
-> also proves Linux reaches several Windows DRE/watchdog/current-limit states
-> only later at UCM/DAPM time. The active hypothesis is therefore an earlier
-> WSA8845 initialization/latch contract, not another DRE value sweep. A v9
-> isolation also proved that suppressing Linux's early transient CSR enable
-> leaves the PA-open noise essentially unchanged (~36.4x Windows), closing that
-> specific history hypothesis. Start with
-> [`docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md)
-> and the
-> [`2026-08-16 repository consolidation checkpoint`](docs/checkpoints/2026-08-16-REPOSITORY-CONSOLIDATION-CHECKPOINT.md).
+> **Current recommended state — GOLDEN v28 (2026-08-17).** The project now has
+> a preserved daily-driver baseline rather than a moving experiment. v28 closes
+> the confirmed CSR-off broadband static at the Windows/room floor, carries the
+> recovered Windows WSA8845 lifecycle and endpoint/GainStep behavior, passes the
+> objective SP7-external seek gate, and the user reports the best Linux sound of
+> the project so far: stable/coherent music, excellent volume leveling and no
+> audible forward/reverse seek spike during normal YouTube use. Desktop mute is
+> now propagated fail-safe to the hidden hardware sink. Low-bass / psychoacoustic
+> bass parity still awaits a direct Windows A/B, so the overall parity project
+> remains **AMBER**, not “finished”.
 >
-> The protected non-Dolby and CPS-v3 images remain rollback/lower-control
-> baselines. This remains research-quality hardware enablement, not an
-> upstream-ready driver or a general-purpose installation package.
+> Start with [`deploy/golden-v28/`](deploy/golden-v28/), the
+> [`Golden v28 consolidation`](docs/deployment/2026-08-17-GOLDEN-V28-CONSOLIDATION.md)
+> and the canonical
+> [`render-parity ledger`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md).
 
-## Accepted rollback / lower-control baselines
+## Recommended boot set
 
-The accepted control is kernel `7.1.5-sp11-audio-clean+`, GRUB ID
-`sp11-audio-clean`, built after `mrproper` from source commit
-`f102e3fa8c7e860f3a9ac3ba2043a5fd55242e44`.
-
-| Area | Accepted state |
-|---|---|
-| Render | 48 kHz, S16_LE, stereo AudioReach pull endpoint |
-| Protection feedback | Both WSA884x VISENSE paths, 8 kHz/S32_LE/stereo |
-| Speaker protection | SP/SPVI setup in captured Windows order; graph starts |
-| Amplifier operating point | PA 24 (+27 dB), WSA digital 81 (-3 dB), both channels |
-| PA_AUX | Normal variant-selected 0 dB (`0xdd`), not the retired 18 dB experiment |
-| Dolby | `sp11_dolby_bypass`; no Dolby coefficients or dynamic processing |
-| Operator result | Both speakers, usable ceiling, no dropout in the accepted control windows |
-
-The baseline has the complete Ubuntu module catalogue and the required Phase91
-Wi-Fi, touch, GPI and SPI overrides. Exact installed hashes and the acceptance
-record are in [`deploy/audio-clean/README.md`](deploy/audio-clean/README.md).
-
-The deployed CPS V3 candidate is separately identified and rollback-safe. Its
-exact kernel, module, initramfs, DTB and runtime-observer evidence are in
-[`deploy/audio-cps-v3/DEPLOYMENT-PROVENANCE.md`](deploy/audio-cps-v3/DEPLOYMENT-PROVENANCE.md)
-and
-[`2026-08-11-linux-cps-v3-live-wsa-observation.md`](docs/findings/2026-08-11-linux-cps-v3-live-wsa-observation.md).
-Every fresh kernel bake must also pass `tools/verify_sp11_kernel_bake.py` with
-its final DTB. This guards both halves of the SP11 Wi-Fi continuity fix—the
-ath12k OF hook and the WCN7850 `disable-rfkill` board property—before a build
-can replace the connected development system.
-
-```mermaid
-flowchart LR
-    PW["PipeWire volume"] --> DB["Dolby identity boundary"]
-    DB --> SRC["AudioReach pull endpoint"]
-    SRC --> DSP["Recovered DSP render graph"]
-    DSP --> WSA["WSA macro / SoundWire"]
-    WSA --> L["Left WSA884x"]
-    WSA --> R["Right WSA884x"]
-    L --> VI["8 kHz V/I feedback"]
-    R --> VI
-    VI --> SP["SP + SPVI protection"]
-```
-
-The diagram shows functional flow, not a claim that every Windows policy branch
-has already been reproduced.
-
-## What is proven
-
-- The Windows-compatible pull transport, OOB mapping, graph lifecycle replies
-  and repeated-prepare behavior work under normal desktop playback.
-- The reconstructed render graph has 29 recovered modules, 26 data edges,
-  three internal control links and seven containers.
-- Both amplifier V/I sources reach the render-coupled feedback backend.
-- The captured SP/SPVI setup and graph start complete repeatedly.
-- The upstream machine-driver PA-volume ceiling was the principal Linux
-  loudness restriction. The accepted baseline removes that temporary ceiling
-  only while the protected graph and VI path are present.
-- Runtime DSP volume control and a narrowly allowlisted MSIIR parameter
-  transport are proven. This transport is a prerequisite for later Dolby work;
-  it is not Dolby processing by itself.
-- Windows requests the full selected 10,464-byte/107-frame graph calibration.
-  Qualcomm GSL treats status `3` from that calibration boundary as a warning
-  and continues. Linux now follows that narrowly scoped policy.
-
-The calibration conclusion is bound to the captured transaction, the recovered
-ACDB and fresh decompilation of the hash-matched Windows `qcadcm8380.sys`; see
-[`2026-08-02-windows-graph-calibration-warning-policy.md`](docs/findings/2026-08-02-windows-graph-calibration-warning-policy.md).
-
-## Accepted and rejected candidates
-
-| Candidate | Decision | Reason |
+| Entry | Role | Status |
 |---|---|---|
-| `audio-clean` | **Accepted control** | Both speakers and stable restarts with the full Windows-selected calibration |
-| `audio-clean2` | Rejected | Removed one 48-byte calibration frame contrary to Windows; reproduced right-only physical audio |
-| `audio-mapdiag` | Rejected as a baseline | Inherited Clean2 and added invasive amplifier diagnostics; developed long starts and a channel failure |
+| `sp11-audio-golden-v28` | Daily driver | **Recommended/default** |
+| `sp11-audio-cps-v3` | Conservative rescue | **Keep** |
+| `sp11-audio-v29-structural-test` | DP3 OffsetCtrl2 structural comparison | **Test only** |
 
-Reading the full WSA884x debugfs register files is not passive: it populates the
-regmap cache, which can later be replayed after a SoundWire detach. Even piping
-that generated file through a filter still reads the entire map. The normal
-collector therefore performs no WSA884x debugfs register walk; a full dump is
-explicit opt-in only.
+Historical one-off candidates are retained in findings/patches/candidate
+archives, not as dozens of active GRUB entries.
+
+## What Golden v28 reproduces
+
+- protected AudioReach speaker graph with SP/SPVI protection and native-width VI feedback;
+- original matching SP11 Dolby VR/VLLDP code on Linux, effective Movie profile;
+- correct pre-Dolby volume boundary and frozen-per-generation VLLDP postgain lifecycle;
+- measured Windows endpoint taper;
+- final AudioReach `VOL_CTRL` Q28 with Windows left/right update ordering;
+- all 30 recovered volume-dependent GainStep/MSIIR rows, including the strong low-volume bass/loudness contour;
+- Windows SOFT_PAUSE and delayed-audio drain behavior;
+- Windows-proven LPASS WSA producer at 0 dB;
+- exact recovered WSA8845 63-write cold init, 10-write START and 6-write STOP;
+- resident SoundWire clock-stop retention without replaying cold codec state;
+- DP2/COMP `OffsetCtrl2=0x07`, the causal prerequisite that removed the CSR-off broadband static;
+- demand-driven PA idle teardown;
+- user-facing mute propagation to the downstream hidden sink.
+
+The exact runtime and boot identities are hash-pinned in
+[`deploy/golden-v28/manifest.json`](deploy/golden-v28/manifest.json).
 
 ## What remains open
 
-The accepted baseline is not yet a claim of one-to-one Windows parity. Before
-closing the non-Dolby phase, the remaining evidence work is:
+The remaining work is much narrower than the historical README implied:
 
-1. Resolve Windows' separate amplifier-reset lifecycle against Linux's stable
-   shared-reset arrangement.
-2. Recover calibrated protection telemetry or a passive record of actual
-   limiter intervention. Linux now has live per-amplifier raw ADC, temperature
-   and VBAT words, while known dynamic DSP-statistics IDs remain unsupported.
-3. Recover the exact Windows HLOS CPS payload/threshold semantics. A reviewed
-   Windows scalar scan plus every available Linux WSA884x source copy provides
-   no evidence that amplifier-local `CPS_CTL=0x00` is a missing HLOS write, so
-   that register is no longer a deployment blocker. Linux CPS DP6 transport
-   and DSP graph integration are already proven on this machine.
-4. Establish whether any genuine per-speaker calibration or hardware
-   asymmetry exists. Device-tree left/right labels alone are not proof of the
-   physical mapping.
+1. **Bass / psychoacoustic-bass A/B.** Compare Golden v28 directly with Windows
+   at matched level using the same material and SP7 external capture where useful.
+2. **Exact runtime DSP mute.** User-facing mute works; Windows' exact
+   `0x4a63/0x08001039` runtime transaction is still to be promoted separately.
+3. **Non-blocking research items.** W02 is a dedicated Windows WASAPI-loopback
+   branch identity question, not a speaker-quality blocker. Protection telemetry
+   naming and HLOS CPS private-field semantics remain incomplete but are not
+   known audible defects.
+4. **Pristine-source packaging.** The integration starts from official Linux
+   7.1.5 plus the SP11 Phase91 platform port. The historical kernel working tree
+   is not itself Git-backed, so a one-command pristine-upstream kernel rebuild is
+   not yet claimed. Normalizing that platform base is the next reproducibility job.
+5. System suspend/resume, microphone and Bluetooth remain explicitly outside the
+   current built-in-speaker completion gate.
 
-Dolby/Surface APO behavior, coefficient recovery and transition handling are a
-separate next phase. No equalizer or guessed dynamics should be added to the
-baseline to imitate them.
+## Reproducing the current recipe
+
+The repository deliberately separates redistributable integration from private
+vendor material.
+
+```bash
+git clone git@github.com:geocausa/SP11X1e-audio.git
+cd SP11X1e-audio
+./deploy/golden-v28/verify-golden-v28.sh
+```
+
+For Dolby, place your own matching SP11 vendor DLLs in
+`~/.local/lib/sp11-dolby/`; `deploy/dolby/build-production.sh` verifies their
+pinned SHA-256 values before building and refuses mismatches. Private ACDB,
+firmware and dumps are likewise not redistributed.
+
+Once an exact Golden boot image has been built/placed at the manifest path:
+
+```bash
+sudo ./deploy/golden-v28/install-grub-entry.sh
+```
+
+That command verifies the image, creates the clean Golden GRUB entry and selects
+it as the saved default. It **does not reboot**.
+
+The complete pristine kernel build is intentionally not advertised as solved
+until the old Phase91 platform baseline has been replayed into a clean patch
+series. The current manifest + findings + patch history make the deployed state
+auditable and reproducible from a known SP11 7.1.5 platform baseline without
+pretending vendor bytes or unnormalized history are public source.
+
+## Proven rollback baseline
+
+`sp11-audio-cps-v3` remains the conservative rescue image. Its provenance is in
+[`deploy/audio-cps-v3/DEPLOYMENT-PROVENANCE.md`](deploy/audio-cps-v3/DEPLOYMENT-PROVENANCE.md).
+Every new kernel bake must still pass `tools/verify_sp11_kernel_bake.py` with its
+final DTB before it can replace a connected development machine.
 
 ## Evidence policy
 
