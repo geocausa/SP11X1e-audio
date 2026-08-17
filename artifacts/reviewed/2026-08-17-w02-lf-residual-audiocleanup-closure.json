@@ -1,0 +1,41 @@
+{
+  "date": "2026-08-17",
+  "status": "W02 remains AMBER; residual sharply localized",
+  "oracle_replay": {
+    "correlation": 0.999999473854526,
+    "fitted_scale": 1.0001565352772008,
+    "residual_snr_db": 59.77832734636284,
+    "cold_3s_residual_snr_db": 84.75182959123896,
+    "linux_peak": 0.985905945,
+    "windows_lag_samples": 76480,
+    "linux_lag_samples": 1264
+  },
+  "lf_signature": {
+    "40_60_hz": "~ -0.012..0 dB, +0.09..+0.11 deg",
+    "75_hz": "~ +0.0034 dB, +0.07 deg",
+    "above_500_hz": "phase difference approximately zero"
+  },
+  "audioeng_current": {
+    "sha256": "843430c1516a2867fe716e89bcc35399e59e5040d992bfaff7468eab1cb63a93",
+    "pdb_guid": "86BD4A63-EA96-E509-EA46-34121370ED6E",
+    "caudiocleanup_apoprocess_va": "0x18000d8e0",
+    "guard_bounds_float": [
+      -128.0,
+      128.0
+    ],
+    "normal_helper": "memcpy",
+    "reject_helper": "memset",
+    "conclusion": "CAudioCleanup is a range/sanity guard, not an LF DSP filter"
+  },
+  "pcm16_conversion": "common quantization policies change score by only ~0.001 dB; rejected as W02 cause",
+  "sensitivity": {
+    "cases": 66,
+    "baseline_snr_db": 59.77832734636283,
+    "dialog_minus1_snr_db": 58.74170779006029,
+    "dialog_plus1_snr_db": 57.53972637140983,
+    "volmax_minus1_snr_db": 48.58444206098071,
+    "volmax_plus1_snr_db": 48.70531889203856,
+    "decision": "No one-LSB tested Movie/VLLDP parameter delta explains W02."
+  },
+  "next": "Fresh Windows Movie SoundPlayer + loopback + audiodg full-memory dump during loud 75-Hz section."
+}
