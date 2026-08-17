@@ -1,0 +1,174 @@
+﻿{
+    "schema":  "sp11.windows.qcadcm.protected_render_state_machine.v1",
+    "date":  "2026-08-17",
+    "qcadcm_sha256":  "37F76305AC8051B0B03B6D2CE1DF7A353253DEBF546E512E447C9D95EC661429",
+    "qcaucd_sha256":  "BD0C8276C51FC7A020C616E904DD613B6CCF187EC3E1FE6F94C2C811C8ADC8BF",
+    "capture":  {
+                    "create":  "12:27:29.3476",
+                    "play":  "12:27:31.0193",
+                    "stop":  "12:27:36.0418",
+                    "release":  "12:27:36.1669",
+                    "done":  "12:27:39.0991",
+                    "timezone":  "Europe/London"
+                },
+    "gsl_commands":  {
+                         "0x00":  "graph_start",
+                         "0x04":  "graph_stop_with_properties",
+                         "0x05":  "graph_add_new",
+                         "0x06":  "graph_remove_old",
+                         "0x11":  "graph_register_custom_event"
+                     },
+    "event_registrations":  [
+                                {
+                                    "order":  1,
+                                    "miid":  "0x4660",
+                                    "event":  "0x0800101c",
+                                    "name":  "pull_watermark",
+                                    "extra_size":  "0x0c",
+                                    "register":  1,
+                                    "payload":  [
+                                                    "0x00000002",
+                                                    "0x00000780",
+                                                    "0x00000f00"
+                                                ]
+                                },
+                                {
+                                    "order":  2,
+                                    "miid":  "0x466b",
+                                    "event":  "0x0800103f",
+                                    "name":  "pause_complete",
+                                    "extra_size":  0,
+                                    "register":  1
+                                },
+                                {
+                                    "order":  3,
+                                    "miid":  "0x466b",
+                                    "event":  "0x08001043",
+                                    "name":  "resume_complete",
+                                    "extra_size":  0,
+                                    "register":  1
+                                }
+                            ],
+    "graph_open_order":  [
+                             {
+                                 "order":  1,
+                                 "tag":  "0x04000001",
+                                 "param":  "0x0800100c",
+                                 "meaning":  "shared-memory endpoint PCM media format"
+                             },
+                             {
+                                 "order":  2,
+                                 "tag":  "0x04000003",
+                                 "param":  "0x08001008",
+                                 "meaning":  "decoder/encoder media format"
+                             },
+                             {
+                                 "order":  3,
+                                 "tag":  "0x04000005",
+                                 "param":  "0x08001008",
+                                 "meaning":  "PCM converter output media format"
+                             },
+                             {
+                                 "order":  4,
+                                 "tag":  "0x04000007",
+                                 "param":  "0x08001024",
+                                 "meaning":  "stream sink/source MFC media format"
+                             },
+                             {
+                                 "order":  5,
+                                 "tag":  "0x0400000a",
+                                 "param":  "0x08001024",
+                                 "meaning":  "mix sink/source MFC media format"
+                             },
+                             {
+                                 "order":  6,
+                                 "tag":  "0x04000029",
+                                 "param":  "0x08001130",
+                                 "meaning":  "Audiosphere configuration"
+                             },
+                             {
+                                 "order":  7,
+                                 "tag":  "0x0401000a",
+                                 "param":  "0x080011e9",
+                                 "meaning":  "speaker-protection RX operating mode"
+                             },
+                             {
+                                 "order":  8,
+                                 "tag":  "0x0401000a",
+                                 "operation":  "set_config",
+                                 "meaning":  "apply speaker-protection RX tag/TKV"
+                             },
+                             {
+                                 "order":  9,
+                                 "tag":  "0x0401000b",
+                                 "param":  "0x080011f5",
+                                 "meaning":  "speaker-protection VI R0/T0"
+                             },
+                             {
+                                 "order":  10,
+                                 "tag":  "0x0401000b",
+                                 "param":  "0x080011f4",
+                                 "meaning":  "speaker-protection VI operating mode"
+                             },
+                             {
+                                 "order":  11,
+                                 "tag":  "0x0401000b",
+                                 "param":  "0x080011ff",
+                                 "meaning":  "speaker-protection excursion/ExVI mode"
+                             },
+                             {
+                                 "order":  12,
+                                 "tag":  "0x0401000b",
+                                 "operation":  "set_config",
+                                 "meaning":  "apply speaker-protection VI tag/TKV"
+                             },
+                             {
+                                 "order":  13,
+                                 "tag":  "0x04010005",
+                                 "operation":  "set_config",
+                                 "meaning":  "speaker-protection VI endpoint HW/effect config; endpoint category 3"
+                             },
+                             {
+                                 "order":  14,
+                                 "tag":  "0x04010003",
+                                 "operation":  "set_config",
+                                 "meaning":  "source/sink endpoint HW-interface config; endpoint category 1"
+                             },
+                             {
+                                 "order":  15,
+                                 "tag":  "0x04010009",
+                                 "operation":  "set_config",
+                                 "meaning":  "audio/device orientation"
+                             }
+                         ],
+    "endpoint_tag_family":  {
+                                "category1":  "0x04010003",
+                                "category2":  "0x04010004",
+                                "category3":  "0x04010005"
+                            },
+    "soft_pause":  {
+                       "tag":  "0x04010008",
+                       "key":  "0x01000021",
+                       "pause":  {
+                                     "selector":  3,
+                                     "key_value":  1,
+                                     "miid":  "0x466b",
+                                     "param":  "0x0800102e",
+                                     "payload_size":  0,
+                                     "completion_event":  "0x0800103f"
+                                 },
+                       "resume":  {
+                                      "selector":  4,
+                                      "key_value":  0,
+                                      "miid":  "0x466b",
+                                      "param":  "0x0800102f",
+                                      "payload_size":  0,
+                                      "completion_event":  "0x08001043"
+                                  }
+                   },
+    "ordinary_release":  {
+                             "graph_remove_observed":  false,
+                             "note":  "No GSL command 0x06 in final application release window; QCADCM graph remained persistent in this scenario."
+                         },
+    "confidence":  "runtime-plus-hash-matched-static"
+}
