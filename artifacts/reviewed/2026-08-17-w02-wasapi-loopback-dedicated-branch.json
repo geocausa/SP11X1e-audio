@@ -1,0 +1,71 @@
+{
+  "date": "2026-08-17",
+  "decision": "W02 remains AMBER as a dedicated WASAPI-loopback identity item, but is no longer a built-in-speaker completion gate.",
+  "raw_wasapi": {
+    "sha256": "08D1211EE4518FCEA18434382A13C31AB6E5D102D6E5F0EA4154B765E1EFF46A",
+    "bytes": 13824000,
+    "duration_s": 36.0,
+    "rate_hz": 48000,
+    "channels": 2,
+    "format": "float32 WAVE_FORMAT_EXTENSIBLE IEEE_FLOAT",
+    "source_lag_frames": 90112,
+    "linux_corr": 0.999999473404575,
+    "linux_residual_snr_db": 59.774574229,
+    "linux_fitted_scale": 1.0001890489429313,
+    "quantizes_to_aug12_pcm16_exactly": true
+  },
+  "dump_exact_float_block": {
+    "frames": 432,
+    "addresses": [
+      "0x1fe3bb70200",
+      "0x1fe3bb74ac0",
+      "0x1fe3bc56880"
+    ],
+    "h44_relation": "0x1fe3bb74ac0 == h44 PCM + 48 frames",
+    "shared_ring_relation": "0x1fe3bc56880 == shared ring payload + 48 frames"
+  },
+  "loopback_branch": {
+    "format_convert": "h43 Int16 -> h44 Float32 via ConvertInt16ToFloat32_NEON",
+    "post_h44": [
+      "CAudioVolume",
+      "AudioMeter",
+      "AudioConstrictor",
+      "AudioCleanup",
+      "h42"
+    ],
+    "h42_connection": "0x1fe39d707c0",
+    "h42_endpoint": "0x1fe39d72f40",
+    "endpoint_class": "CCrossProcessServerOutputEndpoint<StaticControlData_V1, VolatileControlData_V0, ControlData_V1>",
+    "server_memory": "0x1fe3a6fea60",
+    "shared_memory_base": "0x1fe3bc50000"
+  },
+  "speaker_branch": {
+    "chain": "h49 -> VirtualSurround -> Dolby SFX -> Meter -> Volume -> Constrictor -> mixers -> ASAR -> Dolby MFX/VLLDP -> Surface MFX -> AudioLimiter -> h59 -> Float32ToInt16Dither -> h60",
+    "h60_endpoint_module": "AUDIOKSE.dll",
+    "audiokse_base": "0x7ff846ab0000",
+    "h60_endpoint_vtable_rva": "0x969a8",
+    "h43_endpoint_vtable_rva": "0x96c80",
+    "private_endpoint_class_name": "not asserted; matching AUDIOKSE private PDB unavailable from public symbol server"
+  },
+  "speaker_dsp_direct_identity": [
+    "VR input exact",
+    "VR output exact",
+    "VLLDP input exact",
+    "VLLDP output exact",
+    "Surface MFX copy proven",
+    "AudioLimiter 480-frame input exact",
+    "AudioLimiter 480-frame output exact"
+  ],
+  "audiodg_loopback_symbols": [
+    "CAudioDeviceGraph::AddPipeToLoopbackConnection",
+    "CSystemAudioDeviceSharedBase::AddPipeToLoopbackConnection",
+    "CSubmixImpl::AddPipeToLoopbackConnection",
+    "CPipeInstance::GetLoopbackConnection(bool)",
+    "CPipeInstance::GetSecondaryLoopbackConnection()",
+    "CPipeInstance::InitializeLoopbackConstrictorInterface",
+    "CAudioDeviceGraph::UpdateLoopbackConstrictionLevel",
+    "Loopback",
+    "PostVolumeLoopback"
+  ],
+  "scope_caution": "No claim of complete-file h60 bit identity; direct bit-exact stage proof is for the state-pinned loud-75-Hz region where old W02 residual is strongest."
+}
