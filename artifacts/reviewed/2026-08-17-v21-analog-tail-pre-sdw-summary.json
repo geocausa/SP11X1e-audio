@@ -1,0 +1,35 @@
+{
+  "candidate": "v21 exact v13 Windows analog tail replay in WSA speaker hw_params before sdw_stream_add_slave",
+  "wsa_srcversion": "9215F2AB055FE5E03F04D9D",
+  "wsa_signed_zst_sha256": "d00fd87a4e5f732922368e2f2da38d193627db6eee89913c2fc918263b41b853",
+  "initrd_sha256": "e7cb390b520af6a9c1f8b121b33b4c4b8383cfc4925ce6b23ee0c6cb3174f35f",
+  "order_trace_sha256": "eb7db0361f459867d97cd625b2737ef94cd31f941c46c6fadbcb5dc2e82335c8",
+  "runtime_order": "wsa884x_hw_params -> 20-write tail -> sdw_stream_add_slave -> sdw_prepare -> sdw_enable",
+  "cycleB": {
+    "mic_sha256": "50E867A9DD6575DAB11007046015AC59EEFA306F4EE4A838318EC98F463475CA",
+    "median_steady_diff_rms": 0.0004361294455822774
+  },
+  "cleanE": {
+    "mic_sha256": "E657C568565F61ECD37521AA25365BFBA5260A413C03830EA0A5350578EA81B3",
+    "gate": "10 s baseline remained PCM closed with replay marker count unchanged; deliberate wake produced exactly +2 markers and PCM RUNNING, then closed",
+    "median_steady_diff_rms": 0.00035726712135182375,
+    "ratio_to_windows": 19.572818733179176,
+    "ratio_to_v5": 0.5280869340017537,
+    "ratio_to_v13_cycle1": 1.1251662314986992
+  },
+  "zero30": {
+    "source_sha256": "17e181b8c513a37f62fadcaa1dd973b02769d1a2d0ed999a5317bdf34076b8b3",
+    "mic_sha256": "B3869F4C225F9D9B52E6D7708B07E7DB2E00A53135391F97B48A0B39E6613647",
+    "bound_active_start_s": 22.0,
+    "bound_active_window_s": [23.5, 51.0],
+    "median_active_diff_rms": 0.0004980538799985231,
+    "q25_active_diff_rms": 0.0003934248791836541,
+    "q10_active_diff_rms": 0.00026267394431712124,
+    "conclusion": "remaining gap is sustained hardware noise, not only room impulses"
+  },
+  "discarded_cycleC": {
+    "mic_sha256": "68581A0AC69F3C6A1B02D9C1449759CCFD12499F4DDEBEBB225B07AA9876BEFF",
+    "reason": "unrelated route wake occurred before intended stimulus; not a clean next-PA-wake oracle"
+  },
+  "conclusion": "Moving the exact same analog tail before SoundWire construction materially improves repeat state and recovers the v13 cold-quality class, but remains far above Windows"
+}

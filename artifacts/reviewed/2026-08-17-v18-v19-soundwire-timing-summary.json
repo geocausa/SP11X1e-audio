@@ -1,0 +1,24 @@
+{
+  "v18": {
+    "purpose": "Set only SP11 WSA SoundWire master autosuspend to 500 ms while retaining v16 frame-stop completion wait",
+    "master_module_zst_sha256": "a1f25ce6e3cdb227bf8c3884b1317f1a9ad0d1a16acbd30ac030dc8304d63506",
+    "initrd_sha256": "97ac56220e251b55964b832798dec460a969099912294ea660f4fad7b5ca8018",
+    "timing_trace_sha256": "b632db8c493de475827f2a654126da07f10dac2241134288e3035195c765c81a",
+    "result": "master sysfs delay was 500 ms but physical stop remained about 3.406 s after last deprepare because both WSA8845 slave devices retained 3000 ms autosuspend"
+  },
+  "v19": {
+    "purpose": "Set WSA master=500 ms and both WSA8845 slave autosuspend delays=0 ms, retaining v16 frame-stop completion wait",
+    "wsa_module_srcversion": "E9F54D7973B1FBB280B4E69",
+    "wsa_module_zst_sha256": "9261fc9d61ab7bda3470736d8968f216f7b8772a68e16c5cb661156ebca38e8a",
+    "initrd_sha256": "054c283b9ef99ce1d5c131942d153d8239aa7516fecc7d1a2a1c3afc77cd49d7",
+    "timing_trace_sha256": "7e661ac76ac83b2f7af42eb8174c9f139a9bde0c54429352fdf58b3477ffd5c6",
+    "last_deprepare_to_master_suspend_s": 0.626742,
+    "windows_observed_clock_stop_delay_s": [0.485, 0.499],
+    "mic_file": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\acoustic-zero-linux-v19-500ms-cycleB-1pct-20260817\\external-mic-20260817-034659.wav",
+    "mic_sha256": "7A84796028227A680A5449209823D64BF2B56985C31686AF553725ADA3255352",
+    "median_steady_diff_rms": 0.0028105668363381793,
+    "ratio_to_windows": 154.0036622651057,
+    "ratio_to_v5": 4.154386111980518,
+    "conclusion": "A real Windows-like SoundWire clock-stop timing family is insufficient to preserve the quiet analog state"
+  }
+}

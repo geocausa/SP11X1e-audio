@@ -1,0 +1,38 @@
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -739,6 +739,11 @@
+ 
+ static unsigned int sp11_observe_samples;
+ module_param_named(sp11_observe_samples, sp11_observe_samples, uint, 0644);
++
++static bool sp11_rearm_windows_analog_tail;
++module_param_named(sp11_rearm_windows_analog_tail, sp11_rearm_windows_analog_tail, bool, 0644);
++MODULE_PARM_DESC(sp11_rearm_windows_analog_tail,
++		 "Replay exact SP11 Windows analog tail before each speaker POST_PMU");
+ MODULE_PARM_DESC(sp11_observe_samples,
+ 		 "read-only 100 ms WSA status snapshots on each speaker start (0=off, max=40)");
+ 
+@@ -2005,11 +2010,23 @@
+ 	return 0;
+ }
+ 
++static void wsa884x_sp11_rearm_analog_tail(struct wsa884x_priv *wsa884x)
++{
++	struct regmap *regmap = wsa884x->regmap;
++
++	regmap_write(regmap, WSA884X_REF_CTRL, 0xd1);	regmap_write(regmap, WSA884X_UVLO_PROG, 0x33);	regmap_write(regmap, WSA884X_UVLO_PROG1, 0x60);	regmap_write(regmap, WSA884X_BOP1_PROG, 0x22);	regmap_write(regmap, WSA884X_BOP2_PROG, 0x44);	regmap_write(regmap, WSA884X_ZX_CTRL1, 0xf8);	regmap_write(regmap, WSA884X_STB_CTRL1, 0x6a);	regmap_write(regmap, WSA884X_ILIM_CTRL1, 0xe3);	regmap_write(regmap, WSA884X_CURRENT_LIMIT, 0xd4);	regmap_write(regmap, WSA884X_TOP_CTRL1, 0xd2);	regmap_write(regmap, WSA884X_OCP_CTL, 0xf6);	regmap_write(regmap, WSA884X_DAC_VCM_CTRL_REG2, 0x06);	regmap_write(regmap, WSA884X_DAC_VCM_CTRL_REG3, 0x14);	regmap_write(regmap, WSA884X_DAC_VCM_CTRL_REG4, 0x19);	regmap_write(regmap, WSA884X_DAC_VCM_CTRL_REG5, 0x1b);	regmap_write(regmap, WSA884X_DAC_VCM_CTRL_REG6, 0x1c);	regmap_write(regmap, WSA884X_DAC_VCM_CTRL_REG7, 0x02);	regmap_write(regmap, WSA884X_CKWD_CTL_1, 0x13);	regmap_write(regmap, WSA884X_PWRSTAGE_CTRL2, 0xf1);	regmap_write(regmap, WSA884X_CURRENT_LIMIT, 0x44);	dev_info(wsa884x->dev,
++		 "SP11 WSA884x: replayed exact Windows analog tail before PA wake\n");
++}
++
+ static void wsa884x_spkr_post_pmu(struct snd_soc_component *component,
+ 				  struct wsa884x_priv *wsa884x)
+ {
+ 	unsigned int curr_limit, curr_ovrd_en;
+ 
++	if (sp11_rearm_windows_analog_tail &&
++	    wsa884x->supply_config == WSA884X_SUPPLY_2S)
++		wsa884x_sp11_rearm_analog_tail(wsa884x);
++
+ 	wsa884x_set_gain_parameters(wsa884x);
+ 	if (wsa884x->dev_mode == WSA884X_RECEIVER) {
+ 		snd_soc_component_write_field(component, WSA884X_DRE_CTL_0,

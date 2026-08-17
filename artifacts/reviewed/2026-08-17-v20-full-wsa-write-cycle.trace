@@ -1,0 +1,139 @@
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 127/127   #P:12
+#
+#                                _-----=> irqs-off/BH-disabled
+#                               / _----=> need-resched
+#                              | / _---=> hardirq/softirq
+#                              || / _--=> preempt-depth
+#                              ||| / _-=> migrate-disable
+#                              |||| /     delay
+#           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+#              | |         |   |||||     |         |
+             tee-22504   [004] ...1.   484.856657: tracing_mark_write: V20_WRITE_TRACE_BEGIN
+        pipewire-1791    [008] d....   484.878330: sp11_swr_resume: (swrm_runtime_resume+0x0/0x280 [soundwire_qcom]) dev=18446462633119321104
+        pipewire-1791    [008] d....   484.883391: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x578 [snd_soc_wsa884x]) substream=18446462633439744000 params=18446603338469127464 dai=18446462633251687040
+        pipewire-1791    [008] d....   484.883408: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x578 [snd_soc_wsa884x]) substream=18446462633439744000 params=18446603338469127464 dai=18446462633523086976
+        pipewire-1791    [008] d....   484.883417: sp11_swr_hw_params: (qcom_swrm_hw_params+0x0/0x3b0 [soundwire_qcom]) substream=18446462633439744000 params=18446603338469127464 dai=18446462633565552768
+        pipewire-1791    [008] d....   484.883427: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x578 [snd_soc_wsa884x]) substream=18446462633439743488 params=18446603338469127464 dai=18446462633251697792
+        pipewire-1791    [008] d....   484.883432: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x578 [snd_soc_wsa884x]) substream=18446462633439743488 params=18446603338469127464 dai=18446462633523088000
+        pipewire-1791    [008] d....   484.883437: sp11_swr_hw_params: (qcom_swrm_hw_params+0x0/0x3b0 [soundwire_qcom]) substream=18446462633439743488 params=18446603338469127464 dai=18446462633202475136
+        pipewire-1791    [008] d....   484.883439: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x578 [snd_soc_wsa884x]) substream=18446462633439742976 params=18446603338469127464 dai=18446462633251694720
+        pipewire-1791    [008] d....   484.883444: sp11_wsa_hw_params: (wsa884x_hw_params+0x0/0x578 [snd_soc_wsa884x]) substream=18446462633439742976 params=18446603338469127464 dai=18446462633523098752
+        pipewire-1791    [008] d....   484.883448: sp11_swr_hw_params: (qcom_swrm_hw_params+0x0/0x3b0 [soundwire_qcom]) substream=18446462633439742976 params=18446603338469127464 dai=18446462633202475648
+        pipewire-1791    [008] d....   484.883471: sp11_sdw_prepare: (sdw_prepare_stream+0x0/0x340 [soundwire_bus]) stream=18446462637070595968
+        pipewire-1791    [008] d....   484.887999: sp11_sdw_enable: (sdw_enable_stream+0x0/0x1e8 [soundwire_bus]) stream=18446462637070595968
+        pipewire-1791    [008] d....   484.891105: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x918 [snd_soc_lpass_wsa_macro]) widget=18446462633551648256 event=1
+        pipewire-1791    [008] d....   484.891109: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x918 [snd_soc_lpass_wsa_macro]) widget=18446462633551647232 event=1
+        pipewire-1791    [008] d....   484.891115: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x918 [snd_soc_lpass_wsa_macro]) widget=18446462633551648256 event=2
+        pipewire-1791    [008] d....   484.891124: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x918 [snd_soc_lpass_wsa_macro]) widget=18446462633551647232 event=2
+        pipewire-1791    [008] d....   484.891132: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x440 [snd_soc_wsa884x]) widget=18446462633551624192 event=2
+        pipewire-1791    [008] d....   484.891133: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12299 val=209
+        pipewire-1791    [008] d....   484.891140: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12293 val=51
+        pipewire-1791    [008] d....   484.891143: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12294 val=96
+        pipewire-1791    [008] d....   484.891146: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12291 val=34
+        pipewire-1791    [008] d....   484.891149: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12292 val=68
+        pipewire-1791    [008] d....   484.891151: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12448 val=248
+        pipewire-1791    [008] d....   484.891154: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12432 val=106
+        pipewire-1791    [008] d....   484.891162: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12458 val=227
+        pipewire-1791    [008] d....   484.891165: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12433 val=212
+        pipewire-1791    [008] d....   484.891167: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12352 val=210
+        pipewire-1791    [008] d....   484.891170: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12364 val=246
+        pipewire-1791    [008] d....   484.891173: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12357 val=6
+        pipewire-1791    [008] d....   484.891176: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12358 val=20
+        pipewire-1791    [008] d....   484.891179: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12359 val=25
+        pipewire-1791    [008] d....   484.891181: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12360 val=27
+        pipewire-1791    [008] d....   484.891184: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12361 val=28
+        pipewire-1791    [008] d....   484.891187: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12394 val=2
+        pipewire-1791    [008] d....   484.891190: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12474 val=19
+        pipewire-1791    [008] d....   484.891193: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12453 val=241
+        pipewire-1791    [008] d....   484.891712: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12433 val=68
+        pipewire-1791    [008] d....   484.891718: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=12321 mask=224 val=0
+        pipewire-1791    [008] d....   484.891719: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=12320 mask=224 val=96
+        pipewire-1791    [008] d....   484.891720: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=13497 mask=31 val=14
+        pipewire-1791    [008] d....   484.891721: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=13488 mask=7 val=0
+        pipewire-1791    [008] d....   484.891721: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=13489 mask=1 val=0
+        pipewire-1791    [008] d....   484.891722: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=13488 mask=240 val=240
+        pipewire-1791    [008] d....   484.891722: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=12433 mask=128 val=0
+        pipewire-1791    [008] d....   484.891723: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=12433 mask=124 val=68
+        pipewire-1791    [008] d....   484.891723: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=13451 mask=1 val=1
+        pipewire-1791    [008] d....   484.891727: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x440 [snd_soc_wsa884x]) widget=18446462633551623168 event=2
+        pipewire-1791    [008] d....   484.891728: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12299 val=209
+        pipewire-1791    [008] d....   484.891735: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12293 val=51
+        pipewire-1791    [008] d....   484.891738: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12294 val=96
+        pipewire-1791    [008] d....   484.891740: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12291 val=34
+        pipewire-1791    [008] d....   484.891743: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12292 val=68
+        pipewire-1791    [008] d....   484.891746: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12448 val=248
+        pipewire-1791    [008] d....   484.891749: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12432 val=106
+        pipewire-1791    [008] d....   484.891752: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12458 val=227
+        pipewire-1791    [008] d....   484.891755: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12433 val=212
+        pipewire-1791    [008] d....   484.891758: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12352 val=210
+        pipewire-1791    [008] d....   484.891761: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12364 val=246
+        pipewire-1791    [008] d....   484.892284: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12357 val=6
+        pipewire-1791    [008] d....   484.892287: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12358 val=20
+        pipewire-1791    [008] d....   484.892290: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12359 val=25
+        pipewire-1791    [008] d....   484.892293: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12360 val=27
+        pipewire-1791    [008] d....   484.892296: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12361 val=28
+        pipewire-1791    [008] d....   484.892298: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12394 val=2
+        pipewire-1791    [008] d....   484.892301: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12474 val=19
+        pipewire-1791    [008] d....   484.892304: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12453 val=241
+        pipewire-1791    [008] d....   484.892307: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12433 val=68
+        pipewire-1791    [008] d....   484.892311: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=12321 mask=224 val=0
+        pipewire-1791    [008] d....   484.892312: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=12320 mask=224 val=96
+        pipewire-1791    [008] d....   484.892312: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=13497 mask=31 val=14
+        pipewire-1791    [008] d....   484.892313: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=13488 mask=7 val=0
+        pipewire-1791    [008] d....   484.892314: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=13489 mask=1 val=0
+        pipewire-1791    [008] d....   484.892314: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=13488 mask=240 val=240
+        pipewire-1791    [008] d....   484.892315: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=12433 mask=128 val=0
+        pipewire-1791    [008] d....   484.892315: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=12433 mask=124 val=68
+        pipewire-1791    [008] d....   484.892316: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=13451 mask=1 val=1
+        pipewire-1791    [008] d....   484.892335: sp11_sdw_prepare: (sdw_prepare_stream+0x0/0x340 [soundwire_bus]) stream=18446462637070597952
+        pipewire-1791    [010] d....   484.898567: sp11_sdw_enable: (sdw_enable_stream+0x0/0x1e8 [soundwire_bus]) stream=18446462637070597952
+        pipewire-1791    [009] d....   484.902803: sp11_sdw_prepare: (sdw_prepare_stream+0x0/0x340 [soundwire_bus]) stream=18446462637070597568
+        pipewire-1791    [009] d....   484.907776: sp11_sdw_enable: (sdw_enable_stream+0x0/0x1e8 [soundwire_bus]) stream=18446462637070597568
+     data-loop.0-1823    [006] d....   484.925255: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633251687040 mute=0 stream=0
+     data-loop.0-1823    [006] d....   484.925641: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=13520 val=103
+     data-loop.0-1823    [006] d....   484.925647: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12391 val=8
+     data-loop.0-1823    [006] d....   484.925650: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12365 val=82
+     data-loop.0-1823    [006] d....   484.925656: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=13489 mask=1 val=0
+     data-loop.0-1823    [006] d....   484.925657: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=13360 mask=1 val=1
+     data-loop.0-1823    [006] d....   484.925660: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12391 val=12
+     data-loop.0-1823    [006] d....   484.925663: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=12365 val=90
+     data-loop.0-1823    [006] d....   484.927147: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633523086976 mute=0 stream=0
+     data-loop.0-1823    [006] d....   484.927524: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=13520 val=103
+     data-loop.0-1823    [006] d....   484.927528: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12391 val=8
+     data-loop.0-1823    [006] d....   484.927531: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12365 val=82
+     data-loop.0-1823    [006] d....   484.927534: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=13489 mask=1 val=0
+     data-loop.0-1823    [006] d....   484.927535: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=13360 mask=1 val=1
+     data-loop.0-1823    [006] d....   484.927538: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12391 val=12
+     data-loop.0-1823    [006] d....   484.927541: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=12365 val=90
+     data-loop.0-1823    [006] d....   484.929028: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633251697792 mute=0 stream=0
+     data-loop.0-1823    [006] d....   484.929028: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633523088000 mute=0 stream=0
+     data-loop.0-1823    [006] d....   484.929031: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633251694720 mute=0 stream=0
+     data-loop.0-1823    [006] d....   484.929031: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633523098752 mute=0 stream=0
+        pipewire-1791    [006] d....   499.938048: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633251687040 mute=1 stream=0
+        pipewire-1791    [006] d....   499.938066: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=13489 mask=1 val=0
+        pipewire-1791    [006] d....   499.938074: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=13360 mask=1 val=0
+        pipewire-1791    [006] d....   499.938093: regwrite: (regmap_write+0x0/0x98) map=0xffff0008022c3400 reg=13520 val=0
+        pipewire-1791    [006] d....   499.938098: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633523086976 mute=1 stream=0
+        pipewire-1791    [006] d....   499.938100: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=13489 mask=1 val=0
+        pipewire-1791    [006] d....   499.938105: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=13360 mask=1 val=0
+        pipewire-1791    [006] d....   499.938111: regwrite: (regmap_write+0x0/0x98) map=0xffff000803e23400 reg=13520 val=0
+        pipewire-1791    [006] d....   499.938123: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633251697792 mute=1 stream=0
+        pipewire-1791    [006] d....   499.938125: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633523088000 mute=1 stream=0
+        pipewire-1791    [006] d....   499.938130: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633251694720 mute=1 stream=0
+        pipewire-1791    [006] d....   499.938132: sp11_wsa_mute: (wsa884x_mute_stream+0x0/0x230 [snd_soc_wsa884x]) dai=18446462633523098752 mute=1 stream=0
+        pipewire-1791    [006] d....   499.938730: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x440 [snd_soc_wsa884x]) widget=18446462633551624192 event=4
+        pipewire-1791    [006] d....   499.938735: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff0008022c3400 reg=13451 mask=1 val=0
+        pipewire-1791    [006] d....   499.938742: sp11_wsa_spkr_event: (wsa884x_spkr_event+0x0/0x440 [snd_soc_wsa884x]) widget=18446462633551623168 event=4
+        pipewire-1791    [006] d....   499.938745: regupd: (regmap_update_bits_base+0x0/0xb0) map=0xffff000803e23400 reg=13451 mask=1 val=0
+        pipewire-1791    [006] d....   499.938931: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x918 [snd_soc_lpass_wsa_macro]) widget=18446462633551648256 event=8
+        pipewire-1791    [006] d....   499.938959: sp11_macro_interp: (wsa_macro_enable_interpolator+0x0/0x918 [snd_soc_lpass_wsa_macro]) widget=18446462633551647232 event=8
+        pipewire-1791    [006] d....   499.939218: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462637070595968
+        pipewire-1791    [006] d....   499.943796: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462637070595968
+        pipewire-1791    [006] d....   499.948302: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462637070597952
+        pipewire-1791    [006] d....   499.950421: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462637070597952
+        pipewire-1791    [006] d....   499.952547: sp11_sdw_disable: (sdw_disable_stream+0x0/0x258 [soundwire_bus]) stream=18446462637070597568
+        pipewire-1791    [006] d....   499.953883: sp11_sdw_deprepare: (sdw_deprepare_stream+0x0/0x338 [soundwire_bus]) stream=18446462637070597568
+   kworker/u50:0-89      [006] d....   503.158604: sp11_swr_suspend: (swrm_runtime_suspend+0x0/0x190 [soundwire_qcom]) dev=18446462633119321104
+             tee-25307   [003] ...1.   503.966677: tracing_mark_write: V20_WRITE_TRACE_END

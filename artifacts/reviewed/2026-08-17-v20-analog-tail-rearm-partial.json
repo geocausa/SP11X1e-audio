@@ -1,0 +1,18 @@
+{
+  "candidate": "v20 exact Windows 20-write analog tail replay at speaker POST_PMU",
+  "wsa_srcversion": "1617AD1AE28E9B978913A5E",
+  "wsa_signed_zst_sha256": "acb987cd8f08159bd86601b8348584f31145083d4f41e9f2faf569c5765ac638",
+  "initrd_sha256": "2baddc255a2cd9efbd0aecafde33e080cd37a08e589f75bb683915c4a27e19d5",
+  "tail_values_hex": ["d1","33","60","22","44","f8","6a","e3","d4","d2","f6","06","14","19","1b","1c","02","13","f1","44"],
+  "write_trace_sha256": "234058b4eb9f5600a2909b6234449a408f44fcb94629ea276ffc0dd4c5353893",
+  "cycleB": {
+    "mic_sha256": "36F5F7009576197E6CCB4E55433402215F516D3D8D423FFA8CBC0111D51B41B2",
+    "median_steady_diff_rms": 0.0008030276528101501
+  },
+  "cycleC": {
+    "mic_sha256": "D8885C14D289D25BC96C6C568CEF31DB17472920E38DCBAA5F17C66E4A18745E",
+    "median_steady_diff_rms": 0.0006122730550889549
+  },
+  "v13_cycle2_reference": 0.003927027586695365,
+  "conclusion": "Replay prevents the old v13 catastrophic second-cycle collapse, but POST_PMU placement remains noisier than v13 cold and Windows"
+}
