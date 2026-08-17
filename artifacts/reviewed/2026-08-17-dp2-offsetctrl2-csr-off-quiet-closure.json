@@ -1,0 +1,48 @@
+{
+  "date": "2026-08-17",
+  "status": "GREEN causal prerequisite on CPS-v3; carry forward to full v27 stack",
+  "recorder": "SP7 microphone externally capturing SP11 speakers; SP11 microphone path not used",
+  "hypothesis": "Windows WSA8845 DP2/COMP OffsetCtrl2=0x07 is required for quiet CSR-fallback-off operation",
+  "soundwire_b1": {
+    "base_srcversion": "31EA655550AE70F3DF2951E",
+    "base_sha256": "85d8f4f9614a7486292dd9ab8a834ba70e017a54dbd93bd4bcd6b37f52fe5c6f",
+    "base_build_id": "e8ef3048edb3dea77b01d50abbde7c7e1d0157a7",
+    "candidate_sha256": "323cd5d218e2e0772f71f1d0f65650416dee0704c6858a62b692d0323153c835",
+    "candidate_build_id": "d9f37e4e1f159172216c7dd86e1f2242c1dfd26e",
+    "live_build_id_verified": true,
+    "live_marker": "SP11B1 SIMPLE OffsetCtrl2 port=2 val=0x7",
+    "scope": "add optional SIMPLE OffsetCtrl2 support and advertise it only on WSA8845 DP2/COMP"
+  },
+  "b1_control": {
+    "wsa_srcversion": "F1D685E4855D199472982FF",
+    "wsa_sha256": "663f018c75719e9f74bcbb990286ea73ca82fdc1f06578ea268d772fd1fca505",
+    "csr_gain_en": 1,
+    "dp2_offsetctrl2": 7,
+    "wav_sha256": "C81C7F923FDAFF74E54E82AA137E9E8F1B1CC40851595FCB8C1ACBED86929E91",
+    "median_steady_diff_rms": 2.6375173846883765e-05
+  },
+  "b1_a1_first": {
+    "wsa_srcversion": "E682EAB12E27A6FF292EEC9",
+    "wsa_sha256": "6b2670ea445a485fe0794a5870b30440151bd84e430e5e82c039d3fb776c8768",
+    "csr_gain_en": 0,
+    "dp2_offsetctrl2": 7,
+    "wav_sha256": "85B844D3D9C4A0D8C818BFCE5F5585A9D97A0D6A4648B8CDCE805B9D670D9D42",
+    "median_steady_diff_rms": 1.9225640338104176e-05,
+    "ratio_vs_windows_reference": 1.0532734496898863,
+    "improvement_vs_generic_dp2_csroff": 144.3798445808401
+  },
+  "b1_a1_repeat_after_20s_idle": {
+    "wav_sha256": "415E635A6CF220BB972EC5218C77A039EA3B8BCA080BEA494A6A9171DD536663",
+    "median_steady_diff_rms": 2.5808327779179254e-05,
+    "ratio_vs_windows_reference": 1.4139048662440532,
+    "improvement_vs_generic_dp2_csroff": 107.55423550618305,
+    "pcm_final": "closed",
+    "runtime_idle": "WSA macro, VA macro and SoundWire suspended"
+  },
+  "references": {
+    "windows_active_diff_rms": 1.8253227918889202e-05,
+    "generic_dp2_cpsv3_csroff_a1_diff_rms": 0.0027757949639826114,
+    "same_harness_cpsv3_csr_on_diff_rms": 1.9755842393131636e-05
+  },
+  "conclusion": "DP2/COMP OffsetCtrl2=0x07 is sufficient to collapse the CSR-off Linux broadband floor to the Windows/room-floor class on CPS-v3. The field is a coupled prerequisite, masked by CSR fallback in ordinary quiet CPS-v3."
+}

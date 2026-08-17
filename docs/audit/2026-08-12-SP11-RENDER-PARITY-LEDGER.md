@@ -1,5 +1,8 @@
 # SP11 built-in-speaker Windows/Linux render parity ledger — 2026-08-12
 
+> **2026-08-17 DP2/CSR coupled-prerequisite closure:** after the one-bit CSR-off causal proof, the previously deprioritized WSA8845 DP2/COMP `OffsetCtrl2` mismatch became a coupled-prerequisite candidate. A surgically rebuilt CPS-v3 SoundWire B1 programmed Windows `OffsetCtrl2=0x07` on DP2 only, proven live on both amps. With CSR ON the path stayed quiet (`2.638e-5` diff-RMS). With CSR OFF, the prior `2.776e-3` broadband floor collapsed to `1.923e-5`; a second wake after 20 s idle measured `2.581e-5` with no sustained PA floor. Thus DP2 `OffsetCtrl2=0x07` is the missing prerequisite that makes CSR-off quiet in the CPS-v3 causal matrix. Next: carry only this fix onto v27 as v28. See `docs/findings/2026-08-17-DP2-OFFSETCTRL2-CSR-OFF-QUIET-CLOSURE.md`.
+
+
 > **2026-08-17 CSR one-bit causal boundary:** a same-boot late-load A/B on exact CPS-v3 proves the remaining broadband floor is exposed by the single final-unmute `DRE_CTL_1.CSR_GAIN_EN` bit. Byte-identical CPS-v3 source with CSR enabled measured `1.976e-5` median steady diff-RMS (essentially Windows/room floor); changing only CSR enable `1 -> 0` measured `2.776e-3`, about **140x** higher. This closes the trigger question but not the Windows prerequisite: Windows remains quiet with CSR disabled, so the next target is the COMP/WSA-macro/consumer state that makes CSR-off safe. See `docs/findings/2026-08-17-CPSV3-CSR-ENABLE-ONE-BIT-CAUSAL-BOUNDARY.md`.
 
 
