@@ -1,0 +1,52 @@
+{
+  "date": "2026-08-18",
+  "candidate": "Golden v30 exact mute + DP1/DP3",
+  "status": "localized_pre_windows_oracle",
+  "user_observation": "very small intermittent crackle only under aggressive volume/mute hammering with non-zero media",
+  "notification_policy": {
+    "idle_event": "audio-volume-change",
+    "idle_target_object": 45,
+    "active_single_key_event_count": 0,
+    "active_hammer_event_count": 0,
+    "idle_monitor_sha256": "154725f5e64f037b90b9ad3e751f1a3bb01cd25b30a33c6c52dd24911c3aa13f",
+    "active_monitor_sha256": "14aab462228fc47dcb76edf4d73d5049a18ba31f4e2f3c5b7458dd6db076ffc9",
+    "active_hammer_monitor_sha256": "adea05e100253c5fe0e4249c3725d8f90dbbf6ae7bc77e5a0efd266055a1e259"
+  },
+  "active_zero": {
+    "sp7_wav_sha256": "2D2834B2DD43AD6EDFCB978F541FF4A4D08379D7AF8CB9FA8814553FEF0F6BE2",
+    "pre_median_diff_rms": 1.7688821114004214e-05,
+    "volume_window_median_diff_rms": 1.778508835354525e-05,
+    "mute_window_median_diff_rms": 1.7813926615011853e-05,
+    "conclusion": "no control-only physical click; non-zero program samples required"
+  },
+  "mute_ab": {
+    "backstop": {
+      "sp7_wav_sha256": "0A9FDDDC22A6E8C951626E42EE411173D63B6A41274BEB2E8175AF925A706F57",
+      "hp6_peak_median": 4.0538626496323275e-05,
+      "hp6_peak_p95": 0.00017585446464294426,
+      "hp10_peak_p95": 0.00013514059137055686
+    },
+    "dsp_only": {
+      "sp7_wav_sha256": "56951A9DF6EF7D2E69F1C363B389D0FE6A2EC26BF82B575CFEFE98A4E54D6B4A",
+      "hp6_peak_median": 3.966436032790825e-05,
+      "hp6_peak_p95": 0.00010510295659087168,
+      "hp10_peak_p95": 8.090692011129586e-05
+    },
+    "conclusion": "successful DSP mute should not also toggle downstream hardware sink; retain hardware mute only fail-closed/rollback"
+  },
+  "gainstep_ab": {
+    "sp7_wav_sha256": "5DF089508AC7A0199A91ED90231F1AC1224313CF55DFBA57C3F11FE0C2B8A4C4",
+    "same_row_6_12": {
+      "hp6_peak_median": 2.6473466555275003e-05,
+      "hp6_peak_p95": 3.600627043031427e-05,
+      "hp10_peak_p95": 2.6838885601160354e-05
+    },
+    "cross_row_12_18": {
+      "hp6_peak_median": 2.6746035578788997e-05,
+      "hp6_peak_p95": 2.946561446592016e-05,
+      "hp10_peak_p95": 2.3451638491941043e-05
+    },
+    "conclusion": "MSIIR/GainStep row crossing is not the specific trigger"
+  },
+  "next": "native Windows high-rate volume/mute physical stress oracle"
+}
