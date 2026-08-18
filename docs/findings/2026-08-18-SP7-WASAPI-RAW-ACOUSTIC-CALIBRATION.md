@@ -111,3 +111,49 @@ Capture the same deterministic calibration and the dedicated bass/psychoacoustic
 on native Windows using `Record-ExternalMic-Raw.ps1`, without moving the established
 SP7/SP11 fixture.  Compare repeated RAW Windows passes against the three-pass Linux-v31
 RAW baseline.  Do not use the old shared-mode absolute dB values as the target.
+
+## 2026-08-18 measurement-gain correction and recorder hardening
+
+A later RX84 40-Hz regression exposed one more measurement-state variable that
+RAW mode itself does not bypass: the **hardware capture endpoint gain**.  The
+SP7 default Microphone Array endpoint was found at `+20.000 dB` with hardware
+volume support.  A reversible idle RAW A/B, with SP11 silent, measured:
+
+```text
+                    +20 dB             0 dB
+HP500 RMS           1.9152e-4          2.0934e-5
+HP2000 RMS          1.3433e-4          1.5188e-5
+HP6000 RMS          9.3699e-5          1.1071e-5
+raw peak             0.02466            0.001434
+```
+
+The retained quiet v31 reference raw peak is about `0.001526`, so the 0-dB
+capture state returns to the expected measurement scale.  The +20-dB 40-Hz
+take was therefore rejected as a recorder-side contamination, not interpreted
+as an SP11 regression.
+
+For subsequent fixed-fixture measurements the SP7 endpoint is pinned manually
+to **0 dB** and the Windows Settings process is kept closed.  The recorder does
+not silently change this setting.
+
+`tools/windows/Record-ExternalMic-Raw.ps1` is now hardened to make this state
+explicit and auditable:
+
+- prints default capture endpoint ID, dB, scalar, mute and hardware-support mask;
+- records exact UTC timestamps immediately after `IAudioClient.Start()` and
+  immediately after `Stop()`;
+- writes those values and endpoint state to `<wav>.metadata.json`;
+- accepts optional `-ExpectedEndpointDb`, refusing **before capture** if the
+  hardware endpoint dB does not match within 0.01 dB.
+
+Exact SP7 smoke test on the 0-dB endpoint:
+
+- `-ExpectedEndpointDb 0`: capture succeeds and emits WAV + metadata;
+- `-ExpectedEndpointDb 20`: returns nonzero before `IAudioClient.Start()` and
+  emits no WAV.
+
+The tested candidate SHA-256 is
+`BA622A89C68EE68E301B02A1BE80CBE8F1F1826611CD8CD0E95D0778E41FB1C9`.
+It is deployed on SP7 as
+`C:\Users\SurfacePro7\Documents\KDNET\Codex\Record-ExternalMic-Raw.ps1`.
+The older hash-pinned `A8EFD78A...` helper is retained separately for provenance.

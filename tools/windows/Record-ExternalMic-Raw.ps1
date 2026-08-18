@@ -1,6 +1,7 @@
 param(
     [int]$Seconds = 60,
-    [string]$OutDir = ""
+    [string]$OutDir = "",
+    [double]$ExpectedEndpointDb = [double]::NaN
 )
 
 $ErrorActionPreference = "Stop"
@@ -19,6 +20,14 @@ using System.Threading;
 
 public static class WasapiRawCaptureRecorder
 {
+    public static DateTime StartUtc;
+    public static DateTime StopUtc;
+    public static string EndpointId;
+    public static float EndpointVolumeDb;
+    public static float EndpointVolumeScalar;
+    public static bool EndpointMute;
+    public static uint EndpointHardwareSupport;
+
     enum EDataFlow { eRender, eCapture, eAll }
     enum ERole { eConsole, eMultimedia, eCommunications }
     enum AUDCLNT_SHAREMODE { Shared, Exclusive }
@@ -46,7 +55,7 @@ public static class WasapiRawCaptureRecorder
     interface IMMDevice
     {
         int Activate(ref Guid iid, int clsctx, IntPtr activationParams,
-                     out IAudioClient2 client);
+                     [MarshalAs(UnmanagedType.IUnknown)] out object activated);
         int OpenPropertyStore(int mode, out IntPtr properties);
         int GetId(out IntPtr id);
         int GetState(out int state);
@@ -81,6 +90,30 @@ public static class WasapiRawCaptureRecorder
         int GetBufferSizeLimits(IntPtr format,
             [MarshalAs(UnmanagedType.Bool)] bool eventDriven,
             out long minDuration, out long maxDuration);
+    }
+
+    [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
+     Guid("5CDF2C82-841E-4546-9722-0CF74078229A")]
+    interface IAudioEndpointVolume
+    {
+        int RegisterControlChangeNotify(IntPtr notify);
+        int UnregisterControlChangeNotify(IntPtr notify);
+        int GetChannelCount(out uint count);
+        int SetMasterVolumeLevel(float db, Guid context);
+        int SetMasterVolumeLevelScalar(float scalar, Guid context);
+        int GetMasterVolumeLevel(out float db);
+        int GetMasterVolumeLevelScalar(out float scalar);
+        int SetChannelVolumeLevel(uint channel, float db, Guid context);
+        int SetChannelVolumeLevelScalar(uint channel, float scalar, Guid context);
+        int GetChannelVolumeLevel(uint channel, out float db);
+        int GetChannelVolumeLevelScalar(uint channel, out float scalar);
+        int SetMute([MarshalAs(UnmanagedType.Bool)] bool muted, Guid context);
+        int GetMute([MarshalAs(UnmanagedType.Bool)] out bool muted);
+        int GetVolumeStepInfo(out uint step, out uint stepCount);
+        int VolumeStepUp(Guid context);
+        int VolumeStepDown(Guid context);
+        int QueryHardwareSupport(out uint mask);
+        int GetVolumeRange(out float minDb, out float maxDb, out float incrementDb);
     }
 
     [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
@@ -123,17 +156,45 @@ public static class WasapiRawCaptureRecorder
             throw new COMException(where + " hr=0x" + hr.ToString("X8"), hr);
     }
 
-    public static string Record(string path, int seconds)
+    public static void ProbeEndpoint()
     {
         var enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
         IMMDevice device;
         Check(enumerator.GetDefaultAudioEndpoint(EDataFlow.eCapture,
               ERole.eMultimedia, out device), "GetDefaultAudioEndpoint");
 
+        IntPtr idPtr;
+        Check(device.GetId(out idPtr), "GetId");
+        try { EndpointId = Marshal.PtrToStringUni(idPtr); }
+        finally { CoTaskMemFree(idPtr); }
+
+        Guid volumeIid = typeof(IAudioEndpointVolume).GUID;
+        object volumeObject;
+        Check(device.Activate(ref volumeIid, CLSCTX_ALL, IntPtr.Zero,
+              out volumeObject), "Activate IAudioEndpointVolume");
+        var volume = (IAudioEndpointVolume)volumeObject;
+        Check(volume.GetMasterVolumeLevel(out EndpointVolumeDb),
+              "GetMasterVolumeLevel");
+        Check(volume.GetMasterVolumeLevelScalar(out EndpointVolumeScalar),
+              "GetMasterVolumeLevelScalar");
+        Check(volume.GetMute(out EndpointMute), "GetMute");
+        Check(volume.QueryHardwareSupport(out EndpointHardwareSupport),
+              "QueryHardwareSupport");
+    }
+
+    public static string Record(string path, int seconds)
+    {
+        ProbeEndpoint();
+        var enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
+        IMMDevice device;
+        Check(enumerator.GetDefaultAudioEndpoint(EDataFlow.eCapture,
+              ERole.eMultimedia, out device), "GetDefaultAudioEndpoint");
+
         Guid clientIid = typeof(IAudioClient2).GUID;
-        IAudioClient2 client;
+        object clientObject;
         Check(device.Activate(ref clientIid, CLSCTX_ALL, IntPtr.Zero,
-              out client), "Activate IAudioClient2");
+              out clientObject), "Activate IAudioClient2");
+        var client = (IAudioClient2)clientObject;
 
         var properties = new AudioClientProperties {
             cbSize = (uint)Marshal.SizeOf(typeof(AudioClientProperties)),
@@ -174,6 +235,7 @@ public static class WasapiRawCaptureRecorder
 
         using (var pcm = new MemoryStream()) {
             Check(client.Start(), "Start");
+            StartUtc = DateTime.UtcNow;
             var end = DateTime.UtcNow.AddSeconds(seconds);
             try {
                 while (DateTime.UtcNow < end) {
@@ -216,6 +278,7 @@ public static class WasapiRawCaptureRecorder
                 }
             } finally {
                 client.Stop();
+                StopUtc = DateTime.UtcNow;
             }
 
             WriteWave(path, pcm.ToArray(), channels, (int)format.rate);
@@ -251,7 +314,36 @@ public static class WasapiRawCaptureRecorder
 '@
 
 Add-Type -TypeDefinition $cs -Language CSharp
+[WasapiRawCaptureRecorder]::ProbeEndpoint()
+$endpointDb = [double][WasapiRawCaptureRecorder]::EndpointVolumeDb
+Write-Host ("Capture endpoint: {0}" -f [WasapiRawCaptureRecorder]::EndpointId)
+Write-Host ("Capture gain: {0:F3} dB (scalar={1:R}, mute={2}, hw=0x{3:X})" -f `
+    $endpointDb, [WasapiRawCaptureRecorder]::EndpointVolumeScalar, `
+    [WasapiRawCaptureRecorder]::EndpointMute, [WasapiRawCaptureRecorder]::EndpointHardwareSupport)
+if (-not [double]::IsNaN($ExpectedEndpointDb) -and `
+    [math]::Abs($endpointDb - $ExpectedEndpointDb) -gt 0.01) {
+    throw ("capture endpoint gain mismatch: actual={0:F3} dB expected={1:F3} dB" -f `
+        $endpointDb, $ExpectedEndpointDb)
+}
+
 Write-Host "Recording RAW external microphone for $Seconds seconds..."
 $message = [WasapiRawCaptureRecorder]::Record($outFile, $Seconds)
+$meta = [ordered]@{
+    wav = $outFile
+    capture_mode = "WASAPI shared + AUDCLNT_STREAMOPTIONS_RAW"
+    endpoint_id = [WasapiRawCaptureRecorder]::EndpointId
+    endpoint_gain_db = [double][WasapiRawCaptureRecorder]::EndpointVolumeDb
+    endpoint_gain_scalar = [double][WasapiRawCaptureRecorder]::EndpointVolumeScalar
+    endpoint_mute = [bool][WasapiRawCaptureRecorder]::EndpointMute
+    endpoint_hardware_support = ("0x{0:X}" -f [WasapiRawCaptureRecorder]::EndpointHardwareSupport)
+    start_utc = [WasapiRawCaptureRecorder]::StartUtc.ToString("o")
+    stop_utc = [WasapiRawCaptureRecorder]::StopUtc.ToString("o")
+    requested_seconds = $Seconds
+}
+$metaFile = $outFile + ".metadata.json"
+$meta | ConvertTo-Json -Depth 3 | Set-Content -Path $metaFile -Encoding ASCII
 Write-Host $message
+Write-Host ("StartUtc={0}" -f $meta.start_utc)
+Write-Host ("StopUtc={0}" -f $meta.stop_utc)
 Write-Host "Saved: $outFile"
+Write-Host "Metadata: $metaFile"

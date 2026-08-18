@@ -1,0 +1,11 @@
+{
+  "date":"2026-08-18",
+  "status":"green_measurement_hardening",
+  "endpoint_id":"{0.0.1.00000000}.{53dd7e90-f037-4e5d-bf9d-ceba47104f8b}",
+  "discovered_endpoint_gain_db":20.0,
+  "measurement_baseline_gain_db":0.0,
+  "hardware_support":"0x7",
+  "gain_ab":{"plus20_hp500_rms":0.000191515811624128,"zero_hp500_rms":0.000020933582871403914,"plus20_raw_peak":0.024658203125,"zero_raw_peak":0.001434326171875},
+  "recorder":{"path":"tools/windows/Record-ExternalMic-Raw.ps1","sha256":"BA622A89C68EE68E301B02A1BE80CBE8F1F1826611CD8CD0E95D0778E41FB1C9","features":["endpoint-state report","exact IAudioClient StartUtc/StopUtc","metadata JSON sidecar","optional ExpectedEndpointDb fail-fast gate"],"sp7_deployed_path":"C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\Record-ExternalMic-Raw.ps1"},
+  "smoke":{"expected_0db_rc":0,"expected_20db_rc":1,"mismatch_refused_before_capture":true}
+}
