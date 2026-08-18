@@ -1,0 +1,74 @@
+{
+  "date": "2026-08-18",
+  "endpoint_scalar": 0.25,
+  "source_ratio_high_low": 4.0,
+  "rows": [
+    {
+      "frequency_hz": 1000,
+      "low": {
+        "label": "1k-left-0p05",
+        "source_peak": 0.05,
+        "dump_sha256": "b335219e459e628d0012aab062ad874a622e411346b13abafd57054d6958d0a3",
+        "fill": 96,
+        "vr_to_vlldp_input_rms": 0.24744219155819136,
+        "vlldp_output_rms": 0.20750378417486282,
+        "raw_wasapi_fundamental": 0.297850065120231,
+        "postgain": -332,
+        "limiter_gain": 1.0
+      },
+      "high": {
+        "label": "1k-left-0p20",
+        "source_peak": 0.2,
+        "dump_sha256": "3b595b2482693fbb07e000c8cff514fa7a3b9050916cdcd0414dd5e54989e769",
+        "fill": 160,
+        "vr_to_vlldp_input_rms": 0.5446517236299241,
+        "vlldp_output_rms": 0.45682237808229614,
+        "raw_wasapi_fundamental": 0.627464084983333,
+        "postgain": -332,
+        "limiter_gain": 1.0
+      },
+      "source_normalized_db": {
+        "vr_to_vlldp_input": -5.188297249236325,
+        "vlldp_output": -5.186772844921547,
+        "raw_wasapi_loopback": -5.569376363098952,
+        "sp7_physical": 5.6080489722279845
+      },
+      "physical_minus_raw_wasapi_law_db": 11.177425335326937,
+      "physical_minus_vlldp_output_law_db": 10.794821817149533
+    },
+    {
+      "frequency_hz": 630,
+      "low": {
+        "label": "630-left-0p05",
+        "source_peak": 0.05,
+        "dump_sha256": "5273dd5214664eea85501a19a3f48cc8498424ecc6f040ce87ceb1c09b855d0c",
+        "fill": 160,
+        "vr_to_vlldp_input_rms": 0.32523390437489275,
+        "vlldp_output_rms": 0.2672772963724452,
+        "raw_wasapi_fundamental": 0.29744247746820685,
+        "postgain": -332,
+        "limiter_gain": 1.0
+      },
+      "high": {
+        "label": "630-left-0p20",
+        "source_peak": 0.2,
+        "dump_sha256": "9efa593d934b3a711677525f24718d4b9cf3e02307f455cc0393fb1543bd31ae",
+        "fill": 256,
+        "vr_to_vlldp_input_rms": 0.5928330719370912,
+        "vlldp_output_rms": 0.4340191802823207,
+        "raw_wasapi_fundamental": 0.5263105727963152,
+        "postgain": -332,
+        "limiter_gain": 1.0
+      },
+      "source_normalized_db": {
+        "vr_to_vlldp_input": -6.826467616354796,
+        "vlldp_output": -7.830262770304,
+        "raw_wasapi_loopback": -7.084417733533112,
+        "sp7_physical": 8.323404021574012
+      },
+      "physical_minus_raw_wasapi_law_db": 15.407821755107124,
+      "physical_minus_vlldp_output_law_db": 16.153666791878013
+    }
+  ],
+  "conclusion": "At 630 Hz and 1 kHz, native Windows Dolby VR/VLLDP is level-dependent but compressive/low-level-boosting as source level rises. The physical speaker is expansive in the opposite direction. The missing positive law is therefore downstream of VLLDP/raw WASAPI for these decisive rows, not caused by Dolby."
+}
