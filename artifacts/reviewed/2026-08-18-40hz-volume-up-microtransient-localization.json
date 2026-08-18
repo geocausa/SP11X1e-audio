@@ -31,7 +31,7 @@
     "missing 0x4a63/0x08001037 ramp policy",
     "raw final 0x1038 plus GainStep transaction as sufficient cause"
   ],
-  "next_gate": "host/PipeWire visible endpoint volume-only sweep with q6apm frozen at 34 percent and hidden hardware unity",
+  "next_gate": "v31 prior/new-CKV candidate: volume-only control plus GainStep calibration only when selected CKV changes",
   "left_right_split": {
     "external_mic_sha256": "ED723FC871230CFED27AE7756BCBA97F687CBE6EEF41B11EE209A1AA4DB538C0",
     "left_source_sha256": "501223E3999CB344C3A7BF20A5243B8FD33FFEDEEBDB9D89AE298EB94B9F06D7",
@@ -88,5 +88,34 @@
     "hp6000_p95": 3.96604865327993e-05,
     "real_key_hp500_p95": 0.002785523482094797,
     "conclusion": "exact Windows two-call sequencing contributes a smaller LF transient, concentrated near 44%, but is about 10x below the full real-key Linux defect"
+  },
+  "full_history_direct_q6apm": {
+    "external_mic_sha256": "6E07E01E071ED5DE3643C30922F40A9376C6DB951CE1F6AA244947A6C9A0BDE4",
+    "stage_log_sha256": "04C6B57720132EF98769BF67DDFF7787EF1680B1D2174F9D2B8C86599FCF0807",
+    "driver_sha256": "BCE0755A197592063E83DE58C7E23BD50249BC8511EB6F1695309C1B56AC1687",
+    "visible_pipewire_endpoint_fixed_percent": 6,
+    "hp500": {
+      "up_median": 6.282395033457383e-05,
+      "up_p95": 0.010461949444821159,
+      "up_max": 0.012915726148847255,
+      "down_p95": 0.0006282759792166642,
+      "up_down_p95_ratio": 16.651837394555717
+    },
+    "hp2000": {
+      "up_p95": 0.008489425309579916,
+      "down_p95": 0.0005782786422441945
+    },
+    "hp6000": {
+      "up_p95": 0.00047913547937745944,
+      "down_p95": 0.0001606798516114694
+    },
+    "vs_production_real_key_hp500_up_p95": 3.7558288458417373,
+    "vs_native_windows_hp500_up_p95": 168.9119143965631,
+    "conclusion": "full repeated q6apm volume+GainStep history is sufficient; visible PipeWire movement is not required"
+  },
+  "prior_new_ckv_gap": {
+    "windows_semantics": "GSL passes prior and new CKV; ACDB delta contains changed keys only; GainStep module group selected only when key 0x01000011 changes",
+    "linux_current_semantics": "selected GainStep OOB group is sent on every channel call regardless of prior CKV",
+    "candidate_fix": "add volume-only final VOL_CTRL actuator and emit GainStep OOB only on actual prior/new GainStep CKV changes"
   }
 }

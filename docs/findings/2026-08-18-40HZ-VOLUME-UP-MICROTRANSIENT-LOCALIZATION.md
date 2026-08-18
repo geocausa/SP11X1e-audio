@@ -280,3 +280,84 @@ magnitude larger than direct WLR p95, while native Windows remains at
 the upper step, but a second live-desktop-path effect is required to produce
 the full Linux Volume-Up artifact.  The next direct discriminator is
 host/PipeWire visible-endpoint volume movement with q6apm held fixed.
+
+## Full-history direct q6apm oracle — PipeWire control movement not required
+
+The decisive direct-DSP test held the visible PipeWire control sink fixed at
+6% for the entire measured section and stopped the production volume
+synchronizer.  A warmed stereo 40 Hz stream remained RUNNING, the hidden
+hardware sink was moved to unity once, and q6apm was driven directly through
+four complete exact Windows-style channel-ordered sweeps:
+
+```text
+6 -> 8 -> 10 -> ... -> 46 -> 44 -> ... -> 6%
+```
+
+For every UP master step:
+
+```text
+L=new, R=old + mixed/louder GainStep
+L=new, R=new + final GainStep
+```
+
+For every DOWN master step the first call retained the old/louder GainStep and
+the second selected the new lower GainStep.  Every transaction returned
+`rc=0`.  The visible PipeWire endpoint never moved during the direct sequence.
+
+SP7 external-mic capture SHA-256:
+`6E07E01E071ED5DE3643C30922F40A9376C6DB951CE1F6AA244947A6C9A0BDE4`.
+
+Raw direct-stage log SHA-256:
+`04C6B57720132EF98769BF67DDFF7787EF1680B1D2174F9D2B8C86599FCF0807`.
+
+Driver script SHA-256:
+`BCE0755A197592063E83DE58C7E23BD50249BC8511EB6F1695309C1B56AC1687`.
+
+Physical result over 80 UP and 80 DOWN steps:
+
+- UP HP500 median `6.2824e-5`;
+- UP HP500 p95 **`1.04619e-2`**;
+- UP HP500 max `1.29157e-2`;
+- DOWN HP500 p95 `6.28276e-4`;
+- UP/DOWN HP500 p95 **`16.65x`**;
+- UP HP2k p95 `8.48943e-3`;
+- DOWN HP2k p95 `5.78279e-4`;
+- UP HP6k p95 `4.79135e-4`;
+- DOWN HP6k p95 `1.60680e-4`.
+
+This direct q6apm-only UP p95 is about **3.76x larger** than the fixed-geometry
+production real-key Linux UP p95 (`2.7855e-3`) and about **169x** the matched
+native-Windows UP p95 (`6.1937e-5`).  Therefore neither GNOME media-key
+handling nor visible PipeWire endpoint movement is required to create the
+core defect.
+
+The full history matters.  Direct tests that started from a settled 34% state
+were mostly clean, whereas the full 6->46 progression develops large edges,
+especially from the mid/high GainStep region onward.  This is a stateful
+runtime calibration/volume-lifecycle defect.
+
+## Newly exposed prior/new CKV semantic gap
+
+Recovered Qualcomm GSL runtime calibration does not merely 'send the selected
+GainStep row'.  `gsl_graph_send_nonpersist_cal()` receives both the prior and
+new CKVs.  ACDB `AcdbComputeDeltaCKV()` constructs a delta containing only keys
+whose values changed, and `AcdbFindModuleCKV()` selects the GainStep-dependent
+four-frame `0x489e` group only when the speaker GainStep key `0x01000011`
+changed.
+
+Current Linux `SP11 Windows Volume Transaction` has no prior-CKV state and
+always appends the selected GainStep group to every volume call.  Consequently
+Linux re-applies identical GainStep calibration when:
+
+- endpoint Q28 changes but remains within the same GainStep row; and
+- the second L-new/R-new channel call retains the CKV selected by the first
+  L-new/R-old call.
+
+For example, Windows 8->17% selects GainStep 2 on the first channel update; the
+second channel update remains in GainStep 2 and therefore has no GainStep-key
+CKV delta.  Linux currently sends row 2 calibration on both calls.
+
+This is now the leading exact-parity defect.  The next candidate must preserve
+all recovered Q28 and row values while adding a **final-volume-only** runtime
+actuator and sending the OOB GainStep group only when prior/new CKV comparison
+shows the GainStep changed.  No EQ/ramp coefficient guesses are justified.
