@@ -1,0 +1,283 @@
+{
+  "date": "2026-08-18",
+  "status": "digital_lr_green_physical_left_path_gap",
+  "fixture": "SP7 centered/square-on reference at one attached SP11 keyboard length; unchanged between OS captures",
+  "source_sha256": "F790AFB06E57DD8D2B1E33C1A5DC329B028A10BBEF208F09D0C69115BB0D02E2",
+  "windows": {
+    "external_mic_sha256": "3CAD56D2B15E2C9C49B2314F89FCC17902BE67669739638E58689866DD2B3CFC",
+    "loopback_sha256": "CE162BE88BD99B83CCCE2D83B628D89B1BE28C470D1C6E654B77F8F0B4964E2A",
+    "loopback_active_dbfs": {
+      "left_only_left": -27.0557,
+      "right_only_right": -25.0461
+    }
+  },
+  "linux": {
+    "external_mic_sha256": "E1C765B97DF7B7F83856BF3C9A82241C441B094EE495A822B29448B866E5E1E2",
+    "post_dolby_sha256": "A7734DE6011D3044E8F4D9C0B76A8826866A14929ED79E43D823A1567DC9769F",
+    "post_dolby_active_dbfs": {
+      "left_only_left": -27.0544,
+      "right_only_right": -25.0453
+    }
+  },
+  "robust_100_6300": {
+    "linux_minus_windows_left_median_db": -6.537,
+    "linux_minus_windows_right_median_db": -1.288,
+    "lr_fingerprint_error_median_db": -5.249
+  },
+  "per_frequency": [
+    {
+      "hz": 100,
+      "windows_left_dbfs_mic": -92.681,
+      "linux_left_dbfs_mic": -98.043,
+      "linux_minus_windows_left_db": -5.362,
+      "windows_right_dbfs_mic": -80.406,
+      "linux_right_dbfs_mic": -81.601,
+      "linux_minus_windows_right_db": -1.195,
+      "windows_lr_db": -12.275,
+      "linux_lr_db": -16.442,
+      "lr_fingerprint_error_db": -4.167
+    },
+    {
+      "hz": 125,
+      "windows_left_dbfs_mic": -82.255,
+      "linux_left_dbfs_mic": -87.946,
+      "linux_minus_windows_left_db": -5.691,
+      "windows_right_dbfs_mic": -72.74,
+      "linux_right_dbfs_mic": -74.283,
+      "linux_minus_windows_right_db": -1.543,
+      "windows_lr_db": -9.515,
+      "linux_lr_db": -13.663,
+      "lr_fingerprint_error_db": -4.148
+    },
+    {
+      "hz": 160,
+      "windows_left_dbfs_mic": -84.328,
+      "linux_left_dbfs_mic": -89.923,
+      "linux_minus_windows_left_db": -5.595,
+      "windows_right_dbfs_mic": -74.849,
+      "linux_right_dbfs_mic": -76.799,
+      "linux_minus_windows_right_db": -1.95,
+      "windows_lr_db": -9.479,
+      "linux_lr_db": -13.124,
+      "lr_fingerprint_error_db": -3.645
+    },
+    {
+      "hz": 200,
+      "windows_left_dbfs_mic": -83.276,
+      "linux_left_dbfs_mic": -89.418,
+      "linux_minus_windows_left_db": -6.142,
+      "windows_right_dbfs_mic": -74.979,
+      "linux_right_dbfs_mic": -76.382,
+      "linux_minus_windows_right_db": -1.403,
+      "windows_lr_db": -8.297,
+      "linux_lr_db": -13.036,
+      "lr_fingerprint_error_db": -4.739
+    },
+    {
+      "hz": 250,
+      "windows_left_dbfs_mic": -80.304,
+      "linux_left_dbfs_mic": -86.841,
+      "linux_minus_windows_left_db": -6.537,
+      "windows_right_dbfs_mic": -66.667,
+      "linux_right_dbfs_mic": -67.955,
+      "linux_minus_windows_right_db": -1.288,
+      "windows_lr_db": -13.637,
+      "linux_lr_db": -18.886,
+      "lr_fingerprint_error_db": -5.249
+    },
+    {
+      "hz": 315,
+      "windows_left_dbfs_mic": -78.929,
+      "linux_left_dbfs_mic": -85.559,
+      "linux_minus_windows_left_db": -6.63,
+      "windows_right_dbfs_mic": -63.768,
+      "linux_right_dbfs_mic": -64.731,
+      "linux_minus_windows_right_db": -0.963,
+      "windows_lr_db": -15.161,
+      "linux_lr_db": -20.828,
+      "lr_fingerprint_error_db": -5.667
+    },
+    {
+      "hz": 400,
+      "windows_left_dbfs_mic": -77.338,
+      "linux_left_dbfs_mic": -83.309,
+      "linux_minus_windows_left_db": -5.971,
+      "windows_right_dbfs_mic": -79.441,
+      "linux_right_dbfs_mic": -81.192,
+      "linux_minus_windows_right_db": -1.751,
+      "windows_lr_db": 2.103,
+      "linux_lr_db": -2.117,
+      "lr_fingerprint_error_db": -4.22
+    },
+    {
+      "hz": 500,
+      "windows_left_dbfs_mic": -77.343,
+      "linux_left_dbfs_mic": -83.715,
+      "linux_minus_windows_left_db": -6.372,
+      "windows_right_dbfs_mic": -71.548,
+      "linux_right_dbfs_mic": -71.807,
+      "linux_minus_windows_right_db": -0.259,
+      "windows_lr_db": -5.795,
+      "linux_lr_db": -11.908,
+      "lr_fingerprint_error_db": -6.113
+    },
+    {
+      "hz": 630,
+      "windows_left_dbfs_mic": -81.241,
+      "linux_left_dbfs_mic": -88.87,
+      "linux_minus_windows_left_db": -7.629,
+      "windows_right_dbfs_mic": -69.613,
+      "linux_right_dbfs_mic": -70.214,
+      "linux_minus_windows_right_db": -0.601,
+      "windows_lr_db": -11.628,
+      "linux_lr_db": -18.656,
+      "lr_fingerprint_error_db": -7.028
+    },
+    {
+      "hz": 800,
+      "windows_left_dbfs_mic": -73.331,
+      "linux_left_dbfs_mic": -82.768,
+      "linux_minus_windows_left_db": -9.437,
+      "windows_right_dbfs_mic": -61.104,
+      "linux_right_dbfs_mic": -61.751,
+      "linux_minus_windows_right_db": -0.647,
+      "windows_lr_db": -12.227,
+      "linux_lr_db": -21.017,
+      "lr_fingerprint_error_db": -8.79
+    },
+    {
+      "hz": 1000,
+      "windows_left_dbfs_mic": -87.753,
+      "linux_left_dbfs_mic": -98.449,
+      "linux_minus_windows_left_db": -10.696,
+      "windows_right_dbfs_mic": -81.097,
+      "linux_right_dbfs_mic": -89.731,
+      "linux_minus_windows_right_db": -8.634,
+      "windows_lr_db": -6.656,
+      "linux_lr_db": -8.718,
+      "lr_fingerprint_error_db": -2.062
+    },
+    {
+      "hz": 1250,
+      "windows_left_dbfs_mic": -65.347,
+      "linux_left_dbfs_mic": -68.753,
+      "linux_minus_windows_left_db": -3.406,
+      "windows_right_dbfs_mic": -67.607,
+      "linux_right_dbfs_mic": -68.81,
+      "linux_minus_windows_right_db": -1.203,
+      "windows_lr_db": 2.26,
+      "linux_lr_db": 0.057,
+      "lr_fingerprint_error_db": -2.203
+    },
+    {
+      "hz": 1600,
+      "windows_left_dbfs_mic": -67.089,
+      "linux_left_dbfs_mic": -71.09,
+      "linux_minus_windows_left_db": -4.001,
+      "windows_right_dbfs_mic": -67.16,
+      "linux_right_dbfs_mic": -67.777,
+      "linux_minus_windows_right_db": -0.617,
+      "windows_lr_db": 0.071,
+      "linux_lr_db": -3.313,
+      "lr_fingerprint_error_db": -3.384
+    },
+    {
+      "hz": 2000,
+      "windows_left_dbfs_mic": -65.565,
+      "linux_left_dbfs_mic": -67.696,
+      "linux_minus_windows_left_db": -2.131,
+      "windows_right_dbfs_mic": -61.37,
+      "linux_right_dbfs_mic": -62.006,
+      "linux_minus_windows_right_db": -0.636,
+      "windows_lr_db": -4.195,
+      "linux_lr_db": -5.69,
+      "lr_fingerprint_error_db": -1.495
+    },
+    {
+      "hz": 2500,
+      "windows_left_dbfs_mic": -71.743,
+      "linux_left_dbfs_mic": -89.78,
+      "linux_minus_windows_left_db": -18.037,
+      "windows_right_dbfs_mic": -71.641,
+      "linux_right_dbfs_mic": -72.566,
+      "linux_minus_windows_right_db": -0.925,
+      "windows_lr_db": -0.102,
+      "linux_lr_db": -17.214,
+      "lr_fingerprint_error_db": -17.112
+    },
+    {
+      "hz": 3150,
+      "windows_left_dbfs_mic": -61.636,
+      "linux_left_dbfs_mic": -73.759,
+      "linux_minus_windows_left_db": -12.123,
+      "windows_right_dbfs_mic": -59.831,
+      "linux_right_dbfs_mic": -61.154,
+      "linux_minus_windows_right_db": -1.323,
+      "windows_lr_db": -1.805,
+      "linux_lr_db": -12.605,
+      "lr_fingerprint_error_db": -10.8
+    },
+    {
+      "hz": 4000,
+      "windows_left_dbfs_mic": -78.335,
+      "linux_left_dbfs_mic": -96.85,
+      "linux_minus_windows_left_db": -18.515,
+      "windows_right_dbfs_mic": -70.435,
+      "linux_right_dbfs_mic": -72.372,
+      "linux_minus_windows_right_db": -1.937,
+      "windows_lr_db": -7.9,
+      "linux_lr_db": -24.478,
+      "lr_fingerprint_error_db": -16.578
+    },
+    {
+      "hz": 5000,
+      "windows_left_dbfs_mic": -75.673,
+      "linux_left_dbfs_mic": -94.747,
+      "linux_minus_windows_left_db": -19.074,
+      "windows_right_dbfs_mic": -70.448,
+      "linux_right_dbfs_mic": -73.945,
+      "linux_minus_windows_right_db": -3.497,
+      "windows_lr_db": -5.225,
+      "linux_lr_db": -20.802,
+      "lr_fingerprint_error_db": -15.577
+    },
+    {
+      "hz": 6300,
+      "windows_left_dbfs_mic": -77.937,
+      "linux_left_dbfs_mic": -98.529,
+      "linux_minus_windows_left_db": -20.592,
+      "windows_right_dbfs_mic": -71.672,
+      "linux_right_dbfs_mic": -77.76,
+      "linux_minus_windows_right_db": -6.088,
+      "windows_lr_db": -6.265,
+      "linux_lr_db": -20.769,
+      "lr_fingerprint_error_db": -14.504
+    },
+    {
+      "hz": 8000,
+      "windows_left_dbfs_mic": -85.935,
+      "linux_left_dbfs_mic": -111.664,
+      "linux_minus_windows_left_db": -25.729,
+      "windows_right_dbfs_mic": -76.237,
+      "linux_right_dbfs_mic": -87.31,
+      "linux_minus_windows_right_db": -11.073,
+      "windows_lr_db": -9.698,
+      "linux_lr_db": -24.354,
+      "lr_fingerprint_error_db": -14.656
+    },
+    {
+      "hz": 10000,
+      "windows_left_dbfs_mic": -93.087,
+      "linux_left_dbfs_mic": -125.808,
+      "linux_minus_windows_left_db": -32.721,
+      "windows_right_dbfs_mic": -77.568,
+      "linux_right_dbfs_mic": -117.247,
+      "linux_minus_windows_right_db": -39.679,
+      "windows_lr_db": -15.519,
+      "linux_lr_db": -8.561,
+      "lr_fingerprint_error_db": 6.958
+    }
+  ],
+  "boundary": "physical mismatch is downstream of Linux post-Dolby / Windows loopback-equivalent digital boundary",
+  "next_gate": "separate left-only and right-only 40 Hz real-key volume-up sweeps"
+}

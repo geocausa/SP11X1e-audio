@@ -114,3 +114,43 @@ per-step WSA register programming, or absence of the recovered ramp policy.
 The next decisive comparison is native Windows using the same fixed geometry,
 40 Hz stimulus, 2% key step and warm DOWN/UP ordering.  Only after that should
 the remaining Linux control-path delta be changed.
+
+## Matched native-Windows oracle — fixed geometry
+
+A one-shot native Windows boot repeated the exact warm 40 Hz torture with the
+SP7 microphone left unmoved in the keyboard-length fixture.  The generated
+Windows source is byte-identical to Linux:
+
+- source SHA-256 `D900CE43A0C815FA8AC054629E65E3042BDB6E0CE9F1AD44135AA3F8F889B3E3`;
+- 48 kHz stereo PCM16, 40 Hz, -36 dBFS, 80 s;
+- native Windows 2% media-key step;
+- sweep `46 -> 6 -> 46 -> 6 -> 46%`;
+- original Windows endpoint state restored to 10%, unmuted.
+
+SP7 external-mic capture:
+`0891CF1AB213BB8DB0A2A8B340A96E3500850722E2CF090BD41B6420C13CA458`.
+
+Windows physical result:
+
+- DOWN HP500 p95 `6.1545971e-5`;
+- UP HP500 p95 `6.1937309e-5`;
+- UP/DOWN HP500 ratio `1.00636x`;
+- DOWN HP2k p95 `4.9303873e-5`;
+- UP HP2k p95 `4.8846152e-5`;
+- DOWN HP6k p95 `3.9526043e-5`;
+- UP HP6k p95 `3.6975579e-5`.
+
+Thus native Windows is physically at the same floor in both directions while
+Linux v30 in the same geometry remains about `45.92x` UP/DOWN at HP500.  This
+closes room geometry, source content and inherent WSA8845 hardware behavior as
+explanations for the one-sided Linux transient.
+
+Windows WASAPI loopback SHA-256:
+`32E529E9CA0044A59E8F9C108B6CC8B69479C5F96064C67AE623206D14974885`.
+Around the same native key events its local RMS and first-difference peaks are
+identical for UP and DOWN.  The Windows endpoint control therefore remains
+sample-stable upstream while the physical output also stays clean.
+
+**Updated boundary:** the 40 Hz Volume-Up defect is a Linux downstream
+endpoint-control implementation mismatch, not a generic speaker/rail limit and
+not a Dolby-generated PCM click.
