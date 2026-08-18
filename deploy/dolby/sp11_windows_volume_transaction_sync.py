@@ -92,6 +92,12 @@ VOLUME_ONLY_CONTROL_VALUES = SND_SOC_TLV_HDR + STEREO_GAIN_WORDS
 EXPECTED_ACDB_SHA256 = (
     "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde"
 )
+WSA_RX_CONTROL_NAMES = (
+    "WSA WSA_RX0 Digital Volume",
+    "WSA WSA_RX1 Digital Volume",
+)
+WSA_RX_WINDOWS_VALUE = 84
+WSA_RX_GOLDEN_BASELINE_VALUE = 81
 
 
 def qcadcm_q28_from_db(db: float) -> int:
@@ -169,6 +175,29 @@ def find_control_values(card: str, numid: int, amixer: str = "amixer") -> int | 
         except (ValueError, IndexError):
             return None
     return None
+
+
+def set_wsa_rx_volume(value: int, *, card: str = DEFAULT_CARD,
+                      amixer: str = "amixer") -> None:
+    """Set both SP11 WSA-macro producer RX controls to one exact value.
+
+    Native Windows qcaucd programming proves RX0/RX1 RX_VOL_CTL=0x00, which
+    corresponds to ALSA value 84 / 0 dB on the RX84-capable SP11 machine
+    driver.  Golden v31 intentionally keeps the old Linux value 81 / -3 dB
+    while idle; the candidate policy applies 84 only after the protected
+    producer is active, because POST_PMU can overwrite the active register
+    after an idle-time mixer write.
+    """
+    if not 0 <= value <= WSA_RX_WINDOWS_VALUE:
+        raise ValueError("WSA RX volume outside supported 0..84 range")
+    for name in WSA_RX_CONTROL_NAMES:
+        cp = subprocess.run(
+            [amixer, "-D", card, "cset", f"name='{name}'", str(value)],
+            capture_output=True, text=True,
+        )
+        if cp.returncode:
+            output = (cp.stdout + cp.stderr).strip()
+            raise RuntimeError(output or f"could not set {name}={value}")
 
 
 def write_transaction(left_q28: int, delta: bytes, *, helper: Path, card: str,
@@ -442,7 +471,8 @@ def run(args: argparse.Namespace) -> int:
         f"mode={'windows-lr' if stereo_sequence else 'legacy-stereo'} "
         f"ckv_delta={'prior-new' if prior_new_ckv else 'legacy-resend'} "
         f"volume_only_control_values={volume_only_values} "
-        f"endpoint_mute={'exact-dsp' if mute_numid is not None else 'hardware-fallback'}",
+        f"endpoint_mute={'exact-dsp' if mute_numid is not None else 'hardware-fallback'} "
+        f"wsa_rx={'windows-0db-active' if prior_new_ckv else 'legacy-unchanged'}",
         flush=True,
     )
 
@@ -450,6 +480,7 @@ def run(args: argparse.Namespace) -> int:
     last_dsp_mute: bool | None = None
     last_host: tuple[int, int, bool] | None = None
     transaction_active = False
+    rx_gain_active = False
     current_state: tuple[float, bool] | None = None
     current_node_id: int | None = None
     current_hardware_id: int | None = None
@@ -458,11 +489,24 @@ def run(args: argparse.Namespace) -> int:
 
     def reconcile(state: tuple[float, bool], hardware_id: int) -> None:
         nonlocal last, last_host, last_dsp_mute, transaction_active
-        nonlocal current_state, current_hardware_id
+        nonlocal rx_gain_active, current_state, current_hardware_id
         current_state = state
         current_hardware_id = hardware_id
 
         if not msiir.graph_running(args.pcm_status):
+            if prior_new_ckv and rx_gain_active:
+                try:
+                    set_wsa_rx_volume(
+                        WSA_RX_GOLDEN_BASELINE_VALUE,
+                        card=args.card, amixer=args.amixer,
+                    )
+                    print("wsa_rx_active=81 (-3 dB Golden idle baseline)", flush=True)
+                except RuntimeError as exc:
+                    print(
+                        f"could not restore idle WSA RX baseline: {exc}",
+                        file=sys.stderr, flush=True,
+                    )
+                rx_gain_active = False
             pipewire_gain, muted = state
             _ui, _db, postgain, host_scalar = base.derive_windows_state(
                 pipewire_gain, muted
@@ -530,6 +574,21 @@ def run(args: argparse.Namespace) -> int:
                 stereo_sequence=stereo_sequence,
                 volume_only_numid=volume_only_numid,
             )
+            if prior_new_ckv and not rx_gain_active:
+                try:
+                    set_wsa_rx_volume(
+                        WSA_RX_WINDOWS_VALUE, card=args.card, amixer=args.amixer
+                    )
+                    rx_gain_active = True
+                    print("wsa_rx_active=84 (0 dB native-Windows producer)", flush=True)
+                except RuntimeError as exc:
+                    # Producer gain is a parity/quality actuator, not a safety
+                    # prerequisite.  Keep rendering on the proven RX81 Golden
+                    # baseline if the mixer write is unavailable.
+                    print(
+                        f"WSA RX 0 dB parity write failed; keeping Golden baseline: {exc}",
+                        file=sys.stderr, flush=True,
+                    )
             last_host = None
             transaction_active = True
         except RuntimeError as exc:
@@ -690,6 +749,17 @@ def run(args: argparse.Namespace) -> int:
         if proc.poll() is None:
             proc.terminate()
         proc.wait()
+        if prior_new_ckv and rx_gain_active:
+            try:
+                set_wsa_rx_volume(
+                    WSA_RX_GOLDEN_BASELINE_VALUE,
+                    card=args.card, amixer=args.amixer,
+                )
+            except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+                print(
+                    f"could not restore WSA RX Golden baseline on exit: {exc}",
+                    file=sys.stderr, flush=True,
+                )
         if (
             transaction_active
             and current_state is not None

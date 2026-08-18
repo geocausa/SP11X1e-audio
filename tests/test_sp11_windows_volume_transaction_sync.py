@@ -92,6 +92,28 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
 
         self.assertEqual(calls[0][-1], "88db39003f76c700")
 
+    def test_wsa_rx_windows_gain_sets_both_named_controls(self):
+        calls = []
+
+        class CP:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+
+        with patch.object(
+            sync.subprocess, "run",
+            side_effect=lambda argv, **kwargs: calls.append(argv) or CP(),
+        ):
+            sync.set_wsa_rx_volume(84, card="hw:0", amixer="amixer")
+
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(calls[0][-2:], ["name='WSA WSA_RX0 Digital Volume'", "84"])
+        self.assertEqual(calls[1][-2:], ["name='WSA WSA_RX1 Digital Volume'", "84"])
+
+    def test_wsa_rx_gain_rejects_values_above_windows_control_max(self):
+        with self.assertRaises(ValueError):
+            sync.set_wsa_rx_volume(85)
+
     def test_exact_endpoint_mute_selector_is_one_u32(self):
         calls = []
 
@@ -278,6 +300,103 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         self.assertEqual(calls, [(result[0], result[0], 2)])
         volume_only.assert_not_called()
         host.assert_called_once_with(69, 1.0, "wpctl")
+
+    def test_v31_applies_rx84_once_after_first_active_handover(self):
+        class FakeStdout:
+            def fileno(self):
+                return 9
+
+        class FakeProc:
+            stdout = FakeStdout()
+            returncode = 0
+
+            def poll(self):
+                return 0
+
+            def terminate(self):
+                raise AssertionError("completed fake monitor must not be terminated")
+
+            def wait(self):
+                return 0
+
+        initial = [{
+            "id": 41,
+            "info": {
+                "props": {"node.name": "virtual"},
+                "params": {"Props": [{"channelVolumes": [0.25 ** 3]}]},
+            },
+        }, {
+            "id": 69,
+            "info": {"props": {"node.name": "hardware"}},
+        }]
+        changed = [{
+            "id": 41,
+            "info": {
+                "props": {"node.name": "virtual"},
+                "params": {"Props": [{"channelVolumes": [0.50 ** 3]}]},
+            },
+        }]
+        args = Namespace(
+            delta_table=Path("deltas.json"), card="hw:0", amixer="amixer",
+            tlv_write=Path(__file__), pw_dump="pw-dump", node="virtual",
+            hardware_node="hardware", pcm_status=Path("status"),
+            wpctl="wpctl", control=Path("control"), interval_ms=100,
+            settle_ms=0, bootstrap_ms=0, bootstrap_guard_ms=0,
+            node_settle_ms=0, once=False,
+        )
+        rx_calls = []
+        applied = []
+
+        def control_values(_card, numid, _amixer="amixer"):
+            return 288 if numid == 321 else 16
+
+        with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
+             patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync, "find_mute_control_numid", return_value=None), \
+             patch.object(sync, "find_volume_only_control_numid", return_value=323), \
+             patch.object(sync, "find_control_values", side_effect=control_values), \
+             patch.object(sync.subprocess, "Popen", return_value=FakeProc()), \
+             patch.object(sync.base, "snapshot", return_value=initial), \
+             patch.object(sync.base, "iter_json_stream", return_value=iter((changed,))), \
+             patch.object(sync, "queue_dolby_postgain_for_generation", return_value=-332), \
+             patch.object(sync.msiir, "graph_running", return_value=True), \
+             patch.object(sync, "apply_transaction",
+                          side_effect=lambda state, *a, **k:
+                          applied.append(state) or (123, 3)), \
+             patch.object(sync, "set_wsa_rx_volume",
+                          side_effect=lambda value, **kw: rx_calls.append(value)), \
+             patch.object(sync, "restore_host_attenuation"), \
+             patch.object(sync.base, "set_hardware_mute"):
+            self.assertEqual(sync.run(args), 0)
+
+        self.assertEqual(applied, [(0.25 ** 3, False), (0.50 ** 3, False)])
+        # One 84 after first active handover, no reapply on ordinary volume,
+        # then 81 when the candidate service exits.
+        self.assertEqual(rx_calls, [84, 81])
+
+    def test_legacy_kernel_never_touches_wsa_rx_gain_policy(self):
+        args = Namespace(
+            delta_table=Path("deltas.json"), card="hw:0", amixer="amixer",
+            tlv_write=Path(__file__), pw_dump="pw-dump", node="virtual",
+            hardware_node="hardware", pcm_status=Path("status"),
+            wpctl="wpctl", control=Path("control"), interval_ms=100,
+            once=True,
+        )
+        with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
+             patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync, "find_mute_control_numid", return_value=None), \
+             patch.object(sync, "find_volume_only_control_numid", return_value=None), \
+             patch.object(sync, "find_control_values", return_value=288), \
+             patch.object(sync.base, "snapshot", return_value=[]), \
+             patch.object(sync.base, "extract_node_volume", return_value=(0.25 ** 3, False)), \
+             patch.object(sync.base, "extract_node_id", return_value=69), \
+             patch.object(sync, "queue_dolby_postgain_for_generation", return_value=-332), \
+             patch.object(sync.msiir, "graph_running", return_value=True), \
+             patch.object(sync, "apply_transaction", return_value=(123, 3)), \
+             patch.object(sync, "set_wsa_rx_volume") as set_rx, \
+             patch.object(sync.base, "set_hardware_mute"):
+            self.assertEqual(sync.run(args), 0)
+        set_rx.assert_not_called()
 
     def test_dispatch_selects_candidate_only_when_control_exists(self):
         class CP:

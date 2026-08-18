@@ -1,0 +1,41 @@
+{
+  "date": "2026-08-18",
+  "scope": "native Windows vs Golden v31 psychoacoustic-bass producer gain",
+  "windows_rx_programming": {"rx0_child_0x0414": "0x00", "rx1_child_0x0494": "0x00", "meaning": "0 dB / Linux ALSA value 84"},
+  "golden_v31_runtime_baseline": {"rx0": 81, "rx1": 81, "meaning": "-3 dB legacy Linux safety value", "wsa_macro_srcversion": "4AF6F542C17BA6DD46586DA"},
+  "source_v1_sha256": "01558cac5ec08ef3ed7ad172b7c64c69482bdb494638165e01d929c5a77b759f",
+  "windows_v1": {
+    "loopback_sha256": "3d8ae3edc68aeddc8203ee36f5594560f256041d2e54f3559adf651a864e18f9",
+    "sp7_raw_sha256": "ed4461c56a273a1ff7b6a37924f70e0260e4e98e7280011fde8f265c71f7b12c",
+    "loopback_analysis_sha256": "ffb007efdb903f3fd77f4739daa996ca6b3fe49519a04887a5446c563c33a117",
+    "sp7_analysis_sha256": "9bdedf8a0edf6aabf9081b6634c53051c4d7c283bbaa537b04ac1fd135a741d4"
+  },
+  "transfer_v2_source_sha256": "28461206bc70e017196088025cd3f4c9ac397f5ea3a18ccd18e412b11ea352c8",
+  "windows_transfer_v2": {
+    "loopback_sha256": "8d16da6107e1f20f22e591c447e806a0774ddcb31499e2eb1f94c61630af8b6e",
+    "sp7_raw_sha256": "38e54816f204af7d3e63ee47cc7c07f176be0fc1148c59768969adb0cfb90f60",
+    "loopback_analysis_csv_sha256": "f6329c0c4173a6d806b8f840c8100f345d94bfbd24ef0d1b6866a0cb45173ab6",
+    "physical_analysis_csv_sha256": "86953947cc9b77a89588cf354cb953af246019edc69307b83b39dc5ffbbb3737"
+  },
+  "linux_rx81_transfer_v2": {
+    "post_dolby_sha256": "04cc5d7b74c720e1d0771acd6f02ade02df984b3b28326e2b46b6dc06078636a",
+    "post_dolby_analysis_csv_sha256": "f52c9e737ded9fc2bda25dfe5e0d83773983e145c1e96df783bc045f510d4f09",
+    "sp7_raw_sha256": "650f102f148ff492e6628b3fbae5e5548e694ed3be3eceda269ae4f107343fe4",
+    "physical_analysis_csv_sha256": "14357aeb277eb591678dbfd5b66cafb85793d68e453fdbe2714dd7e966ffe86c",
+    "typical_residual_db": "about -2 to -3 dB physical/upstream through 75-150 Hz"
+  },
+  "continuous_rx81_rx84": {
+    "sp7_raw_sha256": "d50b639cfe15ddbe732ddcfc334b1bca36690c396253eccd8e35089f0729e86c",
+    "analysis_sha256": "4c1a0c9274ec88fc3041a4f7d9fcfae9637bebab2b78c7f2c6d51adcb9785a21",
+    "fundamental_dbfs": {"rx81_a": -53.9075, "rx84_a": -50.8052, "rx81_b": -53.8963, "rx84_b": -50.8845, "rx81_c": -53.9021}
+  },
+  "linux_rx84_active_transfer_v2": {
+    "stages_sha256": "4899bee3d396211854ab8bd3d7a2413c4872a0a9f344ad18a2b8dbfa869d19f0",
+    "post_dolby_sha256": "fbf52b1426e6d9c3c00655c8e07a965632c53d2616c3d2c4aa1f7dacc79dc9a7",
+    "post_dolby_analysis_csv_sha256": "fee9badc988577f4190abe093cd560a4cedea9be444aede5c1618fcec714cc9a",
+    "sp7_raw_sha256": "b0975fb2527d7d9427f809beb5fec53be42b693e17e8e3411942029462155ad1",
+    "physical_analysis_csv_sha256": "0d2eec90327c2328867ae4bae62e73adb12224cc185c2b3b258dee1ddd6b5ce4",
+    "result": "75-100 Hz transfer moves to approximately Windows class when RX84 is applied after producer activation"
+  },
+  "candidate": "v31-only userspace lifecycle policy: RX81 idle, RX84 once after first active DSP/producer handover, no per-volume rewrites, legacy kernels untouched"
+}
