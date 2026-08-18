@@ -1,0 +1,35 @@
+{
+  "date": "2026-08-18",
+  "status": "physical_reproduced_root_pending_windows_oracle",
+  "fixture": {
+    "description": "SP7 microphone square-on/centered to SP11 at exactly one attached SP11 keyboard length",
+    "idle_sha256": "57F585EBCEE589DFEE23F766CBACAD856F3519B7CE500A7F3001910493DE112C",
+    "idle_diff_rms_median": 1.7848915598094957e-05
+  },
+  "new_geometry_bridge": {
+    "wav_sha256": "455BD642B91F7B7E61F60D5DBBF431F9A362C444ABCF9A05D6EC6CA35F2C65EB",
+    "stimulus_hz": 40,
+    "source_dbfs": -36,
+    "media_key_step_percent": 2,
+    "down_hp500_p95": 6.0663157991172735e-05,
+    "up_hp500_p95": 0.002785523482094797,
+    "up_down_hp500_p95_ratio": 45.91787790705071,
+    "down_hp2000_p95": 4.9784375319149616e-05,
+    "up_hp2000_p95": 0.0016833093348444742,
+    "down_hp6000_p95": 3.820153637112613e-05,
+    "up_hp6000_p95": 0.00010199662599020104
+  },
+  "old_geometry": {
+    "baseline_up_down_hp500_p95_ratio": 49.35,
+    "no_redundant_hidden_unity_ratio": 41.82,
+    "checkpoint_sha256": "e311af5647c15ede852dc5877d455bb456b1e920d549ec3d5bc15aa39f7b8da4"
+  },
+  "ruled_out_or_narrowed": [
+    "GNOME audio-volume-change notification during continuously running media",
+    "one-sided click generated in pre/post Dolby normal PCM samples",
+    "per-volume WSA8845 register programming",
+    "missing 0x4a63/0x08001037 ramp policy",
+    "raw final 0x1038 plus GainStep transaction as sufficient cause"
+  ],
+  "next_gate": "matched native Windows warm 40 Hz real-key DOWN/UP sweep in fixed geometry"
+}
