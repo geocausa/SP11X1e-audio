@@ -190,3 +190,48 @@ The next software split must test the full problematic upward control ladder:
 (1) GainStep/MSIIR row progression at fixed final Q28, and (2) final-Q28
 progression at a fixed GainStep row.  Earlier isolated 32/34% and row7/row9
 A/Bs did not cover the region where the real sweep produces its largest edges.
+
+## Direct high-row Q28 / MSIIR causal split
+
+A valid fixed-geometry direct-control experiment kept a warmed stereo 40 Hz
+stream running while the production volume synchronizer was stopped only after
+the protected PCM had reached RUNNING state.  The hidden hardware sink was
+moved to unity once, then the fixed `SP11 Windows Volume Transaction` control
+was driven directly.  Every transaction returned `rc=0`; production service
+ownership and the 6% visible endpoint were restored afterward.
+
+SP7 external-mic capture:
+
+- SHA-256 `5BDCF37C5E62CE767CC7A61BC7747AF54B4867052281BA9F9F41F0672965B6C5`;
+- fixed keyboard-length microphone fixture;
+- 40 Hz -36 dBFS source, SHA-256
+  `D900CE43A0C815FA8AC054629E65E3042BDB6E0CE9F1AD44135AA3F8F889B3E3`.
+
+Raw direct-stage log SHA-256:
+`80DD7318F0B8EF204459926DCD6F0AF157130FE8CF4E9B4CE9636BB7685C95A7`.
+
+Three four-repeat upward ladders covered the real-key problem region
+34 -> 36 -> 38 -> 40 -> 42 -> 44%:
+
+1. **REAL simultaneous stereo**: Q28 and GainStep rows walked together
+   9 -> 10 -> 11 -> 12 -> 13 -> 14.
+2. **MSIIR-only**: Q28 held at 34% while GainStep rows walked 9 -> 14.
+3. **GAIN-only**: GainStep held at row 9 while Q28 walked 34 -> 44%.
+
+The repeated reset-to-34 transactions provide an internal down/control floor.
+Physical HP500 p95 values:
+
+- reset/control: `5.7389689e-5`;
+- REAL: `5.7957624e-5` = `1.0099x` reset;
+- MSIIR-only: `5.9252651e-5` = `1.0325x` reset;
+- GAIN-only: `6.2333261e-5` = `1.0861x` reset.
+
+HP2k and HP6k ratios are approximately unity or below as well.  No individual
+36/38/40/42/44 step produced the `10^-3` class transient seen on the live
+media-key path.
+
+**Conclusion:** high-row final Q28 values and the Windows GainStep/MSIIR
+calibration ladder are not individually sufficient to create the 40 Hz
+Volume-Up click.  The test above used one simultaneous-stereo transaction per
+step, so the complete high-row Windows two-call L-new/R-old -> both-new ladder
+must still be closed before excluding runtime q6apm sequencing entirely.

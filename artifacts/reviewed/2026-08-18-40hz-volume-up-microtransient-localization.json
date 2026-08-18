@@ -31,7 +31,7 @@
     "missing 0x4a63/0x08001037 ramp policy",
     "raw final 0x1038 plus GainStep transaction as sufficient cause"
   ],
-  "next_gate": "full problematic upward ladder split: MSIIR/GainStep progression at fixed Q28 versus Q28 progression at fixed GainStep row",
+  "next_gate": "full 34-44 percent direct Windows channel-ordered L-new/R-old then both-new ladder, with mixed GainStep on first call",
   "left_right_split": {
     "external_mic_sha256": "ED723FC871230CFED27AE7756BCBA97F687CBE6EEF41B11EE209A1AA4DB538C0",
     "left_source_sha256": "501223E3999CB344C3A7BF20A5243B8FD33FFEDEEBDB9D89AE298EB94B9F06D7",
@@ -44,5 +44,37 @@
     "right_up_down_ratio": 31.814246360067052,
     "right_up_vs_left_up_ratio": 1.868943436821041,
     "conclusion": "40 Hz Volume-Up defect is bilateral; separate from left-only physical calibration parity gap"
+  },
+  "direct_high_row_split": {
+    "external_mic_sha256": "5BDCF37C5E62CE767CC7A61BC7747AF54B4867052281BA9F9F41F0672965B6C5",
+    "stage_log_sha256": "80DD7318F0B8EF204459926DCD6F0AF157130FE8CF4E9B4CE9636BB7685C95A7",
+    "range_percent": [
+      34,
+      36,
+      38,
+      40,
+      42,
+      44
+    ],
+    "gainstep_rows": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "hp500_p95": {
+      "reset": 5.738968876367316e-05,
+      "real_simultaneous_stereo": 5.7957624390387004e-05,
+      "msiir_only": 5.925265098027605e-05,
+      "gain_only": 6.233326117967682e-05
+    },
+    "p95_vs_reset": {
+      "real": 1.0098961266204556,
+      "msiir_only": 1.0324616190945806,
+      "gain_only": 1.0861404290997456
+    },
+    "conclusion": "Q28 and high GainStep/MSIIR values are not individually sufficient; full high-row channel-ordered two-call ladder remains final direct-DSP gate"
   }
 }
