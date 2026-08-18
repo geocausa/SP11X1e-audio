@@ -11,10 +11,15 @@ dual WSA884x amplifiers.
 > semantics. That last fix collapsed the reproducible 40-Hz Volume-Up transient
 > from v30 `2.7855e-3` HP500 p95 to `6.6466e-5` and `6.4095e-5` on two
 > independent v31 captures; native Windows measured `6.1937e-5`. Golden v28 is
-> retained as rollback/comparison and CPS-v3 as rescue. The project remains
-> **AMBER overall** only because matched SP7 WASAPI-RAW Windows/Linux L/R and
-> low-bass/psychoacoustic-bass calibration is still open; v31 itself is now the
-> daily driver.
+> retained as rollback/comparison and CPS-v3 as rescue. A userspace-only
+> **active-RX84 / 0 dB producer policy candidate** is now objectively GREEN on
+> `agent/psycho-bass-20260818`: native Windows directly proves RX0/RX1 = 0 dB,
+> the candidate applies that state only after protected producer wake, and it
+> preserves the v31 40-Hz CKV, exact-mute and deterministic-seek closures. The
+> candidate is deliberately **not yet merged into the Golden/main recipe**;
+> normal-listening/bass audition is its promotion gate. The project remains
+> **AMBER overall** for that operator verdict, remaining RAW L/R/upper-bass
+> characterization, and clean-source packaging.
 >
 > Start with [`deploy/golden-v31/`](deploy/golden-v31/), the
 > [`Golden v31 promotion`](docs/deployment/2026-08-18-GOLDEN-V31-PROMOTION.md),
@@ -48,7 +53,8 @@ parity deltas:
 - exact final endpoint DSP mute at `0x4a63 / 0x08001039`, with hardware mute
   retained only as fail-closed fallback;
 - Windows SOFT_PAUSE and delayed-audio drain behavior;
-- Windows-proven LPASS WSA producer at 0 dB;
+- Windows-proven LPASS WSA producer implementation, with the active 0-dB lifecycle
+  policy objectively validated on the current psycho-bass candidate branch;
 - exact recovered WSA8845 63-write cold init, 10-write START and 6-write STOP;
 - resident SoundWire clock-stop retention without replaying cold codec state;
 - DP1/DAC `BlockCtrl3=0x00`, DP2/COMP `OffsetCtrl2=0x07`, and
@@ -63,13 +69,16 @@ comparison.
 
 ## What remains open
 
-1. **Post-promotion operator hammer/listening.** v31 is already the default by
-   explicit operator decision; further manual stress/listening remains useful
-   regression evidence, with v28/CPS rollback preserved.
-2. **RAW Windows/Linux L/R and bass calibration.** Cross-capture absolute work
-   now requires the tracked SP7 WASAPI-RAW recorder, fixed keyboard-length
-   geometry, standardized fresh Movie/VLLDP state and verified endpoint/Q28
-   handover. Older shared-mode absolute L/R dB figures are provisional.
+1. **Active-RX84 operator listening verdict.** Objective 40-Hz, program,
+   exact-mute, seek and lifecycle gates are GREEN on the psycho-bass branch.
+   Audition normal music/YouTube, bass balance, mute and volume before merging
+   that userspace policy into Golden/main. v31/v28/CPS rollback remains intact.
+2. **Residual RAW L/R / upper-bass characterization.** The main low-bass deficit
+   is now localized to the old Linux -3 dB WSA producer policy and corrected by
+   Windows-proven active RX84. Any remaining channel/upper-bass residual must be
+   measured with the tracked RAW recorder at a pinned endpoint gain; do not add
+   guessed EQ or named Dolby bass effects. Older shared-mode absolute L/R dB
+   figures remain provisional.
 3. **Non-blocking research.** W02 is a Windows WASAPI-loopback-only branch
    question; P09 is protection telemetry observability. Effective CPS HLOS
    semantics are closed as P10 GREEN.
