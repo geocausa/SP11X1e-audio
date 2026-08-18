@@ -1,0 +1,25 @@
+{
+  "date": "2026-08-18",
+  "candidate_commit": "f4f1f26",
+  "installed_sync_sha256": "8f9787d54d0c4d74dd51713e81d411b9041cb4e03638a8c820c8aa245c5b3de2",
+  "rollback_sync_sha256": "6416ff7fd2dfd683c3f4e192aa6f9463ca6c5cfe94cb249b2cd02cc9671f2d04",
+  "tests": {"focused": "26/26", "broader": "65 tests + 6 subtests"},
+  "lifecycle": {
+    "idle_value": 81,
+    "active_value": 84,
+    "sequence_repeated": 2,
+    "per_volume_rewrite": false,
+    "legacy_kernel_policy": "untouched"
+  },
+  "integrated_transfer_v2": {
+    "source_sha256": "28461206bc70e017196088025cd3f4c9ac397f5ea3a18ccd18e412b11ea352c8",
+    "stages_sha256": "87562fb75687454e5dc09b61261509e01ca2ed15fa80656b6f4100755666e9ac",
+    "post_dolby_sha256": "bcefdba65c61c5437032cec1e2c98bf584e3ba6e415b983cf022c6edeed97066",
+    "sp7_raw_sha256": "9b17b149a5807a2948fe9778c908cb5e793cff7e3541e2b99aad51883bdcadd1",
+    "sp7_analysis_csv_sha256": "f89862422832a4cfdf076ae6524acbc9f3ea302687f86c65cdefb33989e55cbb",
+    "core_75_100_150_amp_ge_0p1_vs_manual_rx84": {"median_db": -0.037, "mean_abs_db": 0.062, "blocks": 12},
+    "100hz_all_0p05_0p10_0p20_vs_manual_rx84_median_db": -0.029
+  },
+  "faults": "no new runtime WSA/PA/SoundWire/XRUN/transaction fault; known graph-start 0x01001006 status-3 only",
+  "decision": "lifecycle mechanism GREEN; 40-Hz and program regression gates required before Golden/main merge"
+}
