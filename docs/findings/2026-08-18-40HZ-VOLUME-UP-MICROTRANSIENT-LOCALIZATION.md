@@ -235,3 +235,48 @@ calibration ladder are not individually sufficient to create the 40 Hz
 Volume-Up click.  The test above used one simultaneous-stereo transaction per
 step, so the complete high-row Windows two-call L-new/R-old -> both-new ladder
 must still be closed before excluding runtime q6apm sequencing entirely.
+
+## Exact high-row Windows L/R two-call ladder
+
+The final direct-DSP sequencing caveat was then tested with the complete
+recovered Windows stereo master sequence at every problematic high-row step:
+
+```text
+L=new, R=old + louder/new GainStep
+L=new, R=new + final GainStep
+```
+
+Four 34 -> 36 -> 38 -> 40 -> 42 -> 44% ladders were sent while the production
+volume daemon was stopped, the 40 Hz graph remained RUNNING, and the hidden
+sink was held at unity.  Natural per-call helper/DSP spacing ranged from about
+2 ms to 14 ms; every call returned `rc=0`.
+
+SP7 capture SHA-256:
+`9BDC669D31FFDC3B5E3F7C9F572C527E173ABB45010D8ADB95637F841E930E87`.
+
+Raw stage log SHA-256:
+`C24363A87450C25C70494E09B71141C09175F8F9E90FF46FE44B2D61A471638E`.
+
+Direct WLR physical result:
+
+- HP500 median `5.8794e-5`;
+- HP500 p95 `2.7728e-4`;
+- HP500 max `4.5081e-4`;
+- HP2000 p95 `1.2707e-4`;
+- HP6000 p95 `3.9660e-5` (floor class).
+
+The LF outliers are concentrated at the 44% step: the four HP500 values there
+were approximately `4.51e-4`, `1.45e-4`, `6.91e-5`, and `2.68e-4`.  The
+36/38/40/42% medians remain close to the microphone floor.
+
+This proves that the exact two-call channel-ordered sequence can contribute a
+small low-frequency physical transient, unlike the simultaneous-stereo direct
+ladder.  However it is **not sufficient** to explain the production defect:
+fixed-geometry real-key Linux UP p95 is `2.7855e-3`, roughly an order of
+magnitude larger than direct WLR p95, while native Windows remains at
+`6.1937e-5` under the same torture.
+
+**Updated boundary:** q6apm channel-order timing is a minor LF contributor at
+the upper step, but a second live-desktop-path effect is required to produce
+the full Linux Volume-Up artifact.  The next direct discriminator is
+host/PipeWire visible-endpoint volume movement with q6apm held fixed.

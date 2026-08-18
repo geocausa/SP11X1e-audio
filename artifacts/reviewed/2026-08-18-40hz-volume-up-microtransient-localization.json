@@ -31,7 +31,7 @@
     "missing 0x4a63/0x08001037 ramp policy",
     "raw final 0x1038 plus GainStep transaction as sufficient cause"
   ],
-  "next_gate": "full 34-44 percent direct Windows channel-ordered L-new/R-old then both-new ladder, with mixed GainStep on first call",
+  "next_gate": "host/PipeWire visible endpoint volume-only sweep with q6apm frozen at 34 percent and hidden hardware unity",
   "left_right_split": {
     "external_mic_sha256": "ED723FC871230CFED27AE7756BCBA97F687CBE6EEF41B11EE209A1AA4DB538C0",
     "left_source_sha256": "501223E3999CB344C3A7BF20A5243B8FD33FFEDEEBDB9D89AE298EB94B9F06D7",
@@ -76,5 +76,17 @@
       "gain_only": 1.0861404290997456
     },
     "conclusion": "Q28 and high GainStep/MSIIR values are not individually sufficient; full high-row channel-ordered two-call ladder remains final direct-DSP gate"
+  },
+  "direct_windows_lr_high_row_ladder": {
+    "external_mic_sha256": "9BDC669D31FFDC3B5E3F7C9F572C527E173ABB45010D8ADB95637F841E930E87",
+    "stage_log_sha256": "C24363A87450C25C70494E09B71141C09175F8F9E90FF46FE44B2D61A471638E",
+    "script_sha256": "F9458F80448ABC2E8A11C3EF65A6A4376B8CD2DE474E87F0BC10DC3DBC9D8A5D",
+    "hp500_median": 5.8794148273100564e-05,
+    "hp500_p95": 0.00027727727396937375,
+    "hp500_max": 0.0004508122399484516,
+    "hp2000_p95": 0.0001270702558209813,
+    "hp6000_p95": 3.96604865327993e-05,
+    "real_key_hp500_p95": 0.002785523482094797,
+    "conclusion": "exact Windows two-call sequencing contributes a smaller LF transient, concentrated near 44%, but is about 10x below the full real-key Linux defect"
   }
 }
