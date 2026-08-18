@@ -396,7 +396,9 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
 
         self.assertEqual(applied, [(0.25 ** 3, False)])
         self.assertEqual(dsp_mutes, [False, True])
-        self.assertEqual(hardware_mutes[:2], [False, True])
+        # Successful exact DSP mute/unmute must not add a second physical-sink
+        # mute edge. Hardware mute is reserved for rollback/fail-closed paths.
+        self.assertEqual(hardware_mutes, [])
 
     def test_failed_exact_dsp_unmute_keeps_hardware_muted(self):
         args = Namespace(

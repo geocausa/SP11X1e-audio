@@ -409,12 +409,16 @@ def run(args: argparse.Namespace) -> int:
                     muted, helper=args.tlv_write, card=args.card, numid=mute_numid
                 )
                 last_dsp_mute = muted
-                # Keep the downstream mute as a fail-safe backstop.  On
-                # unmute this is released only after the DSP accepted 0x1039.
-                base.set_hardware_mute(hardware_id, muted, args.wpctl)
+                # Exact Windows endpoint mute is the normal actuator on kernels
+                # that expose 0x4a63/0x08001039.  Do not mirror successful
+                # transitions into the physical PipeWire sink: a synchronized
+                # SP7 external-mic A/B showed that the second actuator sharpens
+                # rare high-rate mute edges.  The exception path below remains
+                # fail-closed, and rollback kernels without this control keep the
+                # proven downstream-only mute actuator.
                 print(
                     f"endpoint_dsp_mute={'1' if muted else '0'} hardware_backstop="
-                    f"{'muted' if muted else 'open'}", flush=True
+                    "fail-closed-only", flush=True
                 )
             except RuntimeError as exc:
                 _ui, _db, _postgain, host_scalar = base.derive_windows_state(
