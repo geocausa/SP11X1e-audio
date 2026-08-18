@@ -1,6 +1,6 @@
 {
   "date": "2026-08-18",
-  "status": "booted_first_physical_gate_green",
+  "status": "repeat_physical_gate_green_program_listening_pending",
   "candidate": "Golden v31 CKV-delta",
   "causal_boundary": {
     "native_windows_fixed_geometry_40hz_up_hp500_p95": 6.193730905363553e-05,
@@ -118,5 +118,26 @@
     },
     "persistent_saved_default": "sp11-audio-golden-v28",
     "next_gate": "independent fixed-geometry 40 Hz repeat, then normal program/mute/seek user listening"
+  },
+  "repeat_physical_gate": {
+    "external_mic_sha256": "19497C9EF15242CEC79DAD16C63F595ABF323EB9378B547BEC3D5D9D226F5E91",
+    "stage_log_sha256": "9D5B9566A669220C60AACD3121A8DE41C18E24E1CC763DAF5FAD494336EF84EF",
+    "hp500": {
+      "down_p95": 6.785641652281947e-05,
+      "up_p95": 6.409521198410406e-05,
+      "ratio": 0.9445711292836905,
+      "up_max": 6.53306066057609e-05
+    },
+    "hp2000": {
+      "down_p95": 5.147108740867604e-05,
+      "up_p95": 5.147128395049845e-05,
+      "ratio": 1.0000038184898028
+    },
+    "hp6000": {
+      "down_p95": 4.0229491715320815e-05,
+      "up_p95": 3.9858981653059936e-05,
+      "ratio": 0.9907900884037325
+    },
+    "conclusion": "independent repeat confirms floor-class symmetric volume transitions; 40 Hz physical defect objectively closed"
   }
 }

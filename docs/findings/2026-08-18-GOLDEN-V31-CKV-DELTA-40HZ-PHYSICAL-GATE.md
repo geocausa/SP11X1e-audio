@@ -96,3 +96,33 @@ DP1/DP2/DP3 transport, endpoint taper, or the recovered calibration values.
 This first physical gate is strong enough to mark the candidate technically
 promising but not yet promote it.  Required next gates are an independent 40 Hz
 repeat and ordinary program/mute/seek listening.
+
+## Independent repeat — GREEN
+
+A second fresh SP7 external-microphone capture repeated the exact fixed-geometry
+40 Hz sequence without changing software, device positions, source, or key
+cadence.
+
+Repeat capture:
+
+- SHA-256 `19497C9EF15242CEC79DAD16C63F595ABF323EB9378B547BEC3D5D9D226F5E91`;
+- stage log SHA-256 `9D5B9566A669220C60AACD3121A8DE41C18E24E1CC763DAF5FAD494336EF84EF`.
+
+Repeat physical result:
+
+- HP500 DOWN p95 `6.7856417e-5`;
+- HP500 UP p95 `6.4095212e-5`;
+- HP500 UP/DOWN `0.94457x`;
+- HP2000 DOWN p95 `5.1471087e-5`;
+- HP2000 UP p95 `5.1471284e-5`;
+- HP2000 UP/DOWN `1.000004x`;
+- HP6000 DOWN p95 `4.0229492e-5`;
+- HP6000 UP p95 `3.9858982e-5`;
+- HP6000 UP/DOWN `0.99079x`;
+- largest repeat HP500 UP edge `6.5330607e-5`.
+
+The independent repeat therefore confirms the first gate.  The pathological
+one-sided v30 transient remains absent and v31 stays at the fixed-fixture noise
+class in both directions.  The 40 Hz Volume-Up physical defect is **objectively
+closed** on v31.  Promotion still requires ordinary program/mute/seek smoke and
+operator listening approval.
