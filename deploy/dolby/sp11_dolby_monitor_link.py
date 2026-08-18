@@ -9,9 +9,15 @@ session-manager target.
 from __future__ import annotations
 
 import argparse
+import json
+import re
 import signal
 import subprocess
 import time
+
+ENGINE_NODE = "effect_input.sp11_windows_dolby_engine"
+ENGINE_UNITY_GUARD_SECONDS = 5.0
+ENGINE_PROBE_SECONDS = 1.0
 
 LINKS = (
     (
@@ -35,6 +41,42 @@ def available_ports(pw_link: str) -> tuple[set[str], set[str]]:
     if outputs.returncode or inputs.returncode:
         return set(), set()
     return set(outputs.stdout.splitlines()), set(inputs.stdout.splitlines())
+
+
+def node_id(pw_dump: str, node_name: str) -> int | None:
+    cp = _run([pw_dump])
+    if cp.returncode:
+        return None
+    try:
+        entries = json.loads(cp.stdout)
+    except json.JSONDecodeError:
+        return None
+    for entry in entries if isinstance(entries, list) else ():
+        info = entry.get("info") or {}
+        props = info.get("props") or {}
+        if props.get("node.name") == node_name and isinstance(entry.get("id"), int):
+            return int(entry["id"])
+    return None
+
+
+def ensure_engine_unity(engine_id: int, wpctl: str) -> bool:
+    cp = _run([wpctl, "get-volume", str(engine_id)])
+    if cp.returncode:
+        return False
+    match = re.search(r"Volume:\s*([0-9.]+)", cp.stdout)
+    if not match:
+        return False
+    volume = float(match.group(1))
+    muted = "[MUTED]" in cp.stdout
+    if abs(volume - 1.0) > 5e-4:
+        cp = _run([wpctl, "set-volume", str(engine_id), "1.0"] )
+        if cp.returncode:
+            return False
+    if muted:
+        cp = _run([wpctl, "set-mute", str(engine_id), "0"] )
+        if cp.returncode:
+            return False
+    return True
 
 
 def current_links(pw_link: str) -> set[tuple[str, str]]:
@@ -72,7 +114,7 @@ def reconcile(pw_link: str) -> bool:
     return all_ready and LINKS[0] in current_links(pw_link) and LINKS[1] in current_links(pw_link)
 
 
-def run(interval: float, pw_link: str) -> int:
+def run(interval: float, pw_link: str, pw_dump: str, wpctl: str) -> int:
     stopping = False
 
     def stop(_signum: int, _frame: object) -> None:
@@ -82,7 +124,29 @@ def run(interval: float, pw_link: str) -> int:
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
     announced: bool | None = None
+    guarded_engine_id: int | None = None
+    guard_deadline = 0.0
+    next_engine_probe = 0.0
     while not stopping:
+        now = time.monotonic()
+        if now >= next_engine_probe:
+            current_engine_id = node_id(pw_dump, ENGINE_NODE)
+            if current_engine_id != guarded_engine_id:
+                guarded_engine_id = current_engine_id
+                guard_deadline = (now + ENGINE_UNITY_GUARD_SECONDS) if current_engine_id is not None else 0.0
+                if current_engine_id is not None:
+                    print(
+                        f"sp11-dolby-monitor-link: guarding hidden engine {current_engine_id} at unity",
+                        flush=True,
+                    )
+            next_engine_probe = now + ENGINE_PROBE_SECONDS
+
+        if guarded_engine_id is not None and now < guard_deadline:
+            if not ensure_engine_unity(guarded_engine_id, wpctl):
+                # Node recreation can race a wpctl transaction. A fresh ID probe
+                # on the next loop re-arms the same bounded bootstrap guard.
+                next_engine_probe = 0.0
+
         ready = reconcile(pw_link)
         if ready != announced:
             print(
@@ -99,6 +163,8 @@ def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--interval", type=float, default=0.25)
     p.add_argument("--pw-link", default="pw-link")
+    p.add_argument("--pw-dump", default="pw-dump")
+    p.add_argument("--wpctl", default="wpctl")
     return p
 
 
@@ -106,7 +172,7 @@ def main() -> int:
     args = parser().parse_args()
     if args.interval <= 0:
         raise SystemExit("--interval must be positive")
-    return run(args.interval, args.pw_link)
+    return run(args.interval, args.pw_link, args.pw_dump, args.wpctl)
 
 
 if __name__ == "__main__":

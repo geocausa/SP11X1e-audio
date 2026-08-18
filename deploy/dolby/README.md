@@ -143,7 +143,10 @@ positions.
 `channelVolumes` and maps it through the pinned Windows taper. The visible sink
 is now a **control sink only**: its unity monitor ports feed a separate hidden
 Dolby engine, so its cubic `channelVolumes` never attenuate VLLDP/VR input PCM.
-`sp11-dolby-monitor-link` maintains those exact two monitor-to-engine links.
+`sp11-dolby-monitor-link` maintains those exact two monitor-to-engine links and
+now guards the hidden engine at unity for a bounded bootstrap window after every
+node recreation.  This prevents a late session-property restore from attenuating
+PCM before Dolby while leaving the visible endpoint scalar untouched.
 
 When the protected graph is idle, the hidden downstream ALSA sink carries the
 Windows endpoint attenuation as the fail-quiet actuator. When the v4 protected

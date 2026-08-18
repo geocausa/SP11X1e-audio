@@ -57,6 +57,52 @@ class DolbyControlSplitTests(unittest.TestCase):
             ),
         )
 
+    def test_node_id_finds_hidden_engine(self):
+        class CP:
+            returncode = 0
+            stderr = ""
+            stdout = (
+                '[{"id": 91, "info": {"props": {'
+                '"node.name": "effect_input.sp11_windows_dolby_engine"}}}]'
+            )
+
+        with patch.object(linker, "_run", return_value=CP()):
+            self.assertEqual(linker.node_id("pw-dump", linker.ENGINE_NODE), 91)
+
+    def test_engine_unity_guard_repairs_only_hidden_engine_props(self):
+        calls = []
+
+        class CP:
+            def __init__(self, returncode=0, stdout=""):
+                self.returncode = returncode
+                self.stdout = stdout
+                self.stderr = ""
+
+        def fake_run(args):
+            calls.append(args)
+            if args[1:3] == ["get-volume", "91"]:
+                return CP(stdout="Volume: 0.06 [MUTED]\n")
+            if args[1:3] == ["set-volume", "91"]:
+                return CP()
+            if args[1:3] == ["set-mute", "91"]:
+                return CP()
+            raise AssertionError(args)
+
+        with patch.object(linker, "_run", side_effect=fake_run):
+            self.assertTrue(linker.ensure_engine_unity(91, "wpctl"))
+        self.assertIn(["wpctl", "set-volume", "91", "1.0"], calls)
+        self.assertIn(["wpctl", "set-mute", "91", "0"], calls)
+
+    def test_engine_unity_guard_is_noop_when_already_unity(self):
+        class CP:
+            returncode = 0
+            stderr = ""
+            stdout = "Volume: 1.00\n"
+
+        with patch.object(linker, "_run", return_value=CP()) as run:
+            self.assertTrue(linker.ensure_engine_unity(91, "wpctl"))
+        run.assert_called_once_with(["wpctl", "get-volume", "91"])
+
     def test_reconcile_creates_missing_exact_links(self):
         calls = []
 
