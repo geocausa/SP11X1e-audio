@@ -53,9 +53,15 @@ Recorder metadata:
 - StartUtc `2026-08-18T15:13:35.7606150Z`;
 - StopUtc `2026-08-18T15:16:25.7624993Z`.
 
-Concurrent Linux post-Dolby triple capture:
+The first attempted concurrent `pw-record --target effect_output...` file was
+later proven to contain **all-zero samples** and is rejected as digital evidence
+(the filter output is a Stream/Output, not a sink-monitor target). Its container
+SHA is retained only as negative provenance:
 
-`EB65A5CBBB20D02749910FC0244D1B1A35F3B73AB4AA70BBEA4EF062B093E8F5`
+`EB65A5CBBB20D02749910FC0244D1B1A35F3B73AB4AA70BBEA4EF062B093E8F5`.
+
+A later correctly targeted hidden-hardware-sink monitor capture supplies the
+valid post-Dolby normalization. See the matched Windows/Linux finding.
 
 Stage log:
 

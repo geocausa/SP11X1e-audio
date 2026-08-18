@@ -1,10 +1,55 @@
 {
-  "date":"2026-08-18",
-  "status":"green_linux_baseline_windows_raw_pending",
-  "generator":"tools/generate_sp11_lr_raw_v2.py",
-  "source_sha256":"0395BB466047B1C55F8E7D9594DC360A85C371BBA806B8ED61F325AE0933A0C0",
-  "linux":{"candidate":"Golden v31 + active RX84 userspace policy","endpoint":0.25,"sp7_capture_gain_db":0.0,"raw_wav_sha256":"4F5B818278B51B3811B2F9F82C5960AF58E2C8852158C6214BCA82EAC8BACF14","post_dolby_sha256":"EB65A5CBBB20D02749910FC0244D1B1A35F3B73AB4AA70BBEA4EF062B093E8F5","stage_log_sha256":"CD63D921FD3BEB56D43724C1D1D83997217108F71EB96485CEA202D58270CF58","analysis_sha256":"446C79E615CBABD218FEE1AC1D7F0327A11EC7C054E5AFF0906F46BE8D517D33"},
-  "repeatability_630_6300_db":{"left":{"median":0.07344376015593923,"p90":0.1656918528874911,"max":0.31500982137650624},"right":{"median":0.06405971733788363,"p90":0.26527151522861914,"max":0.39777994627772273},"stereo":{"median":0.05985351864119082,"p90":0.15808889663280468,"max":0.16268678968586414}},
-  "linux_right_minus_left_median_db":{"100":-0.282,"125":-0.519,"160":0.624,"200":-1.298,"250":4.301,"315":6.714,"400":-9.099,"500":-3.544,"630":2.270,"800":4.171,"1000":-1.135,"1250":-4.862,"1600":-3.489,"2000":1.252,"2500":-5.148,"3150":-0.278,"4000":5.378,"5000":6.723,"6300":2.313},
-  "boundary":"fingerprint only; do not interpret as parity error until matched native-Windows RAW reference exists"
+  "date": "2026-08-18",
+  "status": "green_linux_baseline_windows_raw_pending",
+  "generator": "tools/generate_sp11_lr_raw_v2.py",
+  "source_sha256": "0395BB466047B1C55F8E7D9594DC360A85C371BBA806B8ED61F325AE0933A0C0",
+  "linux": {
+    "candidate": "Golden v31 + active RX84 userspace policy",
+    "endpoint": 0.25,
+    "sp7_capture_gain_db": 0.0,
+    "raw_wav_sha256": "4F5B818278B51B3811B2F9F82C5960AF58E2C8852158C6214BCA82EAC8BACF14",
+    "stage_log_sha256": "CD63D921FD3BEB56D43724C1D1D83997217108F71EB96485CEA202D58270CF58",
+    "analysis_sha256": "446C79E615CBABD218FEE1AC1D7F0327A11EC7C054E5AFF0906F46BE8D517D33",
+    "rejected_zero_filter_output_capture_sha256": "EB65A5CBBB20D02749910FC0244D1B1A35F3B73AB4AA70BBEA4EF062B093E8F5",
+    "rejected_zero_filter_output_capture_reason": "pw-record targeted effect_output Stream/Output; samples later verified all zero"
+  },
+  "repeatability_630_6300_db": {
+    "left": {
+      "median": 0.07344376015593923,
+      "p90": 0.1656918528874911,
+      "max": 0.31500982137650624
+    },
+    "right": {
+      "median": 0.06405971733788363,
+      "p90": 0.26527151522861914,
+      "max": 0.39777994627772273
+    },
+    "stereo": {
+      "median": 0.05985351864119082,
+      "p90": 0.15808889663280468,
+      "max": 0.16268678968586414
+    }
+  },
+  "linux_right_minus_left_median_db": {
+    "100": -0.282,
+    "125": -0.519,
+    "160": 0.624,
+    "200": -1.298,
+    "250": 4.301,
+    "315": 6.714,
+    "400": -9.099,
+    "500": -3.544,
+    "630": 2.27,
+    "800": 4.171,
+    "1000": -1.135,
+    "1250": -4.862,
+    "1600": -3.489,
+    "2000": 1.252,
+    "2500": -5.148,
+    "3150": -0.278,
+    "4000": 5.378,
+    "5000": 6.723,
+    "6300": 2.313
+  },
+  "boundary": "fingerprint only; do not interpret as parity error until matched native-Windows RAW reference exists"
 }

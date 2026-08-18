@@ -1,0 +1,248 @@
+{
+  "rows": [
+    {
+      "hz": 100,
+      "physical_rl_windows_minus_linux_db": 3.866462200887227,
+      "digital_rl_windows_minus_linux_db": 0.008393313245669276,
+      "downstream_rl_windows_minus_linux_db": 3.858068887641558,
+      "linux_physical_run_range_db": 3.2514191206347363,
+      "windows_physical_run_range_db": 1.247014448263542
+    },
+    {
+      "hz": 125,
+      "physical_rl_windows_minus_linux_db": 1.934980795798893,
+      "digital_rl_windows_minus_linux_db": 0.009586653032236825,
+      "downstream_rl_windows_minus_linux_db": 1.925394142766656,
+      "linux_physical_run_range_db": 0.596666577054421,
+      "windows_physical_run_range_db": 0.45266801473687224
+    },
+    {
+      "hz": 160,
+      "physical_rl_windows_minus_linux_db": 1.3344109020623023,
+      "digital_rl_windows_minus_linux_db": 0.009695005316586958,
+      "downstream_rl_windows_minus_linux_db": 1.3247158967457153,
+      "linux_physical_run_range_db": 1.9017898695194617,
+      "windows_physical_run_range_db": 0.2494293437952848
+    },
+    {
+      "hz": 200,
+      "physical_rl_windows_minus_linux_db": 1.7991340781972553,
+      "digital_rl_windows_minus_linux_db": 0.010578426093957205,
+      "downstream_rl_windows_minus_linux_db": 1.7885556521032981,
+      "linux_physical_run_range_db": 1.6322051915409617,
+      "windows_physical_run_range_db": 0.46526916674604024
+    },
+    {
+      "hz": 250,
+      "physical_rl_windows_minus_linux_db": 1.7150404771913799,
+      "digital_rl_windows_minus_linux_db": 0.010955021053106861,
+      "downstream_rl_windows_minus_linux_db": 1.704085456138273,
+      "linux_physical_run_range_db": 0.3591502695396116,
+      "windows_physical_run_range_db": 0.22414503797823215
+    },
+    {
+      "hz": 315,
+      "physical_rl_windows_minus_linux_db": 1.7972274247674989,
+      "digital_rl_windows_minus_linux_db": 0.011492403659566719,
+      "downstream_rl_windows_minus_linux_db": 1.7857350211079321,
+      "linux_physical_run_range_db": 0.2177166147101275,
+      "windows_physical_run_range_db": 0.6185776818038136
+    },
+    {
+      "hz": 400,
+      "physical_rl_windows_minus_linux_db": 3.0552398143180426,
+      "digital_rl_windows_minus_linux_db": 0.01167889367457775,
+      "downstream_rl_windows_minus_linux_db": 3.043560920643465,
+      "linux_physical_run_range_db": 0.8891418281562125,
+      "windows_physical_run_range_db": 0.38017984126940974
+    },
+    {
+      "hz": 500,
+      "physical_rl_windows_minus_linux_db": -0.0684865840862301,
+      "digital_rl_windows_minus_linux_db": 0.011614877249179756,
+      "downstream_rl_windows_minus_linux_db": -0.08010146133540985,
+      "linux_physical_run_range_db": 0.5512547686520577,
+      "windows_physical_run_range_db": 0.4928676060845447
+    },
+    {
+      "hz": 630,
+      "physical_rl_windows_minus_linux_db": 2.5056780895602344,
+      "digital_rl_windows_minus_linux_db": 0.011953845008456199,
+      "downstream_rl_windows_minus_linux_db": 2.493724244551778,
+      "linux_physical_run_range_db": 0.35628414111437223,
+      "windows_physical_run_range_db": 0.27891778012332225
+    },
+    {
+      "hz": 800,
+      "physical_rl_windows_minus_linux_db": 1.087324327519454,
+      "digital_rl_windows_minus_linux_db": 0.012110455864757341,
+      "downstream_rl_windows_minus_linux_db": 1.0752138716546966,
+      "linux_physical_run_range_db": 0.18505649267066815,
+      "windows_physical_run_range_db": 0.18516594349046045
+    },
+    {
+      "hz": 1000,
+      "physical_rl_windows_minus_linux_db": -0.3369041456102906,
+      "digital_rl_windows_minus_linux_db": 0.012252851832322165,
+      "downstream_rl_windows_minus_linux_db": -0.34915699744261275,
+      "linux_physical_run_range_db": 0.14563480570339493,
+      "windows_physical_run_range_db": 0.6022365681149466
+    },
+    {
+      "hz": 1250,
+      "physical_rl_windows_minus_linux_db": -2.9417063202247675,
+      "digital_rl_windows_minus_linux_db": 0.01252209377400959,
+      "downstream_rl_windows_minus_linux_db": -2.954228413998777,
+      "linux_physical_run_range_db": 0.24383485131758675,
+      "windows_physical_run_range_db": 0.5928822635542161
+    },
+    {
+      "hz": 1600,
+      "physical_rl_windows_minus_linux_db": -2.6371439400319616,
+      "digital_rl_windows_minus_linux_db": 0.012268871202358866,
+      "downstream_rl_windows_minus_linux_db": -2.6494128112343205,
+      "linux_physical_run_range_db": 0.2860172379456145,
+      "windows_physical_run_range_db": 0.167295095708468
+    },
+    {
+      "hz": 2000,
+      "physical_rl_windows_minus_linux_db": 2.1072809504497343,
+      "digital_rl_windows_minus_linux_db": 0.011988146715218306,
+      "downstream_rl_windows_minus_linux_db": 2.095292803734516,
+      "linux_physical_run_range_db": 0.1487327751209193,
+      "windows_physical_run_range_db": 0.29299564616856344
+    },
+    {
+      "hz": 2500,
+      "physical_rl_windows_minus_linux_db": 0.03650459262708239,
+      "digital_rl_windows_minus_linux_db": 0.011831945832767587,
+      "downstream_rl_windows_minus_linux_db": 0.0246726467943148,
+      "linux_physical_run_range_db": 0.11079546266668672,
+      "windows_physical_run_range_db": 0.3345451926043097
+    },
+    {
+      "hz": 3150,
+      "physical_rl_windows_minus_linux_db": 0.553783189005074,
+      "digital_rl_windows_minus_linux_db": 0.011741807104115765,
+      "downstream_rl_windows_minus_linux_db": 0.5420413819009582,
+      "linux_physical_run_range_db": 0.016073803517500096,
+      "windows_physical_run_range_db": 0.30883402031615503
+    },
+    {
+      "hz": 4000,
+      "physical_rl_windows_minus_linux_db": 1.1635888443759086,
+      "digital_rl_windows_minus_linux_db": 0.011233145045657977,
+      "downstream_rl_windows_minus_linux_db": 1.1523556993302506,
+      "linux_physical_run_range_db": 0.06053660570209729,
+      "windows_physical_run_range_db": 0.2943826967339902
+    },
+    {
+      "hz": 5000,
+      "physical_rl_windows_minus_linux_db": 0.3303575813330184,
+      "digital_rl_windows_minus_linux_db": 0.010536388688080933,
+      "downstream_rl_windows_minus_linux_db": 0.31982119264493747,
+      "linux_physical_run_range_db": 0.046934221341672355,
+      "windows_physical_run_range_db": 0.1968131771728565
+    },
+    {
+      "hz": 6300,
+      "physical_rl_windows_minus_linux_db": 1.274844440032524,
+      "digital_rl_windows_minus_linux_db": 0.004160234246832317,
+      "downstream_rl_windows_minus_linux_db": 1.2706842057856917,
+      "linux_physical_run_range_db": 0.051925154600837686,
+      "windows_physical_run_range_db": 0.21064782410535088
+    }
+  ],
+  "digital_absolute_windows_minus_linux_db": {
+    "100": {
+      "left": -0.03502704161841308,
+      "right": -0.10214573273373873
+    },
+    "125": {
+      "left": -0.03995531531657548,
+      "right": -0.11858803416055252
+    },
+    "160": {
+      "left": -0.04325637567216489,
+      "right": -0.1296262063580116
+    },
+    "200": {
+      "left": -0.04526288122580979,
+      "right": -0.1383615571355108
+    },
+    "250": {
+      "left": -0.05052587522813923,
+      "right": -0.1479588867028383
+    },
+    "315": {
+      "left": -0.06430144348921374,
+      "right": -0.15915408887001448
+    },
+    "400": {
+      "left": -0.05083029718394272,
+      "right": -0.16521652248303198
+    },
+    "500": {
+      "left": -0.045674267180068284,
+      "right": -0.1638197014157683
+    },
+    "630": {
+      "left": -0.04840925553830999,
+      "right": -0.1688405375943205
+    },
+    "800": {
+      "left": -0.047723696156054984,
+      "right": -0.17059402600075657
+    },
+    "1000": {
+      "left": -0.04620548613328879,
+      "right": -0.16937233154065723
+    },
+    "1250": {
+      "left": -0.0503589893653853,
+      "right": -0.17332983024697768
+    },
+    "1600": {
+      "left": -0.04809137368187777,
+      "right": -0.1708801874864463
+    },
+    "2000": {
+      "left": -0.049738143659112666,
+      "right": -0.17479045264345672
+    },
+    "2500": {
+      "left": -0.049052510235597424,
+      "right": -0.17413406401300335
+    },
+    "3150": {
+      "left": -0.04913038696690819,
+      "right": -0.17411376637775788
+    },
+    "4000": {
+      "left": -0.0498060501676747,
+      "right": -0.17345996320506174
+    },
+    "5000": {
+      "left": -0.05332384171075688,
+      "right": -0.1671202533881555
+    },
+    "6300": {
+      "left": -0.0703427219962478,
+      "right": -0.165380428818807
+    }
+  },
+  "schema": "sp11-rx84-raw-lr-v2-normalized-residual-v1",
+  "date": "2026-08-18",
+  "source_sha256": "0395BB466047B1C55F8E7D9594DC360A85C371BBA806B8ED61F325AE0933A0C0",
+  "physical_raw_sha256": {
+    "linux": "4F5B818278B51B3811B2F9F82C5960AF58E2C8852158C6214BCA82EAC8BACF14",
+    "windows": "C1ED4461F7A4B756874BE8921565F7FC75FA601C599CB0BD3DFF842B71971D21"
+  },
+  "digital_sha256": {
+    "linux_monitor": "7E9DFB777C11D9A38E8FA1F66CA01139142FD8DC12434B2921704EA0C711F62B",
+    "linux_analysis": "AB6E59C284452D1CBA16EE9E30B977E6BB98A71451A95C59363AE17EC5803693",
+    "windows_loopback": "135CAAA4A4A5B02239805E58BF9187FB868DE503E1B070BA7D8CDB67383D5C2F",
+    "windows_analysis": "BD5E5A931E2801132FAC7212B78C97A7C3F7CF740BFD2FA4836D6782F187DAB2"
+  },
+  "interpretation": "downstream content-dependent residual; simultaneous harmonically-related multisine is not a linear EQ oracle"
+}
