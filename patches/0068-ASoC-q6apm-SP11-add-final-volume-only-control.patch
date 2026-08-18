@@ -1,0 +1,82 @@
+From: SP11 Audio Reverse Engineering <sp11-audio@local>
+Date: Tue, 18 Aug 2026 10:42:00 +0100
+Subject: [PATCH] ASoC: q6apm: add fixed SP11 final-volume-only control
+
+Qualcomm's recovered runtime calibration path computes non-persistent graph
+calibration from prior and new CKVs. A final-volume channel update whose
+selected GainStep key does not change must therefore update final VOL_CTRL
+without re-sending the GainStep-dependent calibration group.
+
+Keep the existing combined SP11 Windows Volume Transaction ABI unchanged.
+Add a fixed-target stereo control with only left/right Q28 values. The
+callback is restricted to the running protected graph. It shares the
+existing volume transaction mutex and can only call the validated final
+VOL_CTRL helper. It exposes no arbitrary iid, param id, or payload target.
+
+Signed-off-by: SP11 Audio Reverse Engineering <sp11-audio@local>
+---
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -1526,6 +1526,7 @@
+ #define SP11_VOLUME_TRANSACTION_CONTROL_MAX	(SND_SOC_TLV_HDR + \
+ 						 SP11_VOLUME_TRANSACTION_PAYLOAD_MAX)
+ #define SP11_GAINSTEP_IID			0x489e
++#define SP11_VOLUME_ONLY_CONTROL_MAX		(SND_SOC_TLV_HDR + 2 * sizeof(u32))
+ #define SP11_ENDPOINT_MUTE_CONTROL_MAX		(SND_SOC_TLV_HDR + sizeof(u32))
+ 
+ static DEFINE_MUTEX(sp11_volume_transaction_lock);
+@@ -1627,6 +1628,44 @@
+ }
+ 
+ static int
++q6apm_sp11_volume_only_put(struct snd_kcontrol *kcontrol,
++			   const unsigned int __user *bytes,
++			   unsigned int size)
++{
++	struct snd_soc_component *c = snd_kcontrol_chip(kcontrol);
++	struct q6apm *apm = dev_get_drvdata(c->dev);
++	struct audioreach_graph *graph;
++	u32 gain_q28[2];
++	u32 left_q28, right_q28;
++	int ret;
++
++	if (size != SP11_VOLUME_ONLY_CONTROL_MAX)
++		return -EINVAL;
++
++	bytes += 2;
++	if (copy_from_user(gain_q28, bytes, sizeof(gain_q28)))
++		return -EFAULT;
++	left_q28 = le32_to_cpu(gain_q28[0]);
++	right_q28 = le32_to_cpu(gain_q28[1]);
++
++	graph = q6apm_sp11_get_running_protected_graph(apm);
++	if (IS_ERR(graph))
++		return PTR_ERR(graph);
++
++	mutex_lock(&sp11_volume_transaction_lock);
++	ret = audioreach_sp11_set_final_volume_q28(apm, left_q28, right_q28);
++	mutex_unlock(&sp11_volume_transaction_lock);
++
++	if (ret)
++		dev_dbg(apm->dev,
++			"SP11 volume-only L %#x R %#x -> %d\n",
++			left_q28, right_q28, ret);
++
++	kref_put(&graph->refcount, q6apm_put_audioreach_graph);
++	return ret;
++}
++
++static int
+ q6apm_sp11_endpoint_mute_put(struct snd_kcontrol *kcontrol,
+ 				     const unsigned int __user *bytes,
+ 				     unsigned int size)
+@@ -1765,6 +1804,9 @@
+ 	SND_SOC_BYTES_TLV("SP11 Windows Volume Transaction",
+ 			  SP11_VOLUME_TRANSACTION_CONTROL_MAX, NULL,
+ 			  q6apm_sp11_volume_transaction_put),
++	SND_SOC_BYTES_TLV("SP11 Windows Volume Only",
++			  SP11_VOLUME_ONLY_CONTROL_MAX, NULL,
++			  q6apm_sp11_volume_only_put),
+ 	SND_SOC_BYTES_TLV("SP11 Windows Endpoint Mute",
+ 			  SP11_ENDPOINT_MUTE_CONTROL_MAX, NULL,
+ 			  q6apm_sp11_endpoint_mute_put),

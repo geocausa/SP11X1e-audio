@@ -73,6 +73,25 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         host.assert_not_called()
         self.assertEqual(result[1], 2)
 
+    def test_exact_volume_only_payload_is_two_q28_words(self):
+        calls = []
+
+        class CP:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+
+        with patch.object(
+            sync.subprocess, "run",
+            side_effect=lambda argv, **kwargs: calls.append(argv) or CP(),
+        ):
+            sync.write_volume_only(
+                0x0039DB88, 0x00C7763F, helper=Path("tlv_write"),
+                card="hw:0", numid=35,
+            )
+
+        self.assertEqual(calls[0][-1], "88db39003f76c700")
+
     def test_exact_endpoint_mute_selector_is_one_u32(self):
         calls = []
 
@@ -101,11 +120,13 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
             stdout = (
                 "numid=33,iface=MIXER,name='SP11 Windows Volume Transaction'\n"
                 "numid=34,iface=MIXER,name='SP11 Windows Endpoint Mute'\n"
+                "numid=35,iface=MIXER,name='SP11 Windows Volume Only'\n"
             )
 
         with patch.object(sync.subprocess, "run", return_value=CP()):
             self.assertEqual(sync.find_control_numid(), 33)
             self.assertEqual(sync.find_mute_control_numid(), 34)
+            self.assertEqual(sync.find_volume_only_control_numid(), 35)
 
     def test_postgain_is_queued_once_per_dolby_generation(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -171,6 +192,93 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         self.assertEqual(result, (q8, 1))
         self.assertEqual(calls, [(q8, q17, 2), (q8, q8, 1)])
 
+    def test_prior_new_ckv_same_row_uses_volume_only_twice(self):
+        q8 = sync.qcadcm_q28_from_db(-37.183)
+        deltas = tuple(bytes([step]) * (272 if step in (3, 9, 24) else 216)
+                       for step in range(1, 31))
+        calls = []
+        with patch.object(sync, "write_transaction") as combined, \
+             patch.object(sync, "write_volume_only",
+                          side_effect=lambda left, right, **kw:
+                          calls.append((left, right, kw["numid"]))), \
+             patch.object(sync.base, "set_hardware_volume") as host:
+            result = sync.apply_transaction(
+                (0.10 ** 3, False), 69, deltas, Path("tlv"), "hw:0", 33,
+                "wpctl", previous=(q8, 1), stereo_sequence=True,
+                volume_only_numid=35,
+            )
+        q10 = result[0]
+        self.assertEqual(result[1], 1)
+        self.assertEqual(calls, [(q10, q8, 35), (q10, q10, 35)])
+        combined.assert_not_called()
+        host.assert_not_called()
+
+    def test_prior_new_ckv_up_boundary_calibrates_first_call_only(self):
+        q8 = sync.qcadcm_q28_from_db(-37.183)
+        deltas = tuple(bytes([step]) * (272 if step in (3, 9, 24) else 216)
+                       for step in range(1, 31))
+        calls = []
+        with patch.object(sync, "write_transaction",
+                          side_effect=lambda left, delta, **kw:
+                          calls.append(("cal", left, kw.get("right_q28"), delta[0]))), \
+             patch.object(sync, "write_volume_only",
+                          side_effect=lambda left, right, **kw:
+                          calls.append(("vol", left, right, None))), \
+             patch.object(sync.base, "set_hardware_volume"):
+            result = sync.apply_transaction(
+                (0.17 ** 3, False), 69, deltas, Path("tlv"), "hw:0", 33,
+                "wpctl", previous=(q8, 1), stereo_sequence=True,
+                volume_only_numid=35,
+            )
+        q17 = result[0]
+        self.assertEqual(result[1], 2)
+        self.assertEqual(calls, [
+            ("cal", q17, q8, 2),
+            ("vol", q17, q17, None),
+        ])
+
+    def test_prior_new_ckv_down_boundary_calibrates_second_call_only(self):
+        q17 = sync.qcadcm_q28_from_db(-26.409)
+        deltas = tuple(bytes([step]) * (272 if step in (3, 9, 24) else 216)
+                       for step in range(1, 31))
+        calls = []
+        with patch.object(sync, "write_transaction",
+                          side_effect=lambda left, delta, **kw:
+                          calls.append(("cal", left, kw.get("right_q28"), delta[0]))), \
+             patch.object(sync, "write_volume_only",
+                          side_effect=lambda left, right, **kw:
+                          calls.append(("vol", left, right, None))), \
+             patch.object(sync.base, "set_hardware_volume"):
+            result = sync.apply_transaction(
+                (0.08 ** 3, False), 69, deltas, Path("tlv"), "hw:0", 33,
+                "wpctl", previous=(q17, 2), stereo_sequence=True,
+                volume_only_numid=35,
+            )
+        q8 = result[0]
+        self.assertEqual(result[1], 1)
+        self.assertEqual(calls, [
+            ("vol", q8, q17, None),
+            ("cal", q8, q8, 1),
+        ])
+
+    def test_prior_new_ckv_initial_handover_establishes_one_combined_row(self):
+        deltas = tuple(bytes([step]) * (272 if step in (3, 9, 24) else 216)
+                       for step in range(1, 31))
+        calls = []
+        with patch.object(sync, "write_transaction",
+                          side_effect=lambda left, delta, **kw:
+                          calls.append((left, kw.get("right_q28"), delta[0]))), \
+             patch.object(sync, "write_volume_only") as volume_only, \
+             patch.object(sync.base, "set_hardware_volume") as host:
+            result = sync.apply_transaction(
+                (0.17 ** 3, False), 69, deltas, Path("tlv"), "hw:0", 33,
+                "wpctl", previous=None, stereo_sequence=True,
+                volume_only_numid=35,
+            )
+        self.assertEqual(calls, [(result[0], result[0], 2)])
+        volume_only.assert_not_called()
+        host.assert_called_once_with(69, 1.0, "wpctl")
+
     def test_dispatch_selects_candidate_only_when_control_exists(self):
         class CP:
             returncode = 0
@@ -190,6 +298,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \
              patch.object(sync, "find_mute_control_numid", return_value=None), \
+             patch.object(sync, "find_volume_only_control_numid", return_value=None), \
              patch.object(sync.base, "snapshot", return_value=[]), \
              patch.object(sync.base, "extract_node_volume",
                           return_value=(0.25 ** 3, False)), \
@@ -250,6 +359,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \
              patch.object(sync, "find_mute_control_numid", return_value=None), \
+             patch.object(sync, "find_volume_only_control_numid", return_value=None), \
              patch.object(sync, "find_control_values", return_value=284), \
              patch.object(sync.subprocess, "Popen", return_value=FakeProc()), \
              patch.object(sync.base, "snapshot",
@@ -326,6 +436,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \
              patch.object(sync, "find_mute_control_numid", return_value=None), \
+             patch.object(sync, "find_volume_only_control_numid", return_value=None), \
              patch.object(sync, "find_control_values", return_value=284), \
              patch.object(sync.subprocess, "Popen", return_value=FakeProc()), \
              patch.object(sync.base, "snapshot", return_value=initial), \
@@ -381,6 +492,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \
              patch.object(sync, "find_mute_control_numid", return_value=322), \
+             patch.object(sync, "find_volume_only_control_numid", return_value=None), \
              patch.object(sync, "find_control_values", return_value=288), \
              patch.object(sync.subprocess, "Popen", return_value=FakeProc()), \
              patch.object(sync.base, "snapshot", return_value=initial), \
@@ -425,6 +537,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
              patch.object(sync, "find_control_numid", return_value=321), \
              patch.object(sync, "find_mute_control_numid", return_value=322), \
+             patch.object(sync, "find_volume_only_control_numid", return_value=None), \
              patch.object(sync, "find_control_values", return_value=288), \
              patch.object(sync.base, "snapshot", return_value=[]), \
              patch.object(sync.base, "extract_node_volume", return_value=(0.25 ** 3, False)), \

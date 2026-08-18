@@ -74,6 +74,7 @@ msiir = load_module(
 )
 
 CONTROL_NAME = "SP11 Windows Volume Transaction"
+VOLUME_ONLY_CONTROL_NAME = "SP11 Windows Volume Only"
 MUTE_CONTROL_NAME = "SP11 Windows Endpoint Mute"
 DEFAULT_CARD = "hw:0"
 DEFAULT_PCM_STATUS = Path("/proc/asound/card0/pcm0p/sub0/status")
@@ -87,6 +88,7 @@ Q28_ONE = 1 << 28
 SND_SOC_TLV_HDR = 2 * 4
 STEREO_GAIN_WORDS = 2 * 4
 STEREO_TRANSACTION_CONTROL_VALUES = SND_SOC_TLV_HDR + STEREO_GAIN_WORDS + 272
+VOLUME_ONLY_CONTROL_VALUES = SND_SOC_TLV_HDR + STEREO_GAIN_WORDS
 EXPECTED_ACDB_SHA256 = (
     "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde"
 )
@@ -142,6 +144,11 @@ def find_control_numid(card: str = DEFAULT_CARD, amixer: str = "amixer") -> int 
     return find_named_control_numid(CONTROL_NAME, card, amixer)
 
 
+def find_volume_only_control_numid(card: str = DEFAULT_CARD,
+                                     amixer: str = "amixer") -> int | None:
+    return find_named_control_numid(VOLUME_ONLY_CONTROL_NAME, card, amixer)
+
+
 def find_mute_control_numid(card: str = DEFAULT_CARD,
                             amixer: str = "amixer") -> int | None:
     return find_named_control_numid(MUTE_CONTROL_NAME, card, amixer)
@@ -182,6 +189,25 @@ def write_transaction(left_q28: int, delta: bytes, *, helper: Path, card: str,
     if cp.returncode:
         output = (cp.stdout + cp.stderr).strip()
         raise RuntimeError(output or f"tlv_write rc={cp.returncode}")
+
+
+def write_volume_only(left_q28: int, right_q28: int, *, helper: Path,
+                      card: str, numid: int) -> None:
+    """Send only final stereo VOL_CTRL gain with no GainStep calibration.
+
+    Windows GSL computes runtime calibration from prior/new CKVs.  When the
+    selected GainStep CKV does not change, only the final VOL_CTRL gain body is
+    required; the non-persistent 0x489e calibration group is absent.
+    """
+    if not 0 <= left_q28 <= Q28_ONE or not 0 <= right_q28 <= Q28_ONE:
+        raise ValueError("final VOL_CTRL Q28 outside 0..unity")
+    blob = struct.pack("<II", left_q28, right_q28)
+    cp = subprocess.run(
+        [str(helper), card, str(numid), blob.hex()], capture_output=True, text=True
+    )
+    if cp.returncode:
+        output = (cp.stdout + cp.stderr).strip()
+        raise RuntimeError(output or f"volume-only tlv_write rc={cp.returncode}")
 
 
 def write_endpoint_mute(muted: bool, *, helper: Path, card: str,
@@ -286,7 +312,8 @@ def apply_transaction(state: tuple[float, bool], hardware_id: int,
                       deltas: tuple[bytes, ...], helper: Path,
                       card: str, numid: int, wpctl: str,
                       previous: tuple[int, int] | None = None,
-                      stereo_sequence: bool = False) -> tuple[int, int]:
+                      stereo_sequence: bool = False,
+                      volume_only_numid: int | None = None) -> tuple[int, int]:
     pipewire_gain, muted = state
     ui_scalar, endpoint_db, _postgain, _host_scalar = base.derive_windows_state(
         pipewire_gain, muted
@@ -302,16 +329,51 @@ def apply_transaction(state: tuple[float, bool], hardware_id: int,
             # channel first and right channel second. GetGraphCkv keeps the
             # louder of the two channel states during that intermediate body.
             mixed_step = max(old_step, step)
-            write_transaction(
-                q28, deltas[mixed_step - 1], helper=helper, card=card,
-                numid=numid, right_q28=old_q28,
-            )
-            write_transaction(
-                q28, deltas[step - 1], helper=helper, card=card,
-                numid=numid, right_q28=q28,
-            )
-            sequence = f"windows-lr:{mixed_step}->{step}"
+            if volume_only_numid is not None:
+                # Qualcomm GSL sends non-persistent calibration from a
+                # prior/new CKV delta.  A channel call whose selected GainStep
+                # did not change carries final VOL_CTRL only; re-sending the
+                # same 0x489e row is not Windows-equivalent.
+                first_cal = mixed_step != old_step
+                if first_cal:
+                    write_transaction(
+                        q28, deltas[mixed_step - 1], helper=helper, card=card,
+                        numid=numid, right_q28=old_q28,
+                    )
+                else:
+                    write_volume_only(
+                        q28, old_q28, helper=helper, card=card,
+                        numid=volume_only_numid,
+                    )
+
+                second_cal = step != mixed_step
+                if second_cal:
+                    write_transaction(
+                        q28, deltas[step - 1], helper=helper, card=card,
+                        numid=numid, right_q28=q28,
+                    )
+                else:
+                    write_volume_only(
+                        q28, q28, helper=helper, card=card,
+                        numid=volume_only_numid,
+                    )
+                sequence = (
+                    f"windows-ckv:{'cal' if first_cal else 'vol'}->"
+                    f"{'cal' if second_cal else 'vol'}:{mixed_step}->{step}"
+                )
+            else:
+                write_transaction(
+                    q28, deltas[mixed_step - 1], helper=helper, card=card,
+                    numid=numid, right_q28=old_q28,
+                )
+                write_transaction(
+                    q28, deltas[step - 1], helper=helper, card=card,
+                    numid=numid, right_q28=q28,
+                )
+                sequence = f"windows-lr:{mixed_step}->{step}"
         else:
+            # Unknown prior CKV at graph handover: establish one validated
+            # baseline row before prior/new delta semantics take over.
             write_transaction(
                 q28, deltas[step - 1], helper=helper, card=card,
                 numid=numid, right_q28=q28,
@@ -358,14 +420,28 @@ def run(args: argparse.Namespace) -> int:
         print(f"missing TLV helper: {args.tlv_write}", file=sys.stderr)
         return 5
     mute_numid = find_mute_control_numid(args.card, args.amixer)
+    volume_only_numid = find_volume_only_control_numid(args.card, args.amixer)
     control_values = find_control_values(args.card, numid, args.amixer)
+    volume_only_values = (
+        find_control_values(args.card, volume_only_numid, args.amixer)
+        if volume_only_numid is not None else None
+    )
     stereo_sequence = (
         control_values is not None
         and control_values >= STEREO_TRANSACTION_CONTROL_VALUES
     )
+    prior_new_ckv = (
+        stereo_sequence
+        and volume_only_numid is not None
+        and volume_only_values == VOLUME_ONLY_CONTROL_VALUES
+    )
+    if not prior_new_ckv:
+        volume_only_numid = None
     print(
         f"volume_transaction_control_values={control_values} "
         f"mode={'windows-lr' if stereo_sequence else 'legacy-stereo'} "
+        f"ckv_delta={'prior-new' if prior_new_ckv else 'legacy-resend'} "
+        f"volume_only_control_values={volume_only_values} "
         f"endpoint_mute={'exact-dsp' if mute_numid is not None else 'hardware-fallback'}",
         flush=True,
     )
@@ -452,6 +528,7 @@ def run(args: argparse.Namespace) -> int:
                 args.card, numid, args.wpctl,
                 previous=last if transaction_active else None,
                 stereo_sequence=stereo_sequence,
+                volume_only_numid=volume_only_numid,
             )
             last_host = None
             transaction_active = True
