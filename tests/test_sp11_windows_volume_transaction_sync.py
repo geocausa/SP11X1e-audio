@@ -60,6 +60,19 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         expected_q28 = sync.qcadcm_q28_from_db(-20.7474098205566)
         self.assertEqual(signature, (expected_q28, 3))
 
+    def test_live_followup_does_not_rewrite_hidden_sink_unity(self):
+        deltas = tuple(b"d" * (272 if step in (3, 9, 24) else 216)
+                       for step in range(1, 31))
+        q8 = sync.qcadcm_q28_from_db(-37.183)
+        with patch.object(sync, "write_transaction"), \
+             patch.object(sync.base, "set_hardware_volume") as host:
+            result = sync.apply_transaction(
+                (0.17 ** 3, False), 69, deltas, Path("tlv"), "hw:0", 33,
+                "wpctl", previous=(q8, 1), stereo_sequence=True,
+            )
+        host.assert_not_called()
+        self.assertEqual(result[1], 2)
+
     def test_exact_endpoint_mute_selector_is_one_u32(self):
         calls = []
 

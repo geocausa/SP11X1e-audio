@@ -320,7 +320,11 @@ def apply_transaction(state: tuple[float, bool], hardware_id: int,
     else:
         write_transaction(q28, deltas[step - 1], helper=helper, card=card, numid=numid)
 
-    base.set_hardware_volume(hardware_id, 1.0, wpctl)
+    # The hidden sink is moved to unity only when entering DSP-owned volume
+    # after idle/fail-quiet host attenuation.  Rewriting unity on every live
+    # endpoint step is redundant and creates a second downstream control edge.
+    if previous is None:
+        base.set_hardware_volume(hardware_id, 1.0, wpctl)
     print(
         f"pipewire_gain={pipewire_gain:.9g} ui_scalar={ui_scalar:.6f} "
         f"windows_db={endpoint_db:.3f} final_q28=0x{q28:08x} "
