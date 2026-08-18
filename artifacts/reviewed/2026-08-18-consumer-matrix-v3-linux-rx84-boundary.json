@@ -1,0 +1,9 @@
+{
+  "date":"2026-08-18",
+  "status":"linux_v3_complete_windows_pending",
+  "source":{"wav_sha256":"ED983FB77F7F42FF4F593D75C981AD41E26F25EAE7FD46D23C49A9867A8558FE","schedule_sha256":"1068DF697FBFB5F4880895E3A574CB69BA77C7BDABF83194D94CC3DE726AB32B","conditions":72,"duration_s":78.0},
+  "linux":{"sp7_raw_wav_sha256":"8ACE8E2A8A0CC3DAF065B8F2C6C8ECE674DC179FC0D4B918E6A6CAF67AFC836E","physical_analysis_sha256":"93686019A5061578D9EE2996936D2663247D05E33A266438D69DF6AA2A5C4DD3","post_dolby_monitor_sha256":"44FCAC279C6BECCB0FBA03D94546806BA241A862DAC21BE8BED832D69F5153FD","digital_analysis_sha256":"969B8D20B5EA25F614656B2750827E607DBDFED8597246B330582668E1AB419A","sp7_endpoint_gain_db":0.0,"physical_source_origins_s":[21.086,106.128],"digital_source_origins_s":[0.7851666667,85.8303958333]},
+  "digital_repeatability_db":{"median":0.0025623183,"p90":0.0179645372,"max":0.1005155716},
+  "reliable_high_mid_gate":{"definition":"both 0.05 and 0.2 physical repeat deltas <= 1 dB","pair_count":17,"transfer_change_0p05_to_0p2_db":{"median":-0.1068773081,"mean":-0.0404753018,"min":-0.8784964137,"max":2.3097728295}},
+  "conclusion":"Linux RX84 isolated-tone fundamental transfer is mostly level-invariant in reliable mid/high rows; native-Windows v3 is required to distinguish missing level law from Windows-only nonlinear harmonic/intermodulation behavior."
+}
