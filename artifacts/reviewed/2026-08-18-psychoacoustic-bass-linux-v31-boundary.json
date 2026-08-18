@@ -1,0 +1,32 @@
+{
+  "date": "2026-08-18",
+  "scope": "Golden v31 Linux-side psychoacoustic-bass mechanism boundary",
+  "source_probe_sha256": "01558cac5ec08ef3ed7ad172b7c64c69482bdb494638165e01d929c5a77b759f",
+  "gainstep_shape_db": {
+    "1": {"ui_percent": "1-16", "rel_60hz_vs_1khz": 17.44, "rel_100hz_vs_1khz": 15.02},
+    "2": {"ui_percent": "17-24", "rel_60hz_vs_1khz": 16.83, "rel_100hz_vs_1khz": 14.72},
+    "3": {"ui_percent": "25-26", "rel_60hz_vs_1khz": 16.60, "rel_100hz_vs_1khz": 14.76},
+    "9": {"ui_percent": "34-35", "rel_60hz_vs_1khz": 13.44, "rel_100hz_vs_1khz": 12.75},
+    "12": {"ui_percent": "40-41", "rel_60hz_vs_1khz": 11.68, "rel_100hz_vs_1khz": 11.28},
+    "16": {"ui_percent": "49-50", "rel_60hz_vs_1khz": 9.31, "rel_100hz_vs_1khz": 9.13},
+    "20": {"ui_percent": "59-61", "rel_60hz_vs_1khz": 6.92, "rel_100hz_vs_1khz": 6.84},
+    "24": {"ui_percent": "72-75", "rel_60hz_vs_1khz": 3.55, "rel_100hz_vs_1khz": 3.52},
+    "30": {"ui_percent": "97-100", "rel_60hz_vs_1khz": 0.0, "rel_100hz_vs_1khz": 0.0}
+  },
+  "long_lived_v31": {
+    "stages_sha256": "3ff0fc7c20f423197465990e64363368c16b64090c3d614371e27953c924c916",
+    "post_dolby_sha256": "43f6472618355d227ffdd0dc749add10c1ec40b9d23a7d70bbcbecfcba73f4d6",
+    "sp7_raw_sha256": "652dd70c42637fa8cb0e7bc7f344d15e1b1dda4928d9170b3e9949dfc8227dc4",
+    "sp7_analysis_sha256": "b3a380decb765a0e44072b0e5628dc24e58028418ab62df8299e2588343384cb",
+    "physical_second_harmonic_dbc": {"60_hz": [-18.1, -17.5], "75_hz": [-14.3, -14.2], "100_hz": [-20.8, -20.3], "150_hz": [-24.8, -24.5]}
+  },
+  "fresh_movie_10pct_bootstrap": {
+    "vlldp_postgain_1_16_db": -545,
+    "stages_sha256": "fa2c16b78cd96e5568f1d07ec54444b97d8be3e7d34dfc71e71fd7b975eef97c",
+    "post_dolby_sha256": "79719aca97ff3de454d2182b4116af305f6647fcbda2aa3c701d620c4443d894",
+    "post_dolby_analysis_sha256": "c1ce6127b821322710be585dda685354acfe993834e70161f6e0a7b110ee958d",
+    "sp7_raw_sha256": "510f68764c87c55b86e550fba5475486639a9b28d41f0aaa5b6bc8389f14693d",
+    "sp7_analysis_sha256": "de6c8a65e74660f9bdb4acb2f14ddc05d938014091c331933ac16910add11762"
+  },
+  "conclusion": "Do not guess-enable virtual bass. Golden v31 already carries the exact Qualcomm low-volume loudness contour; Dolby/VLLDP history plus downstream physical harmonics are the leading ordinary-speaker psychoacoustic bass mechanisms. Native-Windows RAW comparison is next."
+}
