@@ -1,6 +1,6 @@
 {
   "date": "2026-08-18",
-  "status": "digital_lr_green_physical_left_path_gap",
+  "status": "historical_shared_capture_digital_evidence_retained_absolute_physical_values_provisional",
   "fixture": "SP7 centered/square-on reference at one attached SP11 keyboard length; unchanged between OS captures",
   "source_sha256": "F790AFB06E57DD8D2B1E33C1A5DC329B028A10BBEF208F09D0C69115BB0D02E2",
   "windows": {
@@ -279,5 +279,15 @@
     }
   ],
   "boundary": "physical mismatch is downstream of Linux post-Dolby / Windows loopback-equivalent digital boundary",
-  "next_gate": "separate left-only and right-only 40 Hz real-key volume-up sweeps"
+  "next_gate": "separate left-only and right-only 40 Hz real-key volume-up sweeps",
+  "measurement_correction": {
+    "reason": "SP7 shared-mode microphone capture showed multi-dB cross-run adaptation; later RAW capture is stable",
+    "superseded_for_absolute_physical_tuning_by": "artifacts/reviewed/2026-08-18-sp7-wasapi-raw-acoustic-calibration.json",
+    "retain": "Windows loopback / Linux post-Dolby digital channel evidence and historical waveform provenance",
+    "do_not_use_for_tuning": [
+      "linux_minus_windows_left_median_db",
+      "linux_minus_windows_right_median_db",
+      "lr_fingerprint_error_median_db"
+    ]
+  }
 }

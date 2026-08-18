@@ -1,0 +1,50 @@
+{
+  "date": "2026-08-18",
+  "status": "raw_sp7_capture_validated_shared_cross_capture_absolute_values_provisional",
+  "fixture": "SP7 centered/square-on at one attached SP11 keyboard length",
+  "recorder": {
+    "tracked_path": "tools/windows/Record-ExternalMic-Raw.ps1",
+    "tracked_sha256": "A8EFD78AC4EE00BA1700D76C86136053050E440695127D07EAB4D6158404E366",
+    "mode": "WASAPI IAudioClient2 AUDCLNT_STREAMOPTIONS_RAW",
+    "format": {
+      "channels": 2,
+      "rate_hz": 48000,
+      "engine_bits": 32,
+      "engine_float": true,
+      "wav_output_bits": 16
+    },
+    "persistent_settings_changed": false
+  },
+  "source_sha256": "F790AFB06E57DD8D2B1E33C1A5DC329B028A10BBEF208F09D0C69115BB0D02E2",
+  "linux_v31_raw_wav_sha256": [
+    "3B36A84D6FA62C4931E72FC84EA2A00E85B4B7BFAD046987369C7E9BEBC8AFA6",
+    "25B7B06E56BC79C55FD4D46C3CC834E9E0CF0D7D140F7798FD3E9BF458AC642C",
+    "16B61F98022633B3C5AC110EF4306857F23A606F514DA85B8B268DD8D44B21E6"
+  ],
+  "sp7_threepass_analysis_sha256": "62A66441D8027D156C32D1DCD6A9858DCEF2C2BE927C25123EBFAAF56B0C103C",
+  "repeatability_630_6300_hz_db": {
+    "left": {
+      "median_range": 0.12771011170183044,
+      "p90_range": 0.14230247234874582,
+      "max_range": 0.247390028646862
+    },
+    "right": {
+      "median_range": 0.11635137694091213,
+      "p90_range": 0.16638313321709575,
+      "max_range": 0.20645054329645518
+    },
+    "stereo": {
+      "median_range": 0.08783321232806429,
+      "p90_range": 0.17073524358386294,
+      "max_range": 0.18704951908144807
+    }
+  },
+  "room_noise_policy": {
+    "one_off_physical_spikes": "reject unless event-locked and repeated",
+    "calibration_estimator": "median of six one-second known-tone blocks per active segment",
+    "low_frequency_bins": "repeat/median-vote; do not tune from one capture"
+  },
+  "supersedes_for_absolute_cross_capture_use": "artifacts/reviewed/2026-08-18-fixed-geometry-windows-linux-lr-physical-parity.json",
+  "does_not_invalidate": "within-one-WAV event-locked 40-Hz UP/DOWN transient gates",
+  "next_gate": "native Windows repeated RAW L/R and bass calibration without moving fixture"
+}

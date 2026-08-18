@@ -1,7 +1,9 @@
 # Fixed-geometry Windows/Linux L/R speaker physical parity
 
 Date: 2026-08-18
-Status: **digital L/R parity essentially exact; physical left-path parity gap exposed**
+Status: **historical shared-mode capture; digital evidence retained, absolute physical cross-OS dB values PROVISIONAL pending SP7 RAW recapture**
+
+> **Measurement correction (2026-08-18):** the SP7 external-mic WAVs below were captured through the default WASAPI shared capture path. Later repeated `AUDCLNT_STREAMOPTIONS_RAW` captures proved that shared-mode cross-capture absolute levels can move by several dB even with the fixture unmoved, while three RAW v31 passes repeat to about 0.1 dB through most of the band. Therefore the `-6.537 dB`, `-1.288 dB`, and `-5.249 dB` absolute physical values below are historical/provisional and **must not drive tuning**. The digital loopback/post-Dolby evidence remains useful. See `docs/findings/2026-08-18-SP7-WASAPI-RAW-ACOUSTIC-CALIBRATION.md`.
 
 ## Deterministic calibration source
 
