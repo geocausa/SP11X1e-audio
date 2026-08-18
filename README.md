@@ -4,88 +4,79 @@ Evidence-driven Linux built-in-speaker enablement and Windows-parity work for
 the Microsoft Surface Pro 11 with Qualcomm X1E80100 AudioReach, SoundWire and
 dual WSA884x amplifiers.
 
-> **Current recommended state — GOLDEN v28 (2026-08-17).** The project now has
-> a preserved daily-driver baseline rather than a moving experiment. v28 closes
-> the confirmed CSR-off broadband static at the Windows/room floor, carries the
-> recovered Windows WSA8845 lifecycle and endpoint/GainStep behavior, passes the
-> objective SP7-external seek gate, and the user reports the best Linux sound of
-> the project so far: stable/coherent music, excellent volume leveling and no
-> audible forward/reverse seek spike during normal YouTube use. Desktop mute is
-> now propagated fail-safe to the hidden hardware sink. Low-bass / psychoacoustic
-> bass parity still awaits a direct Windows A/B, so the overall parity project
-> remains **AMBER**, not “finished”.
+> **Current recommended state — GOLDEN v31 (2026-08-18).** v31 is the
+> promoted/default SP11 Linux built-in-speaker stack. It inherits Golden v28's
+> static/lifecycle/seek breakthrough, v30's exact Windows endpoint DSP mute and
+> DP1/DP3 transport completion, and adds Qualcomm prior/new GainStep CKV delta
+> semantics. That last fix collapsed the reproducible 40-Hz Volume-Up transient
+> from v30 `2.7855e-3` HP500 p95 to `6.6466e-5` and `6.4095e-5` on two
+> independent v31 captures; native Windows measured `6.1937e-5`. Golden v28 is
+> retained as rollback/comparison and CPS-v3 as rescue. The project remains
+> **AMBER overall** only because matched SP7 WASAPI-RAW Windows/Linux L/R and
+> low-bass/psychoacoustic-bass calibration is still open; v31 itself is now the
+> daily driver.
 >
-> Start with [`deploy/golden-v28/`](deploy/golden-v28/), the
-> [`Golden v28 consolidation`](docs/deployment/2026-08-17-GOLDEN-V28-CONSOLIDATION.md)
-> and the canonical
+> Start with [`deploy/golden-v31/`](deploy/golden-v31/), the
+> [`Golden v31 promotion`](docs/deployment/2026-08-18-GOLDEN-V31-PROMOTION.md),
+> the [`CURRENT handoff`](docs/checkpoints/CURRENT-SP11-AUDIO.md), and the canonical
 > [`render-parity ledger`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md).
->
-> **Development branch note — Golden v31 CKV-delta candidate (2026-08-18):**
-> this branch inherits v30 exact Windows DSP mute plus DP1/DP3 transport
-> completion and fixes a later-discovered Qualcomm volume-state semantic:
-> GainStep/MSIIR OOB calibration follows prior-CKV -> new-CKV changed-key
-> deltas instead of being blindly resent on every per-channel volume call. The
-> pathological 40-Hz Volume-Up transient fell from v30 `2.7855e-3` HP500 p95 to
-> `6.6466e-5` and `6.4095e-5` on two independent v31 captures; native Windows
-> measured `6.1937e-5`. Deterministic seek closure is retained. Cross-OS absolute
-> L/R/bass calibration is being re-based on SP7 WASAPI-RAW capture because the
-> older shared-mode microphone-array path is not stable enough for separate-WAV
-> dB tuning. **Golden v28 remains the saved default until the operator's v31
-> listening verdict.** See
-> [`deploy/golden-v31-ckv-delta-candidate/`](deploy/golden-v31-ckv-delta-candidate/),
-> the [`v31 physical gate`](docs/findings/2026-08-18-GOLDEN-V31-CKV-DELTA-40HZ-PHYSICAL-GATE.md),
-> and the [`v31 consolidated checkpoint`](docs/checkpoints/2026-08-18-V31-CONSOLIDATED-STATE.md).
 
 ## Recommended boot set
 
 | Entry | Role | Status |
 |---|---|---|
-| `sp11-audio-golden-v28` | Daily driver / persistent fallback | **Recommended/default until v31 verdict** |
+| `sp11-audio-golden-v31` | Daily driver | **Promoted/default** |
+| `sp11-audio-golden-v28` | Rollback / comparison | **Keep** |
 | `sp11-audio-cps-v3` | Conservative rescue | **Keep** |
-| `sp11-audio-golden-v31-ckv-delta-candidate` | v30 mute/transport + prior/new CKV fix | **Objective gates GREEN; user verdict pending** |
 
 Historical one-off candidates are retained in findings/patches/candidate
 archives, not as dozens of active GRUB entries.
 
-## What Golden v28 reproduces
+## What Golden v31 reproduces
 
-- protected AudioReach speaker graph with SP/SPVI protection and native-width VI feedback;
+Golden v31 includes the full accepted v28 baseline plus the promoted v30/v31
+parity deltas:
+
+- protected AudioReach speaker graph with SP/SPVI protection and CPS feedback;
 - original matching SP11 Dolby VR/VLLDP code on Linux, effective Movie profile;
-- correct pre-Dolby volume boundary and frozen-per-generation VLLDP postgain lifecycle;
-- measured Windows endpoint taper;
-- final AudioReach `VOL_CTRL` Q28 with Windows left/right update ordering;
-- all 30 recovered volume-dependent GainStep/MSIIR rows, including the strong low-volume bass/loudness contour;
+- correct pre-Dolby PCM boundary and frozen-per-generation VLLDP postgain lifecycle;
+- measured Windows endpoint taper and 2% media-key step;
+- final AudioReach `VOL_CTRL` Q28 with Windows left-new/right-old -> both-new ordering;
+- all 30 recovered volume-dependent GainStep/MSIIR rows;
+- Qualcomm prior-CKV -> new-CKV changed-key calibration semantics (`vol->vol`,
+  `cal->vol`, `vol->cal`), closing the pathological 40-Hz Volume-Up transient;
+- exact final endpoint DSP mute at `0x4a63 / 0x08001039`, with hardware mute
+  retained only as fail-closed fallback;
 - Windows SOFT_PAUSE and delayed-audio drain behavior;
 - Windows-proven LPASS WSA producer at 0 dB;
 - exact recovered WSA8845 63-write cold init, 10-write START and 6-write STOP;
 - resident SoundWire clock-stop retention without replaying cold codec state;
-- DP2/COMP `OffsetCtrl2=0x07`, the causal prerequisite that removed the CSR-off broadband static;
+- DP1/DAC `BlockCtrl3=0x00`, DP2/COMP `OffsetCtrl2=0x07`, and
+  DP3/BOOST `OffsetCtrl2=0x1f`;
 - demand-driven PA idle teardown;
-- user-facing mute propagation to the downstream hidden sink.
+- deterministic SP7 external-mic seek closure.
 
-The exact runtime and boot identities are hash-pinned in
-[`deploy/golden-v28/manifest.json`](deploy/golden-v28/manifest.json).
+The canonical promoted identity is hash-pinned in
+[`deploy/golden-v31/manifest.json`](deploy/golden-v31/manifest.json). Golden v28
+remains preserved at [`deploy/golden-v28/`](deploy/golden-v28/) as rollback and
+comparison.
 
 ## What remains open
 
-1. **Golden-v31 promotion verdict.** The objective 40-Hz, mute, transport and
-   deterministic-seek gates are GREEN; normal operator listening must confirm
-   the Golden-v28 sound quality before v31 becomes the saved default or `main`.
-2. **RAW Windows/Linux L/R and bass calibration.** Absolute cross-capture
-   calibration now requires the tracked SP7 WASAPI-RAW recorder plus a
-   standardized fresh Movie/VLLDP start state and verified live endpoint handover.
-   Older shared-mode absolute L/R dB figures are provisional and must not drive
-   tuning.
-3. **Non-blocking research items.** W02 is a dedicated Windows WASAPI-loopback
-   branch identity question, not a speaker-quality blocker. P09 is a protection
-   telemetry observability gap, also non-blocking. Effective CPS HLOS semantics
-   are now closed as P10 GREEN.
-4. **Pristine-source packaging.** The integration starts from official Linux
-   7.1.5 plus the SP11 Phase91 platform port. The historical kernel working tree
-   is not itself Git-backed, so a one-command pristine-upstream kernel rebuild is
-   not yet claimed.
-5. System suspend/resume, microphone and Bluetooth remain explicitly outside the
-   current built-in-speaker completion gate.
+1. **Post-promotion operator hammer/listening.** v31 is already the default by
+   explicit operator decision; further manual stress/listening remains useful
+   regression evidence, with v28/CPS rollback preserved.
+2. **RAW Windows/Linux L/R and bass calibration.** Cross-capture absolute work
+   now requires the tracked SP7 WASAPI-RAW recorder, fixed keyboard-length
+   geometry, standardized fresh Movie/VLLDP state and verified endpoint/Q28
+   handover. Older shared-mode absolute L/R dB figures are provisional.
+3. **Non-blocking research.** W02 is a Windows WASAPI-loopback-only branch
+   question; P09 is protection telemetry observability. Effective CPS HLOS
+   semantics are closed as P10 GREEN.
+4. **Pristine-source packaging.** The historical Phase91 platform baseline still
+   needs normalization into a clean public replayable patch series.
+5. Suspend/resume, microphone/input and Bluetooth remain outside the current
+   built-in-speaker completion gate.
 
 ## Reproducing the current recipe
 
@@ -95,7 +86,7 @@ vendor material.
 ```bash
 git clone git@github.com:geocausa/SP11X1e-audio.git
 cd SP11X1e-audio
-./deploy/golden-v28/verify-golden-v28.sh
+./deploy/golden-v31/verify-golden-v31.sh
 ```
 
 For Dolby, place your own matching SP11 vendor DLLs in
@@ -106,7 +97,7 @@ firmware and dumps are likewise not redistributed.
 Once an exact Golden boot image has been built/placed at the manifest path:
 
 ```bash
-sudo ./deploy/golden-v28/install-grub-entry.sh
+sudo ./deploy/golden-v31/install-grub-entry.sh
 ```
 
 That command verifies the image, creates the clean Golden GRUB entry and selects

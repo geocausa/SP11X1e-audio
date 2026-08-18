@@ -1,0 +1,48 @@
+{
+  "date": "2026-08-18",
+  "status": "PROMOTED_DEFAULT",
+  "golden": "v31",
+  "kernel_release": "7.1.5-sp11-render-parity-v4+",
+  "boot_marker": "sp11_entry=7.1.5-sp11-golden-v31-ckv-delta",
+  "grub_id": "sp11-audio-golden-v31",
+  "active_audio_boot_set": [
+    "sp11-audio-golden-v31",
+    "sp11-audio-golden-v28",
+    "sp11-audio-cps-v3"
+  ],
+  "rootfs_q6apm": {
+    "path": "/lib/modules/7.1.5-sp11-render-parity-v4+/kernel/sound/soc/qcom/qdsp6/snd-q6apm.ko.zst",
+    "sha256": "acf8ba1e6ded43cfac86afa7d12dd30dabd972286e74b021fbb7bddf98955033",
+    "srcversion": "687B16CF9C43B43E90C0746"
+  },
+  "boot_artifacts": {
+    "vmlinuz-7.1.5-sp11-render-parity-v4+": "bca0a336c15d2995c61b8df9d449afb9df5fc8776a3da1ad034616f917bb428a",
+    "initrd.img-7.1.5-sp11-render-parity-v4+": "7bf757419e4451fb0967ae535eae8d73416b0793c975a4505738a475ed66c608",
+    "x1e80100-microsoft-denali-sp11-audio-rpv4-macro84-winproducer-nohd2-wsa-windows-3state-retain-dp2offset2-v28-idlegated.dtb": "3530e3426c500d664be6ed3ef066d1b548025ba8286a5810e8b98c591b6555ca"
+  },
+  "objective_40hz": {
+    "v30_up_hp500_p95": "2.7855e-3",
+    "v31_pass1_up_hp500_p95": "6.6466e-5",
+    "v31_pass2_up_hp500_p95": "6.4095e-5",
+    "windows_up_hp500_p95": "6.1937e-5"
+  },
+  "rollback": "sp11-audio-golden-v28",
+  "rescue": "sp11-audio-cps-v3",
+  "archive": "/home/geoca/Documents/SP11-PROJECT/02-kernel/archive/20260818-v31-promotion",
+  "reviewed_archive_inventories": {
+    "superseded_boot_files_sha256": "2cf18dca3ca97b6d696f53be2d9726da9e559784f0bfa590ac383eb02bc51aca",
+    "superseded_boot_dirs_sha256": "90889e360651a6daa748255916190ecfd5f41e4a3cc775aa6205293809922379",
+    "archived_files_sha256": "66d3572eb3a1d511eea6122ff976ef2fed2d4e49322049f0bb512a5c1bc8bd56"
+  },
+  "no_reboot_during_promotion": true,
+  "open_physical_work": [
+    "operator post-promotion hammer/listening",
+    "matched Windows RAW vs Linux RAW L/R transfer",
+    "low-volume psychoacoustic-bass parity"
+  ],
+  "non_blocking": [
+    "P09 protection telemetry observability",
+    "W02 Windows loopback-only residual",
+    "pristine Phase91 source packaging"
+  ]
+}

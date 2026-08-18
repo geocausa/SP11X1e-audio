@@ -3,6 +3,8 @@
 Date: 2026-08-18
 Branch: `agent/golden-v31-ckv-delta-20260818`
 
+> **Promotion update:** Later on 2026-08-18 the operator explicitly promoted v31 to the saved daily-driver/default and authorized fast-forward to `main`. Canonical deployment is now `deploy/golden-v31/`; v28 is rollback/comparison and CPS-v3 is rescue. See `docs/deployment/2026-08-18-GOLDEN-V31-PROMOTION.md` and `docs/checkpoints/CURRENT-SP11-AUDIO.md`.
+
 This is the authoritative short-form checkpoint after the Golden-v28
 consolidation, v30 mute/transport completion, the 40-Hz volume-transient
 investigation, and the v31 prior/new-CKV correction.
