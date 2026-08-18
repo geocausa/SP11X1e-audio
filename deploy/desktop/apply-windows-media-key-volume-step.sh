@@ -3,6 +3,13 @@
 # notification/event sounds. Windows changes 12% -> 14% -> 12% per key pair;
 # the Ubuntu GNOME default on this machine was 6% per key.
 set -euo pipefail
+# PiSlave/non-interactive shells do not necessarily inherit the desktop DBus
+# environment. Resolve the standard per-user bus explicitly when available.
+: "${XDG_RUNTIME_DIR:=/run/user/$(id -u)}"
+export XDG_RUNTIME_DIR
+if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" && -S "$XDG_RUNTIME_DIR/bus" ]]; then
+  export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+fi
 SCHEMA=org.gnome.settings-daemon.plugins.media-keys
 KEY=volume-step
 WANT=2
