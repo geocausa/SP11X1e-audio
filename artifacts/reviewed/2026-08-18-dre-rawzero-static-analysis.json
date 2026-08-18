@@ -1,0 +1,44 @@
+{
+  "wav_sha256": "36BE4BB5410E05DE907462E8EC74A3EB24AE56C5274B7EDDBCC90F632DE97F9D",
+  "fs": 48000,
+  "segments": {
+    "baseline24": {
+      "start_s": 25.858870774,
+      "end_s": 35.868029042,
+      "bin_count": 16,
+      "diff_rms_median": 2.627707211487793e-05,
+      "diff_rms_min": 2.5186772736200323e-05,
+      "diff_rms_max": 2.8440945126586957e-05,
+      "raw_rms_median": 0.000312326694632352
+    },
+    "candidate31": {
+      "start_s": 35.886685343,
+      "end_s": 45.904974841,
+      "bin_count": 16,
+      "diff_rms_median": 2.6174020057862435e-05,
+      "diff_rms_min": 2.520179065041495e-05,
+      "diff_rms_max": 2.8671289458358053e-05,
+      "raw_rms_median": 0.0003771746993312591
+    },
+    "restore24": {
+      "start_s": 45.923751086,
+      "end_s": 55.935911536,
+      "bin_count": 16,
+      "diff_rms_median": 2.6003608229211837e-05,
+      "diff_rms_min": 2.5003526295790244e-05,
+      "diff_rms_max": 3.710191533627446e-05,
+      "raw_rms_median": 0.00033764953873470385
+    }
+  },
+  "ratios": {
+    "candidate_over_baseline": 0.9960782519237693,
+    "candidate_over_restore": 1.0065533916350564,
+    "baseline_over_restore": 1.0105163823133934
+  },
+  "sp7_original_analysis_sha256": "40EC6C3866C66FA769C34FE30E0BBE5F3DABD3E77EFF424F2D597B1B95B97067",
+  "sp7_metadata_sha256": "BC58CBEA898F2192415C703B9A504EE06BD74FF107BC16566FDCD234F92B21CA",
+  "endpoint_gain_db": 0.0,
+  "candidate_control": "SpkrLeft/Right PA Volume 31",
+  "control_state": "PA24/24 -> PA31/31 -> PA24/24 while DSP-muted, digital-zero, RX84 active",
+  "verdict": "GREEN: candidate remains in room-floor class and does not reopen the historical ~2.1e-3 broadband static"
+}
