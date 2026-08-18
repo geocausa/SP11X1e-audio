@@ -6,7 +6,7 @@ Date: 2026-08-18
 Current promoted Golden: **v31**
 Repository: `geocausa/SP11X1e-audio`
 Canonical branch after promotion: `main`
-Development lineage: `agent/golden-v31-ckv-delta-20260818`
+Development lineage: `agent/psycho-bass-20260818` (active RX84 candidate; not yet merged to main)
 
 ## Machine / boot state
 
@@ -18,13 +18,18 @@ Development lineage: `agent/golden-v31-ckv-delta-20260818`
 - Only those three SP11 audio GRUB entries/boot trees should be active.
 - Do not deliberately reboot without telling the operator immediately beforehand.
 
-## v31 in one paragraph
+## v31 + current RX84 candidate in one paragraph
 
 v31 = Golden v28 sound/static/lifecycle baseline + v30 exact Windows final
 VOL_CTRL mute and DP1/DP3 transport completion + Qualcomm prior/new GainStep CKV
 delta semantics. The CKV correction removed the reproducible 40-Hz Volume-Up
-microtransient from `2.7855e-3` HP500 p95 on v30 to `6.6466e-5` and `6.4095e-5`
-on two independent v31 runs, versus native Windows `6.1937e-5`.
+microtransient from `2.7855e-3` HP500 p95 on v30 to the native-Windows/room-floor
+class. The current userspace-only psycho-bass candidate adds one directly
+Windows-proven producer policy: after protected graph handover, WSA RX0/RX1 move
+from the old Linux RX81/-3 dB safety state to RX84/0 dB; graph idle restores
+RX81. Objective bass-transfer, 40-Hz, exact-mute, seek and lifecycle gates are
+GREEN. The RX84 policy is live on this machine but is **not yet merged into
+Golden/main** pending operator normal-listening/bass judgment.
 
 ## Exact important runtime semantics
 
@@ -38,7 +43,10 @@ on two independent v31 runs, versus native Windows `6.1937e-5`.
   DP3/BOOST OffsetCtrl2 `0x1f`;
 - WSA resident lifecycle remains exact 10-write START + 6-write STOP after idle;
 - original SP11 Dolby host stays Movie, with VLLDP postgain frozen per generation;
-  do not rebuild Dolby on ordinary pause/volume changes.
+  do not rebuild Dolby on ordinary pause/volume changes;
+- current candidate WSA producer policy: RX81 while graph idle, one RX84 write
+  after first successful protected handover, no repeated RX write on ordinary
+  volume/mute, then RX81 again on graph idle.
 
 ## Physical measurement rules
 
@@ -48,6 +56,10 @@ on two independent v31 runs, versus native Windows `6.1937e-5`.
   keyboard length.
 - Cross-capture absolute L/R/bass work must use
   `tools/windows/Record-ExternalMic-Raw.ps1` (WASAPI RAW).
+- SP7 measurement endpoint baseline is **0 dB hardware capture gain**. Use
+  `-ExpectedEndpointDb 0` for parity gates so recorder drift fails before capture.
+- The hardened recorder writes exact `IAudioClient.StartUtc/StopUtc`, endpoint
+  state and capture metadata to `<wav>.metadata.json`.
 - Shared-mode absolute L/R results are provisional; do not tune against them.
 - Neighbour/room impulses must be rejected unless event-locked and repeated.
 - For synchronized acoustic work say: **capture live—hands off for 30 seconds**.
@@ -63,6 +75,9 @@ on two independent v31 runs, versus native Windows `6.1937e-5`.
 - exact endpoint DSP mute;
 - v31 40-Hz physical gate, independently repeated;
 - deterministic program seek physical gate;
+- active Windows RX84 producer lifecycle objective gate;
+- RX84 + 40-Hz prior/new-CKV compatibility gate;
+- RX84 + exact-DSP-mute + deterministic-program-seek compatibility gate;
 - Windows-style 2% media-key step;
 - Dolby Movie path and ordinary stereo operator policy.
 
@@ -74,12 +89,14 @@ on two independent v31 runs, versus native Windows `6.1937e-5`.
 
 ## Open speaker-quality research
 
-1. Operator will hammer/listen to promoted v31 later.
-2. Matched Windows RAW vs Linux RAW L/R transfer using standardized fresh
-   APO/Dolby start state and verified endpoint/Q28 handover.
-3. Low-volume bass / psychoacoustic-bass parity using a dedicated stimulus.
-
-Do not combine those last two physical questions into one low-SNR calibration.
+1. **RX84 operator promotion verdict:** listen to normal music/YouTube, bass
+   balance, mute/unmute and volume with the live candidate before merging it to
+   Golden/main.
+2. **Residual RAW L/R / upper-bass characterization:** the large low-bass gap is
+   already localized to the old RX81/-3 dB producer policy. Any smaller residual
+   must use the fixed fixture plus hardened `-ExpectedEndpointDb 0` recorder.
+3. Do not add guessed EQ, Bass Enhancer or Virtual Bass; ordinary Windows does
+   not use those named paths as the missing speaker-bass mechanism.
 
 ## Canonical pointers
 
@@ -89,6 +106,10 @@ Do not combine those last two physical questions into one low-SNR calibration.
 - `docs/checkpoints/2026-08-18-V31-CONSOLIDATED-STATE.md`
 - `docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md`
 - `docs/findings/2026-08-18-GOLDEN-V31-CKV-DELTA-40HZ-PHYSICAL-GATE.md`
+- `docs/findings/2026-08-18-PSYCHOACOUSTIC-BASS-WINDOWS-RX84-PRODUCER-GAIN.md`
+- `docs/findings/2026-08-18-PSYCHOACOUSTIC-BASS-RX84-LIFECYCLE-LIVE-GATE.md`
+- `docs/findings/2026-08-18-RX84-40HZ-PROGRAM-MUTE-SEEK-COMPATIBILITY.md`
+- `docs/findings/2026-08-18-SP7-WASAPI-RAW-ACOUSTIC-CALIBRATION.md`
 - `docs/findings/2026-08-18-WINDOWS-CPS-HLOS-EFFECTIVE-SEMANTICS-CLOSEOUT.md`
 
 External archive of pruned active-boot copies:
