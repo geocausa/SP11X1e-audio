@@ -361,3 +361,15 @@ This is now the leading exact-parity defect.  The next candidate must preserve
 all recovered Q28 and row values while adding a **final-volume-only** runtime
 actuator and sending the OOB GainStep group only when prior/new CKV comparison
 shows the GainStep changed.  No EQ/ramp coefficient guesses are justified.
+
+## v31 prior/new CKV candidate — first physical closure
+
+Golden v31 implements the recovered prior/new CKV semantics with a fixed
+final-volume-only q6apm control.  In the unchanged SP7 keyboard-length fixture,
+the exact v30/Windows 40 Hz real-key torture falls from v30 HP500 UP p95
+`2.7855e-3` to v31 `6.6466e-5`; native Windows is `6.1937e-5`.  v31 UP/DOWN
+p95 is `0.975x` versus Windows `1.006x`.
+
+The one-sided low-frequency crackle is therefore absent in the first v31
+physical gate.  See
+`docs/findings/2026-08-18-GOLDEN-V31-CKV-DELTA-40HZ-PHYSICAL-GATE.md`.

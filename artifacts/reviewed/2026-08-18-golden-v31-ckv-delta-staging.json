@@ -1,6 +1,6 @@
 {
   "date": "2026-08-18",
-  "status": "staged_preboot",
+  "status": "booted_first_physical_gate_green",
   "candidate": "Golden v31 CKV-delta",
   "causal_boundary": {
     "native_windows_fixed_geometry_40hz_up_hp500_p95": 6.193730905363553e-05,
@@ -79,5 +79,44 @@
     "focused_tests": "60 passed, 6 subtests passed",
     "v30_live_rollback": "mode=windows-lr ckv_delta=legacy-resend volume_only_control_values=None endpoint_mute=exact-dsp"
   },
-  "next_gate": "one-shot boot v31; verify controls/srcversions; fixed-geometry SP7 40 Hz full real-key 6-46-6 gate"
+  "next_gate": "one-shot boot v31; verify controls/srcversions; fixed-geometry SP7 40 Hz full real-key 6-46-6 gate",
+  "first_physical_gate": {
+    "date": "2026-08-18",
+    "status": "first_physical_gate_green_repeat_pending",
+    "candidate": "Golden v31 prior/new GainStep CKV delta",
+    "loaded_q6apm_srcversion": "687B16CF9C43B43E90C0746",
+    "source_sha256": "D900CE43A0C815FA8AC054629E65E3042BDB6E0CE9F1AD44135AA3F8F889B3E3",
+    "external_mic_sha256": "2351D7AB50849E962F052B772E1D5A10C010D32D494B30C2246B7406CD6CC1F2",
+    "stage_log_sha256": "55A8A66EB22C00A3396138F4379C1B0F5B4D3DF24BF9FF6370FBBF240F13EB6A",
+    "hp500": {
+      "windows": {
+        "down_p95": 6.15459709099004e-05,
+        "up_p95": 6.193730905363553e-05,
+        "ratio": 1.0063584689289902
+      },
+      "v30": {
+        "down_p95": 6.0663157991172735e-05,
+        "up_p95": 0.002785523482094797,
+        "ratio": 45.91787790705071
+      },
+      "v31": {
+        "down_p95": 6.819765083906187e-05,
+        "up_p95": 6.646648761429414e-05,
+        "ratio": 0.9746155006298814,
+        "max_up": 8.050987311695388e-05
+      }
+    },
+    "hp2000_v31_up_p95": 5.106189869003727e-05,
+    "hp6000_v31_up_p95": 4.019743026266184e-05,
+    "v30_to_v31_up_p95_reduction": 41.90869086176517,
+    "v31_to_windows_up_p95_ratio": 1.0731252072436097,
+    "transactions": {
+      "same_row": "vol->vol",
+      "up_row_change": "cal->vol",
+      "down_row_change": "vol->cal",
+      "failures": 0
+    },
+    "persistent_saved_default": "sp11-audio-golden-v28",
+    "next_gate": "independent fixed-geometry 40 Hz repeat, then normal program/mute/seek user listening"
+  }
 }
