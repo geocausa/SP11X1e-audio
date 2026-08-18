@@ -154,3 +154,39 @@ sample-stable upstream while the physical output also stays clean.
 **Updated boundary:** the 40 Hz Volume-Up defect is a Linux downstream
 endpoint-control implementation mismatch, not a generic speaker/rail limit and
 not a Dolby-generated PCM click.
+
+## Left-only / right-only causal split
+
+Using the fixed keyboard-length microphone fixture, two independently authored
+40 Hz -36 dBFS sources were replayed with only one source channel active at a
+time.  Each side was warmed, then exercised by a real 6->46% Volume-Up sweep
+and a 46->6% Volume-Down sweep.
+
+SP7 capture SHA-256:
+`ED723FC871230CFED27AE7756BCBA97F687CBE6EEF41B11EE209A1AA4DB538C0`.
+
+Source hashes:
+
+- left-only: `501223E3999CB344C3A7BF20A5243B8FD33FFEDEEBDB9D89AE298EB94B9F06D7`;
+- right-only: `4F3503A95EB2F8EF8D3DAE16349CD0D2CDE7315AEB0AF3B21323CD070CAE84C4`.
+
+Physical HP500 results:
+
+- left-only UP p95 `1.0430952e-3`;
+- left-only DOWN p95 `5.7946738e-5`;
+- left UP/DOWN ratio `18.00x`;
+- right-only UP p95 `1.9494859e-3`;
+- right-only DOWN p95 `6.1277137e-5`;
+- right UP/DOWN ratio `31.81x`;
+- right-UP / left-UP p95 `1.87x`.
+
+The defect therefore exists on **both** source/speaker channels.  It is not a
+left-only failure and does not directly explain the separate fixed-geometry
+left-path physical parity gap.  The larger right-only microphone transient is
+consistent with the fixture's stronger physical sensitivity to the right-side
+speaker.
+
+The next software split must test the full problematic upward control ladder:
+(1) GainStep/MSIIR row progression at fixed final Q28, and (2) final-Q28
+progression at a fixed GainStep row.  Earlier isolated 32/34% and row7/row9
+A/Bs did not cover the region where the real sweep produces its largest edges.

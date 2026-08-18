@@ -31,5 +31,18 @@
     "missing 0x4a63/0x08001037 ramp policy",
     "raw final 0x1038 plus GainStep transaction as sufficient cause"
   ],
-  "next_gate": "matched native Windows warm 40 Hz real-key DOWN/UP sweep in fixed geometry"
+  "next_gate": "full problematic upward ladder split: MSIIR/GainStep progression at fixed Q28 versus Q28 progression at fixed GainStep row",
+  "left_right_split": {
+    "external_mic_sha256": "ED723FC871230CFED27AE7756BCBA97F687CBE6EEF41B11EE209A1AA4DB538C0",
+    "left_source_sha256": "501223E3999CB344C3A7BF20A5243B8FD33FFEDEEBDB9D89AE298EB94B9F06D7",
+    "right_source_sha256": "4F3503A95EB2F8EF8D3DAE16349CD0D2CDE7315AEB0AF3B21323CD070CAE84C4",
+    "left_hp500_up_p95": 0.0010430951998844512,
+    "left_hp500_down_p95": 5.794673762219319e-05,
+    "left_up_down_ratio": 18.00093055601034,
+    "right_hp500_up_p95": 0.0019494859278035767,
+    "right_hp500_down_p95": 6.12771368442835e-05,
+    "right_up_down_ratio": 31.814246360067052,
+    "right_up_vs_left_up_ratio": 1.868943436821041,
+    "conclusion": "40 Hz Volume-Up defect is bilateral; separate from left-only physical calibration parity gap"
+  }
 }

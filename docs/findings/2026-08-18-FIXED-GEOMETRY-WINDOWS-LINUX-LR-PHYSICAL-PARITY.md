@@ -97,3 +97,11 @@ The next causal gate is a 40 Hz real-key Volume-Up sweep performed separately
 with left-only and right-only source content.  If the click is strongly
 left-specific, the L/R physical gap and the Volume-Up microtransient likely
 share a downstream cause.
+
+## Relation to 40 Hz Volume-Up defect
+
+A subsequent left-only/right-only 40 Hz key-sweep proved that the Volume-Up
+microtransient occurs on both channels, with the right-only physical p95 larger
+than left-only at the fixed microphone point.  Therefore the left-path physical
+calibration gap above and the global Volume-Up control transient should be
+tracked as separate parity defects unless later evidence reconnects them.
