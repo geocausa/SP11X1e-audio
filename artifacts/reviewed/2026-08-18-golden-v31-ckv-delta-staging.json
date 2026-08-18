@@ -1,6 +1,6 @@
 {
   "date": "2026-08-18",
-  "status": "repeat_physical_gate_green_program_listening_pending",
+  "status": "objective_40hz_and_seek_green_operator_listening_pending",
   "candidate": "Golden v31 CKV-delta",
   "causal_boundary": {
     "native_windows_fixed_geometry_40hz_up_hp500_p95": 6.193730905363553e-05,
@@ -139,5 +139,42 @@
       "ratio": 0.9907900884037325
     },
     "conclusion": "independent repeat confirms floor-class symmetric volume transitions; 40 Hz physical defect objectively closed"
+  },
+  "program_seek_smoke": {
+    "date": "2026-08-18",
+    "status": "objective_program_seek_green_operator_listening_pending",
+    "candidate": "Golden v31 prior/new CKV delta",
+    "source_sha256": "951A65CC63FEE17622485C1D94708614005524C7E20F86D3D815327F6BD0E8B3",
+    "external_mic_sha256": "7BF735A7E53659940E174B5E52634E819B6B120CC7950F287365258D21C7790E",
+    "seek_stage_sha256": "3C7370F2949F825145E4BA9F189380D2295065A3B6D7D922DE934741762DC8AF",
+    "seeks": [
+      {
+        "from": 25.752,
+        "to": 55,
+        "ch0_ratio_p999": 0.09663136170843808,
+        "ch0_ratio_p9999": 0.07169116776335115,
+        "ch1_ratio_p999": 0.08714429875854032,
+        "ch1_ratio_p9999": 0.07098480485070464
+      },
+      {
+        "from": 58.92,
+        "to": 12,
+        "ch0_ratio_p999": 1.1613691931540342,
+        "ch0_ratio_p9999": 0.9746066743937707,
+        "ch1_ratio_p999": 1.011674365642261,
+        "ch1_ratio_p9999": 0.7210553073244609
+      },
+      {
+        "from": 16.0,
+        "to": 90,
+        "ch0_ratio_p999": 0.03227880277920378,
+        "ch0_ratio_p9999": 0.015503875968992248,
+        "ch1_ratio_p999": 0.035548603828576324,
+        "ch1_ratio_p9999": 0.018323215101265795
+      }
+    ],
+    "volume_transactions_during_seek": 0,
+    "runtime_faults": "none; known graph-start error only before measured transitions",
+    "conclusion": "GREEN; no unique seek needle/pop beyond surrounding local p99.99 music transients"
   }
 }
