@@ -1,0 +1,10 @@
+{
+  "date":"2026-08-18",
+  "status":"green_objective_compatibility_gate",
+  "candidate":"Golden v31 + active Windows WSA RX84 lifecycle policy",
+  "sp7_measurement":{"capture_mode":"WASAPI RAW","mic_endpoint_db":0.0,"contamination_discovery":"SP7 endpoint had drifted to +20 dB; rejected initial capture","plus20_hp500_idle_rms":0.000191515811624128,"zero_db_hp500_idle_rms":0.000020933582871403914},
+  "lf40":{"source_sha256":"D900CE43A0C815FA8AC054629E65E3042BDB6E0CE9F1AD44135AA3F8F889B3E3","wav_sha256":"1C29A96E672DEBBB3CF5CAED638D1713E68DB026EE903863D9C1C495F7FB0751","stage_log_sha256":"690C247545B38C3E9869430A782BA5DE1EFC982C0BB08314BE6C806573126766","hp500":{"down_p95":0.00010135635089213112,"up_p95":0.00009979909965857539,"ratio":0.9846358790559356,"up_max":0.00010406351248916686},"hp2000_ratio":1.0132733745059153,"hp6000_ratio":0.988813106742539,"decision":"no return of one-sided 10^-3-class CKV crackle"},
+  "program":{"source_sha256":"951A65CC63FEE17622485C1D94708614005524C7E20F86D3D815327F6BD0E8B3","wav_sha256":"FBA40772CADD89C6D05576D0EF2103DE75DA3412AAF43540ADD52807728EB07B","action_log_sha256":"7446EF928447D3A8205353E731A5084CEF13F84C6639C53E2D43E69623BCCCAA","sp7_start_utc":"2026-08-18T14:44:11.8840564Z","global_alignment_s":0.670,"mute":{"mute1_worst_p99_99_ratio":0.198,"mute2_worst_p99_99_ratio":0.721,"physical_middle":"room-floor class"},"seek_worst_p99_99_ratio":{"seek1":0.696,"seek2":0.271,"seek3":0.975}},
+  "runtime":{"rx_active":84,"rx_idle":81,"exact_dsp_mute":true,"volume_transactions_during_mute":0,"volume_transactions_during_seek":0,"new_runtime_fault":false},
+  "next_gate":"operator normal listening / bass judgment"
+}
