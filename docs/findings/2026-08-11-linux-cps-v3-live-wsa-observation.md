@@ -1,5 +1,7 @@
 # Linux CPS V3 live WSA protection observation
 
+> **Later closeout (2026-08-18):** the final paragraph below preserved the then-open CPS HLOS payload/PBR questions. Both have since been closed at the effective Windows boundary: PBR DP4 is not positively scheduled during ordinary playback, and qcaucd sources the effective CPS DP6 geometry from WSA8845 identity-selected static selector-5 templates rather than an observed public `0x08001259` payload. See `docs/findings/2026-08-18-WINDOWS-CPS-HLOS-EFFECTIVE-SEMANTICS-CLOSEOUT.md` and ledger P10/P11. Dynamic/calibrated limiter telemetry remains the separate non-blocking P09 item.
+
 Status: accepted read-only runtime evidence. The observer is bounded,
 default-off, and does not write amplifier telemetry or protection state.
 

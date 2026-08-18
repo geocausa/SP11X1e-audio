@@ -1,0 +1,59 @@
+{
+  "date": "2026-08-18",
+  "status": "GREEN_effective_HLOS_CPS_semantics_closed",
+  "qcadcm_sha256": "37F76305AC8051B0B03B6D2CE1DF7A353253DEBF546E512E447C9D95EC661429",
+  "qcaucd_sha256": "BD0C8276C51FC7A020C616E904DD613B6CCF187EC3E1FE6F94C2C811C8ADC8BF",
+  "public_parameter": {
+    "id": "0x08001259",
+    "observed_in_reviewed_qcadcm_setcfg": false,
+    "complete_payload_search_count": 135,
+    "max_searched_payload_bytes": 10464,
+    "graph_open_contains_intent_id_cps": "0x08001537",
+    "scope": "absence at reviewed SP11 qcadcm graph/config boundaries only"
+  },
+  "windows_hlos_chain": [
+    "WSA8845 identity",
+    "qcaucd FUN_140031430",
+    "selector 5",
+    "FUN_14003ec58",
+    "selector-5 slots 13/14",
+    "FUN_14003bf40",
+    "FUN_14003ac60",
+    "DP6 writes"
+  ],
+  "templates": {
+    "slot13_left": "0d06000003001f0300ff0f0f1800ffff",
+    "slot14_right": "0e06000003001f0319ff0f0f1800ffff"
+  },
+  "effective_transport": {
+    "physical_master_port": 13,
+    "slave_port": 6,
+    "rate_hz": 24000,
+    "sample_interval_clocks": 800,
+    "channel_enable_left": "0x03",
+    "channel_enable_right": "0x03",
+    "offset1_left": 0,
+    "offset1_right": 25,
+    "samplectrl1": "0x1f",
+    "samplectrl2": "0x03",
+    "hstart": 15,
+    "hstop": 15,
+    "blockctrl1": "0x18",
+    "blockctrl3": "0x00",
+    "offsetctrl2_write": "suppressed_by_0xff_template_sentinel"
+  },
+  "inactive_template_bytes": {
+    "byte3": "not copied by FUN_14003ec58",
+    "byte5": "copied adjacent state byte; no DP6 write identified in closed path",
+    "bytes14_15": "0xff optional-control write suppression sentinels"
+  },
+  "linux_binding": {
+    "patch_range": "0032..0039",
+    "model": "shared master port 13 + per-slave DP6 mask 0x03 + Offset1 0/25",
+    "status": "deployed/accepted CPS-v3 lineage"
+  },
+  "exclusions": {
+    "P09_dynamic_telemetry": "separate non-blocking observability item",
+    "global_qualcomm_claim": false
+  }
+}
