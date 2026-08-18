@@ -20,24 +20,29 @@ dual WSA884x amplifiers.
 > and the canonical
 > [`render-parity ledger`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md).
 >
-> **Development branch note — Golden v30 candidate (2026-08-18):** this branch
-> adds only exact Windows final-VOL_CTRL endpoint mute plus the remaining DP1/DAC
-> BlockCtrl3 and DP3/BOOST OffsetCtrl2 slave-transport declarations. All objective
-> local gates are GREEN: exact mute-only DSP sequencing, both-amp/both-bank
-> DP1=`0x00` / DP2=`0x07` / DP3=`0x1f`, exact 10+6 WSA lifecycle after 20 s
-> idle, and SP7-external physical noise still at the v28/Windows room floor.
-> **Golden v28 remains the saved default until the user's v30 listening verdict.**
-> See [`deploy/golden-v30-candidate/`](deploy/golden-v30-candidate/) and the
-> [`v30 live validation`](docs/findings/2026-08-18-GOLDEN-V30-LIVE-MUTE-TRANSPORT-STATIC-VALIDATION.md).
+> **Development branch note — Golden v31 CKV-delta candidate (2026-08-18):**
+> this branch inherits v30 exact Windows DSP mute plus DP1/DP3 transport
+> completion and fixes a later-discovered Qualcomm volume-state semantic:
+> GainStep/MSIIR OOB calibration follows prior-CKV -> new-CKV changed-key
+> deltas instead of being blindly resent on every per-channel volume call. The
+> pathological 40-Hz Volume-Up transient fell from v30 `2.7855e-3` HP500 p95 to
+> `6.6466e-5` and `6.4095e-5` on two independent v31 captures; native Windows
+> measured `6.1937e-5`. Deterministic seek closure is retained. Cross-OS absolute
+> L/R/bass calibration is being re-based on SP7 WASAPI-RAW capture because the
+> older shared-mode microphone-array path is not stable enough for separate-WAV
+> dB tuning. **Golden v28 remains the saved default until the operator's v31
+> listening verdict.** See
+> [`deploy/golden-v31-ckv-delta-candidate/`](deploy/golden-v31-ckv-delta-candidate/),
+> the [`v31 physical gate`](docs/findings/2026-08-18-GOLDEN-V31-CKV-DELTA-40HZ-PHYSICAL-GATE.md),
+> and the [`v31 consolidated checkpoint`](docs/checkpoints/2026-08-18-V31-CONSOLIDATED-STATE.md).
 
 ## Recommended boot set
 
 | Entry | Role | Status |
 |---|---|---|
-| `sp11-audio-golden-v28` | Daily driver | **Recommended/default** |
+| `sp11-audio-golden-v28` | Daily driver / persistent fallback | **Recommended/default until v31 verdict** |
 | `sp11-audio-cps-v3` | Conservative rescue | **Keep** |
-| `sp11-audio-v29-structural-test` | DP3 OffsetCtrl2 structural comparison | **Test only / superseded if v30 is accepted** |
-| `sp11-audio-golden-v30-candidate` | Exact DSP mute + DP1/DP3 completion | **Objective gates GREEN; user verdict pending** |
+| `sp11-audio-golden-v31-ckv-delta-candidate` | v30 mute/transport + prior/new CKV fix | **Objective gates GREEN; user verdict pending** |
 
 Historical one-off candidates are retained in findings/patches/candidate
 archives, not as dozens of active GRUB entries.
@@ -63,21 +68,22 @@ The exact runtime and boot identities are hash-pinned in
 
 ## What remains open
 
-The remaining work is much narrower than the historical README implied:
-
-1. **Bass / psychoacoustic-bass A/B.** Compare Golden v28 directly with Windows
-   at matched level using the same material and SP7 external capture where useful.
-2. **Golden-v30 promotion verdict.** Exact runtime DSP mute and DP1/DP3 transport
-   are now technically proven on the isolated v30 candidate; normal user listening
-   must confirm the Golden v28 sound quality before it becomes the saved default.
+1. **Golden-v31 promotion verdict.** The objective 40-Hz, mute, transport and
+   deterministic-seek gates are GREEN; normal operator listening must confirm
+   the Golden-v28 sound quality before v31 becomes the saved default or `main`.
+2. **RAW Windows/Linux L/R and bass calibration.** Absolute cross-capture
+   calibration now requires the tracked SP7 WASAPI-RAW recorder plus a
+   standardized fresh Movie/VLLDP start state and verified live endpoint handover.
+   Older shared-mode absolute L/R dB figures are provisional and must not drive
+   tuning.
 3. **Non-blocking research items.** W02 is a dedicated Windows WASAPI-loopback
-   branch identity question, not a speaker-quality blocker. Protection telemetry
-   naming and HLOS CPS private-field semantics remain incomplete but are not
-   known audible defects.
+   branch identity question, not a speaker-quality blocker. P09 is a protection
+   telemetry observability gap, also non-blocking. Effective CPS HLOS semantics
+   are now closed as P10 GREEN.
 4. **Pristine-source packaging.** The integration starts from official Linux
    7.1.5 plus the SP11 Phase91 platform port. The historical kernel working tree
    is not itself Git-backed, so a one-command pristine-upstream kernel rebuild is
-   not yet claimed. Normalizing that platform base is the next reproducibility job.
+   not yet claimed.
 5. System suspend/resume, microphone and Bluetooth remain explicitly outside the
    current built-in-speaker completion gate.
 
