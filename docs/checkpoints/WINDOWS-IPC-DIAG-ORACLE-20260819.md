@@ -53,3 +53,18 @@ Golden v31 remains the saved Linux default. The Windows CDSP live-disable/restar
 ## Evidence still on Windows NTFS
 `C:\Users\geoca\Documents\SP11-Audio-Audit-20260812\windows-protection-deconstruct-20260819\`
 contains the full IPC scan, helper scripts and checkpoint hashes. Do not overwrite the original scan.
+
+## Windows bootstrap experiment — hard positive
+On the next native Windows boot, a pure userspace qsocket test reproduced the missing host DIAG bootstrap:
+
+- baseline `ipcr_find_name(0x1001,65)` = no service (`-4`)
+- `qbind()` host LPASS control `0x1001:64` = success (`0`)
+- within ~160 ms, LPASS **node 5** advertised remote CMD `0x1001:65` at port **25**
+- host data `0x1001:66` and DCI `0x1001:68` also bound successfully
+- after an orderly close in the first bounded test, the remote CMD service disappeared again
+
+This is a causal proof that retail Windows already has all required IPC-router/LPASS plumbing; what is absent is the host DIAG publication/orchestration normally supplied by a Qualcomm DiagRouter component.
+
+A second experiment again produced the LPASS CMD endpoint (this time dynamic port 32) and `qconnect()` returned success. Its first passive receive helper was killed by the tool timeout while blocked in `qrecvfrom()`, leaving orphan qsocket registrations until reboot. The session was therefore discarded/clean-rebooted. Next attempt must use `qpoll()` before each receive and run as a controllable persistent job so `qclose()` always executes.
+
+Windows raw first-bootstrap evidence: `windows-lpass-diag-bootstrap-20260819.csv`, SHA-256 `ABCC3F88B70F86E9C2A2A4E8940EB4DA93A2985E708A20C6B7EDE5EC89017BC7`.
