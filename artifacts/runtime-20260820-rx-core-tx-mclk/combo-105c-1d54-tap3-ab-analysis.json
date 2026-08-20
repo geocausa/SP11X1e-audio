@@ -1,0 +1,24 @@
+{
+  "boot": {
+    "kernel": "7.1.5-sp11-render-parity-v4+",
+    "entry": "7.1.5-sp11-v31-cps-pcm-105c-tap3-clock312",
+    "loaded_soundwire_qcom_srcversion": "801511EA5B3957C10977AF5",
+    "persistent_saved_entry": "sp11-audio-golden-v31"
+  },
+  "forced_logger": "CPS tap3 / IID 0x402b",
+  "candidate_state": {
+    "wsa_master_0x105c": "0x0005000f",
+    "dp13_pcm_ctrl_0x1d54": "0x00000003"
+  },
+  "without_rx_core_tx_mclk_0x312": {
+    "cmd16_len296_frames": 392,
+    "frames_nonzero_last192": 0,
+    "nonzero_bytes_last192_total": 0
+  },
+  "with_rx_core_tx_mclk_0x312_19_2MHz": {
+    "cmd16_len296_frames": 392,
+    "frames_nonzero_last192": 0,
+    "nonzero_bytes_last192_total": 0
+  },
+  "conclusion": "RX_CORE_TX_MCLK 0x312 is a proven native-Windows clock vote missing from Golden on LPASS v2.6/gen7, but it is insufficient alone and remains insufficient when combined with 0x105c + DP13 0x1d54=3. The CPS container/ring runs, but payload stays all-zero."
+}

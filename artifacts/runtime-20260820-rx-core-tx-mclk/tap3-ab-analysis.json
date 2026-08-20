@@ -1,0 +1,5 @@
+{
+  "forced_tap3_no_vote":{"total_packets":1,"cmd16":0,"frames_nonzero_last192":0},
+  "forced_tap3_rx_core_tx_mclk_0x312_19_2MHz":{"total_packets":1,"cmd16":0,"frames_nonzero_last192":0},
+  "conclusion":"0x312 is a proven Windows/Linux clock-vote gap on LPASS v2.6/gen7, but is insufficient alone to wake CPS logger or produce source samples"
+}
