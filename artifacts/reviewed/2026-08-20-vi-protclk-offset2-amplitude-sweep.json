@@ -1,0 +1,22 @@
+{
+  "candidate": "PROTCLK+Offset2",
+  "machine_srcversion": "943D430641888D2DC89938E",
+  "soundwire_srcversion": "CE1DADE19E1CE61B7FC8843",
+  "runs": {
+    "runtime-silence": {
+      "frames": 0,
+      "mean_abs_first32": null,
+      "median_abs_first32": null
+    },
+    "runtime-minus18db": {
+      "frames": 0,
+      "mean_abs_first32": null,
+      "median_abs_first32": null
+    },
+    "runtime-tone": {
+      "frames": 0,
+      "mean_abs_first32": null,
+      "median_abs_first32": null
+    }
+  }
+}
