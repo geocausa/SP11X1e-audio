@@ -1,0 +1,53 @@
+{
+  "date": "2026-08-20",
+  "branch": "agent/psycho-bass-20260818",
+  "golden_kernel": "7.1.5-sp11-render-parity-v4+",
+  "saved_entry": "sp11-audio-golden-v31",
+  "module_id_codec_dma_source": "0x07001024",
+  "source_registry": {
+    "static_properties": "0xb0598674",
+    "init": "0xb0598678",
+    "factory": "0xb05985e8",
+    "forced_direction": 2,
+    "direction_field": "CODEC_DMA instance +0x20"
+  },
+  "source_process": {
+    "capi_process": "0xb005ebcc",
+    "wrapper": "0xb005f224",
+    "hwd_ring_read": "0xb005f40c",
+    "ring_to_framework_callback": "0xb005a110"
+  },
+  "hwd_ring_fields": {
+    "virtual_base": "+0x24",
+    "physical_base": "+0x28",
+    "consumer_cursor": "+0x2c",
+    "ring_size": "+0x14",
+    "period_words": "+0x20",
+    "interface": "+0x4c",
+    "direction": "+0x50",
+    "dma_channel": "+0x54",
+    "source_copy_callback": "+0x64",
+    "callback_context": "+0x6c"
+  },
+  "ring_allocation": {
+    "allocator": "0xb027c968",
+    "virtual_to_physical": "0xb0039d2c",
+    "hardware_programming": "0xb027bd48 -> 0xb006a4c8"
+  },
+  "wsa_backend": {
+    "ar_hw_interface_type": 2,
+    "ar_hw_interface_name": "LPAIF_WSA",
+    "hwd_interface": 4,
+    "base": "0x06b80000",
+    "dma_window": "0x06b8e000",
+    "irq_window": "0x06b9a000",
+    "backend_type": "0x50000000"
+  },
+  "correction": {
+    "field": "CODEC_DMA instance +0x348/+0x34c",
+    "old_tentative_role": "sample pointer",
+    "proven_role": "timestamp/timing metadata path",
+    "sample_storage": false
+  },
+  "closure": "No hidden CODEC_DMA_SOURCE staging-buffer fault remains between the HWD4 WSA DMA ring and AudioReach output. Continue upstream at WSA/LPAIF WRDMA producer state."
+}
