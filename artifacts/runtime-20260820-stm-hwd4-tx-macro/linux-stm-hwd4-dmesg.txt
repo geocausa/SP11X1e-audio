@@ -1,0 +1,39 @@
+[   12.608493] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x4026 GET_CFG 0xa001050
+[   12.608568] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x4026 module_err 0x0 ts_ptr 0xb089d3d0 update_fn 0xb005ec94 hw_ctx 0x0
+[   12.608574] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x4026 -> 0
+[   12.608575] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x402b GET_CFG 0xa001050
+[   12.608701] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x402b module_err 0x0 ts_ptr 0xb0890100 update_fn 0xb005ec94 hw_ctx 0x0
+[   12.608707] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x402b -> 0
+[   12.615786] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 stage GRAPH_START accepted
+[   12.615789] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x4026 GET_CFG 0xa001050
+[   12.615975] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x4026 module_err 0x0 ts_ptr 0xb089d3d0 update_fn 0xb005ec94 hw_ctx 0xb08c03d0
+[   12.615992] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x4026 -> 0
+[   12.615994] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x402b GET_CFG 0xa001050
+[   12.616071] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x402b module_err 0x0 ts_ptr 0xb0890100 update_fn 0xb005ec94 hw_ctx 0xb08beb80
+[   12.616076] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x402b -> 0
+[   12.675831] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x4026 GET_CFG 0xa001050
+[   12.675904] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x4026 module_err 0x0 ts_ptr 0xb08a02b0 update_fn 0xb005ec94 hw_ctx 0x0
+[   12.675910] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x4026 -> 0
+[   12.675912] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x402b GET_CFG 0xa001050
+[   12.676047] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x402b module_err 0x0 ts_ptr 0xb08978d0 update_fn 0xb005ec94 hw_ctx 0x0
+[   12.676052] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x402b -> 0
+[   12.684002] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 stage GRAPH_START accepted
+[   12.684013] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x4026 GET_CFG 0xa001050
+[   12.684253] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x4026 module_err 0x0 ts_ptr 0xb08a02b0 update_fn 0xb005ec94 hw_ctx 0xb08c05d0
+[   12.684262] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x4026 -> 0
+[   12.684265] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x402b GET_CFG 0xa001050
+[   12.684356] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x402b module_err 0x0 ts_ptr 0xb08978d0 update_fn 0xb005ec94 hw_ctx 0xb08a03c0
+[   12.684363] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x402b -> 0
+[ 3358.722797] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x4026 GET_CFG 0xa001050
+[ 3358.723047] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x4026 module_err 0x0 ts_ptr 0xb089e840 update_fn 0xb005ec94 hw_ctx 0x0
+[ 3358.723064] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x4026 -> 0
+[ 3358.723069] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x402b GET_CFG 0xa001050
+[ 3358.723181] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x402b module_err 0x0 ts_ptr 0xb0890240 update_fn 0xb005ec94 hw_ctx 0x0
+[ 3358.723194] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe pre-start iid 0x402b -> 0
+[ 3358.735975] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 stage GRAPH_START accepted
+[ 3358.735992] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x4026 GET_CFG 0xa001050
+[ 3358.737506] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x4026 module_err 0x0 ts_ptr 0xb089e840 update_fn 0xb005ec94 hw_ctx 0xb08a94f0
+[ 3358.739961] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x4026 -> 0
+[ 3358.739981] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x402b GET_CFG 0xa001050
+[ 3358.742132] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM GET_CFG iid 0x402b module_err 0x0 ts_ptr 0xb0890240 update_fn 0xb005ec94 hw_ctx 0xb08bedc0
+[ 3358.742241] q6apm-dai 6800000.remoteproc:glink-edge:gpr:service@1:dais: SP11 STM probe post-start iid 0x402b -> 0
