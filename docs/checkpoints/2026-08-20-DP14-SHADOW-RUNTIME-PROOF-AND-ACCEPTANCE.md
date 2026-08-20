@@ -163,3 +163,27 @@ Therefore the Windows DP14 shadow write is a genuine HLOS parity detail but is *
 Disposition: **CLOSED as root cause / rejected as fix.** Do not create a DP14 stream, DAI, or channel-enable path. Do not stack more SoundWire geometry guesses on this finding.
 
 Next boundary remains downstream of the proven physical SoundWire producer path and upstream of AudioReach VI/CPS logger data: qcadcm/GSL/AFE hardware-client attachment for `CODEC_DMA_SOURCE` / AFE endpoints `0xb001` (VI) and `0xb003` (CPS), gated by render stream start.
+
+## VI / tap2 cross-check
+
+A separate one-shot boot used the same signed DP14-shadow module with the known tap2-forced Render-Parity topology:
+
+- boot marker: `sp11_entry=7.1.5-sp11-v31-dp14-tap2forced`
+- loaded `soundwire_qcom` srcversion: `A1AD340206B206114780A1E`
+- tap2-forced topology SHA256: `b5e4331b79957837d3625867e0bfa81709f4f1e8c3eab3336613888ff905d624`
+- derivative initrd SHA256: `d29204cbc64f2f0121b47f69d9fa5fa6d39b517d21904a1afa7652de3a8f6a1f`
+- DP14 kernel markers again showed successful `0x00ff191f` bank-shadow writes.
+
+The validated Linux DIAG router collector ran for 28 s while the standard 48 kHz stereo 997 Hz WAV rendered through `aplay -D hw:0,0` for 20 s. `aplay` completed normally.
+
+Result:
+
+- total DIAG frames: 1
+- only frame: command `0x73` / log-mask acknowledgement
+- `cmd16` / `0x1586` data frames: **0**
+
+Evidence directory:
+
+`02-kernel/candidates/v31-wsa-dp14-shadow-20260820/tap2forced-997hz/`
+
+Therefore the DP14 shadow parity operation is insufficient for **both** protected feedback branches: it neither wakes CPS tap3 nor VI tap2. This strengthens the closure and further argues against any port-14 DAI/stream/channel-enable experiment.
