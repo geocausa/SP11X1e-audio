@@ -1,0 +1,44 @@
+{
+  "schema": "sp11-windows-wsa-descriptor-macro-closure-v1",
+  "date": "2026-08-20",
+  "wsa_start_owner": {
+    "mode": 2,
+    "descriptor_type": "0x14",
+    "resource_count": 2,
+    "resource_types": [7, 8],
+    "type_9_present": false,
+    "type_10_present": false,
+    "repeatable_across_real_speaker_starts": true
+  },
+  "windows_active_wsa_rx_macro": {
+    "0x06b00400": ["0x00000024", "0x00000002", "0x000000ef", "0x0000008f"],
+    "0x06b00480": ["0x00000024", "0x00000002", "0x000000ef", "0x0000008f"],
+    "matches_golden_linux": true
+  },
+  "windows_active_cps_master_port": {
+    "0x06b11d24": "0x0000001f",
+    "0x06b11d2c": "0x00000018",
+    "0x06b11d34": "0x000000ff",
+    "0x06b11d3c": "0x00000003",
+    "0x06b11d54": "0x00000003",
+    "0x06b11d64": "0x0300001f"
+  },
+  "adsp_owned_apss_read": {
+    "0x06b9a000_wsa_wrdma": "failed",
+    "0x06b89000_wsa_irq": "failed"
+  },
+  "closure": {
+    "qcaucd_tx0_tx1_type9_type10": "rejected_for_sp11_speaker_start",
+    "wsa_rx_macro_state": "parity_closed",
+    "apss_direct_lpaif_read": "closed_unavailable",
+    "next_boundary": "WSA master to LPAIF WSA WRDMA data handoff"
+  },
+  "golden_after_windows": {
+    "kernel": "7.1.5-sp11-render-parity-v4+",
+    "sp11_entry": "7.1.5-sp11-golden-v31-ckv-delta",
+    "snd_q6apm_srcversion": "687B16CF9C43B43E90C0746",
+    "topology_sha256": "1b0c7217fc67bb11da002b06563dd8c411b0f0e35ac40778bff3d65093061c9d",
+    "saved_entry": "sp11-audio-golden-v31",
+    "next_entry": ""
+  }
+}
