@@ -134,3 +134,32 @@ Run tap3-forced and tap2-forced in separate disposable one-shot boots. When prac
 Promotion requires real nonzero 24 kHz CPS tap3 and real nonzero 8 kHz VI tap2. If the forced streams remain zero while physical render is proven, reject DP14 shadow as a sufficient fix and keep the Windows parity finding only.
 
 Golden must remain the persistent fallback throughout.
+
+## Final acceptance result — DP14 shadow rejected as sufficient fix
+
+The clean tap3-forced candidate boot loaded `soundwire_qcom` srcversion `A1AD340206B206114780A1E`, executed the DP14 shadow writes, and retained Golden as the persistent fallback.
+
+First synchronized tap3-forced run:
+
+- direct ALSA 48 kHz stereo 997 Hz render completed;
+- SP7 external microphone independently measured the 997 Hz line at about **+80.12 dB / +73.35 dB** over the nearby spectral floor;
+- Linux DIAG capture produced only the log-mask response (`cmd 115`) and **zero `cmd16` audio frames**;
+- mid-render DP13 was active (`B0=0x03ff001f`, `B1=0x00ff001f`), while DP14 read back zero.
+
+Kernel markers prove the candidate's DP14 write runs again at stream start, not only at boot. A sub-30 ms userspace poll still saw DP14 read back zero, indicating that this register behaves as a consumed/write-only shadow or is cleared immediately by subsequent SoundWire sequencing.
+
+To remove bank-switch/write-timing ambiguity, a stronger test repeatedly wrote the exact Windows value `0x00ff191f` to **both** DP14 bank shadows approximately every 8 ms for the entire 20-second render, without ever enabling DP14 channels.
+
+Held-shadow result:
+
+- all write calls completed without error;
+- DP14 readback remained zero, consistent with consumed/write-only shadow semantics;
+- DP13 remained normally active;
+- tap3 again produced **zero `cmd16` audio frames**;
+- simultaneous SP7 microphone capture measured the physical 997 Hz line at about **+80.48 dB / +72.92 dB** over the nearby spectral floor.
+
+Therefore the Windows DP14 shadow write is a genuine HLOS parity detail but is **not sufficient to attach CPS samples to AudioReach**. Its timing cannot explain the missing Linux CPS feed: even continuous exact-value writes spanning all stream-start/bank-switch timing failed while physical speaker output was unequivocally present.
+
+Disposition: **CLOSED as root cause / rejected as fix.** Do not create a DP14 stream, DAI, or channel-enable path. Do not stack more SoundWire geometry guesses on this finding.
+
+Next boundary remains downstream of the proven physical SoundWire producer path and upstream of AudioReach VI/CPS logger data: qcadcm/GSL/AFE hardware-client attachment for `CODEC_DMA_SOURCE` / AFE endpoints `0xb001` (VI) and `0xb003` (CPS), gated by render stream start.
