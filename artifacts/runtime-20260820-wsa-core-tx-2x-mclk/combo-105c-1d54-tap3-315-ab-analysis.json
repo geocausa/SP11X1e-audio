@@ -1,0 +1,12 @@
+{
+  "boot": {
+    "kernel":"7.1.5-sp11-render-parity-v4+",
+    "loaded_soundwire_qcom_srcversion":"801511EA5B3957C10977AF5",
+    "persistent_saved_entry":"sp11-audio-golden-v31"
+  },
+  "forced_logger":"CPS tap3 / IID 0x402b",
+  "candidate_state":{"wsa_master_0x105c":"0x0005000f","dp13_pcm_ctrl_0x1d54":"0x00000003"},
+  "without_wsa_core_tx_2x_mclk_0x315":{"cmd16_len296_frames":392,"frames_nonzero_last192":0,"nonzero_bytes_last192_total":0},
+  "with_wsa_core_tx_2x_mclk_0x315_19_2MHz":{"cmd16_len296_frames":392,"frames_nonzero_last192":0,"nonzero_bytes_last192_total":0},
+  "conclusion":"0x315 is a direct native-Windows clock vote missing from Golden Linux, but adding it does not change the already-running all-zero CPS DMA/ring payload."
+}

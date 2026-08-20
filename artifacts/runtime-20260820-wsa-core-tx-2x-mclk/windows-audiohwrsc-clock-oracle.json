@@ -1,0 +1,13 @@
+{
+  "source": "preserved native SP11 Windows KD marked playback interval SP11_HW_RSC_RUNTIME_20260815.log",
+  "parameter_family": "0x0800102c PARAM_ID_RSC_AUDIO_HW_CLK",
+  "enable_sequence": [
+    {"clock_id":"0x30c","name":"TX_CORE_MCLK","frequency_hz":19200000,"attribute":1},
+    {"clock_id":"0x314","name":"WSA_CORE_TX_MCLK","frequency_hz":19200000,"attribute":1},
+    {"clock_id":"0x315","name":"WSA_CORE_TX_2X_MCLK","frequency_hz":19200000,"attribute":1}
+  ],
+  "release_sequence_seen": ["0x30c","0x315","0x314"],
+  "not_seen_in_marked_playback": ["0x312"],
+  "linux_golden_live_render_trace": ["0x30c","0x314"],
+  "proven_missing_linux_vote": "0x315 WSA_CORE_TX_2X_MCLK"
+}

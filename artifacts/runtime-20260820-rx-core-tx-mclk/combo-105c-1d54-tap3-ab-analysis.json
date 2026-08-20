@@ -18,7 +18,8 @@
   "with_rx_core_tx_mclk_0x312_19_2MHz": {
     "cmd16_len296_frames": 392,
     "frames_nonzero_last192": 0,
-    "nonzero_bytes_last192_total": 0
+    "nonzero_bytes_last192_total": 0,
+    "classification": "static-inference experiment; later native runtime oracle showed 0x312 is not requested in marked speaker playback"
   },
-  "conclusion": "RX_CORE_TX_MCLK 0x312 is a proven native-Windows clock vote missing from Golden on LPASS v2.6/gen7, but it is insufficient alone and remains insufficient when combined with 0x105c + DP13 0x1d54=3. The CPS container/ring runs, but payload stays all-zero."
+  "conclusion": "0x312 did not affect the zero CPS ring, but a later direct Windows AudioHwRsc runtime re-read corrected the premise: Windows speaker playback requests 0x30c, 0x314 and 0x315, not 0x312. Do not treat 0x312 as a parity gap."
 }
