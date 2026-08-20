@@ -1,0 +1,54 @@
+{
+  "schema": "sp11-audiohwrsc-core-gpio-postop4-closure-v1",
+  "date": "2026-08-20",
+  "windows_audiohwrsc": {
+    "clock_ids_runtime": ["0x30c", "0x314", "0x315"],
+    "rejected_static_clock_id": "0x312",
+    "missing_linux_clock_tested": "0x315",
+    "clock_315_rate_hz": 19200000,
+    "clock_315_ab": {
+      "base_candidate": ["0x105c=0x0005000f", "DP13_0x1d54=0x3", "forced_CPS_tap3"],
+      "without_315": {"frames": 392, "nonzero_frames": 0, "nonzero_pcm_bytes": 0},
+      "with_315": {"frames": 392, "nonzero_frames": 0, "nonzero_pcm_bytes": 0},
+      "conclusion": "real Windows omission but insufficient for source data"
+    },
+    "hw_core": {
+      "param_id": "0x08001032",
+      "block_id": 1,
+      "golden_persistent_cover": {
+        "LPASS_HW_MACRO_prepare_enable": "6/6",
+        "LPASS_HW_DCODEC_prepare_enable": "6/6"
+      },
+      "conclusion": "not missing on Linux"
+    },
+    "endpoint_gpio": {
+      "param_id": "0x080014f3",
+      "pins": [10, 11],
+      "linux_functions": ["wsa_swr_clk", "wsa_swr_data"],
+      "linux_owner": "6b10000.soundwire",
+      "drive_strength": 2,
+      "conclusion": "dynamic Windows request corresponds to persistent Linux pinctrl state"
+    }
+  },
+  "post_op4": {
+    "miniport_start": "FUN_14007a4c0",
+    "conditional_state_offset": "0x108",
+    "helper": "FUN_14006ceb8",
+    "qcaucd_operation": 8,
+    "internal_set_command": "0x202",
+    "reciprocal_query_command": "0x203",
+    "event_type": "0x4a",
+    "semantic": "retained per-endpoint scalar/gain replay",
+    "runtime_real_render_op8_hits": 0,
+    "conclusion": "not the per-render VI/CPS source attachment"
+  },
+  "remaining_boundary": "qcadsp HWD4 WSA CODEC_DMA_SOURCE -> LPAIF/WSA WRDMA retained/external state dependency -> zero sample ring",
+  "golden": {
+    "kernel": "7.1.5-sp11-render-parity-v4+",
+    "q6apm_srcversion": "687B16CF9C43B43E90C0746",
+    "saved_entry": "sp11-audio-golden-v31",
+    "next_entry": "",
+    "qcadsp_sha256": "921870a839ee2aba647b04598d62ed96f3d2d5dfbb2499fc842f9a6ff0e0da13",
+    "adsp_dtb_sha256": "544bd795cb06cf8dee8119ede2a667f01066b2f1b9e4348f1772d080e2026ff4"
+  }
+}
