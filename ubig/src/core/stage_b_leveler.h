@@ -48,6 +48,52 @@ void ubig_stage_b_leveler_pair_row(const UbigStageBLevelerPairCoefficients *coef
                                    float *state_b_values,
                                    float scalar_mix);
 
+/* Project one record family against another through the exact 17-float
+ * scalar-transfer curve. output_rows stores 21 floats per row: scalar+20. */
+void ubig_stage_b_leveler_curve_rows(const float curve[17],
+                                     const UbigStageBLevelerRecord *anchor_records,
+                                     const UbigStageBLevelerRecord *input_records,
+                                     uint32_t width,
+                                     uint32_t index,
+                                     float *output_rows,
+                                     float anchor_bias,
+                                     float input_bias);
+
+/* Clamp producer rows using curve-derived bounds propagated from one indexed
+ * record backward through preceding records. output_rows is 21 floats/row. */
+void ubig_stage_b_leveler_curve_bounds(const float *limits,
+                                       const UbigStageBLevelerRecord *anchor_records,
+                                       const UbigStageBLevelerRecord *compare_records,
+                                       const float curve[17],
+                                       uint32_t width,
+                                       uint32_t index,
+                                       float *output_rows,
+                                       float anchor_bias,
+                                       float input_bias);
+
+/* Propagate a ceiling across linked producer rows. The logarithmic threshold
+ * vector is supplied as caller-owned configuration rather than embedded data. */
+void ubig_stage_b_leveler_link_ceiling(const UbigStageBLevelerRecord *records,
+                                       const UbigStageBLevelerRecord *compare_records,
+                                       const float *thresholds,
+                                       uint32_t width,
+                                       uint32_t index,
+                                       float *output_rows);
+
+/* Complete curve-projection/bounds/link/final-mix pipeline. Logarithmic
+ * thresholds remain explicit caller-owned configuration. */
+void ubig_stage_b_leveler_curve_pipeline(const float curve[17],
+                                         const UbigStageBLevelerRecord *records,
+                                         const UbigStageBLevelerRecord *compare_records,
+                                         const float *limits,
+                                         const float *thresholds,
+                                         uint32_t width,
+                                         uint32_t index,
+                                         float *output_rows,
+                                         uint32_t preserve_rows,
+                                         float anchor_bias,
+                                         float input_bias);
+
 /* Process one indexed adaptive record and its preceding/related vector records.
  * observed_records supplies read-only instantaneous targets. */
 void ubig_stage_b_leveler_update(UbigStageBLevelerState *state,

@@ -141,3 +141,19 @@ Private direct differential gate: **1,000,000 complete calls bit-exact**, compar
 The enclosing `ubig_stage_b_leveler_pair_row()` applies the same primitive once to the scalar pair and independently across the active row lanes. The second target is represented as a flat scalar-plus-row vector while the first target uses the native UbiG Leveler record.
 
 Private direct differential gate against the original row wrapper: **400,000 complete scalar+row calls bit-exact** over variable widths through 20 lanes. Public regression hash: `21c3a30f08a6290e`.
+
+## Producer curve pipeline
+
+The remaining bounded curve-processing subtree is native without embedding the reference image's logarithmic threshold vector.
+
+`ubig_stage_b_leveler_row_ceiling()` clamps a scalar-plus-row buffer (`count+1` float32 values) to one upper ceiling. Private differential gate: **1,000,000 calls bit-exact**. Public regression hash: `dc3e6519be11e58d`.
+
+`ubig_stage_b_leveler_curve_rows()` projects one record family against another through the already-native 17-float scalar-transfer curve. Private gate: **300,000 complete calls bit-exact**. Public hash: `057492a9dafa8981`.
+
+`ubig_stage_b_leveler_curve_bounds()` propagates curve-derived lower/upper bounds from the indexed record through preceding rows. Private gate: **300,000 complete calls bit-exact**. Public hash: `6a59181925d2fe72`.
+
+`ubig_stage_b_leveler_link_ceiling()` propagates a linked row ceiling. Its logarithmic per-index threshold vector is deliberately supplied as caller-owned configuration instead of copied into UbiG. With the private reference vector injected only by the oracle, the promoted algorithm matches **300,000 complete calls bit-exact**. Public synthetic-data hash: `4c3f1ca5efe06547`.
+
+`ubig_stage_b_leveler_curve_pipeline()` composes those pieces, including the exact fifth-power activity ramp and final half-mix/clamp stage. The promoted UbiG source matches the original parent boundary on **200,000 complete randomized calls bit-exact**. Public regression hash: `0689d8092fcb91aa`.
+
+The threshold vector is `DERIVED/UNRESOLVED-DATA` rather than algorithm code: its entries follow a scaled logarithmic family, but its exact offline rounding/generation rule has not yet been independently reproduced. UbiG therefore does not contain the original vector bytes.

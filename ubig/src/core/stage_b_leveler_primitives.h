@@ -137,6 +137,9 @@ void ubig_stage_b_leveler_filter_blend(const UbigStageBLevelerSymmetricFilter *f
                                        const float *input,
                                        float *output);
 
+/* Exact in-place ceiling clamp over scalar+row storage (count+1 floats). */
+void ubig_stage_b_leveler_row_ceiling(float *values,uint32_t count,float ceiling);
+
 /* Exact two-state coefficient selector/smoother used by the Leveler mixer. */
 typedef struct {
     float positive_near;

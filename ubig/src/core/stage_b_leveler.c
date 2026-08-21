@@ -52,6 +52,173 @@ void ubig_stage_b_leveler_pair_row(const UbigStageBLevelerPairCoefficients *coef
                                          target_a->values[i],target_b_flat[i+1u],mix_values[i]);
 }
 
+static float leveler_clamp_almost_one(float x)
+{
+    const float hi=f32_bits(0x3f7ffffeu);
+    if(x < -hi)x=-hi;
+    if(hi < x)x=hi;
+    return x;
+}
+
+void ubig_stage_b_leveler_curve_rows(const float curve[17],
+                                     const UbigStageBLevelerRecord *a,
+                                     const UbigStageBLevelerRecord *b,
+                                     uint32_t width,
+                                     uint32_t index,
+                                     float *out,
+                                     float anchor_bias,
+                                     float input_bias)
+{
+    if(!curve||!a||!b||!out||!a[index].values||!b[index].values)return;
+    const float delta=anchor_bias-input_bias;
+    const float anchor=a[index].scalar+delta;
+    out[index*21u]=ubig_stage_b_leveler_piecewise(curve,b[index].scalar+delta);
+    for(uint32_t k=0;k<width;k++){
+        const float x=b[index].values[k]+(anchor-a[index].values[k]);
+        out[index*21u+1u+k]=ubig_stage_b_leveler_piecewise(curve,leveler_clamp_almost_one(x));
+    }
+    for(uint32_t r=0;r<index;r++){
+        float x=b[r].scalar+(anchor-a[r].scalar);
+        out[r*21u]=ubig_stage_b_leveler_piecewise(curve,leveler_clamp_almost_one(x));
+        for(uint32_t k=0;k<width;k++){
+            x=b[r].values[k]+(anchor-a[r].values[k]);
+            out[r*21u+1u+k]=ubig_stage_b_leveler_piecewise(curve,leveler_clamp_almost_one(x));
+        }
+    }
+}
+
+static void leveler_clamp_between(float *x,float lo,float hi)
+{
+    if(*x<lo)*x=lo;
+    else if(hi<*x)*x=hi;
+}
+
+void ubig_stage_b_leveler_curve_bounds(const float *limits,
+                                       const UbigStageBLevelerRecord *a,
+                                       const UbigStageBLevelerRecord *b,
+                                       const float curve[17],
+                                       uint32_t width,
+                                       uint32_t index,
+                                       float *rows,
+                                       float anchor_bias,
+                                       float input_bias)
+{
+    if(!limits||!a||!b||!curve||!rows)return;
+    const float delta=anchor_bias-input_bias;
+    const float a_index=a[index].scalar;
+    float base=(a_index<limits[index])?a_index:limits[index];
+    const float curve_bound=ubig_stage_b_leveler_piecewise(curve,base+delta);
+    float *indexed=rows+index*21u;
+    float lo,hi;
+    if(base<b[index].scalar){lo=indexed[0];hi=curve_bound;}
+    else{lo=curve_bound;hi=indexed[0];}
+    for(uint32_t k=0;k<width;k++)leveler_clamp_between(&indexed[1u+k],lo,hi);
+    for(uint32_t r=0;r<index;r++){
+        const float ar=a[r].scalar;
+        base=(ar<limits[r])?ar:limits[r];
+        const float bound=ubig_stage_b_leveler_piecewise(curve,(a_index-ar)+delta+base);
+        float *row=rows+r*21u;
+        leveler_clamp_between(&row[0],lo,hi);
+        if(base>=b[r].scalar){
+            for(uint32_t k=0;k<width;k++)leveler_clamp_between(&row[1u+k],bound,row[0]);
+        }else{
+            for(uint32_t k=0;k<width;k++)leveler_clamp_between(&row[1u+k],row[0],bound);
+        }
+    }
+}
+
+void ubig_stage_b_leveler_link_ceiling(const UbigStageBLevelerRecord *a,
+                                       const UbigStageBLevelerRecord *b,
+                                       const float *thresholds,
+                                       uint32_t width,
+                                       uint32_t index,
+                                       float *rows)
+{
+    if(!a||!b||!thresholds||!rows)return;
+    if(b[index].scalar>a[index].scalar)return;
+    const float span=f32_bits(0x3e57d5ecu);
+    const float scalar_gate=a[index].scalar-thresholds[index];
+    const float lane_gate=a[index].scalar-span;
+    float *indexed=rows+index*21u;
+    float ceiling=indexed[0];
+    for(uint32_t k=0;k<width;k++)
+        if(lane_gate<a[index].values[k] && indexed[1u+k]<ceiling)ceiling=indexed[1u+k];
+    ubig_stage_b_leveler_row_ceiling(indexed,width,ceiling);
+    float global=ceiling;
+    for(uint32_t r=0;r<index;r++){
+        if(scalar_gate<a[r].scalar){
+            float *row=rows+r*21u;
+            float local=(row[0]<ceiling)?row[0]:ceiling;
+            for(uint32_t k=0;k<width;k++)
+                if(lane_gate<a[r].values[k] && row[1u+k]<local)local=row[1u+k];
+            if(local<global)global=local;
+        }
+    }
+    for(uint32_t r=0;r<index;r++)ubig_stage_b_leveler_row_ceiling(rows+r*21u,width,global);
+}
+
+static float leveler_curve_final_clamp(float x)
+{
+    const float lo=f32_bits(0xbefffffeu);
+    const float hi=f32_bits(0x3cf652aau);
+    if(x<lo)x=lo;
+    if(hi<x)x=hi;
+    return x;
+}
+
+void ubig_stage_b_leveler_curve_pipeline(const float curve[17],
+                                         const UbigStageBLevelerRecord *a,
+                                         const UbigStageBLevelerRecord *b,
+                                         const float *limits,
+                                         const float *thresholds,
+                                         uint32_t width,
+                                         uint32_t index,
+                                         float *rows,
+                                         uint32_t preserve,
+                                         float anchor_bias,
+                                         float input_bias)
+{
+    if(!curve||!a||!b||!limits||!thresholds||!rows)return;
+    ubig_stage_b_leveler_curve_rows(curve,a,b,width,index,rows,anchor_bias,input_bias);
+    const float almost_one=f32_bits(0x3f7ffffeu);
+    const float high=f32_bits(0x3f2b2b71u);
+    const float low=f32_bits(0x3e76bab1u);
+    const float scale=f32_bits(0x3f15a490u);
+    const float activity=b[index].scalar;
+    float factor;
+    if(activity>=high)factor=almost_one;
+    else if(rows[index*21u]+anchor_bias<=0.0f)factor=almost_one;
+    else if(activity<low)factor=0.0f;
+    else{
+        float t=(activity-low)*scale;
+        t*=4.0f;
+        const float t2=t*t;
+        factor=(t2*t2)*t;
+    }
+    ubig_stage_b_leveler_curve_bounds(limits,a,b,curve,width,index,rows,anchor_bias,input_bias);
+    ubig_stage_b_leveler_link_ceiling(a,b,thresholds,width,index,rows);
+    const float half=anchor_bias*0.5f;
+    for(uint32_t r=0;r<=index;r++){
+        float *row=rows+r*21u;
+        float v=preserve?fmaf(row[0],0.5f,half):half;
+        v=leveler_curve_final_clamp(v*factor);
+        row[0]=v+v;
+        if(width){
+            if(preserve){
+                for(uint32_t k=0;k<width;k++){
+                    v=fmaf(row[1u+k],0.5f,half);
+                    v=leveler_curve_final_clamp(v*factor);
+                    row[1u+k]=v+v;
+                }
+            }else{
+                v=leveler_curve_final_clamp(half*factor);
+                v+=v;
+                for(uint32_t k=0;k<width;k++)row[1u+k]=v;
+            }
+        }
+    }
+}
+
 static float history_interp(const UbigStageBLevelerHistory *h,float value)
 {
     float x=(value-f32_bits(0x3f11a2f0u))*f32_bits(0x3f0c0000u);

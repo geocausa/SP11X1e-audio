@@ -226,3 +226,11 @@ The table-free symmetric row filter and its conditional overshoot-blend parent a
 ### Stage-B Leveler pair-state mixer
 
 The producer-side pair-state coefficient selector/smoother and its scalar+row wrapper are now native. `ubig_stage_b_leveler_pair_smooth()` matches the original boundary on **1,000,000 complete randomized calls bit-exact** across the full flag/coefficient branch tree. Its parent `ubig_stage_b_leveler_pair_row()` matches **400,000 complete scalar+20-lane calls bit-exact**. Public regression hashes: `baa3e74c31ed25e6` and `21c3a30f08a6290e`.
+
+### Stage-B Leveler curve-pipeline closure
+
+The bounded producer curve subtree is now native. Direct private gates on promoted UbiG source: row ceiling **1,000,000 calls**, curve projection **300,000 complete calls**, curve-bound propagation **300,000**, linked ceiling **300,000**, and complete curve pipeline **200,000**, all bit-exact.
+
+Public regression hashes: row ceiling `dc3e6519be11e58d`, curve rows `057492a9dafa8981`, curve bounds `6a59181925d2fe72`, linked ceiling `4c3f1ca5efe06547`, complete pipeline `0689d8092fcb91aa`.
+
+The reference pipeline consumes a 20-entry logarithmic threshold vector. Its mathematical family is understood but its exact offline rounding rule is not yet independently reproduced, so UbiG exposes the thresholds as caller-owned configuration and does not embed the reference table bytes. This keeps the numerical algorithm closed without weakening the clean-room provenance boundary.

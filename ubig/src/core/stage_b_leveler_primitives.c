@@ -370,6 +370,13 @@ void ubig_stage_b_leveler_symmetric_filter(const UbigStageBLevelerSymmetricFilte
     }
 }
 
+void ubig_stage_b_leveler_row_ceiling(float *values,uint32_t count,float ceiling)
+{
+    if(!values)return;
+    for(uint32_t i=0;i<=count;i++)
+        if(ceiling<values[i])values[i]=ceiling;
+}
+
 void ubig_stage_b_leveler_filter_blend(const UbigStageBLevelerSymmetricFilter *filter,
                                        uint32_t count,
                                        const float *blend,
