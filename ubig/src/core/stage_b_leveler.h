@@ -181,24 +181,8 @@ void ubig_stage_b_leveler_producer_process(UbigStageBLevelerProducerState *state
                                            uint32_t preserve_rows,
                                            const float *log_thresholds);
 
-typedef struct {
-    float parent_control0;
-    float parent_control1;
-} UbigStageBLevelerUpdateResult;
-
 /* Process one indexed adaptive record and its preceding/related vector records.
- * The result variant also exposes the two exact parent-visible control scalars
- * that the original ARM64 implementation leaves in s0/s1. */
-void ubig_stage_b_leveler_update_with_result(UbigStageBLevelerState *state,
-                                             const UbigStageBLevelerConfig *config,
-                                             uint32_t index,
-                                             uint32_t width,
-                                             float control_mix,
-                                             float direct_control,
-                                             float secondary_scale,
-                                             const UbigStageBLevelerRecord *observed_records,
-                                             UbigStageBLevelerUpdateResult *result);
-
+ * observed_records supplies read-only instantaneous targets. */
 void ubig_stage_b_leveler_update(UbigStageBLevelerState *state,
                                  const UbigStageBLevelerConfig *config,
                                  uint32_t index,
@@ -207,4 +191,71 @@ void ubig_stage_b_leveler_update(UbigStageBLevelerState *state,
                                  float direct_control,
                                  float secondary_scale,
                                  const UbigStageBLevelerRecord *observed_records);
+
+
+#define UBIG_STAGE_B_LEVELER_PARENT_ROWS 2u
+#define UBIG_STAGE_B_LEVELER_PARENT_WIDTH 20u
+
+typedef struct {
+    float **matrix_rows;
+    UbigStageBLevelerLookupState *lookup;
+    UbigStageBLevelerRowState *lifecycle;
+    float **transition_rows;
+    UbigStageBLevelerProducerState *producer;
+    UbigStageBLevelerState *writer;
+    UbigStageBLevelerAdaptiveState *adaptive;
+} UbigStageBLevelerParentState;
+
+typedef struct {
+    const float *base_row;
+    const UbigStageBLevelerRowConfig *lifecycle;
+    const UbigStageBLevelerLookupConfig *lookup;
+    const UbigStageBLevelerTransitionRecord *transition_large_rise;
+    const UbigStageBLevelerTransitionRecord *transition_normal;
+    const UbigStageBLevelerAdaptiveControl *adaptive;
+    const UbigStageBLevelerSymmetricFilter *filter;
+    const UbigStageBLevelerTransitionRecord *matrix_transition;
+    const UbigStageBLevelerConfig *writer;
+    const UbigStageBLevelerProducerConfig *producer;
+} UbigStageBLevelerParentConfig;
+
+typedef struct {
+    const UbigStageBLevelerLookupTables *lookup_tables;
+    const UbigStageBLevelerInverseLookupTables *inverse_tables;
+    const UbigStageBLevelerNormalizedCubic *cubic;
+    const float *lookup_offsets;
+    const float *producer_thresholds;
+    const float *adaptive_band_weights;
+    const float *tail_coefficients;
+} UbigStageBLevelerParentTuning;
+
+typedef struct {
+    float matrix_bias;
+    float row_bias_a;
+    float row_bias_b;
+    float adaptive_output_scale;
+    float adaptive_target_scale;
+    float lookup_control;
+    uint32_t adaptive_emit;
+    uint32_t lifecycle_force;
+    uint32_t adaptive_direct;
+    uint32_t preserve_rows;
+} UbigStageBLevelerParentControl;
+
+/* Exact deployed SP11 stereo Leveler parent. The shipped profile policy keeps
+ * the legacy negative-remap branch disabled, so that branch and its private
+ * tables are intentionally absent. All remaining non-algorithmic tables and
+ * vectors are explicit caller-owned tuning. Input/output rows are both updated
+ * in place, matching the original parent boundary. */
+float ubig_stage_b_leveler_parent_process(UbigStageBLevelerParentState *state,
+                                          const UbigStageBLevelerParentConfig *config,
+                                          const UbigStageBLevelerParentTuning *tuning,
+                                          const UbigStageBLevelerParentControl *control,
+                                          const float previous_curve[17],
+                                          const float curve_template[18],
+                                          const UbigStageBLevelerPairCoefficients *override_coefficients,
+                                          const UbigStageBLevelerSourceGate *source_gate,
+                                          UbigStageBLevelerInputRows *input,
+                                          UbigStageBLevelerInputRows *output,
+                                          int32_t *telemetry);
 #endif

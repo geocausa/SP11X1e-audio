@@ -54,8 +54,6 @@ Two exact branch details matter:
 
 Private direct differential gate using the promoted UbiG source and the recovered SP11 controller contract: **100,000 consecutive complete calls bit-exact**, comparing the canonicalized `0x608` controller/history state plus every primary/secondary scalar and all 20-lane vectors after every call.
 
-The enclosing Stage-B parent also consumes two floating-register residues left by this writer. UbiG exposes them explicitly through `ubig_stage_b_leveler_update_with_result()` instead of relying on register lifetime. The high-control path returns the effective control and adaptive mix. On the low-control path the second value is the original direct control; the first is the parent-visible `s0` residue: the indexed target before mature interpolation, or the exact cosine lane produced by the history interpolator when mature nonzero history is evaluated. A private AArch64 capture wrapper proves complete writer state plus both result floats bit-exact across **100,000 randomized calls**. Public synthetic parent-result hash: `0f9f325ea4a839b3`.
-
 ## Post-controller scalar curve
 
 The active Leveler producer builds and evaluates a compact 17-float scalar-transfer curve. UbiG owns both bounded helpers:
@@ -222,3 +220,13 @@ Both lookup families remain explicit caller-owned configuration. Promoted-source
 `ubig_stage_b_leveler_adaptive_filter_process()` closes the fixed SP11 20-band/index-2 adaptive block. It maintains two caller-owned state rows, constructs the exact bounded log-domain targets, applies the Stage-B Horner exp2 polynomial with exponent-field adjustment, updates the fast row, derives the weighted normalization statistic, and updates the slow row through the already-proven native fast-log2 behavior. The optional output phase runs the native symmetric filter, applies the recovered output scaling, adds the filtered row into output rows 0 through 2, and accumulates integer telemetry.
 
 The 20-band statistic vector is explicit caller-owned configuration. UbiG does not embed the reference vector. Promoted-source private differential: **80,000 complete randomized calls bit-exact** on the actual SP11 20-band/index-2 contract, comparing both adaptive state rows, all output rows, untouched record inputs, and optional telemetry. The internal `frexp`-style log expression was independently shown bit-exact to `ubig_stage_a_log2_approx()` over **1,000,000 positive inputs**. Public synthetic-data lifecycle hash: `744a6bdc1ec1dd38`.
+
+## Deployed stereo Leveler parent
+
+`ubig_stage_b_leveler_parent_process()` closes the deployed SP11 stereo parent around the complete native Leveler chain: row preparation and lifecycle, transition/lookup reduction, lookup controller, long-memory writer, dynamic curve construction, linked-row producer, 20-band adaptive filter, stereo matrix, tail shaping, final row accumulation, telemetry and scalar return.
+
+The public contract is deliberately limited to the observed SP11 stereo path: two rows, twenty bands, and the profile policy used by the shipped endpoint. The legacy negative-remap branch is not part of this API because its enable flag is zero for Dynamic, Movie, Music, Game, Course and Custom; Voice bypasses this Leveler parent entirely. Consequently its private remap tables are neither required nor embedded.
+
+All non-algorithmic data needed by the active path remain explicit caller-owned tuning: the two lookup families, cubic record, lookup offsets, producer thresholds, adaptive statistic weights and tail coefficients. The implementation contains only recovered behavior and exact arithmetic/constants.
+
+A private live replay hook snapshots the initialized SP11 object graph, executes the original parent, restores the pre-call graph, executes the **promoted public UbiG function**, and compares return value, telemetry and every persistent byte outside the reference's transient scratch arena before restoring the reference state. Across all six active profiles, six host chunk-pattern instances each and 64 consecutive parent calls per instance, promoted source matches **2,304 complete live parent replays bit-exact with zero fallbacks**. Voice correctly produces no calls. Public all-synthetic lifecycle regression hash: `5914caceb8261553`.

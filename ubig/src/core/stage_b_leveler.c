@@ -534,7 +534,7 @@ void ubig_stage_b_leveler_producer_process(UbigStageBLevelerProducerState *s,
     }
 }
 
-static float history_interp_residue(const UbigStageBLevelerHistory *h,float value,float *cosine_residue)
+static float history_interp(const UbigStageBLevelerHistory *h,float value)
 {
     float x=(value-f32_bits(0x3f11a2f0u))*f32_bits(0x3f0c0000u);
     x*=f32_bits(0x43800000u);
@@ -548,7 +548,6 @@ static float history_interp_residue(const UbigStageBLevelerHistory *h,float valu
         const float angle=q*4.0f;
         sn=sinf(angle);cs=cosf(angle);
     }
-    if(cosine_residue)*cosine_residue=cs;
     const float next=h->bins[(uint32_t)bin+1u]*sn;
     return fmaf(h->bins[(uint32_t)bin],cs,next);
 }
@@ -567,15 +566,14 @@ static float blend_value(float old,float target,float coeff)
     return fmaf(old,coeff,add);
 }
 
-void ubig_stage_b_leveler_update_with_result(UbigStageBLevelerState *s,
-                                             const UbigStageBLevelerConfig *c,
-                                             uint32_t index,
-                                             uint32_t width,
-                                             float control_mix,
-                                             float direct_control,
-                                             float secondary_scale,
-                                             const UbigStageBLevelerRecord *observed,
-                                             UbigStageBLevelerUpdateResult *result)
+void ubig_stage_b_leveler_update(UbigStageBLevelerState *s,
+                                 const UbigStageBLevelerConfig *c,
+                                 uint32_t index,
+                                 uint32_t width,
+                                 float control_mix,
+                                 float direct_control,
+                                 float secondary_scale,
+                                 const UbigStageBLevelerRecord *observed)
 {
     if(!s||!c||!s->primary||!s->secondary||!observed)return;
     const float almost_one=f32_bits(0x3f7ffffeu);
@@ -599,7 +597,6 @@ void ubig_stage_b_leveler_update_with_result(UbigStageBLevelerState *s,
     if(activity_threshold<target && control_threshold<control)
         ubig_stage_b_leveler_history_update(&s->history,c->history_step,target,control);
 
-    float parent_s0_residue=target;
     float adaptive_mix,drive;
     if(s->history.count>=5u){
         const float remainder=almost_one-c->adaptive_smooth;
@@ -607,7 +604,7 @@ void ubig_stage_b_leveler_update_with_result(UbigStageBLevelerState *s,
         s->adaptive_state=adaptive_mix;
         if(s->history.total==0.0f)drive=0.0f;
         else{
-            const float value=history_interp_residue(&s->history,s->primary[index].scalar,&parent_s0_residue);
+            const float value=history_interp(&s->history,s->primary[index].scalar);
             drive=value==s->history.total
                 ? 1.0f
                 : (float)((double)value/(double)s->history.total);
@@ -621,16 +618,6 @@ void ubig_stage_b_leveler_update_with_result(UbigStageBLevelerState *s,
         s->adaptive_state=0.0f;
         drive=almost_one;
         adaptive_mix=almost_one;
-    }
-
-    if(result){
-        if(control<control_threshold){
-            result->parent_control0=parent_s0_residue;
-            result->parent_control1=direct_control;
-        }else{
-            result->parent_control0=control;
-            result->parent_control1=adaptive_mix;
-        }
     }
 
     float rise_coeff,fall_coeff,zero_coeff;
@@ -668,14 +655,157 @@ void ubig_stage_b_leveler_update_with_result(UbigStageBLevelerState *s,
     }
 }
 
-void ubig_stage_b_leveler_update(UbigStageBLevelerState *s,
-                                 const UbigStageBLevelerConfig *c,
-                                 uint32_t index,
-                                 uint32_t width,
-                                 float control_mix,
-                                 float direct_control,
-                                 float secondary_scale,
-                                 const UbigStageBLevelerRecord *observed)
+static float leveler_parent_clamp(float value,float low,float high)
 {
-    ubig_stage_b_leveler_update_with_result(s,c,index,width,control_mix,direct_control,secondary_scale,observed,NULL);
+    if(value<low)value=low;
+    if(high<value)value=high;
+    return value;
+}
+
+float ubig_stage_b_leveler_parent_process(UbigStageBLevelerParentState *s,
+                                          const UbigStageBLevelerParentConfig *c,
+                                          const UbigStageBLevelerParentTuning *t,
+                                          const UbigStageBLevelerParentControl *ctl,
+                                          const float previous_curve[17],
+                                          const float curve_template[18],
+                                          const UbigStageBLevelerPairCoefficients *override_coefficients,
+                                          const UbigStageBLevelerSourceGate *source_gate,
+                                          UbigStageBLevelerInputRows *input,
+                                          UbigStageBLevelerInputRows *output,
+                                          int32_t *telemetry)
+{
+    if(!s||!c||!t||!ctl||!curve_template||!source_gate||!input||!output||
+       !s->matrix_rows||!s->lookup||!s->lifecycle||!s->transition_rows||
+       !s->producer||!s->writer||!s->adaptive||!c->base_row||!c->lifecycle||
+       !c->lookup||!c->transition_large_rise||!c->transition_normal||!c->adaptive||
+       !c->filter||!c->matrix_transition||!c->writer||!c->producer||
+       !t->lookup_tables||!t->inverse_tables||!t->cubic||!t->lookup_offsets||
+       !t->producer_thresholds||!t->adaptive_band_weights||!t->tail_coefficients||
+       !input->rows||!output->rows)return 0.0f;
+    if(input->count!=UBIG_STAGE_B_LEVELER_PARENT_ROWS||
+       input->width!=UBIG_STAGE_B_LEVELER_PARENT_WIDTH||
+       output->count!=UBIG_STAGE_B_LEVELER_PARENT_ROWS||
+       output->width!=UBIG_STAGE_B_LEVELER_PARENT_WIDTH)return 0.0f;
+
+    const float low=f32_bits(0xbe9d89d7u);
+    const float bias_base=f32_bits(0x3ed4ad4bu);
+    const float almost=f32_bits(0x3f7ffffeu);
+    const float high=f32_bits(0x3e6c4ec3u);
+    float bias_a=leveler_parent_clamp(ctl->row_bias_a,low,0.0f);
+    bias_a=bias_base-bias_a;
+    float bias_b=leveler_parent_clamp(ctl->row_bias_b,low,0.0f);
+    bias_b=bias_base-bias_b;
+    const float matrix_bias=leveler_parent_clamp(ctl->matrix_bias,-almost,high);
+
+    float prepared_values[4][UBIG_STAGE_B_LEVELER_PARENT_WIDTH];
+    float *prepared_ptrs[4]={prepared_values[0],prepared_values[1],prepared_values[2],prepared_values[3]};
+    UbigStageBLevelerPreparedRows prepared={0u,0u,prepared_ptrs,4u,UBIG_STAGE_B_LEVELER_PARENT_WIDTH};
+    ubig_stage_b_leveler_prepare_rows(c->base_row,input,&prepared,
+                                      bias_a+f32_bits(0x3e48dc8cu));
+    if(prepared.count==0u||prepared.count>4u)return 0.0f;
+
+    UbigStageBLevelerRowResult lifecycle={0u,0u,0.0f};
+    ubig_stage_b_leveler_row_update(s->lifecycle,c->lifecycle,
+                                    prepared.rows[prepared.count-1u],prepared.width,
+                                    ctl->lifecycle_force,&lifecycle,bias_a);
+    const uint32_t linked_mode=(lifecycle.event||lifecycle.hold_expired)?1u:0u;
+
+    float record_values[4][UBIG_STAGE_B_LEVELER_PARENT_WIDTH];
+    UbigStageBLevelerRecord records[4];
+    float producer_rows[4][UBIG_STAGE_B_LEVELER_PARENT_WIDTH]={0};
+    float *producer_ptrs[4]={producer_rows[0],producer_rows[1],producer_rows[2],producer_rows[3]};
+    for(uint32_t row=0;row<prepared.count;row++){
+        records[row].values=record_values[row];
+        records[row].reserved=0u;
+        float *transition_state=s->transition_rows[row];
+        ubig_stage_b_leveler_transition_row(prepared.rows[row],prepared.width,
+                                            linked_mode,1u,
+                                            c->transition_large_rise,c->transition_normal,
+                                            transition_state,f32_bits(0x3d9d89d7u));
+        ubig_stage_b_leveler_lookup_map(prepared.width,transition_state,
+                                        record_values[row],t->lookup_tables);
+        records[row].scalar=ubig_stage_b_leveler_lookup_regression(
+                prepared.width,transition_state,record_values[row],
+                t->lookup_offsets,t->lookup_tables);
+    }
+    UbigStageBLevelerProducerRows producer_output={producer_ptrs,records};
+
+    UbigStageBLevelerLookupResult lookup_result={0u,0.0f,0.0f};
+    ubig_stage_b_leveler_lookup_process(s->lookup,c->lookup,
+                                        prepared.rows[prepared.count-1u],prepared.width,
+                                        linked_mode,&lookup_result,ctl->lookup_control,
+                                        lifecycle.coefficient,t->lookup_tables,t->cubic);
+
+    if(lifecycle.event)
+        ubig_stage_b_leveler_reset(s->writer,input->count+(input->count>1u),input->width);
+    ubig_stage_b_leveler_update(s->writer,c->writer,input->count,input->width,
+                                lookup_result.out0,lookup_result.out1,
+                                lifecycle.coefficient,records);
+
+    float curve_bias=0.0f;
+    if(previous_curve)
+        curve_bias=ubig_stage_b_leveler_piecewise(previous_curve,
+                    s->writer->primary[input->count].scalar-f32_bits(0x3f4d4e84u));
+
+    float curve[18];
+    memcpy(curve,curve_template,sizeof curve);
+    if(previous_curve){
+        const float mix=lifecycle.coefficient;
+        const float keep=1.0f-mix;
+        float anchor=previous_curve[2]*keep;
+        anchor=fmaf(curve_template[2],mix,anchor);
+        float slope=(previous_curve[7]+1.0f)*keep;
+        slope=fmaf(curve_template[7]+1.0f,mix,slope);
+        const float delta=curve_template[1]-curve_template[2];
+        ubig_stage_b_leveler_curve_build(curve,anchor,slope,delta);
+    }
+
+    float error_rows[4][UBIG_STAGE_B_LEVELER_PARENT_WIDTH]={0};
+    ubig_stage_b_leveler_producer_process(s->producer,c->producer,
+            s->writer->primary,s->writer->secondary,lookup_result.flag,
+            input->width,input->count,curve,lookup_result.out0,lookup_result.out1,
+            curve_bias,f32_bits(0x3f4d4e84u),override_coefficients,lifecycle.event,
+            &error_rows[0][0],&producer_output,ctl->preserve_rows,t->producer_thresholds);
+
+    ubig_stage_b_leveler_adaptive_filter_process(s->adaptive,c->adaptive,c->filter,
+            source_gate,s->writer->secondary[input->count].values,
+            t->adaptive_band_weights,ctl->adaptive_emit,lifecycle.event,
+            ctl->adaptive_direct,&producer_output,telemetry,curve_bias,
+            ctl->adaptive_output_scale,lifecycle.coefficient,lookup_result.out1,
+            ctl->adaptive_target_scale);
+
+    float matrix_rows[UBIG_STAGE_B_LEVELER_PARENT_ROWS][UBIG_STAGE_B_LEVELER_PARENT_WIDTH];
+    ubig_stage_b_leveler_matrix_process(s->matrix_rows,c->matrix_transition,
+            (const float *const*)prepared.rows,(const float *const*)producer_output.row_ptrs,
+            &error_rows[0][0],input->count,input->width,linked_mode,
+            matrix_bias,0.0f,&matrix_rows[0][0],t->lookup_tables,t->inverse_tables);
+
+    float tail[UBIG_STAGE_B_LEVELER_PARENT_WIDTH];
+    ubig_stage_b_leveler_tail_shape(input->width,tail,curve_bias,t->tail_coefficients);
+    const float delta=bias_a-bias_b;
+    const float telemetry_scale0=f32_bits(0x3f020000u);
+    const float telemetry_scale1=f32_bits(0x45800000u);
+    for(uint32_t row=0;row<input->count;row++){
+        for(uint32_t lane=0;lane<input->width;lane++){
+            float value;
+            if(tail[lane]<=-1.0f||delta<=-1.0f||matrix_rows[row][lane]<=-1.0f){
+                value=-1.0f;
+            }else{
+                value=matrix_rows[row][lane]+delta;
+                value+=tail[lane];
+                if(value<-1.0f)value=-1.0f;
+                if(1.0f<value)value=1.0f;
+            }
+            output->rows[row][lane]+=value;
+            input->rows[row][lane]+=value;
+            if(telemetry&&row==0u)
+                telemetry[lane]+=(int32_t)floorf((value*telemetry_scale0)*telemetry_scale1);
+        }
+    }
+
+    float result=bias_a-bias_b;
+    float extra=curve_bias*f32_bits(0x3f653949u);
+    extra+=extra;
+    result+=extra;
+    return result;
 }
