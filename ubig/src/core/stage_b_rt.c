@@ -574,3 +574,71 @@ void ubig_stage_b_rt_chain_smooth(float *state,
         value=z*norm; residual=(value-current)+delta; state[lane]=value;
     }
 }
+
+void ubig_stage_b_rt_band_gate_process(float control,
+                                       const UbigStageBRtBandGateConfig *config,
+                                       UbigStageBRtBandGateRowState *row_state,
+                                       uint32_t row_count,
+                                       uint32_t active_width,
+                                       const float *plane_a,
+                                       const float *plane_b,
+                                       const float *plane_c,
+                                       const float *row_control,
+                                       float *output,
+                                       const float boundary_coeff[5])
+{
+    if(!config||!row_state||!plane_a||!plane_b||!plane_c||!row_control||!output||
+       !boundary_coeff||!config->reference||!config->slope||
+       active_width<9u||active_width>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    const float cap=fmaf(-control,f32_bits(0x3d9d9000u),f32_bits(0x3e1d89d9u));
+    for(uint32_t row=0;row<row_count;row++){
+        const float rv=row_control[row];
+        float shaped=rv*rv;
+        shaped=shaped*shaped;
+        shaped=fmaf(shaped,rv,rv);
+        shaped=shaped*0.5f;
+        const float negative=(shaped>0.0f)?0.0f:shaped;
+        const float positive=(rv<0.0f)?0.0f:rv;
+        const float row_limit=fmaf(negative+positive,f32_bits(0x3cfc0000u),f32_bits(0x3dfc0fc1u));
+        uint32_t activity=active_width;
+        UbigStageBRtBandGateRowState *state=&row_state[row];
+        for(uint32_t lane=0;lane<active_width;lane++){
+            const size_t index=(size_t)row*UBIG_STAGE_B_RT_MAX_BANDS+lane;
+            const float a=plane_a[index],b=plane_b[index],c=plane_c[index];
+            float value;
+            if(c<=a){
+                const float p=(b-config->reference[lane])*config->slope[lane];
+                const float z=fmaf(a-config->reference[lane],config->slope[lane],f32_bits(0x3d3d0bd1u));
+                float candidate=(z<=p)?z:p;
+                if(row_limit<candidate)candidate=row_limit;
+                candidate=candidate*config->inject;
+                value=fmaf(config->keep,state->value[lane],candidate);
+                if(value<0.0f)value=0.0f;
+                state->value[lane]=value;
+                const uint32_t count=state->counter[lane];
+                state->counter[lane]=(count>99u)?100u:count+1u;
+            }else{
+                const uint32_t count=state->counter[lane];
+                int32_t age_term;
+                uint32_t next_count;
+                if(count<=1u){next_count=1u;age_term=-1;}
+                else{next_count=count-1u;age_term=1-(int32_t)count;}
+                age_term+=101;
+                state->counter[lane]=next_count;
+                const float decrement=(float)age_term*config->decay_step;
+                const float old=state->value[lane];
+                value=(decrement<old)?old-decrement:0.0f;
+                state->value[lane]=value;
+                activity--;
+            }
+            if(!((b+f32_bits(0x3d9d89d9u))>c) &&
+               !(f32_bits(0xbec4ec4fu)>a) && config->correction_step<value){
+                value=value-config->correction_step;
+                state->value[lane]=value;
+            }
+            output[index]=(value<=cap)?value:cap;
+        }
+        ubig_stage_b_rt_chain_smooth(output+(size_t)row*UBIG_STAGE_B_RT_MAX_BANDS,
+                                     active_width,activity,boundary_coeff);
+    }
+}

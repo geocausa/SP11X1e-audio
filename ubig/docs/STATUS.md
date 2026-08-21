@@ -329,3 +329,7 @@ The small stateful parent above the arbitrary-weight tail estimator is now nativ
 ### Stage-B multiband recursive chain smoother
 
 The remaining multiband state path now owns its recursive 9–20 lane chain smoother as `ubig_stage_b_rt_chain_smooth()`. The five boundary weights remain caller-owned and were randomized inside the mapped reference image for every oracle call. Promoted-source differential: **500,000 calls bit-exact**. Public hash: `4cccb939cb52e6fa`.
+
+### Stage-B multiband band-gate state path
+
+The enclosing per-row gate/counter controller is now native as `ubig_stage_b_rt_band_gate_process()`. Promoted-source private differential: **150,000 complete randomized calls bit-exact** over 1–4 rows and widths 9–20. All reference/slope/boundary coefficient vectors remain caller-owned. Public lifecycle hash: `2023a83731755e50`.

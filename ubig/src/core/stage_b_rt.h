@@ -205,4 +205,32 @@ void ubig_stage_b_rt_chain_smooth(float *state,
                                   uint32_t activity,
                                   const float boundary_coeff[5]);
 
+typedef struct {
+    float decay_step;
+    float correction_step;
+    const float *reference;
+    float keep;
+    float inject;
+    const float *slope;
+} UbigStageBRtBandGateConfig;
+
+typedef struct {
+    float value[UBIG_STAGE_B_RT_MAX_BANDS];
+    uint32_t counter[UBIG_STAGE_B_RT_MAX_BANDS];
+} UbigStageBRtBandGateRowState;
+
+/* Exact enclosing per-row multiband gate/state path. All coefficient vectors
+ * and chain boundary weights are caller-owned. */
+void ubig_stage_b_rt_band_gate_process(float control,
+                                       const UbigStageBRtBandGateConfig *config,
+                                       UbigStageBRtBandGateRowState *row_state,
+                                       uint32_t row_count,
+                                       uint32_t active_width,
+                                       const float *plane_a,
+                                       const float *plane_b,
+                                       const float *plane_c,
+                                       const float *row_control,
+                                       float *output,
+                                       const float boundary_coeff[5]);
+
 #endif
