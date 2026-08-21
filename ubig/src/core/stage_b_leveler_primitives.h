@@ -72,4 +72,27 @@ void ubig_stage_b_leveler_row_update(UbigStageBLevelerRowState *state,
                                      uint32_t force_event,
                                      UbigStageBLevelerRowResult *result,
                                      float metric);
+
+/* Exact producer-side per-band floor clamp. Valid SP11 rows have >=7 lanes. */
+void ubig_stage_b_leveler_apply_row_floors(uint32_t count,float *values);
+
+/* Exact row preparation/linking subpath used by the Leveler producer. */
+typedef struct {
+    uint32_t count;
+    uint32_t width;
+    float **rows;
+} UbigStageBLevelerInputRows;
+
+typedef struct {
+    uint32_t count;
+    uint32_t width;
+    float **rows;
+    uint32_t row_capacity;
+    uint32_t width_capacity;
+} UbigStageBLevelerPreparedRows;
+
+void ubig_stage_b_leveler_prepare_rows(const float *base,
+                                       const UbigStageBLevelerInputRows *input,
+                                       UbigStageBLevelerPreparedRows *output,
+                                       float bias);
 #endif

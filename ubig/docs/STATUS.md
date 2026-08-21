@@ -206,3 +206,7 @@ The Leveler producer's bounded 17-float curve builder/evaluator pair is now nati
 ### Stage-B Leveler row lifecycle
 
 The no-subcall producer child corresponding to the bounded row-history/event lifecycle is now native. The promoted implementation matches 400,000 complete randomized direct calls bit-for-bit across its `0x20` state, both row planes and 12-byte result record. Public regression hash: `10f5882605b89e42`.
+
+### Stage-B Leveler row preparation/link closure
+
+The bounded row-preparation branch beneath the Leveler producer is now native. Its lane-floor child matches 1,000,000 direct calls bit-for-bit; the promoted descriptor/row parent matches 300,000 complete randomized calls including multi-row linked soft-max aggregation. Public hashes: `69e8e013d6c0481e` and `aa3ce0664a1a31a4`.

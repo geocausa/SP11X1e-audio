@@ -255,3 +255,51 @@ void ubig_stage_b_leveler_row_update(UbigStageBLevelerRowState *s,
     r->event=0u;
     r->coefficient=s->coefficient;
 }
+
+void ubig_stage_b_leveler_apply_row_floors(uint32_t count,float *v)
+{
+    if(!v||count<7u)return;
+    const float floors[7]={-0.25f,-0.3f,-0.35f,-0.35f,-0.4f,-0.4f,-0.4f};
+    for(uint32_t i=0;i<7u;i++)if(floors[i]>v[i])v[i]=floors[i];
+    for(uint32_t i=7u;i<count;i++)if(-0.4f>v[i])v[i]=-0.4f;
+}
+
+_Static_assert(sizeof(UbigStageBLevelerInputRows)==0x10,"Leveler input-row descriptor size");
+_Static_assert(sizeof(UbigStageBLevelerPreparedRows)==0x18,"Leveler prepared-row descriptor size");
+
+void ubig_stage_b_leveler_prepare_rows(const float *base,
+                                       const UbigStageBLevelerInputRows *input,
+                                       UbigStageBLevelerPreparedRows *output,
+                                       float bias)
+{
+    if(!base||!input||!output||!output->rows)return;
+    const uint32_t count=input->count;
+    const uint32_t width=input->width;
+    float *aggregate=NULL;
+    if(count>1u){
+        aggregate=output->rows[count];
+        output->count=count+1u;
+    }else{
+        output->count=count;
+    }
+    output->width=width;
+    if(count==0u)return;
+    for(uint32_t row=0;row<count;row++){
+        float *dst=output->rows[row];
+        const float *src=input->rows[row];
+        for(uint32_t i=0;i<width;i++){
+            const float shifted=src[i]+bias;
+            dst[i]=shifted+base[i];
+        }
+        for(uint32_t i=width;i<output->width_capacity;i++)dst[i]=-1.0f;
+        ubig_stage_b_leveler_apply_row_floors(width,dst);
+        if(aggregate){
+            if(row==0u){
+                memcpy(aggregate,dst,(size_t)output->width_capacity*sizeof(float));
+            }else{
+                for(uint32_t i=0;i<output->width_capacity;i++)
+                    aggregate[i]=leveler_soft_max(aggregate[i],dst[i]);
+            }
+        }
+    }
+}

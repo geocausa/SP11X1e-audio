@@ -86,3 +86,16 @@ Per call it:
 - emits/reset the event state according to age/force rules and resets the coefficient to the recovered 0.01 lifecycle value.
 
 Private direct differential gate using the promoted UbiG source: **400,000 complete randomized calls bit-exact**, comparing the canonicalized state, both 20-float row planes and the complete result record after every call. Public synthetic regression hash: `10f5882605b89e42`.
+
+## Row preparation and linked aggregate
+
+The producer-side row preparation/linking subpath is native as `ubig_stage_b_leveler_prepare_rows()`, with `ubig_stage_b_leveler_apply_row_floors()` as its exact bounded child.
+
+The preparation contract uses an input descriptor `{count,width,rows}` and an output descriptor carrying mutable count/width plus row/width capacities. For each active input row it computes `(input + bias) + base` in the reference float32 order, fills unused capacity lanes with `-1`, applies the recovered lane floors `[-0.25,-0.30,-0.35,-0.35,-0.40…]`, and for multi-row input builds one extra linked row using the same exact soft-max kernel.
+
+Private direct differential gates using promoted UbiG source:
+
+- row floors: **1,000,000 calls bit-exact** for variable valid row lengths;
+- complete row preparation/linking transform: **300,000 randomized descriptor/row calls bit-exact**, including zero/single/multi-row cases, partial-width tails and the linked aggregate row.
+
+Public synthetic hashes: floor `69e8e013d6c0481e`, prepare/link `aa3ce0664a1a31a4`.
