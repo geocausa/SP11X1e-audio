@@ -34,3 +34,11 @@ Every imported fact should eventually be tagged as one of:
 - `CHOICE` — UbiG design choice not claimed to match the reference internally
 
 This distinction is especially important for filter topology, smoothing constants and Custom-EQ units.
+
+### SP11 Stage-A filterbank descriptor
+
+- `DERIVED`: 320-point pre/post rotation matrix generated from standard roots with angle step `2*pi/1280`.
+- `DERIVED`: 64-point edge window generated as `sin^2((n+1)*pi/130)`.
+- `DECODED`: 20-band start/count geometry and two synthesis phase start/count geometries.
+- `DEVICE_TUNING`: 20-band reduction coefficients and synthesis phase coefficients stored as exact float32 tuning values in `specs/sp11-filterbank-tuning-v1.json`.
+- The public generator consumes only the UbiG tuning spec and mathematical formulas; it does not read a proprietary executable.

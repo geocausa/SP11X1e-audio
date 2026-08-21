@@ -168,3 +168,9 @@ Direct gates:
 - public FFT regression hash: `d040429d49cb7dad`
 
 The Stage-A analysis/synthesis filterbank is therefore no longer an approximate numerical boundary; it is native and bit-exact.
+
+## Native SP11 filterbank descriptor
+
+The exact analyzer/synthesis wrappers no longer require runtime descriptor tables from the reference image. UbiG owns a native SP11 descriptor generated from mathematical matrix/window formulas plus explicitly provenance-tagged `DEVICE_TUNING` coefficient data.
+
+Private gates: every descriptor table matches byte-for-byte; analyzer remains exact on live original-vs-UbiG comparisons and synthesis remains 256/256 PCM samples exact when UbiG uses only the native descriptor. Public descriptor hash: `a69a0c676cfb844d`.

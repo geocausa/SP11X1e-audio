@@ -2,7 +2,7 @@ CC ?= gcc
 CFLAGS ?= -O2 -g -std=c11 -Wall -Wextra -Werror -ffp-contract=off
 CPPFLAGS += -Iinclude -Isrc/core
 BUILD := build
-CORE_OBJS := $(BUILD)/engine.o $(BUILD)/profiles.o $(BUILD)/adapter256.o $(BUILD)/stage_a_limiter.o $(BUILD)/stage_a_math.o $(BUILD)/stage_a_export.o $(BUILD)/stage_a_synth.o $(BUILD)/stage_a_fft320.o $(BUILD)/stage_a_analyzer.o $(BUILD)/stage_a_compressor_primitives.o $(BUILD)/stage_a_compressor_worker.o $(BUILD)/stage_a_compressor.o $(BUILD)/stage_a_lowband.o $(BUILD)/stage_a_regulator.o
+CORE_OBJS := $(BUILD)/engine.o $(BUILD)/profiles.o $(BUILD)/adapter256.o $(BUILD)/stage_a_limiter.o $(BUILD)/stage_a_math.o $(BUILD)/stage_a_export.o $(BUILD)/stage_a_synth.o $(BUILD)/stage_a_fft320.o $(BUILD)/stage_a_analyzer.o $(BUILD)/stage_a_filterbank_sp11.o $(BUILD)/stage_a_compressor_primitives.o $(BUILD)/stage_a_compressor_worker.o $(BUILD)/stage_a_compressor.o $(BUILD)/stage_a_lowband.o $(BUILD)/stage_a_regulator.o
 CONTROL_OBJS := $(BUILD)/control_page.o
 
 .PHONY: all check clean
@@ -33,6 +33,9 @@ $(BUILD)/stage_a_fft320.o: src/core/stage_a_fft320.c src/core/stage_a_fft320_tab
 
 $(BUILD)/stage_a_analyzer.o: src/core/stage_a_analyzer.c | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(BUILD)/stage_a_filterbank_sp11.o: src/core/stage_a_filterbank_sp11.c src/core/stage_a_filterbank_sp11_tables.h | $(BUILD)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c src/core/stage_a_filterbank_sp11.c -o $@
 
 $(BUILD)/stage_a_compressor_primitives.o: src/core/stage_a_compressor_primitives.c | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
@@ -73,6 +76,9 @@ $(BUILD)/test_stage_a_math: tests/test_stage_a_math.c $(BUILD)/stage_a_math.o
 
 $(BUILD)/test_stage_a_fft320: tests/test_stage_a_fft320.c $(BUILD)/stage_a_fft320.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -lm -o $@
+
+$(BUILD)/test_stage_a_filterbank_sp11: tests/test_stage_a_filterbank_sp11.c $(BUILD)/stage_a_filterbank_sp11.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 $(BUILD)/test_stage_a_compressor_primitives: tests/test_stage_a_compressor_primitives.c $(BUILD)/stage_a_compressor_primitives.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -lm -o $@
 
@@ -88,7 +94,7 @@ $(BUILD)/test_stage_a_lowband: tests/test_stage_a_lowband.c $(BUILD)/stage_a_mat
 $(BUILD)/test_stage_a_regulator: tests/test_stage_a_regulator.c $(BUILD)/stage_a_regulator.o $(BUILD)/stage_a_compressor_worker.o $(BUILD)/stage_a_compressor_primitives.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -lm -o $@
 
-check: $(BUILD)/test_adapter256 $(BUILD)/test_engine $(BUILD)/test_control $(BUILD)/test_stage_a_limiter $(BUILD)/test_stage_a_math $(BUILD)/test_stage_a_export $(BUILD)/test_stage_a_fft320 $(BUILD)/test_stage_a_compressor_primitives $(BUILD)/test_stage_a_compressor_worker $(BUILD)/test_stage_a_compressor $(BUILD)/test_stage_a_lowband $(BUILD)/test_stage_a_regulator
+check: $(BUILD)/test_adapter256 $(BUILD)/test_engine $(BUILD)/test_control $(BUILD)/test_stage_a_limiter $(BUILD)/test_stage_a_math $(BUILD)/test_stage_a_export $(BUILD)/test_stage_a_fft320 $(BUILD)/test_stage_a_filterbank_sp11 $(BUILD)/test_stage_a_compressor_primitives $(BUILD)/test_stage_a_compressor_worker $(BUILD)/test_stage_a_compressor $(BUILD)/test_stage_a_lowband $(BUILD)/test_stage_a_regulator
 	$(BUILD)/test_adapter256
 	$(BUILD)/test_engine
 	$(BUILD)/test_control
@@ -96,6 +102,7 @@ check: $(BUILD)/test_adapter256 $(BUILD)/test_engine $(BUILD)/test_control $(BUI
 	$(BUILD)/test_stage_a_math
 	$(BUILD)/test_stage_a_export
 	$(BUILD)/test_stage_a_fft320
+	$(BUILD)/test_stage_a_filterbank_sp11
 	$(BUILD)/test_stage_a_compressor_primitives
 	$(BUILD)/test_stage_a_compressor_worker
 	$(BUILD)/test_stage_a_compressor
