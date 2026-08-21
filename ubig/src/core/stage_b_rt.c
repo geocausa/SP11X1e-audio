@@ -642,3 +642,57 @@ void ubig_stage_b_rt_band_gate_process(float control,
                                      active_width,activity,boundary_coeff);
     }
 }
+
+static float stage_b_rt_pow2_clamped_index(int value)
+{
+    if(value>60)value=60;
+    if(value<-60)value=-60;
+    const uint32_t bits=(uint32_t)(127-value)<<23;
+    return f32_bits(bits);
+}
+
+void ubig_stage_b_rt_crossfade_process(UbigStageBRtCrossfadeState *state,
+                                       const float *metric_a,
+                                       const float *metric_b,
+                                       int32_t control_a,
+                                       int32_t control_b,
+                                       uint32_t count,
+                                       const float *source,
+                                       float *destination)
+{
+    if(!state||!metric_a||!metric_b||!source||!destination)return;
+    float mean_a=0.0f,mean_b=0.0f;
+    for(uint32_t lane=0;lane<count;lane++){
+        mean_a=fmaf(metric_a[lane],f32_bits(0x3d000000u),mean_a);
+        mean_b=fmaf(metric_b[lane],f32_bits(0x3d000000u),mean_b);
+    }
+    int delta=(control_a<34)?34-control_a:control_a-34;
+    const float power=stage_b_rt_pow2_clamped_index(delta);
+    int decision;
+    if(control_a<34)decision=mean_a < power*f32_bits(0x3f172d6cu);
+    else decision=power*mean_a < f32_bits(0x3f172d6cu);
+    if(decision){
+        const int pivot=control_b+19;
+        const float scaled_b=mean_b*f32_bits(0x3f2d214fu);
+        delta=(control_a<pivot)?pivot-control_a:control_a-pivot;
+        const float second_power=stage_b_rt_pow2_clamped_index(delta);
+        if(control_a<pivot)decision=mean_a < second_power*scaled_b;
+        else decision=second_power*mean_a < scaled_b;
+    }
+    float mix=(decision?state->polarity:-state->polarity)+state->mix;
+    if(mix<0.0f)mix=0.0f;
+    if(mix>1.0f)mix=1.0f;
+    const float dm1=mix-1.0f;
+    uint32_t lane=0u;
+    const uint32_t vector_end=(count>=16u)?(count&~15u):0u;
+    for(;lane<vector_end;lane++){
+        const float keep=destination[lane]*mix;
+        const float add=source[lane]*dm1;
+        destination[lane]=keep-add;
+    }
+    for(;lane<count;lane++){
+        const float keep=destination[lane]*mix;
+        destination[lane]=fmaf(-source[lane],dm1,keep);
+    }
+    state->mix=mix;
+}

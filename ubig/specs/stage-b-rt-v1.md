@@ -73,3 +73,7 @@ Promoted-source private differential: **500,000 complete randomized calls bit-ex
 ## Stateful multiband gate path
 
 `ubig_stage_b_rt_band_gate_process()` closes the enclosing per-row state/counter controller above the recursive chain smoother. Its reference/slope vectors and five chain boundary weights are caller-owned. The promoted implementation matches **150,000 complete randomized calls bit-exact**, covering 1–4 rows, widths 9–20, every 20-lane state value/counter record, randomized caller vectors/controls and all output rows. Public synthetic lifecycle hash: `2023a83731755e50`.
+
+## Bounded crossfade/polarity controller
+
+`ubig_stage_b_rt_crossfade_process()` owns the late two-scalar crossfade controller beneath the profile-selective multiband parent. It computes the exact two 1/32 row metrics, exponent-scaled branch tests, clamped mix state and source/destination blend. The 16-lane vector prefix preserves its separate-multiply/subtract schedule while the scalar tail preserves fused subtraction. Promoted-source differential: **500,000 complete randomized calls bit-exact** over counts 0–20 and randomized integer controls/state/rows. Public hash: `3c00b964c14af29b`.

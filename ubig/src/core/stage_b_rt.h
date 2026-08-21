@@ -233,4 +233,19 @@ void ubig_stage_b_rt_band_gate_process(float control,
                                        float *output,
                                        const float boundary_coeff[5]);
 
+typedef struct {
+    float polarity;
+    float mix;
+} UbigStageBRtCrossfadeState;
+
+/* Exact bounded crossfade/polarity controller. */
+void ubig_stage_b_rt_crossfade_process(UbigStageBRtCrossfadeState *state,
+                                       const float *metric_a,
+                                       const float *metric_b,
+                                       int32_t control_a,
+                                       int32_t control_b,
+                                       uint32_t count,
+                                       const float *source,
+                                       float *destination);
+
 #endif

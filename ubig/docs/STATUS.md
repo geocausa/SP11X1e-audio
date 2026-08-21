@@ -333,3 +333,7 @@ The remaining multiband state path now owns its recursive 9–20 lane chain smoo
 ### Stage-B multiband band-gate state path
 
 The enclosing per-row gate/counter controller is now native as `ubig_stage_b_rt_band_gate_process()`. Promoted-source private differential: **150,000 complete randomized calls bit-exact** over 1–4 rows and widths 9–20. All reference/slope/boundary coefficient vectors remain caller-owned. Public lifecycle hash: `2023a83731755e50`.
+
+### Stage-B multiband crossfade controller
+
+The late bounded crossfade/polarity controller is native as `ubig_stage_b_rt_crossfade_process()`. Promoted-source private differential: **500,000 complete randomized calls bit-exact**, including the SIMD/scalar arithmetic-order split and two-float persistent state. Public hash: `3c00b964c14af29b`.
