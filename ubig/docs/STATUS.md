@@ -210,3 +210,7 @@ The no-subcall producer child corresponding to the bounded row-history/event lif
 ### Stage-B Leveler row preparation/link closure
 
 The bounded row-preparation branch beneath the Leveler producer is now native. Its lane-floor child matches 1,000,000 direct calls bit-for-bit; the promoted descriptor/row parent matches 300,000 complete randomized calls including multi-row linked soft-max aggregation. Public hashes: `69e8e013d6c0481e` and `aa3ce0664a1a31a4`.
+
+### Stage-B Leveler row transition
+
+The producer's bounded per-lane row transition helper is now native. The promoted implementation matches 500,000 complete randomized direct calls bit-for-bit across copy mode and all transition/config branches. Public regression hash: `4d9ae2f0e27f29c1`.

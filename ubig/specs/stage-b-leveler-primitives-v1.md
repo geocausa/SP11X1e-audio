@@ -99,3 +99,9 @@ Private direct differential gates using promoted UbiG source:
 - complete row preparation/linking transform: **300,000 randomized descriptor/row calls bit-exact**, including zero/single/multi-row cases, partial-width tails and the linked aggregate row.
 
 Public synthetic hashes: floor `69e8e013d6c0481e`, prepare/link `aa3ce0664a1a31a4`.
+
+## Per-lane row transition
+
+The producer transition helper is native as `ubig_stage_b_leveler_transition_row()`. It supports exact copy-only mode and an in-place transition mode driven by 24-byte coefficient records. Transition mode selects common or per-lane config, distinguishes rise/fall, applies a large-rise override when the delta exceeds the caller threshold, evaluates the reference-ordered weighted FMA, and enforces the two additive lower bounds plus the `-1` floor.
+
+Private direct differential gate using promoted UbiG source: **500,000 complete randomized calls bit-exact** across copy/transition, common/per-lane, rise/fall and large-rise branches. Public synthetic regression hash: `4d9ae2f0e27f29c1`.

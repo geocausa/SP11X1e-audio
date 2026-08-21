@@ -95,4 +95,23 @@ void ubig_stage_b_leveler_prepare_rows(const float *base,
                                        const UbigStageBLevelerInputRows *input,
                                        UbigStageBLevelerPreparedRows *output,
                                        float bias);
+
+/* Exact per-lane row transition helper used by the Leveler producer. */
+typedef struct {
+    float previous_offset;
+    float input_offset;
+    float rise_previous;
+    float rise_input;
+    float fall_previous;
+    float fall_input;
+} UbigStageBLevelerTransitionRecord;
+
+float *ubig_stage_b_leveler_transition_row(const float *input,
+                                           uint32_t count,
+                                           uint32_t copy_only,
+                                           uint32_t common_config,
+                                           const UbigStageBLevelerTransitionRecord *large_rise,
+                                           const UbigStageBLevelerTransitionRecord *normal,
+                                           float *state,
+                                           float rise_threshold);
 #endif

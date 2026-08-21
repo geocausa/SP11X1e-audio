@@ -303,3 +303,40 @@ void ubig_stage_b_leveler_prepare_rows(const float *base,
         }
     }
 }
+
+_Static_assert(sizeof(UbigStageBLevelerTransitionRecord)==0x18,"Leveler transition-record size");
+
+float *ubig_stage_b_leveler_transition_row(const float *input,
+                                           uint32_t count,
+                                           uint32_t copy_only,
+                                           uint32_t common_config,
+                                           const UbigStageBLevelerTransitionRecord *large_rise,
+                                           const UbigStageBLevelerTransitionRecord *normal,
+                                           float *state,
+                                           float rise_threshold)
+{
+    if(!input||!state)return state;
+    if(copy_only){
+        for(uint32_t i=0;i<count;i++)state[i]=input[i];
+        return state;
+    }
+    if(!large_rise||!normal)return state;
+    for(uint32_t i=0;i<count;i++){
+        const float src=input[i];
+        const float previous=state[i];
+        const uint32_t rising=previous<src;
+        const uint32_t config_index=common_config?0u:i;
+        const UbigStageBLevelerTransitionRecord *cfg;
+        if(rising && rise_threshold<(src-previous))cfg=&large_rise[config_index];
+        else cfg=&normal[config_index];
+        const float a=rising?cfg->rise_previous:cfg->fall_previous;
+        const float b=rising?cfg->rise_input:cfg->fall_input;
+        const float weighted=fmaf(b,src,a*previous);
+        const float previous_floor=(previous>-1.0f)?cfg->previous_offset+previous:-1.0f;
+        const float input_floor=(src>-1.0f)?cfg->input_offset+src:-1.0f;
+        float floor=(input_floor>previous_floor)?input_floor:previous_floor;
+        if(floor< -1.0f)floor=-1.0f;
+        state[i]=(weighted>floor)?weighted:floor;
+    }
+    return state;
+}
