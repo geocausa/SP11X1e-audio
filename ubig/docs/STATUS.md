@@ -73,3 +73,28 @@ The remaining Stage-A waveform mismatch begins at the first real output frame, s
 The next major target is `0x180021e80`, the Stage-A multiband compressor/regulator block. Its public inputs and tuning/state ownership are already mapped from the late RE branch. Continue with the same rule used for limiter/filterbank work: isolate callable state and I/O, inject or freeze adjacent helpers, then accept native code only after a direct differential gate.
 
 Do not install UbiG into the live PipeWire path yet.
+
+## Stage-A multiband compressor primitives — checkpoint 3
+
+The central Stage-A multiband compressor is being decomposed by direct callable boundaries rather than translated monolithically.
+
+Native UbiG now has oracle-proven bit-exact implementations for the following compressor subroutines:
+
+- dual-plane `-1.0` state initialization
+- flag descriptor initialization
+- scalar-state initialization and fixed payload accessor
+- uniform `1/260` state initialization
+- direction-sensitive two-coefficient smoothing — 400,000 randomized transitions exact
+- persistent slow-gain upper/lower bound construction — 30,000 stateful calls / 600,000 band pairs exact
+- nonlinear per-band correction + mask-aware aggregate-state update — 25,000 randomized calls exact
+- linked-channel deviation limiter — 30,000 20-band calls exact
+- mask-neighbor three-tap limiter — 50,000 20-band calls exact
+- 0x114-byte per-band state-object constructor — complete initialized image exact
+- close-range cubic soft-max — 1,000,000 randomized calls exact
+
+Two implementation details found by differential testing are now explicit behavioral requirements:
+
+1. the seven-band reciprocal normalizer uses float bits `0x3e124924`, one ULP below normally rounded `1/7`;
+2. linked-deviation averaging divides by all unmasked bands, while its accumulator/max only include deviations above `1/2600`.
+
+The next compressor targets are the two larger state workers rooted at the former binary boundaries corresponding to `0x180025228` and `0x180025520`. They are not yet claimed native/exact.
