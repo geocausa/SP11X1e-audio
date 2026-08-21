@@ -264,3 +264,7 @@ The lookup-family soft-link reducer and its offset/minimum/regression parent are
 ### Stage-B coefficient-tail shaping closure
 
 The bounded producer tail shaper is native as `ubig_stage_b_leveler_tail_shape()`. Promoted UbiG source matches **1,000,000 complete randomized direct calls bit-exact** for SP11 active widths 0-20. Its eight SP11 tail coefficients remain caller-owned data rather than embedded reference bytes. Public synthetic-tail hash: `0482d0dbd48bedd3`.
+
+### Stage-B residual/dual-lookup worker closure
+
+The remaining two local numerical workers beneath the Leveler matrix parent are native. `ubig_stage_b_leveler_link_residual()` passes **400,000 complete randomized calls bit-exact** and `ubig_stage_b_leveler_dual_lookup()` passes **500,000 complete randomized calls bit-exact**. The latter keeps both lookup families caller-owned. Public hashes: `31fd44aad3526b71`, `869a5eefb8cabd5e`.

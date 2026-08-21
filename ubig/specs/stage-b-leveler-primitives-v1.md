@@ -203,3 +203,9 @@ Promoted-source private gates: **1,000,000 randomized calls bit-exact** for the 
 `ubig_stage_b_leveler_tail_shape()` closes the producer helper that converts one scalar control into a per-band auxiliary row. Positive control clears all active lanes. For nonpositive control the first twelve lanes are exactly zero; later lanes use caller-owned tail coefficients multiplied by the recovered fixed scalar scale, clamped to ±`0x3f7ffffe`. Control at or below -1 emits exact -1 across the tail.
 
 The SP11 20-lane path consumes eight tail coefficients. Those coefficients remain explicit caller-owned configuration and are not embedded in UbiG. Promoted-source private differential: **1,000,000 complete randomized calls bit-exact** for active lengths 0 through 20. Public synthetic-tail regression hash: `0482d0dbd48bedd3`.
+
+## Cross-row residual and dual-table worker
+
+`ubig_stage_b_leveler_link_residual()` soft-links fixed-stride source rows with the already-proven exact 2/13 soft-max, converts the result to `min(0, compare-linked)`, then FMA-accumulates that residual through caller-owned per-row weights. Promoted-source differential: **400,000 complete randomized calls bit-exact**. Public hash: `31fd44aad3526b71`.
+
+`ubig_stage_b_leveler_dual_lookup()` composes the native seven-fixed-plus-tail mapper with a second caller-owned eight-group piecewise-linear family. It preserves the exact overshoot-residual path and final two-add clamp ordering. Neither table family is embedded in UbiG. Promoted-source differential: **500,000 complete randomized calls bit-exact**. Public synthetic-data hash: `869a5eefb8cabd5e`.

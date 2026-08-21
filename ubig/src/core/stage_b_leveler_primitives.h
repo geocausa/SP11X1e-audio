@@ -194,6 +194,32 @@ float ubig_stage_b_leveler_lookup_link(const float *fallback,
                                        const float *offsets,
                                        const UbigStageBLevelerLookupTables *tables);
 
+/* Exact cross-row soft-link residual accumulation. Source/weight/destination
+ * matrices use the SP11 fixed 20-float row stride. */
+void ubig_stage_b_leveler_link_residual(uint32_t row_count,
+                                        uint32_t width,
+                                        const float *source_rows,
+                                        const float *compare_row,
+                                        const float *weight_rows,
+                                        float *destination_rows);
+
+typedef struct {
+    const float *slopes[8];
+    const float *knots[8];
+    uint32_t length[8];
+    float baseline[8];
+} UbigStageBLevelerInverseLookupTables;
+
+/* Exact two-stage lookup worker. Both lookup families remain caller-owned data. */
+void ubig_stage_b_leveler_dual_lookup(const float *lookup_input,
+                                      const float *secondary,
+                                      uint32_t count,
+                                      float *output,
+                                      float bias0,
+                                      float bias1,
+                                      const UbigStageBLevelerLookupTables *lookup_tables,
+                                      const UbigStageBLevelerInverseLookupTables *inverse_tables);
+
 /* Exact producer tail shaping: first 12 lanes zero, remaining lanes use
  * caller-owned tail coefficients. The SP11 contract uses eight tail entries. */
 void ubig_stage_b_leveler_tail_shape(uint32_t count,

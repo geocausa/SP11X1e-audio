@@ -734,6 +734,79 @@ float ubig_stage_b_leveler_lookup_link(const float *fallback,
     return linked;
 }
 
+void ubig_stage_b_leveler_link_residual(uint32_t row_count,
+                                        uint32_t width,
+                                        const float *source_rows,
+                                        const float *compare_row,
+                                        const float *weight_rows,
+                                        float *destination_rows)
+{
+    if(!source_rows||!compare_row||!weight_rows||!destination_rows)return;
+    float linked[20];
+    memcpy(linked,source_rows,width*sizeof(float));
+    for(uint32_t r=1;r<row_count;r++)
+        for(uint32_t k=0;k<width;k++)
+            linked[k]=leveler_soft_max(linked[k],source_rows[r*20u+k]);
+    for(uint32_t k=0;k<width;k++){
+        const float d=compare_row[k]-linked[k];
+        linked[k]=(d<0.0f)?d:0.0f;
+    }
+    for(uint32_t r=0;r<row_count;r++)
+        for(uint32_t k=0;k<width;k++)
+            destination_rows[r*20u+k]=fmaf(weight_rows[r*20u+k],linked[k],destination_rows[r*20u+k]);
+}
+
+void ubig_stage_b_leveler_dual_lookup(const float *lookup_input,
+                                      const float *secondary,
+                                      uint32_t count,
+                                      float *output,
+                                      float bias0,
+                                      float bias1,
+                                      const UbigStageBLevelerLookupTables *lookup_tables,
+                                      const UbigStageBLevelerInverseLookupTables *inverse_tables)
+{
+    if(!lookup_input||!secondary||!output||!lookup_tables||!inverse_tables)return;
+    const float almost=f32_bits(0x3f7ffffeu);
+    float mapped[20]={0};
+    float residual[20]={0};
+    ubig_stage_b_leveler_lookup_map(count,lookup_input,mapped,lookup_tables);
+    for(uint32_t i=0;i<count;i++){
+        if(mapped[i]==-1.0f)continue;
+        float v=fmaf(secondary[i],4.0f,bias0);
+        v+=mapped[i];
+        float clamped=v;
+        if(clamped<-almost)clamped=-almost;
+        if(almost<clamped)clamped=almost;
+        mapped[i]=clamped;
+        float r=(v-clamped)*f32_bits(0x3e82143du);
+        if(r<-almost)r=-almost;
+        if(r>0.0f)r=0.0f;
+        residual[i]=r;
+    }
+    for(uint32_t i=0;i<count;i++){
+        const float x=mapped[i];
+        float v;
+        if(x<=-1.0f)v=-1.0f;
+        else{
+            const uint32_t group=i<7u?i:7u;
+            uint32_t j=inverse_tables->length[group]-2u;
+            while(j && x<inverse_tables->knots[group][j])j--;
+            const float base=fmaf((float)j,f32_bits(0x3d4ccccdu),inverse_tables->baseline[group]);
+            v=fmaf(x-inverse_tables->knots[group][j],inverse_tables->slopes[group][j],base);
+            if(v<-almost)v=-almost;
+            if(almost<v)v=almost;
+        }
+        output[i]=v;
+    }
+    for(uint32_t i=0;i<count;i++){
+        float v=residual[i]+bias1;
+        v+=output[i];
+        if(v<-almost)v=-almost;
+        if(almost<v)v=almost;
+        output[i]=v;
+    }
+}
+
 void ubig_stage_b_leveler_tail_shape(uint32_t count,
                                      float *output,
                                      float control,
