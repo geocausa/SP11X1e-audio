@@ -16,10 +16,14 @@ int main(void){
     for(int j=0;j<NR;j++){p[j].values=pv[j];q[j].values=qv[j];obs[j].values=ov[j];p[j].scalar=fr(.35f,.95f);q[j].scalar=fr(.35f,.95f);p[j].reserved=q[j].reserved=obs[j].reserved=0;for(int k=0;k<NW;k++){pv[j][k]=fr(.2f,.95f);qv[j][k]=fr(.2f,.95f);}}
     for(int n=0;n<12;n++)ubig_stage_b_leveler_history_update(&s.history,fr(.03f,.12f),fr(.45f,.9f),fr(.2f,.9f));
     const UbigStageBLevelerConfig c={fb(0x3d5a740e),fb(0xba5939d7),fb(0xbb670610),375u,fb(0x3f7fe1b9),fb(0x3f7c3e0a)};
+    uint64_t urh=1469598103934665603ULL;
     for(unsigned n=0;n<20000;n++){
         for(int j=0;j<NR;j++){obs[j].scalar=fr(.25f,.99f);for(int k=0;k<NW;k++)ov[j][k]=fr(.1f,.99f);}
-        ubig_stage_b_leveler_update(&s,&c,ru()%4u,NW,fr(0,.999f),fr(0,.999f),fb(0x3c23d70a),obs);
+        UbigStageBLevelerUpdateResult ur;
+        ubig_stage_b_leveler_update_with_result(&s,&c,ru()%4u,NW,fr(0,.999f),fr(0,.999f),fb(0x3c23d70a),obs,&ur);
+        urh=h64(urh,&ur,sizeof ur);
     }
+    if(urh!=0x0f9f325ea4a839b3ULL){fprintf(stderr,"Stage-B writer parent-result hash %016llx\n",(unsigned long long)urh);return 11;}
     UbigStageBLevelerState canonical=s;canonical.primary=canonical.secondary=0;
     uint64_t h=h64(1469598103934665603ULL,&canonical,sizeof canonical);
     for(int j=0;j<NR;j++){h=h64(h,&p[j].scalar,8);h=h64(h,&q[j].scalar,8);h=h64(h,pv[j],sizeof pv[j]);h=h64(h,qv[j],sizeof qv[j]);}

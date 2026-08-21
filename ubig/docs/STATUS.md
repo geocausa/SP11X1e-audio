@@ -199,6 +199,8 @@ The active long-memory writer beneath the SP11 Volume-Leveler/DRC path is now na
 
 Using the recovered live 48 kHz controller configuration, the promoted UbiG writer matches the original ARM64 boundary on **100,000 consecutive complete calls bit-exact**, comparing the canonicalized `0x608` parent/history state, all primary/secondary record scalars and all 20-band vector lanes after every call. Public history hash: `2244caafb36558e1`; public writer hash: `3e549513f21d2250`.
 
+The top-level Leveler parent additionally consumes two float-register residues left by the writer. These are now explicit as `UbigStageBLevelerUpdateResult` via `ubig_stage_b_leveler_update_with_result()`: high-control calls expose effective control/adaptive mix; low-control calls preserve the original direct-control value and the exact parent-visible `s0` residue, including the mature-history cosine residue. A private AArch64 call wrapper compares complete writer state plus both parent-result floats for **100,000 randomized calls bit-exact**. Public synthetic result hash: `0f9f325ea4a839b3`.
+
 ### Stage-B Leveler scalar-transfer curve
 
 The Leveler producer's bounded 17-float curve builder/evaluator pair is now native. The promoted evaluator is bit-exact across 1,000,000 randomized direct calls; the promoted builder is bit-exact across 500,000 randomized calls with the complete 68-byte curve image compared after every call. Public regression hashes are `1e2293d61d263c78` and `e171893335b30132`.

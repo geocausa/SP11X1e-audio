@@ -54,6 +54,8 @@ Two exact branch details matter:
 
 Private direct differential gate using the promoted UbiG source and the recovered SP11 controller contract: **100,000 consecutive complete calls bit-exact**, comparing the canonicalized `0x608` controller/history state plus every primary/secondary scalar and all 20-lane vectors after every call.
 
+The enclosing Stage-B parent also consumes two floating-register residues left by this writer. UbiG exposes them explicitly through `ubig_stage_b_leveler_update_with_result()` instead of relying on register lifetime. The high-control path returns the effective control and adaptive mix. On the low-control path the second value is the original direct control; the first is the parent-visible `s0` residue: the indexed target before mature interpolation, or the exact cosine lane produced by the history interpolator when mature nonzero history is evaluated. A private AArch64 capture wrapper proves complete writer state plus both result floats bit-exact across **100,000 randomized calls**. Public synthetic parent-result hash: `0f9f325ea4a839b3`.
+
 ## Post-controller scalar curve
 
 The active Leveler producer builds and evaluates a compact 17-float scalar-transfer curve. UbiG owns both bounded helpers:

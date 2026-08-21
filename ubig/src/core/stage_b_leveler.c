@@ -534,7 +534,7 @@ void ubig_stage_b_leveler_producer_process(UbigStageBLevelerProducerState *s,
     }
 }
 
-static float history_interp(const UbigStageBLevelerHistory *h,float value)
+static float history_interp_residue(const UbigStageBLevelerHistory *h,float value,float *cosine_residue)
 {
     float x=(value-f32_bits(0x3f11a2f0u))*f32_bits(0x3f0c0000u);
     x*=f32_bits(0x43800000u);
@@ -548,6 +548,7 @@ static float history_interp(const UbigStageBLevelerHistory *h,float value)
         const float angle=q*4.0f;
         sn=sinf(angle);cs=cosf(angle);
     }
+    if(cosine_residue)*cosine_residue=cs;
     const float next=h->bins[(uint32_t)bin+1u]*sn;
     return fmaf(h->bins[(uint32_t)bin],cs,next);
 }
@@ -566,14 +567,15 @@ static float blend_value(float old,float target,float coeff)
     return fmaf(old,coeff,add);
 }
 
-void ubig_stage_b_leveler_update(UbigStageBLevelerState *s,
-                                 const UbigStageBLevelerConfig *c,
-                                 uint32_t index,
-                                 uint32_t width,
-                                 float control_mix,
-                                 float direct_control,
-                                 float secondary_scale,
-                                 const UbigStageBLevelerRecord *observed)
+void ubig_stage_b_leveler_update_with_result(UbigStageBLevelerState *s,
+                                             const UbigStageBLevelerConfig *c,
+                                             uint32_t index,
+                                             uint32_t width,
+                                             float control_mix,
+                                             float direct_control,
+                                             float secondary_scale,
+                                             const UbigStageBLevelerRecord *observed,
+                                             UbigStageBLevelerUpdateResult *result)
 {
     if(!s||!c||!s->primary||!s->secondary||!observed)return;
     const float almost_one=f32_bits(0x3f7ffffeu);
@@ -597,6 +599,7 @@ void ubig_stage_b_leveler_update(UbigStageBLevelerState *s,
     if(activity_threshold<target && control_threshold<control)
         ubig_stage_b_leveler_history_update(&s->history,c->history_step,target,control);
 
+    float parent_s0_residue=target;
     float adaptive_mix,drive;
     if(s->history.count>=5u){
         const float remainder=almost_one-c->adaptive_smooth;
@@ -604,7 +607,7 @@ void ubig_stage_b_leveler_update(UbigStageBLevelerState *s,
         s->adaptive_state=adaptive_mix;
         if(s->history.total==0.0f)drive=0.0f;
         else{
-            const float value=history_interp(&s->history,s->primary[index].scalar);
+            const float value=history_interp_residue(&s->history,s->primary[index].scalar,&parent_s0_residue);
             drive=value==s->history.total
                 ? 1.0f
                 : (float)((double)value/(double)s->history.total);
@@ -618,6 +621,16 @@ void ubig_stage_b_leveler_update(UbigStageBLevelerState *s,
         s->adaptive_state=0.0f;
         drive=almost_one;
         adaptive_mix=almost_one;
+    }
+
+    if(result){
+        if(control<control_threshold){
+            result->parent_control0=parent_s0_residue;
+            result->parent_control1=direct_control;
+        }else{
+            result->parent_control0=control;
+            result->parent_control1=adaptive_mix;
+        }
     }
 
     float rise_coeff,fall_coeff,zero_coeff;
@@ -653,4 +666,16 @@ void ubig_stage_b_leveler_update(UbigStageBLevelerState *s,
             s->secondary[j].values[k]=blend_value(s->secondary[j].values[k],t,secondary_coeff);
         }
     }
+}
+
+void ubig_stage_b_leveler_update(UbigStageBLevelerState *s,
+                                 const UbigStageBLevelerConfig *c,
+                                 uint32_t index,
+                                 uint32_t width,
+                                 float control_mix,
+                                 float direct_control,
+                                 float secondary_scale,
+                                 const UbigStageBLevelerRecord *observed)
+{
+    ubig_stage_b_leveler_update_with_result(s,c,index,width,control_mix,direct_control,secondary_scale,observed,NULL);
 }

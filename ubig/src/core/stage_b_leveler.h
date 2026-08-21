@@ -181,8 +181,24 @@ void ubig_stage_b_leveler_producer_process(UbigStageBLevelerProducerState *state
                                            uint32_t preserve_rows,
                                            const float *log_thresholds);
 
+typedef struct {
+    float parent_control0;
+    float parent_control1;
+} UbigStageBLevelerUpdateResult;
+
 /* Process one indexed adaptive record and its preceding/related vector records.
- * observed_records supplies read-only instantaneous targets. */
+ * The result variant also exposes the two exact parent-visible control scalars
+ * that the original ARM64 implementation leaves in s0/s1. */
+void ubig_stage_b_leveler_update_with_result(UbigStageBLevelerState *state,
+                                             const UbigStageBLevelerConfig *config,
+                                             uint32_t index,
+                                             uint32_t width,
+                                             float control_mix,
+                                             float direct_control,
+                                             float secondary_scale,
+                                             const UbigStageBLevelerRecord *observed_records,
+                                             UbigStageBLevelerUpdateResult *result);
+
 void ubig_stage_b_leveler_update(UbigStageBLevelerState *state,
                                  const UbigStageBLevelerConfig *config,
                                  uint32_t index,
