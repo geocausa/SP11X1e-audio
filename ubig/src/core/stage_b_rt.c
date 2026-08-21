@@ -1286,3 +1286,12 @@ void ubig_stage_b_rt_feature_change_process(UbigStageBRtFeatureChangeHistory *s,
     if(s->index>=UBIG_STAGE_B_RT_FEATURE_CHANGE_DEPTH)s->index=0u;
     memcpy(s->previous,input,sizeof s->previous);
 }
+
+float ubig_stage_b_rt_scaled_sum(const float *input,uint32_t count,int32_t exponent)
+{
+    if(!input||count==0u)return 0.0f;
+    const float scale=stage_b_rt_pow2_integer(-exponent);
+    float sum=input[0]*scale;
+    for(uint32_t i=1;i<count;i++)sum=fmaf(input[i],scale,sum);
+    return sum;
+}

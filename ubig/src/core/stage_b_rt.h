@@ -449,4 +449,7 @@ typedef struct {
 void ubig_stage_b_rt_feature_change_process(UbigStageBRtFeatureChangeHistory *state,
                                             const float input[UBIG_STAGE_B_RT_FEATURE_COUNT],
                                             float normalized[UBIG_STAGE_B_RT_FEATURE_COUNT]);
+
+/* Exact exponent-scaled FMA sum used by the RT feature scheduler. */
+float ubig_stage_b_rt_scaled_sum(const float *input,uint32_t count,int32_t exponent);
 #endif
