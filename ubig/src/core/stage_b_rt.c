@@ -436,3 +436,38 @@ void ubig_stage_b_rt_rms_deviation(float scale,
 #endif
     for(uint32_t lane=active_width;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++)output[lane]=0.0f;
 }
+
+
+void ubig_stage_b_rt_window_blend_process(UbigStageBRtWindowBlendState *state,
+                                          uint32_t active_width,
+                                          const float input[UBIG_STAGE_B_RT_MAX_BANDS],
+                                          float output[UBIG_STAGE_B_RT_MAX_BANDS])
+{
+    if(!state||!input||!output)return;
+    if(active_width>UBIG_STAGE_B_RT_MAX_BANDS)active_width=UBIG_STAGE_B_RT_MAX_BANDS;
+    float *window_sum=ubig_stage_b_rt_window_sum_update(&state->input_window,input);
+    if(!window_sum)return;
+    float deviation[UBIG_STAGE_B_RT_MAX_BANDS];
+    ubig_stage_b_rt_rms_deviation(state->rms_scale,deviation,window_sum,
+                                  state->input_window.history,active_width,
+                                  state->input_window.depth);
+    float *control=ubig_stage_b_rt_window_sum_update(&state->rms_window,deviation);
+    if(!control)return;
+    const float lower=f32_bits(0x3b7c0fc1u);
+    const float upper=f32_bits(0x3c3d0bd1u);
+    const float output_floor=f32_bits(0xbf313b14u);
+    for(uint32_t lane=0;lane<active_width;lane++){
+        float c=control[lane];
+        if(c<lower)c=lower;
+        if(c>upper)c=upper;
+        float mix=c*state->blend_scale;
+        mix=mix+state->blend_bias;
+        mix=mix*f32_bits(0x40020000u);
+        const float keep=output[lane]*mix;
+        float value=fmaf(input[lane],1.0f-mix,keep);
+        if(value>input[lane])value=input[lane];
+        if(value<output_floor)value=output_floor;
+        output[lane]=value;
+    }
+    for(uint32_t lane=active_width;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++)output[lane]=0.0f;
+}

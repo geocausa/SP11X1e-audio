@@ -165,4 +165,18 @@ void ubig_stage_b_rt_rms_deviation(float scale,
                                    uint32_t active_width,
                                    uint32_t depth);
 
+/* Exact enclosing two-window RMS/blend state path. */
+typedef struct {
+    UbigStageBRtWindowSum input_window;
+    UbigStageBRtWindowSum rms_window;
+    float rms_scale;
+    float blend_bias;
+    float blend_scale;
+} UbigStageBRtWindowBlendState;
+
+void ubig_stage_b_rt_window_blend_process(UbigStageBRtWindowBlendState *state,
+                                          uint32_t active_width,
+                                          const float input[UBIG_STAGE_B_RT_MAX_BANDS],
+                                          float output[UBIG_STAGE_B_RT_MAX_BANDS]);
+
 #endif

@@ -313,3 +313,7 @@ The `0x728D0` multiband correlation state path and its 20-lane circular-history 
 ### Stage-B multiband sliding-window/RMS closure
 
 The two numerical children beneath the next multiband state parent are now native: scaled window sum and SP11 ARM64 RMS/deviation. Each promoted implementation matches **500,000 complete randomized calls bit-exact**. Public hashes: `ea65323000ebac89` and `f241f1663d0db5ea`.
+
+### Stage-B two-window RMS/blend parent closure
+
+The enclosing multiband state parent above the native window/RMS pair is now `ubig_stage_b_rt_window_blend_process()`. Promoted source matches **100,000 complete randomized stateful calls bit-exact**. Public hash: `57203f47ae80e517`.
