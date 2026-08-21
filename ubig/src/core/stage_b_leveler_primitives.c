@@ -348,3 +348,49 @@ float *ubig_stage_b_leveler_transition_row(const float *input,
     }
     return state;
 }
+
+_Static_assert(sizeof(UbigStageBLevelerSymmetricFilter)==0x18,"Leveler symmetric-filter descriptor size");
+
+void ubig_stage_b_leveler_symmetric_filter(const UbigStageBLevelerSymmetricFilter *f,
+                                           const float *input,
+                                           uint32_t count,
+                                           float *output)
+{
+    if(!f||!input||!output||count==0u)return;
+    for(uint32_t pos=0;pos<count;pos++){
+        float acc=f->coefficients[0]*input[pos];
+        for(uint32_t tap=1;tap<f->taps;tap++){
+            const uint32_t right=pos+tap;
+            if(right<count)acc=fmaf(input[right],f->coefficients[tap],acc);
+            if(pos>=tap)acc=fmaf(input[pos-tap],f->coefficients[tap],acc);
+        }
+        acc=f->post_scale[pos]*acc;
+        if(acc< -1.0f)acc=-1.0f;
+        output[pos]=acc;
+    }
+}
+
+void ubig_stage_b_leveler_filter_blend(const UbigStageBLevelerSymmetricFilter *filter,
+                                       uint32_t count,
+                                       const float *blend,
+                                       const float *input,
+                                       float *output)
+{
+    if(!filter||!blend||!input||!output)return;
+    ubig_stage_b_leveler_symmetric_filter(filter,input,count,output);
+    const uint32_t vector_prefix=count&~7u;
+    for(uint32_t i=0;i<vector_prefix;i++){
+        if(output[i]>input[i]){
+            const float correction=(blend[i]-1.0f)*output[i];
+            const float weighted=input[i]*blend[i];
+            output[i]=weighted-correction;
+        }
+    }
+    for(uint32_t i=vector_prefix;i<count;i++){
+        if(output[i]>input[i]){
+            const float weighted=input[i]*blend[i];
+            const float correction=blend[i]-1.0f;
+            output[i]=fmaf(-correction,output[i],weighted);
+        }
+    }
+}

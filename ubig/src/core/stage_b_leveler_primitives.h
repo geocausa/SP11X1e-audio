@@ -116,4 +116,24 @@ float *ubig_stage_b_leveler_transition_row(const float *input,
                                            const UbigStageBLevelerTransitionRecord *normal,
                                            float *state,
                                            float rise_threshold);
+
+/* Exact symmetric finite-row filter used by the Leveler producer. */
+typedef struct {
+    const float *coefficients;
+    const float *post_scale;
+    uint32_t taps;
+    uint32_t reserved;
+} UbigStageBLevelerSymmetricFilter;
+
+void ubig_stage_b_leveler_symmetric_filter(const UbigStageBLevelerSymmetricFilter *filter,
+                                           const float *input,
+                                           uint32_t count,
+                                           float *output);
+
+/* Exact symmetric-filter + conditional overshoot blend wrapper. */
+void ubig_stage_b_leveler_filter_blend(const UbigStageBLevelerSymmetricFilter *filter,
+                                       uint32_t count,
+                                       const float *blend,
+                                       const float *input,
+                                       float *output);
 #endif

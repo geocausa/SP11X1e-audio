@@ -118,3 +118,16 @@ Private direct differential gates using promoted UbiG source:
 - enclosing controller reset: **200,000 randomized complete `0x608` states plus record/vector storage bit-exact**.
 
 Public synthetic hashes: history init `f081fdc124431083`; controller reset `21e2c995a4ad21d7`.
+
+## Symmetric row filter and overshoot blend
+
+The producer's symmetric finite-row filter is native as `ubig_stage_b_leveler_symmetric_filter()`. A caller-owned descriptor supplies the symmetric tap coefficients, per-output post-scale and tap count; the function truncates unavailable edge taps, preserves the exact FMA accumulation order, applies the per-lane post-scale, and floors output at `-1`.
+
+The enclosing `ubig_stage_b_leveler_filter_blend()` runs that filter and only modifies lanes where the filtered result overshoots above the original input. The reference has an arithmetic split: the vector prefix (multiples of eight lanes) uses separate multiply/subtract operations, while the scalar tail uses fused `FMSUB`; UbiG preserves that split explicitly.
+
+Private direct differential gates using promoted source:
+
+- symmetric filter: **500,000 complete randomized calls bit-exact**;
+- filter + overshoot blend: **400,000 complete randomized row calls bit-exact**.
+
+Public synthetic hashes: filter `e9340d3e22dcccec`, wrapper `93ccb87e0494c697`.

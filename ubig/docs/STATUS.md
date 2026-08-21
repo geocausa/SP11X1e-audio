@@ -218,3 +218,7 @@ The producer's bounded per-lane row transition helper is now native. The promote
 ### Stage-B Leveler initialization/reset lifecycle
 
 The exact history constructor and enclosing controller reset are now native. Both promoted functions match 200,000 randomized complete-state direct calls bit-for-bit; the outer reset additionally covers all active secondary scalars/vectors while preserving primary state and pointer topology. Public hashes: history init `f081fdc124431083`, controller reset `21e2c995a4ad21d7`.
+
+### Stage-B symmetric filter/blend island
+
+The table-free symmetric row filter and its conditional overshoot-blend parent are now native. Promoted-source direct gates are 500,000 and 400,000 complete randomized calls bit-exact respectively. Public hashes: `e9340d3e22dcccec` and `93ccb87e0494c697`.
