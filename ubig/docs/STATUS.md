@@ -375,3 +375,7 @@ The medium no-subcall peak/residual transform beneath the universal RT scheduler
 ### Stage-B RT generalized ratio-map closure
 
 The scalar ratio mapper now owns its full small-mode contract as `ubig_stage_b_rt_ratio_map_mode()`. The legacy mode-zero entry remains unchanged as a wrapper. Promoted source matches **1,000,000 direct calls bit-exact** across signed modes -64..64, including the scheduler's live modes 3 and 7. Public hash: `e4c286a800ac8bd9`.
+
+### Stage-B RT eight-feature change closure
+
+The final small no-subcall member of the scheduler's upper transform group is native as `ubig_stage_b_rt_feature_change_process()`. Promoted source matches **500,000 complete randomized calls bit-exact**, including the pairwise norm accumulation and all 32 ring positions. Public lifecycle hash: `e50402a9fd590cfd`.

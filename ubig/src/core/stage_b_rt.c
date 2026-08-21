@@ -1237,3 +1237,52 @@ void ubig_stage_b_rt_peak_residual_process(UbigStageBRtPeakResidualHistory *s,
     s->index++;
     if(s->index>=UBIG_STAGE_B_RT_PEAK_HISTORY_DEPTH)s->index=0u;
 }
+
+void ubig_stage_b_rt_feature_change_process(UbigStageBRtFeatureChangeHistory *s,
+                                            const float input[UBIG_STAGE_B_RT_FEATURE_COUNT],
+                                            float normalized[UBIG_STAGE_B_RT_FEATURE_COUNT])
+{
+    if(!s||!input||!normalized)return;
+    int32_t shift=stage_b_rt_spectral_shift(input[0]);
+    int32_t previous_shift=stage_b_rt_spectral_shift(s->previous[0]);
+    for(uint32_t lane=1;lane<UBIG_STAGE_B_RT_FEATURE_COUNT;lane++){
+        int32_t value=stage_b_rt_spectral_shift(input[lane]);
+        if(value<shift)shift=value;
+        value=stage_b_rt_spectral_shift(s->previous[lane]);
+        if(value<previous_shift)previous_shift=value;
+    }
+    if(previous_shift<shift)shift=previous_shift;
+    const float scale=stage_b_rt_pow2_integer(shift);
+    for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_FEATURE_COUNT;lane++){
+        normalized[lane]=input[lane]*scale;
+        s->previous[lane]*=scale;
+    }
+
+    float energy=0.0f;
+    for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_FEATURE_COUNT;lane++){
+        const float previous=s->previous[lane]*0.25f;
+        const float current=normalized[lane]*0.25f;
+        float pair=previous*previous;
+        pair=fmaf(current,current,pair);
+        energy=energy+pair;
+    }
+
+    float metric=0.0f;
+    if(energy!=0.0f){
+        const float root=sqrtf(energy);
+        float sum=0.0f;
+        for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_FEATURE_COUNT;lane++){
+            const float current=normalized[lane]*0.5f;
+            float difference=fmaf(-s->previous[lane],0.5f,current);
+            difference*=0.125f;
+            if(difference<0.0f)difference=-difference;
+            sum+=difference;
+        }
+        sum*=0.5f;
+        metric=(float)((double)sum/(double)root);
+    }
+    s->history[s->index]=metric;
+    s->index++;
+    if(s->index>=UBIG_STAGE_B_RT_FEATURE_CHANGE_DEPTH)s->index=0u;
+    memcpy(s->previous,input,sizeof s->previous);
+}

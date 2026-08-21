@@ -435,4 +435,18 @@ typedef struct {
 void ubig_stage_b_rt_peak_residual_process(UbigStageBRtPeakResidualHistory *state,
                                            const UbigStageBRtSpectralExport *input,
                                            float scratch[UBIG_STAGE_B_RT_SPECTRAL_BINS]);
+
+#define UBIG_STAGE_B_RT_FEATURE_COUNT 8u
+#define UBIG_STAGE_B_RT_FEATURE_CHANGE_DEPTH 32u
+
+typedef struct {
+    float history[UBIG_STAGE_B_RT_FEATURE_CHANGE_DEPTH];
+    float previous[UBIG_STAGE_B_RT_FEATURE_COUNT];
+    uint32_t index;
+} UbigStageBRtFeatureChangeHistory;
+
+/* Exact eight-feature exponent-normalization and frame-change metric. */
+void ubig_stage_b_rt_feature_change_process(UbigStageBRtFeatureChangeHistory *state,
+                                            const float input[UBIG_STAGE_B_RT_FEATURE_COUNT],
+                                            float normalized[UBIG_STAGE_B_RT_FEATURE_COUNT]);
 #endif

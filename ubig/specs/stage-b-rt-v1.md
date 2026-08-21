@@ -125,3 +125,9 @@ Promoted-source private differential: **500,000 complete randomized calls bit-ex
 ## Generalized scalar ratio-map modes
 
 `ubig_stage_b_rt_ratio_map_mode()` extends the already-native mode-zero ratio mapper without changing its arithmetic. The caller mode is converted through the reference's exact binary32 `mode * 2^-15 * 512` schedule and enters only the final fused affine step. `ubig_stage_b_rt_ratio_map()` remains the mode-zero compatibility wrapper. Promoted-source private differential: **1,000,000 direct calls bit-exact** across signed modes -64 through +64 with explicit coverage of deployed modes 0, 3 and 7. Public regression hash: `e4c286a800ac8bd9`.
+
+## Eight-feature frame-change history
+
+`ubig_stage_b_rt_feature_change_process()` closes the standalone eight-feature change metric beneath the universal RT scheduler. Current and previous feature vectors share one exponent normalization, the norm preserves the reference pairwise lane-energy accumulation order, and the exact fused current-minus-previous schedule feeds a normalized L1 change metric into a 32-entry history ring before retaining the raw current feature vector.
+
+Promoted-source private differential: **500,000 complete randomized calls bit-exact**, comparing all persistent state, eight normalized outputs and untouched inputs across randomized feature vectors and all ring indices. Public lifecycle hash: `e50402a9fd590cfd`.
