@@ -351,3 +351,7 @@ The always-invoked wrapper above the stereo Leveler parent is now native as `ubi
 ### Stage-B universal RT hysteresis closure
 
 The table-free scalar hysteresis/activity child beneath the always-active upper RT controller is native as `ubig_stage_b_rt_hysteresis_process()`. Promoted source matches **1,000,000 complete randomized calls bit-exact** across the full mutable state and return value. The reference's final fused subtraction is preserved explicitly. Public lifecycle hash: `37bcc5a067609aad`.
+
+### Stage-B universal RT spectral-accumulator closure
+
+The four-times-per-block spectral accumulator beneath the remaining universal RT controller is native as `ubig_stage_b_rt_spectral_accumulate()`. Live capture fixes the deployed contract at two complex rows, 77 bins and a 16-call window; the semantic implementation also accepts caller-owned period/scale/exponent-offset state. Promoted source matches **500,000 complete randomized calls bit-exact**, including cold-window sentinel initialization, normalized accumulation, terminal export and counter reset. Public lifecycle hash: `48d731d02294bb0f`.

@@ -336,4 +336,31 @@ void ubig_stage_b_rt_multiband_process(float enable_value,
                                        int32_t *telemetry,
                                        const UbigStageBRtMultibandTuning *tuning);
 
+
+#define UBIG_STAGE_B_RT_SPECTRAL_BINS 77u
+
+typedef struct {
+    uint32_t period;
+    uint32_t counter;
+    int32_t exponent_offset;
+    float output_scale;
+    float energy[UBIG_STAGE_B_RT_SPECTRAL_BINS];
+    int32_t shift[UBIG_STAGE_B_RT_SPECTRAL_BINS];
+    int32_t global_shift;
+} UbigStageBRtSpectralAccumulator;
+
+typedef struct {
+    float bins[UBIG_STAGE_B_RT_SPECTRAL_BINS];
+    uint32_t count;
+    int32_t exponent;
+    float aggregate;
+} UbigStageBRtSpectralExport;
+
+/* Exact deployed two-row / 77-bin spectral accumulator. Each input row is
+ * interleaved complex {real,imag}. A fresh accumulation window begins whenever
+ * counter is zero; the result is exported when counter reaches period. */
+void ubig_stage_b_rt_spectral_accumulate(UbigStageBRtSpectralAccumulator *state,
+                                         const float *row0,
+                                         const float *row1,
+                                         UbigStageBRtSpectralExport *output);
 #endif

@@ -91,3 +91,9 @@ A live snapshot/reference/restore/UbiG replay gate compares the full persistent 
 ## Universal RT hysteresis/activity gate
 
 `ubig_stage_b_rt_hysteresis_process()` closes the scalar state machine used by the always-active RT controller. It owns the exact 0.25%/99.75% input smoother, 0.25/0.45/0.55/0.60 hysteresis thresholds, signed countdown/toggle transitions, floor-to-minus-infinity countdown initialization, toggle-state one-pole blend, and fused final scalar transfer. Promoted-source private differential: **1,000,000 complete randomized calls bit-exact**, comparing all mutable state and return value. Public lifecycle hash: `37bcc5a067609aad`.
+
+## Deployed 77-bin spectral accumulator
+
+`ubig_stage_b_rt_spectral_accumulate()` owns the hot two-row spectral-energy accumulator beneath the universal RT controller. The deployed SP11 contract is fixed at two interleaved-complex input rows and 77 bins. Each fresh window clears its energy plane, restores the reference exponent sentinels, and then accumulates normalized complex energy with exact exponent-field scaling. On the configured terminal call it exports square-root magnitudes, a shared binary exponent and a 1/128 aggregate, then resets the counter for the next window.
+
+The public API exposes only semantic state and direct complex rows; the reference descriptor/object layout is absent. Promoted-source private differential: **500,000 complete randomized calls bit-exact**, covering reset, interior and export calls with randomized periods, counters, scales, exponent offsets and prior state. The oracle compares the complete reference state image, all 77 exported floats, count/exponent/aggregate and untouched input rows. Public synthetic lifecycle hash: `48d731d02294bb0f`.

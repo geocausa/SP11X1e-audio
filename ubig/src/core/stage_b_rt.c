@@ -940,3 +940,80 @@ void ubig_stage_b_rt_multiband_process(float enable_value,
         }
     }
 }
+
+static int stage_b_rt_spectral_shift(float value)
+{
+    uint32_t bits;
+    memcpy(&bits,&value,sizeof bits);
+    const int32_t exponent=((bits<<1)==0u)?-127:(int32_t)((bits>>23)&0xffu)-126;
+    int32_t shift=-exponent;
+    if(shift<0)shift=0;
+    if(shift>60)shift=60;
+    return shift;
+}
+
+static float stage_b_rt_pow2_integer(int32_t exponent)
+{
+    return f32_bits((uint32_t)(exponent+127)<<23);
+}
+
+void ubig_stage_b_rt_spectral_accumulate(UbigStageBRtSpectralAccumulator *s,
+                                         const float *row0,
+                                         const float *row1,
+                                         UbigStageBRtSpectralExport *out)
+{
+    if(!s||!row0||!row1||!out||s->period==0u)return;
+    if(s->counter==0u){
+        memset(s->energy,0,sizeof s->energy);
+        memset(s->shift,0x3e,sizeof s->shift);
+        s->global_shift=127;
+    }
+    for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_SPECTRAL_BINS;lane++){
+        float real=0.0f,imag=0.0f;
+        real=fmaf(row0[2u*lane],0.5f,real);
+        imag=fmaf(row0[2u*lane+1u],0.5f,imag);
+        real=fmaf(row1[2u*lane],0.5f,real);
+        imag=fmaf(row1[2u*lane+1u],0.5f,imag);
+
+        int32_t shift=stage_b_rt_spectral_shift(real);
+        const int32_t imag_shift=stage_b_rt_spectral_shift(imag);
+        if(imag_shift<shift)shift=imag_shift;
+        const float normalization=stage_b_rt_pow2_integer(shift-1);
+        const float scaled_real=normalization*real;
+        const float scaled_imag=normalization*imag;
+        const int32_t next_shift=shift*2;
+        int32_t delta=s->shift[lane]-next_shift;
+        if(delta>60)delta=60;
+        if(delta<-60)delta=-60;
+
+        float energy=fmaf(scaled_real,scaled_real,scaled_imag*scaled_imag);
+        energy*=f32_bits(0x3d800000u);
+        if(delta<0){
+            s->energy[lane]=fmaf(stage_b_rt_pow2_integer(delta),energy,s->energy[lane]);
+        }else{
+            s->shift[lane]=next_shift;
+            s->energy[lane]=fmaf(stage_b_rt_pow2_integer(-delta),s->energy[lane],energy);
+        }
+    }
+
+    s->counter++;
+    if(s->counter!=s->period)return;
+
+    for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_SPECTRAL_BINS;lane++)
+        if(s->shift[lane]<s->global_shift)s->global_shift=s->shift[lane];
+
+    float aggregate=0.0f;
+    for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_SPECTRAL_BINS;lane++){
+        const int32_t delta=s->shift[lane]-s->global_shift;
+        const float exponent_scale=stage_b_rt_pow2_integer(-(delta>>1));
+        float value=sqrtf(s->energy[lane]);
+        value*=s->output_scale;
+        value*=exponent_scale;
+        out->bins[lane]=value;
+        aggregate=fmaf(value,f32_bits(0x3c000000u),aggregate);
+    }
+    out->aggregate=aggregate;
+    out->count=UBIG_STAGE_B_RT_SPECTRAL_BINS;
+    out->exponent=(s->global_shift>>1)-s->exponent_offset-1;
+    s->counter=0u;
+}
