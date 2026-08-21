@@ -325,3 +325,7 @@ The leaf estimator beneath the remaining `0x73428`-family branch is now native a
 ### Stage-B multiband tail controller
 
 The small stateful parent above the arbitrary-weight tail estimator is now native as `ubig_stage_b_rt_tail_control()`. Promoted-source differential: **500,000 randomized-weight stateful calls bit-exact** across both persistent state floats and return value. The reference weight vector remains outside UbiG; the oracle substitutes arbitrary caller-owned weights. Public lifecycle hash: `1eb825023d674142`.
+
+### Stage-B multiband recursive chain smoother
+
+The remaining multiband state path now owns its recursive 9–20 lane chain smoother as `ubig_stage_b_rt_chain_smooth()`. The five boundary weights remain caller-owned and were randomized inside the mapped reference image for every oracle call. Promoted-source differential: **500,000 calls bit-exact**. Public hash: `4cccb939cb52e6fa`.

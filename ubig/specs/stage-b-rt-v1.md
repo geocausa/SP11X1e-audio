@@ -65,3 +65,7 @@ Promoted-source private differential: **500,000 complete randomized calls bit-ex
 ## Stateful tail controller
 
 `ubig_stage_b_rt_tail_control()` closes the two-scalar parent above the weighted tail estimator. The controller adds the exact upper-tail accumulator, persistent `0.989990234375` smoothing, and the two fused piecewise activity ramps. Its estimator weights remain caller-owned. The private differential rewrites the reference estimator weights with randomized synthetic values before every call and supplies the same values to UbiG. Promoted-source result: **500,000 randomized-weight stateful calls bit-exact**, including both persistent floats and the return value. Public synthetic lifecycle hash: `1eb825023d674142`.
+
+## Recursive band-chain smoother
+
+`ubig_stage_b_rt_chain_smooth()` owns the in-place recursive state smoother beneath the remaining multiband controller. Its first five recurrence coefficients are algorithm literals; the five later boundary coefficients are caller-owned. The private differential rewrites those five reference coefficients with new randomized values before every call and supplies the same values to UbiG. Promoted-source result: **500,000 randomized-coefficient calls bit-exact** for counts 9–20 and randomized activity values. Public synthetic hash: `4cccb939cb52e6fa`.

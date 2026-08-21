@@ -534,3 +534,43 @@ float ubig_stage_b_rt_tail_control(UbigStageBRtTailState *state,
     const float activity=(tail_activity>estimate_activity)?tail_activity:estimate_activity;
     return 1.0f-activity;
 }
+
+void ubig_stage_b_rt_chain_smooth(float *state,
+                                  uint32_t count,
+                                  uint32_t activity,
+                                  const float boundary_coeff[5])
+{
+    if(!state||!boundary_coeff||count<9u||count>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    const float rate=(count==19u)?f32_bits(0x3cd79436u):f32_bits(0x3ccccccdu);
+    const float step=rate*(float)activity;
+    const float norm=1.0f/(step+0.5f);
+    float old0=state[0],old1=state[1],old2=state[2],old3=state[3],old4=state[4];
+    float x=state[0]+state[1];
+    x=x+state[2]; x=x+state[3]; x=state[4]+x;
+    float t=x*f32_bits(0x3dccd000u); t=fmaf(old0,step,t);
+    float value=t*norm; float residual=(value-old0)+x; state[0]=value;
+    x=residual+state[5]; t=x*f32_bits(0x3daab000u); t=fmaf(old1,step,t);
+    value=t*norm; residual=(value-old1)+x; state[1]=value;
+    x=residual+state[6]; t=x*f32_bits(0x3d925000u); t=fmaf(old2,step,t);
+    value=t*norm; residual=(value-old2)+x; state[2]=value;
+    x=residual+state[7]; t=x*f32_bits(0x3d800000u); t=fmaf(old3,step,t);
+    value=t*norm; residual=(value-old3)+x; state[3]=value;
+    x=residual+state[8]; t=x*f32_bits(0x3d638000u); t=fmaf(old4,step,t);
+    value=t*norm; residual=(value-old4)+x; state[4]=value;
+    if(count>9u){
+        for(uint32_t i=0;i<count-9u;i++){
+            const float delta=(state[i+9u]-state[i])+residual;
+            const float current=state[i+5u];
+            float z=boundary_coeff[4]*delta; z=fmaf(current,step,z);
+            value=z*norm; residual=(value-current)+delta; state[i+5u]=value;
+        }
+    }
+    uint32_t lane=count-4u;
+    unsigned wi=3u;
+    for(;lane<count;lane++,wi--){
+        const float delta=residual-state[lane-5u];
+        const float current=state[lane];
+        float z=boundary_coeff[wi]*delta; z=fmaf(current,step,z);
+        value=z*norm; residual=(value-current)+delta; state[lane]=value;
+    }
+}

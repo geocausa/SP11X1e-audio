@@ -197,4 +197,12 @@ float ubig_stage_b_rt_tail_control(UbigStageBRtTailState *state,
                                    uint32_t count,
                                    const float *weights);
 
+/* Exact in-place recursive band-chain smoother used by the remaining
+ * multiband state path. Five boundary coefficients are caller-owned; proven
+ * counts are 9..20, including the deployed 20-band contract. */
+void ubig_stage_b_rt_chain_smooth(float *state,
+                                  uint32_t count,
+                                  uint32_t activity,
+                                  const float boundary_coeff[5]);
+
 #endif
