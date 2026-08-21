@@ -131,3 +131,13 @@ Private direct differential gates using promoted source:
 - filter + overshoot blend: **400,000 complete randomized row calls bit-exact**.
 
 Public synthetic hashes: filter `e9340d3e22dcccec`, wrapper `93ccb87e0494c697`.
+
+## Pair-state smoother and row wrapper
+
+The producer-side two-state smoother is native as `ubig_stage_b_leveler_pair_smooth()`. It selects one caller-owned coefficient from a bounded branch tree driven by the two current states, two targets, a mix control, and three control flags. Its final recurrence preserves the reference's separate old-state products followed by FMAs into both outputs.
+
+Private direct differential gate: **1,000,000 complete calls bit-exact**, comparing both updated float32 states after every call. Public regression hash: `baa3e74c31ed25e6`.
+
+The enclosing `ubig_stage_b_leveler_pair_row()` applies the same primitive once to the scalar pair and independently across the active row lanes. The second target is represented as a flat scalar-plus-row vector while the first target uses the native UbiG Leveler record.
+
+Private direct differential gate against the original row wrapper: **400,000 complete scalar+row calls bit-exact** over variable widths through 20 lanes. Public regression hash: `21c3a30f08a6290e`.

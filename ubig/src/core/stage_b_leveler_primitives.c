@@ -394,3 +394,51 @@ void ubig_stage_b_leveler_filter_blend(const UbigStageBLevelerSymmetricFilter *f
         }
     }
 }
+
+_Static_assert(sizeof(UbigStageBLevelerPairCoefficients)==0x18,"Leveler pair-coefficient size");
+_Static_assert(sizeof(UbigStageBLevelerPairControl)==0x18,"Leveler pair-control size");
+
+void ubig_stage_b_leveler_pair_smooth(const UbigStageBLevelerPairCoefficients *a,
+                                      const UbigStageBLevelerPairControl *b,
+                                      float *state_a,
+                                      float *state_b,
+                                      float target_a,
+                                      float target_b,
+                                      float mix)
+{
+    if(!a||!b||!state_a||!state_b)return;
+    const float almost_one=f32_bits(0x3f7ffffeu);
+    const float threshold=f32_bits(0x3caff1e7u);
+    float coeff;
+    if(*state_a<=target_a && *state_b<=target_b){
+        coeff=b->use_alternate?b->alternate:b->base;
+    }else{
+        const float half_delta=target_a*0.5f-(*state_a)*0.5f;
+        if(half_delta>threshold)coeff=a->positive_far;
+        else if(half_delta>0.0f)coeff=a->positive_near;
+        else if(half_delta<=-threshold && b->negative_mode){
+            if(mix>0.0f){
+                const float remainder=almost_one-mix;
+                const float base=remainder*a->negative_primary;
+                coeff=fmaf(a->negative_mix,mix,base);
+            }else{
+                coeff=b->negative;
+                if(b->compare_enable && target_b<*state_b)coeff=a->negative_primary;
+            }
+        }else{
+            if(mix>0.0f){
+                const float remainder=almost_one-mix;
+                const float base=remainder*a->neutral_primary;
+                coeff=fmaf(a->neutral_mix,mix,base);
+            }else{
+                coeff=b->base;
+                if(b->compare_enable && target_b<*state_b)coeff=a->neutral_primary;
+            }
+        }
+    }
+    const float remainder=almost_one-coeff;
+    const float old_a=(*state_a)*coeff;
+    const float old_b=(*state_b)*coeff;
+    *state_a=fmaf(remainder,target_a,old_a);
+    *state_b=fmaf(remainder,target_b,old_b);
+}

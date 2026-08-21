@@ -33,5 +33,15 @@ int main(void){
         UbigStageBLevelerState rc=rs;rc.primary=rc.secondary=0;rh=h64(rh,&rc,sizeof rc);for(int j=0;j<NR;j++){rh=h64(rh,&rp[j].scalar,8);rh=h64(rh,&rq[j].scalar,8);rh=h64(rh,rpv[j],sizeof rpv[j]);rh=h64(rh,rqv[j],sizeof rqv[j]);}
     }
     if(rh!=0x21e2c995a4ad21d7ULL){fprintf(stderr,"Stage-B leveler reset hash %016llx\n",(unsigned long long)rh);return 3;}
-    puts("PASS Stage-B Leveler/DRC long-memory writer/reset regressions");return 0;
+    rng=0x82e28a55u;uint64_t ph=1469598103934665603ULL;
+    for(unsigned n=0;n<14000;n++){
+        UbigStageBLevelerPairCoefficients pc;float *cp=(float*)&pc;for(int i=0;i<6;i++)cp[i]=fr(-.3f,1.3f);
+        UbigStageBLevelerPairControl ctl={fr(-.3f,1.3f),fr(-.3f,1.3f),fr(-.3f,1.3f),ru()&1u,ru()&1u,ru()&1u};
+        float tav[NW],tb[NW+1],mixv[NW],sav[NW],sbv[NW];for(int i=0;i<NW;i++){tav[i]=fr(-1.2f,1.2f);mixv[i]=fr(-.2f,1.2f);sav[i]=fr(-1.2f,1.2f);sbv[i]=fr(-1.2f,1.2f);}for(int i=0;i<NW+1;i++)tb[i]=fr(-1.2f,1.2f);
+        UbigStageBLevelerRecord ta={tav,fr(-1.2f,1.2f),ru()};float sa=fr(-1.2f,1.2f),sb=fr(-1.2f,1.2f);
+        ubig_stage_b_leveler_pair_row(&pc,tb,&ctl,ru()%(NW+1u),mixv,&ta,&sa,sav,&sb,sbv,fr(-.2f,1.2f));
+        ph=h64(ph,&sa,4);ph=h64(ph,&sb,4);ph=h64(ph,sav,sizeof sav);ph=h64(ph,sbv,sizeof sbv);
+    }
+    if(ph!=0x21c3a30f08a6290eULL){fprintf(stderr,"Stage-B leveler pair-row hash %016llx\n",(unsigned long long)ph);return 4;}
+    puts("PASS Stage-B Leveler/DRC long-memory writer/reset/pair-row regressions");return 0;
 }

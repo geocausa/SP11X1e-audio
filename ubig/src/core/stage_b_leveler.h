@@ -34,6 +34,20 @@ void ubig_stage_b_leveler_reset(UbigStageBLevelerState *state,
                                 uint32_t record_count,
                                 uint32_t width);
 
+/* Apply the exact pair smoother to one scalar target pair and its row values.
+ * target_b_flat stores scalar at [0], followed by count value lanes. */
+void ubig_stage_b_leveler_pair_row(const UbigStageBLevelerPairCoefficients *coefficients,
+                                   const float *target_b_flat,
+                                   const UbigStageBLevelerPairControl *control,
+                                   uint32_t count,
+                                   const float *mix_values,
+                                   const UbigStageBLevelerRecord *target_a,
+                                   float *state_a_scalar,
+                                   float *state_a_values,
+                                   float *state_b_scalar,
+                                   float *state_b_values,
+                                   float scalar_mix);
+
 /* Process one indexed adaptive record and its preceding/related vector records.
  * observed_records supplies read-only instantaneous targets. */
 void ubig_stage_b_leveler_update(UbigStageBLevelerState *state,

@@ -136,4 +136,31 @@ void ubig_stage_b_leveler_filter_blend(const UbigStageBLevelerSymmetricFilter *f
                                        const float *blend,
                                        const float *input,
                                        float *output);
+
+/* Exact two-state coefficient selector/smoother used by the Leveler mixer. */
+typedef struct {
+    float positive_near;
+    float positive_far;
+    float neutral_primary;
+    float negative_primary;
+    float neutral_mix;
+    float negative_mix;
+} UbigStageBLevelerPairCoefficients;
+
+typedef struct {
+    float base;
+    float negative;
+    float alternate;
+    uint32_t negative_mode;
+    uint32_t compare_enable;
+    uint32_t use_alternate;
+} UbigStageBLevelerPairControl;
+
+void ubig_stage_b_leveler_pair_smooth(const UbigStageBLevelerPairCoefficients *coefficients,
+                                      const UbigStageBLevelerPairControl *control,
+                                      float *state_a,
+                                      float *state_b,
+                                      float target_a,
+                                      float target_b,
+                                      float mix);
 #endif

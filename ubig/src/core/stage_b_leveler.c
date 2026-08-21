@@ -31,6 +31,27 @@ void ubig_stage_b_leveler_reset(UbigStageBLevelerState *s,
     ubig_stage_b_leveler_history_init(&s->history);
 }
 
+void ubig_stage_b_leveler_pair_row(const UbigStageBLevelerPairCoefficients *coefficients,
+                                   const float *target_b_flat,
+                                   const UbigStageBLevelerPairControl *control,
+                                   uint32_t count,
+                                   const float *mix_values,
+                                   const UbigStageBLevelerRecord *target_a,
+                                   float *state_a_scalar,
+                                   float *state_a_values,
+                                   float *state_b_scalar,
+                                   float *state_b_values,
+                                   float scalar_mix)
+{
+    if(!coefficients||!target_b_flat||!control||!mix_values||!target_a||
+       !target_a->values||!state_a_scalar||!state_a_values||!state_b_scalar||!state_b_values)return;
+    ubig_stage_b_leveler_pair_smooth(coefficients,control,state_a_scalar,state_b_scalar,
+                                     target_a->scalar,target_b_flat[0],scalar_mix);
+    for(uint32_t i=0;i<count;i++)
+        ubig_stage_b_leveler_pair_smooth(coefficients,control,&state_a_values[i],&state_b_values[i],
+                                         target_a->values[i],target_b_flat[i+1u],mix_values[i]);
+}
+
 static float history_interp(const UbigStageBLevelerHistory *h,float value)
 {
     float x=(value-f32_bits(0x3f11a2f0u))*f32_bits(0x3f0c0000u);
