@@ -46,4 +46,29 @@ void ubig_stage_b_rt_band_log_process(float offset0,
                                       const int32_t *group_to_output,
                                       UbigStageBRtBandRows *output,
                                       UbigStageBRtTelemetryRows *telemetry);
+#define UBIG_STAGE_B_RT_TARGET_PLANES 4u
+#define UBIG_STAGE_B_RT_SP11_ROWS 2u
+#define UBIG_STAGE_B_RT_SP11_BANDS 20u
+#define UBIG_STAGE_B_RT_SP11_BINS 77u
+
+typedef struct {
+    float *plane[UBIG_STAGE_B_RT_TARGET_PLANES];
+} UbigStageBRtTargetObject;
+
+typedef struct {
+    uint32_t object_count;
+    uint32_t bin_count;
+    UbigStageBRtTargetObject *objects;
+} UbigStageBRtTargetSet;
+
+/* Exact meaningful-bin contract of the universal deployed SP11 output shaper.
+ * The reference vector loop touches one additional two-float SIMD padding bin;
+ * UbiG deliberately excludes that non-audio padding from the semantic API. */
+void ubig_stage_b_rt_output_shape(float row_offset,
+                                  float linked_ceiling,
+                                  const UbigStageBRtBandRows *input,
+                                  UbigStageBRtBandRows *output,
+                                  const uint32_t *object_to_row,
+                                  const uint32_t *band_ends,
+                                  UbigStageBRtTargetSet *targets);
 #endif

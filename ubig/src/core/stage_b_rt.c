@@ -82,3 +82,86 @@ void ubig_stage_b_rt_band_log_process(float offset0,
         }
     }
 }
+
+static float stage_b_rt_exp2_horner(float x)
+{
+    const float c0=f32_bits(0x3d714000u);
+    const float c1=f32_bits(0x3e827800u);
+    const float c2=f32_bits(0x3f2fb000u);
+    int32_t exponent=(int32_t)x;
+    if((float)exponent>x)exponent--;
+    const float frac=x-(float)exponent;
+    float p=fmaf(frac,c0,c1);
+    p=fmaf(p,frac,c2);
+    p=fmaf(p,frac,1.0f);
+    uint32_t bits;
+    memcpy(&bits,&p,sizeof bits);
+    bits+=(uint32_t)exponent<<23;
+    memcpy(&p,&bits,sizeof p);
+    return p;
+}
+
+void ubig_stage_b_rt_output_shape(float row_offset,
+                                  float linked_ceiling,
+                                  const UbigStageBRtBandRows *input,
+                                  UbigStageBRtBandRows *output,
+                                  const uint32_t *object_to_row,
+                                  const uint32_t *band_ends,
+                                  UbigStageBRtTargetSet *targets)
+{
+    if(!input||!output||!targets||!input->rows||!output->rows||
+       !object_to_row||!band_ends||!targets->objects)return;
+    if(input->row_count!=UBIG_STAGE_B_RT_SP11_ROWS||output->row_count!=UBIG_STAGE_B_RT_SP11_ROWS||
+       input->band_count!=UBIG_STAGE_B_RT_SP11_BANDS||output->band_count!=UBIG_STAGE_B_RT_SP11_BANDS||
+       targets->object_count!=UBIG_STAGE_B_RT_SP11_ROWS||targets->bin_count!=UBIG_STAGE_B_RT_SP11_BINS)return;
+    for(uint32_t band=0;band<UBIG_STAGE_B_RT_SP11_BANDS;band++){
+        float maximum=input->rows[0][band];
+        if(input->rows[1][band]>maximum)maximum=input->rows[1][band];
+        if(linked_ceiling*0.5f<maximum*0.5f){
+            for(uint32_t row=0;row<UBIG_STAGE_B_RT_SP11_ROWS;row++){
+                float value=(linked_ceiling*0.5f-maximum*0.5f)+output->rows[row][band]*0.5f;
+                value=value+value;
+                if(value<-1.0f)value=-1.0f;
+                if(value>1.0f)value=1.0f;
+                output->rows[row][band]=value;
+            }
+        }
+        output->rows[0][band]+=row_offset;
+        output->rows[1][band]+=row_offset;
+    }
+    for(uint32_t row=0;row<UBIG_STAGE_B_RT_SP11_ROWS;row++){
+        float band_gain[UBIG_STAGE_B_RT_SP11_BANDS];
+        for(uint32_t band=0;band<UBIG_STAGE_B_RT_SP11_BANDS;band++)
+            band_gain[band]=stage_b_rt_exp2_horner(output->rows[row][band]*f32_bits(0x41acbe00u));
+        float gain[UBIG_STAGE_B_RT_SP11_BINS];
+        uint32_t position=0;
+        for(uint32_t band=0;band<UBIG_STAGE_B_RT_SP11_BANDS;band++){
+            uint32_t end=band_ends[band];
+            if(end>UBIG_STAGE_B_RT_SP11_BINS)end=UBIG_STAGE_B_RT_SP11_BINS;
+            if(position<end){
+                for(uint32_t bin=position;bin<end;bin++)gain[bin]=band_gain[band];
+                position=end;
+            }
+        }
+        if(position<UBIG_STAGE_B_RT_SP11_BINS){
+            const float tail=band_gain[UBIG_STAGE_B_RT_SP11_BANDS-1u];
+            for(uint32_t bin=position;bin<UBIG_STAGE_B_RT_SP11_BINS;bin++)gain[bin]=tail;
+        }
+        for(uint32_t object=0;object<targets->object_count;object++){
+            if(object_to_row[object]!=row)continue;
+            UbigStageBRtTargetObject *target=&targets->objects[object];
+            for(uint32_t bin=0;bin<UBIG_STAGE_B_RT_SP11_BINS;bin++){
+                const float g=gain[bin];
+                for(uint32_t plane=0;plane<UBIG_STAGE_B_RT_TARGET_PLANES;plane++){
+                    float *samples=target->plane[plane]+2u*bin;
+                    for(uint32_t component=0;component<2u;component++){
+                        float value=samples[component]*g;
+                        if(value<-1.0f)value=-1.0f;
+                        if(value>1.0f)value=1.0f;
+                        samples[component]=value;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -289,3 +289,7 @@ The deployed profile policy leaves the parent's legacy negative-remap branch dis
 The universal VR band-analysis branch is now native as `ubig_stage_b_rt_complex_energy()` plus `ubig_stage_b_rt_band_log_process()`. The energy reducer matches **1,000,000 randomized calls bit-exact**; the complete row builder matches **200,000 complete randomized calls bit-exact**, including grouping, optional auxiliary vectors, band boundaries, output rows, tail fill and telemetry. Public hashes: `1faa4ac9654c888c` and `2a3371c6a974905c`.
 
 Live call-count instrumentation shows this branch executes on every deployed profile. It is table-free apart from caller-owned band boundaries and reuses the already-proven UbiG fast-log2 arithmetic.
+
+### Stage-B universal RT output-shaper closure
+
+The second universal VR sibling is native as `ubig_stage_b_rt_output_shape()`. Live sweeps confirm an invariant deployed contract of 2 rows × 20 bands, two target objects and 77 meaningful bins on all seven profiles; the optional auxiliary target branch is unused. Promoted UbiG source matches **50,000 complete randomized meaningful-bin calls bit-exact**, covering both band rows and all four interleaved-complex planes. The reference's extra SIMD padding bin is deliberately outside the semantic audio contract. Public hash: `bfd86409042dd234`.
