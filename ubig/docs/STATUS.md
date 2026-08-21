@@ -355,3 +355,7 @@ The table-free scalar hysteresis/activity child beneath the always-active upper 
 ### Stage-B universal RT spectral-accumulator closure
 
 The four-times-per-block spectral accumulator beneath the remaining universal RT controller is native as `ubig_stage_b_rt_spectral_accumulate()`. Live capture fixes the deployed contract at two complex rows, 77 bins and a 16-call window; the semantic implementation also accepts caller-owned period/scale/exponent-offset state. Promoted source matches **500,000 complete randomized calls bit-exact**, including cold-window sentinel initialization, normalized accumulation, terminal export and counter reset. Public lifecycle hash: `48d731d02294bb0f`.
+
+### Stage-B RT segmented variation-history closure
+
+The smallest hot leaf beneath the remaining universal RT scheduler is native as `ubig_stage_b_rt_variation_history_process()`. The deployed object uses eight caller-tuned segments across 77 values and a 32-slot history ring. Promoted source matches **500,000 complete randomized calls bit-exact** with synthetic boundaries/weights and randomized ring state. Public lifecycle hash: `30dc7f36314596d8`.

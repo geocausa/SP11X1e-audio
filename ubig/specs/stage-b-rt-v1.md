@@ -97,3 +97,9 @@ A live snapshot/reference/restore/UbiG replay gate compares the full persistent 
 `ubig_stage_b_rt_spectral_accumulate()` owns the hot two-row spectral-energy accumulator beneath the universal RT controller. The deployed SP11 contract is fixed at two interleaved-complex input rows and 77 bins. Each fresh window clears its energy plane, restores the reference exponent sentinels, and then accumulates normalized complex energy with exact exponent-field scaling. On the configured terminal call it exports square-root magnitudes, a shared binary exponent and a 1/128 aggregate, then resets the counter for the next window.
 
 The public API exposes only semantic state and direct complex rows; the reference descriptor/object layout is absent. Promoted-source private differential: **500,000 complete randomized calls bit-exact**, covering reset, interior and export calls with randomized periods, counters, scales, exponent offsets and prior state. The oracle compares the complete reference state image, all 77 exported floats, count/exponent/aggregate and untouched input rows. Public synthetic lifecycle hash: `48d731d02294bb0f`.
+
+## Segmented variation-history ring
+
+`ubig_stage_b_rt_variation_history_process()` owns the compact no-subcall analysis leaf used by the universal RT scheduler. It computes the exact 1/128-weighted input energy, square-root/exponent normalization and caller-weighted absolute adjacent-sample variation for each segment, then writes the normalized segment metrics into a 32-slot ring. Segment boundaries and weights are explicit caller-owned configuration.
+
+Live SP11 capture shows eight deployed segments over the 77-value input row with a 32-entry history ring. Promoted-source private differential: **500,000 complete randomized calls bit-exact** over valid strictly increasing segment geometries, input widths, caller weights, randomized prior history and all ring indices. Public synthetic lifecycle hash: `30dc7f36314596d8`.

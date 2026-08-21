@@ -1017,3 +1017,43 @@ void ubig_stage_b_rt_spectral_accumulate(UbigStageBRtSpectralAccumulator *s,
     out->exponent=(s->global_shift>>1)-s->exponent_offset-1;
     s->counter=0u;
 }
+
+void ubig_stage_b_rt_variation_history_process(UbigStageBRtVariationHistory *state,
+                                                const UbigStageBRtVariationConfig *config,
+                                                const float *input,
+                                                uint32_t input_count)
+{
+    if(!state||!config||!input||!config->boundaries||!config->weights||
+       config->segment_count>UBIG_STAGE_B_RT_VARIATION_MAX_SEGMENTS)return;
+
+    float energy=0.0f;
+    for(uint32_t i=0;i<input_count;i++){
+        const float square=input[i]*input[i];
+        energy=fmaf(square,f32_bits(0x3c000000u),energy);
+    }
+    const float root=sqrtf(energy*0.5f);
+    const int32_t shift=stage_b_rt_spectral_shift(root);
+    const float normalized=stage_b_rt_pow2_integer(shift)*root;
+    float *dst=state->history[state->index];
+
+    for(uint32_t segment=0;segment<config->segment_count;segment++){
+        float sum=0.0f;
+        uint32_t position=config->boundaries[segment];
+        const uint32_t end=config->boundaries[segment+1u]-1u;
+        while(position<end){
+            float delta=(input[position+1u]-input[position])*config->weights[segment];
+            if(delta<0.0f)delta=-delta;
+            sum+=delta;
+            position++;
+        }
+        if(normalized==0.0f){
+            dst[segment]=0.0f;
+        }else{
+            const float scaled=stage_b_rt_pow2_integer(shift-4)*sum;
+            dst[segment]=(float)((double)scaled/(double)normalized);
+        }
+    }
+
+    state->index++;
+    if(state->index>=UBIG_STAGE_B_RT_VARIATION_HISTORY_DEPTH)state->index=0u;
+}

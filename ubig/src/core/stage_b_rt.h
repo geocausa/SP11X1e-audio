@@ -363,4 +363,26 @@ void ubig_stage_b_rt_spectral_accumulate(UbigStageBRtSpectralAccumulator *state,
                                          const float *row0,
                                          const float *row1,
                                          UbigStageBRtSpectralExport *output);
+
+#define UBIG_STAGE_B_RT_VARIATION_HISTORY_DEPTH 32u
+#define UBIG_STAGE_B_RT_VARIATION_MAX_SEGMENTS 8u
+
+typedef struct {
+    float history[UBIG_STAGE_B_RT_VARIATION_HISTORY_DEPTH][UBIG_STAGE_B_RT_VARIATION_MAX_SEGMENTS];
+    uint32_t index;
+} UbigStageBRtVariationHistory;
+
+typedef struct {
+    uint32_t segment_count;
+    const uint32_t *boundaries;
+    const float *weights;
+} UbigStageBRtVariationConfig;
+
+/* Exact segmented variation-history update used by the universal RT analysis
+ * scheduler. boundaries contains segment_count+1 strictly increasing sample
+ * offsets beginning at zero; weights contains segment_count caller-owned gains. */
+void ubig_stage_b_rt_variation_history_process(UbigStageBRtVariationHistory *state,
+                                                const UbigStageBRtVariationConfig *config,
+                                                const float *input,
+                                                uint32_t input_count);
 #endif
