@@ -494,3 +494,43 @@ float ubig_stage_b_rt_tail_estimate(float previous,
     }
     return fmaf(previous,f32_bits(0x3f7d7000u),weighted*f32_bits(0x3c240000u));
 }
+
+
+float ubig_stage_b_rt_tail_control(UbigStageBRtTailState *state,
+                                   const float *input,
+                                   uint32_t count,
+                                   const float *weights)
+{
+    if(!state||!input||!weights||count<2u||count>UBIG_STAGE_B_RT_MAX_BANDS)return 0.0f;
+    const float estimate=ubig_stage_b_rt_tail_estimate(state->estimate,input,count,weights);
+    const float previous_tail=state->tail_state;
+    state->estimate=estimate;
+
+    const uint32_t start=((count*2u)/3u)-1u;
+    const uint32_t end=count-1u;
+    float tail=0.0f;
+    for(uint32_t lane=start;lane<end;lane++)
+        tail=fmaf(input[lane],f32_bits(0x3e124800u),tail);
+    const float tail_state=fmaf(previous_tail,f32_bits(0x3f7d7000u),
+                                tail*f32_bits(0x3c240000u));
+    state->tail_state=tail_state;
+
+    float estimate_activity;
+    if(estimate<f32_bits(0xbc9d89d9u))estimate_activity=1.0f;
+    else if(estimate<=f32_bits(0x3c9d89d9u)){
+        estimate_activity=fmaf(-estimate,f32_bits(0x3dd00000u),f32_bits(0x3b000000u));
+        estimate_activity=estimate_activity*128.0f;
+        estimate_activity=estimate_activity+estimate_activity;
+    }else estimate_activity=0.0f;
+
+    float tail_activity;
+    if(tail_state<f32_bits(0xbf275d6cu))tail_activity=1.0f;
+    else if(tail_state<=f32_bits(0xbf09d393u)){
+        tail_activity=fmaf(-tail_state,f32_bits(0x3d0aaaabu),f32_bits(0xbc954fdfu));
+        tail_activity=tail_activity*128.0f;
+        tail_activity=tail_activity+tail_activity;
+    }else tail_activity=0.0f;
+
+    const float activity=(tail_activity>estimate_activity)?tail_activity:estimate_activity;
+    return 1.0f-activity;
+}

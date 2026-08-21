@@ -321,3 +321,7 @@ The enclosing multiband state parent above the native window/RMS pair is now `ub
 ### Stage-B multiband tail estimator
 
 The leaf estimator beneath the remaining `0x73428`-family branch is now native and parameterized by caller-owned weights. Promoted source matches **500,000 randomized-weight direct calls bit-exact**. Public hash: `1c3640967eeefa25`.
+
+### Stage-B multiband tail controller
+
+The small stateful parent above the arbitrary-weight tail estimator is now native as `ubig_stage_b_rt_tail_control()`. Promoted-source differential: **500,000 randomized-weight stateful calls bit-exact** across both persistent state floats and return value. The reference weight vector remains outside UbiG; the oracle substitutes arbitrary caller-owned weights. Public lifecycle hash: `1eb825023d674142`.

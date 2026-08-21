@@ -61,3 +61,7 @@ Promoted-source private differential: **500,000 complete randomized calls bit-ex
 ## Parameterized multiband tail estimator
 
 `ubig_stage_b_rt_tail_estimate()` owns the scalar estimator beneath the remaining small multiband branch. It computes the exact tail mean/deviation recurrence and `0.989990234375` persistent blend; the estimator weight vector remains caller-owned. The private differential overwrites the reference image's active weights with randomized synthetic weights before every call and supplies those same weights to UbiG. Promoted-source result: **500,000 randomized-weight calls bit-exact** over counts 2–20. Public synthetic hash: `1c3640967eeefa25`.
+
+## Stateful tail controller
+
+`ubig_stage_b_rt_tail_control()` closes the two-scalar parent above the weighted tail estimator. The controller adds the exact upper-tail accumulator, persistent `0.989990234375` smoothing, and the two fused piecewise activity ramps. Its estimator weights remain caller-owned. The private differential rewrites the reference estimator weights with randomized synthetic values before every call and supplies the same values to UbiG. Promoted-source result: **500,000 randomized-weight stateful calls bit-exact**, including both persistent floats and the return value. Public synthetic lifecycle hash: `1eb825023d674142`.

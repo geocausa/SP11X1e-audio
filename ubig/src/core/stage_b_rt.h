@@ -186,4 +186,15 @@ float ubig_stage_b_rt_tail_estimate(float previous,
                                     uint32_t count,
                                     const float *weights);
 
+typedef struct {
+    float estimate;
+    float tail_state;
+} UbigStageBRtTailState;
+
+/* Exact enclosing two-scalar tail controller. Weights remain caller-owned. */
+float ubig_stage_b_rt_tail_control(UbigStageBRtTailState *state,
+                                   const float *input,
+                                   uint32_t count,
+                                   const float *weights);
+
 #endif
