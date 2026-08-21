@@ -171,3 +171,13 @@ Private gates: every descriptor table matches byte-for-byte; analyzer remains ex
 ## Compressor cold-start closure
 
 The missing Stage-A compressor constructor (`0x180021da8`) is now native. A 100k direct differential covers randomized sample rates, band counts, distributions and storage alignments bit-exact. Public constructor hash: `3fea31461291d74f`.
+
+## UbiG-owned Stage-A tuning and public engine integration
+
+The SP11 48 kHz Dynamic-family Stage-A tuning is now owned by UbiG as `DEVICE_TUNING` in `specs/sp11-stage-a-dynamic-tuning-v1.json`, with generated native tables/configuration from `tools/gen_sp11_stage_a_tuning.py`. The UbiG side of the preserved scheduler comparison no longer loads or references the proprietary PE for configuration.
+
+Public tuning regression hash (internal pointer normalized): `9460671e005c75f9`. The PE-free UbiG-side scheduler remains 3,072 / 3,072 exact against the frozen Dynamic reference output.
+
+`ubig_engine_process()` now runs this exact Stage-A core behind the native 256-frame accumulator instead of the old limiter-only placeholder. Private public-boundary differential result: **3,584 / 3,584 stereo samples bit-exact**, including the outer startup block. The engine remains bit-identical across tested arbitrary host chunk schedules.
+
+Profile-family safety is explicit: Dynamic/Game/Voice/Course/Custom use the currently owned common first-stage family without resetting Stage-A history; Movie/Music request the alternate first-stage family and currently return unsupported rather than silently using the wrong tuning. Golden v32 remains untouched.

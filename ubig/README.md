@@ -24,3 +24,7 @@ The project goal is to replace the two proprietary Windows userspace DSP binarie
 - `ubig-lab` — optional non-production LADSPA adapter for differential testing.
 
 See `docs/ROADMAP.md` and `docs/ARCHITECTURE.md`.
+
+## Current native playback boundary
+
+`ubig_engine_process()` now executes the native SP11 Stage-A path behind the decoded 256-frame accumulator. The preserved Dynamic reference fixture is bit-exact through the public engine boundary. Dynamic, Game, Voice, Course and Custom use the recovered common first-stage family; Movie and Music are temporarily rejected with the unsupported-profile path until their alternate first-stage tuning is recovered. Stage B / second-stage behavior remains future M4 work.

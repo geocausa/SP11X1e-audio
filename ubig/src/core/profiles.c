@@ -1,4 +1,5 @@
 #include "ubig/ubig.h"
+#include "profiles_internal.h"
 #include <ctype.h>
 #include <string.h>
 
@@ -58,4 +59,9 @@ int ubig_profile_parse(const char *name, ubig_profile *out)
         return UBIG_OK;
     }
     return UBIG_EINVAL;
+}
+
+int ubig_profile_uses_alternate_first_stage(ubig_profile p)
+{
+    return p >= 0 && p < UBIG_PROFILE_COUNT ? contracts[p].alternate_first_stage_family : 1;
 }

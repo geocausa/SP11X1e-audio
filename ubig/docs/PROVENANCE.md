@@ -42,3 +42,11 @@ This distinction is especially important for filter topology, smoothing constant
 - `DECODED`: 20-band start/count geometry and two synthesis phase start/count geometries.
 - `DEVICE_TUNING`: 20-band reduction coefficients and synthesis phase coefficients stored as exact float32 tuning values in `specs/sp11-filterbank-tuning-v1.json`.
 - The public generator consumes only the UbiG tuning spec and mathematical formulas; it does not read a proprietary executable.
+
+### SP11 Stage-A Dynamic-family tuning
+
+- `DEVICE_TUNING`: 48 kHz multiband-compressor coefficient groups, distribution, severity weights, applied 20-band base/side rows, mask, stress vector and runtime controls in `specs/sp11-stage-a-dynamic-tuning-v1.json`.
+- `DECODED`: the byte layout and state ownership consumed by the native compressor constructor/workers.
+- `DERIVED`: conversion of stored 1/2080 integer tuning units into exact float32 constants.
+- The public generator `tools/gen_sp11_stage_a_tuning.py` consumes only the UbiG JSON spec; it does not read a proprietary executable.
+- The config image contains one internal pointer to the generated severity array. Public regression hashing normalizes that pointer before comparison.

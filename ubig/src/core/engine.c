@@ -1,6 +1,8 @@
 #include "ubig/ubig.h"
 #include "adapter256.h"
-#include "stage_a_limiter.h"
+#include "profiles_internal.h"
+#include "stage_a_core.h"
+#include "stage_a_sp11_tuning.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -8,26 +10,30 @@ struct ubig_engine {
     ubig_profile profile;
     int32_t custom_eq[UBIG_EQ_BANDS];
     ubig_adapter256 stage_a_adapter;
-    ubig_stage_a_limiter stage_a_limiter;
+    UbigStageACoreConfig stage_a_config;
+    UbigStageACoreState stage_a_core;
     float stage_a_l[UBIG_INTERNAL_BLOCK];
     float stage_a_r[UBIG_INTERNAL_BLOCK];
+    int process_status;
 };
 
-/* M1 partial Stage A. The final limiter is already a proven native block;
-   all upstream Stage-A transforms are still identity placeholders. Keeping the
-   proven limiter in its real position gives the engine the correct 64-frame
-   lookahead behavior inside each 256-frame internal block. */
-static void stage_a_partial(void *opaque,
-                            const float in[UBIG_INTERNAL_BLOCK * UBIG_CHANNELS],
-                            float out[UBIG_INTERNAL_BLOCK * UBIG_CHANNELS])
+static void stage_a_exact(void *opaque,
+                          const float in[UBIG_INTERNAL_BLOCK * UBIG_CHANNELS],
+                          float out[UBIG_INTERNAL_BLOCK * UBIG_CHANNELS])
 {
     ubig_engine *e=(ubig_engine*)opaque;
+    if(e->process_status!=UBIG_OK){memset(out,0,UBIG_INTERNAL_BLOCK*UBIG_CHANNELS*sizeof(float));return;}
     for(unsigned i=0;i<UBIG_INTERNAL_BLOCK;i++){
         e->stage_a_l[i]=in[2u*i];
         e->stage_a_r[i]=in[2u*i+1u];
     }
-    ubig_stage_a_limiter_process_256(&e->stage_a_limiter,0.9998999834060669f,
-                                      e->stage_a_l,e->stage_a_r);
+    if(ubig_stage_a_core_process_256(&e->stage_a_core,&e->stage_a_config,
+                                     e->stage_a_l,e->stage_a_r,
+                                     e->stage_a_l,e->stage_a_r)!=0){
+        e->process_status=UBIG_ESTATE;
+        memset(out,0,UBIG_INTERNAL_BLOCK*UBIG_CHANNELS*sizeof(float));
+        return;
+    }
     for(unsigned i=0;i<UBIG_INTERNAL_BLOCK;i++){
         out[2u*i]=e->stage_a_l[i];
         out[2u*i+1u]=e->stage_a_r[i];
@@ -38,14 +44,17 @@ ubig_engine *ubig_engine_create(const ubig_engine_config *cfg)
 {
     if (!cfg || cfg->abi_version != UBIG_ABI_VERSION ||
         cfg->sample_rate != UBIG_SAMPLE_RATE || cfg->channels != UBIG_CHANNELS ||
-        cfg->initial_profile < 0 || cfg->initial_profile >= UBIG_PROFILE_COUNT)
+        cfg->initial_profile < 0 || cfg->initial_profile >= UBIG_PROFILE_COUNT ||
+        ubig_profile_uses_alternate_first_stage(cfg->initial_profile))
         return NULL;
 
     ubig_engine *e = calloc(1, sizeof(*e));
     if (!e) return NULL;
     e->profile = cfg->initial_profile;
+    e->process_status=UBIG_OK;
     ubig_adapter256_reset(&e->stage_a_adapter);
-    ubig_stage_a_limiter_init(&e->stage_a_limiter);
+    ubig_stage_a_sp11_dynamic_config(&e->stage_a_config);
+    if(ubig_stage_a_core_init(&e->stage_a_core,&e->stage_a_config)!=0){free(e);return NULL;}
     return e;
 }
 
@@ -56,15 +65,17 @@ int ubig_engine_process(ubig_engine *e,
                         float *out_l, float *out_r, size_t frames)
 {
     if (!e || !in_l || !in_r || !out_l || !out_r) return UBIG_EINVAL;
-    ubig_adapter256_process(&e->stage_a_adapter, stage_a_partial, e,
+    e->process_status=UBIG_OK;
+    ubig_adapter256_process(&e->stage_a_adapter, stage_a_exact, e,
                             in_l, in_r, out_l, out_r, frames);
-    return UBIG_OK;
+    return e->process_status;
 }
 
 int ubig_engine_set_profile(ubig_engine *e, ubig_profile p)
 {
     if (!e || p < 0 || p >= UBIG_PROFILE_COUNT) return UBIG_EINVAL;
-    /* M0 contract: changing a profile does not reset adaptive/adapter state. */
+    if(ubig_profile_uses_alternate_first_stage(p))return UBIG_EUNSUPPORTED;
+    /* Same first-stage family: retune is downstream and must not reset Stage A. */
     e->profile = p;
     return UBIG_OK;
 }

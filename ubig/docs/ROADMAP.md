@@ -85,6 +85,8 @@ Preferred target: Movie first, then Music, then the common Dynamic family.
 
 Exit: UbiG first-stage output/state passes the frozen oracle corpus while the second Windows stage remains behind it only in a private lab hybrid.
 
+Current checkpoint: the Dynamic-family 48 kHz Stage-A cold scheduler is native and reaches the public engine API. The frozen Dynamic engine fixture is bit-exact including the outer 256-frame accumulator. Dynamic/Game/Voice/Course/Custom share the currently owned first-stage family; Movie/Music remain blocked on their alternate first-stage tuning and are deliberately rejected rather than approximated.
+
 ### M4 — native UbiG second-stage / VR replacement
 
 Reconstruct only the SP11 stereo speaker behavior actually exercised by the endpoint:

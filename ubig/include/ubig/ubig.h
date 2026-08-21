@@ -42,6 +42,9 @@ typedef struct ubig_engine_config {
     ubig_profile initial_profile;
 } ubig_engine_config;
 
+/* Returns NULL for invalid or currently unsupported configurations. The native
+ * Stage-A path currently owns the Dynamic-family tuning; Movie/Music require
+ * the alternate first-stage family and are rejected until that tuning closes. */
 ubig_engine *ubig_engine_create(const ubig_engine_config *config);
 void ubig_engine_destroy(ubig_engine *engine);
 
@@ -51,6 +54,8 @@ int ubig_engine_process(ubig_engine *engine,
                         float *out_l, float *out_r,
                         size_t frames);
 
+/* Returns UBIG_EUNSUPPORTED when a requested profile requires a first-stage
+ * family that is not yet natively owned. Rejected requests do not reset state. */
 int ubig_engine_set_profile(ubig_engine *engine, ubig_profile profile);
 int ubig_engine_set_custom_eq(ubig_engine *engine, const int32_t values[UBIG_EQ_BANDS]);
 ubig_profile ubig_engine_profile(const ubig_engine *engine);

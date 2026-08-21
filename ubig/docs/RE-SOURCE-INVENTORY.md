@@ -41,6 +41,7 @@ The current private reference bridge uses two ARM64 Windows DSP binaries with ha
 - in-place retune requirement with adaptive-history preservation
 - Custom 20-band target vector and recovered raw range
 - stereo endpoint effective-mode policy separated from raw profile tuning
+- SP11 48 kHz Dynamic-family Stage-A compressor/config rows are now UbiG-owned `DEVICE_TUNING`; the native scheduler no longer needs a PE-side config pointer
 
 ## Next inventory work
 
