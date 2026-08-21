@@ -1,0 +1,70 @@
+{
+  "date": "2026-08-21",
+  "status": "rough_acoustic_parity_estimate_current_windows_vs_golden_v32",
+  "headline": {
+    "engineering_estimate_percent": 98,
+    "plausible_range_percent": [97, 99],
+    "scope": "normal built-in-speaker use; controlled mid/high band is much tighter than deep-bass household-mic uncertainty",
+    "not_a_mathematical_audio_quality_score": true
+  },
+  "golden_v32": {
+    "pa_volume": 24,
+    "active_wsa_rx": 84,
+    "native_vi_cps_feedback": true,
+    "faults_during_current_acoustic_runs": 0
+  },
+  "controlled_two_pass_consumer_matrix": {
+    "source_sha256": "ed983fb77f7f42ff4f593d75c981ad41e26f25eae7fd46d23c49a9867a8558fe",
+    "endpoint_percent": 25,
+    "sp7_raw_gain_db": 0.0,
+    "method": "same-run physical fundamental / digital fundamental; two full passes; common rows require <=1 dB repeat consistency; household impulses therefore fail or are excluded",
+    "windows_sp7_sha256": "4E6D764D009D296DCE4770A06DCACD6AAABF93EAB79C6E91427FA9663FB8C1C7",
+    "linux_sp7_sha256": "D933392E1A86591FD5353B9C20C7448F56833BF22AED416CDEA7376461BF649C",
+    "windows_loopback_sha256": "104e448a89c21348aa90ed76bdd2b94bef24d56b5a4f382f0bc87702da7481df",
+    "linux_digital_monitor_sha256": "ed296e685289addac00e096899de602def9f26053450edf6c950c28528dee7a1",
+    "current_windows_vs_v32_common_repeat_stable": {
+      "315_hz_and_up_mean_absolute_level_law_difference_db": 0.2902,
+      "315_hz_and_up_bias_db": -0.0374,
+      "630_hz_and_up_mean_absolute_level_law_difference_db": 0.1975,
+      "630_hz_and_up_bias_db": 0.0239
+    },
+    "environmental_confidence": {
+      "linux_0p05_0p20_rows_coherent_snr_median_db": 24.8,
+      "linux_0p05_0p20_rows_coherent_snr_min_db": 20.6,
+      "note": "The SP7 fixture is in a normal household, not an anechoic chamber. Repeat gating and coherent tone extraction are treated as stronger evidence than raw broadband RMS."
+    },
+    "historical_correction": "The 2026-08-18 Windows-only ~+7.7 dB median 0.05->0.20 expansion observation does not reproduce on current Windows under the current matched two-pass/repeat-gated acquisition. Treat it as historical state/acquisition-specific, not a stable Windows target."
+  },
+  "seven_nation_army_program_material": {
+    "source": "The White Stripes - Seven Nation Army (Official Music Video).mp3",
+    "source_sha256": "951a65cc63fee17622485c1d94708614005524c7e20f86d3d815327f6bd0e8b3",
+    "excerpt_seconds": [19, 49],
+    "endpoint_percent": 25,
+    "sp7_raw_gain_db": 0.0,
+    "windows_sp7_sha256": "8C9165073E487410AD8667688182694C91DD63F89BE676B1C9722F4E29F837B8",
+    "linux_sp7_sha256": "13F5667A6BA3D713D5978EF814E13868557E5CD73F26E6DB5E8167DBE16C0B04",
+    "windows_loopback_sha256": "812b1bb4dab89b70505616650fe27be87134eeaaa5896bfbaf62d788373b8daf",
+    "linux_digital_monitor_sha256": "3de3ff3f5909ab5235035b918cd67896993074987c49caf6fa402fffc7954491",
+    "digital_band_parity_80_hz_to_10_khz": {
+      "max_absolute_median_1s_band_energy_difference_db": 0.264,
+      "note": "Windows loopback and Linux post-Dolby hardware-sink monitor were aligned to the same decoded MP3 excerpt."
+    },
+    "noise_robust_physical_to_digital_transfer": {
+      "method": "multi-band source fingerprint alignment; 1 s band energies; trim top/bottom 10 percent of windows to suppress household impulses; compare physical/digital transfer per OS",
+      "315_hz_and_up_mean_absolute_difference_db": 0.337,
+      "315_hz_and_up_bias_db": -0.049,
+      "315_hz_and_up_max_absolute_difference_db": 0.560,
+      "630_hz_and_up_mean_absolute_difference_db": 0.281,
+      "630_hz_and_up_max_absolute_difference_db": 0.494,
+      "deep_bass_80_160_hz_difference_db": -2.272,
+      "low_bass_160_315_hz_difference_db": -1.456
+    },
+    "environment_note": "The Windows music take had materially lower fingerprint confidence than the Linux take, consistent with household acoustic contamination. Deep-bass residuals are therefore lower-confidence than 315 Hz+ results and are not used to justify a PA/EQ change."
+  },
+  "decision": {
+    "keep_pa24": true,
+    "remove_pa_ceiling_now": false,
+    "reason": "Current PA24 Golden v32 already overlays current Windows within a few tenths of a dB over the controlled/useful band. Raising PA gain would change a working variable without evidence that it improves parity.",
+    "remaining_acoustic_work": "Repeat deep-bass measurements when the room is quiet and/or with a more controlled acoustic fixture if a sub-315-Hz parity claim is desired."
+  }
+}

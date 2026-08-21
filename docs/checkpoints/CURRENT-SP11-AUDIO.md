@@ -34,6 +34,14 @@ PA ordering removed the early PROTCLK candidate's static-ghost/PA-fault loop.
 Repeated reduced/full-scale playback, >8 h idle and normal v32->v32 reboot gates
 are clean with zero PA faults/recoveries and zero canonical GLINK timeouts.
 
+Current rough acoustic parity estimate is **~98% overall (97–99% practical
+engineering range)**. Current matched Windows/v32 two-pass matrix is ~0.29 dB
+mean absolute from 315 Hz up and ~0.20 dB from 630 Hz up; noise-robust matched
+*Seven Nation Army* transfer is ~0.34 dB / ~0.28 dB respectively. Deep bass
+below 315 Hz remains lower-confidence because the fixed SP7 fixture is in a
+normal household environment, not an anechoic room. PA24 remains the accepted
+production point; there is no current evidence to raise it toward PA31.
+
 ## Exact promoted module identities
 
 - `snd_soc_lpass_wsa_macro = F32C7A03F713D1B20F0BF78`
@@ -101,9 +109,10 @@ are clean with zero PA faults/recoveries and zero canonical GLINK timeouts.
 
 ## Open speaker-quality research
 
-1. **Residual RAW L/R / upper-bass characterization:** use the fixed fixture plus
-   hardened `-ExpectedEndpointDb 0` recorder. Keep subjective/RX84 tuning separate
-   from the now-closed v32 VI/CPS feedback promotion gate.
+1. **Sub-315-Hz confidence / quiet-room repeat:** current 315 Hz+ parity is in the
+   few-tenths-of-a-dB class. Repeat low-bass work only during a quiet household
+   window or with a more controlled fixture; do not tune Golden against isolated
+   car/plane/floor/room events.
 2. Do not add guessed EQ, Bass Enhancer or Virtual Bass; ordinary Windows does
    not use those named paths as the missing speaker-bass mechanism.
 
@@ -113,6 +122,7 @@ are clean with zero PA faults/recoveries and zero canonical GLINK timeouts.
 - `deploy/golden-v32/`
 - `docs/checkpoints/2026-08-21-GOLDEN-V32-PROMOTED.md`
 - `docs/checkpoints/2026-08-21-V32-EXACT-GOLDEN-CANONICAL-FEEDBACK.md`
+- `docs/checkpoints/2026-08-21-V32-WINDOWS-ACOUSTIC-PARITY-ESTIMATE.md`
 - `deploy/golden-v31/` (fallback)
 - `docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md`
 - `docs/findings/2026-08-18-GOLDEN-V31-CKV-DELTA-40HZ-PHYSICAL-GATE.md`

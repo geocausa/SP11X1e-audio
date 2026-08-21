@@ -21,6 +21,19 @@ dual WSA884x amplifiers.
 > [`Golden v32 promotion checkpoint`](docs/checkpoints/2026-08-21-GOLDEN-V32-PROMOTED.md),
 > the [`CURRENT handoff`](docs/checkpoints/CURRENT-SP11-AUDIO.md), and the canonical
 > [`render-parity ledger`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md).
+>
+> **Rough Windows-parity estimate (2026-08-21): ~98% overall, with a practical
+> 97–99% engineering range for normal built-in-speaker use.** This is not a
+> mathematical audio-quality score. In current matched two-pass SP7 RAW tests,
+> Windows vs v32 differs by only ~0.29 dB mean absolute in normalized level law
+> from 315 Hz up (~0.20 dB from 630 Hz up). A matched 30 s *Seven Nation Army*
+> program test gives ~0.34 dB mean absolute physical/digital-transfer difference
+> from 315 Hz up (~0.28 dB from 630 Hz up), while the Windows/Linux digital
+> program drive itself stays within ~0.26 dB by band. The remaining uncertainty
+> is mainly below 315 Hz, where the small speakers and ordinary household
+> measurement environment make cars/planes/floor/room noise disproportionately
+> important. See the
+> [`v32 acoustic-parity estimate`](docs/checkpoints/2026-08-21-V32-WINDOWS-ACOUSTIC-PARITY-ESTIMATE.md).
 
 ## Recommended boot set
 
@@ -76,10 +89,11 @@ rollback baseline.
 The built-in-speaker **VI/CPS feedback dataplane and daily-driver lifecycle are
 GREEN** on Golden v32. Remaining work is non-blocking relative to that closure:
 
-1. **Speaker-quality characterization.** Continue RAW L/R / upper-bass and
-   psychoacoustic comparison only with the fixed SP7 measurement fixture. The
-   RX84 evidence/tooling is now in `main`, but subjective tuning remains separate
-   from the v32 VI/CPS promotion gate.
+1. **Sub-315-Hz acoustic confidence.** Current 315 Hz+ Windows/v32 parity is
+   already in the few-tenths-of-a-dB class. Repeat deep-bass work only in a quiet
+   household window or with a more controlled fixture; do not tune PA/EQ against
+   isolated room, neighbour, car, aircraft or floor impulses. PA24 remains the
+   accepted production point.
 2. **Pristine-source packaging.** Normalize the historical Phase91 platform
    baseline into a clean public replayable patch series; do not imply private
    vendor firmware/ACDB bytes are redistributable.
