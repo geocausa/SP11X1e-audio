@@ -148,3 +148,23 @@ Direct differential results:
 - synthetic public regression hash: `faa50149604c2d48`
 
 Together with the newly native low-band controller, this removes the two major regulator blocks immediately upstream of the central Stage-A compressor. The remaining central Stage-A proprietary islands are now substantially smaller; FFT arithmetic-order parity remains a separately isolated numerical cleanup.
+
+## Exact Stage-A FFT/filterbank closure
+
+The isolated FFT arithmetic-order gap is closed. The previous mathematically equivalent 5x64 implementation has been replaced with the reference-equivalent mixed-radix order: radix-4 entry, radix-4 stride-4, radix-4 stride-16, radix-5 final combine.
+
+All roots are generated mathematically; no vendor table blob is used. Twiddle roots follow the observed six-decimal quantization rule before float32 conversion, and generated arrays privately match the reference tables byte-for-byte.
+
+Direct gates:
+
+- entry radix-4: 100k complete vectors exact
+- stride-4 radix stage: 50k complete vectors exact
+- stride-16 radix stage: 50k complete vectors exact
+- final radix-5: 50k complete vectors exact
+- whole unscaled transform: 128000/128000 float32 outputs exact
+- whole analysis-scaled transform: 128000/128000 float32 outputs exact
+- native analyzer live comparison: 20/20 band outputs and 1280/1280 spectral-state floats exact on each tested block
+- native synthesis fixture: 256/256 PCM samples exact
+- public FFT regression hash: `d040429d49cb7dad`
+
+The Stage-A analysis/synthesis filterbank is therefore no longer an approximate numerical boundary; it is native and bit-exact.
