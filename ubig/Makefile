@@ -132,8 +132,10 @@ $(BUILD)/test_stage_b_leveler_parent: tests/test_stage_b_leveler_parent.c $(BUIL
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -lm -o $@
 $(BUILD)/test_stage_b_rt: tests/test_stage_b_rt.c $(BUILD)/stage_b_rt.o $(BUILD)/stage_a_math.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -lm -o $@
+$(BUILD)/test_stage_b_rt_parent: tests/test_stage_b_rt_parent.c $(BUILD)/stage_b_rt.o $(BUILD)/stage_a_math.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -lm -o $@
 
-check: $(BUILD)/test_adapter256 $(BUILD)/test_engine $(BUILD)/test_control $(BUILD)/test_stage_a_limiter $(BUILD)/test_stage_a_math $(BUILD)/test_stage_a_export $(BUILD)/test_stage_a_fft320 $(BUILD)/test_stage_a_filterbank_sp11 $(BUILD)/test_stage_a_sp11_tuning $(BUILD)/test_stage_a_core_helpers $(BUILD)/test_stage_a_core $(BUILD)/test_stage_a_compressor_primitives $(BUILD)/test_stage_a_compressor_worker $(BUILD)/test_stage_a_compressor $(BUILD)/test_stage_a_compressor_init $(BUILD)/test_stage_a_lowband $(BUILD)/test_stage_a_regulator $(BUILD)/test_stage_b_leveler_primitives $(BUILD)/test_stage_b_leveler $(BUILD)/test_stage_b_leveler_parent $(BUILD)/test_stage_b_rt
+check: $(BUILD)/test_adapter256 $(BUILD)/test_engine $(BUILD)/test_control $(BUILD)/test_stage_a_limiter $(BUILD)/test_stage_a_math $(BUILD)/test_stage_a_export $(BUILD)/test_stage_a_fft320 $(BUILD)/test_stage_a_filterbank_sp11 $(BUILD)/test_stage_a_sp11_tuning $(BUILD)/test_stage_a_core_helpers $(BUILD)/test_stage_a_core $(BUILD)/test_stage_a_compressor_primitives $(BUILD)/test_stage_a_compressor_worker $(BUILD)/test_stage_a_compressor $(BUILD)/test_stage_a_compressor_init $(BUILD)/test_stage_a_lowband $(BUILD)/test_stage_a_regulator $(BUILD)/test_stage_b_leveler_primitives $(BUILD)/test_stage_b_leveler $(BUILD)/test_stage_b_leveler_parent $(BUILD)/test_stage_b_rt $(BUILD)/test_stage_b_rt_parent
 	$(BUILD)/test_adapter256
 	$(BUILD)/test_engine
 	$(BUILD)/test_control
@@ -155,6 +157,7 @@ check: $(BUILD)/test_adapter256 $(BUILD)/test_engine $(BUILD)/test_control $(BUI
 	$(BUILD)/test_stage_b_leveler
 	$(BUILD)/test_stage_b_leveler_parent
 	$(BUILD)/test_stage_b_rt
+	$(BUILD)/test_stage_b_rt_parent
 
 clean:
 	rm -rf $(BUILD)

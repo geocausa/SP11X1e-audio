@@ -81,3 +81,9 @@ Promoted-source private differential: **500,000 complete randomized calls bit-ex
 ## Deployed stereo state blender
 
 `ubig_stage_b_rt_stereo_blend_process()` owns the deployed two-row SP11 state blender beneath the profile-selective multiband parent. UbiG exposes the semantic state directly: counter scale, twenty signed counters, output scale, two twenty-lane adaptive rows, five scalar memories, and the caller-owned history row. The generic second-bank path in the reference routine is outside this fixed stereo endpoint contract. Promoted-source differential: **120,000 complete randomized calls bit-exact**, comparing every semantic persistent-state field, the destination row, and untouched comparison/history inputs across widths 1–20. Public synthetic lifecycle hash: `0df4020ec12288b8`.
+
+## Deployed stereo multiband parent
+
+`ubig_stage_b_rt_multiband_process()` owns the active SP11 two-row / 20-band multiband orchestration above the individually proven RT children. Its mode-selected reference/slope rows, curve records, tail weights, and chain coefficients remain caller-owned tuning; no reference table bytes are embedded by the parent. The optional-control path deliberately reuses row-control slot 0, matching the deployed machine lifetime, and the stereo merge preserves the reference vector-prefix/scalar-tail floating-point order. The final integer telemetry path uses ties-to-even conversion.
+
+A live snapshot/reference/restore/UbiG replay gate compares the full persistent parent arena plus externally referenced ring/history buffers, row outputs, and telemetry. Promoted-source result: **1,920/1,920 complete warm replays bit-exact** across Dynamic, Movie, Voice, Course, and Custom (64 calls x six chunk-pattern instances per profile), with zero mismatches. Music and Game bypass this parent on the deployed endpoint. Public synthetic lifecycle hash: `f0c5c8963e2cc6b4`.

@@ -768,3 +768,129 @@ void ubig_stage_b_rt_stereo_blend_process(float input0,
         destination[lane]=(adjusted*state->output_scale)*4.0f;
     }
 }
+
+void ubig_stage_b_rt_multiband_process(float enable_value,
+                                       float curve_offset,
+                                       UbigStageBRtMultibandState *state,
+                                       uint32_t mode,
+                                       const float *optional_control,
+                                       UbigStageBRtBandRows *rows,
+                                       UbigStageBRtBandRows *work,
+                                       int32_t *telemetry,
+                                       const UbigStageBRtMultibandTuning *tuning)
+{
+    if(!state||!rows||!work||!tuning||!rows->rows||!work->rows||
+       !tuning->curve_fall||!tuning->curve_rise||!tuning->tail_weights||
+       !tuning->chain_coeff||!tuning->gate_reference||!tuning->gate_slope||
+       rows->row_count!=2u||work->row_count!=2u||
+       rows->band_count!=UBIG_STAGE_B_RT_MAX_BANDS||
+       work->band_count!=UBIG_STAGE_B_RT_MAX_BANDS)return;
+
+    ubig_stage_b_rt_zero_band_tail(rows);
+    ubig_stage_b_rt_zero_band_tail(work);
+    state->active_mode=mode;
+    state->enable_value=enable_value;
+
+    ubig_stage_b_rt_curve_smooth(curve_offset,rows->rows,&state->curve_rows[0][0],2u,
+                                 tuning->curve_fall+state->curve_mode,
+                                 tuning->curve_rise+state->curve_mode);
+
+    float scratch[144]={0};
+    uint32_t status[2]={0,0};
+    ubig_stage_b_rt_exp_rows(scratch+104,status,&state->curve_rows[0][0],
+                             UBIG_STAGE_B_RT_MAX_BANDS,2u);
+    float row_control[2]={0.0f,0.0f};
+    ubig_stage_b_rt_correlation_process(state->correlation,2u,scratch+104,row_control);
+
+    if(optional_control){
+        float control=optional_control[0]-0.5f;
+        control=control+control;
+        row_control[0]=control;
+        for(uint32_t row=0;row<2u;row++)
+            ubig_stage_b_rt_mix_smooth(&state->optional_mix,control,
+                                       state->curve_rows[row],state->post_rows[row],
+                                       UBIG_STAGE_B_RT_MAX_BANDS);
+    }else{
+        for(uint32_t row=0;row<2u;row++)
+            ubig_stage_b_rt_window_blend_process(&state->window[row],
+                                                 UBIG_STAGE_B_RT_MAX_BANDS,
+                                                 state->curve_rows[row],
+                                                 state->post_rows[row]);
+    }
+
+    const float control_scale=f32_bits(0x3d9d89d9u);
+    const float control_bias=f32_bits(0x3dec4ec5u);
+    const float curve_floor=f32_bits(0xbf1d89d9u);
+    const float keep_alpha=state->blend_alpha;
+    const float inject_alpha=1.0f-keep_alpha;
+    for(uint32_t row=0;row<2u;row++){
+        const float bias=fmaf(-row_control[row],control_scale,control_bias);
+        for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++){
+            float value=state->post_rows[row][lane]+bias;
+            scratch[64u+row*UBIG_STAGE_B_RT_MAX_BANDS+lane]=value;
+            const float curve=state->curve_rows[row][lane];
+            if(value<curve){
+                const float clamped=(curve>curve_floor)?curve:curve_floor;
+                const float add=clamped*inject_alpha;
+                state->blend_rows[row][lane]=fmaf(state->blend_rows[row][lane],keep_alpha,add);
+            }
+        }
+    }
+
+    const float gate=ubig_stage_b_rt_tail_control(&state->tail,state->post_rows[0],
+                                                   UBIG_STAGE_B_RT_MAX_BANDS,
+                                                   tuning->tail_weights);
+    UbigStageBRtBandGateConfig gate_config={
+        state->gate_decay_step,state->gate_correction_step,tuning->gate_reference,
+        state->gate_keep,state->gate_inject,tuning->gate_slope
+    };
+    ubig_stage_b_rt_band_gate_process(gate,&gate_config,state->gate_rows,2u,
+                                      UBIG_STAGE_B_RT_MAX_BANDS,
+                                      &state->curve_rows[0][0],&state->blend_rows[0][0],
+                                      scratch+64,row_control,scratch,tuning->chain_coeff);
+
+    const float stereo_keep=state->stereo_alpha;
+    const float stereo_inject=1.0f-stereo_keep;
+    uint32_t lane=0u;
+    const uint32_t vector_end=UBIG_STAGE_B_RT_MAX_BANDS&~7u;
+    for(;lane<vector_end;lane++){
+        float mixed=scratch[lane]*0.25f;
+        mixed=fmaf(state->blend_rows[0][lane],0.25f,mixed);
+        if(mixed<f32_bits(0xbe1d89d9u))mixed=f32_bits(0xbe1d89d9u);
+        const float keep=state->stereo_row[lane]*stereo_keep;
+        state->stereo_row[lane]=fmaf(mixed,stereo_inject,keep);
+    }
+    for(;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++){
+        float mixed=state->blend_rows[0][lane]*0.25f;
+        mixed=fmaf(scratch[lane],0.25f,mixed);
+        if(mixed<f32_bits(0xbe1d89d9u))mixed=f32_bits(0xbe1d89d9u);
+        const float add=mixed*stereo_inject;
+        state->stereo_row[lane]=fmaf(state->stereo_row[lane],stereo_keep,add);
+    }
+
+    ubig_stage_b_rt_stereo_blend_process(row_control[0],row_control[1],&state->stereo,
+                                          UBIG_STAGE_B_RT_MAX_BANDS,
+                                          state->curve_rows[0],state->curve_rows[1],
+                                          scratch+64,state->stereo_row,scratch+84);
+    ubig_stage_b_rt_crossfade_process(&state->crossfade,scratch+104,scratch+124,
+                                      (int32_t)status[0],(int32_t)status[1],
+                                      UBIG_STAGE_B_RT_MAX_BANDS,scratch+84,scratch+20);
+
+    if(state->active_mode!=0u||state->enable_value!=0.0f){
+        for(uint32_t row=0;row<2u;row++){
+            for(uint32_t i=0;i<UBIG_STAGE_B_RT_MAX_BANDS;i++){
+                const float v=scratch[row*UBIG_STAGE_B_RT_MAX_BANDS+i];
+                work->rows[row][i]=work->rows[row][i]+v;
+                rows->rows[row][i]=rows->rows[row][i]+v;
+            }
+        }
+        if(telemetry){
+            for(uint32_t i=0;i<UBIG_STAGE_B_RT_MAX_BANDS;i++){
+                long q=lrintf(scratch[i]*2080.0f);
+                if(q<-32768L)q=-32768L;
+                if(q>32767L)q=32767L;
+                telemetry[i]+=(int32_t)q;
+            }
+        }
+    }
+}

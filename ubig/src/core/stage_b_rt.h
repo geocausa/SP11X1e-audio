@@ -274,4 +274,49 @@ void ubig_stage_b_rt_stereo_blend_process(float input0,
                                           const float *input_row,
                                           float *destination);
 
+typedef struct {
+    const UbigStageBRtCurveRecord *curve_fall;
+    const UbigStageBRtCurveRecord *curve_rise;
+    const float *tail_weights;
+    const float *chain_coeff;
+    const float *gate_reference;
+    const float *gate_slope;
+} UbigStageBRtMultibandTuning;
+
+typedef struct {
+    float curve_rows[2][UBIG_STAGE_B_RT_MAX_BANDS];
+    uint32_t curve_mode;
+    UbigStageBRtCorrelationState correlation[2];
+    UbigStageBRtMixSmootherConfig optional_mix;
+    UbigStageBRtWindowBlendState window[2];
+    float post_rows[2][UBIG_STAGE_B_RT_MAX_BANDS];
+    float blend_rows[2][UBIG_STAGE_B_RT_MAX_BANDS];
+    float blend_alpha;
+    UbigStageBRtTailState tail;
+    float gate_decay_step;
+    float gate_correction_step;
+    float gate_keep;
+    float gate_inject;
+    UbigStageBRtBandGateRowState gate_rows[2];
+    float stereo_alpha;
+    float stereo_row[UBIG_STAGE_B_RT_MAX_BANDS];
+    UbigStageBRtStereoBlendState stereo;
+    UbigStageBRtCrossfadeState crossfade;
+    uint32_t active_mode;
+    float enable_value;
+} UbigStageBRtMultibandState;
+
+/* Exact deployed SP11 stereo multiband parent. Tuning vectors/tables are
+ * caller-owned; this API contains only native orchestration and persistent
+ * semantic state. Proven endpoint geometry is two rows x 20 bands. */
+void ubig_stage_b_rt_multiband_process(float enable_value,
+                                       float curve_offset,
+                                       UbigStageBRtMultibandState *state,
+                                       uint32_t mode,
+                                       const float *optional_control,
+                                       UbigStageBRtBandRows *rows,
+                                       UbigStageBRtBandRows *work,
+                                       int32_t *telemetry,
+                                       const UbigStageBRtMultibandTuning *tuning);
+
 #endif
