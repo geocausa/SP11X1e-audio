@@ -94,6 +94,52 @@ void ubig_stage_b_leveler_curve_pipeline(const float curve[17],
                                          float anchor_bias,
                                          float input_bias);
 
+
+#define UBIG_STAGE_B_LEVELER_PRODUCER_ROWS 4u
+#define UBIG_STAGE_B_LEVELER_PRODUCER_WIDTH 20u
+
+typedef struct {
+    float state_b_values[UBIG_STAGE_B_LEVELER_PRODUCER_ROWS][UBIG_STAGE_B_LEVELER_PRODUCER_WIDTH];
+    float state_b_scalar[UBIG_STAGE_B_LEVELER_PRODUCER_ROWS];
+    float state_a_values[UBIG_STAGE_B_LEVELER_PRODUCER_ROWS][UBIG_STAGE_B_LEVELER_PRODUCER_WIDTH];
+    float state_a_scalar[UBIG_STAGE_B_LEVELER_PRODUCER_ROWS];
+    uint32_t negative_mode;
+    uint32_t hold_count;
+} UbigStageBLevelerProducerState;
+
+typedef struct {
+    const UbigStageBLevelerSymmetricFilter *filter;
+    UbigStageBLevelerPairCoefficients pair;
+    float exp_drive;
+    uint32_t hold_limit;
+} UbigStageBLevelerProducerConfig;
+
+typedef struct {
+    float **row_ptrs;
+    UbigStageBLevelerRecord *records;
+} UbigStageBLevelerProducerRows;
+
+/* Exact linked-row Leveler producer. The logarithmic threshold vector remains
+ * explicit caller-owned configuration; no reference-image table is embedded. */
+void ubig_stage_b_leveler_producer_process(UbigStageBLevelerProducerState *state,
+                                           const UbigStageBLevelerProducerConfig *config,
+                                           const UbigStageBLevelerRecord *input_records,
+                                           const UbigStageBLevelerRecord *anchor_records,
+                                           uint32_t update_mode,
+                                           uint32_t width,
+                                           uint32_t index,
+                                           const float curve[17],
+                                           float control0,
+                                           float control1,
+                                           float curve_bias,
+                                           float input_bias,
+                                           const UbigStageBLevelerPairCoefficients *override_coefficients,
+                                           uint32_t reset,
+                                           float *error_rows,
+                                           UbigStageBLevelerProducerRows *output,
+                                           uint32_t preserve_rows,
+                                           const float *log_thresholds);
+
 /* Process one indexed adaptive record and its preceding/related vector records.
  * observed_records supplies read-only instantaneous targets. */
 void ubig_stage_b_leveler_update(UbigStageBLevelerState *state,

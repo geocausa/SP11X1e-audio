@@ -234,3 +234,9 @@ The bounded producer curve subtree is now native. Direct private gates on promot
 Public regression hashes: row ceiling `dc3e6519be11e58d`, curve rows `057492a9dafa8981`, curve bounds `6a59181925d2fe72`, linked ceiling `4c3f1ca5efe06547`, complete pipeline `0689d8092fcb91aa`.
 
 The reference pipeline consumes a 20-entry logarithmic threshold vector. Its mathematical family is understood but its exact offline rounding rule is not yet independently reproduced, so UbiG exposes the thresholds as caller-owned configuration and does not embed the reference table bytes. This keeps the numerical algorithm closed without weakening the clean-room provenance boundary.
+
+### Stage-B Leveler linked-row producer closure
+
+The enclosing linked-row producer is now native as `ubig_stage_b_leveler_producer_process()`. The promoted UbiG implementation matches the original boundary across **120,000 complete randomized calls bit-exact**, including the full `0x2A8` producer state, all external destination rows, and all optional error-shaping rows. Public regression hash: `4b55c0c0974ae190`.
+
+This closes the previously unresolved parent above the native curve pipeline, pair-state row mixer, and symmetric filter/blend children. The logarithmic link-threshold vector remains caller-owned configuration pending independent recovery of its exact offline generator; UbiG does not contain the original table bytes.

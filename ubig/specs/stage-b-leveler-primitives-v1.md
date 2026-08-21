@@ -157,3 +157,13 @@ The remaining bounded curve-processing subtree is native without embedding the r
 `ubig_stage_b_leveler_curve_pipeline()` composes those pieces, including the exact fifth-power activity ramp and final half-mix/clamp stage. The promoted UbiG source matches the original parent boundary on **200,000 complete randomized calls bit-exact**. Public regression hash: `0689d8092fcb91aa`.
 
 The threshold vector is `DERIVED/UNRESOLVED-DATA` rather than algorithm code: its entries follow a scaled logarithmic family, but its exact offline rounding/generation rule has not yet been independently reproduced. UbiG therefore does not contain the original vector bytes.
+
+## Complete linked-row producer
+
+The enclosing linked-row producer is native as `ubig_stage_b_leveler_producer_process()`. Its persistent state is a fixed `0x2A8` object with two 4x20 value planes, two four-scalar planes, and the recovered gate/hold fields at the tail. It composes only already-owned UbiG children: curve pipeline, pair-row smoothing, and symmetric filter/blend.
+
+The exact descending-row lifecycle is preserved: reset geometry depends on the indexed row; pair targets advance with the current row; external destination rows use the unshifted row index; and the optional error-shaping path compares each lower-row filtered lane against the corresponding lane retained from the indexed filter result. Its error gate is the exact float32 literal `0x3ccccccb`, independent of the outer control scalar.
+
+The logarithmic link-threshold vector remains an explicit caller-owned input. No reference threshold bytes are embedded in the implementation.
+
+Private direct differential gate using the promoted UbiG source: **120,000 complete randomized parent calls bit-exact**, comparing the complete `0x2A8` persistent state, every external destination row, and every error-shaping row after every call. Public synthetic lifecycle hash: `4b55c0c0974ae190`.

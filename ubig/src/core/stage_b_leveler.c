@@ -219,6 +219,146 @@ void ubig_stage_b_leveler_curve_pipeline(const float curve[17],
     }
 }
 
+_Static_assert(sizeof(UbigStageBLevelerProducerState)==0x2a8,"Leveler producer-state size");
+_Static_assert(offsetof(UbigStageBLevelerProducerState,state_b_scalar)==0x140,"Leveler producer b scalar");
+_Static_assert(offsetof(UbigStageBLevelerProducerState,state_a_values)==0x150,"Leveler producer a values");
+_Static_assert(offsetof(UbigStageBLevelerProducerState,state_a_scalar)==0x290,"Leveler producer a scalar");
+_Static_assert(offsetof(UbigStageBLevelerProducerState,negative_mode)==0x2a0,"Leveler producer mode");
+_Static_assert(sizeof(UbigStageBLevelerProducerConfig)==0x28,"Leveler producer-config size");
+
+static float leveler_producer_exp2(float x)
+{
+    const float fl=floorf(x);
+    const float frac=x-fl;
+    const int32_t exponent=(int32_t)fl;
+    float p=fmaf(frac,f32_bits(0x3d714000u),f32_bits(0x3e827800u));
+    p=fmaf(p,frac,f32_bits(0x3f2fb000u));
+    p=fmaf(p,frac,1.0f);
+    return p*f32_bits((uint32_t)(exponent+127)<<23);
+}
+
+static float leveler_producer_error_mix(float delta)
+{
+    const float almost_one=f32_bits(0x3f7ffffeu);
+    const float threshold=f32_bits(0x3d2ff1e5u);
+    if(threshold<=delta)return almost_one;
+    if(delta>0.0f){
+        const float t=delta*f32_bits(0x41ba3d77u);
+        return t*t;
+    }
+    return 0.0f;
+}
+
+static float leveler_abs_select(float x)
+{
+    return (-x>x)?-x:x;
+}
+
+void ubig_stage_b_leveler_producer_process(UbigStageBLevelerProducerState *s,
+                                           const UbigStageBLevelerProducerConfig *c,
+                                           const UbigStageBLevelerRecord *input,
+                                           const UbigStageBLevelerRecord *anchors,
+                                           uint32_t update_mode,
+                                           uint32_t width,
+                                           uint32_t index,
+                                           const float curve[17],
+                                           float control0,
+                                           float control1,
+                                           float curve_bias,
+                                           float input_bias,
+                                           const UbigStageBLevelerPairCoefficients *override_coefficients,
+                                           uint32_t reset,
+                                           float *error_rows,
+                                           UbigStageBLevelerProducerRows *out,
+                                           uint32_t preserve_rows,
+                                           const float *log_thresholds)
+{
+    if(!s||!c||!c->filter||!input||!anchors||!curve||!out||!out->records||!log_thresholds)return;
+    if(index>=UBIG_STAGE_B_LEVELER_PRODUCER_ROWS||width>UBIG_STAGE_B_LEVELER_PRODUCER_WIDTH)return;
+    const float almost_one=f32_bits(0x3f7ffffeu);
+    if(reset){
+        const uint32_t count=index+(index>1u);
+        for(uint32_t r=0;r<count;r++){
+            s->state_b_scalar[r]=0.0f;
+            s->state_a_scalar[r]=-almost_one;
+            for(uint32_t k=0;k<width;k++){
+                s->state_b_values[r][k]=0.0f;
+                s->state_a_values[r][k]=-almost_one;
+            }
+        }
+    }
+
+    float pipeline[UBIG_STAGE_B_LEVELER_PRODUCER_ROWS*21u]={0};
+    ubig_stage_b_leveler_curve_pipeline(curve,anchors,out->records,s->state_a_scalar,
+                                        log_thresholds,width,index,pipeline,preserve_rows,
+                                        curve_bias,input_bias);
+
+    const UbigStageBLevelerPairCoefficients *pair=override_coefficients?override_coefficients:&c->pair;
+    float remainder=almost_one-control0;
+    float denominator=remainder*0.5f;
+    denominator=fmaf(control0,f32_bits(0x3c23d70au),denominator);
+    const float ratio=(float)((double)c->exp_drive/(double)denominator);
+    UbigStageBLevelerPairControl control;
+    remainder=almost_one-control1;
+    control.base=fmaf(pair->neutral_primary,control1,remainder);
+    control.negative=fmaf(pair->negative_primary,control1,remainder);
+    control.alternate=leveler_producer_exp2(ratio);
+
+    if(update_mode){
+        float delta=out->records[index].scalar*0.5f;
+        delta=fmaf(-s->state_a_scalar[index],0.5f,delta);
+        s->negative_mode=(f32_bits(0xbcaff1e7u)>=delta);
+    }
+    control.negative_mode=s->negative_mode;
+    const float active=f32_bits(0x3f2b2b71u);
+    if(out->records[index].scalar<active){
+        uint32_t hold=s->hold_count+1u;
+        if(hold>c->hold_limit)hold=c->hold_limit;
+        s->hold_count=hold;
+    }else{
+        s->hold_count=0u;
+    }
+    control.compare_enable=(s->hold_count>=c->hold_limit);
+    control.use_alternate=(s->state_a_scalar[index]<=out->records[index].scalar &&
+                           s->state_b_scalar[index]<=pipeline[index*21u] &&
+                           s->state_a_scalar[index]<active);
+
+    float mix[UBIG_STAGE_B_LEVELER_PRODUCER_WIDTH];
+    float indexed_filtered[UBIG_STAGE_B_LEVELER_PRODUCER_WIDTH];
+    float filtered[UBIG_STAGE_B_LEVELER_PRODUCER_WIDTH];
+    for(int32_t rr=(int32_t)index;rr>=0;--rr){
+        const uint32_t r=(uint32_t)rr;
+        const float scalar_mix=leveler_producer_error_mix(s->state_a_scalar[r]-input[r].scalar);
+        for(uint32_t k=0;k<width;k++){
+            const float lane_mix=leveler_producer_error_mix(s->state_a_values[r][k]-input[r].values[k]);
+            mix[k]=(scalar_mix<lane_mix)?scalar_mix:lane_mix;
+        }
+        ubig_stage_b_leveler_pair_row(pair,pipeline+r*21u,&control,width,mix,&out->records[r],
+                                      &s->state_a_scalar[r],s->state_a_values[r],
+                                      &s->state_b_scalar[r],s->state_b_values[r],scalar_mix);
+        ubig_stage_b_leveler_filter_blend(c->filter,width,mix,s->state_b_values[r],filtered);
+        if(r==index&&width)memcpy(indexed_filtered,filtered,width*sizeof(float));
+        if(out->row_ptrs&&out->row_ptrs[r])
+            for(uint32_t k=0;k<width;k++)
+                out->row_ptrs[r][k]=fmaf(filtered[k],0.25f,out->row_ptrs[r][k]);
+        if(error_rows&&index>1u&&r<index){
+            for(uint32_t k=0;k<width;k++){
+                const float d0=filtered[k]-indexed_filtered[k];
+                const float d1=filtered[k]-curve_bias;
+                const float sum=leveler_abs_select(d0)+leveler_abs_select(d1);
+                float value=0.0f;
+                if(f32_bits(0x3ccccccbu)>sum){
+                    float t=sum*32.0f;
+                    t=fmaf(sum,8.0f,t);
+                    value=almost_one-t;
+                    value*=value;
+                }
+                error_rows[r*UBIG_STAGE_B_LEVELER_PRODUCER_WIDTH+k]=value;
+            }
+        }
+    }
+}
+
 static float history_interp(const UbigStageBLevelerHistory *h,float value)
 {
     float x=(value-f32_bits(0x3f11a2f0u))*f32_bits(0x3f0c0000u);
