@@ -191,3 +191,10 @@ The former Movie/Music Stage-A support block is closed by direct behavioral evid
 ## Stage-B Volume-Leveler/DRC native start
 
 Stage B has its first directly proven native primitive. The coefficient-triplet mapper beneath the long-memory Volume-Leveler/DRC controller is implemented as `ubig_stage_b_leveler_coeff_triplet()`. The promoted UbiG source matches the original ARM64 boundary on **300,000 randomized calls / 900,000 float32 outputs bit-exact**. Public regression hash: `bb435c3d5066b2bc`. The next target is the enclosing long-memory writer whose live state was localized at the SP11 VR adaptive-controller boundary.
+
+
+## Stage-B Leveler/DRC long-memory writer closure
+
+The active long-memory writer beneath the SP11 Volume-Leveler/DRC path is now native as `ubig_stage_b_leveler_update()`. Its exact children are also native: the coefficient triplet mapper and the 80-slot / 51-bin `0x5E8` adaptive-history accumulator. Linux ARM64 `sinf/cosf` were directly verified bit-exact against the reference runtime on 500,000 randomized inputs each over the writer's actual argument range.
+
+Using the recovered live 48 kHz controller configuration, the promoted UbiG writer matches the original ARM64 boundary on **100,000 consecutive complete calls bit-exact**, comparing the canonicalized `0x608` parent/history state, all primary/secondary record scalars and all 20-band vector lanes after every call. Public history hash: `2244caafb36558e1`; public writer hash: `3e549513f21d2250`.

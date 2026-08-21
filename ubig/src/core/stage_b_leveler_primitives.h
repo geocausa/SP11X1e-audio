@@ -13,4 +13,24 @@ void ubig_stage_b_leveler_coeff_triplet(uint32_t mode,
                                         float *out_a,
                                         float *out_b,
                                         float *out_adaptive);
+/* Exact 80-slot adaptive-history accumulator used by the Leveler/DRC writer. */
+typedef struct {
+    float bins[51];
+    float total;
+    uint32_t count;
+    uint32_t ring_bin[80];
+    float ring_lo[80];
+    float ring_hi[80];
+    float ring_total[80];
+    uint32_t ring_pos;
+    float phase;
+    uint32_t reset_max;
+    float max_a;
+    float max_b;
+} UbigStageBLevelerHistory;
+
+void ubig_stage_b_leveler_history_update(UbigStageBLevelerHistory *state,
+                                         float step,
+                                         float value_a,
+                                         float value_b);
 #endif
