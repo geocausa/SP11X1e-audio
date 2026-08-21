@@ -293,3 +293,7 @@ Live call-count instrumentation shows this branch executes on every deployed pro
 ### Stage-B universal RT output-shaper closure
 
 The second universal VR sibling is native as `ubig_stage_b_rt_output_shape()`. Live sweeps confirm an invariant deployed contract of 2 rows × 20 bands, two target objects and 77 meaningful bins on all seven profiles; the optional auxiliary target branch is unused. Promoted UbiG source matches **50,000 complete randomized meaningful-bin calls bit-exact**, covering both band rows and all four interleaved-complex planes. The reference's extra SIMD padding bin is deliberately outside the semantic audio contract. Public hash: `bfd86409042dd234`.
+
+### Stage-B multiband RT leaf closure
+
+Two clean children beneath the remaining profile-selective multiband block are now native. `ubig_stage_b_rt_zero_band_tail()` matches **500,000 complete randomized calls bit-exact**; `ubig_stage_b_rt_mix_smooth()` matches **1,000,000 complete randomized calls bit-exact**, preserving the reference's distinct vector-prefix/scalar-tail FMA ordering. Public hashes: `c4208990b56b0825`, `5709069143fee731`.

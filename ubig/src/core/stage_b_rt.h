@@ -71,4 +71,20 @@ void ubig_stage_b_rt_output_shape(float row_offset,
                                   const uint32_t *object_to_row,
                                   const uint32_t *band_ends,
                                   UbigStageBRtTargetSet *targets);
+typedef struct {
+    float bias;
+    float control_scale;
+} UbigStageBRtMixSmootherConfig;
+
+/* Exact 20-lane tail clear used by the multiband sibling setup. */
+void ubig_stage_b_rt_zero_band_tail(UbigStageBRtBandRows *rows);
+
+/* Exact stateful source/destination smoother. The 8-lane vector prefix and
+ * scalar tail preserve their distinct reference FMA ordering. */
+void ubig_stage_b_rt_mix_smooth(const UbigStageBRtMixSmootherConfig *config,
+                                float control,
+                                const float *source,
+                                float *state,
+                                uint32_t count);
+
 #endif

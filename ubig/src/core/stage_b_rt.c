@@ -165,3 +165,48 @@ void ubig_stage_b_rt_output_shape(float row_offset,
         }
     }
 }
+
+void ubig_stage_b_rt_zero_band_tail(UbigStageBRtBandRows *rows)
+{
+    if(!rows||!rows->rows||rows->band_count>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    for(uint32_t r=0;r<rows->row_count;r++)
+        for(uint32_t band=rows->band_count;band<UBIG_STAGE_B_RT_MAX_BANDS;band++)
+            rows->rows[r][band]=0.0f;
+}
+
+void ubig_stage_b_rt_mix_smooth(const UbigStageBRtMixSmootherConfig *config,
+                                float control,
+                                const float *source,
+                                float *state,
+                                uint32_t count)
+{
+    if(!config||!source||!state)return;
+    const float mix=fmaf(config->control_scale,control,config->bias);
+    const float keep=1.0f-mix;
+    const float floor=f32_bits(0xbf313b14u);
+    const uint32_t vector_prefix=count&~7u;
+    for(uint32_t i=0;i<vector_prefix;i++){
+        float value;
+        if(state[i]>source[i]){
+            const float base=source[i]*0.1f;
+            value=fmaf(state[i],0.9f,base);
+        }else{
+            const float base=state[i]*mix;
+            value=fmaf(source[i],keep,base);
+        }
+        if(value<floor)value=floor;
+        state[i]=value;
+    }
+    for(uint32_t i=vector_prefix;i<count;i++){
+        float value;
+        if(state[i]>source[i]){
+            const float base=state[i]*0.9f;
+            value=fmaf(source[i],0.1f,base);
+        }else{
+            const float base=source[i]*keep;
+            value=fmaf(state[i],mix,base);
+        }
+        if(value<floor)value=floor;
+        state[i]=value;
+    }
+}
