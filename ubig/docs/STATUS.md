@@ -268,3 +268,7 @@ The bounded producer tail shaper is native as `ubig_stage_b_leveler_tail_shape()
 ### Stage-B residual/dual-lookup worker closure
 
 The remaining two local numerical workers beneath the Leveler matrix parent are native. `ubig_stage_b_leveler_link_residual()` passes **400,000 complete randomized calls bit-exact** and `ubig_stage_b_leveler_dual_lookup()` passes **500,000 complete randomized calls bit-exact**. The latter keeps both lookup families caller-owned. Public hashes: `31fd44aad3526b71`, `869a5eefb8cabd5e`.
+
+### Stage-B stereo matrix parent closure
+
+The Leveler matrix parent is native as `ubig_stage_b_leveler_matrix_process()`. On the actual SP11 0-2-row / 20-stride contract, promoted source passes **120,000 complete randomized calls bit-exact**, including transition/copy modes, variable active widths, both scalar biases, the <=-1 fill branch, all state rows and the full destination matrix. Lookup data remain caller-owned. Public hash: `70e71bed8f17f4a2`.

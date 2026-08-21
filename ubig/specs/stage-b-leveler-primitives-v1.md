@@ -209,3 +209,9 @@ The SP11 20-lane path consumes eight tail coefficients. Those coefficients remai
 `ubig_stage_b_leveler_link_residual()` soft-links fixed-stride source rows with the already-proven exact 2/13 soft-max, converts the result to `min(0, compare-linked)`, then FMA-accumulates that residual through caller-owned per-row weights. Promoted-source differential: **400,000 complete randomized calls bit-exact**. Public hash: `31fd44aad3526b71`.
 
 `ubig_stage_b_leveler_dual_lookup()` composes the native seven-fixed-plus-tail mapper with a second caller-owned eight-group piecewise-linear family. It preserves the exact overshoot-residual path and final two-add clamp ordering. Neither table family is embedded in UbiG. Promoted-source differential: **500,000 complete randomized calls bit-exact**. Public synthetic-data hash: `869a5eefb8cabd5e`.
+
+## SP11 stereo matrix parent
+
+`ubig_stage_b_leveler_matrix_process()` closes the parent above row transition, dual lookup and linked-residual accumulation. The proven SP11 contract is 0-2 linked rows with a fixed 20-float row stride and active width 0-20. Each state row is transitioned, dual-mapped, and emitted as `dual-state`; for two rows the transitioned states are soft-linked, one extra secondary row is dual-mapped, and the residual is accumulated through caller-owned weights. A lookup control at or below -1 fills all `row_count*20` destination lanes with exact -1.
+
+Both lookup families remain explicit caller-owned configuration. Promoted-source private differential: **120,000 complete randomized calls bit-exact**, comparing all state rows, untouched input/secondary/weight data, and the complete destination matrix. Public synthetic-data lifecycle hash: `70e71bed8f17f4a2`.

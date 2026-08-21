@@ -220,6 +220,22 @@ void ubig_stage_b_leveler_dual_lookup(const float *lookup_input,
                                       const UbigStageBLevelerLookupTables *lookup_tables,
                                       const UbigStageBLevelerInverseLookupTables *inverse_tables);
 
+/* Exact SP11 stereo matrix parent around row transition, dual lookup and
+ * linked residual accumulation. Both lookup families remain caller-owned. */
+void ubig_stage_b_leveler_matrix_process(float *const *state_rows,
+                                         const UbigStageBLevelerTransitionRecord *transition,
+                                         const float *const *input_rows,
+                                         const float *const *secondary_rows,
+                                         const float *weight_rows,
+                                         uint32_t row_count,
+                                         uint32_t width,
+                                         uint32_t copy_only,
+                                         float initial_bias,
+                                         float lookup_bias,
+                                         float *destination_rows,
+                                         const UbigStageBLevelerLookupTables *lookup_tables,
+                                         const UbigStageBLevelerInverseLookupTables *inverse_tables);
+
 /* Exact producer tail shaping: first 12 lanes zero, remaining lanes use
  * caller-owned tail coefficients. The SP11 contract uses eight tail entries. */
 void ubig_stage_b_leveler_tail_shape(uint32_t count,

@@ -807,6 +807,50 @@ void ubig_stage_b_leveler_dual_lookup(const float *lookup_input,
     }
 }
 
+void ubig_stage_b_leveler_matrix_process(float *const *state_rows,
+                                         const UbigStageBLevelerTransitionRecord *transition,
+                                         const float *const *input_rows,
+                                         const float *const *secondary_rows,
+                                         const float *weight_rows,
+                                         uint32_t row_count,
+                                         uint32_t width,
+                                         uint32_t copy_only,
+                                         float initial_bias,
+                                         float lookup_bias,
+                                         float *destination_rows,
+                                         const UbigStageBLevelerLookupTables *lookup_tables,
+                                         const UbigStageBLevelerInverseLookupTables *inverse_tables)
+{
+    if(!state_rows||!transition||!input_rows||!secondary_rows||!weight_rows||
+       !destination_rows||!lookup_tables||!inverse_tables||row_count>2u)return;
+    if(lookup_bias<=-1.0f){
+        for(uint32_t i=0;i<row_count*20u;i++)destination_rows[i]=-1.0f;
+        return;
+    }
+    float dual[2][20];
+    float linked[20];
+    float extra[20];
+    for(uint32_t r=0;r<row_count;r++){
+        float *state=state_rows[r];
+        ubig_stage_b_leveler_transition_row(input_rows[r],width,copy_only,0u,
+                                             transition,transition,state,0.0f);
+        ubig_stage_b_leveler_dual_lookup(state,secondary_rows[r],width,dual[r],
+                                         lookup_bias,initial_bias,lookup_tables,inverse_tables);
+        for(uint32_t k=0;k<width;k++)
+            destination_rows[r*20u+k]=dual[r][k]-state[k];
+        if(row_count>1u){
+            if(r==0u)memcpy(linked,state,width*sizeof(float));
+            else for(uint32_t k=0;k<width;k++)linked[k]=leveler_soft_max(state[k],linked[k]);
+        }
+    }
+    if(row_count>1u){
+        ubig_stage_b_leveler_dual_lookup(linked,secondary_rows[row_count],width,extra,
+                                         lookup_bias,initial_bias,lookup_tables,inverse_tables);
+        ubig_stage_b_leveler_link_residual(row_count,width,&dual[0][0],extra,
+                                           weight_rows,destination_rows);
+    }
+}
+
 void ubig_stage_b_leveler_tail_shape(uint32_t count,
                                      float *output,
                                      float control,
