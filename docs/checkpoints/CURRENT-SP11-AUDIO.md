@@ -2,51 +2,61 @@
 
 **Read this first when resuming the project.**
 
-Date: 2026-08-18
-Current promoted Golden: **v31**
+Date: 2026-08-21
+Current promoted Golden: **v32**
 Repository: `geocausa/SP11X1e-audio`
-Canonical branch after promotion: `main`
-Development lineage: `agent/psycho-bass-20260818` (active RX84 candidate; not yet merged to main)
+Canonical branch: `main`
+Development lineage `agent/psycho-bass-20260818` has been fast-forwarded into `main` through the v32 promotion history.
 
 ## Machine / boot state
 
-- SP11 currently runs `7.1.5-sp11-render-parity-v4+` with marker
-  `sp11_entry=7.1.5-sp11-golden-v31-ckv-delta`.
-- Saved GRUB default: `sp11-audio-golden-v31`.
-- Rollback: `sp11-audio-golden-v28`.
-- Rescue: `sp11-audio-cps-v3`.
-- Only those three SP11 audio GRUB entries/boot trees should be active.
-- Do not deliberately reboot without telling the operator immediately beforehand.
+- SP11 runs `7.1.5-sp11-render-parity-v4+` with marker
+  `sp11_entry=7.1.5-sp11-v32-feedback-exact-golden`.
+- Saved GRUB default: `sp11-audio-v32-feedback-exact-golden`.
+- Immediate fixed-initrd rollback: `sp11-audio-golden-v31`.
+- Older comparison/rescue: `sp11-audio-golden-v28`, `sp11-audio-cps-v3`.
+- Canonical topology SHA256:
+  `1b0c7217fc67bb11da002b06563dd8c411b0f0e35ac40778bff3d65093061c9d`.
+- Read-only identity guard: `sp11-audio-v32-verify.service`.
+- Forced TAP2/TAP3 boot topologies are diagnostic-only; they can stall ADSP/GLINK
+  teardown during reboot and are no longer required to prove feedback.
 
-## v31 + current RX84 candidate in one paragraph
+## Golden v32 in one paragraph
 
-v31 = Golden v28 sound/static/lifecycle baseline + v30 exact Windows final
-VOL_CTRL mute and DP1/DP3 transport completion + Qualcomm prior/new GainStep CKV
-delta semantics. The CKV correction removed the reproducible 40-Hz Volume-Up
-microtransient from `2.7855e-3` HP500 p95 on v30 to the native-Windows/room-floor
-class. The current userspace-only psycho-bass candidate adds one directly
-Windows-proven producer policy: after protected graph handover, WSA RX0/RX1 move
-from the old Linux RX81/-3 dB safety state to RX84/0 dB; graph idle restores
-RX81. Objective bass-transfer, 40-Hz, exact-mute, seek and lifecycle gates are
-GREEN. The RX84 policy is live on this machine but is **not yet merged into
-Golden/main** pending operator normal-listening/bass judgment.
+v32 = Golden v31 sound/static/lifecycle/mute/volume/CKV baseline plus the closed
+Windows feedback lifecycle. The WSA macro enables protection TX clocks only
+after **both** WSA8845 PAs are active; SoundWire feedback master ports 10/11/13
+use Windows active `Offset2=0`; CPS packetization is woken with controller
+`0x105c=0x0005000f` plus DP13 `PCM_CTRL 0x1d54=3`. With the normal canonical
+topology, native Linux now emits VI TAP2 at 8 kHz / 640-byte payload and CPS
+TAP3 at 24 kHz / 1920-byte payload at Windows-range magnitudes. The corrected
+PA ordering removed the early PROTCLK candidate's static-ghost/PA-fault loop.
+Repeated reduced/full-scale playback, >8 h idle and normal v32->v32 reboot gates
+are clean with zero PA faults/recoveries and zero canonical GLINK timeouts.
+
+## Exact promoted module identities
+
+- `snd_soc_lpass_wsa_macro = F32C7A03F713D1B20F0BF78`
+- `snd_soc_wsa884x = 5859E70AFD0A1D420E8ADD4`
+- `snd_soc_x1e80100 = 13326073E27DFA035180C56`
+- `soundwire_qcom = D008A3D6B585C11BE023992`
+- `snd_q6apm = 687B16CF9C43B43E90C0746`
 
 ## Exact important runtime semantics
 
 - endpoint mute: VOL_CTRL IID `0x4a63`, PID `0x08001039`; DSP is primary,
   hardware sink mute is fail-closed fallback only;
 - final volume/GainStep ordering: Windows L-new/R-old then both-new;
-- GainStep OOB calibration is sent only for prior-CKV -> new-CKV changed keys:
-  same row `vol->vol`, UP row crossing `cal->vol`, DOWN `vol->cal`;
+- GainStep OOB calibration is sent only for prior-CKV -> new-CKV changed keys;
 - GNOME media-key step is 2%, matching Windows;
 - DP1/DAC BlockCtrl3 `0x00`, DP2/COMP OffsetCtrl2 `0x07`,
   DP3/BOOST OffsetCtrl2 `0x1f`;
 - WSA resident lifecycle remains exact 10-write START + 6-write STOP after idle;
-- original SP11 Dolby host stays Movie, with VLLDP postgain frozen per generation;
-  do not rebuild Dolby on ordinary pause/volume changes;
-- current candidate WSA producer policy: RX81 while graph idle, one RX84 write
-  after first successful protected handover, no repeated RX write on ordinary
-  volume/mute, then RX81 again on graph idle.
+- WSA protection TX clock enable occurs only after both amp PA-up events;
+- feedback SoundWire Offset2 is zero while ports 10/11/13 are active;
+- CPS wake/packetization uses `0x105c=0x0005000f` and DP13 `0x1d54=3`;
+- canonical VI/CPS source framing is 8 kHz/640 B and 24 kHz/1920 B respectively;
+- original SP11 Dolby host stays Movie, with VLLDP postgain frozen per generation.
 
 ## Physical measurement rules
 
@@ -67,6 +77,8 @@ Golden/main** pending operator normal-listening/bass judgment.
 ## Proven / GREEN
 
 - protected AudioReach render/SP/SPVI/CPS graph;
+- native canonical VI TAP2 and CPS TAP3 feedback dataplanes;
+- Windows PA-before-protection-clock ordering with zero PA fault/recovery final gates;
 - exact effective Windows CPS HLOS DP6 semantics (ledger P10 GREEN);
 - WSA8845 Windows init/start/stop/retention state;
 - CSR-off static closure via DP2 OffsetCtrl2;
@@ -89,21 +101,19 @@ Golden/main** pending operator normal-listening/bass judgment.
 
 ## Open speaker-quality research
 
-1. **RX84 operator promotion verdict:** listen to normal music/YouTube, bass
-   balance, mute/unmute and volume with the live candidate before merging it to
-   Golden/main.
-2. **Residual RAW L/R / upper-bass characterization:** the large low-bass gap is
-   already localized to the old RX81/-3 dB producer policy. Any smaller residual
-   must use the fixed fixture plus hardened `-ExpectedEndpointDb 0` recorder.
-3. Do not add guessed EQ, Bass Enhancer or Virtual Bass; ordinary Windows does
+1. **Residual RAW L/R / upper-bass characterization:** use the fixed fixture plus
+   hardened `-ExpectedEndpointDb 0` recorder. Keep subjective/RX84 tuning separate
+   from the now-closed v32 VI/CPS feedback promotion gate.
+2. Do not add guessed EQ, Bass Enhancer or Virtual Bass; ordinary Windows does
    not use those named paths as the missing speaker-bass mechanism.
 
 ## Canonical pointers
 
 - `README.md`
-- `deploy/golden-v31/`
-- `docs/deployment/2026-08-18-GOLDEN-V31-PROMOTION.md`
-- `docs/checkpoints/2026-08-18-V31-CONSOLIDATED-STATE.md`
+- `deploy/golden-v32/`
+- `docs/checkpoints/2026-08-21-GOLDEN-V32-PROMOTED.md`
+- `docs/checkpoints/2026-08-21-V32-EXACT-GOLDEN-CANONICAL-FEEDBACK.md`
+- `deploy/golden-v31/` (fallback)
 - `docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md`
 - `docs/findings/2026-08-18-GOLDEN-V31-CKV-DELTA-40HZ-PHYSICAL-GATE.md`
 - `docs/findings/2026-08-18-PSYCHOACOUSTIC-BASS-WINDOWS-RX84-PRODUCER-GAIN.md`

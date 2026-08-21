@@ -4,25 +4,21 @@ Evidence-driven Linux built-in-speaker enablement and Windows-parity work for
 the Microsoft Surface Pro 11 with Qualcomm X1E80100 AudioReach, SoundWire and
 dual WSA884x amplifiers.
 
-> **Current recommended state — GOLDEN v31 (2026-08-18).** v31 is the
-> promoted/default SP11 Linux built-in-speaker stack. It inherits Golden v28's
-> static/lifecycle/seek breakthrough, v30's exact Windows endpoint DSP mute and
-> DP1/DP3 transport completion, and adds Qualcomm prior/new GainStep CKV delta
-> semantics. That last fix collapsed the reproducible 40-Hz Volume-Up transient
-> from v30 `2.7855e-3` HP500 p95 to `6.6466e-5` and `6.4095e-5` on two
-> independent v31 captures; native Windows measured `6.1937e-5`. Golden v28 is
-> retained as rollback/comparison and CPS-v3 as rescue. A userspace-only
-> **active-RX84 / 0 dB producer policy candidate** is now objectively GREEN on
-> `agent/psycho-bass-20260818`: native Windows directly proves RX0/RX1 = 0 dB,
-> the candidate applies that state only after protected producer wake, and it
-> preserves the v31 40-Hz CKV, exact-mute and deterministic-seek closures. The
-> candidate is deliberately **not yet merged into the Golden/main recipe**;
-> normal-listening/bass audition is its promotion gate. The project remains
-> **AMBER overall** for that operator verdict, remaining RAW L/R/upper-bass
-> characterization, and clean-source packaging.
+> **Current recommended state — GOLDEN v32 (2026-08-21).** v32 is the
+> promoted/default SP11 Linux built-in-speaker stack. It keeps Golden v31's
+> kernel, DTB, q6apm, canonical topology, exact mute/volume/CKV semantics and
+> accepted WSA8845 transport fixes, then closes the remaining VI/CPS feedback
+> dataplane with three Windows-proven deltas: protection TX clocks only after
+> both PAs are active, active feedback `Offset2=0` on SoundWire ports 10/11/13,
+> and the CPS controller wake/packetization state. On the **canonical topology**
+> Linux now emits native VI TAP2 at 8 kHz / 640-byte payload and native CPS TAP3
+> at 24 kHz / 1920-byte payload with Windows-range magnitudes. Repeated
+> silence/tone stress, a -12/-6/-3/0 dB 997-Hz staircase, >8 h idle, and normal
+> reboot gates completed with zero PA faults/recoveries and zero canonical
+> GLINK timeouts. Golden v31 remains an explicit fixed-initrd fallback.
 >
-> Start with [`deploy/golden-v31/`](deploy/golden-v31/), the
-> [`Golden v31 promotion`](docs/deployment/2026-08-18-GOLDEN-V31-PROMOTION.md),
+> Start with [`deploy/golden-v32/`](deploy/golden-v32/), the
+> [`Golden v32 promotion checkpoint`](docs/checkpoints/2026-08-21-GOLDEN-V32-PROMOTED.md),
 > the [`CURRENT handoff`](docs/checkpoints/CURRENT-SP11-AUDIO.md), and the canonical
 > [`render-parity ledger`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md).
 
@@ -30,17 +26,19 @@ dual WSA884x amplifiers.
 
 | Entry | Role | Status |
 |---|---|---|
-| `sp11-audio-golden-v31` | Daily driver | **Promoted/default** |
-| `sp11-audio-golden-v28` | Rollback / comparison | **Keep** |
+| `sp11-audio-v32-feedback-exact-golden` | Daily driver | **Promoted/default** |
+| `sp11-audio-golden-v31` | Fixed-initrd rollback | **Keep** |
+| `sp11-audio-golden-v28` | Historical comparison | **Keep** |
 | `sp11-audio-cps-v3` | Conservative rescue | **Keep** |
 
-Historical one-off candidates are retained in findings/patches/candidate
-archives, not as dozens of active GRUB entries.
+Historical one-off and forced-TAP candidates are diagnostic artifacts, not
+normal boot targets. In particular, forced TAP2/TAP3 topology boots can stall
+ADSP/GLINK teardown at reboot; Golden v32 does **not** require them because VI
+and CPS are visible on the canonical topology.
 
-## What Golden v31 reproduces
+## What Golden v32 reproduces
 
-Golden v31 includes the full accepted v28 baseline plus the promoted v30/v31
-parity deltas:
+Golden v32 includes the accepted v31 baseline plus the now-closed feedback path:
 
 - protected AudioReach speaker graph with SP/SPVI protection and CPS feedback;
 - original matching SP11 Dolby VR/VLLDP code on Linux, effective Movie profile;
@@ -53,39 +51,43 @@ parity deltas:
 - exact final endpoint DSP mute at `0x4a63 / 0x08001039`, with hardware mute
   retained only as fail-closed fallback;
 - Windows SOFT_PAUSE and delayed-audio drain behavior;
-- Windows-proven LPASS WSA producer implementation, with the active 0-dB lifecycle
-  policy objectively validated on the current psycho-bass candidate branch;
 - exact recovered WSA8845 63-write cold init, 10-write START and 6-write STOP;
 - resident SoundWire clock-stop retention without replaying cold codec state;
 - DP1/DAC `BlockCtrl3=0x00`, DP2/COMP `OffsetCtrl2=0x07`, and
   DP3/BOOST `OffsetCtrl2=0x1f`;
-- demand-driven PA idle teardown;
+- Windows PA-before-protection-clock ordering, eliminating the early-candidate
+  PA fault/static-ghost loop;
+- active SoundWire feedback `Offset2=0` on ports 10/11/13;
+- CPS wake/packetization state `0x105c=0x0005000f` + DP13 `0x1d54=3`;
+- **native canonical VI TAP2: 8 kHz / 640-byte payload, nonzero/unique,
+  Windows-range magnitude**;
+- **native canonical CPS TAP3: 24 kHz / 1920-byte payload, nonzero,
+  ~449–452k RMS versus native Windows ~455k**;
+- demand-driven PA idle teardown and clean canonical reboot behavior;
 - deterministic SP7 external-mic seek closure.
 
-The canonical promoted identity is hash-pinned in
-[`deploy/golden-v31/manifest.json`](deploy/golden-v31/manifest.json). Golden v28
-remains preserved at [`deploy/golden-v28/`](deploy/golden-v28/) as rollback and
-comparison.
+The promoted identity is hash-pinned in
+[`deploy/golden-v32/manifest.json`](deploy/golden-v32/manifest.json). Golden v31
+remains preserved at [`deploy/golden-v31/`](deploy/golden-v31/) as the immediate
+rollback baseline.
 
-## What remains open
+## Current status / what remains open
 
-1. **Active-RX84 operator listening verdict.** Objective 40-Hz, program,
-   exact-mute, seek and lifecycle gates are GREEN on the psycho-bass branch.
-   Audition normal music/YouTube, bass balance, mute and volume before merging
-   that userspace policy into Golden/main. v31/v28/CPS rollback remains intact.
-2. **Residual RAW L/R / upper-bass characterization.** The main low-bass deficit
-   is now localized to the old Linux -3 dB WSA producer policy and corrected by
-   Windows-proven active RX84. Any remaining channel/upper-bass residual must be
-   measured with the tracked RAW recorder at a pinned endpoint gain; do not add
-   guessed EQ or named Dolby bass effects. Older shared-mode absolute L/R dB
-   figures remain provisional.
-3. **Non-blocking research.** W02 is a Windows WASAPI-loopback-only branch
-   question; P09 is protection telemetry observability. Effective CPS HLOS
-   semantics are closed as P10 GREEN.
-4. **Pristine-source packaging.** The historical Phase91 platform baseline still
-   needs normalization into a clean public replayable patch series.
-5. Suspend/resume, microphone/input and Bluetooth remain outside the current
-   built-in-speaker completion gate.
+The built-in-speaker **VI/CPS feedback dataplane and daily-driver lifecycle are
+GREEN** on Golden v32. Remaining work is non-blocking relative to that closure:
+
+1. **Speaker-quality characterization.** Continue RAW L/R / upper-bass and
+   psychoacoustic comparison only with the fixed SP7 measurement fixture. The
+   RX84 evidence/tooling is now in `main`, but subjective tuning remains separate
+   from the v32 VI/CPS promotion gate.
+2. **Pristine-source packaging.** Normalize the historical Phase91 platform
+   baseline into a clean public replayable patch series; do not imply private
+   vendor firmware/ACDB bytes are redistributable.
+3. **Diagnostic teardown.** Forced TAP2/TAP3 topology is diagnostic-only because
+   it can leave ADSP/GLINK teardown waiting during reboot. Canonical v32 feedback
+   does not depend on it.
+4. **Out-of-scope hardware.** Suspend/resume, microphone/input and Bluetooth are
+   outside the current built-in-speaker completion gate.
 
 ## Reproducing the current recipe
 
@@ -95,7 +97,7 @@ vendor material.
 ```bash
 git clone git@github.com:geocausa/SP11X1e-audio.git
 cd SP11X1e-audio
-./deploy/golden-v31/verify-golden-v31.sh
+./deploy/golden-v32/verify-golden-v32.sh
 ```
 
 For Dolby, place your own matching SP11 vendor DLLs in
@@ -103,20 +105,20 @@ For Dolby, place your own matching SP11 vendor DLLs in
 pinned SHA-256 values before building and refuses mismatches. Private ACDB,
 firmware and dumps are likewise not redistributed.
 
-Once an exact Golden boot image has been built/placed at the manifest path:
+Once the exact Golden v32 boot artifacts are present at the manifest path:
 
 ```bash
-sudo ./deploy/golden-v31/install-grub-entry.sh
+sudo ./deploy/golden-v32/install-grub-entry.sh
 ```
 
-That command verifies the image, creates the clean Golden GRUB entry and selects
-it as the saved default. It **does not reboot**.
+That command verifies the image, recreates the hash-pinned Golden v32 GRUB entry
+and selects it as the saved default. It **does not reboot**.
 
 The complete pristine kernel build is intentionally not advertised as solved
 until the old Phase91 platform baseline has been replayed into a clean patch
 series. The current manifest + findings + patch history make the deployed state
-auditable and reproducible from a known SP11 7.1.5 platform baseline without
-pretending vendor bytes or unnormalized history are public source.
+auditable from the known SP11 7.1.5 platform baseline without pretending vendor
+bytes or unnormalized history are public source.
 
 ## Proven rollback baseline
 
@@ -145,6 +147,8 @@ AI-generated analysis. This repository follows these rules:
 
 | Path | Purpose |
 |---|---|
+| [`deploy/golden-v32/`](deploy/golden-v32/) | Promoted Golden v32 manifest, verifier and GRUB installer |
+| [`deploy/golden-v31/`](deploy/golden-v31/) | Golden v31 fixed-initrd rollback recipe |
 | [`deploy/audio-clean/`](deploy/audio-clean/) | Accepted boot identity, hashes and Phase91 boot assets |
 | [`deploy/ucm2/`](deploy/ucm2/) | SP11 ALSA UCM policy |
 | [`deploy/pipewire/98-sp11-dolby-bypass.conf`](deploy/pipewire/98-sp11-dolby-bypass.conf) | Identity boundary reserved for Dolby work |

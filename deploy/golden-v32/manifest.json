@@ -1,0 +1,59 @@
+{
+  "name": "SP11 Audio GOLDEN v32 \u2014 VI+CPS feedback parity",
+  "date": "2026-08-21",
+  "status": "promoted-default",
+  "kernel_release": "7.1.5-sp11-render-parity-v4+",
+  "boot_marker": "7.1.5-sp11-v32-feedback-exact-golden",
+  "grub_id": "sp11-audio-v32-feedback-exact-golden",
+  "boot_directory": "/boot/sp11-7.1.5-audio-v32-feedback-exact-golden",
+  "base": {
+    "golden": "v31",
+    "kernel_and_dtb": "unchanged from Golden v31",
+    "canonical_topology_sha256": "1b0c7217fc67bb11da002b06563dd8c411b0f0e35ac40778bff3d65093061c9d"
+  },
+  "boot_artifacts": {
+    "vmlinuz-7.1.5-sp11-render-parity-v4+": "bca0a336c15d2995c61b8df9d449afb9df5fc8776a3da1ad034616f917bb428a",
+    "initrd.img-7.1.5-sp11-render-parity-v4+-feedback-v32-exact-golden": "227a5f1531077306dfdcd244d7e28ae9734858ccf9cd6129203e3bb5a943769d",
+    "x1e80100-microsoft-denali-sp11-audio-rpv4-macro84-winproducer-nohd2-wsa-windows-3state-retain-dp2offset2-v28-idlegated.dtb": "3530e3426c500d664be6ed3ef066d1b548025ba8286a5810e8b98c591b6555ca"
+  },
+  "modules": {
+    "snd_soc_lpass_wsa_macro": {
+      "srcversion": "F32C7A03F713D1B20F0BF78",
+      "zst_sha256": "864e13cef93da7213609ae8858748d1eb6faffa011efcf61c00692bdf8ded318"
+    },
+    "snd_soc_wsa884x": {
+      "srcversion": "5859E70AFD0A1D420E8ADD4",
+      "zst_sha256": "7ce1a39f867bc6914e73f71508512ff94b028e9bf243c434c1302c82c81b0c6b"
+    },
+    "soundwire_qcom": {
+      "srcversion": "D008A3D6B585C11BE023992",
+      "zst_sha256": "6c580955cb3e977298a0f5a8fb6c60ce13fe365e28ec9c22d5961b08e5959e88"
+    },
+    "snd_soc_x1e80100": {
+      "srcversion": "13326073E27DFA035180C56",
+      "role": "unchanged Golden v31"
+    },
+    "snd_q6apm": {
+      "srcversion": "687B16CF9C43B43E90C0746",
+      "zst_sha256": "acf8ba1e6ded43cfac86afa7d12dd30dabd972286e74b021fbb7bddf98955033",
+      "role": "unchanged Golden v31"
+    }
+  },
+  "proven_deltas": [
+    "Enable WSA protection TX clocks only after both WSA8845 PAs are active, matching native Windows ordering.",
+    "Use Windows active SoundWire Offset2=0 on feedback master ports 10/11/13.",
+    "Enable CPS controller wake/packetization with 0x105c=0x0005000f and DP13 PCM_CTRL 0x1d54=3."
+  ],
+  "objective_gates": {
+    "canonical_vi": "tap2 8 kHz, native 640-byte payload, nonzero/unique, Windows-range RMS (~12.4\u201316.6M in repeat tone captures; Windows ~11.73M)",
+    "canonical_cps": "tap3 24 kHz, native 1920-byte payload, nonzero, ~449\u2013452k RMS; Windows ~455k",
+    "pa_faults": "0 through repeated silence/tone lifecycle stress and -12/-6/-3/0 dB 997-Hz staircase",
+    "pa_recoveries": "0",
+    "glink_runtime_timeouts": "0 on canonical topology",
+    "idle": "more than 8 hours validated",
+    "reboot": "v32->v31 and v32->v32 normal reboot gates passed"
+  },
+  "saved_default": "sp11-audio-v32-feedback-exact-golden",
+  "fallback": "sp11-audio-golden-v31",
+  "diagnostic_warning": "Forced TAP2/TAP3 topology boots are diagnostic-only and can stall ADSP/GLINK teardown at reboot; canonical v32 does not require them."
+}
