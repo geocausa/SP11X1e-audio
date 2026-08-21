@@ -85,7 +85,7 @@ Preferred target: Movie first, then Music, then the common Dynamic family.
 
 Exit: UbiG first-stage output/state passes the frozen oracle corpus while the second Windows stage remains behind it only in a private lab hybrid.
 
-Current checkpoint: the Dynamic-family 48 kHz Stage-A cold scheduler is native and reaches the public engine API. The frozen Dynamic engine fixture is bit-exact including the outer 256-frame accumulator. Dynamic/Game/Voice/Course/Custom share the currently owned first-stage family; Movie/Music remain blocked on their alternate first-stage tuning and are deliberately rejected rather than approximated.
+Current checkpoint: the SP11 48 kHz Stage-A cold scheduler is native and reaches the public engine API for all seven profiles. The frozen Dynamic engine fixture is bit-exact including the outer 256-frame accumulator. Movie/Music retain a distinct recovered staged VLLDP family, but direct Stage-A-only stress differentials prove that family is audio-bit-transparent on this endpoint; transitions therefore change the family state marker in place without resetting Stage-A history. The next substantive de-blob boundary is Stage B / VR.
 
 ### M4 — native UbiG second-stage / VR replacement
 

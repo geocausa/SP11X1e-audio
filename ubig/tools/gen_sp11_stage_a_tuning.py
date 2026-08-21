@@ -19,6 +19,14 @@ lines.append(arr('ubig_sp11_stage_a_side_a',spec['side_a_units_2080'],unit));lin
 lines.append(arr('ubig_sp11_stage_a_mask',spec['mask'],str,'int32_t'))
 lines.append(arr('ubig_sp11_stage_a_runtime',spec['runtime_f32_bits'],lambda x:fhex(f32bits(x))))
 lines.append(arr('ubig_sp11_stage_a_channel_mix',spec['channel_mix_units_2080'],unit))
+fam=spec['profile_family_state']
+for key,prefix in [('common','ubig_sp11_family_common'),('movie_music','ubig_sp11_family_movie_music')]:
+    flat_groups=sum(fam[key]['groups'],[])
+    lines.append(arr(prefix+'_groups',flat_groups,str,'int32_t'))
+    lines.append(f'#define {prefix.upper()}_GROUP_COUNT {len(fam[key]["groups"])}u')
+    lines.append(f'#define {prefix.upper()}_CHANNEL_DEVIATION {int(fam[key]["channel_deviation"])}')
+    lines.append(f'#define {prefix.upper()}_SLOW_GAIN_ENABLE {int(fam[key]["slow_gain_enable"])}u')
+    lines.append(f'#define {prefix.upper()}_SLOW_GAIN_MIX {int(fam[key]["slow_gain_mix"])}')
 lines.append(f'#define UBIG_SP11_STAGE_A_INPUT_SCALE {fhex(f32bits(spec["input_scale_f32_bits"]))}')
 lines.append(f'#define UBIG_SP11_STAGE_A_LIMITER_CEILING {fhex(f32bits(spec["limiter_ceiling_f32_bits"]))}')
 lines.append(f'#define UBIG_SP11_STAGE_A_DRIVE_STATE {fhex(f32bits(spec["drive_state_f32_bits"]))}')

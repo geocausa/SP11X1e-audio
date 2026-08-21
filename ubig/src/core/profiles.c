@@ -12,7 +12,7 @@ typedef struct ubig_profile_contract {
     int virt_front, virt_height, virt_surround;
     int volmax_boost;
     int raw_output_mode;
-    int alternate_first_stage_family;
+    UbigStageAProfileFamily stage_a_family;
 } ubig_profile_contract;
 
 /* DEVICE_TUNING: transcribed from recovered SP11 profile behavior. These are
@@ -61,7 +61,9 @@ int ubig_profile_parse(const char *name, ubig_profile *out)
     return UBIG_EINVAL;
 }
 
-int ubig_profile_uses_alternate_first_stage(ubig_profile p)
+UbigStageAProfileFamily ubig_profile_stage_a_family(ubig_profile p)
 {
-    return p >= 0 && p < UBIG_PROFILE_COUNT ? contracts[p].alternate_first_stage_family : 1;
+    return p >= 0 && p < UBIG_PROFILE_COUNT
+        ? contracts[p].stage_a_family
+        : UBIG_STAGE_A_PROFILE_FAMILY_COMMON;
 }

@@ -180,4 +180,9 @@ Public tuning regression hash (internal pointer normalized): `9460671e005c75f9`.
 
 `ubig_engine_process()` now runs this exact Stage-A core behind the native 256-frame accumulator instead of the old limiter-only placeholder. Private public-boundary differential result: **3,584 / 3,584 stereo samples bit-exact**, including the outer startup block. The engine remains bit-identical across tested arbitrary host chunk schedules.
 
-Profile-family safety is explicit: Dynamic/Game/Voice/Course/Custom use the currently owned common first-stage family without resetting Stage-A history; Movie/Music request the alternate first-stage family and currently return unsupported rather than silently using the wrong tuning. Golden v32 remains untouched.
+Profile-family closure is now explicit: Dynamic/Game/Voice/Course/Custom retain the common staged VLLDP family, while Movie/Music retain their recovered four-group/96/1/103 family state. Direct VLLDP-only stress differentials show the two families are bit-transparent at the SP11 Stage-A audio boundary, so all seven public profiles now use the exact native Stage-A path and profile switches preserve all Stage-A history. Full Movie/Music acoustic distinction remains downstream Stage-B work. Golden v32 remains untouched.
+
+
+## Stage-A profile-family equivalence closure
+
+The former Movie/Music Stage-A support block is closed by direct behavioral evidence rather than by inventing a second DSP implementation. Fresh VLLDP-only Dynamic/Movie/Music instances produced zero differing float32 samples on five 16,000-frame generated stress stimuli (nominal program, full-scale noise, impulses, DC and hot multitone). The distinct common versus Movie/Music group/scalar payloads are now represented as generated `DEVICE_TUNING` state and switched in place. Public tuning/family hash: `ab5ecd9bfff80604`. The engine regression cold-starts all seven profiles and sweeps all seven transitions against an untouched Stage-A reference engine with bit-identical output.

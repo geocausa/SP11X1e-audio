@@ -50,3 +50,10 @@ This distinction is especially important for filter topology, smoothing constant
 - `DERIVED`: conversion of stored 1/2080 integer tuning units into exact float32 constants.
 - The public generator `tools/gen_sp11_stage_a_tuning.py` consumes only the UbiG JSON spec; it does not read a proprietary executable.
 - The config image contains one internal pointer to the generated severity array. Public regression hashing normalizes that pointer before comparison.
+
+### SP11 Stage-A profile-family state
+
+- `DEVICE_TUNING`: common family one-group payload and Movie/Music four-group payload plus channel-deviation / slow-gain scalar values.
+- `OBSERVED`: VLLDP-only Dynamic, Movie and Music outputs are bit-identical across five generated 16,000-frame stress stimuli.
+- `DECODED`: family switches are in-place state retunes rather than Stage-A object reconstruction.
+- `DERIVED`: UbiG preserves the family state marker but uses one exact Stage-A audio configuration for all seven profiles; downstream profile differences are not inferred to be absent.

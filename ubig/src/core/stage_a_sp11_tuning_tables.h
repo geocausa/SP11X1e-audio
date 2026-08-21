@@ -58,6 +58,22 @@ static const float ubig_sp11_stage_a_runtime[5]={
 static const float ubig_sp11_stage_a_channel_mix[8]={
     0x1.a95a960000000p-4f,0x1.a95a960000000p-4f,0x0.0p+0f,0x0.0p+0f,0x0.0p+0f,0x0.0p+0f,0x0.0p+0f,0x0.0p+0f,
 };
+static const int32_t ubig_sp11_family_common_groups[6]={
+    20,0,32767,10,20,0,
+};
+#define UBIG_SP11_FAMILY_COMMON_GROUP_COUNT 1u
+#define UBIG_SP11_FAMILY_COMMON_CHANNEL_DEVIATION 0
+#define UBIG_SP11_FAMILY_COMMON_SLOW_GAIN_ENABLE 0u
+#define UBIG_SP11_FAMILY_COMMON_SLOW_GAIN_MIX 256
+static const int32_t ubig_sp11_family_movie_music_groups[24]={
+    2,-256,12980,3,20,64,7,-160,
+    16366,10,20,64,16,0,32767,10,
+    20,0,20,0,32767,10,20,0,
+};
+#define UBIG_SP11_FAMILY_MOVIE_MUSIC_GROUP_COUNT 4u
+#define UBIG_SP11_FAMILY_MOVIE_MUSIC_CHANNEL_DEVIATION 96
+#define UBIG_SP11_FAMILY_MOVIE_MUSIC_SLOW_GAIN_ENABLE 1u
+#define UBIG_SP11_FAMILY_MOVIE_MUSIC_SLOW_GAIN_MIX 103
 #define UBIG_SP11_STAGE_A_INPUT_SCALE 0x1.1c71c80000000p+0f
 #define UBIG_SP11_STAGE_A_LIMITER_CEILING 0x1.fff2e40000000p-1f
 #define UBIG_SP11_STAGE_A_DRIVE_STATE 0x0.0p+0f

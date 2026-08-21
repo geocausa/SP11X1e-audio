@@ -13,7 +13,7 @@ $(BUILD):
 
 $(BUILD)/engine.o: src/core/engine.c src/core/profiles_internal.h src/core/stage_a_core.h src/core/stage_a_sp11_tuning.h | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-$(BUILD)/profiles.o: src/core/profiles.c src/core/profiles_internal.h | $(BUILD)
+$(BUILD)/profiles.o: src/core/profiles.c src/core/profiles_internal.h src/core/stage_a_sp11_tuning.h | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 $(BUILD)/adapter256.o: src/core/adapter256.c | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@

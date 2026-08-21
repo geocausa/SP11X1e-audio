@@ -12,6 +12,7 @@ struct ubig_engine {
     ubig_adapter256 stage_a_adapter;
     UbigStageACoreConfig stage_a_config;
     UbigStageACoreState stage_a_core;
+    const UbigStageAProfileFamilyState *stage_a_family_state;
     float stage_a_l[UBIG_INTERNAL_BLOCK];
     float stage_a_r[UBIG_INTERNAL_BLOCK];
     int process_status;
@@ -44,8 +45,7 @@ ubig_engine *ubig_engine_create(const ubig_engine_config *cfg)
 {
     if (!cfg || cfg->abi_version != UBIG_ABI_VERSION ||
         cfg->sample_rate != UBIG_SAMPLE_RATE || cfg->channels != UBIG_CHANNELS ||
-        cfg->initial_profile < 0 || cfg->initial_profile >= UBIG_PROFILE_COUNT ||
-        ubig_profile_uses_alternate_first_stage(cfg->initial_profile))
+        cfg->initial_profile < 0 || cfg->initial_profile >= UBIG_PROFILE_COUNT)
         return NULL;
 
     ubig_engine *e = calloc(1, sizeof(*e));
@@ -54,6 +54,9 @@ ubig_engine *ubig_engine_create(const ubig_engine_config *cfg)
     e->process_status=UBIG_OK;
     ubig_adapter256_reset(&e->stage_a_adapter);
     ubig_stage_a_sp11_dynamic_config(&e->stage_a_config);
+    e->stage_a_family_state=ubig_stage_a_sp11_profile_family_state(
+        ubig_profile_stage_a_family(cfg->initial_profile));
+    if(!e->stage_a_family_state){free(e);return NULL;}
     if(ubig_stage_a_core_init(&e->stage_a_core,&e->stage_a_config)!=0){free(e);return NULL;}
     return e;
 }
@@ -74,8 +77,13 @@ int ubig_engine_process(ubig_engine *e,
 int ubig_engine_set_profile(ubig_engine *e, ubig_profile p)
 {
     if (!e || p < 0 || p >= UBIG_PROFILE_COUNT) return UBIG_EINVAL;
-    if(ubig_profile_uses_alternate_first_stage(p))return UBIG_EUNSUPPORTED;
-    /* Same first-stage family: retune is downstream and must not reset Stage A. */
+    /* The recovered common and Movie/Music VLLDP family payloads are kept as
+     * explicit profile state. Direct Stage-A differential testing establishes
+     * that switching between them is audio-bit-transparent on SP11, so the
+     * adaptive/filterbank history must remain untouched here. */
+    e->stage_a_family_state=ubig_stage_a_sp11_profile_family_state(
+        ubig_profile_stage_a_family(p));
+    if(!e->stage_a_family_state)return UBIG_ESTATE;
     e->profile = p;
     return UBIG_OK;
 }

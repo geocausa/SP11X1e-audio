@@ -13,6 +13,7 @@ The project goal is to replace the two proprietary Windows userspace DSP binarie
 - 48 kHz stereo internal-speaker playback is the first supported target.
 - Profile changes must be in-place and must not destroy long-memory adaptive state unless the reference lifecycle does so.
 - The realtime process path performs no file I/O, IPC, heap allocation, logging, or blocking synchronization.
+- All seven public profiles use the exact native SP11 Stage-A audio path; Movie/Music retain their distinct recovered staged family state, proven bit-transparent at the Stage-A boundary.
 
 ## Components
 

@@ -1,7 +1,7 @@
 {
   "schema": "ubig.sp11.stage_a.dynamic_tuning.v1",
   "provenance_category": "DEVICE_TUNING",
-  "description": "SP11 48 kHz Dynamic-family Stage-A configuration and applied tuning needed by the native cold scheduler. Scalar algorithm behavior is implemented in UbiG source; this file carries exact device/profile data only.",
+  "description": "SP11 48 kHz Stage-A audio configuration plus recovered profile-family state. The common and Movie/Music families are distinct staged state but are proven bit-transparent at the Stage-A audio boundary on this endpoint.",
   "input_scale_f32_bits": "0x3f8e38e4",
   "limiter_ceiling_f32_bits": "0x3f7ff972",
   "analysis_enable": 1,
@@ -232,5 +232,61 @@
     0,
     0,
     0
-  ]
+  ],
+  "profile_family_state": {
+    "common": {
+      "groups": [
+        [
+          20,
+          0,
+          32767,
+          10,
+          20,
+          0
+        ]
+      ],
+      "channel_deviation": 0,
+      "slow_gain_enable": 0,
+      "slow_gain_mix": 256
+    },
+    "movie_music": {
+      "groups": [
+        [
+          2,
+          -256,
+          12980,
+          3,
+          20,
+          64
+        ],
+        [
+          7,
+          -160,
+          16366,
+          10,
+          20,
+          64
+        ],
+        [
+          16,
+          0,
+          32767,
+          10,
+          20,
+          0
+        ],
+        [
+          20,
+          0,
+          32767,
+          10,
+          20,
+          0
+        ]
+      ],
+      "channel_deviation": 96,
+      "slow_gain_enable": 1,
+      "slow_gain_mix": 103
+    }
+  }
 }

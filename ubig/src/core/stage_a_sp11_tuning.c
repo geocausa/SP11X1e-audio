@@ -71,3 +71,28 @@ void ubig_stage_a_sp11_dynamic_config(UbigStageACoreConfig *cfg)
     cfg->controller_drive=UBIG_SP11_STAGE_A_CONTROLLER_DRIVE;
     cfg->channel_mix=ubig_sp11_stage_a_channel_mix;
 }
+
+static const UbigStageAProfileFamilyState profile_family_state[2]={
+    [UBIG_STAGE_A_PROFILE_FAMILY_COMMON]={
+        .group_count=UBIG_SP11_FAMILY_COMMON_GROUP_COUNT,
+        .groups=ubig_sp11_family_common_groups,
+        .channel_deviation=UBIG_SP11_FAMILY_COMMON_CHANNEL_DEVIATION,
+        .slow_gain_enable=UBIG_SP11_FAMILY_COMMON_SLOW_GAIN_ENABLE,
+        .slow_gain_mix=UBIG_SP11_FAMILY_COMMON_SLOW_GAIN_MIX,
+    },
+    [UBIG_STAGE_A_PROFILE_FAMILY_MOVIE_MUSIC]={
+        .group_count=UBIG_SP11_FAMILY_MOVIE_MUSIC_GROUP_COUNT,
+        .groups=ubig_sp11_family_movie_music_groups,
+        .channel_deviation=UBIG_SP11_FAMILY_MOVIE_MUSIC_CHANNEL_DEVIATION,
+        .slow_gain_enable=UBIG_SP11_FAMILY_MOVIE_MUSIC_SLOW_GAIN_ENABLE,
+        .slow_gain_mix=UBIG_SP11_FAMILY_MOVIE_MUSIC_SLOW_GAIN_MIX,
+    },
+};
+
+const UbigStageAProfileFamilyState *
+ubig_stage_a_sp11_profile_family_state(UbigStageAProfileFamily family)
+{
+    return family==UBIG_STAGE_A_PROFILE_FAMILY_COMMON ||
+           family==UBIG_STAGE_A_PROFILE_FAMILY_MOVIE_MUSIC
+        ? &profile_family_state[family] : NULL;
+}
