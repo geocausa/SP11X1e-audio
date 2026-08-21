@@ -162,6 +162,27 @@ typedef struct {
 /* Exact centered-distribution statistic used by the Leveler producer. */
 float ubig_stage_b_leveler_distribution_stat(uint32_t count,const float *values);
 
+/* Caller-owned coefficient/exponent record for the normalized cubic mapper. */
+typedef struct {
+    float constant;
+    uint32_t reserved;
+    float coeff1;
+    int32_t exp1;
+    float coeff2;
+    int32_t exp2;
+    float coeff3;
+    int32_t exp3;
+} UbigStageBLevelerNormalizedCubic;
+
+/* Exact max-normalized cubic row mapper. write_only=0 also returns the exact
+ * 0.05-weighted mean absolute change from the prior output row. */
+float ubig_stage_b_leveler_normalized_cubic(const float *input,
+                                            float *output,
+                                            uint32_t count,
+                                            uint32_t write_only,
+                                            const UbigStageBLevelerNormalizedCubic *config);
+
+
 void ubig_stage_b_leveler_pair_smooth(const UbigStageBLevelerPairCoefficients *coefficients,
                                       const UbigStageBLevelerPairControl *control,
                                       float *state_a,

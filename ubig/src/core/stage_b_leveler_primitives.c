@@ -513,3 +513,53 @@ float ubig_stage_b_leveler_distribution_stat(uint32_t count,const float *values)
     if(result>0.5f)result=0.5f;
     return result+result;
 }
+
+_Static_assert(sizeof(UbigStageBLevelerNormalizedCubic)==0x20,"Leveler normalized-cubic config size");
+
+static float leveler_pow2i(int32_t exponent)
+{
+    return f32_bits((uint32_t)(exponent+127)<<23);
+}
+
+float ubig_stage_b_leveler_normalized_cubic(const float *input,
+                                            float *output,
+                                            uint32_t count,
+                                            uint32_t write_only,
+                                            const UbigStageBLevelerNormalizedCubic *c)
+{
+    if((!input||!output||!c)&&count)return 0.0f;
+    const float base=f32_bits(0x3f11a2f0u);
+    const float threshold=f32_bits(0x3ec1095eu);
+    const float center=f32_bits(0x3ef3adcdu);
+    const float weight=f32_bits(0x3d4ccccdu);
+    float maximum=base;
+    for(uint32_t i=0;i<count;i++)if(input[i]>maximum)maximum=input[i];
+    const float shift=base-maximum;
+    float change=0.0f;
+    for(uint32_t i=0;i<count;i++){
+        const float v=input[i]+shift;
+        float y;
+        if(v<threshold)y=0.0f;
+        else{
+            const float t=v-center;
+            const float t2=t*t;
+            float term=leveler_pow2i(c->exp1)*t;
+            y=fmaf(term,c->coeff1,c->constant);
+            term=leveler_pow2i(c->exp2)*t2;
+            y=fmaf(term,c->coeff2,y);
+            term=t2*t;
+            term*=leveler_pow2i(c->exp3);
+            y=fmaf(term,c->coeff3,y);
+            if(y<0.0f)y=0.0f;
+            if(y>1.0f)y=1.0f;
+        }
+        if(write_only)output[i]=y;
+        else{
+            float delta=y-output[i];
+            output[i]=y;
+            if(-delta>delta)delta=-delta;
+            change=fmaf(delta,weight,change);
+        }
+    }
+    return change;
+}

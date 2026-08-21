@@ -173,3 +173,9 @@ Private direct differential gate using the promoted UbiG source: **120,000 compl
 `ubig_stage_b_leveler_distribution_stat()` implements the producer's bounded centered-distribution statistic. It preserves the reference's fixed 0.05 centering weight, power-of-two normalization, fused second/third-moment accumulation, four-step reciprocal refinement, and final signed clamp. It is table-free.
 
 Private direct differential gate using the promoted UbiG source: **1,000,000 randomized calls bit-exact** across row lengths 0 through 32. Public synthetic regression hash: `46ce1e13159e9409`.
+
+## Max-normalized cubic row mapper
+
+`ubig_stage_b_leveler_normalized_cubic()` implements the producer's max-normalized cubic mapper. A caller-owned 32-byte coefficient/exponent record supplies the cubic; the algorithm itself owns only the recovered normalization/clamp constants. In write-only mode it replaces the row. In change-reporting mode it also returns the exact 0.05-weighted mean absolute delta from the prior output row.
+
+Private direct differential gate using the promoted UbiG source: **500,000 complete randomized calls bit-exact**, covering variable row lengths and both modes. Public synthetic regression hash: `c8f0555376812218`. The reference coefficient object remains outside UbiG.

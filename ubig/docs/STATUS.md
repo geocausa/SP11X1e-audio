@@ -244,3 +244,7 @@ This closes the previously unresolved parent above the native curve pipeline, pa
 ### Stage-B centered distribution statistic
 
 The table-free centered-distribution statistic beneath the remaining Leveler producer branch is native as `ubig_stage_b_leveler_distribution_stat()`. The promoted source matches **1,000,000 randomized direct calls bit-exact** across variable row lengths. Public regression hash: `46ce1e13159e9409`.
+
+### Stage-B max-normalized cubic mapper
+
+The normalized cubic row mapper is native as `ubig_stage_b_leveler_normalized_cubic()`. Its fixed cubic record is explicit caller-owned configuration rather than embedded reference data. Promoted-source differential: **500,000 complete calls bit-exact** across variable row lengths and both write/change-reporting modes. Public hash: `c8f0555376812218`.
