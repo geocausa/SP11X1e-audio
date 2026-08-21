@@ -41,4 +41,35 @@ void ubig_stage_b_leveler_curve_build(float curve[17],
                                       float slope_control,
                                       float delta);
 float ubig_stage_b_leveler_piecewise(const float curve[17], float input);
+
+/* Exact bounded row-history/lifecycle primitive used by the Leveler producer. */
+typedef struct {
+    float *previous;
+    float *current;
+    uint32_t hold;
+    int32_t event_age;
+    float coefficient;
+    uint32_t reserved;
+} UbigStageBLevelerRowState;
+
+typedef struct {
+    uint32_t reserved;
+    float delta_threshold;
+    float release;
+    uint32_t hold_limit;
+} UbigStageBLevelerRowConfig;
+
+typedef struct {
+    uint32_t event;
+    uint32_t hold_expired;
+    float coefficient;
+} UbigStageBLevelerRowResult;
+
+void ubig_stage_b_leveler_row_update(UbigStageBLevelerRowState *state,
+                                     const UbigStageBLevelerRowConfig *config,
+                                     const float *input,
+                                     uint32_t count,
+                                     uint32_t force_event,
+                                     UbigStageBLevelerRowResult *result,
+                                     float metric);
 #endif

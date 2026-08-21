@@ -202,3 +202,7 @@ Using the recovered live 48 kHz controller configuration, the promoted UbiG writ
 ### Stage-B Leveler scalar-transfer curve
 
 The Leveler producer's bounded 17-float curve builder/evaluator pair is now native. The promoted evaluator is bit-exact across 1,000,000 randomized direct calls; the promoted builder is bit-exact across 500,000 randomized calls with the complete 68-byte curve image compared after every call. Public regression hashes are `1e2293d61d263c78` and `e171893335b30132`.
+
+### Stage-B Leveler row lifecycle
+
+The no-subcall producer child corresponding to the bounded row-history/event lifecycle is now native. The promoted implementation matches 400,000 complete randomized direct calls bit-for-bit across its `0x20` state, both row planes and 12-byte result record. Public regression hash: `10f5882605b89e42`.

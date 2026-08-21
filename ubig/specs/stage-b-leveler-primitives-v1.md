@@ -72,3 +72,17 @@ Public synthetic regression hashes:
 
 - evaluator: `1e2293d61d263c78`;
 - builder: `e171893335b30132`.
+
+## Row-history and event lifecycle
+
+The producer-side bounded row lifecycle is native as `ubig_stage_b_leveler_row_update()`. Its state is a `0x20`-byte record containing two row pointers, a hold counter, an event-age counter and the current release coefficient. The companion config is 16 bytes and the result record is 12 bytes.
+
+Per call it:
+
+- reduces the current input row with the same exact 2/13 soft-max kernel already behaviorally established elsewhere in UbiG;
+- shifts the previous/current row planes while accumulating the current-minus-input delta;
+- updates the hold/release coefficient and reports hold expiry;
+- advances the event age when the delta threshold is crossed **or when an event is already ageing**;
+- emits/reset the event state according to age/force rules and resets the coefficient to the recovered 0.01 lifecycle value.
+
+Private direct differential gate using the promoted UbiG source: **400,000 complete randomized calls bit-exact**, comparing the canonicalized state, both 20-float row planes and the complete result record after every call. Public synthetic regression hash: `10f5882605b89e42`.

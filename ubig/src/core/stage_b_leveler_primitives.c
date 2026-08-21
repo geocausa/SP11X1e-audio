@@ -189,3 +189,69 @@ float ubig_stage_b_leveler_piecewise(const float c[17],float input)
     if(c[4]<v){v-=c[3];const float t=fmaf(c[13],v,c[12]);return t*v;}
     return fmaf(c[16],v,c[15]);
 }
+
+_Static_assert(sizeof(UbigStageBLevelerRowState)==0x20,"Leveler row-state size");
+_Static_assert(sizeof(UbigStageBLevelerRowConfig)==0x10,"Leveler row-config size");
+_Static_assert(sizeof(UbigStageBLevelerRowResult)==0x0c,"Leveler row-result size");
+
+static float leveler_soft_max(float a,float b)
+{
+    const float maximum=(b>a)?b:a;
+    const float d=a-b;
+    const float ad=(-d>d)?-d:d;
+    if(ad>=0x1.3b13b2p-3f)return maximum;
+    float t=fmaf(-ad,0x1.45328cp+3f,0x1.e44c28p+1f);
+    t=fmaf(t,ad,-0x1.f7e15p-2f);
+    t=fmaf(t,ad,0x1.7b6302p-6f);
+    float out=maximum+t;
+    if(out< -1.0f)out=-1.0f;
+    if(out>  1.0f)out= 1.0f;
+    return out;
+}
+
+void ubig_stage_b_leveler_row_update(UbigStageBLevelerRowState *s,
+                                     const UbigStageBLevelerRowConfig *c,
+                                     const float *input,
+                                     uint32_t count,
+                                     uint32_t force_event,
+                                     UbigStageBLevelerRowResult *r,
+                                     float metric)
+{
+    if(!s||!c||!input||!r)return;
+    float reduced=-1.0f;
+    float delta_sum=0.0f;
+    for(uint32_t i=0;i<count;i++){
+        const float v=input[i];
+        reduced=leveler_soft_max(reduced,v);
+        delta_sum+=s->current[i]-v;
+        s->current[i]=s->previous[i];
+        s->previous[i]=v;
+    }
+    r->hold_expired=0u;
+    if(!((metric-f32_bits(0x3ed4ad4bu))>reduced)){
+        const uint32_t old_hold=s->hold;
+        s->hold=0u;
+        r->hold_expired=(old_hold<c->hold_limit)?0u:1u;
+        const float decayed=c->release*s->coefficient;
+        s->coefficient=decayed;
+        s->coefficient=(1.0f-c->release)+decayed;
+    }else if(s->hold<c->hold_limit){
+        const uint32_t next=s->hold+1u;
+        s->hold=(next>=c->hold_limit)?c->hold_limit:next;
+    }
+
+    int32_t effective=s->event_age;
+    if(c->delta_threshold<delta_sum || effective>0){
+        effective+=1;
+        s->event_age=effective;
+    }
+    if(effective>1 || (effective<=1 && force_event!=0u)){
+        s->event_age=0;
+        r->event=1u;
+        s->coefficient=f32_bits(0x3c23d70au);
+        r->coefficient=s->coefficient;
+        return;
+    }
+    r->event=0u;
+    r->coefficient=s->coefficient;
+}
