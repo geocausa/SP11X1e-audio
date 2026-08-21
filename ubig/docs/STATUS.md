@@ -305,3 +305,7 @@ The first table-driven child beneath the remaining profile-selective multiband b
 ### Stage-B multiband exp-row helper
 
 The profile-selective VR multiband branch now also owns its row-wise exp2/status/tail helper as `ubig_stage_b_rt_exp_rows()`. The promoted source matches **500,000 complete randomized direct calls bit-exact**. Public hash: `a317dfbfd36239e2`.
+
+### Stage-B multiband correlation/history closure
+
+The `0x728D0` multiband correlation state path and its 20-lane circular-history child are now native as semantic UbiG state. Promoted-source gates: history **500,000 complete calls exact** and enclosing controller **100,000 complete stateful calls exact**. Public hashes: `14885efc65647ace` and `dd660d2059cb6131`.

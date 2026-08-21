@@ -111,4 +111,36 @@ void ubig_stage_b_rt_exp_rows(float *output,
                               uint32_t active_width,
                               uint32_t row_count);
 
+/* Exact 20-lane circular history/sum primitive used by the multiband state path. */
+typedef struct {
+    uint32_t depth;
+    uint32_t index;
+    float *buffer; /* depth x 20 floats */
+} UbigStageBRtRowHistory;
+
+int ubig_stage_b_rt_row_history_update(UbigStageBRtRowHistory *state,
+                                       float output[UBIG_STAGE_B_RT_MAX_BANDS],
+                                       const float input[UBIG_STAGE_B_RT_MAX_BANDS]);
+
+/* Exact multiband correlation/history controller. All backing rings are caller-owned. */
+typedef struct {
+    UbigStageBRtRowHistory primary;
+    uint32_t secondary_depth;
+    uint32_t secondary_index;
+    float *secondary_buffer; /* secondary_depth x 20 */
+    uint32_t *secondary_status;
+    uint32_t integrator_depth;
+    uint32_t integrator_index;
+    float correlation_scale;
+    float accumulator_a;
+    float accumulator_b;
+    float *integrator_ring;
+    float output_state;
+} UbigStageBRtCorrelationState;
+
+void ubig_stage_b_rt_correlation_process(UbigStageBRtCorrelationState *states,
+                                         uint32_t row_count,
+                                         const float *input_rows,
+                                         float *output);
+
 #endif

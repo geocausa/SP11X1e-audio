@@ -264,3 +264,87 @@ void ubig_stage_b_rt_exp_rows(float *output,
             output[row*UBIG_STAGE_B_RT_MAX_BANDS+lane]=0.0f;
     }
 }
+
+int ubig_stage_b_rt_row_history_update(UbigStageBRtRowHistory *state,
+                                       float output[UBIG_STAGE_B_RT_MAX_BANDS],
+                                       const float input[UBIG_STAGE_B_RT_MAX_BANDS])
+{
+    if(!state||!output||!input||!state->buffer||!state->depth)return -1;
+    const uint32_t index=state->index;
+    float *slot=state->buffer+(size_t)index*UBIG_STAGE_B_RT_MAX_BANDS;
+    for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++)slot[lane]=input[lane];
+    for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++)output[lane]=0.0f;
+    for(uint32_t row=0;row<state->depth;row++){
+        const float *src=state->buffer+(size_t)row*UBIG_STAGE_B_RT_MAX_BANDS;
+        for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++)output[lane]+=src[lane];
+    }
+    state->index=(index+1u>=state->depth)?0u:index+1u;
+    return 0;
+}
+
+
+static float stage_b_rt_correlation_step(UbigStageBRtCorrelationState *state,
+                                         const float input[UBIG_STAGE_B_RT_MAX_BANDS])
+{
+    float summed[UBIG_STAGE_B_RT_MAX_BANDS];
+    float previous[UBIG_STAGE_B_RT_MAX_BANDS];
+    (void)ubig_stage_b_rt_row_history_update(&state->primary,summed,input);
+    const uint32_t secondary_index=state->secondary_index;
+    state->secondary_status[secondary_index]=0u;
+    float *secondary_slot=state->secondary_buffer+(size_t)secondary_index*UBIG_STAGE_B_RT_MAX_BANDS;
+    memcpy(previous,secondary_slot,sizeof previous);
+    memcpy(secondary_slot,summed,sizeof summed);
+    state->secondary_index=(secondary_index+1u>=state->secondary_depth)?0u:secondary_index+1u;
+
+    float old_sq[4]={0.0f,0.0f,0.0f,0.0f};
+    float new_sq[4]={0.0f,0.0f,0.0f,0.0f};
+    float dot[4]={0.0f,0.0f,0.0f,0.0f};
+    for(uint32_t group=0;group<5u;group++){
+        for(uint32_t lane=0;lane<4u;lane++){
+            const uint32_t i=group*4u+lane;
+            old_sq[lane]=fmaf(previous[i],previous[i],old_sq[lane]);
+            new_sq[lane]=fmaf(summed[i],summed[i],new_sq[lane]);
+            dot[lane]=fmaf(previous[i],summed[i],dot[lane]);
+        }
+    }
+    const float dot_sum=((dot[0]+dot[1])+dot[2])+dot[3];
+    const float norm0=old_sq[0]+new_sq[0];
+    const float norm1=old_sq[1]+new_sq[1];
+    const float norm2=old_sq[2]+new_sq[2];
+    const float norm3=old_sq[3]+new_sq[3];
+    const float norm_sum=((norm0+norm1)+norm2)+norm3;
+    float ratio=(float)((double)dot_sum/(double)norm_sum);
+    ratio=ratio+ratio;
+    const float error=(1.0f-ratio)*state->correlation_scale;
+
+    const uint32_t index=state->integrator_index;
+    const uint32_t next=index+1u;
+    if(next<state->integrator_depth){
+        const float prior=state->integrator_ring[index];
+        state->accumulator_a=state->accumulator_a+error;
+        state->accumulator_b=(error-prior)+state->accumulator_b;
+        state->integrator_ring[index]=error;
+        state->integrator_index=next;
+    }else{
+        const float prior=state->accumulator_a;
+        state->accumulator_a=0.0f;
+        state->accumulator_b=prior+error;
+        state->integrator_ring[index]=error;
+        state->integrator_index=0u;
+    }
+    float integrated=state->accumulator_b;
+    if(!(integrated<0.5f))integrated=0.5f;
+    integrated=(integrated-0.25f)*f32_bits(0x3d23d70au);
+    state->output_state=fmaf(state->output_state,f32_bits(0x3f7d70a4u),integrated);
+    return state->output_state;
+}
+
+void ubig_stage_b_rt_correlation_process(UbigStageBRtCorrelationState *states,
+                                         uint32_t row_count,
+                                         const float *input_rows,
+                                         float *output)
+{
+    if(!states||!input_rows||!output)return;
+    for(uint32_t row=0;row<row_count;row++)
+        output[row]=stage_b_rt_correlation_step(&states[row],input_rows+(size_t)row*UBIG_STAGE_B_RT_MAX_BANDS);
+}
