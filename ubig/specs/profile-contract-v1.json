@@ -1,0 +1,15 @@
+{
+  "schema": "ubig-profile-contract-v1",
+  "target": {"sample_rate": 48000, "channels": 2, "endpoint": "SP11 built-in speakers"},
+  "provenance": "DEVICE_TUNING / decoded legacy Windows reference behavior",
+  "profiles": [
+    {"name":"Dynamic","leveler":[1,5],"dialog":[1,5],"ieq":[1,10],"mi":1,"surround_boost":96,"surround_decoder":1,"virtualizer":[10,10,10],"volmax":96,"raw_output_mode":11,"first_stage_family":"dynamic"},
+    {"name":"Movie","leveler":[1,0],"dialog":[1,2],"ieq":[0,6],"mi":0,"surround_boost":72,"surround_decoder":1,"virtualizer":[16,10,16],"volmax":104,"raw_output_mode":11,"first_stage_family":"movie_music"},
+    {"name":"Music","leveler":[1,0],"dialog":[0,5],"ieq":[0,6],"mi":0,"surround_boost":24,"surround_decoder":0,"virtualizer":[10,10,10],"volmax":96,"raw_output_mode":1,"first_stage_family":"movie_music"},
+    {"name":"Game","leveler":[1,0],"dialog":[0,7],"ieq":[0,10],"mi":0,"surround_boost":0,"surround_decoder":1,"virtualizer":[10,10,10],"volmax":96,"raw_output_mode":11,"first_stage_family":"dynamic"},
+    {"name":"Voice","leveler":[0,0],"dialog":[1,8],"ieq":[0,10],"mi":0,"surround_boost":0,"surround_decoder":0,"virtualizer":[10,10,10],"volmax":96,"raw_output_mode":1,"first_stage_family":"dynamic"},
+    {"name":"Course","leveler":[1,0],"dialog":[1,5],"ieq":[0,10],"mi":0,"surround_boost":0,"surround_decoder":0,"virtualizer":[10,10,10],"volmax":64,"raw_output_mode":1,"first_stage_family":"dynamic"},
+    {"name":"Custom","leveler":[1,3],"dialog":[1,10],"ieq":[0,10],"mi":0,"surround_boost":48,"surround_decoder":1,"virtualizer":[10,10,10],"volmax":96,"raw_output_mode":11,"first_stage_family":"dynamic","custom_eq":{"bands":20,"raw_min":-192,"raw_max":192}}
+  ],
+  "stereo_policy": {"effective_output_mode": 1, "note": "raw profile output mode is preserved as tuning metadata; SP11 stereo policy resolves to mode 1"}
+}
