@@ -102,3 +102,90 @@ void ubig_stage_b_leveler_history_update(UbigStageBLevelerHistory *s,
     const uint32_t count=s->count+1u;
     s->count=(count>=80u)?80u:count;
 }
+
+static int leveler_curve_shift(float v)
+{
+    uint32_t u;
+    memcpy(&u,&v,4);
+    const uint32_t exponent=(u>>23)&0xffu;
+    const int e=((u<<1)==0u)?-127:(int)exponent-126;
+    int shift=-e;
+    if(shift<0)shift=0;
+    if(shift>60)shift=60;
+    return shift;
+}
+
+static int leveler_clamp_signed60(int v)
+{
+    if(v>=60)v=60;
+    if(v<=-60)v=-60;
+    return v;
+}
+
+void ubig_stage_b_leveler_curve_build(float c[17],
+                                      float anchor,
+                                      float slope_control,
+                                      float delta)
+{
+    if(!c)return;
+    const float one=1.0f,half=0.5f;
+    c[1]=anchor+delta;
+    c[2]=anchor;
+    const float slope=slope_control-one;
+    const float midpoint=fmaf(delta,half,anchor);
+    c[6]=midpoint*(-slope);
+    c[7]=slope;
+
+    const float ad=fabsf(delta);
+    float z=0.0f;
+    if(ad>=f32_bits(0x322bcc77u)){
+        const int shift_delta=leveler_curve_shift(delta);
+        const float delta_scale=f32_bits((uint32_t)(shift_delta+127)<<23);
+        const float normalized=delta_scale*delta;
+        float reciprocal;
+        if(f32_bits(0x3f350600u)<normalized)
+            reciprocal=fmaf(-normalized,half,one);
+        else{
+            const float q=one-normalized;
+            reciprocal=q+q;
+        }
+        for(unsigned i=0;i<4;i++){
+            float error=fmaf(-reciprocal,normalized,half);
+            error*=reciprocal;
+            error+=error;
+            reciprocal+=error;
+        }
+        z=slope*reciprocal;
+        const int shift_z=leveler_curve_shift(z);
+        const float z_scale=f32_bits((uint32_t)(shift_z+127)<<23);
+        const float z_normalized=z_scale*z;
+        const int shift_delta_z=shift_delta-shift_z;
+        const int exponent_adjust=leveler_clamp_signed60(shift_delta_z);
+        const float adjust=f32_bits((uint32_t)(exponent_adjust+127)<<23);
+        z=adjust*z_normalized;
+        if(shift_delta>=shift_z){
+            const int32_t saved=exponent_adjust;
+            memcpy(&c[11],&saved,4);
+        }else{
+            const uint32_t zero=0u;
+            memcpy(&c[11],&zero,4);
+        }
+    }else{
+        const uint32_t zero=0u;
+        memcpy(&c[11],&zero,4);
+    }
+    c[9]=0.0f;
+    c[10]=z;
+}
+
+float ubig_stage_b_leveler_piecewise(const float c[17],float input)
+{
+    if(!c)return 0.0f;
+    float v=input<c[0]?input:c[0];
+    if(c[1]<v)return fmaf(c[7],v,c[6]);
+    if(c[2]<v){v-=c[2];const float t=fmaf(c[10],v,c[9]);return t*v;}
+    if(c[3]<v)return 0.0f;
+    if(c[5]>v)v=c[5];
+    if(c[4]<v){v-=c[3];const float t=fmaf(c[13],v,c[12]);return t*v;}
+    return fmaf(c[16],v,c[15]);
+}

@@ -53,3 +53,22 @@ Two exact branch details matter:
 2. the history-derived ratio is upper-clamped with `min(ratio, 0.075)` before the later scaling/clamp, not lower-clamped to 0.075.
 
 Private direct differential gate using the promoted UbiG source and the recovered SP11 controller contract: **100,000 consecutive complete calls bit-exact**, comparing the canonicalized `0x608` controller/history state plus every primary/secondary scalar and all 20-lane vectors after every call.
+
+## Post-controller scalar curve
+
+The active Leveler producer builds and evaluates a compact 17-float scalar-transfer curve. UbiG owns both bounded helpers:
+
+- `ubig_stage_b_leveler_curve_build()` updates only the dynamic curve fields owned by the builder while leaving caller-owned thresholds/static coefficients untouched;
+- `ubig_stage_b_leveler_piecewise()` evaluates the resulting four-region piecewise polynomial/linear response with the reference branch and FMA order.
+
+The builder performs float32 exponent-field normalization, clamps exponent deltas to ±60, and uses four fused reciprocal-refinement steps before storing the dynamic polynomial coefficient. This is behavioral reconstruction; no proprietary table or code bytes are carried into UbiG.
+
+Private direct differential gates using the promoted UbiG source:
+
+- evaluator: **1,000,000 randomized calls bit-exact**;
+- builder: **500,000 randomized calls, complete 68-byte curve image bit-exact after every call**.
+
+Public synthetic regression hashes:
+
+- evaluator: `1e2293d61d263c78`;
+- builder: `e171893335b30132`.

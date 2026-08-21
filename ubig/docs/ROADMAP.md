@@ -148,3 +148,5 @@ Only after these gates pass may the installed Windows-binary bridge be removed.
 - reproducing unused spatial or capture paths
 - matching compiler implementation details where an independently specified equivalent behavior is sufficient
 - shipping private oracle fixtures or proprietary binaries
+
+Stage-B dependency closure now also includes the exact post-controller 17-float scalar curve builder/evaluator pair; work continues upward through the remaining direct children of the Leveler producer.

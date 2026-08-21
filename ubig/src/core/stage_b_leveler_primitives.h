@@ -33,4 +33,12 @@ void ubig_stage_b_leveler_history_update(UbigStageBLevelerHistory *state,
                                          float step,
                                          float value_a,
                                          float value_b);
+/* Exact 17-float post-controller scalar-transfer curve builder/evaluator.
+ * The builder updates only the dynamic fields owned by the reference helper;
+ * caller-owned threshold/static fields remain untouched. */
+void ubig_stage_b_leveler_curve_build(float curve[17],
+                                      float anchor,
+                                      float slope_control,
+                                      float delta);
+float ubig_stage_b_leveler_piecewise(const float curve[17], float input);
 #endif

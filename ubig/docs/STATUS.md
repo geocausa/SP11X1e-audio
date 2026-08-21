@@ -198,3 +198,7 @@ Stage B has its first directly proven native primitive. The coefficient-triplet 
 The active long-memory writer beneath the SP11 Volume-Leveler/DRC path is now native as `ubig_stage_b_leveler_update()`. Its exact children are also native: the coefficient triplet mapper and the 80-slot / 51-bin `0x5E8` adaptive-history accumulator. Linux ARM64 `sinf/cosf` were directly verified bit-exact against the reference runtime on 500,000 randomized inputs each over the writer's actual argument range.
 
 Using the recovered live 48 kHz controller configuration, the promoted UbiG writer matches the original ARM64 boundary on **100,000 consecutive complete calls bit-exact**, comparing the canonicalized `0x608` parent/history state, all primary/secondary record scalars and all 20-band vector lanes after every call. Public history hash: `2244caafb36558e1`; public writer hash: `3e549513f21d2250`.
+
+### Stage-B Leveler scalar-transfer curve
+
+The Leveler producer's bounded 17-float curve builder/evaluator pair is now native. The promoted evaluator is bit-exact across 1,000,000 randomized direct calls; the promoted builder is bit-exact across 500,000 randomized calls with the complete 68-byte curve image compared after every call. Public regression hashes are `1e2293d61d263c78` and `e171893335b30132`.
