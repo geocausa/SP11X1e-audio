@@ -141,3 +141,51 @@ void ubig_comp_band_controller(void *state,
     ubig_comp_band_state_update(state, activity, matrix_gate, aggregate_gate,
                                 activity_weight, ratio_gate, ratio_margin, target);
 }
+
+float ubig_comp_transition5_cubic(const float config[5], float previous, float target)
+{
+    const float half_previous = previous * 0.5f;
+    const float half_delta = fmaf(target, 0.5f, -half_previous);
+    if (half_delta < 0.0f) {
+        const float scaled = config[1] * half_delta;
+        const float limited = (scaled > config[0]) ? scaled : config[0];
+        const float s = limited + half_previous;
+        return s + s;
+    }
+    if (config[3] < half_delta) {
+        const float s = (config[4] + half_delta) + half_previous;
+        return s + s;
+    }
+    const float x = half_delta + half_delta;
+    const float x2 = x * x;
+    const float x3 = x2 * x;
+    const float shaped = (x3 * config[2]) * 4.0f;
+    const float s = shaped + half_previous;
+    return s + s;
+}
+
+void ubig_comp_dual_plane_update(struct ubig_dual_floor_state *state,
+                                 const struct ubig_float_rows *rows,
+                                 const float **primary_out,
+                                 const float **secondary_out,
+                                 int32_t *rise_flags,
+                                 float bias)
+{
+    const float *primary_cfg = state->config;
+    const float *secondary_cfg = state->config + 5;
+    for (uint32_t band = 0; band < state->count; ++band) {
+        float maximum = -1.0f;
+        for (uint32_t ch = 0; ch < rows->count; ++ch) {
+            const float v = rows->rows[ch][band];
+            if (v > maximum) maximum = v;
+        }
+        float target = maximum + bias;
+        if (target < -1.0f) target = -1.0f;
+        if (target > 1.0f) target = 1.0f;
+        rise_flags[band] = state->primary[band] < target;
+        state->primary[band] = ubig_comp_transition5(primary_cfg, state->primary[band], target);
+        state->secondary[band] = ubig_comp_transition5_cubic(secondary_cfg, state->secondary[band], target);
+    }
+    if (primary_out) *primary_out = state->primary;
+    if (secondary_out) *secondary_out = state->secondary;
+}

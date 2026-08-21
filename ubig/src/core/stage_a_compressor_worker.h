@@ -1,6 +1,7 @@
 #ifndef UBIG_STAGE_A_COMPRESSOR_WORKER_H
 #define UBIG_STAGE_A_COMPRESSOR_WORKER_H
 #include <stdint.h>
+#include "stage_a_compressor_primitives.h"
 
 struct ubig_float_rows {
     uint32_t count;
@@ -27,3 +28,11 @@ void ubig_comp_band_controller(void *state,
                                float ratio_margin);
 
 #endif
+
+float ubig_comp_transition5_cubic(const float config[5], float previous, float target);
+void ubig_comp_dual_plane_update(struct ubig_dual_floor_state *state,
+                                 const struct ubig_float_rows *rows,
+                                 const float **primary_out,
+                                 const float **secondary_out,
+                                 int32_t *rise_flags,
+                                 float bias);

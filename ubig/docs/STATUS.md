@@ -112,3 +112,17 @@ The two larger state workers beneath the band controller are now native and exac
 A key reducer detail is a cross-band floor recurrence carried in the original scalar register state. This is now explicit in the UbiG implementation and public specification.
 
 With this closure, the former `0x1800250b0` compressor sub-controller is no longer proprietary algorithmic code. The next step is to climb back into the `0x180021e80` top-level multiband-compressor orchestrator and replace the remaining bounded workers around this exact sub-controller.
+
+## Full Stage-A multiband compressor closure
+
+The former `0x180021e80` multiband-compressor process boundary is now implemented natively as `ubig_stage_a_compressor_process()`.
+
+Direct private comparison results:
+
+- cubic secondary transition: 1,000,000 calls bit-exact
+- dual-plane band tracker: 30,000 complete calls bit-exact
+- preserved warm two-channel fixture: complete 0x900-byte state, both row descriptors, matrix telemetry, 20-band telemetry and exported row count bit-exact
+- lifecycle variants covering cache changes/reinitialization, mode-zero linked operation and native-count-one operation: bit-exact
+- synthetic UbiG-owned full-compressor vector: bit-exact, canonical public hash `75c3a084f4f3b91a`
+
+This removes the central Stage-A multiband compressor as a proprietary algorithmic dependency. Remaining Stage-A work is now concentrated in the surrounding unreplaced optimizer/regulator/gain-application blocks plus the isolated FFT arithmetic-order cleanup; the final limiter, analyzer/synthesis wrappers, math helpers, export path and compressor are native.
