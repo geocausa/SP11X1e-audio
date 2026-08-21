@@ -135,3 +135,11 @@ Promoted-source private differential: **500,000 complete randomized calls bit-ex
 ## Exponent-scaled sum helper
 
 `ubig_stage_b_rt_scaled_sum()` owns the compact scaled-sum child used by the remaining large RT feature transform. It multiplies every lane by the exact binary power-of-two derived from the caller exponent and preserves the reference's first-multiply/remaining-FMA accumulation order. Promoted-source private differential: **1,000,000 direct calls bit-exact** over variable counts and exponents. Public hash: `12c52764e464a67d`.
+
+## Thirty-two-slot feature-history controller
+
+`ubig_stage_b_rt_feature_history_process()` closes the large always-active feature transform beneath the universal RT scheduler. Each call writes one semantic 20-float record from the 77-bin spectral export using caller-owned eight-segment boundaries, the native scaled-sum helper, and the native ratio-map modes 7 and 3. The aggregate-zero path clears the record exactly.
+
+The periodic branch runs when `((index + 2) & 31) == phase`. It reduces record columns 4..11 with one cumulative exponent minimum shared across all eight columns, then reduces seven adjacent differences from columns 12..19 with a fresh exponent bound of 30 for each difference. Each 32-value reduction preserves the reference two-block schedule: fifteen FMA lanes followed by one separately rounded multiply/add per sixteen-lane half. Segment boundaries and the scaled-sum count remain caller-owned configuration.
+
+Private differential gates: every-call record builder **500,000 complete randomized calls bit-exact**; periodic reducer **300,000 complete randomized full-state calls bit-exact**; complete promoted semantic controller **300,000 complete randomized calls bit-exact** across trigger/non-trigger, zero/nonzero aggregate, randomized exponents, boundaries and prior state. Public synthetic lifecycle hash: `f36e7119af54a2be`.

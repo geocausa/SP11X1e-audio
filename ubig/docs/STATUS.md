@@ -383,3 +383,7 @@ The final small no-subcall member of the scheduler's upper transform group is na
 ### Stage-B RT scaled-sum helper closure
 
 The every-call scaled-sum child beneath the remaining large feature transform is native as `ubig_stage_b_rt_scaled_sum()`. Promoted source matches **1,000,000 direct calls bit-exact**. Public hash: `12c52764e464a67d`.
+
+### Stage-B RT feature-history controller closure
+
+The large upper-scheduler feature-history transform is now native as `ubig_stage_b_rt_feature_history_process()`. Its per-call 20-float record builder and periodic 32-slot reducer are independently exact, and the promoted semantic controller matches **300,000 complete randomized DLL calls bit-exact**. Caller-owned segment boundaries/scaled-sum count remain external. Public lifecycle hash: `f36e7119af54a2be`. This leaves one unresolved transform in the scheduler's 19-call upper group.

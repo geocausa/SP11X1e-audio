@@ -452,4 +452,30 @@ void ubig_stage_b_rt_feature_change_process(UbigStageBRtFeatureChangeHistory *st
 
 /* Exact exponent-scaled FMA sum used by the RT feature scheduler. */
 float ubig_stage_b_rt_scaled_sum(const float *input,uint32_t count,int32_t exponent);
+
+#define UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH 32u
+#define UBIG_STAGE_B_RT_FEATURE_RECORD_VALUES 20u
+#define UBIG_STAGE_B_RT_FEATURE_SEGMENTS 8u
+
+typedef struct {
+    float records[UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH][UBIG_STAGE_B_RT_FEATURE_RECORD_VALUES];
+    uint32_t index;
+    uint32_t phase;
+    float segment_sum[UBIG_STAGE_B_RT_FEATURE_SEGMENTS];
+    float delta_sum[UBIG_STAGE_B_RT_FEATURE_SEGMENTS-1u];
+    uint32_t segment_shift[UBIG_STAGE_B_RT_FEATURE_SEGMENTS];
+    uint32_t delta_shift[UBIG_STAGE_B_RT_FEATURE_SEGMENTS-1u];
+} UbigStageBRtFeatureHistory;
+
+typedef struct {
+    const uint32_t *boundaries; /* 9 entries: segment starts plus final end */
+    uint32_t scaled_sum_count;
+} UbigStageBRtFeatureHistoryConfig;
+
+/* Exact 32-slot / 20-value feature-history controller. The per-call record is
+ * built from the semantic spectral export; when ((index+2)&31)==phase the
+ * temporal reducers refresh segment_sum/delta_sum and clear the future slot. */
+void ubig_stage_b_rt_feature_history_process(UbigStageBRtFeatureHistory *state,
+                                             const UbigStageBRtFeatureHistoryConfig *config,
+                                             const UbigStageBRtSpectralExport *input);
 #endif

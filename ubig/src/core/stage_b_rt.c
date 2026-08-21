@@ -1295,3 +1295,91 @@ float ubig_stage_b_rt_scaled_sum(const float *input,uint32_t count,int32_t expon
     for(uint32_t i=1;i<count;i++)sum=fmaf(input[i],scale,sum);
     return sum;
 }
+
+static float stage_b_rt_reduce32_exact(const float values[UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH],
+                                       int32_t shift)
+{
+    const float scale=stage_b_rt_pow2_integer(shift-5);
+    float sum=0.0f;
+    for(uint32_t base=0;base<UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH;base+=16u){
+        for(uint32_t lane=0;lane<15u;lane++)
+            sum=fmaf(scale,values[base+lane],sum);
+        const float last=scale*values[base+15u];
+        sum=last+sum;
+    }
+    return sum;
+}
+
+void ubig_stage_b_rt_feature_history_process(UbigStageBRtFeatureHistory *s,
+                                             const UbigStageBRtFeatureHistoryConfig *config,
+                                             const UbigStageBRtSpectralExport *in)
+{
+    if(!s||!config||!config->boundaries||!in||in->count==0u||
+       in->count>UBIG_STAGE_B_RT_SPECTRAL_BINS||
+       config->scaled_sum_count==0u||config->scaled_sum_count>=in->count)return;
+
+    const uint32_t index=s->index;
+    float *record=s->records[index];
+    const float aggregate=in->aggregate;
+    if(aggregate==0.0f){
+        memset(record,0,sizeof s->records[index]);
+    }else{
+        const int32_t shift=stage_b_rt_spectral_shift(aggregate);
+        const float normalized=(float)(0.5/(double)(stage_b_rt_pow2_integer(shift)*aggregate));
+        const float fraction_scale=stage_b_rt_pow2_integer(shift-3);
+        for(uint32_t segment=0;segment<UBIG_STAGE_B_RT_FEATURE_SEGMENTS;segment++){
+            float sum=0.0f;
+            for(uint32_t lane=config->boundaries[segment];lane<config->boundaries[segment+1u];lane++)
+                sum=fmaf(in->bins[lane],f32_bits(0x3e000000u),sum);
+            record[12u+segment]=stage_b_rt_pow2_integer(-in->exponent)*sum;
+            const float normalized_sum=sum*normalized;
+            record[4u+segment]=fraction_scale*normalized_sum;
+        }
+
+        const float exponent_scale=stage_b_rt_pow2_integer(-in->exponent);
+        const float aligned_aggregate=exponent_scale*aggregate;
+        record[0]=ubig_stage_b_rt_ratio_map_mode(aligned_aggregate+f32_bits(0x3c000000u),7);
+        record[1]=aligned_aggregate;
+
+        const float scaled_sum=ubig_stage_b_rt_scaled_sum(in->bins+1u,config->scaled_sum_count,3);
+        const float numerator=scaled_sum*f32_bits(0x3d800000u);
+        record[2]=(float)((double)numerator/(double)aggregate);
+        record[3]=(scaled_sum==0.0f)?0.0f:
+                  ubig_stage_b_rt_ratio_map_mode(exponent_scale*scaled_sum+f32_bits(0x3e000000u),3);
+    }
+
+    if((((index+2u)&31u))==s->phase){
+        const uint32_t next=(index+1u<UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH)?index+1u:0u;
+        float values[UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH];
+        int32_t shared_shift=32;
+
+        for(uint32_t column=4u;column<12u;column++){
+            s->records[next][column]=0.0f;
+            for(uint32_t row=0;row<UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH;row++){
+                values[row]=s->records[row][column];
+                const int32_t lane_shift=stage_b_rt_spectral_shift(values[row]);
+                if(lane_shift<shared_shift)shared_shift=lane_shift;
+            }
+            const uint32_t out=column-4u;
+            s->segment_sum[out]=stage_b_rt_reduce32_exact(values,shared_shift);
+            s->segment_shift[out]=(uint32_t)(shared_shift&0xff);
+        }
+
+        for(uint32_t segment=1u;segment<UBIG_STAGE_B_RT_FEATURE_SEGMENTS;segment++){
+            s->records[next][11u+segment]=0.0f;
+            int32_t shift=30;
+            for(uint32_t row=0;row<UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH;row++){
+                values[row]=s->records[row][12u+segment]-s->records[row][11u+segment];
+                if(row==next)values[row]=0.0f;
+                const int32_t lane_shift=stage_b_rt_spectral_shift(values[row]);
+                if(lane_shift<shift)shift=lane_shift;
+            }
+            const uint32_t out=segment-1u;
+            s->delta_sum[out]=stage_b_rt_reduce32_exact(values,shift);
+            s->delta_shift[out]=(uint32_t)(shift&0xff);
+        }
+    }
+
+    s->index=index+1u;
+    if(s->index>=UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH)s->index=0u;
+}
