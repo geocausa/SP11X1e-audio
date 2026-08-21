@@ -98,3 +98,17 @@ Two implementation details found by differential testing are now explicit behavi
 2. linked-deviation averaging divides by all unmasked bands, while its accumulator/max only include deviations above `1/2600`.
 
 The next compressor targets are the two larger state workers rooted at the former binary boundaries corresponding to `0x180025228` and `0x180025520`. They are not yet claimed native/exact.
+
+### Compressor worker closure — checkpoint 4 candidate
+
+The two larger state workers beneath the band controller are now native and exact:
+
+- five-parameter transition smoother: 1,000,000 direct calls bit-exact
+- rise/gate worker: 30,000 complete 0x114-byte state images + both flags bit-exact
+- release/hold worker: 30,000 complete 0x114-byte state images bit-exact
+- isolated severity reducer: 200,000 calls bit-exact
+- full band controller: 20,000 complete state images bit-exact
+
+A key reducer detail is a cross-band floor recurrence carried in the original scalar register state. This is now explicit in the UbiG implementation and public specification.
+
+With this closure, the former `0x1800250b0` compressor sub-controller is no longer proprietary algorithmic code. The next step is to climb back into the `0x180021e80` top-level multiband-compressor orchestrator and replace the remaining bounded workers around this exact sub-controller.

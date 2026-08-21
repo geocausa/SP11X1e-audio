@@ -357,3 +357,95 @@ float ubig_comp_soft_max(float a, float b)
         out = 1.0f;
     return out;
 }
+
+static uint32_t ubig_load_u32(const unsigned char *p, size_t off)
+{
+    uint32_t v; __builtin_memcpy(&v, p + off, sizeof(v)); return v;
+}
+static uint64_t ubig_load_u64(const unsigned char *p, size_t off)
+{
+    uint64_t v; __builtin_memcpy(&v, p + off, sizeof(v)); return v;
+}
+static float ubig_load_f32(const unsigned char *p, size_t off)
+{
+    float v; __builtin_memcpy(&v, p + off, sizeof(v)); return v;
+}
+
+void ubig_comp_band_state_update(void *state,
+                                 const float *activity,
+                                 uint32_t gate_a,
+                                 uint32_t gate_b,
+                                 float weight,
+                                 float ratio_gate,
+                                 float ratio_margin,
+                                 float target)
+{
+    unsigned char *p = state;
+    const float *cfg = (const float *)(uintptr_t)ubig_load_u64(p, 0x00);
+    const uint32_t count = ubig_load_u32(p, 0x08);
+
+    float weighted_count = 0.0f;
+    float weighted_activity = 0.0f;
+    for (uint32_t i = 0; i < count; ++i) {
+        const float band_weight = ubig_load_f32(p, 0x64 + 4u * i) + 1.0f;
+        weighted_count = fmaf(band_weight, weight, weighted_count);
+        weighted_activity = fmaf(activity[i], band_weight, weighted_activity);
+    }
+
+    float ratio;
+    float ratio_state;
+    if (weighted_count < 0.3f) {
+        ratio = 0.0f;
+        ratio_state = 0.0f;
+    } else {
+        ratio = (float)((double)weighted_activity / (double)weighted_count);
+        const float old_ratio = ubig_load_f32(p, 0xbc);
+        if (old_ratio < ratio) {
+            const float add = cfg[1] * ratio;
+            ratio_state = fmaf(old_ratio, cfg[0], add);
+        } else {
+            const float add = cfg[2] * old_ratio;
+            ratio_state = fmaf(cfg[3], ratio, add);
+        }
+    }
+    ubig_store_f32(p, 0xbc, ratio_state);
+
+    float current = ubig_load_f32(p, 0xc0);
+    if (current <= target) {
+        if (gate_a) {
+            uint32_t hold; __builtin_memcpy(&hold, (const unsigned char *)cfg + 0x14, 4);
+            ubig_store_u32(p, 0x0c, hold);
+        } else if (gate_b && ratio_gate < ratio && ratio_margin < (ratio - ratio_state)) {
+            uint32_t hold; __builtin_memcpy(&hold, (const unsigned char *)cfg + 0x14, 4);
+            ubig_store_u32(p, 0x10, hold);
+        }
+
+        float extra = 0.0f;
+        if (ubig_load_u32(p, 0x10) != 0)
+            extra = cfg[4];
+        const float toward_target = (cfg[1] + extra) * target;
+        current = fmaf(cfg[0] - extra, current, toward_target);
+    } else {
+        const float keep = cfg[2] * current;
+        current = fmaf(cfg[3], target, keep);
+    }
+
+    uint32_t hold_b = ubig_load_u32(p, 0x10);
+    if (hold_b) ubig_store_u32(p, 0x10, hold_b - 1u);
+    uint32_t hold_a = ubig_load_u32(p, 0x0c);
+    if (hold_a) ubig_store_u32(p, 0x0c, hold_a - 1u);
+
+    for (uint32_t i = 0; i < count; ++i) {
+        const uint32_t flagged = ubig_load_u32(p, 0x14 + 4u * i);
+        const float old = ubig_load_f32(p, 0xc4 + 4u * i);
+        float next;
+        if (flagged && (ubig_load_u32(p, 0x0c) != 0 || ratio_gate < ratio) && old <= current) {
+            next = current;
+        } else {
+            const float keep = old * cfg[0];
+            next = fmaf(cfg[1], current, keep);
+        }
+        ubig_store_f32(p, 0xc4 + 4u * i, next);
+    }
+    ubig_store_f32(p, 0xc0, current);
+}

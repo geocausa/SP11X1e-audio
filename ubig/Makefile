@@ -2,7 +2,7 @@ CC ?= gcc
 CFLAGS ?= -O2 -g -std=c11 -Wall -Wextra -Werror -ffp-contract=off
 CPPFLAGS += -Iinclude -Isrc/core
 BUILD := build
-CORE_OBJS := $(BUILD)/engine.o $(BUILD)/profiles.o $(BUILD)/adapter256.o $(BUILD)/stage_a_limiter.o $(BUILD)/stage_a_math.o $(BUILD)/stage_a_export.o $(BUILD)/stage_a_synth.o $(BUILD)/stage_a_fft320.o $(BUILD)/stage_a_analyzer.o $(BUILD)/stage_a_compressor_primitives.o
+CORE_OBJS := $(BUILD)/engine.o $(BUILD)/profiles.o $(BUILD)/adapter256.o $(BUILD)/stage_a_limiter.o $(BUILD)/stage_a_math.o $(BUILD)/stage_a_export.o $(BUILD)/stage_a_synth.o $(BUILD)/stage_a_fft320.o $(BUILD)/stage_a_analyzer.o $(BUILD)/stage_a_compressor_primitives.o $(BUILD)/stage_a_compressor_worker.o
 CONTROL_OBJS := $(BUILD)/control_page.o
 
 .PHONY: all check clean
@@ -36,6 +36,9 @@ $(BUILD)/stage_a_analyzer.o: src/core/stage_a_analyzer.c | $(BUILD)
 
 $(BUILD)/stage_a_compressor_primitives.o: src/core/stage_a_compressor_primitives.c | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(BUILD)/stage_a_compressor_worker.o: src/core/stage_a_compressor_worker.c | $(BUILD)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 $(BUILD)/control_page.o: src/control/control_page.c | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
@@ -64,7 +67,10 @@ $(BUILD)/test_stage_a_fft320: tests/test_stage_a_fft320.c $(BUILD)/stage_a_fft32
 $(BUILD)/test_stage_a_compressor_primitives: tests/test_stage_a_compressor_primitives.c $(BUILD)/stage_a_compressor_primitives.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -lm -o $@
 
-check: $(BUILD)/test_adapter256 $(BUILD)/test_engine $(BUILD)/test_control $(BUILD)/test_stage_a_limiter $(BUILD)/test_stage_a_math $(BUILD)/test_stage_a_export $(BUILD)/test_stage_a_fft320 $(BUILD)/test_stage_a_compressor_primitives
+$(BUILD)/test_stage_a_compressor_worker: tests/test_stage_a_compressor_worker.c $(BUILD)/stage_a_compressor_primitives.o $(BUILD)/stage_a_compressor_worker.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -lm -o $@
+
+check: $(BUILD)/test_adapter256 $(BUILD)/test_engine $(BUILD)/test_control $(BUILD)/test_stage_a_limiter $(BUILD)/test_stage_a_math $(BUILD)/test_stage_a_export $(BUILD)/test_stage_a_fft320 $(BUILD)/test_stage_a_compressor_primitives $(BUILD)/test_stage_a_compressor_worker
 	$(BUILD)/test_adapter256
 	$(BUILD)/test_engine
 	$(BUILD)/test_control
@@ -73,6 +79,7 @@ check: $(BUILD)/test_adapter256 $(BUILD)/test_engine $(BUILD)/test_control $(BUI
 	$(BUILD)/test_stage_a_export
 	$(BUILD)/test_stage_a_fft320
 	$(BUILD)/test_stage_a_compressor_primitives
+	$(BUILD)/test_stage_a_compressor_worker
 
 clean:
 	rm -rf $(BUILD)

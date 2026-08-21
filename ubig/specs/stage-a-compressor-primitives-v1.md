@@ -25,3 +25,16 @@ Notable observable arithmetic details retained for parity:
 - fused multiply-add/subtract ordering is preserved where it affects float32 results
 
 Private direct-function oracle gates used during implementation reached bit-exact equality for every accepted block. Public regression tests retain deterministic oracle-proven vectors without requiring proprietary code.
+
+## Stateful worker closure
+
+The next layer above the primitive functions is also native and directly proven:
+
+- five-parameter piecewise transition smoother (`0x180021bb8` reference boundary)
+- per-band rise/gate worker (`0x180025228`)
+- release/hold state worker (`0x180025520`)
+- full band-controller coordinator (`0x1800250b0`)
+
+The controller severity reducer has an important cross-band recurrence: its selected floor is carried from one band into the next. The carry starts at `0.5 * drive - 1`; each following band subtracts another `0.5 * drive` from the previous selected floor before comparing it with that band's half-level knee. Resetting the floor independently per band is incorrect and produces large target errors.
+
+Private differential gates reached bit-exact complete-state parity for 30k rise/gate cases, 30k release/hold cases, 20k full-controller cases, and 200k isolated severity-reducer cases. Deterministic public hashes were generated only after matching the original reference on the same vectors.

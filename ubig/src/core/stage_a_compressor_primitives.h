@@ -80,4 +80,13 @@ void ubig_comp_band_state_init(void *state, const void *config, uint32_t count);
 
 float ubig_comp_soft_max(float a, float b);
 
+void ubig_comp_band_state_update(void *state,
+                                 const float *activity,
+                                 uint32_t gate_a,
+                                 uint32_t gate_b,
+                                 float weight,
+                                 float ratio_gate,
+                                 float ratio_margin,
+                                 float target);
+
 #endif
