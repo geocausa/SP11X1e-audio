@@ -260,3 +260,7 @@ The parent around transition -> lookup -> normalized cubic processing is native 
 ### Stage-B linked lookup regression closure
 
 The lookup-family soft-link reducer and its offset/minimum/regression parent are now native. Both promoted functions pass **1,000,000 randomized direct calls bit-exact** against their original boundaries. Their 20-band offset vector and eight lookup curves remain caller-owned data. Public synthetic hashes: `2c964b97416d6649` and `352e902c112df76d`.
+
+### Stage-B coefficient-tail shaping closure
+
+The bounded producer tail shaper is native as `ubig_stage_b_leveler_tail_shape()`. Promoted UbiG source matches **1,000,000 complete randomized direct calls bit-exact** for SP11 active widths 0-20. Its eight SP11 tail coefficients remain caller-owned data rather than embedded reference bytes. Public synthetic-tail hash: `0482d0dbd48bedd3`.

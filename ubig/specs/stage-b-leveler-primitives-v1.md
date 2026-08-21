@@ -197,3 +197,9 @@ Both non-algorithmic data families remain explicit inputs: the eight lookup curv
 `ubig_stage_b_leveler_lookup_link()` closes the soft-linked lookup reducer and `ubig_stage_b_leveler_lookup_regression()` closes its immediate offset/minimum/regression parent. Both accept the 20-band offset vector and eight lookup curves as caller-owned configuration. The soft-link correction preserves the fused cubic `((2.0396 - 2.9532*d)*d - 0.4921)*d + 0.043` below its exact `0.2854` hard-max threshold.
 
 Promoted-source private gates: **1,000,000 randomized calls bit-exact** for the linked reducer and **1,000,000 randomized calls bit-exact** for its parent. Public synthetic-data hashes: `2c964b97416d6649` and `352e902c112df76d`. No reference offset/table bytes are embedded.
+
+## Twelve-zero plus coefficient tail shaping
+
+`ubig_stage_b_leveler_tail_shape()` closes the producer helper that converts one scalar control into a per-band auxiliary row. Positive control clears all active lanes. For nonpositive control the first twelve lanes are exactly zero; later lanes use caller-owned tail coefficients multiplied by the recovered fixed scalar scale, clamped to ±`0x3f7ffffe`. Control at or below -1 emits exact -1 across the tail.
+
+The SP11 20-lane path consumes eight tail coefficients. Those coefficients remain explicit caller-owned configuration and are not embedded in UbiG. Promoted-source private differential: **1,000,000 complete randomized calls bit-exact** for active lengths 0 through 20. Public synthetic-tail regression hash: `0482d0dbd48bedd3`.

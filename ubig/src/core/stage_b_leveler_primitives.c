@@ -734,6 +734,34 @@ float ubig_stage_b_leveler_lookup_link(const float *fallback,
     return linked;
 }
 
+void ubig_stage_b_leveler_tail_shape(uint32_t count,
+                                     float *output,
+                                     float control,
+                                     const float *tail_coefficients)
+{
+    if(!output)return;
+    if(control>0.0f){
+        for(uint32_t i=0;i<count;i++)output[i]=0.0f;
+        return;
+    }
+    uint32_t i=0;
+    while(i<count && i<12u)output[i++]=0.0f;
+    if(i>=count)return;
+    if(control<=-1.0f){
+        for(;i<count;i++)output[i]=-1.0f;
+        return;
+    }
+    if(!tail_coefficients)return;
+    const float almost=f32_bits(0x3f7ffffeu);
+    const float gain=control*f32_bits(0x3e8a00dau);
+    for(;i<count;i++){
+        float v=tail_coefficients[i-12u]*gain;
+        if(v<-almost)v=-almost;
+        if(almost<v)v=almost;
+        output[i]=v;
+    }
+}
+
 float ubig_stage_b_leveler_lookup_regression(uint32_t count,
                                              const float *input,
                                              const float *fallback,

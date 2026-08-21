@@ -194,6 +194,13 @@ float ubig_stage_b_leveler_lookup_link(const float *fallback,
                                        const float *offsets,
                                        const UbigStageBLevelerLookupTables *tables);
 
+/* Exact producer tail shaping: first 12 lanes zero, remaining lanes use
+ * caller-owned tail coefficients. The SP11 contract uses eight tail entries. */
+void ubig_stage_b_leveler_tail_shape(uint32_t count,
+                                     float *output,
+                                     float control,
+                                     const float *tail_coefficients);
+
 /* Exact offset/minimum/regression parent around the linked lookup reducer. */
 float ubig_stage_b_leveler_lookup_regression(uint32_t count,
                                              const float *input,
