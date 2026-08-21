@@ -343,3 +343,7 @@ The late bounded crossfade/polarity controller is native as `ubig_stage_b_rt_cro
 The late two-row multiband state blender is now native as `ubig_stage_b_rt_stereo_blend_process()`. The promoted semantic implementation matches **120,000 complete randomized calls bit-exact** across all twenty signed counters, both adaptive rows, five scalar memories and the destination correction row. Public lifecycle hash: `0df4020ec12288b8`.
 
 - Stage-B deployed stereo multiband parent is now native as `ubig_stage_b_rt_multiband_process()`. All numerical children are independently owned; reference coefficient/table families remain caller-owned tuning. Live promoted-source snapshot replay: **1,920/1,920 complete warm calls bit-exact** across the five active deployed profiles; Music/Game bypass the block. Public synthetic parent hash: `f0c5c8963e2cc6b4`.
+
+### Stage-B deployed Leveler control-wrapper closure
+
+The always-invoked wrapper above the stereo Leveler parent is now native as `ubig_stage_b_leveler_wrapper_process()`. Live child census shows the reference's alternate generated-control helper is never called on any of the seven shipped profiles; six profiles execute the already-native Leveler parent and Voice takes the wrapper's exact disabled early path. The promoted wrapper matches **2,688/2,688 complete warm live replays bit-exact** across all seven profiles with zero fallback. Public lifecycle hash: `c03c38ccf02019e9`.

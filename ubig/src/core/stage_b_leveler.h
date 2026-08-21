@@ -258,4 +258,43 @@ float ubig_stage_b_leveler_parent_process(UbigStageBLevelerParentState *state,
                                           UbigStageBLevelerInputRows *input,
                                           UbigStageBLevelerInputRows *output,
                                           int32_t *telemetry);
+
+typedef struct {
+    float smoothed_limit;
+    float parent_result;
+    uint32_t force_target;
+    uint32_t adaptive_direct;
+} UbigStageBLevelerWrapperState;
+
+typedef struct {
+    uint32_t enabled;
+    uint32_t adaptive_emit;
+    uint32_t target_scale_override;
+    uint32_t lookup_control_override;
+    uint32_t preserve_rows;
+    float smoothing_step;
+    float base_limit;
+    float target_limit;
+    float adaptive_output_scale;
+    float adaptive_target_scale;
+    float lookup_control;
+} UbigStageBLevelerWrapperConfig;
+
+/* Exact deployed control wrapper around the stereo Leveler parent. The
+ * reference's alternate generated-control branch is not used by any shipped
+ * SP11 profile and is intentionally absent. previous_curve/curve_template and
+ * all parent tuning remain caller-owned. */
+void ubig_stage_b_leveler_wrapper_process(UbigStageBLevelerWrapperState *state,
+                                          const UbigStageBLevelerWrapperConfig *config,
+                                          UbigStageBLevelerParentState *parent_state,
+                                          const UbigStageBLevelerParentConfig *parent_config,
+                                          const UbigStageBLevelerParentTuning *parent_tuning,
+                                          const float previous_curve[17],
+                                          const float curve_template[18],
+                                          const UbigStageBLevelerSourceGate *source_gate,
+                                          UbigStageBLevelerInputRows *input,
+                                          UbigStageBLevelerInputRows *output,
+                                          int32_t *telemetry,
+                                          float *control_a,
+                                          float *control_b);
 #endif

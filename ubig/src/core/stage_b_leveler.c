@@ -809,3 +809,71 @@ float ubig_stage_b_leveler_parent_process(UbigStageBLevelerParentState *s,
     result+=extra;
     return result;
 }
+
+void ubig_stage_b_leveler_wrapper_process(UbigStageBLevelerWrapperState *s,
+                                          const UbigStageBLevelerWrapperConfig *c,
+                                          UbigStageBLevelerParentState *parent_state,
+                                          const UbigStageBLevelerParentConfig *parent_config,
+                                          const UbigStageBLevelerParentTuning *parent_tuning,
+                                          const float previous_curve[17],
+                                          const float curve_template[18],
+                                          const UbigStageBLevelerSourceGate *source_gate,
+                                          UbigStageBLevelerInputRows *input,
+                                          UbigStageBLevelerInputRows *output,
+                                          int32_t *telemetry,
+                                          float *control_a,
+                                          float *control_b)
+{
+    if(!s||!c||!control_a||!control_b)return;
+    if(!c->enabled)return;
+    if(!parent_state||!parent_config||!parent_tuning||!previous_curve||!curve_template||
+       !source_gate||!input||!output)return;
+
+    const float original_a=*control_a;
+    const float original_b=*control_b;
+    const float positive=(0.0f>original_a)?0.0f:original_a;
+    const float negative=(original_a<0.0f)?original_a:0.0f;
+    (void)positive; /* feeds an inert reference argument on the deployed parent path */
+
+    float current=s->smoothed_limit;
+    if(s->force_target){
+        current=c->target_limit;
+    }else if(current<c->target_limit){
+        float value=current+c->smoothing_step;
+        if(value<-1.0f)value=-1.0f;
+        if(c->target_limit<value)value=c->target_limit;
+        current=value;
+    }else if(c->target_limit<current){
+        float value=current-c->smoothing_step;
+        if(value<c->target_limit)value=c->target_limit;
+        if(1.0f<value)value=1.0f;
+        current=value;
+    }
+    s->smoothed_limit=current;
+
+    float correction=0.0f;
+    if(current<c->base_limit)correction=c->base_limit-current;
+    const float linked=(current<c->base_limit)?current:c->base_limit;
+    UbigStageBLevelerParentControl ctl={
+        negative,
+        current,
+        linked,
+        c->adaptive_output_scale,
+        c->target_scale_override?c->adaptive_target_scale:1.0f,
+        c->lookup_control_override?c->lookup_control:1.0f,
+        c->adaptive_emit,
+        s->force_target,
+        s->adaptive_direct,
+        c->preserve_rows
+    };
+    s->parent_result=ubig_stage_b_leveler_parent_process(parent_state,parent_config,parent_tuning,&ctl,
+                                                         previous_curve,curve_template,NULL,source_gate,
+                                                         input,output,telemetry);
+    s->adaptive_direct=0u;
+    s->force_target=0u;
+
+    float value=correction+original_a;
+    value=value-negative;
+    *control_a=value;
+    *control_b=negative+original_b;
+}
