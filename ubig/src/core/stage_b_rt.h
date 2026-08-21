@@ -87,4 +87,19 @@ void ubig_stage_b_rt_mix_smooth(const UbigStageBRtMixSmootherConfig *config,
                                 float *state,
                                 uint32_t count);
 
+typedef struct {
+    float quadratic;
+    float linear;
+    float constant;
+} UbigStageBRtCurveRecord;
+
+/* Exact 20-lane per-row curve smoother beneath the profile-selective
+ * multiband block. Rise/fall polynomial records are caller-owned. */
+void ubig_stage_b_rt_curve_smooth(float offset,
+                                  float *const *input_rows,
+                                  float *state_rows,
+                                  uint32_t row_count,
+                                  const UbigStageBRtCurveRecord *fall,
+                                  const UbigStageBRtCurveRecord *rise);
+
 #endif

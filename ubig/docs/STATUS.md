@@ -297,3 +297,7 @@ The second universal VR sibling is native as `ubig_stage_b_rt_output_shape()`. L
 ### Stage-B multiband RT leaf closure
 
 Two clean children beneath the remaining profile-selective multiband block are now native. `ubig_stage_b_rt_zero_band_tail()` matches **500,000 complete randomized calls bit-exact**; `ubig_stage_b_rt_mix_smooth()` matches **1,000,000 complete randomized calls bit-exact**, preserving the reference's distinct vector-prefix/scalar-tail FMA ordering. Public hashes: `c4208990b56b0825`, `5709069143fee731`.
+
+### Stage-B parameterized multiband curve smoother
+
+The first table-driven child beneath the remaining profile-selective multiband block is now algorithmically native as `ubig_stage_b_rt_curve_smooth()`. Its rise/fall polynomial records remain caller-owned; the private oracle rewrites those reference records on every call and proves **500,000 randomized-record calls bit-exact** on promoted source. Public hash: `c0640153d64d5e9e`.

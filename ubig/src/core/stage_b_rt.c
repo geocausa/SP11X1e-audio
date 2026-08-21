@@ -210,3 +210,40 @@ void ubig_stage_b_rt_mix_smooth(const UbigStageBRtMixSmootherConfig *config,
         state[i]=value;
     }
 }
+
+void ubig_stage_b_rt_curve_smooth(float offset,
+                                  float *const *input_rows,
+                                  float *state_rows,
+                                  uint32_t row_count,
+                                  const UbigStageBRtCurveRecord *fall,
+                                  const UbigStageBRtCurveRecord *rise)
+{
+    if(!input_rows||!state_rows||!fall||!rise)return;
+    const float floor=f32_bits(0xbf6c4ec5u);
+    const float high=f32_bits(0x3d9d89d9u);
+    const float capped=f32_bits(0x3d7c0fc1u);
+    const float dead=f32_bits(0x3c7c0fc1u);
+    for(uint32_t row=0;row<row_count;row++){
+        float *state=state_rows+row*UBIG_STAGE_B_RT_MAX_BANDS;
+        const float *input=input_rows[row];
+        for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++){
+            float target=input[lane]+offset;
+            if(target<floor)target=floor;
+            const float old=state[lane];
+            float delta=target-old;
+            const UbigStageBRtCurveRecord *record;
+            if(delta<0.0f){record=fall;delta=-delta;}else record=rise;
+            float x;
+            if(delta>high)x=capped;
+            else if(delta<dead)x=0.0f;
+            else x=delta-dead;
+            x*=4.0f;
+            float coeff=fmaf(x,record->linear,record->constant);
+            x*=4.0f;
+            x*=x;
+            coeff=fmaf(x,record->quadratic,coeff);
+            const float prior=(coeff-1.0f)*old;
+            state[lane]=fmaf(coeff,target,-prior);
+        }
+    }
+}
