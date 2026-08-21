@@ -185,6 +185,22 @@ void ubig_stage_b_leveler_lookup_map(uint32_t count,
                                      float *output,
                                      const UbigStageBLevelerLookupTables *tables);
 
+/* Exact linked lookup reducer; the per-band offset vector and lookup curves are
+ * caller-owned configuration. */
+float ubig_stage_b_leveler_lookup_link(const float *fallback,
+                                       const float *input,
+                                       uint32_t count,
+                                       float floor_value,
+                                       const float *offsets,
+                                       const UbigStageBLevelerLookupTables *tables);
+
+/* Exact offset/minimum/regression parent around the linked lookup reducer. */
+float ubig_stage_b_leveler_lookup_regression(uint32_t count,
+                                             const float *input,
+                                             const float *fallback,
+                                             const float *offsets,
+                                             const UbigStageBLevelerLookupTables *tables);
+
 typedef struct {
     float out0;
     float out1;

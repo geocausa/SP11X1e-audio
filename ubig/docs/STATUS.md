@@ -256,3 +256,7 @@ The previously quarantined eight-table mapper is now algorithmically native as `
 ### Stage-B lookup-controller parent closure
 
 The parent around transition -> lookup -> normalized cubic processing is native as `ubig_stage_b_leveler_lookup_process()`. The promoted implementation matches **300,000 complete randomized calls bit-exact**, covering both pointed 20-lane state rows, persistent scalar feedback, transition/copy modes and the 12-byte result. Lookup curves and cubic coefficients remain caller-owned data. Public synthetic-data hash: `903a60f1a1ed0944`.
+
+### Stage-B linked lookup regression closure
+
+The lookup-family soft-link reducer and its offset/minimum/regression parent are now native. Both promoted functions pass **1,000,000 randomized direct calls bit-exact** against their original boundaries. Their 20-band offset vector and eight lookup curves remain caller-owned data. Public synthetic hashes: `2c964b97416d6649` and `352e902c112df76d`.

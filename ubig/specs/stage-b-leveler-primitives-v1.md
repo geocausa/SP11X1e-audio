@@ -191,3 +191,9 @@ The eight reference curves are not embedded in UbiG. Private direct differential
 `ubig_stage_b_leveler_lookup_process()` closes the parent around the native transition row, seven-fixed-plus-tail lookup mapper, centered-distribution statistic and normalized cubic mapper. Its persistent ABI is a 32-byte state containing two scalar outputs, two caller-owned row pointers, and feedback/factor scalars; its config is also 32 bytes and owns only control values plus the caller-owned transition record pointer.
 
 Both non-algorithmic data families remain explicit inputs: the eight lookup curves and the 32-byte cubic coefficient/exponent record. With those private reference data supplied only by the oracle, the promoted UbiG parent matches **300,000 complete randomized calls bit-exact**, including both 20-lane pointed state rows, all persistent scalars, both transition modes and the complete 12-byte result. Public synthetic-data lifecycle hash: `903a60f1a1ed0944`.
+
+## Offset-linked lookup regression
+
+`ubig_stage_b_leveler_lookup_link()` closes the soft-linked lookup reducer and `ubig_stage_b_leveler_lookup_regression()` closes its immediate offset/minimum/regression parent. Both accept the 20-band offset vector and eight lookup curves as caller-owned configuration. The soft-link correction preserves the fused cubic `((2.0396 - 2.9532*d)*d - 0.4921)*d + 0.043` below its exact `0.2854` hard-max threshold.
+
+Promoted-source private gates: **1,000,000 randomized calls bit-exact** for the linked reducer and **1,000,000 randomized calls bit-exact** for its parent. Public synthetic-data hashes: `2c964b97416d6649` and `352e902c112df76d`. No reference offset/table bytes are embedded.
