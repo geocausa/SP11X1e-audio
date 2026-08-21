@@ -1185,3 +1185,48 @@ void ubig_stage_b_rt_segment_ratio_process(UbigStageBRtSegmentRatioHistory *s,
     s->index++;
     if(s->index>=UBIG_STAGE_B_RT_SEGMENT_RATIO_DEPTH)s->index=0u;
 }
+
+void ubig_stage_b_rt_peak_residual_process(UbigStageBRtPeakResidualHistory *s,
+                                           const UbigStageBRtSpectralExport *in,
+                                           float scratch[UBIG_STAGE_B_RT_SPECTRAL_BINS])
+{
+    if(!s||!in||!scratch||in->count==0u||in->count>UBIG_STAGE_B_RT_SPECTRAL_BINS)return;
+    const uint32_t count=in->count;
+    memcpy(scratch,in->bins,count*sizeof(float));
+
+    uint32_t peak=0u;
+    float maximum=in->bins[0];
+    for(uint32_t lane=1u;lane<count;lane++){
+        if(maximum<in->bins[lane]){maximum=in->bins[lane];peak=lane;}
+    }
+    uint32_t begin=peak>5u?peak-5u:0u;
+    uint32_t end=peak<count-5u?peak+5u:count;
+    float first=0.0f;
+    for(uint32_t lane=begin;lane<end;lane++){
+        first=fmaf(in->bins[lane],f32_bits(0x3d800000u),first);
+        scratch[lane]=0.0f;
+    }
+
+    peak=0u;
+    maximum=scratch[0];
+    for(uint32_t lane=1u;lane<count;lane++){
+        if(maximum<scratch[lane]){maximum=scratch[lane];peak=lane;}
+    }
+    begin=peak>5u?peak-5u:0u;
+    end=peak<count-5u?peak+5u:count;
+    float second=0.0f;
+    for(uint32_t lane=begin;lane<end;lane++)
+        second=fmaf(scratch[lane],f32_bits(0x3d800000u),second);
+
+    float residual1=in->aggregate-first*0.125f;
+    if(residual1<0.0f)residual1=0.0f;
+    float residual2=residual1-second*0.125f;
+    if(residual2<0.0f)residual2=0.0f;
+    const float scale=stage_b_rt_pow2_integer(-in->exponent);
+    float *dst=s->history[s->index];
+    dst[0]=residual1*scale;
+    dst[1]=residual2*scale;
+    dst[2]=(residual1>0.0f?second:0.0f)*scale;
+    s->index++;
+    if(s->index>=UBIG_STAGE_B_RT_PEAK_HISTORY_DEPTH)s->index=0u;
+}

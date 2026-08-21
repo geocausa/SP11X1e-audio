@@ -115,3 +115,9 @@ Promoted-source private differential: **500,000 complete randomized calls bit-ex
 `ubig_stage_b_rt_ratio_map()` closes the deployed mode-zero scalar map used by the segmented statistic path. Its exponent-normalized polynomial and fused subtract schedule match **1,000,000 direct calls bit-exact** over a broad positive-ratio domain.
 
 `ubig_stage_b_rt_segment_ratio_process()` closes the enclosing fixed eight-segment history update. For each caller-owned segment it finds the local range, rejects effectively flat spans, averages samples in the upper/lower 20% bands, aligns them through the shared spectral exponent, forms the epsilon-stabilized ratio, applies the native scalar map and writes the result into a 32-slot eight-lane ring. Promoted-source differential: **500,000 complete randomized calls bit-exact** on the deployed <=77-bin contract, including randomized boundaries, spectra, exponents, flat/non-flat cases, ring contents and indices. Public combined regression hash: `5d0bebce6be6277f`.
+
+## Two-peak residual history
+
+`ubig_stage_b_rt_peak_residual_process()` owns the standalone two-peak residual extractor used by the universal RT scheduler. It copies the semantic spectral bins into caller scratch, finds the strongest bin, zeroes the bounded ±5-bin neighborhood in that scratch copy, finds the strongest remaining bin, computes the two 1/128 neighborhood contributions, subtracts them successively from the caller aggregate, exponent-aligns the resulting residuals and stores three values in a 32-slot history ring.
+
+Promoted-source private differential: **500,000 complete randomized calls bit-exact**, comparing the full persistent ring/index, modified scratch output and untouched spectral input across randomized bin counts up to the deployed 77-bin limit, exponents, aggregates and edge/interior peak positions. Public lifecycle hash: `bf6874dd8aed3e48`.

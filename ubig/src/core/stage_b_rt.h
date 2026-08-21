@@ -419,4 +419,17 @@ typedef struct {
 void ubig_stage_b_rt_segment_ratio_process(UbigStageBRtSegmentRatioHistory *state,
                                            const UbigStageBRtSegmentRatioConfig *config,
                                            const UbigStageBRtSpectralExport *input);
+
+#define UBIG_STAGE_B_RT_PEAK_HISTORY_DEPTH 32u
+
+typedef struct {
+    float history[UBIG_STAGE_B_RT_PEAK_HISTORY_DEPTH][3];
+    uint32_t index;
+} UbigStageBRtPeakResidualHistory;
+
+/* Exact two-peak residual extractor. scratch receives a copy of the input bins
+ * with the strongest-peak neighborhood zeroed. */
+void ubig_stage_b_rt_peak_residual_process(UbigStageBRtPeakResidualHistory *state,
+                                           const UbigStageBRtSpectralExport *input,
+                                           float scratch[UBIG_STAGE_B_RT_SPECTRAL_BINS]);
 #endif

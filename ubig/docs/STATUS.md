@@ -367,3 +367,7 @@ The exponent-aligned spectral-frame change metric is native as `ubig_stage_b_rt_
 ### Stage-B RT segmented-ratio closure
 
 The next hot scheduler pair is native: `ubig_stage_b_rt_ratio_map()` passes **1,000,000 direct calls bit-exact**, and its eight-segment parent `ubig_stage_b_rt_segment_ratio_process()` passes **500,000 complete randomized calls bit-exact** on the deployed 77-bin class. Segment boundaries remain caller-owned. Public combined hash: `5d0bebce6be6277f`.
+
+### Stage-B RT two-peak residual closure
+
+The medium no-subcall peak/residual transform beneath the universal RT scheduler is native as `ubig_stage_b_rt_peak_residual_process()`. Promoted source matches **500,000 complete randomized calls bit-exact**, including scratch-spectrum mutation and all 32×3 persistent history state. Public lifecycle hash: `bf6874dd8aed3e48`.
