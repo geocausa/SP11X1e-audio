@@ -283,3 +283,9 @@ The active SP11 stereo Leveler parent is now native as `ubig_stage_b_leveler_par
 The promoted public source was tested through a live snapshot/replay differential on the initialized SP11 object graph. Dynamic, Movie, Music, Game, Course and Custom each passed six independent host chunk-pattern instances with 64 consecutive parent calls compared per instance: **2,304 complete live parent replays bit-exact**, with zero return, persistent-state, telemetry or fallback mismatches. Voice bypasses this parent, matching the shipped endpoint behavior.
 
 The deployed profile policy leaves the parent's legacy negative-remap branch disabled for every active profile, so its private tables are intentionally outside the UbiG contract. Lookup/inverse tables, cubic coefficients, offsets, producer thresholds, adaptive band weights and tail coefficients remain explicit caller-owned tuning. Public all-synthetic parent lifecycle hash: `5914caceb8261553`.
+
+### Stage-B universal RT band-analysis closure
+
+The universal VR band-analysis branch is now native as `ubig_stage_b_rt_complex_energy()` plus `ubig_stage_b_rt_band_log_process()`. The energy reducer matches **1,000,000 randomized calls bit-exact**; the complete row builder matches **200,000 complete randomized calls bit-exact**, including grouping, optional auxiliary vectors, band boundaries, output rows, tail fill and telemetry. Public hashes: `1faa4ac9654c888c` and `2a3371c6a974905c`.
+
+Live call-count instrumentation shows this branch executes on every deployed profile. It is table-free apart from caller-owned band boundaries and reuses the already-proven UbiG fast-log2 arithmetic.

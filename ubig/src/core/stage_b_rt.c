@@ -1,0 +1,84 @@
+#include "stage_b_rt.h"
+#include "stage_a_math.h"
+#include <math.h>
+#include <string.h>
+
+static float f32_bits(uint32_t u){float f;memcpy(&f,&u,4);return f;}
+
+float ubig_stage_b_rt_complex_energy(float *const *rows,
+                                     uint32_t row_count,
+                                     uint32_t begin,
+                                     uint32_t end)
+{
+    double real_sum=0.0,imag_sum=0.0;
+    for(uint32_t r=0;r<row_count;r++){
+        const float *row=rows[r];
+        for(uint32_t k=begin;k<end;k++){
+            const double re=(double)row[2u*k];
+            const double im=(double)row[2u*k+1u];
+            real_sum=fma(re,re,real_sum);
+            imag_sum=fma(im,im,imag_sum);
+        }
+    }
+    return (float)(real_sum+imag_sum);
+}
+
+void ubig_stage_b_rt_band_log_process(float offset0,
+                                      float offset1,
+                                      const UbigStageBRtComplexGroups *main_groups,
+                                      const UbigStageBRtExtraGroups *extra_groups,
+                                      const uint32_t *band_ends,
+                                      const int32_t *group_to_output,
+                                      UbigStageBRtBandRows *output,
+                                      UbigStageBRtTelemetryRows *telemetry)
+{
+    if(!output||!telemetry||!output->rows||!telemetry->rows||
+       !band_ends||!group_to_output)return;
+    if(output->band_count>UBIG_STAGE_B_RT_MAX_BANDS||output->capacity<output->band_count)return;
+    const float log_scale=f32_bits(0x3cbdb1f9u);
+    const float log_floor=f32_bits(0xbfb13b14u);
+    const float upper=f32_bits(0x3e6c4ec5u);
+    const float offset=offset0+offset1;
+    for(uint32_t out_row=0;out_row<output->row_count;out_row++){
+        float *selected[UBIG_STAGE_B_RT_MAX_SELECTED_ROWS];
+        uint32_t selected_count=0;
+        if(main_groups&&main_groups->groups){
+            for(uint32_t g=0;g<main_groups->group_count;g++){
+                if(group_to_output[g]!=(int32_t)out_row)continue;
+                if(selected_count+main_groups->vectors_per_group>UBIG_STAGE_B_RT_MAX_SELECTED_ROWS)return;
+                for(uint32_t v=0;v<main_groups->vectors_per_group;v++)
+                    selected[selected_count++]=main_groups->groups[g][v];
+                if(extra_groups&&extra_groups->groups&&g<2u){
+                    if(selected_count+extra_groups->vectors_per_group>UBIG_STAGE_B_RT_MAX_SELECTED_ROWS)return;
+                    for(uint32_t v=0;v<extra_groups->vectors_per_group;v++)
+                        selected[selected_count++]=extra_groups->groups[g][v];
+                }
+            }
+        }
+        float *dst=output->rows[out_row];
+        int32_t *tele=telemetry->rows[out_row];
+        uint32_t begin=0;
+        for(uint32_t band=0;band<output->band_count;band++){
+            const uint32_t end=band_ends[band];
+            const float energy=ubig_stage_b_rt_complex_energy(selected,selected_count,begin,end);
+            float value=log_floor;
+            if(energy>0.0f){
+                value=ubig_stage_a_log2_approx(energy)*log_scale;
+                if(value<log_floor)value=log_floor;
+            }
+            dst[band]=value;
+            begin=end;
+        }
+        for(uint32_t band=0;band<output->band_count;band++){
+            float value=dst[band]-offset;
+            if(value<-1.0f)value=-1.0f;
+            if(value>upper)value=upper;
+            dst[band]=value;
+            tele[band]=0;
+        }
+        for(uint32_t band=output->band_count;band<output->capacity;band++){
+            dst[band]=-1.0f;
+            tele[band]=0;
+        }
+    }
+}
