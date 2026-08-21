@@ -1,0 +1,46 @@
+{
+  "date": "2026-08-21",
+  "candidate": "v32 exact-Golden feedback",
+  "boot_marker": "sp11_entry=7.1.5-sp11-v32-feedback-exact-golden",
+  "modules": {
+    "wsa_macro": "F32C7A03F713D1B20F0BF78",
+    "wsa884x": "5859E70AFD0A1D420E8ADD4",
+    "soundwire_qcom": "D008A3D6B585C11BE023992",
+    "q6apm_golden": "687B16CF9C43B43E90C0746"
+  },
+  "topology_sha256": "1b0c7217fc67bb11da002b06563dd8c411b0f0e35ac40778bff3d65093061c9d",
+  "idle_uptime_before_test": "over 8 hours",
+  "stress": {
+    "cycles": 10,
+    "composition": "5 digital-silence + 5 minus-18dB 997Hz",
+    "pa_fault_delta": 0,
+    "pa_recovery_delta": 0,
+    "protclk_enable_delta": 10,
+    "protclk_disable_delta": 10,
+    "glink_timeout_delta": 0
+  },
+  "canonical_diag_no_forced_topology": {
+    "tone_repeats": [
+      {
+        "vi": {"frames":57,"nonzero":57,"unique":57,"rate_hz":8000,"payload_bytes":640,"rms_s32":16626155.3,"median_abs_s32":13828238.5},
+        "cps": {"frames":85,"nonzero":85,"rate_hz":24000,"payload_bytes":1920,"rms_s32":449747.9,"median_abs_s32":447248.0}
+      },
+      {
+        "vi": {"frames":31,"nonzero":31,"unique":31,"rate_hz":8000,"payload_bytes":640,"rms_s32":12436137.4,"median_abs_s32":9830537.0},
+        "cps": {"frames":60,"nonzero":60,"rate_hz":24000,"payload_bytes":1920,"rms_s32":452387.7,"median_abs_s32":451855.5}
+      },
+      {
+        "vi": {"frames":31,"nonzero":31,"unique":31,"rate_hz":8000,"payload_bytes":640,"rms_s32":13139501.2,"median_abs_s32":10420381.0},
+        "cps": {"frames":61,"nonzero":61,"rate_hz":24000,"payload_bytes":1920,"rms_s32":448949.3,"median_abs_s32":448272.0}
+      }
+    ],
+    "windows_reference": {
+      "vi_rate_hz":8000,"vi_payload_bytes":640,"vi_median_rms":11730525.6222674,
+      "cps_rate_hz":24000,"cps_payload_bytes":1920,"cps_median_rms":455455.92291516
+    },
+    "pa_faults_after":0,
+    "pa_recoveries_after":0,
+    "glink_timeouts_after":0
+  },
+  "conclusion": "Exact-Golden-derived v32 restores native nonzero VI and CPS on canonical topology without forced logger topology. Native framing/rates match Windows and magnitudes are in the Windows range."
+}
