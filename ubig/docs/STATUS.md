@@ -272,3 +272,6 @@ The remaining two local numerical workers beneath the Leveler matrix parent are 
 ### Stage-B stereo matrix parent closure
 
 The Leveler matrix parent is native as `ubig_stage_b_leveler_matrix_process()`. On the actual SP11 0-2-row / 20-stride contract, promoted source passes **120,000 complete randomized calls bit-exact**, including transition/copy modes, variable active widths, both scalar biases, the <=-1 fill branch, all state rows and the full destination matrix. Lookup data remain caller-owned. Public hash: `70e71bed8f17f4a2`.
+### Stage-B 20-band adaptive filter closure
+
+The final standalone numerical child beneath the active Leveler producer is native as `ubig_stage_b_leveler_adaptive_filter_process()`. The proven SP11 contract is fixed at 20 bands/index 2. Promoted source passes **80,000 complete randomized calls bit-exact**, covering both persistent adaptive rows, reset/direct/update modes, optional filter/output processing, all output rows, and integer telemetry. Its `frexp`-style log expression is independently equivalent to the existing native fast-log2 on **1,000,000 positive inputs**. The 20-band statistic vector remains caller-owned data. Public synthetic lifecycle hash: `744a6bdc1ec1dd38`.

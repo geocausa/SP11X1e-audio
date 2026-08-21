@@ -62,5 +62,10 @@ int main(void){
         pph=h64(pph,&ps,sizeof ps);pph=h64(pph,prows,sizeof prows);pph=h64(pph,perr,sizeof perr);
     }
     if(pph!=0x4b55c0c0974ae190ULL){fprintf(stderr,"Stage-B Leveler producer hash %016llx\n",(unsigned long long)pph);return 9;}
-    puts("PASS Stage-B Leveler/DRC long-memory writer/reset/pair-row/curve-pipeline/producer regressions");return 0;
+    rng=0x67ac8b26u;uint64_t afh=1469598103934665603ULL;float aff[NW]={0},afs[NW]={0};UbigStageBLevelerAdaptiveState ast={aff,afs};
+    float aris[NW],abld[NW],awgt[NW],asgv[NW],aref[NW],afc[5],apost[NW];float arecv[NR][NW],arows[NR][NW];UbigStageBLevelerRecord arec[NR];float *arowp[NR];int32_t atele[NW]={0};
+    for(unsigned i=0;i<NW;i++)awgt[i]=0.115f+0.0185f*(float)i+0.003f*(float)(i%4u);
+    for(unsigned n=0;n<16000;n++){for(unsigned i=0;i<NW;i++){aris[i]=fr(.08f,.999f);abld[i]=fr(.08f,.999f);asgv[i]=fr(.05f,1.45f);aref[i]=fr(-1.15f,.35f);apost[i]=fr(.12f,.85f);}for(unsigned i=0;i<5;i++)afc[i]=fr(.01f,.48f);for(unsigned r=0;r<NR;r++){arec[r].values=arecv[r];arec[r].scalar=fr(-.2f,.2f);arec[r].reserved=0;arowp[r]=arows[r];for(unsigned i=0;i<NW;i++){arecv[r][i]=fr(-1.18f,.18f);arows[r][i]=fr(-.22f,.22f);}}UbigStageBLevelerAdaptiveControl actl={aris,abld,fr(.08f,.999f),0};UbigStageBLevelerSymmetricFilter afilt={afc,apost,1u+ru()%5u,0};UbigStageBLevelerSourceGate asg={asgv,(ru()%11u==0u)?fr(-.08f,0.0f):fr(.004f,.18f),0};UbigStageBLevelerProducerRows aout={arowp,arec};int32_t *atp=(ru()&1u)?atele:0;ubig_stage_b_leveler_adaptive_filter_process(&ast,&actl,&afilt,&asg,aref,awgt,ru()&1u,ru()&1u,ru()&1u,&aout,atp,fr(-.025f,.025f),fr(.25f,.75f),fr(.001f,.04f),fr(0,.999f),fr(0,1));afh=h64(afh,aff,sizeof aff);afh=h64(afh,afs,sizeof afs);afh=h64(afh,arows,sizeof arows);afh=h64(afh,atele,sizeof atele);}
+    if(afh!=0x744a6bdc1ec1dd38ULL){fprintf(stderr,"Stage-B adaptive-filter hash %016llx\n",(unsigned long long)afh);return 10;}
+    puts("PASS Stage-B Leveler/DRC long-memory writer/reset/pair-row/curve-pipeline/producer/adaptive-filter regressions");return 0;
 }

@@ -64,7 +64,7 @@ $(BUILD)/stage_a_regulator.o: src/core/stage_a_regulator.c | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 $(BUILD)/stage_b_leveler_primitives.o: src/core/stage_b_leveler_primitives.c src/core/stage_b_leveler_primitives.h | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-$(BUILD)/stage_b_leveler.o: src/core/stage_b_leveler.c src/core/stage_b_leveler.h src/core/stage_b_leveler_primitives.h | $(BUILD)
+$(BUILD)/stage_b_leveler.o: src/core/stage_b_leveler.c src/core/stage_b_leveler.h src/core/stage_b_leveler_primitives.h src/core/stage_a_math.h | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 $(BUILD)/control_page.o: src/control/control_page.c | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
@@ -123,7 +123,7 @@ $(BUILD)/test_stage_a_regulator: tests/test_stage_a_regulator.c $(BUILD)/stage_a
 $(BUILD)/test_stage_b_leveler_primitives: tests/test_stage_b_leveler_primitives.c $(BUILD)/stage_b_leveler_primitives.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -lm -o $@
 
-$(BUILD)/test_stage_b_leveler: tests/test_stage_b_leveler.c $(BUILD)/stage_b_leveler.o $(BUILD)/stage_b_leveler_primitives.o
+$(BUILD)/test_stage_b_leveler: tests/test_stage_b_leveler.c $(BUILD)/stage_b_leveler.o $(BUILD)/stage_b_leveler_primitives.o $(BUILD)/stage_a_math.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -lm -o $@
 
 check: $(BUILD)/test_adapter256 $(BUILD)/test_engine $(BUILD)/test_control $(BUILD)/test_stage_a_limiter $(BUILD)/test_stage_a_math $(BUILD)/test_stage_a_export $(BUILD)/test_stage_a_fft320 $(BUILD)/test_stage_a_filterbank_sp11 $(BUILD)/test_stage_a_sp11_tuning $(BUILD)/test_stage_a_core_helpers $(BUILD)/test_stage_a_core $(BUILD)/test_stage_a_compressor_primitives $(BUILD)/test_stage_a_compressor_worker $(BUILD)/test_stage_a_compressor $(BUILD)/test_stage_a_compressor_init $(BUILD)/test_stage_a_lowband $(BUILD)/test_stage_a_regulator $(BUILD)/test_stage_b_leveler_primitives $(BUILD)/test_stage_b_leveler

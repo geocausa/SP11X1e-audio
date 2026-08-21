@@ -1,4 +1,5 @@
 #include "stage_b_leveler.h"
+#include "stage_a_math.h"
 #include <math.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -252,6 +253,180 @@ static float leveler_producer_error_mix(float delta)
 static float leveler_abs_select(float x)
 {
     return (-x>x)?-x:x;
+}
+
+static float leveler_adaptive_exp2(float x)
+{
+    const float c0=f32_bits(0x3d714000u);
+    const float c1=f32_bits(0x3e827800u);
+    const float c2=f32_bits(0x3f2fb000u);
+    int32_t exponent=(int32_t)x;
+    if((float)exponent>x)exponent--;
+    const float frac=x-(float)exponent;
+    float p=fmaf(frac,c0,c1);
+    p=fmaf(p,frac,c2);
+    p=fmaf(p,frac,1.0f);
+    uint32_t bits;
+    memcpy(&bits,&p,sizeof bits);
+    bits+=(uint32_t)exponent<<23;
+    memcpy(&p,&bits,sizeof p);
+    return p;
+}
+
+static float leveler_adaptive_scratch(float source,float base)
+{
+    float x=fmaf(source,0.25f,-f32_bits(0x3dc0e094u));
+    x+=base;
+    const float low=f32_bits(0xbeaff1e7u);
+    const float high=f32_bits(0x3e2a28f4u);
+    if(x<low)x=low;
+    if(high<x)x=high;
+    return x-high;
+}
+
+void ubig_stage_b_leveler_adaptive_filter_process(
+        UbigStageBLevelerAdaptiveState *state,
+        const UbigStageBLevelerAdaptiveControl *control,
+        const UbigStageBLevelerSymmetricFilter *filter,
+        const UbigStageBLevelerSourceGate *source_gate,
+        const float *reference_source,
+        const float *band_weights,
+        uint32_t emit,
+        uint32_t reset,
+        uint32_t direct_update,
+        UbigStageBLevelerProducerRows *output,
+        int32_t *telemetry,
+        float reference_bias,
+        float output_scale,
+        float slow_mix,
+        float rise_modulation,
+        float target_scale)
+{
+    if(!state||!state->fast||!state->slow||!control||!control->rise_mix||!control->blend||
+       !filter||!source_gate||!source_gate->source||!reference_source||!band_weights||
+       !output||!output->row_ptrs||!output->records||
+       !output->row_ptrs[UBIG_STAGE_B_LEVELER_ADAPTIVE_INDEX]||
+       !output->records[UBIG_STAGE_B_LEVELER_ADAPTIVE_INDEX].values)return;
+    const uint32_t width=UBIG_STAGE_B_LEVELER_ADAPTIVE_WIDTH;
+    const uint32_t index=UBIG_STAGE_B_LEVELER_ADAPTIVE_INDEX;
+    if(reset){
+        memset(state->fast,0,width*sizeof(float));
+        memset(state->slow,0,width*sizeof(float));
+        direct_update=1u;
+    }
+
+    float scratch_a[UBIG_STAGE_B_LEVELER_ADAPTIVE_WIDTH];
+    float scratch_b[UBIG_STAGE_B_LEVELER_ADAPTIVE_WIDTH];
+    const float *record=output->records[index].values;
+    const float *indexed=output->row_ptrs[index];
+    for(uint32_t i=0;i<width;i++){
+        scratch_a[i]=leveler_adaptive_scratch(record[i],indexed[i]);
+        scratch_b[i]=leveler_adaptive_scratch(reference_source[i],reference_bias*0.25f);
+    }
+
+    float target_a[UBIG_STAGE_B_LEVELER_ADAPTIVE_WIDTH];
+    float target_b[UBIG_STAGE_B_LEVELER_ADAPTIVE_WIDTH];
+    const float exp_scale=f32_bits(0x42ba3d77u);
+    for(uint32_t i=0;i<width;i++){
+        target_a[i]=leveler_adaptive_exp2(scratch_a[i]*exp_scale);
+        target_b[i]=leveler_adaptive_exp2(scratch_b[i]*exp_scale);
+    }
+
+    uint32_t rising_mask[UBIG_STAGE_B_LEVELER_ADAPTIVE_WIDTH];
+    const float mix=control->mix;
+    const float keep=1.0f-mix;
+    for(uint32_t i=0;i<width;i++){
+        float previous=state->fast[i];
+        rising_mask[i]=(previous<=target_a[i]);
+        if(rising_mask[i]){
+            const float lane_mix=control->blend[i];
+            const float left=(1.0f-lane_mix)*target_a[i];
+            previous=fmaf(previous,lane_mix,left);
+        }else{
+            const float floor=target_b[i];
+            if(floor<=previous){
+                const float left=keep*target_a[i];
+                previous=fmaf(previous,mix,left);
+                if(floor>previous)previous=floor;
+            }else{
+                previous=floor;
+            }
+        }
+        state->fast[i]=previous;
+    }
+
+    float snapshot[UBIG_STAGE_B_LEVELER_ADAPTIVE_WIDTH];
+    memcpy(snapshot,state->fast,sizeof snapshot);
+    float cubic_sum=0.0f;
+    float weighted_sum=0.0f;
+    for(uint32_t i=0;i<width;i++){
+        const float x=snapshot[i];
+        const float x2=x*x;
+        cubic_sum=fmaf(x,x2,cubic_sum);
+        weighted_sum=fmaf(band_weights[i],x2,weighted_sum);
+    }
+    float ratio=0.0f;
+    if(cubic_sum>0.0f && weighted_sum>0.0f)
+        ratio=(float)((double)cubic_sum/(double)weighted_sum);
+
+    float normalized[UBIG_STAGE_B_LEVELER_ADAPTIVE_WIDTH];
+    float total=0.0f;
+    for(uint32_t i=0;i<width;i++){
+        float floor=band_weights[i]*0.125f;
+        floor*=ratio;
+        float value=snapshot[i]*0.25f;
+        if(value<floor)value=floor;
+        normalized[i]=value;
+        total=fmaf(value,f32_bits(0x3d800000u),total);
+    }
+    if(total<=0.0f||source_gate->gate<=0.0f)return;
+
+    for(uint32_t i=0;i<width;i++){
+        const float reciprocal=(float)(1.0/(double)normalized[i]);
+        float x=source_gate->source[i]*total;
+        x=reciprocal*x;
+        float target=ubig_stage_a_log2_approx(x);
+        target*=f32_bits(0x3d2ff1e7u);
+        target*=target_scale;
+        target*=0.25f;
+        if(direct_update){
+            state->slow[i]=target;
+            continue;
+        }
+        const float previous=state->slow[i];
+        float coefficient;
+        if(previous<=target||rising_mask[i]==0u){
+            coefficient=slow_mix;
+            if(previous<target&&rising_mask[i]==0u){
+                float adjusted=1.0f-rise_modulation;
+                adjusted=fmaf(control->rise_mix[i],rise_modulation,adjusted);
+                coefficient=adjusted*slow_mix;
+            }
+        }else{
+            coefficient=0.0f;
+        }
+        const float left=(1.0f-coefficient)*target;
+        state->slow[i]=fmaf(previous,coefficient,left);
+    }
+
+    if(!emit)return;
+    float filtered[UBIG_STAGE_B_LEVELER_ADAPTIVE_WIDTH];
+    ubig_stage_b_leveler_symmetric_filter(filter,state->slow,width,filtered);
+    for(uint32_t i=0;i<width;i++){
+        filtered[i]+=f32_bits(0x3acb1168u);
+        filtered[i]*=output_scale;
+    }
+    for(uint32_t row=0;row<=index;row++){
+        if(!output->row_ptrs[row])continue;
+        for(uint32_t i=0;i<width;i++)output->row_ptrs[row][i]+=filtered[i];
+    }
+    if(telemetry){
+        for(uint32_t i=0;i<width;i++){
+            float value=filtered[i]*f32_bits(0x3f68cccdu);
+            value*=f32_bits(0x46800000u);
+            telemetry[i]+=(int32_t)floorf(value);
+        }
+    }
 }
 
 void ubig_stage_b_leveler_producer_process(UbigStageBLevelerProducerState *s,

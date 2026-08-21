@@ -119,6 +119,47 @@ typedef struct {
     UbigStageBLevelerRecord *records;
 } UbigStageBLevelerProducerRows;
 
+#define UBIG_STAGE_B_LEVELER_ADAPTIVE_WIDTH 20u
+#define UBIG_STAGE_B_LEVELER_ADAPTIVE_INDEX 2u
+
+typedef struct {
+    float *fast;
+    float *slow;
+} UbigStageBLevelerAdaptiveState;
+
+typedef struct {
+    const float *rise_mix;
+    const float *blend;
+    float mix;
+    uint32_t reserved;
+} UbigStageBLevelerAdaptiveControl;
+
+typedef struct {
+    const float *source;
+    float gate;
+    uint32_t reserved;
+} UbigStageBLevelerSourceGate;
+
+/* Exact SP11 20-band/index-2 adaptive filter/update block. The 20-band
+ * statistic vector is caller-owned configuration and is not embedded by UbiG. */
+void ubig_stage_b_leveler_adaptive_filter_process(
+        UbigStageBLevelerAdaptiveState *state,
+        const UbigStageBLevelerAdaptiveControl *control,
+        const UbigStageBLevelerSymmetricFilter *filter,
+        const UbigStageBLevelerSourceGate *source_gate,
+        const float *reference_source,
+        const float *band_weights,
+        uint32_t emit,
+        uint32_t reset,
+        uint32_t direct_update,
+        UbigStageBLevelerProducerRows *output,
+        int32_t *telemetry,
+        float reference_bias,
+        float output_scale,
+        float slow_mix,
+        float rise_modulation,
+        float target_scale);
+
 /* Exact linked-row Leveler producer. The logarithmic threshold vector remains
  * explicit caller-owned configuration; no reference-image table is embedded. */
 void ubig_stage_b_leveler_producer_process(UbigStageBLevelerProducerState *state,
