@@ -1383,3 +1383,70 @@ void ubig_stage_b_rt_feature_history_process(UbigStageBRtFeatureHistory *s,
     s->index=index+1u;
     if(s->index>=UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH)s->index=0u;
 }
+
+void ubig_stage_b_rt_projection_history_process(UbigStageBRtProjectionHistory *s,
+                                                const UbigStageBRtProjectionConfig *config,
+                                                const UbigStageBRtSpectralExport *in)
+{
+    if(!s||!config||!config->projection_lut||!in||in->count==0u||
+       in->count>UBIG_STAGE_B_RT_SPECTRAL_BINS)return;
+
+    float measurements[UBIG_STAGE_B_RT_PROJECTION_MEASUREMENTS];
+    for(uint32_t band=0;band<UBIG_STAGE_B_RT_PROJECTION_MEASUREMENTS;band++){
+        const UbigStageBRtProjectionBand *b=&config->bands[band];
+        if(!b->weights||b->count==0u||b->start>=in->count||b->count>in->count-b->start)return;
+        float sum=in->bins[b->start]*b->weights[0];
+        sum*=0.25f;
+        for(uint32_t lane=1;lane<b->count;lane++){
+            const float product=in->bins[b->start+lane]*b->weights[lane];
+            sum=fmaf(product,0.25f,sum);
+        }
+        const float mapped=stage_b_rt_pow2_integer(-in->exponent)*sum+f32_bits(0x3627c5acu);
+        measurements[band]=ubig_stage_b_rt_ratio_map_mode(mapped,2);
+    }
+
+    const uint32_t index=s->index;
+    float *record=s->records[index];
+    for(uint32_t output=1;output<=UBIG_STAGE_B_RT_PROJECTION_VALUES;output++){
+        float sum=0.0f;
+        for(uint32_t band=0;band<UBIG_STAGE_B_RT_PROJECTION_MEASUREMENTS;band++){
+            const uint32_t lookup=((2u*band+1u)*output)%UBIG_STAGE_B_RT_PROJECTION_LUT;
+            sum=fmaf(config->projection_lut[lookup],measurements[band],sum);
+        }
+        record[output-1u]=sum;
+    }
+
+    if((((index+2u)&31u))==s->phase){
+        const uint32_t next=(index+1u<UBIG_STAGE_B_RT_PROJECTION_HISTORY_DEPTH)?index+1u:0u;
+        float values[UBIG_STAGE_B_RT_PROJECTION_HISTORY_DEPTH];
+        int32_t shared_shift=32;
+        for(uint32_t column=0;column<UBIG_STAGE_B_RT_PROJECTION_VALUES;column++){
+            s->records[next][column]=0.0f;
+            for(uint32_t row=0;row<UBIG_STAGE_B_RT_PROJECTION_HISTORY_DEPTH;row++){
+                values[row]=s->records[row][column];
+                const int32_t lane_shift=stage_b_rt_spectral_shift(values[row]);
+                if(lane_shift<shared_shift)shared_shift=lane_shift;
+            }
+            s->sum[column]=stage_b_rt_reduce32_exact(values,shared_shift);
+            s->shift[column]=(uint32_t)shared_shift;
+        }
+
+        for(uint32_t column=1;column<UBIG_STAGE_B_RT_PROJECTION_VALUES;column++){
+            s->records[next][column-1u]=0.0f;
+            int32_t shift=32;
+            for(uint32_t row=0;row<UBIG_STAGE_B_RT_PROJECTION_HISTORY_DEPTH;row++){
+                const float current=s->records[row][column]*0.5f;
+                values[row]=fmaf(-s->records[row][column-1u],0.5f,current);
+                const int32_t lane_shift=stage_b_rt_spectral_shift(values[row]);
+                if(lane_shift<shift)shift=lane_shift;
+            }
+            values[next]=0.0f;
+            const uint32_t out=column-1u;
+            s->delta_sum[out]=stage_b_rt_reduce32_exact(values,shift);
+            s->delta_shift[out]=(uint32_t)shift;
+        }
+    }
+
+    s->index=index+1u;
+    if(s->index>=UBIG_STAGE_B_RT_PROJECTION_HISTORY_DEPTH)s->index=0u;
+}

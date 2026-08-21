@@ -478,4 +478,36 @@ typedef struct {
 void ubig_stage_b_rt_feature_history_process(UbigStageBRtFeatureHistory *state,
                                              const UbigStageBRtFeatureHistoryConfig *config,
                                              const UbigStageBRtSpectralExport *input);
+
+#define UBIG_STAGE_B_RT_PROJECTION_HISTORY_DEPTH 32u
+#define UBIG_STAGE_B_RT_PROJECTION_VALUES 8u
+#define UBIG_STAGE_B_RT_PROJECTION_MEASUREMENTS 19u
+#define UBIG_STAGE_B_RT_PROJECTION_LUT 76u
+
+typedef struct {
+    uint32_t start;
+    uint32_t count;
+    const float *weights;
+} UbigStageBRtProjectionBand;
+
+typedef struct {
+    UbigStageBRtProjectionBand bands[UBIG_STAGE_B_RT_PROJECTION_MEASUREMENTS];
+    const float *projection_lut; /* 76 caller-owned coefficients */
+} UbigStageBRtProjectionConfig;
+
+typedef struct {
+    float records[UBIG_STAGE_B_RT_PROJECTION_HISTORY_DEPTH][UBIG_STAGE_B_RT_PROJECTION_VALUES];
+    uint32_t index;
+    uint32_t phase;
+    float sum[UBIG_STAGE_B_RT_PROJECTION_VALUES];
+    float delta_sum[UBIG_STAGE_B_RT_PROJECTION_VALUES-1u];
+    uint32_t shift[UBIG_STAGE_B_RT_PROJECTION_VALUES];
+    uint32_t delta_shift[UBIG_STAGE_B_RT_PROJECTION_VALUES-1u];
+} UbigStageBRtProjectionHistory;
+
+/* Exact 19-measurement -> 8-value projection history controller. Measurement
+ * weights and the 76-entry projection lookup are caller-owned configuration. */
+void ubig_stage_b_rt_projection_history_process(UbigStageBRtProjectionHistory *state,
+                                                const UbigStageBRtProjectionConfig *config,
+                                                const UbigStageBRtSpectralExport *input);
 #endif
