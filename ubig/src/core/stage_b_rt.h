@@ -6,6 +6,23 @@
 #define UBIG_STAGE_B_RT_MAX_BANDS 20u
 
 typedef struct {
+    float response_a;
+    float response_b;
+    float response_c;
+    float input;
+    float countdown_scale;
+    float countdown_bias;
+    float smoothed_input;
+    float toggle_keep;
+    float toggle_state;
+    int32_t countdown;
+    uint32_t toggle;
+} UbigStageBRtHysteresisState;
+
+/* Exact scalar hysteresis/activity gate used by the universal RT controller. */
+float ubig_stage_b_rt_hysteresis_process(UbigStageBRtHysteresisState *state);
+
+typedef struct {
     uint32_t group_count;
     uint32_t vectors_per_group;
     float ***groups;

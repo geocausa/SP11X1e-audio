@@ -1,0 +1,5 @@
+#include "stage_b_rt.h"
+#include <stdint.h>
+#include <stdio.h>
+static uint32_t q=0x675d8a55u;static uint32_t ru(void){q=q*1664525u+1013904223u;return q;}static float rf(float a,float b){return a+(b-a)*(float)(ru()>>8)*(1.0f/16777216.0f);}static uint64_t h64(uint64_t h,const void*p,size_t n){const unsigned char*b=p;for(size_t i=0;i<n;i++){h^=b[i];h*=1099511628211ULL;}return h;}
+int main(void){UbigStageBRtHysteresisState s={.2f,.35f,.55f,.5f,1.2f,.1f,.47f,.92f,.3f,-1,0};uint64_t h=1469598103934665603ULL;for(unsigned n=0;n<60000;n++){s.response_a=rf(-.2f,1.1f);s.response_b=rf(-.2f,1.1f);s.response_c=rf(-.2f,1.1f);s.input=rf(-.2f,1.2f);s.countdown_scale=rf(.01f,2.5f);s.countdown_bias=rf(-.2f,1.1f);s.toggle_keep=rf(0,1);if(n%41u==0u){s.countdown=(int32_t)(ru()%20u)-3;s.toggle=ru()&1u;}float y=ubig_stage_b_rt_hysteresis_process(&s);h=h64(h,&s,sizeof s);h=h64(h,&y,4);}if(h!=0x37bcc5a067609aadULL){fprintf(stderr,"Stage-B RT hysteresis hash %016llx\n",(unsigned long long)h);return 2;}puts("PASS Stage-B RT hysteresis regression");return 0;}

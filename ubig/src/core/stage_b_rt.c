@@ -8,6 +8,52 @@
 
 static float f32_bits(uint32_t u){float f;memcpy(&f,&u,4);return f;}
 
+
+float ubig_stage_b_rt_hysteresis_process(UbigStageBRtHysteresisState *s)
+{
+    if(!s)return 0.0f;
+    float smooth=s->input*f32_bits(0x3b23d700u);
+    smooth=fmaf(s->smoothed_input,f32_bits(0x3f7f5c29u),smooth);
+    s->smoothed_input=smooth;
+
+    if(s->countdown>0){
+        if(s->toggle){
+            if(f32_bits(0x3f0ccccdu)<smooth)s->countdown=-1;
+            else s->countdown--;
+        }else{
+            if(smooth<f32_bits(0x3ee66666u))s->countdown=-1;
+            else s->countdown--;
+        }
+    }else if(s->countdown==0){
+        s->toggle=(s->toggle==0u);
+        s->countdown=-1;
+    }else{
+        const int trigger=s->toggle?(smooth<0.25f):(f32_bits(0x3f19999au)<smooth);
+        if(trigger){
+            const float delta=0.5f-smooth;
+            const float magnitude=(-delta>delta)?-delta:delta;
+            float value=fmaf(magnitude,s->countdown_scale,s->countdown_bias);
+            value*=f32_bits(0x47000000u);
+            value=floorf(value);
+            int32_t next=(int32_t)value;
+            if(next>32767)next=32767;
+            next>>=3;
+            s->countdown=next;
+        }
+    }
+
+    const float target=s->toggle?1.0f:0.0f;
+    const float add=target*(1.0f-s->toggle_keep);
+    s->toggle_state=fmaf(s->toggle_state,s->toggle_keep,add);
+
+    const float one_minus=1.0f-s->response_a;
+    float result=fmaf(-one_minus,s->response_b,1.0f);
+    result*=1.0f-s->toggle_state;
+    float upper=s->response_c;
+    if(upper<s->response_b)upper=s->response_b;
+    return fmaf(1.0f-upper,s->toggle_state,result);
+}
+
 float ubig_stage_b_rt_complex_energy(float *const *rows,
                                      uint32_t row_count,
                                      uint32_t begin,

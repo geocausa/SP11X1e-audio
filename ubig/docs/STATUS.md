@@ -347,3 +347,7 @@ The late two-row multiband state blender is now native as `ubig_stage_b_rt_stere
 ### Stage-B deployed Leveler control-wrapper closure
 
 The always-invoked wrapper above the stereo Leveler parent is now native as `ubig_stage_b_leveler_wrapper_process()`. Live child census shows the reference's alternate generated-control helper is never called on any of the seven shipped profiles; six profiles execute the already-native Leveler parent and Voice takes the wrapper's exact disabled early path. The promoted wrapper matches **2,688/2,688 complete warm live replays bit-exact** across all seven profiles with zero fallback. Public lifecycle hash: `c03c38ccf02019e9`.
+
+### Stage-B universal RT hysteresis closure
+
+The table-free scalar hysteresis/activity child beneath the always-active upper RT controller is native as `ubig_stage_b_rt_hysteresis_process()`. Promoted source matches **1,000,000 complete randomized calls bit-exact** across the full mutable state and return value. The reference's final fused subtraction is preserved explicitly. Public lifecycle hash: `37bcc5a067609aad`.
