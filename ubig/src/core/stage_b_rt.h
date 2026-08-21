@@ -385,4 +385,18 @@ void ubig_stage_b_rt_variation_history_process(UbigStageBRtVariationHistory *sta
                                                 const UbigStageBRtVariationConfig *config,
                                                 const float *input,
                                                 uint32_t input_count);
+
+#define UBIG_STAGE_B_RT_CHANGE_HISTORY_DEPTH 32u
+
+typedef struct {
+    float history[UBIG_STAGE_B_RT_CHANGE_HISTORY_DEPTH];
+    float previous_bins[UBIG_STAGE_B_RT_SPECTRAL_BINS];
+    float previous_aggregate;
+    int32_t previous_exponent;
+    uint32_t index;
+} UbigStageBRtSpectralChangeHistory;
+
+/* Exact spectral-frame change metric over the semantic 77-bin export. */
+void ubig_stage_b_rt_spectral_change_process(UbigStageBRtSpectralChangeHistory *state,
+                                             const UbigStageBRtSpectralExport *input);
 #endif

@@ -1057,3 +1057,56 @@ void ubig_stage_b_rt_variation_history_process(UbigStageBRtVariationHistory *sta
     state->index++;
     if(state->index>=UBIG_STAGE_B_RT_VARIATION_HISTORY_DEPTH)state->index=0u;
 }
+
+static int32_t stage_b_rt_clamp60(int32_t value)
+{
+    if(value>60)value=60;
+    if(value<-60)value=-60;
+    return value;
+}
+
+void ubig_stage_b_rt_spectral_change_process(UbigStageBRtSpectralChangeHistory *s,
+                                             const UbigStageBRtSpectralExport *in)
+{
+    if(!s||!in||in->count>UBIG_STAGE_B_RT_SPECTRAL_BINS)return;
+    const uint32_t index=s->index;
+    s->history[index]=0.0f;
+    float average;
+    float sum=0.0f;
+    if(s->previous_exponent>=in->exponent){
+        const int32_t delta=s->previous_exponent-in->exponent;
+        const float previous=s->previous_aggregate*stage_b_rt_pow2_integer(-delta);
+        average=fmaf(in->aggregate,0.5f,previous*0.5f);
+        if(average>0.0f){
+            const float previous_scale=stage_b_rt_pow2_integer(-stage_b_rt_clamp60(delta+7));
+            for(uint32_t lane=0;lane<in->count;lane++){
+                const float current=in->bins[lane]*f32_bits(0x3c000000u);
+                float difference=fmaf(s->previous_bins[lane],previous_scale,-current);
+                if(difference<0.0f)difference=-difference;
+                sum+=difference;
+            }
+            sum*=0.5f;
+            s->history[index]=(sum>=average)?1.0f:(float)((double)sum/(double)average);
+        }
+    }else{
+        const int32_t delta=in->exponent-s->previous_exponent;
+        const float current=in->aggregate*stage_b_rt_pow2_integer(-stage_b_rt_clamp60(delta+1));
+        average=fmaf(s->previous_aggregate,0.5f,current);
+        if(average>0.0f){
+            const float current_scale=stage_b_rt_pow2_integer(-stage_b_rt_clamp60(delta+7));
+            for(uint32_t lane=0;lane<in->count;lane++){
+                const float current_bin=in->bins[lane]*current_scale;
+                float difference=fmaf(s->previous_bins[lane],f32_bits(0x3c000000u),-current_bin);
+                if(difference<0.0f)difference=-difference;
+                sum+=difference;
+            }
+            sum*=0.5f;
+            s->history[index]=(sum>=average)?1.0f:(float)((double)sum/(double)average);
+        }
+    }
+    s->index=index+1u;
+    if(s->index>=UBIG_STAGE_B_RT_CHANGE_HISTORY_DEPTH)s->index=0u;
+    memcpy(s->previous_bins,in->bins,in->count*sizeof(float));
+    s->previous_exponent=in->exponent;
+    s->previous_aggregate=in->aggregate;
+}

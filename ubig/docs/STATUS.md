@@ -359,3 +359,7 @@ The four-times-per-block spectral accumulator beneath the remaining universal RT
 ### Stage-B RT segmented variation-history closure
 
 The smallest hot leaf beneath the remaining universal RT scheduler is native as `ubig_stage_b_rt_variation_history_process()`. The deployed object uses eight caller-tuned segments across 77 values and a 32-slot history ring. Promoted source matches **500,000 complete randomized calls bit-exact** with synthetic boundaries/weights and randomized ring state. Public lifecycle hash: `30dc7f36314596d8`.
+
+### Stage-B RT spectral-change history closure
+
+The exponent-aligned spectral-frame change metric is native as `ubig_stage_b_rt_spectral_change_process()`. It consumes the already-native semantic 77-bin export, owns the previous-frame and 32-entry history state, and matches **500,000 complete randomized calls bit-exact**. Public lifecycle hash: `17e4074bef4b1380`.

@@ -103,3 +103,9 @@ The public API exposes only semantic state and direct complex rows; the referenc
 `ubig_stage_b_rt_variation_history_process()` owns the compact no-subcall analysis leaf used by the universal RT scheduler. It computes the exact 1/128-weighted input energy, square-root/exponent normalization and caller-weighted absolute adjacent-sample variation for each segment, then writes the normalized segment metrics into a 32-slot ring. Segment boundaries and weights are explicit caller-owned configuration.
 
 Live SP11 capture shows eight deployed segments over the 77-value input row with a 32-entry history ring. Promoted-source private differential: **500,000 complete randomized calls bit-exact** over valid strictly increasing segment geometries, input widths, caller weights, randomized prior history and all ring indices. Public synthetic lifecycle hash: `30dc7f36314596d8`.
+
+## Spectral change-history ring
+
+`ubig_stage_b_rt_spectral_change_process()` consumes the semantic 77-bin spectral export and maintains the exact previous-frame/ring recurrence used by the universal RT scheduler. Previous and current spectra are aligned through their shared binary exponents; the routine accumulates fused absolute bin differences, normalizes against the aligned aggregate magnitude, clamps the change ratio to unity, writes a 32-entry history ring and retains the current spectrum for the next frame.
+
+Promoted-source private differential: **500,000 complete randomized calls bit-exact**, covering randomized spectral bins, exponents, aggregates, previous frames and all ring indices. Public synthetic lifecycle hash: `17e4074bef4b1380`.
