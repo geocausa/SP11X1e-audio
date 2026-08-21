@@ -400,7 +400,10 @@ typedef struct {
 void ubig_stage_b_rt_spectral_change_process(UbigStageBRtSpectralChangeHistory *state,
                                              const UbigStageBRtSpectralExport *input);
 
-/* Exact deployed scalar ratio map used by the segmented RT statistic path. */
+/* Exact scalar ratio map used by the RT statistic paths. The deployed
+ * segmented-ratio path uses mode 0; other scheduler paths use small positive
+ * mode values. */
+float ubig_stage_b_rt_ratio_map_mode(float ratio,int32_t mode);
 float ubig_stage_b_rt_ratio_map(float ratio);
 
 #define UBIG_STAGE_B_RT_SEGMENT_RATIO_DEPTH 32u

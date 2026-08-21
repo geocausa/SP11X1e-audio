@@ -371,3 +371,7 @@ The next hot scheduler pair is native: `ubig_stage_b_rt_ratio_map()` passes **1,
 ### Stage-B RT two-peak residual closure
 
 The medium no-subcall peak/residual transform beneath the universal RT scheduler is native as `ubig_stage_b_rt_peak_residual_process()`. Promoted source matches **500,000 complete randomized calls bit-exact**, including scratch-spectrum mutation and all 32×3 persistent history state. Public lifecycle hash: `bf6874dd8aed3e48`.
+
+### Stage-B RT generalized ratio-map closure
+
+The scalar ratio mapper now owns its full small-mode contract as `ubig_stage_b_rt_ratio_map_mode()`. The legacy mode-zero entry remains unchanged as a wrapper. Promoted source matches **1,000,000 direct calls bit-exact** across signed modes -64..64, including the scheduler's live modes 3 and 7. Public hash: `e4c286a800ac8bd9`.

@@ -121,3 +121,7 @@ Promoted-source private differential: **500,000 complete randomized calls bit-ex
 `ubig_stage_b_rt_peak_residual_process()` owns the standalone two-peak residual extractor used by the universal RT scheduler. It copies the semantic spectral bins into caller scratch, finds the strongest bin, zeroes the bounded ±5-bin neighborhood in that scratch copy, finds the strongest remaining bin, computes the two 1/128 neighborhood contributions, subtracts them successively from the caller aggregate, exponent-aligns the resulting residuals and stores three values in a 32-slot history ring.
 
 Promoted-source private differential: **500,000 complete randomized calls bit-exact**, comparing the full persistent ring/index, modified scratch output and untouched spectral input across randomized bin counts up to the deployed 77-bin limit, exponents, aggregates and edge/interior peak positions. Public lifecycle hash: `bf6874dd8aed3e48`.
+
+## Generalized scalar ratio-map modes
+
+`ubig_stage_b_rt_ratio_map_mode()` extends the already-native mode-zero ratio mapper without changing its arithmetic. The caller mode is converted through the reference's exact binary32 `mode * 2^-15 * 512` schedule and enters only the final fused affine step. `ubig_stage_b_rt_ratio_map()` remains the mode-zero compatibility wrapper. Promoted-source private differential: **1,000,000 direct calls bit-exact** across signed modes -64 through +64 with explicit coverage of deployed modes 0, 3 and 7. Public regression hash: `e4c286a800ac8bd9`.

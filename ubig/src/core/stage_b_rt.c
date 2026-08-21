@@ -1111,9 +1111,11 @@ void ubig_stage_b_rt_spectral_change_process(UbigStageBRtSpectralChangeHistory *
     s->previous_aggregate=in->aggregate;
 }
 
-float ubig_stage_b_rt_ratio_map(float ratio)
+float ubig_stage_b_rt_ratio_map_mode(float ratio,int32_t mode)
 {
-    if(ratio==1.0f)return 0.0f;
+    float mode_term=(float)mode*f32_bits(0x38000000u);
+    mode_term*=f32_bits(0x44000000u);
+    if(mode==0&&ratio==1.0f)return 0.0f;
     const int32_t shift=stage_b_rt_spectral_shift(ratio);
     float polynomial=1.0f;
     if(shift<31){
@@ -1127,8 +1129,13 @@ float ubig_stage_b_rt_ratio_map(float ratio)
         const float correction=(a+b)*f32_bits(0x3e2aaaabu);
         polynomial=fmaf((float)(int32_t)fixed,f32_bits(0x30000000u),correction);
     }
-    const float mapped=fmaf(-polynomial,0.75f,0.0f);
+    const float mapped=fmaf(-polynomial,0.75f,mode_term);
     return mapped*f32_bits(0x3f317218u);
+}
+
+float ubig_stage_b_rt_ratio_map(float ratio)
+{
+    return ubig_stage_b_rt_ratio_map_mode(ratio,0);
 }
 
 void ubig_stage_b_rt_segment_ratio_process(UbigStageBRtSegmentRatioHistory *s,
