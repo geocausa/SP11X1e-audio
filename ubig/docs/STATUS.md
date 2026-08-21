@@ -301,3 +301,7 @@ Two clean children beneath the remaining profile-selective multiband block are n
 ### Stage-B parameterized multiband curve smoother
 
 The first table-driven child beneath the remaining profile-selective multiband block is now algorithmically native as `ubig_stage_b_rt_curve_smooth()`. Its rise/fall polynomial records remain caller-owned; the private oracle rewrites those reference records on every call and proves **500,000 randomized-record calls bit-exact** on promoted source. Public hash: `c0640153d64d5e9e`.
+
+### Stage-B multiband exp-row helper
+
+The profile-selective VR multiband branch now also owns its row-wise exp2/status/tail helper as `ubig_stage_b_rt_exp_rows()`. The promoted source matches **500,000 complete randomized direct calls bit-exact**. Public hash: `a317dfbfd36239e2`.

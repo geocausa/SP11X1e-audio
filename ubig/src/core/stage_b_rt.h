@@ -102,4 +102,13 @@ void ubig_stage_b_rt_curve_smooth(float offset,
                                   const UbigStageBRtCurveRecord *fall,
                                   const UbigStageBRtCurveRecord *rise);
 
+/* Exact row-wise Stage-B Horner exp2 conversion at the multiband scale. Each
+ * row has a fixed 20-lane stride; inactive tail lanes and one status word per
+ * row are cleared exactly as in the deployed helper. */
+void ubig_stage_b_rt_exp_rows(float *output,
+                              uint32_t *row_status,
+                              const float *input,
+                              uint32_t active_width,
+                              uint32_t row_count);
+
 #endif

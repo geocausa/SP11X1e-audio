@@ -247,3 +247,20 @@ void ubig_stage_b_rt_curve_smooth(float offset,
         }
     }
 }
+
+void ubig_stage_b_rt_exp_rows(float *output,
+                              uint32_t *row_status,
+                              const float *input,
+                              uint32_t active_width,
+                              uint32_t row_count)
+{
+    if(!output||!row_status||!input||active_width>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    for(uint32_t row=0;row<row_count;row++){
+        for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++)
+            output[row*UBIG_STAGE_B_RT_MAX_BANDS+lane]=
+                stage_b_rt_exp2_horner(input[row*UBIG_STAGE_B_RT_MAX_BANDS+lane]*f32_bits(0x422cbe00u));
+        row_status[row]=0u;
+        for(uint32_t lane=active_width;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++)
+            output[row*UBIG_STAGE_B_RT_MAX_BANDS+lane]=0.0f;
+    }
+}
