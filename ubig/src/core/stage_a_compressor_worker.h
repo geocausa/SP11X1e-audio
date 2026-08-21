@@ -27,8 +27,6 @@ void ubig_comp_band_controller(void *state,
                                float ratio_gate,
                                float ratio_margin);
 
-#endif
-
 float ubig_comp_transition5_cubic(const float config[5], float previous, float target);
 void ubig_comp_dual_plane_update(struct ubig_dual_floor_state *state,
                                  const struct ubig_float_rows *rows,
@@ -36,3 +34,5 @@ void ubig_comp_dual_plane_update(struct ubig_dual_floor_state *state,
                                  const float **secondary_out,
                                  int32_t *rise_flags,
                                  float bias);
+
+#endif

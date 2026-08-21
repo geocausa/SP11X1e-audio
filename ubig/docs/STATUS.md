@@ -126,3 +126,25 @@ Direct private comparison results:
 - synthetic UbiG-owned full-compressor vector: bit-exact, canonical public hash `75c3a084f4f3b91a`
 
 This removes the central Stage-A multiband compressor as a proprietary algorithmic dependency. Remaining Stage-A work is now concentrated in the surrounding unreplaced optimizer/regulator/gain-application blocks plus the isolated FFT arithmetic-order cleanup; the final limiter, analyzer/synthesis wrappers, math helpers, export path and compressor are native.
+
+## Stage-A low-band controller closure
+
+The former `0x1800238d0` block is now native as `ubig_stage_a_lowband_process()`.
+
+Fresh disassembly corrected an older RE label: its local `0x180023c20` helper is not an RMS detector; it is the same cubic/exponent-field scaled-exp2 conversion already implemented exactly in UbiG. The enclosing controller sums that converted activity, applies per-channel rise/fall hysteresis, computes a five-band low-level gain curve, routes it into both band paths and exports 2080-scaled telemetry.
+
+Direct gates: 100k helper vectors exact, 50k complete controller calls exact, and synthetic public hash `2fe13a228b52eb15`.
+
+## Full Stage-A grouped regulator closure
+
+The former `0x180022ab8` grouped adaptive regulator is now native as `ubig_stage_a_regulator_process()`.
+
+Direct differential results:
+
+- adaptive updater `0x180023480`: 200k state+tuning images bit-exact
+- monotone cubic interpolation `0x180023200`: 100k vectors bit-exact
+- group expansion `0x180023600`: 100k complete calls bit-exact
+- full grouped regulator: 50k complete calls bit-exact across full state, both additive row paths and all telemetry outputs, including adaptive/static and slow-mix modes
+- synthetic public regression hash: `faa50149604c2d48`
+
+Together with the newly native low-band controller, this removes the two major regulator blocks immediately upstream of the central Stage-A compressor. The remaining central Stage-A proprietary islands are now substantially smaller; FFT arithmetic-order parity remains a separately isolated numerical cleanup.
