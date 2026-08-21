@@ -22,6 +22,13 @@ int ubig_stage_a_compressor_process(void *state,
                                     int32_t *matrix_info,
                                     uint32_t *matrix_rows_out);
 
+/* Deterministic cold constructor for the compressor state. `storage` must
+ * provide room for alignment padding plus the caller-owned state image.
+ * Returns the 8-byte-aligned state pointer used by process(). */
+void *ubig_stage_a_compressor_init(const void *config,
+                                   const int32_t *distribution,
+                                   void *storage);
+
 int ubig_stage_a_compressor_process_warm(void *state,
                                          const float *side_a,
                                          const float *side_b,

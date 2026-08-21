@@ -17,6 +17,12 @@ def q6(x):
     return f32(round(x, 6))
 
 
+def full_root(x):
+    if abs(x) < 1.0e-15:
+        x = math.copysign(0.0, x)
+    return f32(x)
+
+
 def hx(x):
     return f32(x).hex() + 'f'
 
@@ -44,6 +50,28 @@ def final_table():
     return out
 
 
+def sp11_mid_table():
+    out = []
+    for power in range(1, 5):
+        for base in range(0, 8, 4):
+            out.extend(full_root(math.cos(-2 * math.pi * power * r / 40))
+                       for r in range(base, base + 4))
+            out.extend(full_root(math.sin(-2 * math.pi * power * r / 40))
+                       for r in range(base, base + 4))
+    return out
+
+
+def sp11_final_table():
+    out = []
+    for power in range(1, 8):
+        for base in range(0, 40, 4):
+            out.extend(full_root(math.cos(-2 * math.pi * power * q / 320))
+                       for q in range(base, base + 4))
+            out.extend(full_root(math.sin(-2 * math.pi * power * q / 320))
+                       for q in range(base, base + 4))
+    return out
+
+
 def emit_array(f, name, values):
     f.write(f'static const float {name}[{len(values)}]={{\n')
     for i in range(0, len(values), 8):
@@ -57,6 +85,8 @@ with open('src/core/stage_a_fft320_tables.h', 'w') as f:
     emit_array(f, 'ubig_fft320_stage4_twiddle', stage_table(4))
     emit_array(f, 'ubig_fft320_stage16_twiddle', stage_table(16))
     emit_array(f, 'ubig_fft320_final_twiddle', final_table())
+    emit_array(f, 'ubig_fft320_sp11_mid_twiddle', sp11_mid_table())
+    emit_array(f, 'ubig_fft320_sp11_final_twiddle', sp11_final_table())
     f.write('static const float ubig_fft320_radix5_c0=' + hx(math.sin(math.pi/5)) + ';\n')
     f.write('static const float ubig_fft320_radix5_c1=' + hx(math.cos(math.pi/10)) + ';\n')
     f.write('static const float ubig_fft320_radix5_c2=' + hx(math.cos(2*math.pi/5)) + ';\n')

@@ -1,4 +1,5 @@
 #include "stage_a_fft320.h"
+#include "stage_a_fft320_sp11.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,5 +26,10 @@ int main(void){
     ubig_stage_a_fft320_norm320(norm,in,320,NULL);
     uint64_t h=1469598103934665603ULL;h=h64(h,out,640*sizeof(float));h=h64(h,norm,640*sizeof(float));
     if(h!=0xd040429d49cb7dadULL){fprintf(stderr,"fft proven hash %016llx != d040429d49cb7dad\n",(unsigned long long)h);return 6;}
-    puts("PASS Stage A FFT320 exact mixed-radix regression");return 0;
+
+    ubig_stage_a_fft320_sp11(out,in,320,NULL);
+    ubig_stage_a_fft320_sp11_norm320(norm,in,320,NULL);
+    h=1469598103934665603ULL;h=h64(h,out,640*sizeof(float));h=h64(h,norm,640*sizeof(float));
+    if(h!=0xc40cd14aea7757a4ULL){fprintf(stderr,"sp11 live fft hash %016llx != c40cd14aea7757a4\n",(unsigned long long)h);return 7;}
+    puts("PASS Stage A FFT320 generic + SP11 live-schedule regressions");return 0;
 }

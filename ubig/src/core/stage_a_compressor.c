@@ -9,6 +9,34 @@ static uint32_t u32at(const unsigned char*p,size_t o){uint32_t v;memcpy(&v,p+o,4
 static uint64_t u64at(const unsigned char*p,size_t o){uint64_t v;memcpy(&v,p+o,8);return v;}
 static float f32at(const unsigned char*p,size_t o){float v;memcpy(&v,p+o,4);return v;}
 
+void *ubig_stage_a_compressor_init(const void *config,
+                                   const int32_t *distribution,
+                                   void *storage)
+{
+    const unsigned char *cfg=(const unsigned char*)config;
+    uintptr_t aligned=((uintptr_t)storage+7u)&~(uintptr_t)7u;
+    unsigned char *p=(unsigned char*)aligned;
+    const uint32_t sample_rate=u32at(cfg,0x00);
+    const uint32_t bands=u32at(cfg,0x04);
+    const int32_t half_rate=(int32_t)(sample_rate>>1);
+    const int32_t total=half_rate*(int32_t)bands;
+    const float distribution_scale=(float)(1.0/(double)total);
+    const float inv_bands=(float)(1.0/(double)(int32_t)bands);
+    const float inv_half=(float)(1.0/(double)half_rate);
+    const uint32_t zero=0u, one=1u;
+    memcpy(p+0x00,&zero,4);memcpy(p+0x04,&zero,4);memcpy(p+0x08,&one,4);
+    memcpy(p+0x10,&config,sizeof(config));
+    memcpy(p+0x1c,&inv_bands,4);
+    float v=inv_half*3200.0f;memcpy(p+0x20,&v,4);
+    v=inv_half*500.0f;memcpy(p+0x24,&v,4);
+    for(uint32_t i=0;i<bands;i++){
+        v=(float)distribution[i]*distribution_scale;
+        memcpy(p+0x28+4u*i,&v,4);
+    }
+    memcpy(p+0x18,&zero,4);memcpy(p+0x128,&zero,4);
+    return p;
+}
+
 int ubig_stage_a_compressor_process_warm(void *state,
                                          const float *side_a,
                                          const float *side_b,

@@ -23,6 +23,11 @@ typedef struct ubig_stage_a_limiter {
 } ubig_stage_a_limiter;
 
 void ubig_stage_a_limiter_init(ubig_stage_a_limiter *s);
+float ubig_stage_a_limiter_process_256_feedback(ubig_stage_a_limiter *s,
+                                               float ceiling,
+                                               float *left,
+                                               float *right);
+
 void ubig_stage_a_limiter_process_256(ubig_stage_a_limiter *s,
                                       float ceiling,
                                       float *left,

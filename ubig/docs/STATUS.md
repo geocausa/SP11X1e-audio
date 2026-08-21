@@ -48,9 +48,9 @@ Since the first limiter checkpoint, UbiG has also closed these direct boundaries
 - `0x1800240e0` synthesis wrapper: bit-exact with an injected transform for both phases; output and persistent overlap state match.
 - `0x180023db0` analyzer wrapper: bit-exact with an injected transform for two consecutive blocks; output, phase, history and all modeled spectral state match.
 
-The 320-point transform itself has been independently specified as a standard complex forward DFT. UbiG now has a clean generated-mathematics 5x64 implementation. It is **not yet called bit-exact**: the current arithmetic order measures roughly 123.8 dB SNR against the generated ARM64 kernels. Exact transform arithmetic-order parity remains open and isolated behind the filterbank callback interface.
+The 320-point transform is now exact in both reference dispatch forms. The generic resolver schedule is native as radix-4/radix-4/radix-4/radix-5, and the SP11 live callback schedule is native as radix-8/radix-5/radix-8. Both unscaled synthesis and normalized analysis conventions are bit-exact against their corresponding ARM64 boundaries.
 
-This means the proprietary analysis/synthesis wrappers have been eliminated as algorithmic unknowns; only the transform arithmetic-order cleanup and the central adaptive/multiband blocks remain in this Stage-A region.
+This removes the analysis/synthesis wrappers and both transform schedules as proprietary algorithmic dependencies.
 
 ## Stage-A structural boundary
 
@@ -66,13 +66,11 @@ This decomposes as:
 
 Host chunking is bit-transparent in both reference and UbiG for the tested 480-frame and chaotic schedules.
 
-The remaining Stage-A waveform mismatch begins at the first real output frame, so it is now localized to unreplaced upstream Stage-A processing rather than scheduling/latency or final limiter behavior.
+The preserved Dynamic cold-start Stage-A scheduler fixture is now 3,072 / 3,072 output samples bit-exact across six 256-frame blocks. Scheduling, startup transition arithmetic, filterbank state, multiband compressor path, synthesis and final limiter therefore agree on that complete fixture.
 
-## Next technical target
+## Integration boundary
 
-The next major target is `0x180021e80`, the Stage-A multiband compressor/regulator block. Its public inputs and tuning/state ownership are already mapped from the late RE branch. Continue with the same rule used for limiter/filterbank work: isolate callable state and I/O, inject or freeze adjacent helpers, then accept native code only after a direct differential gate.
-
-Do not install UbiG into the live PipeWire path yet.
+Do not install UbiG into the live PipeWire path yet. Golden v32 remains the protected production baseline until the native userspace integration/promotion gate is explicitly passed.
 
 ## Stage-A multiband compressor primitives — checkpoint 3
 
@@ -97,7 +95,7 @@ Two implementation details found by differential testing are now explicit behavi
 1. the seven-band reciprocal normalizer uses float bits `0x3e124924`, one ULP below normally rounded `1/7`;
 2. linked-deviation averaging divides by all unmasked bands, while its accumulator/max only include deviations above `1/2600`.
 
-The next compressor targets are the two larger state workers rooted at the former binary boundaries corresponding to `0x180025228` and `0x180025520`. They are not yet claimed native/exact.
+At this checkpoint, the next compressor targets were the two larger state workers rooted at the former binary boundaries corresponding to `0x180025228` and `0x180025520`; the later sections below record their closure.
 
 ### Compressor worker closure — checkpoint 4 candidate
 
@@ -111,7 +109,7 @@ The two larger state workers beneath the band controller are now native and exac
 
 A key reducer detail is a cross-band floor recurrence carried in the original scalar register state. This is now explicit in the UbiG implementation and public specification.
 
-With this closure, the former `0x1800250b0` compressor sub-controller is no longer proprietary algorithmic code. The next step is to climb back into the `0x180021e80` top-level multiband-compressor orchestrator and replace the remaining bounded workers around this exact sub-controller.
+With this closure, the former `0x1800250b0` compressor sub-controller is no longer proprietary algorithmic code. The following section records the subsequent closure of the `0x180021e80` top-level multiband-compressor boundary.
 
 ## Full Stage-A multiband compressor closure
 
@@ -151,26 +149,25 @@ Together with the newly native low-band controller, this removes the two major r
 
 ## Exact Stage-A FFT/filterbank closure
 
-The isolated FFT arithmetic-order gap is closed. The previous mathematically equivalent 5x64 implementation has been replaced with the reference-equivalent mixed-radix order: radix-4 entry, radix-4 stride-4, radix-4 stride-16, radix-5 final combine.
+Both transform dispatch schedules used by the SP11 filterbank are now native and bit-exact.
 
-All roots are generated mathematically; no vendor table blob is used. Twiddle roots follow the observed six-decimal quantization rule before float32 conversion, and generated arrays privately match the reference tables byte-for-byte.
+Generic resolver schedule: radix-4 entry, radix-4 stride-4, radix-4 stride-16, radix-5 final combine. Private whole-transform gates are 128,000 / 128,000 exact for both unscaled and normalized conventions; public hash `d040429d49cb7dad`.
 
-Direct gates:
+SP11 live callback schedule: radix-8 entry, radix-5 middle, radix-8 final combine. Its roots are generated from standard `W40`/`W320` mathematics using correctly rounded float32 values with exact signed-zero canonicalization. The generated root arrays privately match byte-for-byte. Direct private gates:
 
-- entry radix-4: 100k complete vectors exact
-- stride-4 radix stage: 50k complete vectors exact
-- stride-16 radix stage: 50k complete vectors exact
-- final radix-5: 50k complete vectors exact
-- whole unscaled transform: 128000/128000 float32 outputs exact
-- whole analysis-scaled transform: 128000/128000 float32 outputs exact
-- native analyzer live comparison: 20/20 band outputs and 1280/1280 spectral-state floats exact on each tested block
-- native synthesis fixture: 256/256 PCM samples exact
-- public FFT regression hash: `d040429d49cb7dad`
+- live normalized analyzer callback: 640,000 / 640,000 float32 outputs exact;
+- live unscaled synthesis callback: 640,000 / 640,000 float32 outputs exact;
+- cold analyzer boundary: 20/20 bands and 1,280/1,280 spectral-state floats exact;
+- public live-schedule regression hash: `c40cd14aea7757a4`.
 
-The Stage-A analysis/synthesis filterbank is therefore no longer an approximate numerical boundary; it is native and bit-exact.
+With the live schedules wired into the native core, the six-block preserved Dynamic cold-start scheduler fixture is **3,072 / 3,072 PCM samples bit-exact**, zero RMS/max error. UbiG also reproduces the six-block startup self-crossfade and phase-1 cold filterbank lifecycle. Public compressor-disabled lifecycle hash: `5675539e0cba96e6`.
 
 ## Native SP11 filterbank descriptor
 
 The exact analyzer/synthesis wrappers no longer require runtime descriptor tables from the reference image. UbiG owns a native SP11 descriptor generated from mathematical matrix/window formulas plus explicitly provenance-tagged `DEVICE_TUNING` coefficient data.
 
 Private gates: every descriptor table matches byte-for-byte; analyzer remains exact on live original-vs-UbiG comparisons and synthesis remains 256/256 PCM samples exact when UbiG uses only the native descriptor. Public descriptor hash: `a69a0c676cfb844d`.
+
+## Compressor cold-start closure
+
+The missing Stage-A compressor constructor (`0x180021da8`) is now native. A 100k direct differential covers randomized sample rates, band counts, distributions and storage alignments bit-exact. Public constructor hash: `3fea31461291d74f`.

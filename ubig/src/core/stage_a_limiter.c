@@ -50,9 +50,9 @@ static float predictor(const ubig_stage_a_limiter *s)
     return acc;
 }
 
-void ubig_stage_a_limiter_process_256(ubig_stage_a_limiter *s,float ceiling,float *left,float *right)
+float ubig_stage_a_limiter_process_256_feedback(ubig_stage_a_limiter *s,float ceiling,float *left,float *right)
 {
-    if(!s||!left||!right)return;
+    if(!s||!left||!right)return 1.0f;
     const float c_rise=f32_bits(COEFF_PRIMARY_RISE_BITS);
     const float c_fall=f32_bits(COEFF_PRIMARY_FALL_BITS);
     const float c_secondary=f32_bits(COEFF_SECONDARY_BITS);
@@ -111,4 +111,11 @@ void ubig_stage_a_limiter_process_256(ubig_stage_a_limiter *s,float ceiling,floa
             s->peak_history[s->history_pos]=0.0f;
         }
     }
+    /* Reference ABI returns unity in s0; the Stage-A caller persists it. */
+    return 1.0f;
+}
+
+void ubig_stage_a_limiter_process_256(ubig_stage_a_limiter *s,float ceiling,float *left,float *right)
+{
+    (void)ubig_stage_a_limiter_process_256_feedback(s,ceiling,left,right);
 }
