@@ -248,3 +248,7 @@ The table-free centered-distribution statistic beneath the remaining Leveler pro
 ### Stage-B max-normalized cubic mapper
 
 The normalized cubic row mapper is native as `ubig_stage_b_leveler_normalized_cubic()`. Its fixed cubic record is explicit caller-owned configuration rather than embedded reference data. Promoted-source differential: **500,000 complete calls bit-exact** across variable row lengths and both write/change-reporting modes. Public hash: `c8f0555376812218`.
+
+### Stage-B Leveler lookup mapper
+
+The previously quarantined eight-table mapper is now algorithmically native as `ubig_stage_b_leveler_lookup_map()`. Its eight curves remain caller-owned data; no original lookup bytes are embedded. The promoted implementation matches **1,000,000 complete randomized calls bit-exact** with the private reference curves injected only into the oracle. Public synthetic-table hash: `25ed2435cba511ac`.

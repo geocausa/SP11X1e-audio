@@ -179,3 +179,9 @@ Private direct differential gate using the promoted UbiG source: **1,000,000 ran
 `ubig_stage_b_leveler_normalized_cubic()` implements the producer's max-normalized cubic mapper. A caller-owned 32-byte coefficient/exponent record supplies the cubic; the algorithm itself owns only the recovered normalization/clamp constants. In write-only mode it replaces the row. In change-reporting mode it also returns the exact 0.05-weighted mean absolute delta from the prior output row.
 
 Private direct differential gate using the promoted UbiG source: **500,000 complete randomized calls bit-exact**, covering variable row lengths and both modes. Public synthetic regression hash: `c8f0555376812218`. The reference coefficient object remains outside UbiG.
+
+## Seven-fixed-plus-tail lookup mapper
+
+`ubig_stage_b_leveler_lookup_map()` owns only the lookup/interpolation algorithm. The first seven lanes have recovered fixed baselines and independent caller-owned tables; lanes 7+ share the eighth table and tail baseline. The reference contract always processes the first seven lanes; its count controls only the tail. Interpolation preserves the reference's duplicate multiply/floor sequence and final FMA.
+
+The eight reference curves are not embedded in UbiG. Private direct differential gate with those curves injected only by the oracle: **1,000,000 complete randomized calls bit-exact**. Public synthetic-table regression hash: `25ed2435cba511ac`.

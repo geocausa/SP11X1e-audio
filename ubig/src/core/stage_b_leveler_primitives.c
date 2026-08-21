@@ -563,3 +563,43 @@ float ubig_stage_b_leveler_normalized_cubic(const float *input,
     }
     return change;
 }
+
+static float leveler_lookup_interp(float x,const float *table)
+{
+    const float fallback=f32_bits(0xbf7ffffeu);
+    if(x<=0.0f)return fallback;
+    const float p0=x*64.0f;
+    const float floor0=floorf(p0);
+    const uint32_t index=(uint32_t)(int32_t)floor0;
+    const float p1=x*64.0f;
+    const float floor1=floorf(p1);
+    const float frac=p1-floor1;
+    const float lo=table[index];
+    const float hi=table[index+1u];
+    return fmaf(frac,hi-lo,lo);
+}
+
+void ubig_stage_b_leveler_lookup_map(uint32_t count,
+                                     const float *input,
+                                     float *output,
+                                     const UbigStageBLevelerLookupTables *tables)
+{
+    if(!input||!output||!tables)return;
+    const float gain=0.3125f;
+    static const uint32_t baseline_bits[7]={
+        0xbda00000u,0xbdc00000u,0xbde00000u,0xbde00000u,
+        0xbe000000u,0xbe000000u,0xbe000000u
+    };
+    for(uint32_t i=0;i<7u;i++){
+        if(!tables->table[i])return;
+        const float temp=fmaf(-input[i],gain,f32_bits(baseline_bits[i]));
+        output[i]=leveler_lookup_interp(-temp,tables->table[i]);
+    }
+    if(count>7u){
+        if(!tables->table[7])return;
+        for(uint32_t i=7u;i<count;i++){
+            const float temp=fmaf(-input[i],gain,f32_bits(0xbe000000u));
+            output[i]=leveler_lookup_interp(-temp,tables->table[7]);
+        }
+    }
+}

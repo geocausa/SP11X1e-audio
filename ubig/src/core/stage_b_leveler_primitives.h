@@ -162,6 +162,18 @@ typedef struct {
 /* Exact centered-distribution statistic used by the Leveler producer. */
 float ubig_stage_b_leveler_distribution_stat(uint32_t count,const float *values);
 
+typedef struct {
+    const float *table[8];
+} UbigStageBLevelerLookupTables;
+
+/* Exact seven-fixed-plus-tail lookup mapper. The eight curves are caller-owned
+ * configuration and are deliberately not embedded by UbiG. */
+void ubig_stage_b_leveler_lookup_map(uint32_t count,
+                                     const float *input,
+                                     float *output,
+                                     const UbigStageBLevelerLookupTables *tables);
+
+
 /* Caller-owned coefficient/exponent record for the normalized cubic mapper. */
 typedef struct {
     float constant;
