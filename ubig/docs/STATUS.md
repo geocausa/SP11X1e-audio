@@ -252,3 +252,7 @@ The normalized cubic row mapper is native as `ubig_stage_b_leveler_normalized_cu
 ### Stage-B Leveler lookup mapper
 
 The previously quarantined eight-table mapper is now algorithmically native as `ubig_stage_b_leveler_lookup_map()`. Its eight curves remain caller-owned data; no original lookup bytes are embedded. The promoted implementation matches **1,000,000 complete randomized calls bit-exact** with the private reference curves injected only into the oracle. Public synthetic-table hash: `25ed2435cba511ac`.
+
+### Stage-B lookup-controller parent closure
+
+The parent around transition -> lookup -> normalized cubic processing is native as `ubig_stage_b_leveler_lookup_process()`. The promoted implementation matches **300,000 complete randomized calls bit-exact**, covering both pointed 20-lane state rows, persistent scalar feedback, transition/copy modes and the 12-byte result. Lookup curves and cubic coefficients remain caller-owned data. Public synthetic-data hash: `903a60f1a1ed0944`.

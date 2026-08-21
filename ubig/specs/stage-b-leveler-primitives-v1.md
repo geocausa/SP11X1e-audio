@@ -185,3 +185,9 @@ Private direct differential gate using the promoted UbiG source: **500,000 compl
 `ubig_stage_b_leveler_lookup_map()` owns only the lookup/interpolation algorithm. The first seven lanes have recovered fixed baselines and independent caller-owned tables; lanes 7+ share the eighth table and tail baseline. The reference contract always processes the first seven lanes; its count controls only the tail. Interpolation preserves the reference's duplicate multiply/floor sequence and final FMA.
 
 The eight reference curves are not embedded in UbiG. Private direct differential gate with those curves injected only by the oracle: **1,000,000 complete randomized calls bit-exact**. Public synthetic-table regression hash: `25ed2435cba511ac`.
+
+## Lookup/transition/cubic parent
+
+`ubig_stage_b_leveler_lookup_process()` closes the parent around the native transition row, seven-fixed-plus-tail lookup mapper, centered-distribution statistic and normalized cubic mapper. Its persistent ABI is a 32-byte state containing two scalar outputs, two caller-owned row pointers, and feedback/factor scalars; its config is also 32 bytes and owns only control values plus the caller-owned transition record pointer.
+
+Both non-algorithmic data families remain explicit inputs: the eight lookup curves and the 32-byte cubic coefficient/exponent record. With those private reference data supplied only by the oracle, the promoted UbiG parent matches **300,000 complete randomized calls bit-exact**, including both 20-lane pointed state rows, all persistent scalars, both transition modes and the complete 12-byte result. Public synthetic-data lifecycle hash: `903a60f1a1ed0944`.

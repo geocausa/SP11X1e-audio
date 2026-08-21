@@ -603,3 +603,76 @@ void ubig_stage_b_leveler_lookup_map(uint32_t count,
         }
     }
 }
+
+_Static_assert(sizeof(UbigStageBLevelerLookupState)==0x20,"Leveler lookup-state size");
+_Static_assert(sizeof(UbigStageBLevelerLookupConfig)==0x20,"Leveler lookup-config size");
+_Static_assert(sizeof(UbigStageBLevelerLookupResult)==0x0c,"Leveler lookup-result size");
+
+static float leveler_lookup_parent_exp2(float x)
+{
+    const float fl=floorf(x),frac=x-fl;
+    const int32_t exponent=(int32_t)fl;
+    float p=fmaf(frac,f32_bits(0x3d714000u),f32_bits(0x3e827800u));
+    p=fmaf(p,frac,f32_bits(0x3f2fb000u));
+    p=fmaf(p,frac,1.0f);
+    return p*f32_bits((uint32_t)(exponent+127)<<23);
+}
+
+static float leveler_lookup_response(float value,const UbigStageBLevelerLookupConfig *c)
+{
+    if(c->high<value)return 1.0f;
+    const float delta=value-c->low;
+    if(delta<=0.0f)return 0.0f;
+    return (c->response_scale*delta)*f32_bits((uint32_t)(c->response_exp+127)<<23);
+}
+
+void ubig_stage_b_leveler_lookup_process(UbigStageBLevelerLookupState *state,
+                                         const UbigStageBLevelerLookupConfig *config,
+                                         const float *input,
+                                         uint32_t count,
+                                         uint32_t copy_only,
+                                         UbigStageBLevelerLookupResult *result,
+                                         float control,
+                                         float history,
+                                         const UbigStageBLevelerLookupTables *tables,
+                                         const UbigStageBLevelerNormalizedCubic *cubic)
+{
+    if(!state||!config||!input||!result||!tables||!cubic||
+       !state->transition_state||!state->cubic_state||!config->transition)return;
+    if(count<7u||count>20u)return;
+    float maximum=-1.0f;
+    for(uint32_t i=0;i<count;i++)if(input[i]>maximum)maximum=input[i];
+    float mapped[20];
+    for(uint32_t i=0;i<count;i++){
+        float value=leveler_lookup_parent_exp2((input[i]-maximum)*f32_bits(0x422cbe00u));
+        if(value>1.0f)value=1.0f;
+        mapped[i]=value;
+    }
+    const float statistic=ubig_stage_b_leveler_distribution_stat(count,mapped);
+    const float mix=config->feedback_mix*history;
+    float feedback=fmaf(-mix,statistic,statistic);
+    feedback=fmaf(state->feedback,mix,feedback);
+    if(feedback<f32_bits(0x3d360b61u))feedback=f32_bits(0x3d360b61u);
+    if(feedback>f32_bits(0x3e19999au))feedback=f32_bits(0x3e19999au);
+    float factor=(feedback-f32_bits(0x3d360b61u))*f32_bits(0x3f179436u);
+    factor*=16.0f;
+    factor*=control;
+    state->factor=factor;
+    state->feedback=feedback;
+
+    ubig_stage_b_leveler_transition_row(input,count,copy_only,1u,
+                                         config->transition,config->transition,
+                                         state->transition_state,0.0f);
+    ubig_stage_b_leveler_lookup_map(count,state->transition_state,mapped,tables);
+    const float change=ubig_stage_b_leveler_normalized_cubic(mapped,state->cubic_state,
+                                                              count,copy_only,cubic);
+    float target0=leveler_lookup_response(change,config);
+    float target1=leveler_lookup_response(change*factor,config);
+    if(state->out0>=target0)target0=state->out0*config->decay;
+    state->out0=target0;
+    result->out0=target0;
+    result->flag=(state->out1<target1);
+    if(!result->flag)target1=state->out1*config->decay;
+    state->out1=target1;
+    result->out1=target1;
+}

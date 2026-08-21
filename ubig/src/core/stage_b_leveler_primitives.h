@@ -162,18 +162,6 @@ typedef struct {
 /* Exact centered-distribution statistic used by the Leveler producer. */
 float ubig_stage_b_leveler_distribution_stat(uint32_t count,const float *values);
 
-typedef struct {
-    const float *table[8];
-} UbigStageBLevelerLookupTables;
-
-/* Exact seven-fixed-plus-tail lookup mapper. The eight curves are caller-owned
- * configuration and are deliberately not embedded by UbiG. */
-void ubig_stage_b_leveler_lookup_map(uint32_t count,
-                                     const float *input,
-                                     float *output,
-                                     const UbigStageBLevelerLookupTables *tables);
-
-
 /* Caller-owned coefficient/exponent record for the normalized cubic mapper. */
 typedef struct {
     float constant;
@@ -185,6 +173,56 @@ typedef struct {
     float coeff3;
     int32_t exp3;
 } UbigStageBLevelerNormalizedCubic;
+
+typedef struct {
+    const float *table[8];
+} UbigStageBLevelerLookupTables;
+
+/* Exact seven-fixed-plus-tail lookup mapper. The eight curves are caller-owned
+ * configuration and are deliberately not embedded by UbiG. */
+void ubig_stage_b_leveler_lookup_map(uint32_t count,
+                                     const float *input,
+                                     float *output,
+                                     const UbigStageBLevelerLookupTables *tables);
+
+typedef struct {
+    float out0;
+    float out1;
+    float *transition_state;
+    float *cubic_state;
+    float factor;
+    float feedback;
+} UbigStageBLevelerLookupState;
+
+typedef struct {
+    const UbigStageBLevelerTransitionRecord *transition;
+    float feedback_mix;
+    float decay;
+    float low;
+    float high;
+    float response_scale;
+    int32_t response_exp;
+} UbigStageBLevelerLookupConfig;
+
+typedef struct {
+    uint32_t flag;
+    float out0;
+    float out1;
+} UbigStageBLevelerLookupResult;
+
+/* Exact parent around transition -> lookup -> normalized cubic mapping. Lookup
+ * curves and cubic coefficients remain explicit caller-owned configuration. */
+void ubig_stage_b_leveler_lookup_process(UbigStageBLevelerLookupState *state,
+                                         const UbigStageBLevelerLookupConfig *config,
+                                         const float *input,
+                                         uint32_t count,
+                                         uint32_t copy_only,
+                                         UbigStageBLevelerLookupResult *result,
+                                         float control,
+                                         float history,
+                                         const UbigStageBLevelerLookupTables *tables,
+                                         const UbigStageBLevelerNormalizedCubic *cubic);
+
 
 /* Exact max-normalized cubic row mapper. write_only=0 also returns the exact
  * 0.05-weighted mean absolute change from the prior output row. */
