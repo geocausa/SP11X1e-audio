@@ -2,6 +2,9 @@
 #include "stage_a_math.h"
 #include <math.h>
 #include <string.h>
+#if defined(__aarch64__)
+#include <arm_neon.h>
+#endif
 
 static float f32_bits(uint32_t u){float f;memcpy(&f,&u,4);return f;}
 
@@ -347,4 +350,89 @@ void ubig_stage_b_rt_correlation_process(UbigStageBRtCorrelationState *states,
     if(!states||!input_rows||!output)return;
     for(uint32_t row=0;row<row_count;row++)
         output[row]=stage_b_rt_correlation_step(&states[row],input_rows+(size_t)row*UBIG_STAGE_B_RT_MAX_BANDS);
+}
+
+
+float *ubig_stage_b_rt_window_sum_update(UbigStageBRtWindowSum *state,
+                                         const float input[UBIG_STAGE_B_RT_MAX_BANDS])
+{
+    if(!state||!input||!state->history||!state->depth)return NULL;
+    const uint32_t index=state->index;
+    const uint32_t next=index+1u;
+    float *slot=state->history+(size_t)index*UBIG_STAGE_B_RT_MAX_BANDS;
+    if(next<state->depth){
+        for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++){
+            const float new_scaled=input[lane]*state->scale;
+            const float old_scaled=slot[lane]*state->scale;
+            state->window_sum[lane]=state->window_sum[lane]+(new_scaled-old_scaled);
+            state->accumulator[lane]=state->accumulator[lane]+new_scaled;
+            slot[lane]=input[lane];
+        }
+        state->index=next;
+    }else{
+        for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++){
+            const float new_scaled=input[lane]*state->scale;
+            state->window_sum[lane]=state->accumulator[lane]+new_scaled;
+            state->accumulator[lane]=0.0f;
+            slot[lane]=input[lane];
+        }
+        state->index=0u;
+    }
+    return state->window_sum;
+}
+
+void ubig_stage_b_rt_rms_deviation(float scale,
+                                   float output[UBIG_STAGE_B_RT_MAX_BANDS],
+                                   const float current[UBIG_STAGE_B_RT_MAX_BANDS],
+                                   const float *history,
+                                   uint32_t active_width,
+                                   uint32_t depth)
+{
+    float sum_sq[UBIG_STAGE_B_RT_MAX_BANDS]={0};
+    if(active_width>UBIG_STAGE_B_RT_MAX_BANDS)active_width=UBIG_STAGE_B_RT_MAX_BANDS;
+#if defined(__aarch64__)
+    for(uint32_t row=0;row<depth;row++){
+        const float *src=history+(size_t)row*UBIG_STAGE_B_RT_MAX_BANDS;
+        for(uint32_t group=0;group<5u;group++){
+            float32x4_t acc=vld1q_f32(sum_sq+4u*group);
+            const float32x4_t cur=vld1q_f32(current+4u*group);
+            const float32x4_t old=vld1q_f32(src+4u*group);
+            const float32x4_t delta=vsubq_f32(cur,old);
+            acc=vfmaq_f32(acc,delta,delta);
+            vst1q_f32(sum_sq+4u*group,acc);
+        }
+    }
+    uint32_t lane=0u;
+    const uint32_t vector_end=active_width&~3u;
+    const float32x4_t scale4=vdupq_n_f32(scale);
+    for(;lane<vector_end;lane+=4u){
+        float32x4_t x=vld1q_f32(sum_sq+lane);
+        float32x4_t estimate=vrsqrteq_f32(x);
+        float32x4_t square=vmulq_f32(estimate,estimate);
+        float32x4_t step=vrsqrtsq_f32(x,square);
+        estimate=vmulq_f32(estimate,step);
+        x=vld1q_f32(sum_sq+lane);
+        square=vmulq_f32(estimate,estimate);
+        step=vrsqrtsq_f32(x,square);
+        estimate=vmulq_f32(estimate,step);
+        float32x4_t reciprocal=vrecpeq_f32(estimate);
+        step=vrecpsq_f32(estimate,reciprocal);
+        reciprocal=vmulq_f32(reciprocal,step);
+        step=vrecpsq_f32(estimate,reciprocal);
+        reciprocal=vmulq_f32(reciprocal,step);
+        reciprocal=vmulq_f32(reciprocal,scale4);
+        vst1q_f32(output+lane,reciprocal);
+    }
+    for(;lane<active_width;lane++)output[lane]=sqrtf(sum_sq[lane])*scale;
+#else
+    for(uint32_t row=0;row<depth;row++){
+        const float *src=history+(size_t)row*UBIG_STAGE_B_RT_MAX_BANDS;
+        for(uint32_t lane=0;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++){
+            const float delta=current[lane]-src[lane];
+            sum_sq[lane]=fmaf(delta,delta,sum_sq[lane]);
+        }
+    }
+    for(uint32_t lane=0;lane<active_width;lane++)output[lane]=sqrtf(sum_sq[lane])*scale;
+#endif
+    for(uint32_t lane=active_width;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++)output[lane]=0.0f;
 }

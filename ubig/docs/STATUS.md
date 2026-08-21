@@ -309,3 +309,7 @@ The profile-selective VR multiband branch now also owns its row-wise exp2/status
 ### Stage-B multiband correlation/history closure
 
 The `0x728D0` multiband correlation state path and its 20-lane circular-history child are now native as semantic UbiG state. Promoted-source gates: history **500,000 complete calls exact** and enclosing controller **100,000 complete stateful calls exact**. Public hashes: `14885efc65647ace` and `dd660d2059cb6131`.
+
+### Stage-B multiband sliding-window/RMS closure
+
+The two numerical children beneath the next multiband state parent are now native: scaled window sum and SP11 ARM64 RMS/deviation. Each promoted implementation matches **500,000 complete randomized calls bit-exact**. Public hashes: `ea65323000ebac89` and `f241f1663d0db5ea`.

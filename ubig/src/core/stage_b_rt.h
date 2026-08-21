@@ -143,4 +143,26 @@ void ubig_stage_b_rt_correlation_process(UbigStageBRtCorrelationState *states,
                                          const float *input_rows,
                                          float *output);
 
+/* Exact scaled 20-lane sliding-window accumulator used by the next multiband stage. */
+typedef struct {
+    uint32_t depth;
+    uint32_t index;
+    float *history; /* depth x 20 floats */
+    float scale;
+    float accumulator[UBIG_STAGE_B_RT_MAX_BANDS];
+    float window_sum[UBIG_STAGE_B_RT_MAX_BANDS];
+} UbigStageBRtWindowSum;
+
+float *ubig_stage_b_rt_window_sum_update(UbigStageBRtWindowSum *state,
+                                         const float input[UBIG_STAGE_B_RT_MAX_BANDS]);
+
+/* Exact SP11 ARM64 per-lane deviation/RMS mapper. The AArch64 prefix preserves
+ * the reference reciprocal-square-root estimate/refinement instruction schedule. */
+void ubig_stage_b_rt_rms_deviation(float scale,
+                                   float output[UBIG_STAGE_B_RT_MAX_BANDS],
+                                   const float current[UBIG_STAGE_B_RT_MAX_BANDS],
+                                   const float *history,
+                                   uint32_t active_width,
+                                   uint32_t depth);
+
 #endif
