@@ -105,3 +105,16 @@ Public synthetic hashes: floor `69e8e013d6c0481e`, prepare/link `aa3ce0664a1a31a
 The producer transition helper is native as `ubig_stage_b_leveler_transition_row()`. It supports exact copy-only mode and an in-place transition mode driven by 24-byte coefficient records. Transition mode selects common or per-lane config, distinguishes rise/fall, applies a large-rise override when the delta exceeds the caller threshold, evaluates the reference-ordered weighted FMA, and enforces the two additive lower bounds plus the `-1` floor.
 
 Private direct differential gate using promoted UbiG source: **500,000 complete randomized calls bit-exact** across copy/transition, common/per-lane, rise/fall and large-rise branches. Public synthetic regression hash: `4d9ae2f0e27f29c1`.
+
+## History initialization and controller reset
+
+The Leveler history constructor and enclosing controller reset are now native. `ubig_stage_b_leveler_history_init()` is the compact behavioral equivalent of the reference's large unrolled initializer: it zeroes the complete `0x5E8` history object, sets the max-tracker reset flag, initializes `max_a` to exact float32 `0x3f11a2f0`, and leaves `max_b` zero.
+
+`ubig_stage_b_leveler_reset()` preserves pointer topology and all primary records, resets the controller base/hold/adaptive prefix, broadcasts exact `0xbf7ffffe` into every active secondary scalar/vector lane, and invokes the owned history constructor.
+
+Private direct differential gates using promoted UbiG source:
+
+- history constructor: **200,000 randomized pre-filled complete `0x5E8` states bit-exact**;
+- enclosing controller reset: **200,000 randomized complete `0x608` states plus record/vector storage bit-exact**.
+
+Public synthetic hashes: history init `f081fdc124431083`; controller reset `21e2c995a4ad21d7`.

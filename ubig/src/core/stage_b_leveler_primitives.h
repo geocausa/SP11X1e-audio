@@ -29,6 +29,8 @@ typedef struct {
     float max_b;
 } UbigStageBLevelerHistory;
 
+void ubig_stage_b_leveler_history_init(UbigStageBLevelerHistory *state);
+
 void ubig_stage_b_leveler_history_update(UbigStageBLevelerHistory *state,
                                          float step,
                                          float value_a,

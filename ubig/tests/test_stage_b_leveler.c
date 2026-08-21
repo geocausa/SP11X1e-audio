@@ -24,5 +24,14 @@ int main(void){
     uint64_t h=h64(1469598103934665603ULL,&canonical,sizeof canonical);
     for(int j=0;j<NR;j++){h=h64(h,&p[j].scalar,8);h=h64(h,&q[j].scalar,8);h=h64(h,pv[j],sizeof pv[j]);h=h64(h,qv[j],sizeof qv[j]);}
     if(h!=0x3e549513f21d2250ULL){fprintf(stderr,"Stage-B leveler writer hash %016llx\n",(unsigned long long)h);return 2;}
-    puts("PASS Stage-B Leveler/DRC long-memory writer regression");return 0;
+    uint64_t rh=1469598103934665603ULL;
+    for(unsigned n=0;n<10000;n++){
+        UbigStageBLevelerState rs;uint32_t *words=(uint32_t*)&rs;for(size_t i=0;i<sizeof rs/4;i++)words[i]=ru();
+        UbigStageBLevelerRecord rp[NR],rq[NR];float rpv[NR][NW],rqv[NR][NW];
+        for(int j=0;j<NR;j++){rp[j].values=rpv[j];rq[j].values=rqv[j];rp[j].scalar=fb(ru());rq[j].scalar=fb(ru());rp[j].reserved=ru();rq[j].reserved=ru();for(int k=0;k<NW;k++){rpv[j][k]=fb(ru());rqv[j][k]=fb(ru());}}
+        rs.primary=rp;rs.secondary=rq;ubig_stage_b_leveler_reset(&rs,ru()%(NR+1u),ru()%(NW+1u));
+        UbigStageBLevelerState rc=rs;rc.primary=rc.secondary=0;rh=h64(rh,&rc,sizeof rc);for(int j=0;j<NR;j++){rh=h64(rh,&rp[j].scalar,8);rh=h64(rh,&rq[j].scalar,8);rh=h64(rh,rpv[j],sizeof rpv[j]);rh=h64(rh,rqv[j],sizeof rqv[j]);}
+    }
+    if(rh!=0x21e2c995a4ad21d7ULL){fprintf(stderr,"Stage-B leveler reset hash %016llx\n",(unsigned long long)rh);return 3;}
+    puts("PASS Stage-B Leveler/DRC long-memory writer/reset regressions");return 0;
 }

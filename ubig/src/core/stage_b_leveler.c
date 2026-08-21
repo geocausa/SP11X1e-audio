@@ -10,6 +10,27 @@ _Static_assert(sizeof(UbigStageBLevelerRecord)==16,"Stage-B Leveler record size"
 _Static_assert(offsetof(UbigStageBLevelerState,history)==0x20,"Stage-B Leveler history offset");
 _Static_assert(sizeof(UbigStageBLevelerState)==0x608,"Stage-B Leveler state size");
 
+void ubig_stage_b_leveler_reset(UbigStageBLevelerState *s,
+                                uint32_t record_count,
+                                uint32_t width)
+{
+    if(!s)return;
+    const float almost_one=f32_bits(0x3f7ffffeu);
+    const float negative_almost_one=f32_bits(0xbf7ffffeu);
+    s->base=almost_one;
+    s->hold_count=0u;
+    s->adaptive_state=0.0f;
+    if(s->secondary){
+        for(uint32_t r=0;r<record_count;r++){
+            s->secondary[r].scalar=negative_almost_one;
+            if(s->secondary[r].values)
+                for(uint32_t i=0;i<width;i++)
+                    s->secondary[r].values[i]=negative_almost_one;
+        }
+    }
+    ubig_stage_b_leveler_history_init(&s->history);
+}
+
 static float history_interp(const UbigStageBLevelerHistory *h,float value)
 {
     float x=(value-f32_bits(0x3f11a2f0u))*f32_bits(0x3f0c0000u);

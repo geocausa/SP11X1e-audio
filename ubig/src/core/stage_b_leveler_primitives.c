@@ -54,6 +54,14 @@ _Static_assert(offsetof(UbigStageBLevelerHistory,ring_hi)==0x354,"Leveler ring-h
 _Static_assert(offsetof(UbigStageBLevelerHistory,ring_total)==0x494,"Leveler ring-total offset");
 _Static_assert(offsetof(UbigStageBLevelerHistory,ring_pos)==0x5d4,"Leveler ring-pos offset");
 
+void ubig_stage_b_leveler_history_init(UbigStageBLevelerHistory *s)
+{
+    if(!s)return;
+    memset(s,0,sizeof(*s));
+    s->reset_max=1u;
+    s->max_a=f32_bits(0x3f11a2f0u);
+}
+
 void ubig_stage_b_leveler_history_update(UbigStageBLevelerHistory *s,
                                          float step,
                                          float value_a,

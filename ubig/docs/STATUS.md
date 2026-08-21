@@ -214,3 +214,7 @@ The bounded row-preparation branch beneath the Leveler producer is now native. I
 ### Stage-B Leveler row transition
 
 The producer's bounded per-lane row transition helper is now native. The promoted implementation matches 500,000 complete randomized direct calls bit-for-bit across copy mode and all transition/config branches. Public regression hash: `4d9ae2f0e27f29c1`.
+
+### Stage-B Leveler initialization/reset lifecycle
+
+The exact history constructor and enclosing controller reset are now native. Both promoted functions match 200,000 randomized complete-state direct calls bit-for-bit; the outer reset additionally covers all active secondary scalars/vectors while preserving primary state and pointer topology. Public hashes: history init `f081fdc124431083`, controller reset `21e2c995a4ad21d7`.

@@ -28,6 +28,12 @@ typedef struct {
     UbigStageBLevelerHistory history;
 } UbigStageBLevelerState;
 
+/* Reset the active Leveler controller lifecycle without reallocating record
+ * storage. Primary records and pointer topology remain untouched. */
+void ubig_stage_b_leveler_reset(UbigStageBLevelerState *state,
+                                uint32_t record_count,
+                                uint32_t width);
+
 /* Process one indexed adaptive record and its preceding/related vector records.
  * observed_records supplies read-only instantaneous targets. */
 void ubig_stage_b_leveler_update(UbigStageBLevelerState *state,
