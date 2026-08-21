@@ -471,3 +471,26 @@ void ubig_stage_b_rt_window_blend_process(UbigStageBRtWindowBlendState *state,
     }
     for(uint32_t lane=active_width;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++)output[lane]=0.0f;
 }
+
+
+float ubig_stage_b_rt_tail_estimate(float previous,
+                                    const float *input,
+                                    uint32_t count,
+                                    const float *weights)
+{
+    if(!input||!weights||count<2u||count>UBIG_STAGE_B_RT_MAX_BANDS)return previous;
+    const uint32_t half=count>>1;
+    const uint32_t start=half-1u;
+    const uint32_t end=count-1u;
+    float mean=0.0f;
+    for(uint32_t lane=start;lane<end;lane++)
+        mean=fmaf(input[lane],f32_bits(0x3dccd000u),mean);
+    float weighted=0.0f;
+    uint32_t wi=0u;
+    for(uint32_t lane=start;lane<end;lane++,wi++){
+        float term=weights[wi]*input[lane];
+        term=fmaf(-weights[wi],mean,term);
+        weighted=weighted+term;
+    }
+    return fmaf(previous,f32_bits(0x3f7d7000u),weighted*f32_bits(0x3c240000u));
+}

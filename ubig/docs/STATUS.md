@@ -317,3 +317,7 @@ The two numerical children beneath the next multiband state parent are now nativ
 ### Stage-B two-window RMS/blend parent closure
 
 The enclosing multiband state parent above the native window/RMS pair is now `ubig_stage_b_rt_window_blend_process()`. Promoted source matches **100,000 complete randomized stateful calls bit-exact**. Public hash: `57203f47ae80e517`.
+
+### Stage-B multiband tail estimator
+
+The leaf estimator beneath the remaining `0x73428`-family branch is now native and parameterized by caller-owned weights. Promoted source matches **500,000 randomized-weight direct calls bit-exact**. Public hash: `1c3640967eeefa25`.

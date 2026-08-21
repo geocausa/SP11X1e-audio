@@ -179,4 +179,11 @@ void ubig_stage_b_rt_window_blend_process(UbigStageBRtWindowBlendState *state,
                                           const float input[UBIG_STAGE_B_RT_MAX_BANDS],
                                           float output[UBIG_STAGE_B_RT_MAX_BANDS]);
 
+/* Exact tail estimator used by the final small multiband branch. The weight
+ * vector is caller-owned; proven counts are 2..20. */
+float ubig_stage_b_rt_tail_estimate(float previous,
+                                    const float *input,
+                                    uint32_t count,
+                                    const float *weights);
+
 #endif
