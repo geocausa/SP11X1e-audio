@@ -337,3 +337,7 @@ The enclosing per-row gate/counter controller is now native as `ubig_stage_b_rt_
 ### Stage-B multiband crossfade controller
 
 The late bounded crossfade/polarity controller is native as `ubig_stage_b_rt_crossfade_process()`. Promoted-source private differential: **500,000 complete randomized calls bit-exact**, including the SIMD/scalar arithmetic-order split and two-float persistent state. Public hash: `3c00b964c14af29b`.
+
+### Stage-B deployed stereo state blender
+
+The late two-row multiband state blender is now native as `ubig_stage_b_rt_stereo_blend_process()`. The promoted semantic implementation matches **120,000 complete randomized calls bit-exact** across all twenty signed counters, both adaptive rows, five scalar memories and the destination correction row. Public lifecycle hash: `0df4020ec12288b8`.

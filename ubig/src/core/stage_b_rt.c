@@ -696,3 +696,75 @@ void ubig_stage_b_rt_crossfade_process(UbigStageBRtCrossfadeState *state,
     }
     state->mix=mix;
 }
+
+void ubig_stage_b_rt_stereo_blend_process(float input0,
+                                          float input1,
+                                          UbigStageBRtStereoBlendState *state,
+                                          uint32_t active_width,
+                                          const float *trigger_row,
+                                          const float *coefficient_row,
+                                          const float *comparison_row,
+                                          const float *input_row,
+                                          float *destination)
+{
+    if(!state||!state->history||!trigger_row||!coefficient_row||!comparison_row||
+       !input_row||!destination||active_width>UBIG_STAGE_B_RT_MAX_BANDS)return;
+
+    const float one_minus_input_mix=1.0f-state->input_mix;
+    const float half0=input0*0.5f;
+    const float difference=fmaf(-input1,0.5f,half0);
+    float gate;
+    if(difference>0.0f)gate=(difference<0.5f)?difference+difference:1.0f;
+    else gate=0.0f;
+    state->gate_state=fmaf(state->gate_state,f32_bits(0x3f733333u),
+                           gate*f32_bits(0x3d4ccccdu));
+    state->input_state0=fmaf(one_minus_input_mix,input0,state->input_state0*state->input_mix);
+    state->input_state1=fmaf(one_minus_input_mix,input1,state->input_state1*state->input_mix);
+
+    float limit=(state->input_state0>=0.0f)?1.0f:state->input_state0+1.0f;
+    if(state->gate_state<limit)limit=state->gate_state;
+    const float one_minus_adaptive_mix=1.0f-state->adaptive_mix;
+    uint32_t event_count=0u;
+    for(uint32_t lane=0;lane<active_width;lane++){
+        float smooth=state->smoothed[lane];
+        if(trigger_row[lane]<comparison_row[lane]){
+            float coefficient=coefficient_row[lane]*0.25f;
+            if(coefficient<f32_bits(0xbe44ec4fu))coefficient=f32_bits(0xbe44ec4fu);
+            smooth=fmaf(state->input_mix,smooth,coefficient*one_minus_input_mix);
+        }
+        float delta=(input_row[lane]-smooth)-state->history[lane];
+        if(delta>0.0f)delta=0.0f;
+        float gain=(smooth+f32_bits(0x3e313b14u))*0.8125f;
+        gain=gain*64.0f;
+        if(limit<gain)gain=limit;
+        if(gain<0.0f)gain=0.0f;
+        float term=delta*gain;
+        term=term*one_minus_adaptive_mix;
+        state->adaptive[lane]=fmaf(state->adaptive_mix,state->adaptive[lane],term);
+        state->smoothed[lane]=smooth;
+        if(comparison_row[lane]<trigger_row[lane] && f32_bits(0xbf13b13bu)<trigger_row[lane])
+            event_count++;
+    }
+
+    const float deadband=state->counter_scale*f32_bits(0x39000000u);
+    const uint32_t event_limit=active_width>>2;
+    for(uint32_t lane=0;lane<active_width;lane++){
+        const int32_t counter=state->counter[lane];
+        const float normalized=(float)counter*f32_bits(0x38000000u);
+        const float centred=normalized*state->counter_scale;
+        const float scratch=state->adaptive[lane];
+        const float difference2=fmaf(centred,4.0f,-scratch);
+        float adjusted=scratch;
+        int32_t next=counter;
+        if(difference2 < -deadband || event_count<=event_limit){
+            adjusted=fmaf(centred,4.0f,deadband);
+            next=(counter<0)?counter+1:0;
+        }else if(deadband<difference2){
+            adjusted=fmaf(centred,4.0f,-deadband);
+            next=(counter<=-32768)?-32768:counter-1;
+        }
+        if(adjusted>0.0f)adjusted=0.0f;
+        state->counter[lane]=next;
+        destination[lane]=(adjusted*state->output_scale)*4.0f;
+    }
+}

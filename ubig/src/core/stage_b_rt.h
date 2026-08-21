@@ -248,4 +248,30 @@ void ubig_stage_b_rt_crossfade_process(UbigStageBRtCrossfadeState *state,
                                        const float *source,
                                        float *destination);
 
+typedef struct {
+    float counter_scale;
+    int32_t counter[UBIG_STAGE_B_RT_MAX_BANDS];
+    float output_scale;
+    float adaptive[UBIG_STAGE_B_RT_MAX_BANDS];
+    float smoothed[UBIG_STAGE_B_RT_MAX_BANDS];
+    float input_state0;
+    float input_state1;
+    float gate_state;
+    float input_mix;
+    float adaptive_mix;
+    const float *history;
+} UbigStageBRtStereoBlendState;
+
+/* Exact deployed SP11 stereo state blender. The generic second-bank path from
+ * the reference routine is outside this fixed two-row endpoint contract. */
+void ubig_stage_b_rt_stereo_blend_process(float input0,
+                                          float input1,
+                                          UbigStageBRtStereoBlendState *state,
+                                          uint32_t active_width,
+                                          const float *trigger_row,
+                                          const float *coefficient_row,
+                                          const float *comparison_row,
+                                          const float *input_row,
+                                          float *destination);
+
 #endif
