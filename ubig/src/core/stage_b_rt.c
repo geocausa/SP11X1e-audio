@@ -1110,3 +1110,78 @@ void ubig_stage_b_rt_spectral_change_process(UbigStageBRtSpectralChangeHistory *
     s->previous_exponent=in->exponent;
     s->previous_aggregate=in->aggregate;
 }
+
+float ubig_stage_b_rt_ratio_map(float ratio)
+{
+    if(ratio==1.0f)return 0.0f;
+    const int32_t shift=stage_b_rt_spectral_shift(ratio);
+    float polynomial=1.0f;
+    if(shift<31){
+        const float normalized=stage_b_rt_pow2_integer(shift)*ratio;
+        const uint32_t fixed=(uint32_t)shift*0x02aaaaacu;
+        const float square=normalized*normalized;
+        float a=square*f32_bits(0x3f03d886u);
+        const float cube=square*normalized;
+        a=fmaf(-cube,f32_bits(0x3e1ce39cu),a);
+        const float b=fmaf(-normalized,f32_bits(0x3f412715u),f32_bits(0x3ec901c2u));
+        const float correction=(a+b)*f32_bits(0x3e2aaaabu);
+        polynomial=fmaf((float)(int32_t)fixed,f32_bits(0x30000000u),correction);
+    }
+    const float mapped=fmaf(-polynomial,0.75f,0.0f);
+    return mapped*f32_bits(0x3f317218u);
+}
+
+void ubig_stage_b_rt_segment_ratio_process(UbigStageBRtSegmentRatioHistory *s,
+                                           const UbigStageBRtSegmentRatioConfig *config,
+                                           const UbigStageBRtSpectralExport *in)
+{
+    if(!s||!config||!config->boundaries||!in)return;
+    float *dst=s->history[s->index];
+    for(uint32_t segment=0;segment<UBIG_STAGE_B_RT_SEGMENT_RATIO_COUNT;segment++){
+        dst[segment]=0.0f;
+        const uint32_t begin=config->boundaries[segment];
+        const uint32_t end=config->boundaries[segment+1u];
+        float maximum=in->bins[begin];
+        float minimum=maximum;
+        for(uint32_t lane=begin+1u;lane<end;lane++){
+            const float value=in->bins[lane];
+            if(maximum<value)maximum=value;
+            if(value<minimum)minimum=value;
+        }
+        if(minimum+f32_bits(0x3456bf95u)>=maximum)continue;
+
+        const float upper=fmaf(maximum,f32_bits(0x3f4ccccdu),minimum*f32_bits(0x3e4ccccdu));
+        const float lower=fmaf(maximum,f32_bits(0x3e4ccccdu),minimum*f32_bits(0x3f4ccccdu));
+        float high_sum=0.0f,low_sum=0.0f;
+        uint32_t high_count=0u,low_count=0u;
+        for(uint32_t lane=begin;lane<end;lane++){
+            const float value=in->bins[lane];
+            if(value>=upper){
+                high_sum=fmaf(value,f32_bits(0x3d800000u),high_sum);
+                high_count++;
+            }else if(value<=lower){
+                low_sum=fmaf(value,f32_bits(0x3d800000u),low_sum);
+                low_count++;
+            }
+        }
+        if(high_count){
+            const float count_scaled=(float)high_count*f32_bits(0x38000000u);
+            const float inverse=(float)((double)f32_bits(0x38000000u)/(double)count_scaled);
+            high_sum*=inverse;
+            high_sum*=16.0f;
+            high_sum*=stage_b_rt_pow2_integer(-in->exponent);
+        }
+        if(low_count){
+            const float count_scaled=(float)low_count*f32_bits(0x38000000u);
+            const float inverse=(float)((double)f32_bits(0x38000000u)/(double)count_scaled);
+            low_sum*=inverse;
+            low_sum*=16.0f;
+            low_sum*=stage_b_rt_pow2_integer(-in->exponent);
+        }
+        const float ratio=(float)((double)(low_sum+f32_bits(0x3727c5acu))/
+                                  (double)(high_sum+f32_bits(0x3727c5acu)));
+        dst[segment]=-ubig_stage_b_rt_ratio_map(ratio)*2.0f;
+    }
+    s->index++;
+    if(s->index>=UBIG_STAGE_B_RT_SEGMENT_RATIO_DEPTH)s->index=0u;
+}

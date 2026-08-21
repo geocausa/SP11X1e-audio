@@ -363,3 +363,7 @@ The smallest hot leaf beneath the remaining universal RT scheduler is native as 
 ### Stage-B RT spectral-change history closure
 
 The exponent-aligned spectral-frame change metric is native as `ubig_stage_b_rt_spectral_change_process()`. It consumes the already-native semantic 77-bin export, owns the previous-frame and 32-entry history state, and matches **500,000 complete randomized calls bit-exact**. Public lifecycle hash: `17e4074bef4b1380`.
+
+### Stage-B RT segmented-ratio closure
+
+The next hot scheduler pair is native: `ubig_stage_b_rt_ratio_map()` passes **1,000,000 direct calls bit-exact**, and its eight-segment parent `ubig_stage_b_rt_segment_ratio_process()` passes **500,000 complete randomized calls bit-exact** on the deployed 77-bin class. Segment boundaries remain caller-owned. Public combined hash: `5d0bebce6be6277f`.

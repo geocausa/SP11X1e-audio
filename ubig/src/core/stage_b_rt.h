@@ -399,4 +399,24 @@ typedef struct {
 /* Exact spectral-frame change metric over the semantic 77-bin export. */
 void ubig_stage_b_rt_spectral_change_process(UbigStageBRtSpectralChangeHistory *state,
                                              const UbigStageBRtSpectralExport *input);
+
+/* Exact deployed scalar ratio map used by the segmented RT statistic path. */
+float ubig_stage_b_rt_ratio_map(float ratio);
+
+#define UBIG_STAGE_B_RT_SEGMENT_RATIO_DEPTH 32u
+#define UBIG_STAGE_B_RT_SEGMENT_RATIO_COUNT 8u
+
+typedef struct {
+    float history[UBIG_STAGE_B_RT_SEGMENT_RATIO_DEPTH][UBIG_STAGE_B_RT_SEGMENT_RATIO_COUNT];
+    uint32_t index;
+} UbigStageBRtSegmentRatioHistory;
+
+typedef struct {
+    const uint32_t *boundaries;
+} UbigStageBRtSegmentRatioConfig;
+
+/* Exact deployed eight-segment upper/lower-band ratio history update. */
+void ubig_stage_b_rt_segment_ratio_process(UbigStageBRtSegmentRatioHistory *state,
+                                           const UbigStageBRtSegmentRatioConfig *config,
+                                           const UbigStageBRtSpectralExport *input);
 #endif
