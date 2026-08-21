@@ -38,6 +38,20 @@ Compared state includes:
 
 The public regression suite retains an oracle-proven deterministic hash so this exactness can be protected without requiring private binaries.
 
+## Additional native Stage-A closures
+
+Since the first limiter checkpoint, UbiG has also closed these direct boundaries:
+
+- `0x1800247c0` fast log2 helper: 200k+ direct inputs bit-exact.
+- `0x180023d20` scaled exp2 helper: 1,000,000 direct lanes bit-exact.
+- `0x18001de90` 20-band persistent export/smoother: 400,000 band transitions bit-exact, using exact constructor coefficient bits rather than rounded historical values.
+- `0x1800240e0` synthesis wrapper: bit-exact with an injected transform for both phases; output and persistent overlap state match.
+- `0x180023db0` analyzer wrapper: bit-exact with an injected transform for two consecutive blocks; output, phase, history and all modeled spectral state match.
+
+The 320-point transform itself has been independently specified as a standard complex forward DFT. UbiG now has a clean generated-mathematics 5x64 implementation. It is **not yet called bit-exact**: the current arithmetic order measures roughly 123.8 dB SNR against the generated ARM64 kernels. Exact transform arithmetic-order parity remains open and isolated behind the filterbank callback interface.
+
+This means the proprietary analysis/synthesis wrappers have been eliminated as algorithmic unknowns; only the transform arithmetic-order cleanup and the central adaptive/multiband blocks remain in this Stage-A region.
+
 ## Stage-A structural boundary
 
 Stage-A-only impulse oracle:
@@ -56,6 +70,6 @@ The remaining Stage-A waveform mismatch begins at the first real output frame, s
 
 ## Next technical target
 
-Work backward from the proven final limiter through the Stage-A process graph. Prefer isolated directly callable blocks with function-level state/output oracles. The next candidate should be selected from the pre-limiter multiband/regulator/compressor path only after its input/output boundary and state ownership are fully mapped.
+The next major target is `0x180021e80`, the Stage-A multiband compressor/regulator block. Its public inputs and tuning/state ownership are already mapped from the late RE branch. Continue with the same rule used for limiter/filterbank work: isolate callable state and I/O, inject or freeze adjacent helpers, then accept native code only after a direct differential gate.
 
 Do not install UbiG into the live PipeWire path yet.
