@@ -167,3 +167,9 @@ The exact descending-row lifecycle is preserved: reset geometry depends on the i
 The logarithmic link-threshold vector remains an explicit caller-owned input. No reference threshold bytes are embedded in the implementation.
 
 Private direct differential gate using the promoted UbiG source: **120,000 complete randomized parent calls bit-exact**, comparing the complete `0x2A8` persistent state, every external destination row, and every error-shaping row after every call. Public synthetic lifecycle hash: `4b55c0c0974ae190`.
+
+## Centered distribution statistic
+
+`ubig_stage_b_leveler_distribution_stat()` implements the producer's bounded centered-distribution statistic. It preserves the reference's fixed 0.05 centering weight, power-of-two normalization, fused second/third-moment accumulation, four-step reciprocal refinement, and final signed clamp. It is table-free.
+
+Private direct differential gate using the promoted UbiG source: **1,000,000 randomized calls bit-exact** across row lengths 0 through 32. Public synthetic regression hash: `46ce1e13159e9409`.

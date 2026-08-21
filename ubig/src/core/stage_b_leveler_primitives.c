@@ -449,3 +449,67 @@ void ubig_stage_b_leveler_pair_smooth(const UbigStageBLevelerPairCoefficients *a
     *state_a=fmaf(remainder,target_a,old_a);
     *state_b=fmaf(remainder,target_b,old_b);
 }
+
+float ubig_stage_b_leveler_distribution_stat(uint32_t count,const float *values)
+{
+    if(!values&&count)return 0.0f;
+    const float weight=f32_bits(0x3d4ccccdu);
+    float mean=0.0f;
+    for(uint32_t i=0;i<count;i++)mean=fmaf(values[i],weight,mean);
+
+    float high=0.0f,low=0.0f;
+    if(count){
+        high=low=values[0]-mean;
+        for(uint32_t i=1;i<count;i++){
+            const float v=values[i]-mean;
+            if(v>high)high=v;
+            if(v<low)low=v;
+        }
+    }
+    if(high==low)return f32_bits(0x3e19999au);
+
+    const float max_abs=(-low>high)?-low:high;
+    uint32_t raw;memcpy(&raw,&max_abs,4);
+    int32_t exponent=((raw<<1)==0u)?-127:(int32_t)((raw>>23)&0xffu)-126;
+    int32_t shift=-exponent;if(shift<0)shift=0;if(shift>60)shift=60;
+    float scale=f32_bits((uint32_t)(shift+127)<<23);
+
+    float m2=0.0f,m3=0.0f;
+    const float cubic_weight=f32_bits(0x3d579436u);
+    for(uint32_t i=0;i<count;i++){
+        const float z=(values[i]-mean)*scale;
+        const float z2=z*z;
+        m2=fmaf(z2,weight,m2);
+        const float z3=z2*z;
+        m3=fmaf(z3,cubic_weight,m3);
+    }
+
+    const float root=sqrtf(m2);
+    const float denominator=root*m2;
+    const float numerator=m3*f32_bits(0x3d638e39u);
+    const float denominator_abs=(-denominator>denominator)?-denominator:denominator;
+    if(denominator_abs<=f32_bits(0x31abcc77u))return 0.0f;
+    const float numerator_abs=(-numerator>numerator)?-numerator:numerator;
+    if(denominator_abs<=numerator_abs)
+        return ((numerator<0.0f)==(denominator<0.0f))?1.0f:-1.0f;
+
+    memcpy(&raw,&denominator,4);
+    exponent=((raw<<1)==0u)?-127:(int32_t)((raw>>23)&0xffu)-126;
+    shift=-exponent;if(shift<0)shift=0;if(shift>60)shift=60;
+    scale=f32_bits((uint32_t)(shift+127)<<23);
+    const float d=denominator*scale;
+    const float q=numerator*scale;
+    float reciprocal;
+    if(d>f32_bits(0x3f350600u))reciprocal=1.0f-d*0.5f;
+    else reciprocal=(1.0f-d)+(1.0f-d);
+    for(int i=0;i<4;i++){
+        float error=fmaf(-reciprocal,d,0.5f);
+        error*=reciprocal;
+        error+=error;
+        reciprocal=error+reciprocal;
+    }
+    float result=reciprocal*q;
+    if(result< -0.5f)result=-0.5f;
+    if(result>0.5f)result=0.5f;
+    return result+result;
+}

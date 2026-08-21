@@ -159,6 +159,9 @@ typedef struct {
     uint32_t use_alternate;
 } UbigStageBLevelerPairControl;
 
+/* Exact centered-distribution statistic used by the Leveler producer. */
+float ubig_stage_b_leveler_distribution_stat(uint32_t count,const float *values);
+
 void ubig_stage_b_leveler_pair_smooth(const UbigStageBLevelerPairCoefficients *coefficients,
                                       const UbigStageBLevelerPairControl *control,
                                       float *state_a,

@@ -240,3 +240,7 @@ The reference pipeline consumes a 20-entry logarithmic threshold vector. Its mat
 The enclosing linked-row producer is now native as `ubig_stage_b_leveler_producer_process()`. The promoted UbiG implementation matches the original boundary across **120,000 complete randomized calls bit-exact**, including the full `0x2A8` producer state, all external destination rows, and all optional error-shaping rows. Public regression hash: `4b55c0c0974ae190`.
 
 This closes the previously unresolved parent above the native curve pipeline, pair-state row mixer, and symmetric filter/blend children. The logarithmic link-threshold vector remains caller-owned configuration pending independent recovery of its exact offline generator; UbiG does not contain the original table bytes.
+
+### Stage-B centered distribution statistic
+
+The table-free centered-distribution statistic beneath the remaining Leveler producer branch is native as `ubig_stage_b_leveler_distribution_stat()`. The promoted source matches **1,000,000 randomized direct calls bit-exact** across variable row lengths. Public regression hash: `46ce1e13159e9409`.
