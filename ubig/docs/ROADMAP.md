@@ -91,6 +91,8 @@ Current checkpoint: the SP11 48 kHz Stage-A cold scheduler is native and reaches
 
 Reconstruct only the SP11 stereo speaker behavior actually exercised by the endpoint:
 
+Current progress: the first directly callable Volume-Leveler/DRC coefficient primitive is native and bit-exact; the enclosing long-memory adaptive writer is the active next boundary.
+
 - effective stereo output-mode policy
 - Volume Leveler / DRC including long-memory adaptive controller
 - dialog enhancement behavior

@@ -186,3 +186,8 @@ Profile-family closure is now explicit: Dynamic/Game/Voice/Course/Custom retain 
 ## Stage-A profile-family equivalence closure
 
 The former Movie/Music Stage-A support block is closed by direct behavioral evidence rather than by inventing a second DSP implementation. Fresh VLLDP-only Dynamic/Movie/Music instances produced zero differing float32 samples on five 16,000-frame generated stress stimuli (nominal program, full-scale noise, impulses, DC and hot multitone). The distinct common versus Movie/Music group/scalar payloads are now represented as generated `DEVICE_TUNING` state and switched in place. Public tuning/family hash: `ab5ecd9bfff80604`. The engine regression cold-starts all seven profiles and sweeps all seven transitions against an untouched Stage-A reference engine with bit-identical output.
+
+
+## Stage-B Volume-Leveler/DRC native start
+
+Stage B has its first directly proven native primitive. The coefficient-triplet mapper beneath the long-memory Volume-Leveler/DRC controller is implemented as `ubig_stage_b_leveler_coeff_triplet()`. The promoted UbiG source matches the original ARM64 boundary on **300,000 randomized calls / 900,000 float32 outputs bit-exact**. Public regression hash: `bb435c3d5066b2bc`. The next target is the enclosing long-memory writer whose live state was localized at the SP11 VR adaptive-controller boundary.
