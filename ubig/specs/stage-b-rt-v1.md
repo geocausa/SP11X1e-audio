@@ -484,3 +484,9 @@ Once the downstream Stage-B audio path is source-owned, the raw dirty-configurat
 ## Built-in profile property boundary
 
 The shipped seven-profile control path no longer requires the VR scalar property-handler code bodies. The integration adapter owns their exact clamping/scaling and raw dirty-field updates; reference handlers remain a private ABI oracle only. After the recovered audio route became source-owned, the built-in-profile output-mode, frequency-grid/target and regulator-derived-table builders are likewise observationally dead: poisoning `0x32320`, `0x4C560`, `0x4C8E8` and `0x463C0` preserves both fixed and live-switch differentials. This result does not cover an explicit user-provided Custom/GEQ curve, whose semantic target programming remains a separate control feature.
+
+## Direct inner-runtime integration boundary
+
+For the deployed SP11 48-kHz stereo endpoint, the source-owned realtime path may consume the initialized Stage-B inner object directly. The enclosing VR APO factory allocation and generic transition wrapper are not part of the required semantic runtime contract. A differential integration proof omits outer construction and transition initialization entirely, dispatches host audio through the native 256-frame streamer and native frame processor against the standalone inner state, and remains bit-exact for all seven fixed profiles plus deterministic and randomized live profile switching.
+
+This is an integration-boundary result, not a public requirement to preserve the recovered raw inner-object layout. Native UbiG should ultimately replace the remaining cold inner constructor with semantic state/configuration objects rather than standardize the proprietary allocation graph.
