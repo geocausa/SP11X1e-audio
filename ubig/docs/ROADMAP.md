@@ -111,6 +111,17 @@ Exit: no proprietary userspace DSP binary is loaded in the UbiG lab chain. **The
 
 ### M5 — control service and application
 
+**2026-08-22 engine-control slice complete:** `ubig-control` 0.1.0 packages a
+GTK4 profile/20-band GEQ application plus the native `ubigctl` fallback. It
+uses the existing v2 request/ack page directly, applies without a graph
+restart, displays engine acknowledgement and persists the selected profile and
+Custom curve per user. The installed package passed a live same-profile
+request/ack gate without PID or fault drift.
+
+This is sufficient for ordinary engine use. A sole-owner D-Bus service and an
+explicit bypass ABI remain optional control-plane expansion, not missing DSP
+engine semantics and not prerequisites for acoustic/soak qualification.
+
 Implement `ubigd` as the sole persistent control owner:
 
 - profile: Dynamic, Movie, Music, Game, Voice, Course, Custom

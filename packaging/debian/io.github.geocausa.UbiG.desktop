@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=UbiG Equalizer
+Comment=Control UbiG profiles and the 20-band speaker equalizer
+Exec=ubig-geq
+Icon=io.github.geocausa.UbiG
+Terminal=false
+Categories=AudioVideo;Audio;
+Keywords=audio;equalizer;GEQ;speaker;UbiG;

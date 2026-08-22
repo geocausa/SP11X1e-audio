@@ -4,6 +4,30 @@ Branch: `ubig/deblob-main`
 Workspace: `/home/geoca/Documents/SP11-PROJECT/03-UbiG`
 Protected integration baseline: Golden v32 (`main` at creation: `8118a64`)
 
+## Engine-complete / control-package checkpoint
+
+The declared SP11 48 kHz stereo userspace engine is now implementation-complete
+independently of its promotion soak. Source-owned Stage A and Stage B, all
+seven profiles, live non-flat Custom/GEQ and endpoint postgain are connected in
+the running candidate without loading either proprietary Dolby userspace DLL.
+The corrected-v3 external owner data pack remains a required construction-time
+input; its public generation/minimization is still a distribution-provenance
+task, not an executable engine island.
+
+`ubig-control` 0.1.0 adds the first installed desktop control surface: GTK4
+profile selection and the recovered 20-band grid, friendly `-12..+12 dB`
+sliders mapped to exact raw sixteenth-dB controls, in-place request/ack status,
+flat reset and per-user saved state. The arm64 Debian package is reproducibly
+built from `packaging/debian/` and contains no kernel, topology, PipeWire graph,
+private owner pack or DSP plugin replacement.
+
+The installed package queued an unchanged Movie request on the active
+candidate, advanced generation `3 -> 4`, received acknowledgement `4 / 4`, and
+preserved filter-chain PID `180679` with no new kernel PA/SoundWire/XRUN/GLINK
+fault or userspace NaN/Inf/crash marker. This closes the usable GEQ/control
+deliverable. Seek, physical acoustics, longer protection observation and the
+eight-hour run remain promotion evidence only.
+
 ## Completed today
 
 - Dedicated UbiG Git worktree created without modifying Golden v32.

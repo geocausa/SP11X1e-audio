@@ -1,0 +1,11 @@
+Package: ubig-control
+Version: @VERSION@
+Section: sound
+Priority: optional
+Architecture: @ARCH@
+Maintainer: SP11 Audio Project
+Depends: python3, python3-gi, gir1.2-gtk-4.0
+Description: UbiG profile and 20-band speaker equalizer control
+ A small GTK4 userspace controller for the UbiG native SP11 speaker engine.
+ It changes profiles and Custom GEQ state in place through the versioned UbiG
+ realtime control page and does not restart PipeWire or modify the kernel.
