@@ -4025,6 +4025,16 @@ void ubig_stage_b_rt_pair_inverse_transform(float *row_a,float *row_b,
     }
 }
 
+uint32_t ubig_stage_b_rt_effective_count(uint32_t expansion_enabled,
+                                         uint32_t expansion_blocked,
+                                         uint32_t base_count,
+                                         uint32_t expanded_count)
+{
+    if(expansion_enabled!=0u && expansion_blocked==0u && expanded_count>base_count)
+        return expanded_count;
+    return base_count;
+}
+
 void ubig_stage_b_rt_history_filter64_process(
     UbigStageBRtHistoryFilter64State *state,const float filter[640],
     const float phase[128],uint32_t history_row,float output[128],

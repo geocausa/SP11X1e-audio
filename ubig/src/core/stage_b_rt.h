@@ -1132,6 +1132,14 @@ void ubig_stage_b_rt_pair_transform(float *row_a,float *row_b,
 void ubig_stage_b_rt_pair_inverse_transform(float *row_a,float *row_b,
                                             uint32_t complex_bins,float scale);
 
+/* Exact effective-count selector at reference 0x1800F93A8. The expanded
+ * count is visible only while expansion is enabled, not blocked, and strictly
+ * larger than the base count. */
+uint32_t ubig_stage_b_rt_effective_count(uint32_t expansion_enabled,
+                                         uint32_t expansion_blocked,
+                                         uint32_t base_count,
+                                         uint32_t expanded_count);
+
 #define UBIG_STAGE_B_RT_HISTORY_FILTER64_N 64u
 #define UBIG_STAGE_B_RT_HISTORY_FILTER64_DEPTH 9u
 #define UBIG_STAGE_B_RT_HISTORY_FILTER64_OUTPUT_FLOATS 128u
