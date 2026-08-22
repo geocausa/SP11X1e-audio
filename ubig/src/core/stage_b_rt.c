@@ -3580,6 +3580,53 @@ int ubig_stage_b_rt_sparse_complex_mix(float *output,
     return 0;
 }
 
+UbigStageBRtSparseRemapPlan *ubig_stage_b_rt_sparse_plan_build(
+    uint32_t source_rows,uint32_t target_rows,const float *dense,void *workspace)
+{
+    if(!workspace||((source_rows!=0u&&target_rows!=0u)&&!dense))return NULL;
+
+    const uintptr_t base=(uintptr_t)workspace;
+    UbigStageBRtSparseRemapPlan *plan=(UbigStageBRtSparseRemapPlan *)
+        ((base+(uintptr_t)0x1fu)&~(uintptr_t)31u);
+    UbigStageBRtSparseMix *mixes=(UbigStageBRtSparseMix *)
+        ((base+(uintptr_t)0x4eu)&~(uintptr_t)31u);
+    uintptr_t cursor=base+(uintptr_t)target_rows*24u+(uintptr_t)0x4eu;
+
+    const float *row=dense;
+    for(uint32_t target=0u;target<target_rows;target++){
+        uint32_t count=0u;
+        if(source_rows!=0u){
+            for(uint32_t source=0u;source<source_rows;source++)
+                if(row[source]!=0.0f)count++;
+        }
+
+        uint32_t *indices=(uint32_t *)((cursor+(uintptr_t)0x1fu)&~(uintptr_t)31u);
+        const uintptr_t after_indices=cursor+(uintptr_t)count*sizeof(uint32_t);
+        float *weights=(float *)((after_indices+(uintptr_t)0x3eu)&~(uintptr_t)31u);
+        cursor=after_indices+(uintptr_t)count*sizeof(float)+(uintptr_t)0x3eu;
+
+        uint32_t out=0u;
+        if(source_rows!=0u){
+            for(uint32_t source=0u;source<source_rows;source++){
+                if(row[source]!=0.0f){
+                    indices[out]=source;
+                    weights[out]=row[source];
+                    out++;
+                }
+            }
+            row+=source_rows;
+        }
+        mixes[target].indices=indices;
+        mixes[target].weights=weights;
+        mixes[target].count=out;
+    }
+
+    plan->mixes=mixes;
+    plan->source_rows=source_rows;
+    plan->target_rows=target_rows;
+    return plan;
+}
+
 uint32_t ubig_stage_b_rt_sparse_remap(UbigStageBRtComplexMatrix *matrix,
                                       const UbigStageBRtSparseRemapPlan *plan,
                                       void *workspace)

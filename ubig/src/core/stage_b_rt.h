@@ -1082,6 +1082,13 @@ typedef struct {
     uint32_t target_rows;
 } UbigStageBRtSparseRemapPlan;
 
+/* Build the sparse-row plan consumed by ubig_stage_b_rt_sparse_remap() from a
+ * dense target_rows x source_rows coefficient matrix. Workspace owns the plan,
+ * mix records, compact source indices and compact weights; the returned pointer
+ * remains valid while that workspace is retained. This is reference 0x18004F1B8. */
+UbigStageBRtSparseRemapPlan *ubig_stage_b_rt_sparse_plan_build(
+    uint32_t source_rows,uint32_t target_rows,const float *dense,void *workspace);
+
 /* Exact sparse row remapper at 0x18004BAB0. The source_rows prefix is mixed
  * through aligned workspace before write-back so source rows may overlap the
  * destination matrix; rows appended beyond the prefix are generated in place. */

@@ -484,6 +484,7 @@ Live typed capture also removes the remaining ambiguity around the hot universal
 ### Stage-B sparse remap and true-tail closure
 
 Reference leaf `0x18004B890` is native as `ubig_stage_b_rt_sparse_complex_mix()` with **1,000,000 direct randomized DLL calls bit-exact** across empty/odd/even sparse mixes, four channels and the full 0..77 deployed complex-bin span; public hash `3ec058aa58b2fc4c`. Enclosing remapper `0x18004BAB0` is native as `ubig_stage_b_rt_sparse_remap()` and passes **1,000,000 complete randomized parent calls bit-exact**, including destination rows, aligned scratch, return mask and row-count state; public hash `938613e0236f68a6`.
+The setup-only dense-to-sparse builder at `0x18004F1B8` is now native as `ubig_stage_b_rt_sparse_plan_build()`. Its returned plan and mix records are layout-compatible with the already-native remapper contract; **1,000,000 randomized DLL calls** match all plan/mix pointer offsets, counts, compact indices and compact weights exactly. Public hash: `11a40bff151a3d35`.
 
 Live capture proves the shipped `0x4BAB0` route is a strict 2→2 identity remap on every profile: four channels, 77 bins, singleton `{0,1.0}` and `{1,1.0}` row mixes, zero return mask. The separately hot `0x558B0` generic gain path is also a deployed no-op: both optional coefficient inputs are null, control is zero, return is exactly 0.0 and its 2×4×77 matrix is unchanged on every captured block.
 
