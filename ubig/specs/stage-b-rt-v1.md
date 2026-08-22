@@ -516,3 +516,10 @@ The five slow-control scoring models are already represented publicly by `UbigSt
 The 76-entry projection LUT is ordinary caller-owned configuration. The deployed private adapter may bind an external 76-float vector and does not require the table to reside in the reference image; destructive testing zeros the mapped original while preserving fixed-profile and live-switch output/cadence.
 
 The shipped source-owned path also does not require the legacy Leveler and multiband global tuning-table bindings. Leveler dispatch is invoked but returns at its disabled gate before any tuning pointer is read under all seven shipped profiles and live profile switching; the multiband native adapter is not entered at all on this route. Integrations therefore need not materialize those dormant tuning bindings unless they intentionally enable the corresponding optional paths.
+
+
+## Executable VR image boundary
+
+The deployed 48-kHz stereo source path does not require an executable VR reference image. The residual raw callback slots at `+0xB0/+0xB8` may be null once the native history and late-controller pipeline is active; mapped vtables, callsite patches, fallback-function pointers and the reference deinitializer are likewise absent from the validated private path. A destructive integration gate marks every mapped VR code page inaccessible and preserves fixed-profile output, live profile switching and the observed Stage-B call topology.
+
+The stronger private integration runs without loading `DolbyAPOVR.dll` at all. Required slow-control descriptors and projection coefficients are bound from external caller-owned data, and a nonexistent VR-DLL path does not change output. This is an integration-boundary result: public UbiG continues to expose semantic caller-owned configuration rather than reference-image addresses, and any recovered proprietary coefficient payload remains outside the repository.
