@@ -395,3 +395,7 @@ The final transform in the scheduler's 19-call upper group is now native as `ubi
 ### Stage-B RT shared cadence-statistic closure
 
 The shared lower-cadence 32-value mean/deviation primitive is native as `ubig_stage_b_rt_stat32()`, with `ubig_stage_b_rt_stat32_step()` owning the common scratch-copy/cursor wrapper. Promoted statistic math matches **1,000,000 direct calls bit-exact**; both deployed raw wrapper layouts independently match **500,000 complete randomized calls bit-exact**. Public lifecycle hash: `ef736d1ae28c87ce`.
+
+### Stage-B RT strided column-statistics closure
+
+The lower-cadence 32x8 column gather/statistic wrapper is native as `ubig_stage_b_rt_stat32_columns()`. Promoted source matches **500,000 complete randomized DLL calls bit-exact** across counts 0..8, full state, both output banks, scratch and cursor. Public lifecycle hash: `569ae074f27f9d2e`.

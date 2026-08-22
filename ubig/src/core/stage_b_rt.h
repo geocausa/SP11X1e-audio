@@ -468,6 +468,17 @@ void ubig_stage_b_rt_stat32_step(UbigStageBRtStatCursor *cursor,
                                  float scratch[32],
                                  float output[2]);
 
+#define UBIG_STAGE_B_RT_STAT_COLUMNS 8u
+
+/* Gather active columns from a 32x8 row-major matrix, compute one exact
+ * statistic per column, then advance the shared 32-slot cursor. */
+void ubig_stage_b_rt_stat32_columns(UbigStageBRtStatCursor *cursor,
+                                    const float matrix[32][UBIG_STAGE_B_RT_STAT_COLUMNS],
+                                    uint32_t count,
+                                    float scratch[32],
+                                    float mean[UBIG_STAGE_B_RT_STAT_COLUMNS],
+                                    float deviation[UBIG_STAGE_B_RT_STAT_COLUMNS]);
+
 #define UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH 32u
 #define UBIG_STAGE_B_RT_FEATURE_RECORD_VALUES 20u
 #define UBIG_STAGE_B_RT_FEATURE_SEGMENTS 8u

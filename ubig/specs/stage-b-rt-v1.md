@@ -157,3 +157,7 @@ Private differential gates: every-call weighted-measurement/projection path **30
 `ubig_stage_b_rt_stat32()` owns the exact normalized mean/deviation statistic shared by the lower cadence paths. It finds one binary exponent scale across 32 values, preserves the reference first-multiply/remaining-FMA mean schedule, then computes the centered RMS-like deviation with the exact fused subtraction and exponent rescaling. `ubig_stage_b_rt_stat32_step()` adds the common copy-to-scratch and 32-slot cursor update used by two deployed wrappers.
 
 Promoted-source private differential: **1,000,000 direct statistic calls bit-exact** across a broad exponent range. Two independent deployed wrapper boundaries each match **500,000 complete randomized calls bit-exact**, including full wrapper state, copied scratch, both outputs and cursor evolution. Public synthetic lifecycle hash: `ef736d1ae28c87ce`.
+
+## Strided 32x8 cadence statistics
+
+`ubig_stage_b_rt_stat32_columns()` gathers up to eight columns from a semantic 32x8 row-major history matrix, applies the native 32-value statistic to each active column, preserves inactive output lanes, and advances the shared 32-slot cursor. Promoted-source private differential: **500,000 complete randomized calls bit-exact**, comparing the complete reference state, both eight-value output banks, scratch row and cursor across active counts 0..8. Public lifecycle hash: `569ae074f27f9d2e`.
