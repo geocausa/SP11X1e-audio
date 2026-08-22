@@ -125,7 +125,7 @@ Expose a stable service API; D-Bus via GIO is the preferred desktop-facing trans
 
 ### M6 — SP11 integration and promotion gates
 
-Private lab chain -> disposable PipeWire candidate -> long-run validation -> Golden candidate.
+Private lab chain -> disposable PipeWire candidate -> long-run validation -> Golden candidate. **The first live disposable candidate smoke is passing on SP11 with W^X restored, no vendor userspace image mapped, live Game/Custom/Movie retargeting, mute/unmute and idle/wake; long-run/acoustic promotion gates remain.**
 
 Required gates include:
 

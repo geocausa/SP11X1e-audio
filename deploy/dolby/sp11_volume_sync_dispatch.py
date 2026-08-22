@@ -21,6 +21,11 @@ def has_control(amixer: str = "amixer", card: str = "hw:0") -> bool:
 
 
 def resolve_program(name: str) -> Path:
+    helper_dir = os.environ.get("UBIG_VOLUME_HELPER_DIR")
+    if helper_dir:
+        candidate = Path(helper_dir) / name
+        if candidate.exists():
+            return candidate
     installed = Path.home() / ".local/bin" / name
     if installed.exists():
         return installed

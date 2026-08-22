@@ -9,6 +9,7 @@ LIBDIR=${UBIG_CANDIDATE_LIBDIR:-"$HOME/.local/lib/ubig-candidate"}
 STAGEDIR=${UBIG_CANDIDATE_STAGEDIR:-"$HOME/.local/share/ubig-candidate"}
 PLUGIN="$LIBDIR/ubig-sp11-candidate.so"
 CONF="$STAGEDIR/98-sp11-ubig-candidate.conf"
+HELPERDIR="$STAGEDIR/bin"
 
 [ -f "$PACK" ] || { echo "missing private Stage-B pack: $PACK" >&2; exit 2; }
 actual_pack_sha=$(sha256sum "$PACK" | awk '{print $1}')
@@ -22,8 +23,12 @@ actual_pack_sha=$(sha256sum "$PACK" | awk '{print $1}')
 make -C "$ROOT/ubig" candidate-ladspa
 UBIG_SP11_STAGEB_PACK="$PACK" make -C "$ROOT/ubig" candidate-control-check
 
-mkdir -p "$LIBDIR" "$STAGEDIR"
+mkdir -p "$LIBDIR" "$STAGEDIR" "$HELPERDIR"
 install -m 0755 "$ROOT/ubig/build/ubig-sp11-candidate.so" "$PLUGIN"
+install -m 0755 "$ROOT/deploy/dolby/sp11_volume_sync_dispatch.py" "$HELPERDIR/sp11-volume-sync-dispatch"
+install -m 0755 "$ROOT/deploy/dolby/sp11_dolby_volume_sync.py" "$HELPERDIR/sp11-dolby-volume-sync"
+install -m 0755 "$ROOT/deploy/dolby/sp11_windows_volume_transaction_sync.py" "$HELPERDIR/sp11-windows-volume-transaction-sync"
+install -m 0755 "$ROOT/deploy/dolby/sp11_msiir_volume_sync.py" "$HELPERDIR/sp11-msiir-volume-sync"
 python3 - "$SCRIPT_DIR/98-sp11-ubig-candidate.conf.in" "$CONF" "$PLUGIN" <<'PY'
 from pathlib import Path
 import sys
@@ -49,6 +54,7 @@ plugin_sha256=$plugin_sha
 pack=$PACK
 pack_sha256=$actual_pack_sha
 pipewire_conf=$CONF
+helper_dir=$HELPERDIR
 control_path=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/ubig-control-v2
 MANIFEST
 
@@ -57,4 +63,5 @@ printf '  plugin %s\n' "$PLUGIN"
 printf '  sha256 %s\n' "$plugin_sha"
 printf '  pack   %s\n' "$PACK"
 printf '  config %s\n' "$CONF"
+printf '  helpers %s\n' "$HELPERDIR"
 printf 'Activate only through: %s activate\n' "$SCRIPT_DIR/switch.sh"

@@ -48,6 +48,9 @@ ROOT = SCRIPT_DIR.parents[1] if SCRIPT_DIR.name == "dolby" else None
 
 def load_module(source_name: str, installed_name: str, module_name: str):
     candidates = []
+    helper_dir = os.environ.get("UBIG_VOLUME_HELPER_DIR")
+    if helper_dir:
+        candidates.append(Path(helper_dir) / installed_name)
     if ROOT is not None:
         candidates.append(ROOT / "deploy/dolby" / source_name)
     candidates.append(Path.home() / ".local/bin" / installed_name)

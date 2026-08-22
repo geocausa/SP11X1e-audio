@@ -8,8 +8,15 @@ STAGEDIR=${UBIG_CANDIDATE_STAGEDIR:-"$HOME/.local/share/ubig-candidate"}
 STATEDIR=${UBIG_CANDIDATE_STATEDIR:-"${XDG_STATE_HOME:-$HOME/.local/state}/ubig-candidate"}
 CONFIG_HOME=${XDG_CONFIG_HOME:-"$HOME/.config"}
 RUNTIME_DIR=${XDG_RUNTIME_DIR:-"/run/user/$(id -u)"}
+# PiMaster/non-login maintenance shells may not inherit the graphical session
+# environment even though the user manager and PipeWire session are alive.
+# Resolve the standard per-user bus explicitly so activate/rollback reaches the
+# same user services as the desktop session.
+export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-$RUNTIME_DIR}
+export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=$RUNTIME_DIR/bus}
 PLUGIN="$LIBDIR/ubig-sp11-candidate.so"
 STAGED_CONF="$STAGEDIR/98-sp11-ubig-candidate.conf"
+HELPERDIR="$STAGEDIR/bin"
 ACTIVE_CONF="$CONFIG_HOME/pipewire/filter-chain.conf.d/98-sp11-windows-dolby.conf"
 ROLLBACK_CONF="$STATEDIR/98-sp11-windows-dolby.conf.rollback"
 MARKER="$STATEDIR/active"
@@ -34,8 +41,18 @@ EOD
 [Service]
 Environment=UBIG_CONTROL_PATH=$CONTROL
 Environment=UBIG_CONTROL_FORMAT=ubig-v2
+Environment=UBIG_VOLUME_HELPER_DIR=$HELPERDIR
+ExecStart=
+ExecStart=$HELPERDIR/sp11-volume-sync-dispatch
 EOD
-    cp "$VOLUME_DROPIN" "$MSIIR_DROPIN"
+    cat > "$MSIIR_DROPIN" <<EOD
+[Service]
+Environment=UBIG_CONTROL_PATH=$CONTROL
+Environment=UBIG_CONTROL_FORMAT=ubig-v2
+Environment=UBIG_VOLUME_HELPER_DIR=$HELPERDIR
+ExecStart=
+ExecStart=$HELPERDIR/sp11-msiir-volume-sync
+EOD
 }
 
 restart_graph() {
@@ -50,6 +67,9 @@ restart_graph() {
 activate() {
     [ -x "$PLUGIN" ] || { echo "candidate not prepared: $PLUGIN" >&2; exit 2; }
     [ -f "$STAGED_CONF" ] || { echo "candidate config not prepared: $STAGED_CONF" >&2; exit 2; }
+    [ -x "$HELPERDIR/sp11-volume-sync-dispatch" ] || { echo "candidate helpers not prepared: $HELPERDIR" >&2; exit 2; }
+    [ -x "$HELPERDIR/sp11-windows-volume-transaction-sync" ] || { echo "candidate transaction helper missing: $HELPERDIR" >&2; exit 2; }
+    [ -x "$HELPERDIR/sp11-msiir-volume-sync" ] || { echo "candidate MSIIR helper missing: $HELPERDIR" >&2; exit 2; }
     [ -f "$PACK" ] || { echo "private pack missing: $PACK" >&2; exit 2; }
     [ -f "$ACTIVE_CONF" ] || { echo "active Golden PipeWire config missing: $ACTIVE_CONF" >&2; exit 3; }
     if [ -e "$MARKER" ]; then

@@ -685,6 +685,30 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         self.assertEqual(hardware_mutes[-1], True)
         self.assertTrue(hardware_volumes)
 
+    def test_dispatch_prefers_explicit_candidate_helper_dir(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            helper_dir = Path(tmpdir) / "candidate-bin"
+            helper_dir.mkdir()
+            helper = helper_dir / "sp11-windows-volume-transaction-sync"
+            helper.write_text("#!/bin/sh\n")
+            with patch.dict(sync.os.environ, {"UBIG_VOLUME_HELPER_DIR": str(helper_dir)}, clear=False):
+                self.assertEqual(dispatch.resolve_program("sp11-windows-volume-transaction-sync"), helper)
+
+    def test_load_module_prefers_explicit_candidate_helper_dir(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            helper_dir = Path(tmpdir) / "candidate-bin"
+            helper_dir.mkdir()
+            helper = helper_dir / "test-helper"
+            helper.write_text("answer = 84\n")
+            installed = Path(tmpdir) / ".local/bin/test-helper"
+            installed.parent.mkdir(parents=True)
+            installed.write_text("answer = 42\n")
+            with patch.dict(sync.os.environ, {"UBIG_VOLUME_HELPER_DIR": str(helper_dir)}, clear=False), \
+                 patch.object(sync, "ROOT", None), \
+                 patch.object(sync.Path, "home", return_value=Path(tmpdir)):
+                module = sync.load_module("unused.py", "test-helper", "test_candidate_helper")
+        self.assertEqual(module.answer, 84)
+
     def test_load_module_accepts_extensionless_installed_helper(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             helper = Path(tmpdir) / ".local/bin/test-helper"

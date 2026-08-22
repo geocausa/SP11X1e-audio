@@ -22,10 +22,15 @@ def test_candidate_prepare_and_switch_keep_deblob_and_rollback_gates():
     prepare = (DEPLOY / "prepare.sh").read_text()
     switch = (DEPLOY / "switch.sh").read_text()
     assert "candidate-control-check" in prepare
+    assert "sp11-windows-volume-transaction-sync" in prepare
+    assert "sp11-msiir-volume-sync" in prepare
     assert "c993c123f2cb3b92776754da2383217e00b5f290664571f12cfb62b9afb3a175" in prepare
     assert "DolbyAPOVR\\.dll|DolbyAPOvlldp150\\.dll|sp11_pe_load" in prepare
     assert "MemoryDenyWriteExecute=yes" in switch
     assert "Environment=UBIG_CONTROL_FORMAT=ubig-v2" in switch
+    assert "Environment=UBIG_VOLUME_HELPER_DIR=$HELPERDIR" in switch
+    assert "ExecStart=$HELPERDIR/sp11-volume-sync-dispatch" in switch
+    assert "ExecStart=$HELPERDIR/sp11-msiir-volume-sync" in switch
     assert "98-sp11-windows-dolby.conf.rollback" in switch
     assert 'install -m 0644 "$ROLLBACK_CONF" "$ACTIVE_CONF"' in switch
 
