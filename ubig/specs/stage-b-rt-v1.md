@@ -151,3 +151,9 @@ Private differential gates: every-call record builder **500,000 complete randomi
 The periodic branch runs when `((index + 2) & 31) == phase`. It reduces the eight ring columns using one cumulative exponent floor beginning at 32, then reduces seven half-scaled adjacent-column differences with an independent exponent floor of 32 for each difference. Both reducer families preserve the exact two-block 15-FMA-plus-final-multiply/add schedule.
 
 Private differential gates: every-call weighted-measurement/projection path **300,000 randomized calls bit-exact** while the mapped reference projection lookup is overwritten with arbitrary synthetic coefficients; periodic reducer **300,000 complete randomized state calls bit-exact**; complete promoted semantic controller **300,000 complete randomized calls bit-exact** across trigger/non-trigger, randomized measurement descriptors, coefficient lookup, spectra, exponents and prior state. Public synthetic lifecycle hash: `39002c160c3841b9`.
+
+## Shared 32-value cadence statistic
+
+`ubig_stage_b_rt_stat32()` owns the exact normalized mean/deviation statistic shared by the lower cadence paths. It finds one binary exponent scale across 32 values, preserves the reference first-multiply/remaining-FMA mean schedule, then computes the centered RMS-like deviation with the exact fused subtraction and exponent rescaling. `ubig_stage_b_rt_stat32_step()` adds the common copy-to-scratch and 32-slot cursor update used by two deployed wrappers.
+
+Promoted-source private differential: **1,000,000 direct statistic calls bit-exact** across a broad exponent range. Two independent deployed wrapper boundaries each match **500,000 complete randomized calls bit-exact**, including full wrapper state, copied scratch, both outputs and cursor evolution. Public synthetic lifecycle hash: `ef736d1ae28c87ce`.

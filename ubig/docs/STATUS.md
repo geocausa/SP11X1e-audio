@@ -391,3 +391,7 @@ The large upper-scheduler feature-history transform is now native as `ubig_stage
 ### Stage-B RT projection-history controller closure
 
 The final transform in the scheduler's 19-call upper group is now native as `ubig_stage_b_rt_projection_history_process()`. Its 19 weighted measurements, eight-value projection ring and periodic 32-slot reducers are exact; the reference projection lookup was replaced by arbitrary synthetic coefficients during the direct oracle, so its table remains caller-owned rather than embedded. Promoted source matches **300,000 complete randomized DLL calls bit-exact**. Public lifecycle hash: `39002c160c3841b9`. The complete 19-call upper scheduler group is now native.
+
+### Stage-B RT shared cadence-statistic closure
+
+The shared lower-cadence 32-value mean/deviation primitive is native as `ubig_stage_b_rt_stat32()`, with `ubig_stage_b_rt_stat32_step()` owning the common scratch-copy/cursor wrapper. Promoted statistic math matches **1,000,000 direct calls bit-exact**; both deployed raw wrapper layouts independently match **500,000 complete randomized calls bit-exact**. Public lifecycle hash: `ef736d1ae28c87ce`.

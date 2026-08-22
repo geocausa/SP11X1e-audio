@@ -453,6 +453,21 @@ void ubig_stage_b_rt_feature_change_process(UbigStageBRtFeatureChangeHistory *st
 /* Exact exponent-scaled FMA sum used by the RT feature scheduler. */
 float ubig_stage_b_rt_scaled_sum(const float *input,uint32_t count,int32_t exponent);
 
+/* Exact 32-value normalized mean/deviation statistic shared by the cadence paths. */
+void ubig_stage_b_rt_stat32(const float input[32],float *mean,float *deviation);
+
+typedef struct {
+    uint32_t step;
+    uint32_t index;
+} UbigStageBRtStatCursor;
+
+/* Copy one 32-value row to caller scratch, compute the exact statistic, then
+ * advance the 32-slot cursor by its caller-owned step. */
+void ubig_stage_b_rt_stat32_step(UbigStageBRtStatCursor *cursor,
+                                 const float input[32],
+                                 float scratch[32],
+                                 float output[2]);
+
 #define UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH 32u
 #define UBIG_STAGE_B_RT_FEATURE_RECORD_VALUES 20u
 #define UBIG_STAGE_B_RT_FEATURE_SEGMENTS 8u

@@ -1296,6 +1296,49 @@ float ubig_stage_b_rt_scaled_sum(const float *input,uint32_t count,int32_t expon
     return sum;
 }
 
+void ubig_stage_b_rt_stat32(const float input[32],float *mean,float *deviation)
+{
+    if(!input||!mean||!deviation)return;
+    int32_t shift=stage_b_rt_spectral_shift(input[0]);
+    for(uint32_t lane=1u;lane<32u;lane++){
+        const int32_t lane_shift=stage_b_rt_spectral_shift(input[lane]);
+        if(lane_shift<shift)shift=lane_shift;
+    }
+
+    const float sum_scale=stage_b_rt_pow2_integer(shift-5);
+    float average=input[0]*sum_scale;
+    for(uint32_t lane=1u;lane<32u;lane++)
+        average=fmaf(input[lane],sum_scale,average);
+    average*=f32_bits(0x3d000000u);
+    average*=stage_b_rt_pow2_integer(5-shift);
+    *mean=average;
+
+    const float center_scale=stage_b_rt_pow2_integer(shift-1);
+    const float centered_average=average*center_scale;
+    float energy=0.0f;
+    for(uint32_t lane=0u;lane<32u;lane++){
+        const float centered=fmaf(input[lane],center_scale,-centered_average);
+        const float square=centered*centered;
+        energy=fmaf(square,f32_bits(0x3d000000u),energy);
+    }
+    energy*=f32_bits(0x3d000000u);
+    energy*=f32_bits(0x42000000u);
+    *deviation=sqrtf(energy)*stage_b_rt_pow2_integer(1-shift);
+}
+
+void ubig_stage_b_rt_stat32_step(UbigStageBRtStatCursor *cursor,
+                                 const float input[32],
+                                 float scratch[32],
+                                 float output[2])
+{
+    if(!cursor||!input||!scratch||!output)return;
+    memcpy(scratch,input,32u*sizeof(float));
+    ubig_stage_b_rt_stat32(scratch,&output[0],&output[1]);
+    uint32_t next=cursor->index+cursor->step;
+    if(next>=32u)next-=32u;
+    cursor->index=next;
+}
+
 static float stage_b_rt_reduce32_exact(const float values[UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH],
                                        int32_t shift)
 {
