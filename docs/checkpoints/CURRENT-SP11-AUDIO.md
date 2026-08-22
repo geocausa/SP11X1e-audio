@@ -8,6 +8,13 @@ Repository: `geocausa/SP11X1e-audio`
 Canonical branch: `main`
 Development lineage `agent/psycho-bass-20260818` has been fast-forwarded into `main` through the v32 promotion history.
 
+> **2026-08-22 live-userspace note:** the promoted kernel/protection baseline
+> remains Golden v32, but the current per-user PipeWire graph is the disposable
+> UbiG candidate from `ubig/deblob-main` at `a92e5ef`. It is not promoted to
+> Golden and retains exact rollback to the Windows-binary bridge. See
+> `docs/audit/2026-08-22-SP11-AUDIO-FULL-STATE-AUDIT.md` for verified gates,
+> provenance findings and remaining UbiG M6 work.
+
 ## Machine / boot state
 
 - SP11 runs `7.1.5-sp11-render-parity-v4+` with marker

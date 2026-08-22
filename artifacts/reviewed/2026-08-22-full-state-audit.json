@@ -1,0 +1,87 @@
+{
+  "date": "2026-08-22",
+  "scope": "SP11 built-in-speaker full state audit; no reboot",
+  "runtime": {
+    "kernel": "7.1.5-sp11-render-parity-v4+",
+    "grub_id": "sp11-audio-v32-feedback-exact-golden",
+    "boot_marker": "sp11_entry=7.1.5-sp11-v32-feedback-exact-golden",
+    "topology_sha256": "1b0c7217fc67bb11da002b06563dd8c411b0f0e35ac40778bff3d65093061c9d",
+    "ucm_sha256": "d9cc675fd4d432f62fd3e01fba32a8afe22a64e988fac476120161e67c63fb54",
+    "golden_verifier": "PASS",
+    "module_srcversions": {
+      "snd_soc_lpass_wsa_macro": "F32C7A03F713D1B20F0BF78",
+      "snd_soc_wsa884x": "5859E70AFD0A1D420E8ADD4",
+      "snd_soc_x1e80100": "13326073E27DFA035180C56",
+      "soundwire_qcom": "D008A3D6B585C11BE023992",
+      "snd_q6apm": "687B16CF9C43B43E90C0746"
+    },
+    "faults": {
+      "pa_fault": 0,
+      "pa_recovery": 0,
+      "soundwire_or_xrun": 0,
+      "canonical_glink_timeout": 0
+    }
+  },
+  "userspace": {
+    "active_graph": "UbiG disposable candidate",
+    "ubig_commit": "a92e5ef",
+    "plugin_sha256": "1b3e3110c07bdc5b21e3c59ee75482a598c35e3acf27c2e600fbc6fa50355eb8",
+    "owner_pack_sha256": "c993c123f2cb3b92776754da2383217e00b5f290664571f12cfb62b9afb3a175",
+    "windows_dsp_dll_mapped": false,
+    "memory_deny_write_execute": true,
+    "promotion_status": "not Golden; M6 remains open"
+  },
+  "tests": {
+    "golden_pytest": "197 passed, 3 skipped, 6 subtests passed",
+    "ubig_make_check": "PASS",
+    "ubig_pytest": "207 passed, 3 skipped, 6 subtests passed"
+  },
+  "branch_inventory": {
+    "canonical_main_before_audit": "8118a6409c188bb01587cbcc1004353ac0527152",
+    "canonical_main_matched_origin": true,
+    "unique_commits_vs_main": {
+      "agent/windows-diag-oracle-20260819": 3,
+      "agent/cps-dp6-runtime-closure-20260810": 8,
+      "agent/wsa-lifecycle-trace-20260815": 9,
+      "agent/asar-linux-breakthrough-20260809": 45,
+      "agent/dolby-completion-2026-08-05": 70
+    },
+    "disposition": "retain as evidence histories; do not mechanically merge"
+  },
+  "source_replay_evidence": {
+    "git_kernel_patch_series_last": "0068",
+    "preserved_exact_postpa_wsa884x_c_sha256": "67c95c5bb1928a4bc2da0c4bd1ddbf7e6e48419ba126bfd4304a1b3378931138",
+    "drifted_mutable_wsa884x_c_sha256": "0615f2294c7bc8d512af8aaabda88af90653ac8344e72c4c743274051124b35b",
+    "loaded_golden_q6apm_srcversion": "687B16CF9C43B43E90C0746",
+    "preserved_golden_q6apm_zst_sha256": "acf8ba1e6ded43cfac86afa7d12dd30dabd972286e74b021fbb7bddf98955033",
+    "obvious_golden_v31_candidate_q6apm_output_srcversion": "F123824980FC2D98FEEE369",
+    "result": "exact deployed binaries are preserved and verifiable, but one clean exact-source replay is not yet proven"
+  },
+  "sp7_evidence": {
+    "old_audit_transfer_sha256": "7ccc98400567a14541b708196ea542cb1b794b7db844546fcddd9a23b86422f8",
+    "old_audit_files": 74,
+    "v32_acoustic_transfer_sha256": "c2cb90948c1ac02724493ee67a5b4213f163d28e4dc2f7dba942b61a138bbe6d",
+    "v32_acoustic_source_files": 72,
+    "v32_acoustic_source_bytes": 668415138,
+    "v32_acoustic_archive_integrity": "PASS; 72 files / 668415138 bytes extracted",
+    "v32_raw_hashes_verified": {
+      "windows_matrix": "4E6D764D009D296DCE4770A06DCACD6AAABF93EAB79C6E91427FA9663FB8C1C7",
+      "linux_matrix": "D933392E1A86591FD5353B9C20C7448F56833BF22AED416CDEA7376461BF649C",
+      "windows_program": "8C9165073E487410AD8667688182694C91DD63F89BE676B1C9722F4E29F837B8",
+      "linux_program": "13F5667A6BA3D713D5978EF814E13868557E5CD73F26E6DB5E8167DBE16C0B04"
+    }
+  },
+  "findings": [
+    {"id": "F01", "severity": "HIGH", "summary": "Exact v32 kernel source is split and not a normalized replayable Git patch/build recipe"},
+    {"id": "F02", "severity": "MEDIUM_CORRECTED", "summary": "Workspace entry documentation was stale"},
+    {"id": "F03", "severity": "MEDIUM_CORRECTED", "summary": "Newer SP7 raw evidence lacked a local mirror"},
+    {"id": "F04", "severity": "MEDIUM", "summary": "Daily driver still arms read-only WSA lifecycle kprobes"},
+    {"id": "F05", "severity": "LOW", "summary": "Known GET-only SPR record still produces harmless aggregate SET_CFG warning"},
+    {"id": "F06", "severity": "MEDIUM", "summary": "UbiG candidate has not passed all physical, soak, seek and packaging gates"},
+    {"id": "F07", "severity": "MEDIUM", "summary": "Diagnostic boot and build clutter consumes substantial storage"},
+    {"id": "F08", "severity": "LOW", "summary": "Condition-skipped units and one redundant SP7 extract remain"},
+    {"id": "F09", "severity": "INFO", "summary": "Unique historical branches should be retained, not mechanically merged"}
+  ],
+  "no_reboot_performed": true,
+  "no_cleanup_deletion_performed": true
+}

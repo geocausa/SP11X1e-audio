@@ -1,5 +1,14 @@
 # SP11 built-in-speaker Windows/Linux render parity ledger — 2026-08-12
 
+> **2026-08-22 audit status:** Golden v32 is the promoted/default kernel and
+> protected-audio baseline. The detailed body below remains the evidence
+> chronology through Golden v31 and contains many intentionally historical v31
+> references. Use `docs/checkpoints/CURRENT-SP11-AUDIO.md`,
+> `deploy/golden-v32/manifest.json`, and
+> `docs/audit/2026-08-22-SP11-AUDIO-FULL-STATE-AUDIT.md` for current deployment,
+> userspace-candidate, provenance and remaining-gate decisions. Do not interpret
+> the older “Overall gate” paragraph as reverting the Aug-21 v32 promotion.
+
 > **2026-08-18 Golden-v30 technical gate:** the isolated v30 candidate adds only exact final-VOL_CTRL endpoint mute plus the two remaining known DP1/DP3 SIMPLE slave-transport declarations. Live q6apm mute `1/0/1` writes returned rc=0; established-baseline desktop mute-only changes invoke only `0x4a63/0x08001039` and do not resend final volume/GainStep. Both WSA8845s now write DP1 BlockCtrl3 `0x00`, retained DP2 OffsetCtrl2 `0x07`, and DP3 OffsetCtrl2 `0x1f` in both banks. After 20 s idle each amp emitted exactly Windows 10 START + 6 STOP with no 63-write cold replay. A matched SP7-external 1%-muted zero capture measured `1.8148e-5` whole-capture combined diff-RMS, essentially identical to v28/Windows room floor. Technical gates are GREEN; Golden v28 remains the saved default pending the user's v30 listening/promotion verdict. See `docs/findings/2026-08-18-GOLDEN-V30-LIVE-MUTE-TRANSPORT-STATIC-VALIDATION.md`.
 
 > **2026-08-17 v28 full-stack static closure:** carrying only the proven WSA8845 DP2/COMP `OffsetCtrl2=0x07` prerequisite onto v27 eliminates the confirmed broadband static while preserving the exact Windows 63/10/6 WSA lifecycle and clock-stop retention. v28 first muted-zero measured `2.467e-5` SP7-external-mic diff-RMS; after teardown + 20 s idle the repeat measured `1.818e-5`, effectively the retained Windows `1.825e-5` reference. Codec init count remained two total and no WSA/SoundWire/XRUN fault appeared. W03 is GREEN. See `docs/findings/2026-08-17-V28-DP2-OFFSETCTRL2-FULL-STACK-STATIC-CLOSURE.md` and patch `0065`.
