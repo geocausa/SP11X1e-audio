@@ -757,6 +757,11 @@ void ubig_stage_b_rt_control_aggregate_process(UbigStageBRtControlAggregateState
                                                uint32_t item_count,
                                                float output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS]);
 
+/* Exact deployed unit-float to signed Q31 conversion used five times per
+ * active outer Stage-B block. Values >= +1 saturate to INT32_MAX and values
+ * <= -1 saturate to INT32_MIN; interior values truncate toward zero. */
+int32_t ubig_stage_b_rt_q31_encode(float value);
+
 typedef struct {
     UbigStageBRtFeatureHistory feature_history;
     UbigStageBRtVariationHistory variation_history;

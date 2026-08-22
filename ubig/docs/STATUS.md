@@ -460,3 +460,10 @@ A promoted `0x18007B2F0` oracle suppressing only the independently exact spectra
 ### Stage-B slow-control scalar parent closure
 
 The scalar parent at reference VA `0x180058480`, immediately above the now-native `0x18007B2F0` analysis/controller, is native as `ubig_stage_b_rt_control_aggregate_process()`. A direct mapped-reference oracle replaces only the already-closed child call and leaves the real `0x1800675D8` hysteresis routine active. Promoted source matches **1,000,000 complete randomized calls bit-exact** across all five outputs, asymmetric primary/secondary smoothing, pre-hysteresis activity recurrence, hysteresis mutation, final activity shaping, and the disabled path. Public lifecycle hash: `fa8f1c78e3c17089`.
+
+
+### Stage-B outer-route Q31 and deployed dead-branch census
+
+The five live unit-float/Q31 conversions in outer reference parent `0x1800376B0` are native as `ubig_stage_b_rt_q31_encode()`. The promoted helper matches **1,000,000 caller-equivalent randomized conversions bit-exact** against CRT boundary `0x1801C2638`; public hash `26cd2dbd9bad0811`.
+
+A full direct-call census of `0x1800376B0` across all seven shipped profiles materially shrinks the remaining parent. The already-native `0x58480`, `0x34B78`, `0x60200` and `0x5F5A8` paths are hot every block; `0x54A48` follows the known profile-selective policy. By contrast, the `0x34778` route selector always returns before its legacy `0x4F000`/`0x57130` children, and every later heavy direct-call island (`0x530C0`, `0x66798`, `0x42ED8`, `0x57B68`, `0x55048`, `0x525E8`, `0x57890`, `0xA0CD0`, `0xA0BF8`, `0x34DE0`, `0x35080`, `0x35C98`, `0x2AFD8`) records zero calls on every deployed profile under the complete plugin stress harness. Remaining `0x376B0` work is therefore the live inline orchestration/arithmetic around the native children rather than those legacy subtrees.

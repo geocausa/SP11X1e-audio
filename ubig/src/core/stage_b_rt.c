@@ -2541,6 +2541,13 @@ uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock)
     return actions;
 }
 
+int32_t ubig_stage_b_rt_q31_encode(float value)
+{
+    if(value>=1.0f)return INT32_C(0x7fffffff);
+    if(value<=-1.0f)return INT32_MIN;
+    return (int32_t)(value*f32_bits(0x4f000000u));
+}
+
 void ubig_stage_b_rt_universal_analysis_process(UbigStageBRtUniversalAnalysis *state,
                                                 const UbigStageBRtUniversalConfig *config,
                                                 const UbigStageBRtSpectralExport *input,
