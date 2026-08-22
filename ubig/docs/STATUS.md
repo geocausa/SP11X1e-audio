@@ -527,3 +527,8 @@ The live `0x180049620` transform context resolves its non-null FFT callback to r
 ### Stage-B deployed transform64-bank closure
 
 Reference `0x180040BF0`, the indirect every-block transform beneath `0x180049620`, is now native as `ubig_stage_b_rt_transform64_process()`. Live dimensions are invariant `{rows=2, blocks=4, N=64}` across all shipped profiles. Promoted semantic source matches **1,000,000 complete randomized parent calls bit-exact** over all 1,152 mutable lattice-history floats plus all 512 output floats. Public hash: `99ef46ca3663639e`. Its FFT dependency is the independently exact native `0x1800A68C0` helper.
+
+
+### Stage-B `0x49620` late-controller closure
+
+Reference parent `0x180049620` is now native on the complete deployed contract as `ubig_stage_b_rt_late_controller_process()`. All seven shipped profiles use the same mode-0 geometry: two rows x four 64-float blocks, one history pass, one-entry minimum ring, zero outer pre-scale and aligned max-absolute reductions. Its live transform dependency `0x40BF0`, FFT64 callback `0xA68C0`, max reducer and symmetric-history mixer are independently native; `0xBAF40` reduces to the six-word local clear and `0x17C370` is `frexp()`. Promoted source matches **1,000,000 complete randomized parent calls bit-exact** across the full semantic mutable state and generated row/analysis payloads. Public hash `8af19c3bc936fada`.

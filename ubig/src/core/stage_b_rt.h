@@ -930,6 +930,45 @@ void ubig_stage_b_rt_transform64_process(
     const float *source[UBIG_STAGE_B_RT_TRANSFORM64_BLOCKS][UBIG_STAGE_B_RT_TRANSFORM64_ROWS],
     float *output[UBIG_STAGE_B_RT_TRANSFORM64_BLOCKS][UBIG_STAGE_B_RT_TRANSFORM64_ROWS]);
 
+#define UBIG_STAGE_B_RT_LATE_ROWS 2u
+#define UBIG_STAGE_B_RT_LATE_BLOCKS 4u
+#define UBIG_STAGE_B_RT_LATE_BLOCK_FLOATS 64u
+#define UBIG_STAGE_B_RT_LATE_ROW_FLOATS 256u
+#define UBIG_STAGE_B_RT_LATE_ANALYSIS_MIN_FLOATS 154u
+
+typedef struct {
+    const float *transform_filter; /* 640 floats */
+    const float *transform_phase;  /* 128 floats */
+    const float *response_curve;   /* at least five floats */
+    const float *history_kernel;   /* 64 floats */
+    float limit;
+    float history_scale;
+} UbigStageBRtLateControllerConfig;
+
+typedef struct {
+    float output;
+    float transform_history[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_TRANSFORM64_STATE_FLOATS];
+    float previous_peak;
+    float delayed_envelope;
+    uint32_t ring_index;
+    float gain;
+    float envelope;
+    float smoothed;
+    float history_scale;
+    float history[UBIG_STAGE_B_RT_LATE_ROWS*UBIG_STAGE_B_RT_LATE_BLOCK_FLOATS];
+    float minimum_ring; /* deployed ring length is one */
+} UbigStageBRtLateControllerState;
+
+/* Exact deployed path through reference 0x180049620. Shipped geometry fixes
+ * two rows, four 64-float blocks and the mode-0/history-length-one branch.
+ * analysis[row][block] is mutable and must provide at least 154 floats; rows
+ * is the generated 2x256 work/output matrix consumed by the enclosing parent. */
+void ubig_stage_b_rt_late_controller_process(
+    UbigStageBRtLateControllerState *state,
+    const UbigStageBRtLateControllerConfig *config,
+    float *analysis[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_BLOCKS],
+    float rows[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_ROW_FLOATS]);
+
 #define UBIG_STAGE_B_RT_FFT64_COMPLEX 64u
 #define UBIG_STAGE_B_RT_FFT64_FLOATS 128u
 

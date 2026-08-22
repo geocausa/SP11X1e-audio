@@ -3230,6 +3230,125 @@ void ubig_stage_b_rt_transform64_process(
     }
 }
 
+
+static void stage_b_rt_late_aggregate(float *values)
+{
+    float a0=0.0f,a1=0.0f,a2=0.0f,a3=0.0f,a4=0.0f,a5=0.0f;
+    a0=values[0]+a0;a0+=values[4];a0+=values[8];a0+=values[12];a0+=values[14];a0+=values[18];
+    a1=values[1]+a1;a1+=values[5];a1+=values[9];a1+=values[13];a1+=values[15];a1+=values[19];
+    a0=values[6]+a0;a0+=values[2];
+    a1=a1-values[7];a1=a1-values[3];
+    a2=values[24]+a2;a2+=values[10];a2+=values[16];a2+=values[20];
+    a3=a3+values[25];a3+=values[11];a3+=values[17];a3+=values[21];
+    a4=values[26]+a4;a4+=values[28];a4+=values[30];a4+=values[22];
+    a5=a5+values[27];a5+=values[29];a5+=values[31];a5+=values[23];
+    values[26]=a0;values[27]=a1;values[28]=a2;values[29]=a3;values[30]=a4;values[31]=a5;
+}
+
+static float stage_b_rt_late_history_block(UbigStageBRtLateControllerState *state,
+                                           const UbigStageBRtLateControllerConfig *config,
+                                           float *row0,float *row1)
+{
+    float peak=ubig_stage_b_rt_max_abs4(row0,UBIG_STAGE_B_RT_LATE_BLOCK_FLOATS);
+    const float row1_peak=ubig_stage_b_rt_max_abs4(row1,UBIG_STAGE_B_RT_LATE_BLOCK_FLOATS);
+    if(peak<row1_peak)peak=row1_peak;
+    const float held=(peak>state->previous_peak)?peak:state->previous_peak;
+    state->previous_peak=peak;
+    state->delayed_envelope=state->envelope;
+
+    const float product=held*state->gain;
+    float candidate=1.0f;
+    if(config->limit<product){
+        const float inverse=(float)(1.0/(double)product);
+        candidate=inverse*config->limit;
+    }
+    float minimum=candidate;
+    if(state->minimum_ring<minimum)minimum=state->minimum_ring;
+    state->minimum_ring=candidate;
+    state->ring_index=0u;
+
+    const float old_gain=state->gain;
+    const float old_envelope=state->envelope;
+    const float target=candidate*old_gain;
+    float control=candidate;
+    if(target<old_envelope){
+        state->envelope=target;
+        state->smoothed=candidate;
+    }else{
+        const float alpha=config->response_curve[4];
+        float smooth=fmaf(-minimum,alpha,minimum);
+        smooth=fmaf(state->smoothed,alpha,smooth);
+        state->smoothed=smooth;
+        control=smooth;
+        const float smoothed_target=smooth*old_gain;
+        float envelope=old_envelope;
+        if(envelope<smoothed_target)envelope=smoothed_target;
+        if(target<envelope)envelope=target;
+        state->envelope=envelope;
+    }
+
+    float next_gain;
+    if(control<f32_bits(0x3f576600u)){
+        float term=control*old_gain;
+        term*=f32_bits(0x3f98209cu);
+        term*=config->response_curve[1];
+        next_gain=fmaf(config->response_curve[0],old_gain,term);
+    }else{
+        next_gain=fmaf(config->response_curve[2],old_gain,config->response_curve[3]);
+    }
+    state->gain=next_gain;
+
+    UbigStageBRtSymmetricHistoryMix mix={
+        config->history_kernel,UBIG_STAGE_B_RT_LATE_BLOCK_FLOATS,
+        config->history_scale,state->delayed_envelope,
+        state->envelope,config->history_scale,state->history
+    };
+    ubig_stage_b_rt_symmetric_history_mix(&mix,row0,row0,0u);
+    ubig_stage_b_rt_symmetric_history_mix(&mix,row1,row1,1u);
+    state->history_scale=config->history_scale;
+    return state->envelope;
+}
+
+void ubig_stage_b_rt_late_controller_process(
+    UbigStageBRtLateControllerState *state,
+    const UbigStageBRtLateControllerConfig *config,
+    float *analysis[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_BLOCKS],
+    float rows[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_ROW_FLOATS])
+{
+    if(!state||!config||!analysis||!rows||!config->transform_filter||!config->transform_phase||
+       !config->response_curve||!config->history_kernel)return;
+    for(uint32_t block=0u;block<UBIG_STAGE_B_RT_LATE_BLOCKS;block++)
+        for(uint32_t row=0u;row<UBIG_STAGE_B_RT_LATE_ROWS;row++)
+            if(analysis[row][block])stage_b_rt_late_aggregate(analysis[row][block]);
+
+    float *transform_state[UBIG_STAGE_B_RT_LATE_ROWS]={state->transform_history[0],state->transform_history[1]};
+    const float *source[UBIG_STAGE_B_RT_LATE_BLOCKS][UBIG_STAGE_B_RT_LATE_ROWS];
+    float *output[UBIG_STAGE_B_RT_LATE_BLOCKS][UBIG_STAGE_B_RT_LATE_ROWS];
+    for(uint32_t block=0u;block<UBIG_STAGE_B_RT_LATE_BLOCKS;block++){
+        for(uint32_t row=0u;row<UBIG_STAGE_B_RT_LATE_ROWS;row++){
+            source[block][row]=analysis[row][block]?analysis[row][block]+26u:0;
+            output[block][row]=rows[row]+UBIG_STAGE_B_RT_LATE_BLOCK_FLOATS*block;
+        }
+    }
+    ubig_stage_b_rt_transform64_process(transform_state,config->transform_filter,
+                                        config->transform_phase,source,output);
+
+    float minimum_envelope=1.0f;
+    for(uint32_t block=0u;block<UBIG_STAGE_B_RT_LATE_BLOCKS;block++){
+        float *row0=rows[0]+UBIG_STAGE_B_RT_LATE_BLOCK_FLOATS*block;
+        float *row1=rows[1]+UBIG_STAGE_B_RT_LATE_BLOCK_FLOATS*block;
+        const float envelope=stage_b_rt_late_history_block(state,config,row0,row1);
+        if(envelope<minimum_envelope)minimum_envelope=envelope;
+    }
+    int exponent=0;
+    const float mantissa=(float)frexp((double)minimum_envelope,&exponent);
+    float mapped=fmaf(mantissa,4.0f,-f32_bits(0x402aaaabu));
+    const float square=mantissa*mantissa;
+    mapped=fmaf(-square,f32_bits(0x3faaaaabu),mapped);
+    mapped+=(float)exponent;
+    state->output=mapped*f32_bits(0x3d3db1f9u);
+}
+
 float ubig_stage_b_rt_max_abs4(const float *input,uint32_t count)
 {
     if(!input||count<4u||(count&3u)!=0u)return 0.0f;
