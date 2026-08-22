@@ -490,3 +490,9 @@ The shipped seven-profile control path no longer requires the VR scalar property
 For the deployed SP11 48-kHz stereo endpoint, the source-owned realtime path may consume the initialized Stage-B inner object directly. The enclosing VR APO factory allocation and generic transition wrapper are not part of the required semantic runtime contract. A differential integration proof omits outer construction and transition initialization entirely, dispatches host audio through the native 256-frame streamer and native frame processor against the standalone inner state, and remains bit-exact for all seven fixed profiles plus deterministic and randomized live profile switching.
 
 This is an integration-boundary result, not a public requirement to preserve the recovered raw inner-object layout. Native UbiG should ultimately replace the remaining cold inner constructor with semantic state/configuration objects rather than standardize the proprietary allocation graph.
+
+## Cold inner-runtime construction boundary
+
+For the deployed SP11 48-kHz stereo endpoint, the generic `LibWrapperVr` constructor and initialization machinery are not semantic runtime requirements. Source-owned integration may construct the small wrapper shell directly, use the fixed `{512,256}` frame geometry, allocate the deployed persistent/scratch requirements directly, and retain only the two 256-frame interleaved streamer buffers. Default headphone tuning, generic DSP-mode selection, the generic 38,400-sample delay allocation and the initial output-mode setter are outside the observed speaker-path contract once downstream processing is source-owned.
+
+This boundary is validated by all seven fixed profiles plus deterministic and randomized live profile switching with zero output differences. The next semantic construction boundary is the core/state graph created by reference `0x18002BE18`; its proprietary object layout remains private and is not part of the public Stage-B ABI.
