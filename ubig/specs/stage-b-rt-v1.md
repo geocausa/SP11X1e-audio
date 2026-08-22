@@ -169,3 +169,19 @@ Promoted-source private differential: **1,000,000 direct statistic calls bit-exa
 ## Feature-history column mean
 
 `ubig_stage_b_rt_feature_history_mean()` owns the shared lower-cadence reducer over record column 1 of the semantic 32x20 feature-history ring. It preserves the exact exponent-normalized mean accumulation and returns the reference's exact `2^-32` positive floor only when the mean is zero. Promoted-source private differential: **1,000,000 direct randomized calls bit-exact**, including forced all-zero histories. Public hash: `0830f86ff2f1ce3c`.
+
+
+## Supplied-mean 32-value deviation
+
+`ubig_stage_b_rt_deviation32()` owns the lower-cadence RMS/deviation leaf that receives its mean and binary normalization shift from the caller. It preserves the reference fused centered subtraction, 1/32-weighted energy accumulation and explicit scale-out sequence. Promoted-source private differential: **1,000,000 direct randomized DLL calls bit-exact** across shifts 0..60 and broad input/mean ranges. Public regression hash: `469bebd9e7be7b0b`.
+
+## Rank/shoulder cadence history
+
+`ubig_stage_b_rt_rank_metrics()` sorts one 32-value row, forms the exact top-two statistic and the two-block all-but-top-two shoulder statistic, and emits the reference gain/ratio metrics with exact exponent normalization. `ubig_stage_b_rt_rank_history_process()` closes the enclosing semantic 32x3 history controller, combining two scaled rank/statistic lanes, one raw statistic lane, ten outputs, visible 64-float scratch and a 32-slot cursor.
+
+Promoted-source private differentials: rank leaf **500,000 complete randomized calls bit-exact** including alias/non-alias scratch; enclosing controller **300,000 complete randomized calls bit-exact** across positive/zero control, full state, ten outputs, all scratch and cursor. Standalone rank-metrics public hash: `9a0861d04a41b2fd`; enclosing lifecycle hash: `2176092f17bc1f64`.
+
+
+## Sorted rank/peak metrics
+
+`ubig_stage_b_rt_rank_metrics()` owns the lower-cadence 32-value rank transform at reference VA `0x1800A02A8`. It sorts the caller row in scratch, derives the exact top-two and shoulder aggregates with the reference rounding schedule, then emits the gain-scaled peak and bounded ratio metric. Scratch may alias input, matching the deployed helper. Promoted-source private differential: **500,000 complete randomized DLL calls bit-exact**, including aliased and separate scratch layouts. Public regression hash: `9a0861d04a41b2fd`.

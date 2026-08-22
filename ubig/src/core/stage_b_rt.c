@@ -1296,6 +1296,22 @@ float ubig_stage_b_rt_scaled_sum(const float *input,uint32_t count,int32_t expon
     return sum;
 }
 
+float ubig_stage_b_rt_deviation32(float mean,const float input[32],uint32_t shift)
+{
+    if(!input)return 0.0f;
+    const float scale=stage_b_rt_pow2_integer((int32_t)shift-1);
+    const float scaled_mean=mean*scale;
+    float energy=0.0f;
+    for(uint32_t lane=0u;lane<32u;lane++){
+        const float centered=fmaf(input[lane],scale,-scaled_mean);
+        const float square=centered*centered;
+        energy=fmaf(square,f32_bits(0x3d000000u),energy);
+    }
+    energy*=f32_bits(0x3d000000u);
+    energy*=f32_bits(0x42000000u);
+    return sqrtf(energy)*stage_b_rt_pow2_integer(1-(int32_t)shift);
+}
+
 void ubig_stage_b_rt_stat32(const float input[32],float *mean,float *deviation)
 {
     if(!input||!mean||!deviation)return;
@@ -1479,6 +1495,102 @@ float ubig_stage_b_rt_feature_history_mean(const float records[UBIG_STAGE_B_RT_F
     mean*=stage_b_rt_pow2_integer(5-shift);
     if(mean==0.0f)mean+=f32_bits(0x2f800000u);
     return mean;
+}
+
+void ubig_stage_b_rt_rank_metrics(float gain,
+                                  const float input[32],
+                                  float scratch[32],
+                                  float *peak_metric,
+                                  float *ratio_metric)
+{
+    if(!input||!scratch||!peak_metric||!ratio_metric)return;
+    if(input!=scratch)memcpy(scratch,input,32u*sizeof(float));
+    for(uint32_t pass=1u;pass<32u;pass++){
+        for(uint32_t lane=1u;pass+lane-1u<32u;lane++){
+            if(scratch[lane]<scratch[lane-1u]){
+                const float swap=scratch[lane-1u];
+                scratch[lane-1u]=scratch[lane];
+                scratch[lane]=swap;
+            }
+        }
+    }
+
+    const int32_t shift=stage_b_rt_spectral_shift(scratch[31]);
+    const float scale=stage_b_rt_pow2_integer(shift-5);
+    float top=fmaf(scale,scratch[30],0.0f);
+    const float highest=scale*scratch[31];
+    top=highest+top;
+    top*=0.5f;
+    top*=32.0f;
+
+    float shoulder=0.0f;
+    for(uint32_t base=0u;base<=15u;base+=15u){
+        shoulder=fmaf(scale,scratch[base],shoulder);
+        shoulder=fmaf(scale,scratch[base+1u],shoulder);
+        shoulder=fmaf(scale,scratch[base+2u],shoulder);
+        for(uint32_t lane=base+3u;lane<=base+14u;lane++){
+            const float product=scale*scratch[lane];
+            shoulder=product+shoulder;
+        }
+    }
+    shoulder*=f32_bits(0x3d088889u);
+    shoulder*=32.0f;
+
+    float peak=0.0f;
+    if(gain!=0.0f){
+        const float scaled=top*gain;
+        peak=stage_b_rt_pow2_integer(1-shift)*scaled;
+    }
+    *peak_metric=peak;
+
+    if(shoulder==0.0f){*ratio_metric=0.0f;return;}
+    float activity=stage_b_rt_pow2_integer(-shift)*shoulder;
+    activity*=gain;
+    if(activity<f32_bits(0x38000000u)){*ratio_metric=peak;return;}
+
+    const int32_t top_shift=stage_b_rt_spectral_shift(top);
+    const int32_t shoulder_shift=stage_b_rt_spectral_shift(shoulder);
+    const float top_norm=stage_b_rt_pow2_integer(top_shift-1)*top;
+    const float shoulder_norm=stage_b_rt_pow2_integer(shoulder_shift)*shoulder;
+    const float ratio=(float)((double)top_norm/(double)shoulder_norm);
+    *ratio_metric=stage_b_rt_pow2_integer(shoulder_shift-top_shift-14)*ratio;
+}
+
+void ubig_stage_b_rt_rank_history_process(UbigStageBRtRankHistory *state,
+                                          float control,
+                                          float output[UBIG_STAGE_B_RT_RANK_OUTPUTS],
+                                          float scratch[64])
+{
+    if(!state||!output||!scratch)return;
+    if(control<=0.0f){
+        memset(output,0,UBIG_STAGE_B_RT_RANK_OUTPUTS*sizeof(float));
+    }else{
+        const int32_t shift=stage_b_rt_spectral_shift(control);
+        const float denominator=stage_b_rt_pow2_integer(shift)*control;
+        const float gain=(float)(0.5/(double)denominator);
+        const float row_scale=stage_b_rt_pow2_integer(shift-5);
+        for(uint32_t column=0u;column<2u;column++){
+            for(uint32_t row=0u;row<UBIG_STAGE_B_RT_RANK_HISTORY_ROWS;row++)
+                scratch[row]=state->matrix[row][column]*row_scale;
+            ubig_stage_b_rt_stat32(scratch,&output[column],&output[3u+column]);
+            const float mean=output[column]*gain;
+            output[column]=mean+mean;
+            const float deviation=gain*output[3u+column];
+            output[3u+column]=deviation+deviation;
+            ubig_stage_b_rt_rank_metrics(gain,scratch,scratch+32u,
+                                         &output[6u+column],&output[8u+column]);
+        }
+        for(uint32_t row=0u;row<UBIG_STAGE_B_RT_RANK_HISTORY_ROWS;row++)
+            scratch[row]=state->matrix[row][2];
+        ubig_stage_b_rt_stat32(scratch,&output[2],&output[5]);
+        const float mean=output[2]*gain;
+        output[2]=stage_b_rt_pow2_integer(shift-7)*mean;
+        const float deviation=output[5]*gain;
+        output[5]=stage_b_rt_pow2_integer(shift-7)*deviation;
+    }
+    uint32_t next=state->cursor.index+state->cursor.step;
+    if(next>=32u)next-=32u;
+    state->cursor.index=next;
 }
 
 void ubig_stage_b_rt_projection_history_process(UbigStageBRtProjectionHistory *s,

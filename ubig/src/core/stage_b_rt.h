@@ -453,6 +453,10 @@ void ubig_stage_b_rt_feature_change_process(UbigStageBRtFeatureChangeHistory *st
 /* Exact exponent-scaled FMA sum used by the RT feature scheduler. */
 float ubig_stage_b_rt_scaled_sum(const float *input,uint32_t count,int32_t exponent);
 
+/* Exact 32-value RMS deviation around a caller-supplied mean. shift is the
+ * binary normalization exponent selected by the enclosing cadence transform. */
+float ubig_stage_b_rt_deviation32(float mean,const float input[32],uint32_t shift);
+
 /* Exact 32-value normalized mean/deviation statistic shared by the cadence paths. */
 void ubig_stage_b_rt_stat32(const float input[32],float *mean,float *deviation);
 
@@ -518,6 +522,29 @@ void ubig_stage_b_rt_feature_history_process(UbigStageBRtFeatureHistory *state,
 /* Exact lower-cadence mean of feature-history record column 1, with the
  * reference's positive zero floor. */
 float ubig_stage_b_rt_feature_history_mean(const float records[UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH][UBIG_STAGE_B_RT_FEATURE_RECORD_VALUES]);
+
+/* Exact sorted 32-value peak/shoulder metrics used by a lower cadence path.
+ * scratch receives the sorted input and may alias input. */
+void ubig_stage_b_rt_rank_metrics(float gain,
+                                  const float input[32],
+                                  float scratch[32],
+                                  float *peak_metric,
+                                  float *ratio_metric);
+
+#define UBIG_STAGE_B_RT_RANK_HISTORY_ROWS 32u
+#define UBIG_STAGE_B_RT_RANK_HISTORY_COLUMNS 3u
+#define UBIG_STAGE_B_RT_RANK_OUTPUTS 10u
+
+typedef struct {
+    float matrix[UBIG_STAGE_B_RT_RANK_HISTORY_ROWS][UBIG_STAGE_B_RT_RANK_HISTORY_COLUMNS];
+    UbigStageBRtStatCursor cursor;
+} UbigStageBRtRankHistory;
+
+/* Exact lower-cadence three-column rank/statistics controller. */
+void ubig_stage_b_rt_rank_history_process(UbigStageBRtRankHistory *state,
+                                          float control,
+                                          float output[UBIG_STAGE_B_RT_RANK_OUTPUTS],
+                                          float scratch[64]);
 
 #define UBIG_STAGE_B_RT_PROJECTION_HISTORY_DEPTH 32u
 #define UBIG_STAGE_B_RT_PROJECTION_VALUES 8u

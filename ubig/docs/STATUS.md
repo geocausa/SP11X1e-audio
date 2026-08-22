@@ -407,3 +407,17 @@ The medium lower-cadence circular 32x8 window/statistic transform is native as `
 ### Stage-B RT feature-history mean closure
 
 The shared lower-cadence feature-history column reducer is native as `ubig_stage_b_rt_feature_history_mean()`. Promoted source matches **1,000,000 direct DLL calls bit-exact**, including the exact `2^-32` zero floor. Public hash: `0830f86ff2f1ce3c`.
+
+
+### Stage-B RT supplied-mean deviation closure
+
+The lower-cadence 32-value deviation leaf is native as `ubig_stage_b_rt_deviation32()`. Promoted source matches **1,000,000 direct randomized DLL calls bit-exact** across shifts 0..60, preserving the fused centering and normalization schedule. Public hash: `469bebd9e7be7b0b`.
+
+### Stage-B RT rank-history closure
+
+The lower-cadence sorted rank/shoulder leaf and its 32x3 enclosing history controller are native as `ubig_stage_b_rt_rank_metrics()` and `ubig_stage_b_rt_rank_history_process()`. Promoted source matches **500,000** leaf calls and **300,000** complete parent calls bit-exact. Standalone leaf hash: `9a0861d04a41b2fd`; enclosing lifecycle hash: `2176092f17bc1f64`.
+
+
+### Stage-B RT sorted rank-metrics closure
+
+The lower-cadence sorted peak/shoulder helper is native as `ubig_stage_b_rt_rank_metrics()`. Promoted source matches **500,000 complete randomized DLL calls bit-exact**, including input/scratch aliasing. Public hash: `9a0861d04a41b2fd`.
