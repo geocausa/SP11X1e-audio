@@ -896,6 +896,11 @@ typedef struct {
     float output[UBIG_STAGE_B_RT_MAX_BANDS];
 } UbigStageBRtDeepControllerState;
 
+/* Exact inline linked-row reducer from parent 0x180056B80. Each band folds
+ * all active rows with the reference near-equality polynomial and adds the
+ * linked value into the caller accumulator. */
+void ubig_stage_b_rt_linked_row_accumulate(const UbigStageBRtBandRows *rows,float *accumulator);
+
 /* Exact deployed late Stage-B controller parent at 0x180064B38 plus its
  * one-time/row-count-change reset at 0x180064958. The semantic state composes
  * the independently exact native leaves rather than preserving raw DLL offsets. */

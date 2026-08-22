@@ -532,3 +532,8 @@ Reference `0x180040BF0`, the indirect every-block transform beneath `0x180049620
 ### Stage-B `0x49620` late-controller closure
 
 Reference parent `0x180049620` is now native on the complete deployed contract as `ubig_stage_b_rt_late_controller_process()`. All seven shipped profiles use the same mode-0 geometry: two rows x four 64-float blocks, one history pass, one-entry minimum ring, zero outer pre-scale and aligned max-absolute reductions. Its live transform dependency `0x40BF0`, FFT64 callback `0xA68C0`, max reducer and symmetric-history mixer are independently native; `0xBAF40` reduces to the six-word local clear and `0x17C370` is `frexp()`. Promoted source matches **1,000,000 complete randomized parent calls bit-exact** across the full semantic mutable state and generated row/analysis payloads. Public hash `8af19c3bc936fada`.
+
+
+### Stage-B `0x56B80` inline linked-row reducer
+
+The last inline numerical island in hot parent `0x180056B80` is native as `ubig_stage_b_rt_linked_row_accumulate()`. It reproduces the exact two-sided row-link polynomial and accumulation schedule from the reference parent; **1,000,000 randomized instruction-oracle calls are bit-exact**, public hash `70eb81e8929aadbb`. Live typed argument capture also confirms the shipped `0x56B80` contract on all seven profiles: two active groups, four complex vectors per group, 77 bins, two 20-band analysis/output rows, mode=1, secondary mode=0, no optional 0x569A0 auxiliary groups, and a non-null 20-band linked accumulator.

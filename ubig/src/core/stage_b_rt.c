@@ -2705,6 +2705,35 @@ void ubig_stage_b_rt_residual_mean_process(float gain,float bias,
 }
 
 
+void ubig_stage_b_rt_linked_row_accumulate(const UbigStageBRtBandRows *rows,float *accumulator)
+{
+    if(!rows||!rows->rows||!accumulator)return;
+    const float threshold=f32_bits(0x3e1d89d9u);
+    const float c0=f32_bits(0x3f229946u);
+    const float c1=f32_bits(0x3e722614u);
+    const float c2=f32_bits(0x3cfbf0a8u);
+    const float c3=f32_bits(0x3abdb181u);
+    for(uint32_t band=0u;band<rows->band_count;band++){
+        float linked=-1.0f;
+        for(uint32_t row=0u;row<rows->row_count;row++){
+            const float value=rows->rows[row][band];
+            const float maximum=value>linked?value:linked;
+            const float delta=linked-value;
+            float distance=-delta;
+            if(!(distance>delta))distance=delta;
+            if(distance<threshold){
+                float p=fmaf(-distance,c0,c1);
+                p=fmaf(p,distance,-c2);
+                p=fmaf(p,distance,c3);
+                linked=fmaf(p,16.0f,maximum);
+                if(linked<-1.0f)linked=-1.0f;
+                if(linked>1.0f)linked=1.0f;
+            }else linked=maximum;
+        }
+        accumulator[band]+=linked;
+    }
+}
+
 void ubig_stage_b_rt_deep_controller_reset(UbigStageBRtDeepControllerState *state,
                                            uint32_t row_count)
 {

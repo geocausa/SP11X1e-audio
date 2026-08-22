@@ -352,3 +352,10 @@ A direct mapped-reference oracle retains the real `0x180040BF0` with its live sp
 The remaining direct calls were classified explicitly: `0x1800BAF40` is only a six-word zero-fill at this callsite; `0x18017C370` is the CRT `frexp()` boundary already independently proven on positive finite values. The deployed parent never enters its unaligned reducers, alternate clipping/FFT branch or reset memset path under the captured geometry.
 
 A promoted mapped-reference oracle keeps the real complete `0x180049620` implementation and compares the semantic native composition over randomized fixed-contract state/configuration. **1,000,000 complete parent calls are bit-exact** across all eight mutable analysis objects, both 256-float output rows, both 576-float transform histories, both 64-float symmetric-history slots, the minimum ring, every persistent envelope/gain field and the final scalar output. Public lifecycle hash: `8af19c3bc936fada`.
+
+
+## Late-parent linked-row accumulator
+
+`ubig_stage_b_rt_linked_row_accumulate()` closes the only non-child numerical reducer in the live middle of parent `0x180056B80`. For each band it folds the active analysis rows from a starting value of -1, uses the exact `0x153846...` near-equality threshold and cubic correction schedule from `0x180056DD8..0x180056E28`, clamps the linked result to [-1,1], and accumulates it into the caller-owned band vector. The constants are the six binary32 literals at `0x180056F88..0x180056F9C`; no proprietary table is required.
+
+Promoted source was compared against an extracted AArch64 instruction oracle preserving the reference `fsub/fneg/fcsel/fmsub/fnmsub/fmadd` schedule for **1,000,000 randomized complete row-fold calls bit-exact** over 1..8 rows and 1..20 bands. Public hash: `70eb81e8929aadbb`. Live parent capture across all shipped profiles fixes the deployed case at two rows x twenty bands; its caller accumulator is non-null on every block.
