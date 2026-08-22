@@ -640,4 +640,68 @@ typedef struct {
 void ubig_stage_b_rt_projection_history_process(UbigStageBRtProjectionHistory *state,
                                                 const UbigStageBRtProjectionConfig *config,
                                                 const UbigStageBRtSpectralExport *input);
+
+#define UBIG_STAGE_B_RT_SCHED_UPPER   0x1u
+#define UBIG_STAGE_B_RT_SCHED_LOWER_A 0x2u
+#define UBIG_STAGE_B_RT_SCHED_LOWER_B 0x4u
+
+typedef struct {
+    uint32_t upper_count;
+    uint32_t upper_period;
+    uint32_t lower_count;
+    uint32_t lower_period;
+    uint32_t lower_reset;
+    uint32_t lower_toggle;
+} UbigStageBRtSchedulerClock;
+
+/* Exact reference-VA 0x18008C6A8 cadence gate. The returned bitmask says
+ * which transform group executes on this call; state is advanced first, just
+ * as in the deployed controller. */
+uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock);
+
+typedef struct {
+    UbigStageBRtFeatureHistory feature_history;
+    UbigStageBRtVariationHistory variation_history;
+    UbigStageBRtSegmentRatioHistory segment_ratio_history;
+    UbigStageBRtProjectionHistory projection_history;
+    UbigStageBRtFeatureChangeHistory feature_change_history;
+    UbigStageBRtSpectralChangeHistory spectral_change_history;
+    UbigStageBRtPeakResidualHistory peak_residual_history;
+
+    UbigStageBRtStatCursor segment_ratio_cursor;
+    UbigStageBRtStatCursor variation_cursor;
+    UbigStageBRtStatCursor spectral_change_cursor;
+    UbigStageBRtStatCursor feature_change_cursor;
+    UbigStageBRtStatCursor peak_residual_cursor;
+    UbigStageBRtSchedulerClock clock;
+} UbigStageBRtUniversalAnalysis;
+
+typedef struct {
+    const UbigStageBRtFeatureHistoryConfig *feature_history;
+    const UbigStageBRtVariationConfig *variation;
+    const UbigStageBRtSegmentRatioConfig *segment_ratio;
+    const UbigStageBRtProjectionConfig *projection;
+    uint32_t feature_cadence_step;
+    uint32_t projection_cadence_step;
+} UbigStageBRtUniversalConfig;
+
+typedef struct {
+    float feature_cadence[UBIG_STAGE_B_RT_FEATURE_CADENCE_OUTPUTS];
+    float segment_ratio_mean[UBIG_STAGE_B_RT_STAT_COLUMNS];
+    float segment_ratio_deviation[UBIG_STAGE_B_RT_STAT_COLUMNS];
+    float variation_mean[UBIG_STAGE_B_RT_STAT_COLUMNS];
+    float variation_deviation[UBIG_STAGE_B_RT_STAT_COLUMNS];
+    float spectral_change[2];
+    float projection_cadence[UBIG_STAGE_B_RT_CADENCE_OUTPUTS];
+    float feature_change[2];
+    float peak_rank[UBIG_STAGE_B_RT_RANK_OUTPUTS];
+} UbigStageBRtUniversalOutput;
+
+/* Native composition of the deployed universal analysis scheduler. Every
+ * numerical child is independently bit-exact; this function owns only their
+ * reference call order, shared-history lower-cadence views and cadence gates. */
+void ubig_stage_b_rt_universal_analysis_process(UbigStageBRtUniversalAnalysis *state,
+                                                const UbigStageBRtUniversalConfig *config,
+                                                const UbigStageBRtSpectralExport *input,
+                                                UbigStageBRtUniversalOutput *output);
 #endif

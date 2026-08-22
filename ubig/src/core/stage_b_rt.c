@@ -2298,3 +2298,110 @@ void ubig_stage_b_rt_projection_history_process(UbigStageBRtProjectionHistory *s
     s->index=index+1u;
     if(s->index>=UBIG_STAGE_B_RT_PROJECTION_HISTORY_DEPTH)s->index=0u;
 }
+
+uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock)
+{
+    if(!clock)return 0u;
+    uint32_t actions=0u;
+    clock->upper_count++;
+    if(clock->upper_count==clock->upper_period){
+        actions|=UBIG_STAGE_B_RT_SCHED_UPPER;
+        clock->upper_count=0u;
+        clock->lower_count++;
+    }
+    if(clock->lower_count==clock->lower_period||clock->lower_toggle==1u){
+        if(clock->lower_toggle==0u){
+            actions|=UBIG_STAGE_B_RT_SCHED_LOWER_A;
+            clock->lower_toggle=1u;
+        }else{
+            actions|=UBIG_STAGE_B_RT_SCHED_LOWER_B;
+            clock->lower_toggle=0u;
+        }
+        clock->lower_count=clock->lower_reset;
+    }
+    return actions;
+}
+
+void ubig_stage_b_rt_universal_analysis_process(UbigStageBRtUniversalAnalysis *state,
+                                                const UbigStageBRtUniversalConfig *config,
+                                                const UbigStageBRtSpectralExport *input,
+                                                UbigStageBRtUniversalOutput *output)
+{
+    if(!state||!config||!input||!output||!config->feature_history||
+       !config->variation||!config->segment_ratio||!config->projection)return;
+
+    const uint32_t actions=ubig_stage_b_rt_scheduler_step(&state->clock);
+    float scratch32[32];
+    float scratch64[64];
+
+    if(actions&UBIG_STAGE_B_RT_SCHED_UPPER){
+        ubig_stage_b_rt_feature_history_process(&state->feature_history,
+                                                config->feature_history,input);
+        ubig_stage_b_rt_segment_ratio_process(&state->segment_ratio_history,
+                                              config->segment_ratio,input);
+        ubig_stage_b_rt_variation_history_process(&state->variation_history,
+                                                  config->variation,input->bins,input->count);
+        ubig_stage_b_rt_spectral_change_process(&state->spectral_change_history,input);
+        ubig_stage_b_rt_projection_history_process(&state->projection_history,
+                                                   config->projection,input);
+        const uint32_t projection_index=state->projection_history.index;
+        const uint32_t written=projection_index?projection_index-1u:31u;
+        float normalized[UBIG_STAGE_B_RT_FEATURE_COUNT];
+        ubig_stage_b_rt_feature_change_process(&state->feature_change_history,
+                                               state->projection_history.records[written],normalized);
+        float peak_scratch[UBIG_STAGE_B_RT_SPECTRAL_BINS];
+        ubig_stage_b_rt_peak_residual_process(&state->peak_residual_history,input,peak_scratch);
+    }
+
+    if(actions&UBIG_STAGE_B_RT_SCHED_LOWER_A){
+        ubig_stage_b_rt_feature_cadence_process(&state->feature_history,
+                                                config->feature_cadence_step,
+                                                output->feature_cadence);
+        ubig_stage_b_rt_stat32_ring_columns(&state->segment_ratio_cursor,
+                                            state->segment_ratio_history.history,
+                                            state->segment_ratio_history.index,
+                                            scratch64,
+                                            output->segment_ratio_mean,
+                                            output->segment_ratio_deviation);
+    }
+
+    if(actions&UBIG_STAGE_B_RT_SCHED_LOWER_B){
+        const float control=ubig_stage_b_rt_feature_history_mean(state->feature_history.records);
+        ubig_stage_b_rt_stat32_columns(&state->variation_cursor,
+                                       state->variation_history.history,
+                                       config->variation->segment_count,
+                                       scratch32,
+                                       output->variation_mean,
+                                       output->variation_deviation);
+        ubig_stage_b_rt_stat32_step(&state->spectral_change_cursor,
+                                    state->spectral_change_history.history,
+                                    scratch32,output->spectral_change);
+
+        UbigStageBRtCadenceSummary projection_summary;
+        memcpy(projection_summary.matrix,state->projection_history.records,
+               sizeof projection_summary.matrix);
+        projection_summary.cursor.step=config->projection_cadence_step;
+        projection_summary.cursor.index=state->projection_history.phase;
+        memcpy(projection_summary.column_accumulator,state->projection_history.sum,
+               sizeof projection_summary.column_accumulator);
+        memcpy(projection_summary.delta_accumulator,state->projection_history.delta_sum,
+               sizeof projection_summary.delta_accumulator);
+        memcpy(projection_summary.column_shift,state->projection_history.shift,
+               sizeof projection_summary.column_shift);
+        memcpy(projection_summary.delta_shift,state->projection_history.delta_shift,
+               sizeof projection_summary.delta_shift);
+        ubig_stage_b_rt_cadence_summary_process(&projection_summary,
+                                                output->projection_cadence,scratch32);
+        state->projection_history.phase=projection_summary.cursor.index;
+
+        ubig_stage_b_rt_stat32_step(&state->feature_change_cursor,
+                                    state->feature_change_history.history,
+                                    scratch32,output->feature_change);
+
+        UbigStageBRtRankHistory rank;
+        memcpy(rank.matrix,state->peak_residual_history.history,sizeof rank.matrix);
+        rank.cursor=state->peak_residual_cursor;
+        ubig_stage_b_rt_rank_history_process(&rank,control,output->peak_rank,scratch64);
+        state->peak_residual_cursor=rank.cursor;
+    }
+}

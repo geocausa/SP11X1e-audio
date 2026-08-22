@@ -442,3 +442,7 @@ The next no-allocation lower-scheduler child at reference VA `0x18009E2B8` is na
 ### Stage-B RT feature-cadence parent closure
 
 The remaining large lower-scheduler parent at reference VA `0x1800997D8` is now native as `ubig_stage_b_rt_feature_cadence_process()`. It composes the already-native feature-history mean, reducer-backed cadence means, supplied-mean deviations, direct 32-value statistics, eight energy-weighted spectrum32 transforms and the dual-row slope path into the complete 186-float deployed feature bank, then advances the lower cadence phase by the caller-owned step. Promoted source matches **1,000,000 complete randomized DLL calls bit-exact** across every output float and phase update. Public lifecycle hash: `9c8318bbb8e0b00b`. Every numerical child called by `0x1800997D8` is independently native as well.
+
+### Stage-B universal analysis scheduler closure
+
+The universal scheduler at reference VA `0x18008C6A8` is now native as `ubig_stage_b_rt_scheduler_step()` plus `ubig_stage_b_rt_universal_analysis_process()`. A patched-reference oracle replaced all fifteen child call sites with independent trace stubs and proves **1,000,000 randomized scheduler calls exactly** across call ordering/gating and all six cadence words. Its seven-transform upper group and alternating two-part lower cadence now compose only already-native numerical children, including the newly closed `0x1800997D8` feature-cadence parent. Public lifecycle hash: `6b917f1f081076f3`.
