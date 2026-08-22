@@ -1,0 +1,111 @@
+{
+  "date": "2026-08-22",
+  "candidate_commit_before_gate": "9bcb848",
+  "candidate_plugin_sha256": "1b3e3110c07bdc5b21e3c59ee75482a598c35e3acf27c2e600fbc6fa50355eb8",
+  "private_pack_sha256": "c993c123f2cb3b92776754da2383217e00b5f290664571f12cfb62b9afb3a175",
+  "filter_chain_pid": 180679,
+  "initial_visible_state": {
+    "raw_channel_gain": 0.010282,
+    "ui_scalar_from_cuberoot": 0.217449893773,
+    "displayed_wpctl_volume": 0.22,
+    "muted": false
+  },
+  "muted_volume_transaction_sweep": {
+    "safety": "exact endpoint DSP mute asserted before volume changes and cleared only after exact restore",
+    "validated_points": [
+      {
+        "ui_scalar": 0.15,
+        "pipewire_raw_gain": 0.003375,
+        "windows_endpoint_db": -28.229,
+        "final_q28_hex": "0x00a31090",
+        "gainstep": 1
+      },
+      {
+        "ui_scalar": 0.25,
+        "pipewire_raw_gain": 0.015625,
+        "windows_endpoint_db": -20.747,
+        "final_q28_hex": "0x0182aff5",
+        "gainstep": 3
+      },
+      {
+        "ui_scalar": 0.40,
+        "pipewire_raw_gain": 0.064,
+        "windows_endpoint_db": -13.765,
+        "final_q28_hex": "0x03491fb5",
+        "gainstep": 12
+      }
+    ],
+    "restore": {
+      "raw_channel_gain": 0.010282,
+      "ui_scalar": 0.217449893773,
+      "muted": false,
+      "exact_pw_dump_raw_restore": true
+    },
+    "postgain_request_generation_before_after": [1, 1],
+    "postgain_ack_generation_before_after": [1, 1],
+    "filter_chain_pid_preserved": true,
+    "note": "An attempted 0.10 UI point did not persist in the current visible-sink session and emitted no volume-transaction update; it is not counted as a validated sweep point. 0.15, 0.25 and 0.40 did persist and were transaction-verified."
+  },
+  "repeated_playback": {
+    "iterations": 20,
+    "frames_per_iteration": 9600,
+    "format": "48 kHz stereo float32 silence",
+    "filter_chain_pid_preserved_all_iterations": true,
+    "visible_volume_preserved": true,
+    "control_main_generation_after": 3,
+    "control_main_ack_after": 3,
+    "postgain_generation_after": 1,
+    "postgain_ack_after": 1,
+    "known_graph_start_status3_count": 1,
+    "new_kernel_audio_fault_count": 0,
+    "filter_chain_fault_count": 0
+  },
+  "nonzero_pcm_under_endpoint_mute": {
+    "duration_seconds": 5,
+    "format": "48 kHz stereo float32",
+    "left": "0.035*sin(733 Hz) + 0.012*sin(137 Hz)",
+    "right": "0.030*sin(977 Hz) + 0.010*sin(211 Hz)",
+    "endpoint_dsp_mute": true,
+    "physical_output_intentionally_suppressed": true,
+    "filter_chain_pid_preserved": true,
+    "control_generations_preserved": true,
+    "filter_chain_fault_count": 0,
+    "new_kernel_audio_fault_count": 0,
+    "visible_state_restored": true
+  },
+  "protection_configuration_readback": {
+    "get_cfg_responses_since_candidate_start": 14,
+    "all_accepted": true,
+    "unique_sp_static": {
+      "sampling_rate_hz": 48000,
+      "bits_per_sample": 16,
+      "num_speakers": 2,
+      "features": 31,
+      "pilot_frequency_hz": 40,
+      "feature_flags": {
+        "notch_high_pass": true,
+        "thermal": true,
+        "feedback_excursion": true,
+        "dc_prediction": true,
+        "feedback_dc": true
+      }
+    },
+    "unique_spvi_static": {
+      "num_speakers": 2,
+      "sampling_rate_hz": 8000,
+      "pilot_frequency_hz": 40,
+      "dc_detection_enabled": false,
+      "warmup_time_ms": 200
+    },
+    "wsa_live_observer_samples_available": 0,
+    "note": "Static protected-graph GET_CFG is healthy; bounded per-amplifier live observer samples are not enabled in this running kernel, so full PA/protection telemetry parity remains a later M6 gate."
+  },
+  "result": "PASS_M6_MUTED_VOLUME_REPEATED_PLAYBACK_NONZERO_DSP_GATE",
+  "remaining": [
+    "physical non-muted acoustic waveform gate",
+    "seek/program-content lifecycle gate",
+    "full PA/protection telemetry parity when a bounded observer is available",
+    "greater-than-8-hour stability",
+    "physical acoustic matrix against Windows reference"
+  ]
+}

@@ -132,10 +132,10 @@ Required gates include:
 - deterministic waveform corpus
 - all profile transitions
 - Custom EQ transitions
-- volume/mute/seek lifecycle
-- idle/wake and service lifecycle
+- volume/mute/seek lifecycle (**volume/mute short gate passing; seek remains**)
+- idle/wake and service lifecycle (**short gate passing**)
 - >8 h stability
-- repeated playback
+- repeated playback (**20-cycle short gate passing**)
 - zero NaN/Inf/xrun regression attributable to UbiG
 - physical acoustic matrix against Windows reference
 - PA/protection telemetry unchanged from Golden v32
