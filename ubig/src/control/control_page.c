@@ -77,9 +77,11 @@ int ubig_control_snapshot(const ubig_control_handle *h, ubig_control_page *out)
        so readers do not report a payload spanning two requests. */
     for (int retry=0; retry<8; ++retry) {
         uint32_t g1=__atomic_load_n(&h->page->request_generation,__ATOMIC_ACQUIRE);
+        uint32_t p1=__atomic_load_n(&h->page->postgain_request_generation,__ATOMIC_ACQUIRE);
         memcpy(out,h->page,sizeof(*out));
         uint32_t g2=__atomic_load_n(&h->page->request_generation,__ATOMIC_ACQUIRE);
-        if (g1==g2) return UBIG_OK;
+        uint32_t p2=__atomic_load_n(&h->page->postgain_request_generation,__ATOMIC_ACQUIRE);
+        if (g1==g2 && p1==p2) return UBIG_OK;
     }
     return UBIG_ESTATE;
 }
@@ -108,8 +110,6 @@ int ubig_control_request_postgain(ubig_control_handle *h, int32_t postgain)
 {
     if (!h || !h->page || postgain < -1200 || postgain > 0) return UBIG_EINVAL;
     __atomic_store_n(&h->page->desired_postgain, postgain, __ATOMIC_RELAXED);
-    uint32_t flags=__atomic_load_n(&h->page->desired_flags,__ATOMIC_RELAXED);
-    __atomic_store_n(&h->page->desired_flags, flags|UBIG_CONTROL_FLAG_POSTGAIN_VALID, __ATOMIC_RELAXED);
-    __atomic_add_fetch(&h->page->request_generation, 1u, __ATOMIC_RELEASE);
+    __atomic_add_fetch(&h->page->postgain_request_generation, 1u, __ATOMIC_RELEASE);
     return UBIG_OK;
 }

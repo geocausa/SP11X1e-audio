@@ -321,42 +321,51 @@ static int chain_control_open(ChainInst *p){
     return 0;
 }
 
-static void chain_control_ack(ChainInst *p,uint32_t generation,int error){
+static void chain_control_ack_main(ChainInst *p,uint32_t generation,int error){
     if(!p->control_ready||!p->control.page)return;
     __atomic_store_n(&p->control.page->active_profile,(uint32_t)p->profile,__ATOMIC_RELAXED);
-    __atomic_store_n(&p->control.page->active_postgain,p->postgain,__ATOMIC_RELAXED);
     __atomic_store_n(&p->control.page->last_error,error,__ATOMIC_RELAXED);
     __atomic_store_n(&p->control.page->ack_generation,generation,__ATOMIC_RELEASE);
+}
+
+static void chain_control_ack_postgain(ChainInst *p,uint32_t generation,int error){
+    if(!p->control_ready||!p->control.page)return;
+    __atomic_store_n(&p->control.page->active_postgain,p->postgain,__ATOMIC_RELAXED);
+    __atomic_store_n(&p->control.page->last_error,error,__ATOMIC_RELAXED);
+    __atomic_store_n(&p->control.page->postgain_ack_generation,generation,__ATOMIC_RELEASE);
 }
 
 static int chain_apply_control_request(ChainInst *p){
     if(!p->control_ready)return 0;
     ubig_control_page request;int rc=ubig_control_snapshot(&p->control,&request);if(rc)return rc;
+
+    if(request.postgain_request_generation!=request.postgain_ack_generation){
+        const uint32_t generation=request.postgain_request_generation;
+        if(request.desired_postgain < -1200 || request.desired_postgain > 0){
+            chain_control_ack_postgain(p,generation,UBIG_EINVAL);
+        }else{
+            rc=p->native_stage_a?ubig_engine_set_postgain(p->native_stage_a,request.desired_postgain):UBIG_ESTATE;
+            if(rc==UBIG_OK)p->postgain=request.desired_postgain;
+            chain_control_ack_postgain(p,generation,rc);
+        }
+    }
+
     if(request.request_generation==request.ack_generation)return 0;
     const uint32_t generation=request.request_generation;
-    if(request.desired_profile>=UBIG_PROFILE_COUNT){chain_control_ack(p,generation,UBIG_EINVAL);return UBIG_EINVAL;}
+    if(request.desired_profile>=UBIG_PROFILE_COUNT){chain_control_ack_main(p,generation,UBIG_EINVAL);return UBIG_EINVAL;}
     const ChainProfile next=(ChainProfile)request.desired_profile;
     const int has_eq=(request.desired_flags&UBIG_CONTROL_FLAG_CUSTOM_EQ_VALID)!=0u;
-    const int has_postgain=(request.desired_flags&UBIG_CONTROL_FLAG_POSTGAIN_VALID)!=0u;
-    if(has_postgain && (request.desired_postgain < -1200 || request.desired_postgain > 0)){
-        chain_control_ack(p,generation,UBIG_EINVAL);return UBIG_EINVAL;
-    }
     if(has_eq){
-        for(unsigned i=0;i<UBIG_EQ_BANDS;i++)if(request.custom_eq[i]<-192||request.custom_eq[i]>192){chain_control_ack(p,generation,UBIG_EINVAL);return UBIG_EINVAL;}
+        for(unsigned i=0;i<UBIG_EQ_BANDS;i++)if(request.custom_eq[i]<-192||request.custom_eq[i]>192){chain_control_ack_main(p,generation,UBIG_EINVAL);return UBIG_EINVAL;}
         memcpy(p->custom_eq,request.custom_eq,sizeof p->custom_eq);p->custom_eq_valid=1;
-        if(p->native_stage_a&&ubig_engine_set_custom_eq(p->native_stage_a,p->custom_eq)!=UBIG_OK){chain_control_ack(p,generation,UBIG_ESTATE);return UBIG_ESTATE;}
-    }
-    if(has_postgain){
-        rc=p->native_stage_a?ubig_engine_set_postgain(p->native_stage_a,request.desired_postgain):UBIG_ESTATE;
-        if(rc!=UBIG_OK){chain_control_ack(p,generation,rc);return rc;}
-        p->postgain=request.desired_postgain;
+        if(p->native_stage_a&&ubig_engine_set_custom_eq(p->native_stage_a,p->custom_eq)!=UBIG_OK){chain_control_ack_main(p,generation,UBIG_ESTATE);return UBIG_ESTATE;}
     }
     if(next!=(ChainProfile)p->profile)rc=chain_apply_profile_inplace(p,next);
     else if(next==CHAIN_PROFILE_PERSONALIZE&&has_eq){
         void *core=p->vr_inner?(void*)(uintptr_t)q(p->vr_inner,0x130):NULL;
         rc=core?vr_apply_geq_values(p,core,p->custom_eq):UBIG_ESTATE;
     }else rc=0;
-    chain_control_ack(p,generation,rc);return rc;
+    chain_control_ack_main(p,generation,rc);return rc;
 }
 
 

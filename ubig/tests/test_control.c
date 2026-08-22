@@ -14,8 +14,8 @@ int main(void)
     if(ubig_control_request_postgain(&h,-332))return 5;
     if(ubig_control_request_postgain(&h,-1201)!=UBIG_EINVAL || ubig_control_request_postgain(&h,1)!=UBIG_EINVAL)return 6;
     ubig_control_page p;if(ubig_control_snapshot(&h,&p))return 7;
-    if(p.request_generation!=3 || p.desired_profile!=UBIG_PROFILE_CUSTOM || p.custom_eq[3]!=48 || p.custom_eq[9]!=-32 ||
-       p.desired_postgain!=-332 || !(p.desired_flags&UBIG_CONTROL_FLAG_POSTGAIN_VALID))return 8;
+    if(p.request_generation!=2 || p.postgain_request_generation!=1 || p.desired_profile!=UBIG_PROFILE_CUSTOM ||
+       p.custom_eq[3]!=48 || p.custom_eq[9]!=-32 || p.desired_postgain!=-332)return 8;
     ubig_control_close(&h);unlink(path);
     puts("PASS control-page request/snapshot ABI");return 0;
 }

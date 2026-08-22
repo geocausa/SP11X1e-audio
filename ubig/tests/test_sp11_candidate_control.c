@@ -38,11 +38,12 @@ static void make_input(float *left,float *right,size_t count,size_t base)
     }
 }
 
-static int snapshot_matches(ubig_control_handle *handle,uint32_t generation,ubig_profile active,int32_t postgain)
+static int snapshot_matches(ubig_control_handle *handle,uint32_t generation,uint32_t postgain_generation,ubig_profile active,int32_t postgain)
 {
     ubig_control_page page;
     if(ubig_control_snapshot(handle,&page)!=UBIG_OK)return -1;
     if(page.request_generation!=generation||page.ack_generation!=generation||
+       page.postgain_request_generation!=postgain_generation||page.postgain_ack_generation!=postgain_generation||
        page.active_profile!=(uint32_t)active||page.active_postgain!=postgain||page.last_error!=0)return -2;
     return 0;
 }
@@ -98,7 +99,7 @@ int main(int argc,char **argv)
 
     ubig_control_handle control_a,control_b;
     if(ubig_control_open(&control_a,path_a,0)||ubig_control_open(&control_b,path_b,0))return 5;
-    if(snapshot_matches(&control_a,0,UBIG_PROFILE_DYNAMIC,0)||snapshot_matches(&control_b,0,UBIG_PROFILE_DYNAMIC,0))return 6;
+    if(snapshot_matches(&control_a,0,0,UBIG_PROFILE_DYNAMIC,0)||snapshot_matches(&control_b,0,0,UBIG_PROFILE_DYNAMIC,0))return 6;
 
     enum { FRAMES=480 };
     float left[FRAMES],right[FRAMES],a_left[FRAMES],a_right[FRAMES],b_left[FRAMES],b_right[FRAMES];
@@ -114,7 +115,7 @@ int main(int argc,char **argv)
     make_input(left,right,FRAMES,base);
     run_instance(&a,left,right,a_left,a_right,FRAMES);
     run_instance(&b,left,right,b_left,b_right,FRAMES);
-    if(snapshot_matches(&control_a,1,UBIG_PROFILE_MOVIE,0)||snapshot_matches(&control_b,1,UBIG_PROFILE_MOVIE,0)||
+    if(snapshot_matches(&control_a,1,0,UBIG_PROFILE_MOVIE,0)||snapshot_matches(&control_b,1,0,UBIG_PROFILE_MOVIE,0)||
        count_differences(a_left,b_left,FRAMES)||count_differences(a_right,b_right,FRAMES))return 9;
     base+=FRAMES;
 
@@ -124,7 +125,7 @@ int main(int argc,char **argv)
     make_input(left,right,FRAMES,base);
     run_instance(&a,left,right,a_left,a_right,FRAMES);
     run_instance(&b,left,right,b_left,b_right,FRAMES);
-    if(snapshot_matches(&control_a,2,UBIG_PROFILE_CUSTOM,0)||snapshot_matches(&control_b,2,UBIG_PROFILE_CUSTOM,0)||
+    if(snapshot_matches(&control_a,2,0,UBIG_PROFILE_CUSTOM,0)||snapshot_matches(&control_b,2,0,UBIG_PROFILE_CUSTOM,0)||
        count_differences(a_left,b_left,FRAMES)||count_differences(a_right,b_right,FRAMES))return 11;
     base+=FRAMES;
 
@@ -132,7 +133,7 @@ int main(int argc,char **argv)
     make_input(left,right,FRAMES,base);
     run_instance(&a,left,right,a_left,a_right,FRAMES);
     run_instance(&b,left,right,b_left,b_right,FRAMES);
-    if(snapshot_matches(&control_a,3,UBIG_PROFILE_CUSTOM,0)||snapshot_matches(&control_b,3,UBIG_PROFILE_CUSTOM,0))return 13;
+    if(snapshot_matches(&control_a,3,0,UBIG_PROFILE_CUSTOM,0)||snapshot_matches(&control_b,3,0,UBIG_PROFILE_CUSTOM,0))return 13;
     const size_t changed=count_differences(a_left,b_left,FRAMES)+count_differences(a_right,b_right,FRAMES);
     if(!changed)return 14;
 
@@ -152,7 +153,7 @@ int main(int argc,char **argv)
         run_instance(&d,left,right,b_left,b_right,FRAMES);
         postgain_changed+=count_differences(a_left,b_left,FRAMES)+count_differences(a_right,b_right,FRAMES);
     }
-    if(snapshot_matches(&control_c,1,UBIG_PROFILE_DYNAMIC,-332)||snapshot_matches(&control_d,1,UBIG_PROFILE_DYNAMIC,0))return 18;
+    if(snapshot_matches(&control_c,0,1,UBIG_PROFILE_DYNAMIC,-332)||snapshot_matches(&control_d,0,1,UBIG_PROFILE_DYNAMIC,0))return 18;
     if(!postgain_changed)return 19;
 
     printf("PASS SP11 candidate public control lifecycle eq_changed=%zu/%u postgain_changed=%zu/%u\n",

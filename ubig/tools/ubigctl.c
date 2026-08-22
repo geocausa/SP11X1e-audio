@@ -36,8 +36,9 @@ int main(int argc, char **argv)
         ubig_control_page p;
         rc=ubig_control_snapshot(&h,&p);
         if (!rc) {
-            printf("path=%s\nabi=%u\nrequest_generation=%u\nack_generation=%u\ndesired_profile=%s\nactive_profile=%s\ndesired_postgain=%d\nactive_postgain=%d\nlast_error=%d\n",
+            printf("path=%s\nabi=%u\nrequest_generation=%u\nack_generation=%u\npostgain_request_generation=%u\npostgain_ack_generation=%u\ndesired_profile=%s\nactive_profile=%s\ndesired_postgain=%d\nactive_postgain=%d\nlast_error=%d\n",
                    h.path,p.abi_version,p.request_generation,p.ack_generation,
+                   p.postgain_request_generation,p.postgain_ack_generation,
                    ubig_profile_name((ubig_profile)p.desired_profile),
                    ubig_profile_name((ubig_profile)p.active_profile),
                    p.desired_postgain,p.active_postgain,p.last_error);
@@ -56,7 +57,7 @@ int main(int argc, char **argv)
         char *end=NULL; long raw=strtol(argv[2],&end,10);
         if(end==argv[2] || *end || raw < -1200 || raw > 0) rc=UBIG_EINVAL;
         else rc=ubig_control_request_postgain(&h,(int32_t)raw);
-        if(!rc) printf("queued postgain %ld generation=%u\n",raw,h.page->request_generation);
+        if(!rc) printf("queued postgain %ld generation=%u\n",raw,h.page->postgain_request_generation);
     } else {
         usage(argv[0]); rc=UBIG_EINVAL;
     }

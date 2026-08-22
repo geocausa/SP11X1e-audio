@@ -11,7 +11,6 @@ extern "C" {
 #define UBIG_CONTROL_MAGIC 0x55424947u /* 'UBIG' */
 #define UBIG_CONTROL_ABI_VERSION 2u
 #define UBIG_CONTROL_FLAG_CUSTOM_EQ_VALID (1u << 0)
-#define UBIG_CONTROL_FLAG_POSTGAIN_VALID  (1u << 1)
 
 typedef struct ubig_control_page {
     uint32_t magic;
@@ -27,10 +26,12 @@ typedef struct ubig_control_page {
     int32_t  custom_eq[UBIG_EQ_BANDS];
     int32_t  desired_postgain;
     int32_t  active_postgain;
+    uint32_t postgain_request_generation;
+    uint32_t postgain_ack_generation;
 
     int32_t  last_error;
     uint32_t engine_flags;
-    uint32_t reserved[10];
+    uint32_t reserved[8];
 } ubig_control_page;
 
 typedef struct ubig_control_handle {
