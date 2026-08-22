@@ -450,3 +450,9 @@ The universal scheduler at reference VA `0x18008C6A8` is now native as `ubig_sta
 ### Stage-B RT control-score/selector closure
 
 The control-score layer immediately above the universal scheduler is now native. The table-free scalar transfer at `0x18008CAA0` matches **1,000,000 randomized direct DLL calls bit-exact**; the single caller-described scorer at `0x18008CC38` matches **500,000 complete randomized calls bit-exact**; and the four-group selector at `0x18008CE60` matches **500,000 complete randomized calls bit-exact** across active/inactive paths and shuffled result slots. All feature-term descriptors remain caller-owned synthetic configuration rather than copied Dolby table bytes. Public combined hash: `cfad6506600a4b95`.
+
+### Stage-B universal analysis/control parent closure
+
+Reference parent `0x18007B2F0` is now represented by the native `ubig_stage_b_rt_analysis_controller_process()`. Live instrumentation recovered the exact persistent 262-float lower-feature layout and the slow-control contract: scheduler subview offsets map to feature-cadence/variation/ratio/rank/projection/change statistics, the control clock is 16 calls per tick over a 27→32→27 window, and primary control slots are 1/2/6/5. All four live primary descriptors contain 500 caller-owned terms over indices 2..261; the 500-term secondary descriptor reaches only to index 294 and uses the appended transfer features without touching the 262..291 gap.
+
+A promoted `0x18007B2F0` oracle suppressing only the independently exact spectral-accumulator and universal-scheduler calls matches **300,000 complete randomized calls bit-exact** across the persistent feature vector, control clock, primary result, secondary score and update flag while retaining the real reference selector/scorer children. The semantic parent then composes the native spectral accumulator, native universal scheduler and this exact slow-control cadence. Public lifecycle hash: `2ff63042c8ab1dd4`.

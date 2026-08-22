@@ -699,6 +699,34 @@ void ubig_stage_b_rt_control_select_process(const float *features,
                                             const UbigStageBRtControlGroup groups[UBIG_STAGE_B_RT_CONTROL_GROUPS],
                                             uint32_t result_words[UBIG_STAGE_B_RT_CONTROL_RESULT_WORDS]);
 
+#define UBIG_STAGE_B_RT_UNIVERSAL_FEATURES 262u
+#define UBIG_STAGE_B_RT_EXTENDED_FEATURES 296u
+
+typedef struct {
+    uint32_t counter;
+    uint32_t period;
+    uint32_t cycle;
+    uint32_t target;
+    uint32_t reset;
+    uint32_t armed;
+    uint32_t primary_result[UBIG_STAGE_B_RT_CONTROL_RESULT_WORDS];
+    float secondary_result[2];
+    uint32_t updated;
+} UbigStageBRtControlCadence;
+
+typedef struct {
+    UbigStageBRtControlGroup groups[UBIG_STAGE_B_RT_CONTROL_GROUPS];
+    const UbigStageBRtControlDescriptor *secondary;
+} UbigStageBRtControlCadenceConfig;
+
+/* Exact slow control cadence beneath reference parent 0x18007B2F0. features is
+ * the deployed flattened 262-float universal-analysis vector. On an evaluation
+ * call it is halved in place before the four-way selector runs. The secondary
+ * descriptor may address base indices 0..261 and appended indices 292..295. */
+void ubig_stage_b_rt_control_cadence_process(UbigStageBRtControlCadence *state,
+                                             const UbigStageBRtControlCadenceConfig *config,
+                                             float features[UBIG_STAGE_B_RT_UNIVERSAL_FEATURES]);
+
 typedef struct {
     UbigStageBRtFeatureHistory feature_history;
     UbigStageBRtVariationHistory variation_history;
@@ -744,4 +772,32 @@ void ubig_stage_b_rt_universal_analysis_process(UbigStageBRtUniversalAnalysis *s
                                                 const UbigStageBRtUniversalConfig *config,
                                                 const UbigStageBRtSpectralExport *input,
                                                 UbigStageBRtUniversalOutput *output);
+
+/* Pack/unpack the exact deployed 262-float feature order observed in the live
+ * lower-output pointer array beneath reference parent 0x18007B2F0. */
+void ubig_stage_b_rt_universal_pack_features(const UbigStageBRtUniversalOutput *output,
+                                             float features[UBIG_STAGE_B_RT_UNIVERSAL_FEATURES]);
+void ubig_stage_b_rt_universal_unpack_features(UbigStageBRtUniversalOutput *output,
+                                               const float features[UBIG_STAGE_B_RT_UNIVERSAL_FEATURES]);
+
+typedef struct {
+    UbigStageBRtSpectralAccumulator spectral;
+    UbigStageBRtSpectralExport spectral_export;
+    UbigStageBRtUniversalAnalysis analysis;
+    UbigStageBRtUniversalOutput analysis_output;
+    UbigStageBRtControlCadence control;
+} UbigStageBRtAnalysisController;
+
+typedef struct {
+    const UbigStageBRtUniversalConfig *analysis;
+    const UbigStageBRtControlCadenceConfig *control;
+} UbigStageBRtAnalysisControllerConfig;
+
+/* Semantic numerical/control core of reference parent 0x18007B2F0: spectral
+ * accumulation, universal scheduler, deployed 262-feature layout, and slow
+ * primary/secondary control cadence. */
+void ubig_stage_b_rt_analysis_controller_process(UbigStageBRtAnalysisController *state,
+                                                 const UbigStageBRtAnalysisControllerConfig *config,
+                                                 const float *row0,
+                                                 const float *row1);
 #endif

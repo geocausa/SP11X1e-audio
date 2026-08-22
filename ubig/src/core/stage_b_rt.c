@@ -2404,6 +2404,48 @@ void ubig_stage_b_rt_control_select_process(const float *features,
     result_words[0]=winner;
 }
 
+void ubig_stage_b_rt_control_cadence_process(UbigStageBRtControlCadence *state,
+                                             const UbigStageBRtControlCadenceConfig *config,
+                                             float features[UBIG_STAGE_B_RT_UNIVERSAL_FEATURES])
+{
+    if(!state||!config||!config->secondary||!features)return;
+    state->updated=0u;
+    state->counter++;
+    if(state->counter==state->period){
+        state->counter=0u;
+        state->cycle++;
+    }
+
+    if(state->cycle!=state->target&&state->armed==1u){
+        state->armed=0u;
+        for(uint32_t i=0u;i<UBIG_STAGE_B_RT_UNIVERSAL_FEATURES;i++)features[i]*=0.5f;
+        ubig_stage_b_rt_control_select_process(features,config->groups,state->primary_result);
+
+        const uint32_t winner=state->primary_result[0];
+        if(winner==1u||winner==2u){
+            float extended[UBIG_STAGE_B_RT_EXTENDED_FEATURES]={0};
+            memcpy(extended,features,UBIG_STAGE_B_RT_UNIVERSAL_FEATURES*sizeof(float));
+            const uint32_t source_words[4]={3u,5u,13u,11u};
+            for(uint32_t i=0u;i<4u;i++){
+                float value;
+                memcpy(&value,&state->primary_result[source_words[i]],sizeof value);
+                extended[292u+i]=value*0.5f;
+            }
+            ubig_stage_b_rt_control_score_process(extended,config->secondary,
+                                                  state->secondary_result);
+        }else{
+            state->secondary_result[0]=0.5f;
+            state->secondary_result[1]=0.0f;
+        }
+        state->updated=1u;
+    }
+
+    if(state->cycle==state->target){
+        state->armed=1u;
+        state->cycle=state->reset;
+    }
+}
+
 uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock)
 {
     if(!clock)return 0u;
@@ -2509,4 +2551,55 @@ void ubig_stage_b_rt_universal_analysis_process(UbigStageBRtUniversalAnalysis *s
         ubig_stage_b_rt_rank_history_process(&rank,control,output->peak_rank,scratch64);
         state->peak_residual_cursor=rank.cursor;
     }
+}
+
+void ubig_stage_b_rt_universal_pack_features(const UbigStageBRtUniversalOutput *output,
+                                             float features[UBIG_STAGE_B_RT_UNIVERSAL_FEATURES])
+{
+    if(!output||!features)return;
+    uint32_t offset=0u;
+#define UBIG_PACK(field,count) do { memcpy(features+offset,output->field,(count)*sizeof(float)); offset+=(count); } while(0)
+    UBIG_PACK(feature_cadence,UBIG_STAGE_B_RT_FEATURE_CADENCE_OUTPUTS);
+    UBIG_PACK(variation_mean,UBIG_STAGE_B_RT_STAT_COLUMNS);
+    UBIG_PACK(variation_deviation,UBIG_STAGE_B_RT_STAT_COLUMNS);
+    UBIG_PACK(segment_ratio_mean,UBIG_STAGE_B_RT_STAT_COLUMNS);
+    UBIG_PACK(segment_ratio_deviation,UBIG_STAGE_B_RT_STAT_COLUMNS);
+    UBIG_PACK(peak_rank,UBIG_STAGE_B_RT_RANK_OUTPUTS);
+    UBIG_PACK(projection_cadence,UBIG_STAGE_B_RT_CADENCE_OUTPUTS);
+    UBIG_PACK(feature_change,2u);
+    UBIG_PACK(spectral_change,2u);
+#undef UBIG_PACK
+}
+
+void ubig_stage_b_rt_universal_unpack_features(UbigStageBRtUniversalOutput *output,
+                                               const float features[UBIG_STAGE_B_RT_UNIVERSAL_FEATURES])
+{
+    if(!output||!features)return;
+    uint32_t offset=0u;
+#define UBIG_UNPACK(field,count) do { memcpy(output->field,features+offset,(count)*sizeof(float)); offset+=(count); } while(0)
+    UBIG_UNPACK(feature_cadence,UBIG_STAGE_B_RT_FEATURE_CADENCE_OUTPUTS);
+    UBIG_UNPACK(variation_mean,UBIG_STAGE_B_RT_STAT_COLUMNS);
+    UBIG_UNPACK(variation_deviation,UBIG_STAGE_B_RT_STAT_COLUMNS);
+    UBIG_UNPACK(segment_ratio_mean,UBIG_STAGE_B_RT_STAT_COLUMNS);
+    UBIG_UNPACK(segment_ratio_deviation,UBIG_STAGE_B_RT_STAT_COLUMNS);
+    UBIG_UNPACK(peak_rank,UBIG_STAGE_B_RT_RANK_OUTPUTS);
+    UBIG_UNPACK(projection_cadence,UBIG_STAGE_B_RT_CADENCE_OUTPUTS);
+    UBIG_UNPACK(feature_change,2u);
+    UBIG_UNPACK(spectral_change,2u);
+#undef UBIG_UNPACK
+}
+
+void ubig_stage_b_rt_analysis_controller_process(UbigStageBRtAnalysisController *state,
+                                                 const UbigStageBRtAnalysisControllerConfig *config,
+                                                 const float *row0,
+                                                 const float *row1)
+{
+    if(!state||!config||!config->analysis||!config->control||!row0||!row1)return;
+    ubig_stage_b_rt_spectral_accumulate(&state->spectral,row0,row1,&state->spectral_export);
+    ubig_stage_b_rt_universal_analysis_process(&state->analysis,config->analysis,
+                                               &state->spectral_export,&state->analysis_output);
+    float features[UBIG_STAGE_B_RT_UNIVERSAL_FEATURES];
+    ubig_stage_b_rt_universal_pack_features(&state->analysis_output,features);
+    ubig_stage_b_rt_control_cadence_process(&state->control,config->control,features);
+    ubig_stage_b_rt_universal_unpack_features(&state->analysis_output,features);
 }
