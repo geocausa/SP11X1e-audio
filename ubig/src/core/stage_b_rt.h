@@ -573,6 +573,19 @@ void ubig_stage_b_rt_feature_history_process(UbigStageBRtFeatureHistory *state,
  * reference's positive zero floor. */
 float ubig_stage_b_rt_feature_history_mean(const float records[UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH][UBIG_STAGE_B_RT_FEATURE_RECORD_VALUES]);
 
+#define UBIG_STAGE_B_RT_FEATURE_CADENCE_OUTPUTS 186u
+#define UBIG_STAGE_B_RT_FEATURE_CADENCE_SPECTRA 8u
+#define UBIG_STAGE_B_RT_FEATURE_CADENCE_SPECTRUM_BINS 16u
+
+/* Exact lower-cadence feature-bank controller beneath the deployed universal
+ * scheduler. The caller invokes it when state->index == state->phase. It
+ * consumes the already-native 32x20 feature history plus its reducer state,
+ * emits scalar statistics, eight energy-weighted 16-bin spectra and the
+ * dual-row slope descriptors, then advances phase by cadence_step modulo 32. */
+void ubig_stage_b_rt_feature_cadence_process(UbigStageBRtFeatureHistory *state,
+                                             uint32_t cadence_step,
+                                             float output[UBIG_STAGE_B_RT_FEATURE_CADENCE_OUTPUTS]);
+
 /* Exact sorted 32-value peak/shoulder metrics used by a lower cadence path.
  * scratch receives the sorted input and may alias input. */
 void ubig_stage_b_rt_rank_metrics(float gain,

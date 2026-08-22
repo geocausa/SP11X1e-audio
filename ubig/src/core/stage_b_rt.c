@@ -2024,6 +2024,118 @@ float ubig_stage_b_rt_feature_history_mean(const float records[UBIG_STAGE_B_RT_F
     return mean;
 }
 
+
+void ubig_stage_b_rt_feature_cadence_process(UbigStageBRtFeatureHistory *state,
+                                             uint32_t cadence_step,
+                                             float output[UBIG_STAGE_B_RT_FEATURE_CADENCE_OUTPUTS])
+{
+    if(!state||!output||cadence_step>=UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH||
+       state->index!=state->phase)return;
+
+    float scratch[32];
+    float weighted[32];
+    float weights[32];
+    const float history_mean=ubig_stage_b_rt_feature_history_mean(state->records);
+    const int32_t global_shift=stage_b_rt_spectral_shift(history_mean);
+    const float aligned_mean=stage_b_rt_pow2_integer(global_shift)*history_mean;
+    const float inverse=(float)(0.5/(double)aligned_mean);
+    const uint32_t phase=state->phase;
+    const uint32_t index=state->index;
+    const uint32_t previous=phase?phase-1u:31u;
+
+    /* Columns 4..11 use the reducers maintained by feature-history. */
+    for(uint32_t lane=0u;lane<UBIG_STAGE_B_RT_FEATURE_SEGMENTS;lane++){
+        const uint32_t column=4u+lane;
+        for(uint32_t row=0u;row<32u;row++)scratch[row]=state->records[row][column];
+        uint32_t shift;
+        output[4u+lane]=stage_b_rt_cadence_mean(state->segment_sum[lane],
+                                                state->segment_shift[lane],
+                                                state->records[previous][column],&shift);
+        output[24u+lane]=ubig_stage_b_rt_deviation32(output[4u+lane],scratch,shift);
+    }
+
+    /* Direct statistics for the first two record columns. Column 1 is the
+     * aggregate-energy lane and is expressed relative to the 32-row mean. */
+    for(uint32_t row=0u;row<32u;row++)scratch[row]=state->records[row][0];
+    ubig_stage_b_rt_stat32(scratch,&output[0],&output[20]);
+    for(uint32_t row=0u;row<32u;row++)scratch[row]=state->records[row][1];
+    ubig_stage_b_rt_stat32(scratch,&output[1],&output[21]);
+    const float aggregate_scale=stage_b_rt_pow2_integer(global_shift-4);
+    output[1]=aggregate_scale*(output[1]*inverse);
+    output[21]=aggregate_scale*(output[21]*inverse);
+
+    /* The lower spectral bank weights the dimensionless segment fractions by
+     * exponent-aligned aggregate energy, then circularizes at phase/index. */
+    int32_t weight_shift=32;
+    for(uint32_t row=0u;row<32u;row++){
+        const int32_t lane_shift=stage_b_rt_spectral_shift(state->records[row][1]);
+        if(lane_shift<weight_shift)weight_shift=lane_shift;
+    }
+    const float weight_scale=stage_b_rt_pow2_integer(weight_shift);
+    for(uint32_t row=0u;row<32u;row++)weights[row]=state->records[row][1]*weight_scale;
+
+    const float column_scale=stage_b_rt_pow2_integer(global_shift-8);
+    for(uint32_t lane=0u;lane<UBIG_STAGE_B_RT_FEATURE_SEGMENTS;lane++){
+        uint32_t out=0u;
+        const uint32_t weighted_column=4u+lane;
+        for(uint32_t row=phase;row<32u;row++)
+            weighted[out++]=state->records[row][weighted_column]*weights[row];
+        for(uint32_t row=0u;row<index;row++)
+            weighted[out++]=state->records[row][weighted_column]*weights[row];
+
+        const uint32_t column=12u+lane;
+        for(uint32_t row=0u;row<32u;row++)scratch[row]=state->records[row][column];
+        ubig_stage_b_rt_stat32(scratch,&output[12u+lane],&output[32u+lane]);
+        output[12u+lane]=column_scale*(output[12u+lane]*inverse);
+        output[32u+lane]=column_scale*(output[32u+lane]*inverse);
+        ubig_stage_b_rt_spectrum32(weighted,&output[58u+16u*lane]);
+    }
+
+    /* Seven adjacent differences share their own upper-history reducers. */
+    const float delta_mean_scale=stage_b_rt_pow2_integer(global_shift-3);
+    const float delta_deviation_scale=stage_b_rt_pow2_integer(global_shift-8);
+    for(uint32_t lane=0u;lane<UBIG_STAGE_B_RT_FEATURE_SEGMENTS-1u;lane++){
+        const uint32_t column=12u+lane;
+        for(uint32_t row=0u;row<32u;row++)
+            scratch[row]=state->records[row][column+1u]-state->records[row][column];
+        const float outgoing=state->records[previous][column+1u]-
+                             state->records[previous][column];
+        uint32_t shift;
+        output[40u+lane]=stage_b_rt_cadence_mean(state->delta_sum[lane],
+                                                 state->delta_shift[lane],outgoing,&shift);
+        output[47u+lane]=ubig_stage_b_rt_deviation32(output[40u+lane],scratch,shift);
+        output[40u+lane]=delta_mean_scale*(output[40u+lane]*inverse);
+        output[47u+lane]=delta_deviation_scale*(output[47u+lane]*inverse);
+    }
+
+    /* Columns 2 and 10 feed the final two-row slope descriptor through the
+     * same energy-weighted circular window used by the spectral bank. */
+    float slope_row0[32],slope_row1[32];
+    uint32_t out=0u;
+    for(uint32_t row=phase;row<32u;row++){
+        slope_row0[out]=state->records[row][2]*weights[row];
+        slope_row1[out]=state->records[row][10]*weights[row];
+        out++;
+    }
+    for(uint32_t row=0u;row<index;row++){
+        slope_row0[out]=state->records[row][2]*weights[row];
+        slope_row1[out]=state->records[row][10]*weights[row];
+        out++;
+    }
+    UbigStageBRtSlope32 slope;
+    ubig_stage_b_rt_slope32_prepare(slope_row0,slope_row1,&slope);
+    ubig_stage_b_rt_slope32_features(&slope,&output[54]);
+
+    for(uint32_t row=0u;row<32u;row++)scratch[row]=state->records[row][2];
+    ubig_stage_b_rt_stat32(scratch,&output[2],&output[22]);
+    for(uint32_t row=0u;row<32u;row++)scratch[row]=state->records[row][3];
+    ubig_stage_b_rt_stat32(scratch,&output[3],&output[23]);
+
+    uint32_t next=phase+cadence_step;
+    if(next>=UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH)next-=UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH;
+    state->phase=next;
+}
+
 void ubig_stage_b_rt_rank_metrics(float gain,
                                   const float input[32],
                                   float scratch[32],
