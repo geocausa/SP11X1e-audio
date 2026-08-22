@@ -420,3 +420,11 @@ The bridge deliberately keeps raw-DLL offset translation out of the public seman
 Promoted source matches **1,000,000 randomized direct calls bit-exact** across output and mutable history, with tap counts 1..16, signed phase variation and raw history alignment variation. Public hash: `53ef0081132f4037`.
 
 On the shipped SP11 stereo path, parent `0x5CE70` calls this transform eight times per block: 6,248 calls in each 781-block stress run. Live substitution remains bit-exact across all seven shipped profiles while `0x4A570`, its reference 8-/4-point callback entries (`0xD1EC0`, `0xD23E0`) and the zero-row export helper `0x5AD38` are poisoned with `BRK`. The alternate `0x5BC98`/`0x5C6D0` branches and large-output `0x45288` export path are dormant in the deployed profile set.
+
+## Deployed history/outer parent replacement (`0x18005CE70`)
+
+The shipped stereo/48-kHz path enters `0x5CE70` only from callsite `0x18003BB34`; the other three static callers are dormant in all seven profile stress runs. Its deployed branch has `state[+0xCC] == 0`, two groups, four planes, 77 bins, no auxiliary row bank, and a zero-row final export descriptor.
+
+A private live bridge reconstructs the parent's scratch descriptors from caller-owned workspace, preserves the three-slot persistent staging-ring cadence, scales each 64-complex input row by 1/8, copies the 0x1E8-byte retained tail into each 77-complex work plane, executes `ubig_stage_b_rt_history_transform32()` four times per group, then composes directly into the already-native outer parent with the exact binary32 `0x3E0E457B` offset. The zero-row format-export tail is omitted because it has no writes under the deployed contract.
+
+With reference `0x5CE70` poisoned, seven-profile 781-block runs remain bit-exact: 781 native parent calls, 6,248 native history transforms, 781 native `0x376B0` calls and 3,124 native analysis-controller updates per profile. This proves that no proprietary `0x5CE70` code body is required by the deployed SP11 route; initialized coefficient/history objects remain caller-owned inputs to the public semantic transforms.

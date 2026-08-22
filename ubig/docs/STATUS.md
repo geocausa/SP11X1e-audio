@@ -594,3 +594,11 @@ The only substantive live child still above the now-native `0x376B0` outer paren
 A direct DLL oracle passes **1,000,000 randomized complete calls bit-exact**, including mutable history, varying 1..16 tap counts, varying signed phases and deliberately misaligned raw history bases. Public deterministic hash: `53ef0081132f4037`.
 
 The stronger live proof replaces all 6,248 `0x4A570` calls in each 781-block profile stress run with the native implementation, replaces the live `0x5AD38` export call with its proven zero-row no-op, and poisons mapped entries `0x4A570`, `0xD1EC0`, `0xD23E0` and `0x5AD38` with `BRK`. Dynamic, Movie, Music, Game, Voice, OnlineCourse and Personalize all remain bit-exact. The sibling branches `0x5BC98`, `0x5C6D0` and `0x45288` remain zero-call under the deployed contract.
+
+### Stage-B history/outer parent `0x5CE70` live replacement
+
+The active reference parent immediately above `0x376B0` is no longer executed. A private integration bridge replaces the sole deployed callsite at `0x18003BB34` with source-owned orchestration and poisons mapped entry `0x18005CE70` with `BRK`. The live contract is sharply fixed: state mode branch `+0xCC == 0`, two input groups x four planes, 77 bins, ten scratch rows, zero auxiliary rows, 48 kHz export configuration, and the already-native `0x4A570` history transform eight times per block.
+
+The replacement preserves the reference persistent three-slot input ring update, ×0.125 complex input staging, 0x1E8-byte history-tail copy, exact caller-workspace row layout needed by the late controller, and the reference `0x3E0E457B` offset before composing directly into native `0x376B0`. Because the deployed export descriptor has zero input rows, the trailing `0x5AD38` path has no observable work and disappears entirely from the native parent.
+
+Dynamic, Movie, Music, Game, Voice, OnlineCourse and Personalize all pass the complete 781-block chain harness bit-exact with **781 native `0x5CE70` replacements**, **6,248 native history transforms**, **781 native `0x376B0` calls**, 3,124 native analysis-controller calls, and zero semantic fallback. The original `0x5CE70`, `0x4A570`, `0xD1EC0`, `0xD23E0`, `0x5AD38`, `0x376B0` and the previously closed lower subtree remain poisoned throughout the run.
