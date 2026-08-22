@@ -2541,6 +2541,169 @@ uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock)
     return actions;
 }
 
+static float stage_b_rt_deep_reciprocal(uint32_t count)
+{
+    if(count==7u)return f32_bits(0x3e124924u);
+    return 1.0f/(float)count;
+}
+
+void ubig_stage_b_rt_pair_bounds_process(float control,float subtract,
+                                         float base_offset,float modulation_scale,
+                                         UbigStageBRtPairBoundsState *state,
+                                         const float *lower_source,
+                                         const float *upper_source,
+                                         float *lower_output,float *upper_output,
+                                         const float *modulation)
+{
+    if(!state||!state->config||!lower_output||!upper_output||
+       state->active_width>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    const float threshold=f32_bits(0xbbfc0fc1u);
+    const float pivot=f32_bits(0xbcbd0bd1u);
+    float baseline=state->baseline;
+    if(threshold<=control){
+        float mix=(baseline-pivot)*64.0f;
+        if(mix<0.0f)mix=0.0f;
+        if(1.0f<mix)mix=1.0f;
+        float drive=mix*f32_bits(0x3d8dc55cu);
+        drive=fmaf(-(1.0f-mix),f32_bits(0x3cb6be9fu),drive);
+        drive*=state->config->blend_drive;
+        baseline=fmaf(state->config->blend_keep,baseline,drive);
+    }else{
+        const float delta=control-threshold;
+        if(baseline<=pivot)baseline+=state->config->below_pivot_slope*delta;
+        else baseline+=state->config->above_pivot_slope*delta;
+    }
+    state->baseline=baseline;
+    float upper=baseline*0.5f;
+    if(0.0f<subtract)upper-=subtract*0.5f;
+    const float lower=upper-f32_bits(0x3d3d0bd1u);
+    if(!lower_source||!upper_source){
+        for(uint32_t lane=0u;lane<state->active_width;lane++){
+            upper_output[lane]=upper;
+            lower_output[lane]=lower;
+        }
+        return;
+    }
+    if(!modulation)return;
+    const float base=base_offset*0.5f-subtract*0.5f;
+    const float scale=modulation_scale*0.5f;
+    for(uint32_t lane=0u;lane<state->active_width;lane++){
+        const float center=fmaf(modulation[lane],scale,base);
+        const float lane_upper=fmaf(upper_source[lane],0.5f,center);
+        if(upper<=lane_upper){
+            upper_output[lane]=upper;
+            lower_output[lane]=lower;
+        }else{
+            upper_output[lane]=lane_upper;
+            float lane_lower=fmaf(lower_source[lane],0.5f,center);
+            const float cap=lane_upper-f32_bits(0x3d3d0bd1u);
+            if(cap<lane_lower)lane_lower=cap;
+            lower_output[lane]=lane_lower;
+        }
+    }
+}
+
+void ubig_stage_b_rt_residual_balance_process(float alpha,const int32_t *status,
+                                              const float *input,uint32_t count,
+                                              float *primary,float *secondary)
+{
+    if(!status||!input||!primary||!secondary||count==0u||
+       count>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    float delta[UBIG_STAGE_B_RT_MAX_BANDS];
+    float out_primary[UBIG_STAGE_B_RT_MAX_BANDS];
+    float out_secondary[UBIG_STAGE_B_RT_MAX_BANDS];
+    float minimum=1.0f;
+    for(uint32_t lane=0u;lane<count;lane++){
+        delta[lane]=input[lane]*0.5f-primary[lane];
+        if(status[lane]==0&&delta[lane]<minimum)minimum=delta[lane];
+    }
+    float sum=0.0f;
+    float maximum=0.0f;
+    uint32_t active=0u;
+    for(uint32_t lane=0u;lane<count;lane++){
+        if(status[lane]!=0)continue;
+        const float difference=delta[lane]-minimum;
+        if(f32_bits(0x39c9a634u)<difference){
+            sum=fmaf(difference,f32_bits(0x3d000000u),sum);
+            if(maximum<difference)maximum=difference;
+        }
+        active++;
+    }
+    if(active==0u)return;
+    float aggregate=stage_b_rt_deep_reciprocal(active)*sum;
+    aggregate*=32.0f;
+    aggregate*=f32_bits(0x3edf5123u);
+    aggregate=fmaf(maximum,f32_bits(0x3f10576eu),aggregate);
+    aggregate+=minimum;
+    const float keep=1.0f-alpha;
+    for(uint32_t lane=0u;lane<count;lane++){
+        const float old=primary[lane];
+        float target=old;
+        if(status[lane]==0)target=(delta[lane]-aggregate)+old;
+        const float low=(old<target)?old:target;
+        float secondary_target=secondary[lane]+(low-old);
+        const float cap=low-f32_bits(0x3d3d0bd1u);
+        if(cap<secondary_target)secondary_target=cap;
+        out_primary[lane]=fmaf(old,keep,low*alpha);
+        out_secondary[lane]=fmaf(secondary[lane],keep,secondary_target*alpha);
+    }
+    memcpy(primary,out_primary,(size_t)count*sizeof(float));
+    memcpy(secondary,out_secondary,(size_t)count*sizeof(float));
+}
+
+void ubig_stage_b_rt_residual_mean_process(float gain,float bias,
+                                           UbigStageBRtResidualMeanState *state,
+                                           const float *primary_envelope,
+                                           const float *lower_bound,
+                                           const float *upper_bound,
+                                           const int32_t *status,
+                                           float *base_output,float *residual_output)
+{
+    if(!state||!state->config||!primary_envelope||!lower_bound||!upper_bound||
+       !status||!base_output||!residual_output||
+       state->active_width>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    const float old_scalar=state->scalar;
+    for(uint32_t lane=0u;lane<state->active_width;lane++){
+        const float half=fmaf(primary_envelope[lane],0.5f,old_scalar);
+        const float target=fmaf(bias,0.5f,half);
+        base_output[lane]=target-old_scalar;
+        float residual=0.0f;
+        if(upper_bound[lane]<target){
+            const float span=upper_bound[lane]-lower_bound[lane];
+            const float test=(span-lower_bound[lane])+target;
+            if(test<0.0f){
+                const float denominator=span*4.0f;
+                const float inverse=(float)(1.0/(double)denominator);
+                const float difference=target-upper_bound[lane];
+                residual=inverse*(difference*difference);
+            }else residual=lower_bound[lane]-target;
+        }
+        residual_output[lane]=residual;
+    }
+    float sum=0.0f;
+    uint32_t active=0u;
+    for(uint32_t lane=0u;lane<state->active_width;lane++){
+        if(status[lane]!=0)continue;
+        sum=fmaf(residual_output[lane],f32_bits(0x3d000000u),sum);
+        active++;
+    }
+    float next=0.0f;
+    if(active!=0u){
+        float mean=stage_b_rt_deep_reciprocal(active)*sum;
+        mean*=32.0f;
+        mean*=gain;
+        if(mean<old_scalar){
+            const float inject=state->config->down_inject*mean;
+            next=fmaf(state->config->down_keep,old_scalar,inject);
+        }else{
+            const float inject=state->config->up_inject*mean;
+            next=fmaf(state->config->up_keep,old_scalar,inject);
+        }
+    }
+    state->scalar=next;
+    for(uint32_t lane=0u;lane<state->active_width;lane++)residual_output[lane]+=old_scalar;
+}
+
 static float stage_b_rt_dual_curve_primary(const UbigStageBRtDualEnvelopeConfig *config,
                                            float target,float old)
 {

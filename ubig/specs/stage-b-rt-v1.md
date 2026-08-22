@@ -315,3 +315,9 @@ Two more always-live `0x180064B38` children are closed. `ubig_stage_b_rt_dual_en
 `ubig_stage_b_rt_neighbor_smooth()` replaces reference `0x18007FC08` without copying its 8x3 lookup table. Decoding the table shows a simple status-gated three-neighbor rule: a blocked center is identity; otherwise each unblocked neighbor contributes decimal `0.333`, the center receives `0.334` when both neighbors participate, `0.667` when one neighbor is blocked, or 1.0 when both are blocked. The weighted result is capped by the original center and doubled. This generated rule matches **1,000,000 randomized direct DLL calls bit-exact** for all 0..20 lane counts and all three-state status patterns. Public hash: `429de12325cd4eac`.
 
 The `0x64B38` subtree now has four of its six every-block numerical children in semantic source (`0x7FE80`, `0x80658`/`0x80278`, `0x7FC08`); the remaining always-live leaves are `0x80920`, `0x80AE0` and `0x80ED8` before composing the parent.
+
+## Pair bounds and residual-control leaves
+
+The always-live late controller leaves at reference VAs `0x180080920`, `0x180080AE0`, and `0x180080ED8` are represented by `ubig_stage_b_rt_pair_bounds_process()`, `ubig_stage_b_rt_residual_balance_process()`, and `ubig_stage_b_rt_residual_mean_process()`. Their curve and smoothing coefficients remain caller-owned. The generated reciprocal used for active-lane averaging is ordinary binary32 `1/N` except for the reference's legacy `N=7` value `0x3e124924`, reproduced explicitly to preserve exact behavior without embedding the original reciprocal table.
+
+Promoted source matches **1,000,000 randomized direct reference calls bit-exact per leaf**, including forced seven-active-lane cases for both average-based stages. Public regression hash: `feab20243c13de7c`. With the previously closed dual-envelope, envelope/activity, and neighbor stages, every numerical child executed each block by `0x180064B38` now has a native semantic implementation.

@@ -758,6 +758,53 @@ void ubig_stage_b_rt_control_aggregate_process(UbigStageBRtControlAggregateState
                                                float output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS]);
 
 typedef struct {
+    float above_pivot_slope;
+    float below_pivot_slope;
+    float blend_keep;
+    float blend_drive;
+} UbigStageBRtPairBoundsConfig;
+
+typedef struct {
+    const UbigStageBRtPairBoundsConfig *config;
+    uint32_t active_width;
+    float baseline;
+} UbigStageBRtPairBoundsState;
+
+typedef struct {
+    float down_keep;
+    float down_inject;
+    float up_keep;
+    float up_inject;
+} UbigStageBRtResidualMeanConfig;
+
+typedef struct {
+    const UbigStageBRtResidualMeanConfig *config;
+    uint32_t active_width;
+    float scalar;
+} UbigStageBRtResidualMeanState;
+
+/* Exact always-live 0x180080920 / 0x180080AE0 / 0x180080ED8 leaves.
+ * The two averaging stages generate the reference reciprocal sequence on demand;
+ * its sole legacy rounding quirk is the one-ulp-low 1/7 entry. */
+void ubig_stage_b_rt_pair_bounds_process(float control,float subtract,
+                                         float base_offset,float modulation_scale,
+                                         UbigStageBRtPairBoundsState *state,
+                                         const float *lower_source,
+                                         const float *upper_source,
+                                         float *lower_output,float *upper_output,
+                                         const float *modulation);
+void ubig_stage_b_rt_residual_balance_process(float alpha,const int32_t *status,
+                                              const float *input,uint32_t count,
+                                              float *primary,float *secondary);
+void ubig_stage_b_rt_residual_mean_process(float gain,float bias,
+                                           UbigStageBRtResidualMeanState *state,
+                                           const float *primary_envelope,
+                                           const float *lower_bound,
+                                           const float *upper_bound,
+                                           const int32_t *status,
+                                           float *base_output,float *residual_output);
+
+typedef struct {
     float primary_lower_limit;
     float primary_negative_slope;
     float primary_quadratic_scale;
