@@ -974,6 +974,12 @@ void ubig_stage_b_rt_late_controller_process(
     float *analysis[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_BLOCKS],
     float rows[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_ROW_FLOATS]);
 
+/* Exact pre-late-pipeline bias applied to the outer parent telemetry code and
+ * linked-row accumulator before 0x180056B80. */
+void ubig_stage_b_rt_telemetry_bias(int32_t *code,float *accumulator,uint32_t count,
+                                    float reference_level,float base_level,
+                                    float delta_level,float row_offset);
+
 typedef struct {
     int32_t code[UBIG_STAGE_B_RT_MAX_BANDS];
     int32_t scaled[UBIG_STAGE_B_RT_MAX_BANDS];

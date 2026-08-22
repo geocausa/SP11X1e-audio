@@ -373,3 +373,8 @@ A live replacement plugin substitutes the promoted UbiG parent directly at outer
 `ubig_stage_b_rt_telemetry_smooth()` closes the live twenty-lane inline tail at `0x18003A31C..0x18003A3CC`, immediately after the native late-pipeline parent. It clamps the incoming integer code to [-192,576], applies the caller-owned four-coefficient rise/fall state smoother, enforces the branch-specific additive floor, then exports the floor-rounded state scaled by 2080 and clamped to the same integer interval.
 
 The promoted source matches an extracted AArch64 instruction oracle for **1,000,000 randomized complete calls bit-exact**, preserving the reference add/multiply/FMA ordering and all three mutated twenty-lane banks. Public hash: `36e53311bbfee0ec`. This removes the last standalone numerical loop after `0x180056B80` from the hot `0x1800376B0` route.
+
+
+## Outer-parent telemetry pre-bias
+
+`ubig_stage_b_rt_telemetry_bias()` closes the live scalar-vector preparation immediately before `0x180056B80`. It derives one integer offset by truncating `(reference-base)*2080`, derives one binary32 accumulator offset from the recovered +0.2769230902 parent constant, and applies those offsets to the active code/linked-accumulator lanes. Promoted source matches an extracted AArch64 arithmetic oracle for **1,000,000 randomized complete calls bit-exact**. Public hash: `22294d1b2a24fa6a`.

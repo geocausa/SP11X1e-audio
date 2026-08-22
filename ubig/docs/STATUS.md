@@ -549,3 +549,8 @@ The strongest gate is a live callsite substitution rather than an isolated oracl
 ### Stage-B outer telemetry-tail closure
 
 The post-`0x56B80` twenty-lane telemetry state loop in outer parent `0x1800376B0` is native as `ubig_stage_b_rt_telemetry_smooth()`. It owns the exact rise/fall branch, caller-owned four-coefficient smoothing, [-192,576] code/output clamps, and floor-rounded ×2080 export. Promoted source passes **1,000,000 randomized instruction-oracle calls bit-exact** across state and both integer output banks; public hash `36e53311bbfee0ec`.
+
+
+### Stage-B outer telemetry pre-bias closure
+
+The remaining per-lane preparation immediately before the native `0x56B80` pipeline is now `ubig_stage_b_rt_telemetry_bias()`. Its exact ×2080 integer bias and binary32 linked-accumulator offset pass **1,000,000 randomized instruction-oracle calls bit-exact**; public hash `22294d1b2a24fa6a`. Together with the post-pipeline telemetry smoother, both standalone numerical loops surrounding the native late-pipeline parent are now source-owned.

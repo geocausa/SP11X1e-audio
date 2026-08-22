@@ -2705,6 +2705,16 @@ void ubig_stage_b_rt_residual_mean_process(float gain,float bias,
 }
 
 
+void ubig_stage_b_rt_telemetry_bias(int32_t *code,float *accumulator,uint32_t count,
+                                    float reference_level,float base_level,
+                                    float delta_level,float row_offset)
+{
+    if(!code||!accumulator||count>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    const int32_t code_bias=(int32_t)((reference_level-base_level)*2080.0f);
+    const float value_bias=(delta_level+f32_bits(0x3e8dc8ddu))-(base_level+row_offset);
+    for(uint32_t i=0u;i<count;i++){code[i]+=code_bias;accumulator[i]+=value_bias;}
+}
+
 void ubig_stage_b_rt_telemetry_smooth(UbigStageBRtTelemetrySmoothState *state,
                                       const int32_t *code,
                                       const float *input,
