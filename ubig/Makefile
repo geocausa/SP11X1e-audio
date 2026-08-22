@@ -4,8 +4,10 @@ CPPFLAGS += -Iinclude -Isrc/core
 BUILD := build
 CORE_OBJS := $(BUILD)/engine.o $(BUILD)/profiles.o $(BUILD)/adapter256.o $(BUILD)/stage_a_limiter.o $(BUILD)/stage_a_math.o $(BUILD)/stage_a_export.o $(BUILD)/stage_a_synth.o $(BUILD)/stage_a_fft320.o $(BUILD)/stage_a_fft320_sp11.o $(BUILD)/stage_a_analyzer.o $(BUILD)/stage_a_filterbank_sp11.o $(BUILD)/stage_a_sp11_tuning.o $(BUILD)/stage_a_core_helpers.o $(BUILD)/stage_a_core.o $(BUILD)/stage_a_compressor_primitives.o $(BUILD)/stage_a_compressor_worker.o $(BUILD)/stage_a_compressor.o $(BUILD)/stage_a_lowband.o $(BUILD)/stage_a_regulator.o $(BUILD)/stage_b_leveler_primitives.o $(BUILD)/stage_b_leveler.o $(BUILD)/stage_b_rt.o
 CONTROL_OBJS := $(BUILD)/control_page.o
+CORE_SRCS := $(patsubst $(BUILD)/%.o,src/core/%.c,$(CORE_OBJS))
+SP11_CANDIDATE_SRCS := src/integration/sp11_ladspa_candidate.c $(CORE_SRCS) src/control/control_page.c
 
-.PHONY: all check clean
+.PHONY: all check clean candidate-ladspa candidate-control-check
 all: $(BUILD)/libubig-core.a $(BUILD)/ubigctl
 
 $(BUILD):
@@ -340,6 +342,18 @@ check: $(BUILD)/test_adapter256 $(BUILD)/test_engine $(BUILD)/test_engine_postga
 	$(BUILD)/test_stage_b_rt_rank_history
 	$(BUILD)/test_stage_b_rt_projection_history
 	$(BUILD)/test_stage_b_rt_parent
+
+$(BUILD)/ubig-sp11-candidate.so: $(SP11_CANDIDATE_SRCS) | $(BUILD)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -fPIC -shared $^ -lm -o $@
+
+candidate-ladspa: $(BUILD)/ubig-sp11-candidate.so
+
+$(BUILD)/test_sp11_candidate_control: tests/test_sp11_candidate_control.c src/control/control_page.c | $(BUILD)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -ldl -lm -o $@
+
+candidate-control-check: $(BUILD)/ubig-sp11-candidate.so $(BUILD)/test_sp11_candidate_control
+	@test -n "$$UBIG_SP11_STAGEB_PACK" || { echo "UBIG_SP11_STAGEB_PACK is required" >&2; exit 2; }
+	$(BUILD)/test_sp11_candidate_control $(BUILD)/ubig-sp11-candidate.so "$$UBIG_SP11_STAGEB_PACK"
 
 clean:
 	rm -rf $(BUILD)
