@@ -515,6 +515,10 @@ void ubig_stage_b_rt_feature_history_process(UbigStageBRtFeatureHistory *state,
                                              const UbigStageBRtFeatureHistoryConfig *config,
                                              const UbigStageBRtSpectralExport *input);
 
+/* Exact lower-cadence mean of feature-history record column 1, with the
+ * reference's positive zero floor. */
+float ubig_stage_b_rt_feature_history_mean(const float records[UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH][UBIG_STAGE_B_RT_FEATURE_RECORD_VALUES]);
+
 #define UBIG_STAGE_B_RT_PROJECTION_HISTORY_DEPTH 32u
 #define UBIG_STAGE_B_RT_PROJECTION_VALUES 8u
 #define UBIG_STAGE_B_RT_PROJECTION_MEASUREMENTS 19u

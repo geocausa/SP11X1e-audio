@@ -165,3 +165,7 @@ Promoted-source private differential: **1,000,000 direct statistic calls bit-exa
 ## Circular 32x8 cadence statistics
 
 `ubig_stage_b_rt_stat32_ring_columns()` builds the lower-cadence circular sample window for each of eight history columns: rows from the current cursor through row 31 are copied first, then a caller-sized prefix after wrap is appended to the visible 64-float scratch. The first 32 samples feed the exact shared statistic and the cursor advances by its caller-owned step. Promoted-source private differential: **500,000 complete randomized calls bit-exact**, including the full matrix state, both output banks, all 64 scratch floats and cursor across prefix counts 0..32. Public lifecycle hash: `c9f97bfc431c117d`.
+
+## Feature-history column mean
+
+`ubig_stage_b_rt_feature_history_mean()` owns the shared lower-cadence reducer over record column 1 of the semantic 32x20 feature-history ring. It preserves the exact exponent-normalized mean accumulation and returns the reference's exact `2^-32` positive floor only when the mean is zero. Promoted-source private differential: **1,000,000 direct randomized calls bit-exact**, including forced all-zero histories. Public hash: `0830f86ff2f1ce3c`.

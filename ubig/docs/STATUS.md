@@ -403,3 +403,7 @@ The lower-cadence 32x8 column gather/statistic wrapper is native as `ubig_stage_
 ### Stage-B RT circular column-statistics closure
 
 The medium lower-cadence circular 32x8 window/statistic transform is native as `ubig_stage_b_rt_stat32_ring_columns()`. Promoted source matches **500,000 complete randomized DLL calls bit-exact**, including the complete visible 64-float scratch tail, matrix state, outputs and cursor. Public lifecycle hash: `c9f97bfc431c117d`.
+
+### Stage-B RT feature-history mean closure
+
+The shared lower-cadence feature-history column reducer is native as `ubig_stage_b_rt_feature_history_mean()`. Promoted source matches **1,000,000 direct DLL calls bit-exact**, including the exact `2^-32` zero floor. Public hash: `0830f86ff2f1ce3c`.

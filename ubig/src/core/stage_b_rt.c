@@ -1463,6 +1463,24 @@ void ubig_stage_b_rt_feature_history_process(UbigStageBRtFeatureHistory *s,
     if(s->index>=UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH)s->index=0u;
 }
 
+float ubig_stage_b_rt_feature_history_mean(const float records[UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH][UBIG_STAGE_B_RT_FEATURE_RECORD_VALUES])
+{
+    if(!records)return 0.0f;
+    int32_t shift=stage_b_rt_spectral_shift(records[0][1]);
+    for(uint32_t row=1u;row<UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH;row++){
+        const int32_t row_shift=stage_b_rt_spectral_shift(records[row][1]);
+        if(row_shift<shift)shift=row_shift;
+    }
+    const float scale=stage_b_rt_pow2_integer(shift-5);
+    float mean=records[0][1]*scale;
+    for(uint32_t row=1u;row<UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH;row++)
+        mean=fmaf(records[row][1],scale,mean);
+    mean*=f32_bits(0x3d000000u);
+    mean*=stage_b_rt_pow2_integer(5-shift);
+    if(mean==0.0f)mean+=f32_bits(0x2f800000u);
+    return mean;
+}
+
 void ubig_stage_b_rt_projection_history_process(UbigStageBRtProjectionHistory *s,
                                                 const UbigStageBRtProjectionConfig *config,
                                                 const UbigStageBRtSpectralExport *in)
