@@ -434,3 +434,7 @@ The deployed lower-scheduler 32-sample real-spectrum helper is native as `ubig_s
 ### Stage-B RT dual-row slope preparation closure
 
 The no-subcall lower-scheduler transform at reference VA `0x18009D278` is native as `ubig_stage_b_rt_slope32_prepare()`. It finds one shared binary normalization exponent across two 32-value rows, applies the exact centered first-difference coefficient, half-wave rectifies both derivative rows, sums them, and normalizes the combined 32-value slope descriptor against the mean of both normalized source rows. All four intermediate 32-value banks remain explicit because the following scheduler child consumes them. Promoted source matches **1,000,000 complete randomized DLL calls bit-exact** across the full 160-float workspace. Public lifecycle hash: `6cefd05c85465fda`.
+
+### Stage-B RT slope-feature reducer closure
+
+The next no-allocation lower-scheduler child at reference VA `0x18009E2B8` is native as `ubig_stage_b_rt_slope32_features()`. It consumes the 160-float dual-row slope workspace, builds and normalizes the fixed 25-lag autocorrelation bank, extracts asymmetric ±2 local peaks/valleys, computes the deployed peak-count/log descriptor and the top-peak/valley relation, and writes the exact four-feature result while reusing the same scratch banks as the shipped path. The promoted source matches **1,000,000 complete structured DLL calls bit-exact**, comparing all four output floats and every mutated workspace float after a separately bit-exact `0x18009D278` preparation. Public lifecycle hash: `cf367535f84a8a3b`.

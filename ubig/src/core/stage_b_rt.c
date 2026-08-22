@@ -1575,6 +1575,204 @@ void ubig_stage_b_rt_slope32_prepare(const float row0[UBIG_STAGE_B_RT_SLOPE32_VA
     }
 }
 
+
+static float stage_b_rt_reciprocal_count(uint32_t count)
+{
+    return 1.0f/(float)count;
+}
+
+static float stage_b_rt_scaled_mean32(const float input[32])
+{
+    const float scale=f32_bits(0x3d000000u);
+    float sum=input[0]*scale;
+    for(uint32_t lane=1u;lane<32u;lane++)sum=sum+input[lane]*scale;
+    return sum;
+}
+
+static void stage_b_rt_autocorrelation32(const float input[32],float output[32])
+{
+    int32_t shift=32;
+    for(uint32_t lane=0u;lane<32u;lane++){
+        const int32_t lane_shift=stage_b_rt_spectral_shift(input[lane]);
+        if(lane_shift<shift)shift=lane_shift;
+    }
+    const float normalize=stage_b_rt_pow2_integer(shift);
+    const float one_over_32=f32_bits(0x3d000000u);
+    const float thirty_two=f32_bits(0x42000000u);
+    for(uint32_t lag=0u;lag<25u;lag++){
+        float sum=0.0f;
+        uint32_t base=0u;
+        for(uint32_t lane=lag;lane<32u;lane++,base++){
+            const float lhs=one_over_32*normalize*input[lane];
+            const float rhs=normalize*input[base];
+            sum=sum+lhs*rhs;
+        }
+        output[lag]=stage_b_rt_reciprocal_count(32u-lag)*sum*thirty_two;
+    }
+
+    const float root=output[0];
+    const int32_t root_shift=stage_b_rt_spectral_shift(root);
+    const float denominator_scale=stage_b_rt_pow2_integer(root_shift);
+    const float numerator_scale=stage_b_rt_pow2_integer(root_shift-4);
+    if(root==0.0f){
+        for(uint32_t lane=0u;lane<25u;lane++)output[lane]=0.0f;
+    }else{
+        for(uint32_t lane=0u;lane<25u;lane++){
+            const float numerator=numerator_scale*output[lane];
+            const float denominator=denominator_scale*root;
+            output[lane]=(float)((double)numerator/(double)denominator);
+        }
+    }
+}
+
+static int stage_b_rt_local_max2(const float *values,uint32_t lane)
+{
+    for(uint32_t distance=1u;distance<=2u;distance++)
+        if(values[lane]<values[lane-distance]||values[lane]<=values[lane+distance])return 0;
+    return 1;
+}
+
+static int stage_b_rt_local_min2(const float *values,uint32_t lane)
+{
+    for(uint32_t distance=1u;distance<=2u;distance++)
+        if(values[lane-distance]<values[lane]||values[lane+distance]<=values[lane])return 0;
+    return 1;
+}
+
+static void stage_b_rt_sort_ascending(float *values,uint32_t count)
+{
+    if(count<=1u)return;
+    for(uint32_t pass=1u;pass<count;pass++){
+        for(uint32_t lane=1u;pass+lane-1u<count;lane++){
+            if(values[lane]<values[lane-1u]){
+                const float swap=values[lane-1u];
+                values[lane-1u]=values[lane];
+                values[lane]=swap;
+            }
+        }
+    }
+}
+
+static float stage_b_rt_transfer_log(float input,int32_t mode)
+{
+    const float mode_a=f32_bits(0x38000000u);
+    const float mode_b=f32_bits(0x44000000u);
+    const float log_scale=f32_bits(0x3f317218u);
+    const float cubic_a=f32_bits(0x3f03d886u);
+    const float cubic_b=f32_bits(0x3e1ce39cu);
+    const float linear=f32_bits(0x3f412715u);
+    const float bias=f32_bits(0x3ec901c2u);
+    const float polynomial_scale=f32_bits(0x3e2aaaabu);
+    const float exponent_scale=f32_bits(0x30000000u);
+
+    float mode_term=(float)mode*mode_a;
+    mode_term*=mode_b;
+    float approximation=1.0f;
+    if(mode==0&&input==1.0f)return 0.0f*log_scale;
+    const int32_t shift=stage_b_rt_spectral_shift(input);
+    if(shift<31){
+        const float normalized=stage_b_rt_pow2_integer(shift)*input;
+        const int32_t exponent_term=(int32_t)((uint32_t)shift*0x02aaaaacu);
+        const float square=normalized*normalized;
+        float high=square*cubic_a;
+        const float cube=square*normalized;
+        high=fmaf(-cube,cubic_b,high);
+        float low=fmaf(-normalized,linear,bias);
+        low=high+low;
+        low*=polynomial_scale;
+        approximation=fmaf((float)exponent_term,exponent_scale,low);
+    }
+    const float mapped=fmaf(-approximation,0.75f,mode_term);
+    return mapped*log_scale;
+}
+
+static float stage_b_rt_mean_top2(const float *values,uint32_t count)
+{
+    if(count==0u)return 0.0f;
+    int32_t shift=stage_b_rt_spectral_shift(values[0]);
+    for(uint32_t lane=1u;lane<count;lane++){
+        const int32_t lane_shift=stage_b_rt_spectral_shift(values[lane]);
+        if(lane_shift<shift)shift=lane_shift;
+    }
+    const int32_t exponent=5-shift;
+    const float normalize=stage_b_rt_pow2_integer(-exponent);
+    float sum=values[0]*normalize;
+    for(uint32_t lane=1u;lane<count;lane++)sum=sum+values[lane]*normalize;
+    const float reciprocal=stage_b_rt_reciprocal_count(count);
+    const float restore=stage_b_rt_pow2_integer(exponent);
+    if(exponent<0)return (reciprocal*sum)*restore;
+    return (reciprocal*restore)*sum;
+}
+
+void ubig_stage_b_rt_slope32_features(UbigStageBRtSlope32 *workspace,
+                                      float output[UBIG_STAGE_B_RT_SLOPE_FEATURES])
+{
+    if(!workspace||!output)return;
+    float threshold=stage_b_rt_scaled_mean32(workspace->combined);
+    threshold*=f32_bits(0x3d000000u);
+    threshold*=f32_bits(0x42000000u);
+
+    stage_b_rt_autocorrelation32(workspace->combined,workspace->positive_row0);
+
+    uint32_t peak_count=0u;
+    float peak_sum=0.0f;
+    const float one_over_16=f32_bits(0x3d800000u);
+    for(uint32_t lane=2u;lane<=29u;lane++){
+        if(stage_b_rt_local_max2(workspace->combined,lane)&&threshold<workspace->combined[lane]){
+            peak_count++;
+            peak_sum=fmaf(workspace->combined[lane],one_over_16,peak_sum);
+        }
+    }
+
+    const float count_unit=f32_bits(0x38000000u);
+    output[1]=(float)((double)((float)peak_count*count_unit)*1024.0);
+    if(peak_count==0u){
+        output[0]=0.0f;
+    }else{
+        const float average=stage_b_rt_reciprocal_count(peak_count)*peak_sum;
+        output[0]=stage_b_rt_transfer_log(fmaf(average,16.0f,f32_bits(0x3c800000u)),6);
+    }
+
+    float *maxima=workspace->positive_row1;
+    float *minima=workspace->normalized_row0;
+    uint32_t maximum_count=0u,minimum_count=0u;
+    const float maximum_floor=f32_bits(0x3bcccccdu);
+    for(uint32_t lane=2u;lane<=22u;lane++){
+        if(stage_b_rt_local_max2(workspace->positive_row0,lane)&&
+           maximum_floor<workspace->positive_row0[lane])
+            maxima[maximum_count++]=workspace->positive_row0[lane];
+        if(stage_b_rt_local_min2(workspace->positive_row0,lane))
+            minima[minimum_count++]=workspace->positive_row0[lane];
+    }
+
+    const uint32_t maximum_use=maximum_count<2u?maximum_count:2u;
+    const uint32_t minimum_use=minimum_count<2u?minimum_count:2u;
+    stage_b_rt_sort_ascending(maxima,maximum_count);
+    stage_b_rt_sort_ascending(minima,minimum_count);
+
+    float metric=0.0f;
+    if(maximum_use!=0u){
+        const float *selected=maxima+(maximum_count-maximum_use);
+        const float scale=f32_bits(0x3d000000u);
+        float sum=selected[0]*scale;
+        for(uint32_t lane=1u;lane<maximum_use;lane++)sum=fmaf(selected[lane],scale,sum);
+        metric=stage_b_rt_reciprocal_count(maximum_use)*sum;
+        metric*=f32_bits(0x42000000u);
+    }
+    output[2]=metric*0.5f;
+
+    const float valley=minimum_use?stage_b_rt_mean_top2(minima,minimum_use):0.0f;
+    if(valley==0.0f){
+        metric=0.0f;
+    }else if(f32_bits(0x39000000u)<=valley){
+        const int32_t valley_shift=stage_b_rt_spectral_shift(valley);
+        const float numerator=stage_b_rt_pow2_integer(valley_shift-13)*metric;
+        const float denominator=stage_b_rt_pow2_integer(valley_shift)*valley;
+        metric=(float)((double)numerator/(double)denominator);
+    }
+    output[3]=metric;
+}
+
 float ubig_stage_b_rt_deviation32(float mean,const float input[32],uint32_t shift)
 {
     if(!input)return 0.0f;

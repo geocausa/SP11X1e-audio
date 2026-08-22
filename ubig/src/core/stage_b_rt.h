@@ -476,6 +476,14 @@ void ubig_stage_b_rt_slope32_prepare(const float row0[UBIG_STAGE_B_RT_SLOPE32_VA
                                      const float row1[UBIG_STAGE_B_RT_SLOPE32_VALUES],
                                      UbigStageBRtSlope32 *output);
 
+#define UBIG_STAGE_B_RT_SLOPE_FEATURES 4u
+
+/* Exact deployed feature reducer for the dual-row slope workspace. The
+ * reducer intentionally reuses the positive-row banks as correlation/peak
+ * scratch, matching the following lower-scheduler lifetime. */
+void ubig_stage_b_rt_slope32_features(UbigStageBRtSlope32 *workspace,
+                                      float output[UBIG_STAGE_B_RT_SLOPE_FEATURES]);
+
 /* Exact 32-value RMS deviation around a caller-supplied mean. shift is the
  * binary normalization exponent selected by the enclosing cadence transform. */
 float ubig_stage_b_rt_deviation32(float mean,const float input[32],uint32_t shift);
