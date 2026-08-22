@@ -161,3 +161,7 @@ Promoted-source private differential: **1,000,000 direct statistic calls bit-exa
 ## Strided 32x8 cadence statistics
 
 `ubig_stage_b_rt_stat32_columns()` gathers up to eight columns from a semantic 32x8 row-major history matrix, applies the native 32-value statistic to each active column, preserves inactive output lanes, and advances the shared 32-slot cursor. Promoted-source private differential: **500,000 complete randomized calls bit-exact**, comparing the complete reference state, both eight-value output banks, scratch row and cursor across active counts 0..8. Public lifecycle hash: `569ae074f27f9d2e`.
+
+## Circular 32x8 cadence statistics
+
+`ubig_stage_b_rt_stat32_ring_columns()` builds the lower-cadence circular sample window for each of eight history columns: rows from the current cursor through row 31 are copied first, then a caller-sized prefix after wrap is appended to the visible 64-float scratch. The first 32 samples feed the exact shared statistic and the cursor advances by its caller-owned step. Promoted-source private differential: **500,000 complete randomized calls bit-exact**, including the full matrix state, both output banks, all 64 scratch floats and cursor across prefix counts 0..32. Public lifecycle hash: `c9f97bfc431c117d`.

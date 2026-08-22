@@ -399,3 +399,7 @@ The shared lower-cadence 32-value mean/deviation primitive is native as `ubig_st
 ### Stage-B RT strided column-statistics closure
 
 The lower-cadence 32x8 column gather/statistic wrapper is native as `ubig_stage_b_rt_stat32_columns()`. Promoted source matches **500,000 complete randomized DLL calls bit-exact** across counts 0..8, full state, both output banks, scratch and cursor. Public lifecycle hash: `569ae074f27f9d2e`.
+
+### Stage-B RT circular column-statistics closure
+
+The medium lower-cadence circular 32x8 window/statistic transform is native as `ubig_stage_b_rt_stat32_ring_columns()`. Promoted source matches **500,000 complete randomized DLL calls bit-exact**, including the complete visible 64-float scratch tail, matrix state, outputs and cursor. Public lifecycle hash: `c9f97bfc431c117d`.

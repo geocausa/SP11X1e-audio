@@ -479,6 +479,16 @@ void ubig_stage_b_rt_stat32_columns(UbigStageBRtStatCursor *cursor,
                                     float mean[UBIG_STAGE_B_RT_STAT_COLUMNS],
                                     float deviation[UBIG_STAGE_B_RT_STAT_COLUMNS]);
 
+/* Build each column's circular 32-sample window beginning at cursor->index,
+ * append prefix_count rows after wrap into the visible 64-float scratch, then
+ * compute the exact statistic from the first 32 samples. */
+void ubig_stage_b_rt_stat32_ring_columns(UbigStageBRtStatCursor *cursor,
+                                         const float matrix[32][UBIG_STAGE_B_RT_STAT_COLUMNS],
+                                         uint32_t prefix_count,
+                                         float scratch[64],
+                                         float mean[UBIG_STAGE_B_RT_STAT_COLUMNS],
+                                         float deviation[UBIG_STAGE_B_RT_STAT_COLUMNS]);
+
 #define UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH 32u
 #define UBIG_STAGE_B_RT_FEATURE_RECORD_VALUES 20u
 #define UBIG_STAGE_B_RT_FEATURE_SEGMENTS 8u

@@ -1356,6 +1356,25 @@ void ubig_stage_b_rt_stat32_columns(UbigStageBRtStatCursor *cursor,
     cursor->index=next;
 }
 
+void ubig_stage_b_rt_stat32_ring_columns(UbigStageBRtStatCursor *cursor,
+                                         const float matrix[32][UBIG_STAGE_B_RT_STAT_COLUMNS],
+                                         uint32_t prefix_count,
+                                         float scratch[64],
+                                         float mean[UBIG_STAGE_B_RT_STAT_COLUMNS],
+                                         float deviation[UBIG_STAGE_B_RT_STAT_COLUMNS])
+{
+    if(!cursor||!matrix||!scratch||!mean||!deviation||prefix_count>32u)return;
+    for(uint32_t column=0u;column<UBIG_STAGE_B_RT_STAT_COLUMNS;column++){
+        uint32_t out=0u;
+        for(uint32_t row=cursor->index;row<32u;row++)scratch[out++]=matrix[row][column];
+        for(uint32_t row=0u;row<prefix_count;row++)scratch[out++]=matrix[row][column];
+        ubig_stage_b_rt_stat32(scratch,&mean[column],&deviation[column]);
+    }
+    uint32_t next=cursor->index+cursor->step;
+    if(next>=32u)next-=32u;
+    cursor->index=next;
+}
+
 static float stage_b_rt_reduce32_exact(const float values[UBIG_STAGE_B_RT_FEATURE_HISTORY_DEPTH],
                                        int32_t shift)
 {
