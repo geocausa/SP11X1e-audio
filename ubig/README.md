@@ -2,7 +2,7 @@
 
 UbiG is the native userspace speaker-DSP replacement project for the Surface Pro 11 audio path.
 
-The project goal is to replace the two proprietary Windows userspace DSP binaries currently used by the Linux reference path with independently maintained native code, while preserving the already-working Qualcomm AudioReach/ADSP firmware path and Golden v32 kernel/hardware integration.
+The project goal is to replace the two proprietary Windows userspace DSP binaries used by the Golden Linux reference path with independently maintained native code, while preserving the already-working Qualcomm AudioReach/ADSP firmware path and Golden v32 kernel/hardware integration.
 
 ## Rules
 
@@ -28,4 +28,6 @@ See `docs/ROADMAP.md` and `docs/ARCHITECTURE.md`.
 
 ## Current native playback boundary
 
-`ubig_engine_process()` now executes the native SP11 Stage-A path behind the decoded 256-frame accumulator. The preserved Dynamic reference fixture is bit-exact through the public engine boundary. Dynamic, Game, Voice, Course and Custom use the recovered common first-stage family; Movie and Music are temporarily rejected with the unsupported-profile path until their alternate first-stage tuning is recovered. Stage B / second-stage behavior remains future M4 work.
+`ubig_engine_process()` executes the native SP11 Stage-A path for all seven public profiles behind the decoded 256-frame accumulator. The tracked SP11 LADSPA candidate combines that engine with the source-owned Stage-B realtime path, consumes only an owner-supplied external corrected-v3 state/tuning pack, and fails closed when the pack is absent. It has no PE-loader boundary and does not open either proprietary Dolby userspace binary.
+
+The disposable candidate is currently passing the first live M6 integration gates on SP11: profile and non-flat Custom switching, endpoint postgain, mute/unmute, idle/wake, repeated stream lifecycle, and bounded WSA status/fault observation all preserve the Golden v32 kernel and hardware contract. It is not yet promoted as the permanent default. Remaining promotion gates are audible physical acoustic comparison against Windows, seek behavior, longer physical-output protection telemetry, and an over-eight-hour stability run. See `docs/STATUS.md` and `docs/ROADMAP.md` for the evidence and exact qualification boundary.

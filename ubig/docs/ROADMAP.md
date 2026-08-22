@@ -138,7 +138,7 @@ Required gates include:
 - repeated playback (**20-cycle short gate passing**)
 - zero NaN/Inf/xrun regression attributable to UbiG
 - physical acoustic matrix against Windows reference
-- PA/protection telemetry unchanged from Golden v32
+- PA/protection telemetry unchanged from Golden v32 (**bounded active-status/fault subgate passing; longer physical-output telemetry remains**)
 
 Only after these gates pass may the installed Windows-binary bridge be removed.
 
