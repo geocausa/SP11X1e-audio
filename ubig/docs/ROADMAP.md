@@ -92,7 +92,7 @@ Current checkpoint: the SP11 48 kHz Stage-A scheduler is native and reaches the 
 
 Reconstruct only the SP11 stereo speaker behavior actually exercised by the endpoint:
 
-Current progress: the shipped built-in-profile Stage-B route is source-owned through realtime processing, direct inner streaming, cold wrapper construction and scalar profile retargeting. The corrected nonzero v3 lab checkpoint loads endpoint-specific state/tuning only from an owner-supplied external data pack; it contains no PE-loader boundary and opens neither `DolbyAPOVR.dll` nor `DolbyAPOvlldp150.dll`. All seven fixed profiles, deterministic live switching, randomized 33-switch stress and host-chunk schedules remain bit-exact to the trustworthy nonzero reference. The old compact v2/34x64 proof is retired because its acceptance oracle had collapsed to zero PCM. Remaining M4 work is the explicit Custom/GEQ cold-control path plus promotion-quality pack/deployment plumbing; built-in-profile proprietary-binary removal is now proven in the private lab chain.
+Current progress: the shipped Stage-B route is source-owned through realtime processing, direct inner streaming, cold wrapper construction, scalar profile retargeting and the explicit non-flat Custom/GEQ control path. The corrected nonzero v3 lab checkpoint loads endpoint-specific state/tuning only from an owner-supplied external data pack; it contains no PE-loader boundary and opens neither `DolbyAPOVR.dll` nor `DolbyAPOvlldp150.dll`. All seven fixed profiles, deterministic live switching, randomized 33-switch stress and host-chunk schedules remain bit-exact to the trustworthy nonzero reference. The Custom mapper/runtime auxiliary path is separately differential-tested against the reference helpers, including deterministic and randomized live switching with non-flat GEQ. The old compact v2/34x64 proof is retired because its acceptance oracle had collapsed to zero PCM. Remaining M4 work is promotion-quality pack/deployment plumbing and final production integration rather than missing Custom DSP/control semantics.
 
 - effective stereo output-mode policy
 - Volume Leveler / DRC including long-memory adaptive controller
@@ -107,7 +107,7 @@ Current progress: the shipped built-in-profile Stage-B route is source-owned thr
 
 Do not implement dormant spatial/ASAR features unless a runtime oracle proves they are required by the built-in stereo speaker path.
 
-Exit: no proprietary userspace DSP binary is loaded in the UbiG lab chain. **Built-in-profile binary-removal gate reached by the corrected v3 private checkpoint; full M4 feature gate remains open for Custom/GEQ.**
+Exit: no proprietary userspace DSP binary is loaded in the UbiG lab chain. **The corrected v3 private checkpoint now reaches this semantic feature gate for built-in profiles and non-flat Custom/GEQ; production promotion/deployment plumbing remains before M4 can be treated as release-complete.**
 
 ### M5 — control service and application
 

@@ -1006,6 +1006,9 @@ typedef struct {
     const int32_t *deep_status;
     const UbigStageBRtDeepControllerControls *deep_controls;
     const UbigStageBRtLateControllerConfig *late_config;
+    const float *band_aux;
+    int32_t band_aux_meter_scale;
+    int32_t *band_aux_meter;
 } UbigStageBRtLatePipelineConfig;
 
 /* Deployed semantic composition of hot parent 0x180056B80. Shipped geometry
@@ -1158,6 +1161,43 @@ void ubig_stage_b_rt_stream256_process(UbigStageBRtStream256State *state,
                                        float *host_output,const float *host_input,
                                        uint32_t frames,UbigStageBRtStream256BlockFn process_block,
                                        void *context);
+
+#define UBIG_STAGE_B_RT_BAND_CONTROL_POINTS 20u
+
+typedef struct {
+    float weight[UBIG_STAGE_B_RT_BAND_CONTROL_POINTS];
+    uint32_t lower_index[UBIG_STAGE_B_RT_BAND_CONTROL_POINTS];
+    uint32_t output_count;
+    uint32_t control_count;
+    int32_t control_frequency[UBIG_STAGE_B_RT_BAND_CONTROL_POINTS];
+} UbigStageBRtBandControlMap;
+
+/* Exact SP11 cold-control interpolation-grid builder at reference 0x18004C560.
+ * Frequencies are integer Hz in the recovered endpoint contract. Control
+ * frequencies are clamped to 20..20000 and must be strictly increasing. The
+ * return value is 0 for an unchanged grid, 1 when rebuilt, and 2 for an
+ * invalid control grid. The shipped endpoint uses 20 output/control points. */
+uint32_t ubig_stage_b_rt_band_control_map_prepare(
+    UbigStageBRtBandControlMap *state,
+    const int32_t *output_frequency,uint32_t output_count,
+    const int32_t *control_frequency,uint32_t control_count);
+
+/* Exact target interpolator at reference 0x18004C8E8. It applies one integer
+ * control vector through a prepared grid, clamps each source control to the
+ * caller-owned range, and preserves the shipped float32/FMA/floor conversion
+ * schedule. Returns 1 iff any output value changed. */
+uint32_t ubig_stage_b_rt_band_target_apply(
+    const UbigStageBRtBandControlMap *state,int32_t *output,
+    const int32_t *target,int32_t lower,int32_t upper);
+
+/* Exact optional per-band adjustment at reference 0x1800569A0. The same
+ * caller-owned offset is added to every active row, with the analysis row
+ * floored at -1 while the output row remains unclamped. When a meter is
+ * supplied, floor(offset*meter_scale) is accumulated per band. */
+void ubig_stage_b_rt_band_aux_apply(UbigStageBRtBandRows *analysis_rows,
+                                    UbigStageBRtBandRows *output_rows,
+                                    const float *offset,int32_t meter_scale,
+                                    int32_t *meter);
 
 /* Exact bounded band-floor normalizer at reference 0x180074220. The 20-band
  * weight vector is caller-owned. Ratio formation intentionally widens the two

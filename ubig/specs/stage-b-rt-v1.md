@@ -483,7 +483,17 @@ Once the downstream Stage-B audio path is source-owned, the raw dirty-configurat
 
 ## Built-in profile property boundary
 
-The shipped seven-profile control path no longer requires the VR scalar property-handler code bodies. The integration adapter owns their exact clamping/scaling and raw dirty-field updates; reference handlers remain a private ABI oracle only. After the recovered audio route became source-owned, the built-in-profile output-mode, frequency-grid/target and regulator-derived-table builders are likewise observationally dead: poisoning `0x32320`, `0x4C560`, `0x4C8E8` and `0x463C0` preserves both fixed and live-switch differentials. This result does not cover an explicit user-provided Custom/GEQ curve, whose semantic target programming remains a separate control feature.
+The shipped seven-profile control path no longer requires the VR scalar property-handler code bodies. The integration adapter owns their exact clamping/scaling and raw dirty-field updates; reference handlers remain a private ABI oracle only. After the recovered audio route became source-owned, the built-in-profile output-mode, frequency-grid/target and regulator-derived-table builders are likewise observationally dead: poisoning `0x32320`, `0x4C560`, `0x4C8E8` and `0x463C0` preserves both fixed and live-switch differentials. This built-in-profile result is independent of the explicit Custom/GEQ semantics below.
+
+## Custom/GEQ semantic control boundary
+
+`ubig_stage_b_rt_band_control_map_prepare()` is the table-free semantic form of reference `0x18004C560`. It owns a caller-visible 20-point interpolation map, clamps control frequencies to 20..20000 Hz, rejects non-increasing control grids, and preserves the reference float32-to-binary64 interpolation boundary. Direct randomized reference differential: **500,000 calls bit-exact**.
+
+`ubig_stage_b_rt_band_target_apply()` is the semantic form of `0x18004C8E8`. It clamps each integer control target to caller-owned bounds, interpolates through the prepared map and preserves the reference float32/FMA/floor Q15-style conversion. Direct randomized reference differential: **1,000,000 calls bit-exact**. The public combined grid/target regression hash is `5bc02567a90e1c28`.
+
+`ubig_stage_b_rt_band_aux_apply()` is the semantic form of runtime helper `0x1800569A0`. For each active row it adds the caller-owned per-band offset, floors the analysis side at -1 while leaving the output side unclamped, and optionally adds `floor(offset * meter_scale)` to the caller-owned meter. Direct randomized reference differential: **1,000,000 calls bit-exact**; public regression hash `b3edc401cfc13040`. `UbigStageBRtLatePipelineConfig` exposes this branch as an optional auxiliary-band vector, meter scale and meter pointer, and the parent executes it immediately after band-log analysis, matching the reference order. Expanded late-pipeline lifecycle hash: `1d740803e731f73e`.
+
+For the recovered SP11 Custom contract, the cold control path uses the 20 endpoint center frequencies already present in the profile contract and target range `[-192,+192]`; the internal mapper is invoked with its recovered wider clamp range and the resulting integer vector is converted to the runtime auxiliary offset with exact scale bits `0x39fc0fc1`. A private corrected-v3 differential compares native mapping against the two reference mapper helpers while keeping the same semantic native runtime path. It is exact for a 200,000-frame non-flat Custom run, ten randomized Custom curves, deterministic all-profile switching (**0 / 1,536,000 differences**) and randomized 33-switch stress (**0 / 2,880,000 differences**).
 
 ## Direct inner-runtime integration boundary
 

@@ -2767,6 +2767,9 @@ void ubig_stage_b_rt_late_pipeline_process(
     UbigStageBRtTelemetryRows telemetry={telemetry_rows};
     ubig_stage_b_rt_band_log_process(0.0f,config->analysis_offset,groups,0,
                                      config->band_ends,map,analysis_rows,&telemetry);
+    if(config->band_aux)
+        ubig_stage_b_rt_band_aux_apply(analysis_rows,output_rows,config->band_aux,
+                                       config->band_aux_meter_scale,config->band_aux_meter);
     ubig_stage_b_rt_linked_row_accumulate(analysis_rows,linked_accumulator);
 
     ubig_stage_b_rt_deep_controller_process(state->late.output,&state->deep,
@@ -4059,6 +4062,142 @@ void ubig_stage_b_rt_stream256_process(UbigStageBRtStream256State *state,
         host_output+=(size_t)state->processed_channels*take;
         state->position=position+take;
         frames-=take;
+    }
+}
+
+uint32_t ubig_stage_b_rt_band_control_map_prepare(
+    UbigStageBRtBandControlMap *state,
+    const int32_t *output_frequency,uint32_t output_count,
+    const int32_t *control_frequency,uint32_t control_count)
+{
+    if(!state||!output_frequency||!control_frequency||
+       output_count>UBIG_STAGE_B_RT_BAND_CONTROL_POINTS)return 2u;
+
+    uint32_t changed=(control_count!=state->control_count);
+    uint32_t valid=(control_count<=UBIG_STAGE_B_RT_BAND_CONTROL_POINTS);
+    uint32_t i=0u;
+    if(valid){
+        for(;;){
+            if(i>=control_count)break;
+            uint32_t value=(uint32_t)control_frequency[i];
+            if(value<20u)value=20u;
+            if(value>=20000u)value=20000u;
+            if(i!=0u && value<=(uint32_t)state->control_frequency[i-1u])valid=0u;
+            else valid=1u;
+            if(!changed)changed=((uint32_t)state->control_frequency[i]!=value);
+            if(!(valid&&changed)){i++;if(valid)continue;break;}
+            state->control_frequency[i]=(int32_t)value;
+            i++;
+        }
+    }
+    if(!valid){
+        state->control_frequency[0]=0;
+        state->control_frequency[1]=0;
+        return 2u;
+    }
+    if(!changed)return 0u;
+
+    state->output_count=output_count;
+    state->control_count=control_count;
+    uint32_t cursor=0u;
+    const float scale=f32_bits(0x38000000u);
+    for(uint32_t k=0u;k<output_count;k++){
+        float weight;
+        uint32_t index;
+        const uint32_t frequency=(uint32_t)output_frequency[k];
+        if(control_count<2u || frequency<=(uint32_t)state->control_frequency[0]){
+            weight=0.5f;
+            index=0u;
+        }else if(frequency>=(uint32_t)state->control_frequency[control_count-1u]){
+            weight=0.0f;
+            index=control_count-2u;
+        }else{
+            while(cursor<control_count-1u){
+                const uint32_t lo=(uint32_t)state->control_frequency[cursor];
+                const uint32_t hi=(uint32_t)state->control_frequency[cursor+1u];
+                if(frequency>=lo&&frequency<hi)break;
+                cursor++;
+            }
+            const float next_scaled=(float)state->control_frequency[cursor+1u]*scale;
+            const float next_quarter=next_scaled*0.25f;
+            const float frequency_scaled=(float)(int32_t)frequency*scale;
+            const float numerator=fmaf(frequency_scaled,0.25f,-next_quarter);
+            const float next_half=next_scaled*0.5f;
+            const float current_scaled=(float)state->control_frequency[cursor]*scale;
+            const float denominator=fmaf(current_scaled,0.5f,-next_half);
+            weight=(float)((double)numerator/(double)denominator);
+            index=cursor;
+        }
+        state->lower_index[k]=index;
+        state->weight[k]=weight;
+    }
+    return 1u;
+}
+
+static int32_t stage_b_rt_clamp_i32(int32_t value,int32_t lower,int32_t upper)
+{
+    if(value<lower)value=lower;
+    if(value>upper)value=upper;
+    return value;
+}
+
+uint32_t ubig_stage_b_rt_band_target_apply(
+    const UbigStageBRtBandControlMap *state,int32_t *output,
+    const int32_t *target,int32_t lower,int32_t upper)
+{
+    if(!state||!output||!target||state->output_count>UBIG_STAGE_B_RT_BAND_CONTROL_POINTS||
+       state->control_count>UBIG_STAGE_B_RT_BAND_CONTROL_POINTS)return 0u;
+    uint32_t changed=0u;
+    const float scale=f32_bits(0x38000000u);
+    const float q15=f32_bits(0x47000000u);
+    for(uint32_t i=0u;i<state->output_count;i++){
+        int32_t value;
+        if(state->control_count<2u){
+            value=stage_b_rt_clamp_i32(target[0],lower,upper);
+        }else{
+            const uint32_t index=state->lower_index[i];
+            if(index+1u>=state->control_count)return changed;
+            const float weight=state->weight[i];
+            const int32_t high=stage_b_rt_clamp_i32(target[index+1u],lower,upper);
+            const int32_t low=stage_b_rt_clamp_i32(target[index],lower,upper);
+            const float high_scaled=(float)high*scale;
+            const float high_term=high_scaled*(0.5f-weight);
+            const float low_scaled=(float)low*scale;
+            const float mixed=fmaf(low_scaled,weight,high_term);
+            const float doubled=mixed+mixed;
+            const float scaled=doubled*q15;
+            const int32_t rounded=(int32_t)floorf(scaled);
+            value=(rounded<32768)?rounded:32767;
+        }
+        if(output[i]!=value){output[i]=value;changed=1u;}
+    }
+    return changed;
+}
+
+void ubig_stage_b_rt_band_aux_apply(UbigStageBRtBandRows *analysis_rows,
+                                    UbigStageBRtBandRows *output_rows,
+                                    const float *offset,int32_t meter_scale,
+                                    int32_t *meter)
+{
+    if(!analysis_rows||!output_rows||!offset||!analysis_rows->rows||!output_rows->rows)return;
+    const uint32_t rows=analysis_rows->row_count;
+    const uint32_t width=analysis_rows->band_count;
+    if(output_rows->row_count<rows||output_rows->band_count<width)return;
+    for(uint32_t row=0u;row<rows;row++){
+        float *analysis=analysis_rows->rows[row];
+        float *output=output_rows->rows[row];
+        if(!analysis||!output)return;
+        for(uint32_t i=0u;i<width;i++){
+            float next=analysis[i]+offset[i];
+            if(!(next>-1.0f))next=-1.0f;
+            analysis[i]=next;
+            output[i]=output[i]+offset[i];
+        }
+    }
+    if(meter){
+        const float scale=(float)meter_scale;
+        for(uint32_t i=0u;i<width;i++)
+            meter[i]+=(int32_t)floorf(offset[i]*scale);
     }
 }
 
