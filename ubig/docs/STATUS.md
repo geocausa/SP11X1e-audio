@@ -464,7 +464,7 @@ The scalar parent at reference VA `0x180058480`, immediately above the now-nativ
 
 ### Stage-B outer-route Q31 and deployed dead-branch census
 
-The five live unit-float/Q31 conversions in outer reference parent `0x1800376B0` are native as `ubig_stage_b_rt_q31_encode()`. The promoted helper matches **1,000,000 caller-equivalent randomized conversions bit-exact** against CRT boundary `0x1801C2638`; public hash `26cd2dbd9bad0811`.
+The five live unit-float/Q31 conversions in outer reference parent `0x1800376B0` are native as `ubig_stage_b_rt_q31_encode()`. A strengthened promoted gate now covers arbitrary finite binary32 mantissas and confirms the CRT helper rounds scaled values to nearest-even; **3,000,000 caller-equivalent conversions are bit-exact** against boundary `0x1801C2638`; public hash `022d210f8a601583`.
 
 A full direct-call census of `0x1800376B0` across all seven shipped profiles materially shrinks the remaining parent. The already-native `0x58480`, `0x34B78`, `0x60200` and `0x5F5A8` paths are hot every block; `0x54A48` follows the known profile-selective policy. By contrast, the `0x34778` route selector always returns before its legacy `0x4F000`/`0x57130` children, and every later heavy direct-call island (`0x530C0`, `0x66798`, `0x42ED8`, `0x57B68`, `0x55048`, `0x525E8`, `0x57890`, `0xA0CD0`, `0xA0BF8`, `0x34DE0`, `0x35080`, `0x35C98`, `0x2AFD8`) records zero calls on every deployed profile under the complete plugin stress harness. Remaining `0x376B0` work is therefore the live inline orchestration/arithmetic around the native children rather than those legacy subtrees.
 
@@ -472,3 +472,10 @@ A full direct-call census of `0x1800376B0` across all seven shipped profiles mat
 ### Stage-B outer inline pair-transform closure
 
 The live inline two-row complex transform surrounding the native row workers in `0x1800376B0` is now semantic source as `ubig_stage_b_rt_pair_transform()`. Promoted source matches an exact ARM64 `fmul`/`fmadd`/`fnmsub` instruction oracle for **1,000,000 randomized complete transforms bit-exact** over the full deployed 0..77-bin range. The scale is caller-owned; public hash `923dba7f3410ff71`. Live parent capture confirms the shipped descriptor is invariant at two banks × four vectors × 77 complex bins, with mode 1 and both optional outer legacy branches disabled.
+
+
+### Stage-B outer control-export and worker-wiring closure
+
+The five-word control export immediately above native `0x180058480` is now `ubig_stage_b_rt_control_export_process()`. Its mapped-reference composition keeps the real scalar parent and real `0x1801C2638` CRT conversion active and passes **1,000,000 complete randomized calls bit-exact** across aggregate state plus all five signed-Q31 outputs. This exercise also exposed and corrected the earlier too-weak Q31 regression: the reference conversion is nearest-even, not truncating. Public control-export hash: `11ff042d4700b566`; strengthened Q31 hash: `022d210f8a601583`.
+
+Live typed capture also removes the remaining ambiguity around the hot universal worker descriptors in `0x1800376B0`. `0x180060200` receives two groups x four complex vectors, two 20-band output rows, map `{0,1}`, no auxiliary group, and cumulative boundaries ending at bin 77; `0x18005F5A8` receives the same map/bounds plus two 77-bin target objects and a null optional target descriptor. Those layouts are exactly the semantic contracts already owned by `ubig_stage_b_rt_band_log_process()` and `ubig_stage_b_rt_output_shape()`.

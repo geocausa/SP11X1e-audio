@@ -757,6 +757,14 @@ void ubig_stage_b_rt_control_aggregate_process(UbigStageBRtControlAggregateState
                                                uint32_t item_count,
                                                float output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS]);
 
+/* Exact five-word control export used by deployed outer parent 0x1800376B0:
+ * scalar aggregation at 0x180058480 followed by signed-Q31 conversion of all
+ * five outputs in their deployed 0x654..0x664 order. */
+void ubig_stage_b_rt_control_export_process(UbigStageBRtControlAggregateState *state,
+                                            const UbigStageBRtControlAggregateItem *items,
+                                            uint32_t item_count,
+                                            int32_t output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS]);
+
 /* Exact in-place two-row complex pair transform used immediately before and
  * after the universal Stage-B row workers. Scale is caller-owned. */
 void ubig_stage_b_rt_pair_transform(float *row_a,float *row_b,
@@ -764,7 +772,7 @@ void ubig_stage_b_rt_pair_transform(float *row_a,float *row_b,
 
 /* Exact deployed unit-float to signed Q31 conversion used five times per
  * active outer Stage-B block. Values >= +1 saturate to INT32_MAX and values
- * <= -1 saturate to INT32_MIN; interior values truncate toward zero. */
+ * <= -1 saturate to INT32_MIN; interior scaled values round to nearest-even. */
 int32_t ubig_stage_b_rt_q31_encode(float value);
 
 typedef struct {

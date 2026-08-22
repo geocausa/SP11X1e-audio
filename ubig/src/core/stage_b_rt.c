@@ -2541,6 +2541,18 @@ uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock)
     return actions;
 }
 
+void ubig_stage_b_rt_control_export_process(UbigStageBRtControlAggregateState *state,
+                                            const UbigStageBRtControlAggregateItem *items,
+                                            uint32_t item_count,
+                                            int32_t output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS])
+{
+    if(!state||!output||(item_count!=0u&&!items))return;
+    float scalar[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS];
+    ubig_stage_b_rt_control_aggregate_process(state,items,item_count,scalar);
+    for(uint32_t i=0u;i<UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS;i++)
+        output[i]=ubig_stage_b_rt_q31_encode(scalar[i]);
+}
+
 void ubig_stage_b_rt_pair_transform(float *row_a,float *row_b,
                                     uint32_t complex_bins,float scale)
 {
@@ -2562,7 +2574,7 @@ int32_t ubig_stage_b_rt_q31_encode(float value)
 {
     if(value>=1.0f)return INT32_C(0x7fffffff);
     if(value<=-1.0f)return INT32_MIN;
-    return (int32_t)(value*f32_bits(0x4f000000u));
+    return (int32_t)lrintf(value*f32_bits(0x4f000000u));
 }
 
 void ubig_stage_b_rt_universal_analysis_process(UbigStageBRtUniversalAnalysis *state,
