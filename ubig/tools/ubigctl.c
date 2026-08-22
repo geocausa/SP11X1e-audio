@@ -9,7 +9,8 @@ static void usage(const char *argv0)
         "usage:\n"
         "  %s status\n"
         "  %s profile <Dynamic|Movie|Music|Game|Voice|Course|Custom>\n"
-        "  %s eq v1,v2,...,v20   (raw values -192..192)\n", argv0, argv0, argv0);
+        "  %s eq v1,v2,...,v20   (raw values -192..192)\n"
+        "  %s postgain <-1200..0>  (raw 1/16-dB units)\n", argv0, argv0, argv0, argv0);
 }
 
 static int parse_eq(const char *s, int32_t out[UBIG_EQ_BANDS])
@@ -35,10 +36,11 @@ int main(int argc, char **argv)
         ubig_control_page p;
         rc=ubig_control_snapshot(&h,&p);
         if (!rc) {
-            printf("path=%s\nabi=%u\nrequest_generation=%u\nack_generation=%u\ndesired_profile=%s\nactive_profile=%s\nlast_error=%d\n",
+            printf("path=%s\nabi=%u\nrequest_generation=%u\nack_generation=%u\ndesired_profile=%s\nactive_profile=%s\ndesired_postgain=%d\nactive_postgain=%d\nlast_error=%d\n",
                    h.path,p.abi_version,p.request_generation,p.ack_generation,
                    ubig_profile_name((ubig_profile)p.desired_profile),
-                   ubig_profile_name((ubig_profile)p.active_profile),p.last_error);
+                   ubig_profile_name((ubig_profile)p.active_profile),
+                   p.desired_postgain,p.active_postgain,p.last_error);
         }
     } else if (!strcmp(argv[1],"profile") && argc==3) {
         ubig_profile p;
@@ -50,6 +52,11 @@ int main(int argc, char **argv)
         if (parse_eq(argv[2],eq)) rc=UBIG_EINVAL;
         else rc=ubig_control_request_custom_eq(&h,eq);
         if (!rc) printf("queued Custom EQ generation=%u\n",h.page->request_generation);
+    } else if (!strcmp(argv[1],"postgain") && argc==3) {
+        char *end=NULL; long raw=strtol(argv[2],&end,10);
+        if(end==argv[2] || *end || raw < -1200 || raw > 0) rc=UBIG_EINVAL;
+        else rc=ubig_control_request_postgain(&h,(int32_t)raw);
+        if(!rc) printf("queued postgain %ld generation=%u\n",raw,h.page->request_generation);
     } else {
         usage(argv[0]); rc=UBIG_EINVAL;
     }

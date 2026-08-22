@@ -95,6 +95,7 @@ typedef struct {
     int control_ready;
     int32_t custom_eq[UBIG_EQ_BANDS];
     int custom_eq_valid;
+    int32_t postgain;
 
 
     uint8_t *vr_inner;
@@ -315,13 +316,15 @@ static int chain_control_open(ChainInst *p){
     if(override&&*override&&(!strcasecmp(override,"off")||!strcasecmp(override,"none")||!strcmp(override,"0")))return 1;
     int rc=ubig_control_open(&p->control,override,1);if(rc)return rc;
     p->control_ready=1;
-    __atomic_store_n(&p->control.page->active_profile,(uint32_t)p->profile,__ATOMIC_RELEASE);
+    __atomic_store_n(&p->control.page->active_profile,(uint32_t)p->profile,__ATOMIC_RELAXED);
+    __atomic_store_n(&p->control.page->active_postgain,p->postgain,__ATOMIC_RELEASE);
     return 0;
 }
 
 static void chain_control_ack(ChainInst *p,uint32_t generation,int error){
     if(!p->control_ready||!p->control.page)return;
     __atomic_store_n(&p->control.page->active_profile,(uint32_t)p->profile,__ATOMIC_RELAXED);
+    __atomic_store_n(&p->control.page->active_postgain,p->postgain,__ATOMIC_RELAXED);
     __atomic_store_n(&p->control.page->last_error,error,__ATOMIC_RELAXED);
     __atomic_store_n(&p->control.page->ack_generation,generation,__ATOMIC_RELEASE);
 }
@@ -334,10 +337,19 @@ static int chain_apply_control_request(ChainInst *p){
     if(request.desired_profile>=UBIG_PROFILE_COUNT){chain_control_ack(p,generation,UBIG_EINVAL);return UBIG_EINVAL;}
     const ChainProfile next=(ChainProfile)request.desired_profile;
     const int has_eq=(request.desired_flags&UBIG_CONTROL_FLAG_CUSTOM_EQ_VALID)!=0u;
+    const int has_postgain=(request.desired_flags&UBIG_CONTROL_FLAG_POSTGAIN_VALID)!=0u;
+    if(has_postgain && (request.desired_postgain < -1200 || request.desired_postgain > 0)){
+        chain_control_ack(p,generation,UBIG_EINVAL);return UBIG_EINVAL;
+    }
     if(has_eq){
         for(unsigned i=0;i<UBIG_EQ_BANDS;i++)if(request.custom_eq[i]<-192||request.custom_eq[i]>192){chain_control_ack(p,generation,UBIG_EINVAL);return UBIG_EINVAL;}
         memcpy(p->custom_eq,request.custom_eq,sizeof p->custom_eq);p->custom_eq_valid=1;
         if(p->native_stage_a&&ubig_engine_set_custom_eq(p->native_stage_a,p->custom_eq)!=UBIG_OK){chain_control_ack(p,generation,UBIG_ESTATE);return UBIG_ESTATE;}
+    }
+    if(has_postgain){
+        rc=p->native_stage_a?ubig_engine_set_postgain(p->native_stage_a,request.desired_postgain):UBIG_ESTATE;
+        if(rc!=UBIG_OK){chain_control_ack(p,generation,rc);return rc;}
+        p->postgain=request.desired_postgain;
     }
     if(next!=(ChainProfile)p->profile)rc=chain_apply_profile_inplace(p,next);
     else if(next==CHAIN_PROFILE_PERSONALIZE&&has_eq){
@@ -1394,6 +1406,7 @@ static LADSPA_Handle chain_instantiate(const LADSPA_Descriptor*d,unsigned long r
     (void)d;if(rate!=48000)return NULL;
     ChainInst *p=calloc(1,sizeof(*p));if(!p)return NULL;
     p->profile=chain_profile_from_env();
+    p->postgain=0;
     p->last_profile_request=-2;
     p->control.fd=-1;
     if(chain_alloc(p)){chain_free_mem(p);free(p);return NULL;}

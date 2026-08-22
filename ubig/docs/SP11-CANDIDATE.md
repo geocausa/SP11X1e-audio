@@ -10,7 +10,7 @@ Build with:
 make -C ubig candidate-ladspa
 ```
 
-The candidate fails closed unless `UBIG_SP11_STAGEB_PACK` names a structurally valid corrected-v3 private pack. `SP11_VR_STAGEB_PACK` is accepted only as a temporary laboratory compatibility alias. Startup profile and Custom EQ can be supplied by `UBIG_PROFILE` / `UBIG_GEQ`; ordinary runtime control uses the public `ubig-control-v1` mmap ABI used by `ubigctl`.
+The candidate fails closed unless `UBIG_SP11_STAGEB_PACK` names a structurally valid corrected-v3 private pack. `SP11_VR_STAGEB_PACK` is accepted only as a temporary laboratory compatibility alias. Startup profile and Custom EQ can be supplied by `UBIG_PROFILE` / `UBIG_GEQ`; ordinary runtime control uses the public `ubig-control-v2` mmap ABI used by `ubigctl`, including profile, Custom EQ and endpoint postgain requests.
 
 A private-pack control lifecycle gate is available as:
 

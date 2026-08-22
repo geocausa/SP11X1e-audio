@@ -9,8 +9,9 @@ extern "C" {
 #endif
 
 #define UBIG_CONTROL_MAGIC 0x55424947u /* 'UBIG' */
-#define UBIG_CONTROL_ABI_VERSION 1u
+#define UBIG_CONTROL_ABI_VERSION 2u
 #define UBIG_CONTROL_FLAG_CUSTOM_EQ_VALID (1u << 0)
+#define UBIG_CONTROL_FLAG_POSTGAIN_VALID  (1u << 1)
 
 typedef struct ubig_control_page {
     uint32_t magic;
@@ -24,10 +25,12 @@ typedef struct ubig_control_page {
     uint32_t active_profile;
     uint32_t desired_flags;
     int32_t  custom_eq[UBIG_EQ_BANDS];
+    int32_t  desired_postgain;
+    int32_t  active_postgain;
 
     int32_t  last_error;
     uint32_t engine_flags;
-    uint32_t reserved[12];
+    uint32_t reserved[10];
 } ubig_control_page;
 
 typedef struct ubig_control_handle {
@@ -41,6 +44,7 @@ void ubig_control_close(ubig_control_handle *h);
 int ubig_control_snapshot(const ubig_control_handle *h, ubig_control_page *out);
 int ubig_control_request_profile(ubig_control_handle *h, ubig_profile profile);
 int ubig_control_request_custom_eq(ubig_control_handle *h, const int32_t values[UBIG_EQ_BANDS]);
+int ubig_control_request_postgain(ubig_control_handle *h, int32_t postgain);
 
 #ifdef __cplusplus
 }

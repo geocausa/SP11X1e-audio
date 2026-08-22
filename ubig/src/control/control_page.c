@@ -15,8 +15,8 @@ static int resolve_path(char out[512], const char *override)
         return snprintf(out, 512, "%s", override) < 512 ? 0 : -1;
     const char *rt = getenv("XDG_RUNTIME_DIR");
     if (rt && *rt)
-        return snprintf(out, 512, "%s/ubig-control-v1", rt) < 512 ? 0 : -1;
-    return snprintf(out, 512, "/run/user/%lu/ubig-control-v1", (unsigned long)getuid()) < 512 ? 0 : -1;
+        return snprintf(out, 512, "%s/ubig-control-v2", rt) < 512 ? 0 : -1;
+    return snprintf(out, 512, "/run/user/%lu/ubig-control-v2", (unsigned long)getuid()) < 512 ? 0 : -1;
 }
 
 int ubig_control_open(ubig_control_handle *h, const char *override, int create)
@@ -52,6 +52,8 @@ int ubig_control_open(ubig_control_handle *h, const char *override, int create)
         h->page->struct_bytes = sizeof(ubig_control_page);
         h->page->desired_profile = UBIG_PROFILE_DYNAMIC;
         h->page->active_profile = UBIG_PROFILE_DYNAMIC;
+        h->page->desired_postgain = 0;
+        h->page->active_postgain = 0;
         __atomic_store_n(&h->page->magic, UBIG_CONTROL_MAGIC, __ATOMIC_RELEASE);
         msync(h->page, sizeof(*h->page), MS_SYNC);
     }
@@ -98,6 +100,16 @@ int ubig_control_request_custom_eq(ubig_control_handle *h, const int32_t v[UBIG_
     uint32_t flags=__atomic_load_n(&h->page->desired_flags,__ATOMIC_RELAXED);
     __atomic_store_n(&h->page->desired_flags, flags|UBIG_CONTROL_FLAG_CUSTOM_EQ_VALID, __ATOMIC_RELAXED);
     __atomic_store_n(&h->page->desired_profile, UBIG_PROFILE_CUSTOM, __ATOMIC_RELAXED);
+    __atomic_add_fetch(&h->page->request_generation, 1u, __ATOMIC_RELEASE);
+    return UBIG_OK;
+}
+
+int ubig_control_request_postgain(ubig_control_handle *h, int32_t postgain)
+{
+    if (!h || !h->page || postgain < -1200 || postgain > 0) return UBIG_EINVAL;
+    __atomic_store_n(&h->page->desired_postgain, postgain, __ATOMIC_RELAXED);
+    uint32_t flags=__atomic_load_n(&h->page->desired_flags,__ATOMIC_RELAXED);
+    __atomic_store_n(&h->page->desired_flags, flags|UBIG_CONTROL_FLAG_POSTGAIN_VALID, __ATOMIC_RELAXED);
     __atomic_add_fetch(&h->page->request_generation, 1u, __ATOMIC_RELEASE);
     return UBIG_OK;
 }
