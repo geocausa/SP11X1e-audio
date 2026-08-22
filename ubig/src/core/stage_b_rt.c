@@ -1296,6 +1296,222 @@ float ubig_stage_b_rt_scaled_sum(const float *input,uint32_t count,int32_t expon
     return sum;
 }
 
+typedef struct { float lane[4]; } StageBRtVec4;
+
+static StageBRtVec4 stage_b_rt_v4_load(const float *src)
+{
+    StageBRtVec4 out;
+    memcpy(out.lane,src,sizeof out.lane);
+    return out;
+}
+
+static void stage_b_rt_v4_store(float *dst,StageBRtVec4 value)
+{
+    memcpy(dst,value.lane,sizeof value.lane);
+}
+
+static StageBRtVec4 stage_b_rt_v4_add(StageBRtVec4 a,StageBRtVec4 b)
+{
+    StageBRtVec4 out;
+    for(uint32_t i=0u;i<4u;i++)out.lane[i]=a.lane[i]+b.lane[i];
+    return out;
+}
+
+static StageBRtVec4 stage_b_rt_v4_sub(StageBRtVec4 a,StageBRtVec4 b)
+{
+    StageBRtVec4 out;
+    for(uint32_t i=0u;i<4u;i++)out.lane[i]=a.lane[i]-b.lane[i];
+    return out;
+}
+
+static StageBRtVec4 stage_b_rt_v4_mul(StageBRtVec4 a,StageBRtVec4 b)
+{
+    StageBRtVec4 out;
+    for(uint32_t i=0u;i<4u;i++)out.lane[i]=a.lane[i]*b.lane[i];
+    return out;
+}
+
+static StageBRtVec4 stage_b_rt_v4_fma(StageBRtVec4 acc,StageBRtVec4 a,StageBRtVec4 b)
+{
+    StageBRtVec4 out;
+    for(uint32_t i=0u;i<4u;i++)out.lane[i]=fmaf(a.lane[i],b.lane[i],acc.lane[i]);
+    return out;
+}
+
+static StageBRtVec4 stage_b_rt_v4_fms(StageBRtVec4 acc,StageBRtVec4 a,StageBRtVec4 b)
+{
+    StageBRtVec4 out;
+    for(uint32_t i=0u;i<4u;i++)out.lane[i]=fmaf(-a.lane[i],b.lane[i],acc.lane[i]);
+    return out;
+}
+
+static StageBRtVec4 stage_b_rt_v4_uzp1(StageBRtVec4 a,StageBRtVec4 b)
+{
+    StageBRtVec4 out={{a.lane[0],a.lane[2],b.lane[0],b.lane[2]}};
+    return out;
+}
+
+static StageBRtVec4 stage_b_rt_v4_uzp2(StageBRtVec4 a,StageBRtVec4 b)
+{
+    StageBRtVec4 out={{a.lane[1],a.lane[3],b.lane[1],b.lane[3]}};
+    return out;
+}
+
+static StageBRtVec4 stage_b_rt_v4_zip1(StageBRtVec4 a,StageBRtVec4 b)
+{
+    StageBRtVec4 out={{a.lane[0],b.lane[0],a.lane[1],b.lane[1]}};
+    return out;
+}
+
+static StageBRtVec4 stage_b_rt_v4_zip2(StageBRtVec4 a,StageBRtVec4 b)
+{
+    StageBRtVec4 out={{a.lane[2],b.lane[2],a.lane[3],b.lane[3]}};
+    return out;
+}
+
+static StageBRtVec4 stage_b_rt_v4_bits(const uint32_t bits[4])
+{
+    StageBRtVec4 out;
+    for(uint32_t i=0u;i<4u;i++)out.lane[i]=f32_bits(bits[i]);
+    return out;
+}
+
+/* Exact forward complex FFT-16 schedule selected by the deployed spectrum32
+ * reference path.  The constants are ordinary roots of unity, represented by
+ * their binary32 encodings so no proprietary tuning data enters UbiG. */
+static void stage_b_rt_fft16(float output[32],const float input[32])
+{
+    static const uint32_t twiddle[24]={
+        0x3f800000u,0x3f6c8366u,0x3f3504f7u,0x3ec3ef07u,
+        0x80000000u,0xbec3ef07u,0xbf3504f7u,0xbf6c8366u,
+        0x3f800000u,0x3f3504f7u,0x00000000u,0xbf3504f7u,
+        0x80000000u,0xbf3504f7u,0xbf800000u,0xbf3504f7u,
+        0x3f800000u,0x3ec3ef07u,0xbf3504f7u,0xbf6c8366u,
+        0x80000000u,0xbf6c8366u,0xbf3504f7u,0x3ec3ef07u
+    };
+    StageBRtVec4 a0=stage_b_rt_v4_load(input),a1=stage_b_rt_v4_load(input+4);
+    StageBRtVec4 a2=stage_b_rt_v4_load(input+8),a3=stage_b_rt_v4_load(input+12);
+    StageBRtVec4 a4=stage_b_rt_v4_load(input+16),a5=stage_b_rt_v4_load(input+20);
+    StageBRtVec4 a6=stage_b_rt_v4_load(input+24),a7=stage_b_rt_v4_load(input+28);
+    StageBRtVec4 v23=stage_b_rt_v4_uzp1(a0,a1),v27=stage_b_rt_v4_uzp2(a0,a1);
+    StageBRtVec4 v22=stage_b_rt_v4_uzp1(a2,a3),v26=stage_b_rt_v4_uzp2(a2,a3);
+    StageBRtVec4 v21=stage_b_rt_v4_uzp1(a4,a5),v20=stage_b_rt_v4_uzp2(a4,a5);
+    StageBRtVec4 v18=stage_b_rt_v4_uzp1(a6,a7),v16=stage_b_rt_v4_uzp2(a6,a7);
+    StageBRtVec4 v19=stage_b_rt_v4_add(v23,v21),v25=stage_b_rt_v4_sub(v23,v21);
+    v23=stage_b_rt_v4_add(v27,v20);
+    StageBRtVec4 v17=stage_b_rt_v4_add(v22,v18),v24=stage_b_rt_v4_sub(v22,v18);
+    v21=stage_b_rt_v4_add(v26,v16);v18=stage_b_rt_v4_sub(v26,v16);
+    v16=stage_b_rt_v4_sub(v19,v17);v17=stage_b_rt_v4_add(v19,v17);
+    StageBRtVec4 v22b=stage_b_rt_v4_sub(v27,v20);
+    StageBRtVec4 v19z=stage_b_rt_v4_zip2(v17,v16),v20z=stage_b_rt_v4_zip1(v17,v16);
+    v17=stage_b_rt_v4_add(v25,v18);v16=stage_b_rt_v4_sub(v25,v18);
+    StageBRtVec4 v18z=stage_b_rt_v4_zip1(v17,v16),v16z=stage_b_rt_v4_zip2(v17,v16);
+    StageBRtVec4 v17a=stage_b_rt_v4_zip1(v20z,v18z),v31=stage_b_rt_v4_zip2(v20z,v18z);
+    StageBRtVec4 v30=stage_b_rt_v4_zip1(v19z,v16z),v29=stage_b_rt_v4_zip2(v19z,v16z);
+    v16=stage_b_rt_v4_add(v23,v21);v18=stage_b_rt_v4_sub(v23,v21);
+    v19=stage_b_rt_v4_add(v22b,v24);
+    StageBRtVec4 v21z=stage_b_rt_v4_zip1(v16,v18),v20b=stage_b_rt_v4_zip2(v16,v18);
+    v16=stage_b_rt_v4_sub(v22b,v24);
+    StageBRtVec4 v18b=stage_b_rt_v4_zip1(v16,v19),v16b=stage_b_rt_v4_zip2(v16,v19);
+    StageBRtVec4 v26z=stage_b_rt_v4_zip2(v21z,v18b);
+    v25=stage_b_rt_v4_zip1(v20b,v16b);v24=stage_b_rt_v4_zip2(v20b,v16b);
+    StageBRtVec4 v28=stage_b_rt_v4_zip1(v21z,v18b);
+    StageBRtVec4 t23=stage_b_rt_v4_bits(twiddle),t20=stage_b_rt_v4_bits(twiddle+4);
+    StageBRtVec4 t19=stage_b_rt_v4_bits(twiddle+8),t18=stage_b_rt_v4_bits(twiddle+12);
+    StageBRtVec4 t16=stage_b_rt_v4_bits(twiddle+16),t22=stage_b_rt_v4_bits(twiddle+20);
+    StageBRtVec4 v27m=stage_b_rt_v4_mul(v26z,t23),v21m=stage_b_rt_v4_mul(v31,t23);
+    v27m=stage_b_rt_v4_fma(v27m,v31,t20);v21m=stage_b_rt_v4_fms(v21m,v26z,t20);
+    StageBRtVec4 v20m=stage_b_rt_v4_mul(v30,t19),v19m=stage_b_rt_v4_mul(v25,t19);
+    v20m=stage_b_rt_v4_fms(v20m,v25,t18);v19m=stage_b_rt_v4_fma(v19m,v30,t18);
+    StageBRtVec4 v18m=stage_b_rt_v4_mul(v29,t16),v16m=stage_b_rt_v4_mul(v24,t16);
+    v18m=stage_b_rt_v4_fms(v18m,v24,t22);v16m=stage_b_rt_v4_fma(v16m,v29,t22);
+    StageBRtVec4 o26=stage_b_rt_v4_add(v17a,v20m),o25=stage_b_rt_v4_sub(v17a,v20m);
+    StageBRtVec4 o24=stage_b_rt_v4_add(v28,v19m),o23=stage_b_rt_v4_sub(v28,v19m);
+    StageBRtVec4 o22=stage_b_rt_v4_add(v21m,v18m),o20=stage_b_rt_v4_add(v27m,v16m);
+    StageBRtVec4 o21=stage_b_rt_v4_sub(v21m,v18m),o19=stage_b_rt_v4_sub(v27m,v16m);
+    StageBRtVec4 q17=stage_b_rt_v4_add(o26,o22),q18=stage_b_rt_v4_add(o24,o20);
+    v16=stage_b_rt_v4_zip1(q17,q18);v17=stage_b_rt_v4_zip2(q17,q18);
+    stage_b_rt_v4_store(output,v16);stage_b_rt_v4_store(output+4,v17);
+    q18=stage_b_rt_v4_sub(o23,o21);q17=stage_b_rt_v4_add(o25,o19);
+    v16=stage_b_rt_v4_zip1(q17,q18);v17=stage_b_rt_v4_zip2(q17,q18);
+    stage_b_rt_v4_store(output+8,v16);stage_b_rt_v4_store(output+12,v17);
+    q18=stage_b_rt_v4_sub(o24,o20);q17=stage_b_rt_v4_sub(o26,o22);
+    v16=stage_b_rt_v4_zip1(q17,q18);v17=stage_b_rt_v4_zip2(q17,q18);
+    stage_b_rt_v4_store(output+16,v16);stage_b_rt_v4_store(output+20,v17);
+    q18=stage_b_rt_v4_add(o23,o21);q17=stage_b_rt_v4_sub(o25,o19);
+    v16=stage_b_rt_v4_zip1(q17,q18);v17=stage_b_rt_v4_zip2(q17,q18);
+    stage_b_rt_v4_store(output+24,v16);stage_b_rt_v4_store(output+28,v17);
+}
+
+static void stage_b_rt_real_post16(float data[34])
+{
+    static const uint32_t sine[7]={
+        0x3e47c5c2u,0x3ec3ef15u,0x3f0e39dau,0x3f3504f3u,
+        0x3f54db31u,0x3f6c835eu,0x3f7b14beu
+    };
+    const float half=0.5f;
+    const float real0=data[0],imag0=data[1];
+    data[0]=fmaf(imag0,1.0f,real0);
+    data[1]=fmaf(-imag0,1.0f,real0);
+    data[16]*=1.0f;
+    data[17]=-(data[17]*1.0f);
+    for(uint32_t k=1u;k<8u;k++){
+        const float ar=data[2u*k],ai=data[2u*k+1u];
+        const float br=data[32u-2u*k],bi=data[33u-2u*k];
+        const float sinv=f32_bits(sine[k-1u]),cosv=f32_bits(sine[7u-k]);
+        const float sum_i=fmaf(bi,half,ai*half);
+        const float diff_r=fmaf(br,half,-(ar*half));
+        const float diff_i=fmaf(-bi,half,ai*half);
+        const float sum_r=fmaf(br,half,ar*half);
+        const float rot_i=fmaf(-sinv,sum_i,diff_r*cosv);
+        const float rot_r=fmaf(cosv,sum_i,diff_r*sinv);
+        data[2u*k]=sum_r+rot_r;
+        data[2u*k+1u]=diff_i+rot_i;
+        data[32u-2u*k]=sum_r-rot_r;
+        data[33u-2u*k]=rot_i-diff_i;
+    }
+}
+
+void ubig_stage_b_rt_spectrum32(const float input[32],float output[16])
+{
+    if(!input||!output)return;
+    int32_t shift=32;
+    for(uint32_t i=0u;i<32u;i++){
+        const int32_t lane_shift=stage_b_rt_spectral_shift(input[i]);
+        if(lane_shift<shift)shift=lane_shift;
+    }
+    float normalized[32],spectrum[34]={0};
+    const float scale=stage_b_rt_pow2_integer(shift-5);
+    const float one_over_32=f32_bits(0x3d000000u);
+    float mean=0.0f;
+    for(uint32_t i=0u;i<32u;i++){
+        normalized[i]=input[i]*scale;
+        mean=fmaf(normalized[i],one_over_32,mean);
+    }
+    /* Reference reciprocal-N lookup is 1/32 for the only deployed size, and
+     * its final x32 multiply cancels exactly in binary32. Preserve both rounds. */
+    const float normalized_mean=(mean*one_over_32)*f32_bits(0x42000000u);
+    stage_b_rt_fft16(spectrum,normalized);
+    stage_b_rt_real_post16(spectrum);
+    spectrum[32]=spectrum[1];
+    spectrum[33]=0.0f;
+    spectrum[1]=0.0f;
+    if(normalized_mean==0.0f){
+        memset(output,0,16u*sizeof *output);
+        return;
+    }
+    const int32_t mean_shift=stage_b_rt_spectral_shift(normalized_mean);
+    const float scaled_mean=stage_b_rt_pow2_integer(mean_shift)*normalized_mean;
+    const float inverse=(float)(0.5/(double)scaled_mean);
+    const float post_scale=stage_b_rt_pow2_integer(mean_shift-5);
+    for(uint32_t bin=1u;bin<=16u;bin++){
+        const float real=spectrum[2u*bin],imag=spectrum[2u*bin+1u];
+        float magnitude=sqrtf(fmaf(imag,imag,real*real));
+        magnitude*=inverse;
+        output[bin-1u]=magnitude*post_scale;
+    }
+}
+
 float ubig_stage_b_rt_deviation32(float mean,const float input[32],uint32_t shift)
 {
     if(!input)return 0.0f;

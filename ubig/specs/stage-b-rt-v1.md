@@ -190,3 +190,9 @@ Promoted-source private differentials: rank leaf **500,000 complete randomized c
 ## Eight-column cadence summary
 
 `ubig_stage_b_rt_cadence_summary_process()` closes the lower-cadence transform at reference VA `0x180096C28`. It gathers all eight columns of the semantic 32x8 history, combines caller-owned normalized accumulators with the outgoing circular row, computes supplied-mean deviations, then repeats the exact process for the seven half-scaled adjacent-column differences. The accumulator values and their binary shifts remain explicit caller-owned state. Promoted-source private differential: **300,000 complete randomized DLL calls bit-exact**, comparing all 30 outputs, final 32-float scratch, cursor update and untouched raw state. Public lifecycle hash: `2fa8b774beb5b760`.
+
+## Deployed 32-sample real-spectrum helper
+
+`ubig_stage_b_rt_spectrum32()` closes the fixed transform used by the remaining lower scheduler at reference VA `0x1800A0848`. The deployed contract is exactly thirty-two real input samples and sixteen positive-frequency magnitude outputs. It preserves the reference exponent selection, power-of-two normalization, 1/32 mean accumulation, specialized forward complex FFT-16 schedule, real-FFT conjugate postprocess, Hermitian completion semantics, magnitude square-root path and the final reciprocal normalization order.
+
+The FFT roots are represented directly as binary32 mathematical constants; no reference tuning or lookup-table payload is copied into UbiG. Private differential gates: specialized complex FFT-16 **1,000,000 calls bit-exact**; N=16 real-FFT postprocessor **1,000,000 calls bit-exact**; complete promoted semantic helper **1,000,000 randomized DLL calls bit-exact** across broad input/exponent cases. Public regression hash: `cd4d1e7a9ed1b455`.

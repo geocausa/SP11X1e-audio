@@ -426,3 +426,7 @@ The lower-cadence sorted peak/shoulder helper is native as `ubig_stage_b_rt_rank
 ### Stage-B RT eight-column cadence-summary closure
 
 The lower-cadence 32x8 column-plus-adjacent-difference transform is native as `ubig_stage_b_rt_cadence_summary_process()`. Promoted source matches **300,000 complete randomized DLL calls bit-exact** across all 30 outputs, scratch and cursor state. Public lifecycle hash: `2fa8b774beb5b760`.
+
+### Stage-B RT 32-sample spectrum closure
+
+The deployed lower-scheduler 32-sample real-spectrum helper is native as `ubig_stage_b_rt_spectrum32()`. Live instrumentation fixes the endpoint contract at a 32-sample real input and sixteen magnitude bins. Its specialized complex FFT-16 and real-FFT postprocess were each independently proven for **1,000,000 randomized calls bit-exact**, and the complete promoted spectrum helper matches **1,000,000 randomized DLL calls bit-exact**. The native implementation uses only binary32 mathematical FFT roots and embeds no reference tuning/table payload. Public regression hash: `cd4d1e7a9ed1b455`.

@@ -453,6 +453,10 @@ void ubig_stage_b_rt_feature_change_process(UbigStageBRtFeatureChangeHistory *st
 /* Exact exponent-scaled FMA sum used by the RT feature scheduler. */
 float ubig_stage_b_rt_scaled_sum(const float *input,uint32_t count,int32_t exponent);
 
+/* Exact deployed 32-sample real-spectrum helper. Produces normalized
+ * magnitudes for bins 1..16; DC is intentionally omitted. */
+void ubig_stage_b_rt_spectrum32(const float input[32],float output[16]);
+
 /* Exact 32-value RMS deviation around a caller-supplied mean. shift is the
  * binary normalization exponent selected by the enclosing cadence transform. */
 float ubig_stage_b_rt_deviation32(float mean,const float input[32],uint32_t shift);
