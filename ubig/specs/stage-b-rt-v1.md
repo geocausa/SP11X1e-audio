@@ -404,3 +404,11 @@ One caller-compatibility detail is now explicit for `0x4F1B8`: the call at `0x18
 The live post-worker transform at `0x180038528..0x18003856C` is represented by `ubig_stage_b_rt_pair_inverse_transform()`. For each interleaved complex bin the main-bank route pre-scales row A, writes row A with the reference fused sum, and writes row B with the exact fused difference corresponding to the original `FMSUB`. This is deliberately separate from `ubig_stage_b_rt_pair_transform()` because the two inline islands are not instruction-identical.
 
 An AArch64 instruction oracle proves **1,000,000 randomized complete calls bit-exact** for 0..77 bins; public hash `f4a7ed4796ef8633`. The second optional bank under raw outer `state+0xD8` is null on all seven shipped profiles and therefore excluded from the deployed semantic contract.
+
+## Deployed outer-parent live replacement (`0x1800376B0`)
+
+The shipped SP11 stereo path fixes the outer parent to mode 1 with two active groups, four complex planes, 77 bins, 20 analysis bands, channel map `{0,1}`, no auxiliary second pair bank, and the previously recovered 20 boundary indices `{2,4,5,7,10,12,14,15,17,18,20,22,24,27,30,34,40,46,54,77}`. Under those invariants the huge reference parent reduces to source-owned orchestration around the already-promoted children plus two inline pair transforms and the telemetry loops.
+
+A private integration bridge now substitutes that complete live orchestration at caller `0x18005D668` and poisons reference entry `0x1800376B0` with `BRK`. Seven-profile 781-block stress runs remain bit-exact. Each run observes 781 native parent invocations, 781 native aggregate invocations, 3,124 native analysis-controller invocations, and scheduler cadence 195/39/39 for upper/lower-A/lower-B. Music and Game continue to bypass multiband while the other five profiles execute it 781 times. All semantic-adapter fallback counters remain zero.
+
+The bridge deliberately keeps raw-DLL offset translation out of the public semantic API. It reads initialized caller-owned state/configuration and table pointers, converts those boundaries into the existing UbiG semantic structures, and writes mutable state back. This proves that no proprietary `0x376B0` code body is required on the deployed route; it does not yet claim that all caller-owned coefficient/model data has been independently regenerated.
