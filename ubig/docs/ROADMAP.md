@@ -92,7 +92,7 @@ Current checkpoint: the SP11 48 kHz Stage-A scheduler is native and reaches the 
 
 Reconstruct only the SP11 stereo speaker behavior actually exercised by the endpoint:
 
-Current progress: the shipped Stage-B realtime audio route is source-owned through its outer streaming/transition wrappers, and the remaining raw dirty-config apply has been proven observationally dead on that native route. Combined with native Stage A, the lab chain now has an all-native audio callback and no VLLDP DLL dependency. The VR image is still used to construct/tune the Stage-B object graph and for small property-handler calls during profile retargeting; those initialization/control dependencies are the next boundary.
+Current progress: the shipped built-in-profile Stage-B route is source-owned through realtime processing, direct inner streaming, cold wrapper construction and scalar profile retargeting. The corrected nonzero v3 lab checkpoint loads endpoint-specific state/tuning only from an owner-supplied external data pack; it contains no PE-loader boundary and opens neither `DolbyAPOVR.dll` nor `DolbyAPOvlldp150.dll`. All seven fixed profiles, deterministic live switching, randomized 33-switch stress and host-chunk schedules remain bit-exact to the trustworthy nonzero reference. The old compact v2/34x64 proof is retired because its acceptance oracle had collapsed to zero PCM. Remaining M4 work is the explicit Custom/GEQ cold-control path plus promotion-quality pack/deployment plumbing; built-in-profile proprietary-binary removal is now proven in the private lab chain.
 
 - effective stereo output-mode policy
 - Volume Leveler / DRC including long-memory adaptive controller
@@ -107,7 +107,7 @@ Current progress: the shipped Stage-B realtime audio route is source-owned throu
 
 Do not implement dormant spatial/ASAR features unless a runtime oracle proves they are required by the built-in stereo speaker path.
 
-Exit: no proprietary userspace DSP binary is loaded in the UbiG lab chain.
+Exit: no proprietary userspace DSP binary is loaded in the UbiG lab chain. **Built-in-profile binary-removal gate reached by the corrected v3 private checkpoint; full M4 feature gate remains open for Custom/GEQ.**
 
 ### M5 — control service and application
 
