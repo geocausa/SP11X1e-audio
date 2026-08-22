@@ -488,3 +488,10 @@ Reference leaf `0x18004B890` is native as `ubig_stage_b_rt_sparse_complex_mix()`
 Live capture proves the shipped `0x4BAB0` route is a strict 2→2 identity remap on every profile: four channels, 77 bins, singleton `{0,1.0}` and `{1,1.0}` row mixes, zero return mask. The separately hot `0x558B0` generic gain path is also a deployed no-op: both optional coefficient inputs are null, control is zero, return is exactly 0.0 and its 2×4×77 matrix is unchanged on every captured block.
 
 The direct-call census has now been extended to the actual end of `0x1800376B0` at `0x18003A3F8`. Late live sites are `0x558B0`, `0x4BAB0`, `0x56B80` at 781/781 and `0x4F1B8` once during setup; the remaining late direct islands are zero. Nested census of `0x56B80` shows one live call per block to already-native `0x60200`/`0x5F5A8` plus still-open `0x64B38` and `0x49620`; `0x64958` and both `0x569A0` branches are dead on all seven shipped profiles.
+
+
+### Stage-B deep-tail numerical leaves
+
+Two hot leaves under the still-open `0x49620` controller are native. `ubig_stage_b_rt_symmetric_history_mix()` closes `0x18006DCF8` with **1,000,000 randomized direct DLL calls bit-exact** over its complete output/history mutation; public hash `c3af0d13d4cae940`. `ubig_stage_b_rt_max_abs4()` closes the aligned `0x1800BB6E0` fast reducer with **1,000,000 direct randomized calls bit-exact**; public hash `4c720017ecc09f55`, deployed count 64.
+
+Deep live census now pins the remaining branches. `0x64B38` runs its six numerical children (`0x7FE80`, `0x80658`, `0x80920`, `0x80AE0`, `0x80ED8`, `0x7FC08`) every block, with only the `0x64958` reset limited to setup. `0x49620` uses the aligned fast path exclusively: 8× `0xBAF40`, 8× native `0xBB6E0`, 8× native `0x6DCF8`, and 1× `0x17C370` per block; all alternative scalar/unaligned leaves are dead. `0x17C370` has independently matched libc `frexp()` bit-exact for 1,000,000 positive finite probes.

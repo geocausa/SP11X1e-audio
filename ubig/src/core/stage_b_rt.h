@@ -757,6 +757,27 @@ void ubig_stage_b_rt_control_aggregate_process(UbigStageBRtControlAggregateState
                                                uint32_t item_count,
                                                float output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS]);
 
+/* Exact aligned four-lane max-absolute reducer at 0x1800BB6E0. Counts are
+ * positive multiples of four; the deployed late Stage-B path uses 64. */
+float ubig_stage_b_rt_max_abs4(const float *input,uint32_t count);
+
+typedef struct {
+    const float *kernel;
+    uint32_t count;
+    float reflected_scale_a;
+    float reflected_scale_b;
+    float forward_scale_a;
+    float forward_scale_b;
+    float *history; /* history slots x count */
+} UbigStageBRtSymmetricHistoryMix;
+
+/* Exact 0x18006DCF8 reflected/forward kernel history mixer. The deployed
+ * count is 64 and therefore satisfies the reference four-float vector contract. */
+void ubig_stage_b_rt_symmetric_history_mix(UbigStageBRtSymmetricHistoryMix *state,
+                                             float *output,
+                                             const float *input,
+                                             uint32_t history_index);
+
 typedef struct {
     const uint32_t *indices;
     const float *weights;

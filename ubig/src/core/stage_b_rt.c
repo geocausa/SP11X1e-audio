@@ -2541,6 +2541,75 @@ uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock)
     return actions;
 }
 
+float ubig_stage_b_rt_max_abs4(const float *input,uint32_t count)
+{
+    if(!input||count<4u||(count&3u)!=0u)return 0.0f;
+#if defined(__aarch64__)
+    float32x4_t minimum=vld1q_f32(input);
+    float32x4_t maximum=minimum;
+    for(uint32_t i=4u;i<count;i+=4u){
+        const float32x4_t v=vld1q_f32(input+i);
+        maximum=vmaxq_f32(maximum,v);
+        minimum=vminq_f32(minimum,v);
+    }
+    float32x2_t min_pair=vpmin_f32(vget_high_f32(minimum),vget_low_f32(minimum));
+    min_pair=vpmin_f32(min_pair,min_pair);
+    float32x2_t max_pair=vpmax_f32(vget_high_f32(maximum),vget_low_f32(maximum));
+    max_pair=vpmax_f32(max_pair,max_pair);
+    float32x2_t result=vdup_n_f32(-vget_lane_f32(min_pair,0));
+    result=vset_lane_f32(vget_lane_f32(max_pair,0),result,1);
+    result=vpmax_f32(result,result);
+    return vget_lane_f32(result,0);
+#else
+    float minimum=input[0],maximum=input[0];
+    for(uint32_t i=1u;i<count;i++){
+        if(input[i]<minimum)minimum=input[i];
+        if(maximum<input[i])maximum=input[i];
+    }
+    const float negative_min=-minimum;
+    return negative_min<=maximum?maximum:negative_min;
+#endif
+}
+
+void ubig_stage_b_rt_symmetric_history_mix(UbigStageBRtSymmetricHistoryMix *state,
+                                             float *output,
+                                             const float *input,
+                                             uint32_t history_index)
+{
+    if(!state||!output||!input||!state->kernel||!state->history||state->count==0u)return;
+    const float reflected_gain=state->reflected_scale_a*state->reflected_scale_b;
+    const float forward_gain=state->forward_scale_a*state->forward_scale_b;
+    float *history=state->history+(size_t)state->count*history_index;
+#if defined(__aarch64__)
+    const float32x4_t reflected_v=vdupq_n_f32(reflected_gain);
+    const float32x4_t forward_v=vdupq_n_f32(forward_gain);
+    const float32x4_t scale_v=vdupq_n_f32(256.0f);
+    for(uint32_t i=0u;i<state->count;i+=4u){
+        const float32x4_t old=vld1q_f32(history+i);
+        const float32x4_t tail=vld1q_f32(state->kernel+state->count-i-4u);
+        const float32x4_t pair_rev=vrev64q_f32(tail);
+        const float32x4_t reflected=vcombine_f32(vget_high_f32(pair_rev),vget_low_f32(pair_rev));
+        const float32x4_t forward=vld1q_f32(state->kernel+i);
+        const float32x4_t forward_term=vmulq_f32(old,forward_v);
+        float32x4_t mixed=vmulq_f32(old,reflected_v);
+        mixed=vmulq_f32(mixed,reflected);
+        mixed=vfmaq_f32(mixed,forward_term,forward);
+        mixed=vmulq_f32(mixed,scale_v);
+        vst1q_f32(history+i,vld1q_f32(input+i));
+        vst1q_f32(output+i,mixed);
+    }
+#else
+    for(uint32_t i=0u;i<state->count;i++){
+        const float old=history[i];
+        const float forward_term=old*forward_gain;
+        float mixed=(old*reflected_gain)*state->kernel[state->count-1u-i];
+        mixed=fmaf(forward_term,state->kernel[i],mixed);
+        output[i]=mixed*256.0f;
+        history[i]=input[i];
+    }
+#endif
+}
+
 int ubig_stage_b_rt_sparse_complex_mix(float *output,
                                       const float *const *const *rows,
                                       const UbigStageBRtSparseMix *mix,
