@@ -758,6 +758,35 @@ void ubig_stage_b_rt_control_aggregate_process(UbigStageBRtControlAggregateState
                                                float output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS]);
 
 typedef struct {
+    float primary_lower_limit;
+    float primary_negative_slope;
+    float primary_quadratic_scale;
+    float primary_quadratic_limit;
+    float primary_linear_offset;
+    float secondary_lower_limit;
+    float secondary_negative_slope;
+    float secondary_cubic_scale;
+    float secondary_cubic_limit;
+    float secondary_linear_offset;
+} UbigStageBRtDualEnvelopeConfig;
+
+typedef struct {
+    const UbigStageBRtDualEnvelopeConfig *config;
+    uint32_t active_width;
+    float primary[UBIG_STAGE_B_RT_MAX_BANDS];
+    float secondary[UBIG_STAGE_B_RT_MAX_BANDS];
+} UbigStageBRtDualEnvelopeState;
+
+/* Exact always-live 0x18007FE80 dual-envelope stage and table-free semantic
+ * form of the 0x18007FC08 three-neighbor smoother. */
+void ubig_stage_b_rt_dual_envelope_process(float offset,
+                                           UbigStageBRtDualEnvelopeState *state,
+                                           const UbigStageBRtBandRows *rows,
+                                           uint32_t status[UBIG_STAGE_B_RT_MAX_BANDS]);
+void ubig_stage_b_rt_neighbor_smooth(uint32_t count,const int32_t *status,
+                                     const float *input,float *output);
+
+typedef struct {
     float smooth_keep;
     float smooth_inject;
     float lower_limit;

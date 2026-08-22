@@ -2541,6 +2541,104 @@ uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock)
     return actions;
 }
 
+static float stage_b_rt_dual_curve_primary(const UbigStageBRtDualEnvelopeConfig *config,
+                                           float target,float old)
+{
+    const float half_old=old*0.5f;
+    const float delta=target*0.5f-half_old;
+    float value;
+    if(delta<0.0f){
+        float term=config->primary_negative_slope*delta;
+        if(term<config->primary_lower_limit)term=config->primary_lower_limit;
+        value=term+half_old;
+    }else if(config->primary_quadratic_limit<delta){
+        value=config->primary_linear_offset+delta+half_old;
+    }else{
+        float x=delta*4.0f;
+        x=x*x;
+        value=fmaf(x,config->primary_quadratic_scale,half_old);
+    }
+    return value+value;
+}
+
+static float stage_b_rt_dual_curve_secondary(const UbigStageBRtDualEnvelopeConfig *config,
+                                             float target,float old)
+{
+    const float half_old=old*0.5f;
+    const float delta=target*0.5f-half_old;
+    float value;
+    if(delta<0.0f){
+        float term=config->secondary_negative_slope*delta;
+        if(term<config->secondary_lower_limit)term=config->secondary_lower_limit;
+        value=term+half_old;
+    }else if(config->secondary_cubic_limit<delta){
+        value=config->secondary_linear_offset+delta+half_old;
+    }else{
+        const float twice=delta+delta;
+        const float square=twice*twice;
+        const float cube=square*twice;
+        const float scaled=cube*config->secondary_cubic_scale;
+        value=fmaf(scaled,4.0f,half_old);
+    }
+    return value+value;
+}
+
+void ubig_stage_b_rt_dual_envelope_process(float offset,
+                                           UbigStageBRtDualEnvelopeState *state,
+                                           const UbigStageBRtBandRows *rows,
+                                           uint32_t status[UBIG_STAGE_B_RT_MAX_BANDS])
+{
+    if(!state||!state->config||!rows||!rows->rows||!status||
+       state->active_width>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    for(uint32_t lane=0u;lane<state->active_width;lane++){
+        float maximum=-1.0f;
+        for(uint32_t row=0u;row<rows->row_count;row++){
+            const float value=rows->rows[row][lane];
+            if(maximum<value)maximum=value;
+        }
+        float target=maximum+offset;
+        if(target<-1.0f)target=-1.0f;
+        if(1.0f<target)target=1.0f;
+        const float old=state->primary[lane];
+        status[lane]=(uint32_t)(old<target);
+        state->primary[lane]=stage_b_rt_dual_curve_primary(state->config,target,old);
+        state->secondary[lane]=stage_b_rt_dual_curve_secondary(state->config,target,
+                                                                state->secondary[lane]);
+    }
+}
+
+void ubig_stage_b_rt_neighbor_smooth(uint32_t count,const int32_t *status,
+                                     const float *input,float *output)
+{
+    if(!status||!input||!output||count>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    const float third=f32_bits(0x3eaa7efau);
+    const float center=f32_bits(0x3eab020cu);
+    const float two_thirds=f32_bits(0x3f2ac083u);
+    for(uint32_t lane=0u;lane<count;lane++){
+        const int left_blocked=(lane==0u)||status[lane-1u]!=0;
+        const int center_blocked=status[lane]!=0;
+        const int right_blocked=(lane+1u==count)||status[lane+1u]!=0;
+        const float left=(lane==0u)?0.0f:input[lane-1u];
+        const float current=input[lane];
+        const float right=(lane+1u==count)?0.0f:input[lane+1u];
+        float value;
+        if(center_blocked)value=current;
+        else if(!left_blocked&&!right_blocked){
+            float z=left*third;
+            z=fmaf(current,center,z);
+            value=fmaf(right,third,z);
+        }else if(!left_blocked&&right_blocked){
+            const float z=left*third;
+            value=fmaf(current,two_thirds,z);
+        }else if(left_blocked&&!right_blocked){
+            const float z=current*two_thirds;
+            value=fmaf(right,third,z);
+        }else value=current;
+        if(current<value)value=current;
+        output[lane]=value+value;
+    }
+}
+
 static float stage_b_rt_envelope_curve(const UbigStageBRtEnvelopeConfig *config,
                                       float target,float old)
 {

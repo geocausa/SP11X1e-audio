@@ -500,3 +500,8 @@ Deep live census now pins the remaining branches. `0x64B38` runs its six numeric
 ### Stage-B deep-tail envelope/activity closure
 
 The `0x180080278` max-row envelope tracker and its always-live `0x180080658` parent are native as `ubig_stage_b_rt_envelope_track()` / `ubig_stage_b_rt_envelope_activity_process()`. Each promoted boundary passes **1,000,000 randomized DLL calls bit-exact** across all persistent lane/scalar state; the semantic configuration keeps every curve, weighting and temporal coefficient caller-owned. Public hash `67d4c3f543a46a84`. The open `0x64B38` subtree is now reduced to the other five live siblings (`0x7FE80`, `0x80920`, `0x80AE0`, `0x80ED8`, `0x7FC08`) plus its orchestration.
+
+
+### Stage-B dual-envelope / neighbor-smoother closure
+
+`0x18007FE80` is native as `ubig_stage_b_rt_dual_envelope_process()` with **1,000,000 randomized direct DLL calls bit-exact**; all ten primary/secondary curve coefficients remain caller-owned. `0x18007FC08` is native as the table-free `ubig_stage_b_rt_neighbor_smooth()`: its 8x3 reference table was reduced to the underlying status-gated 0.333/0.334/0.667 neighbor rule, also **1,000,000 direct calls bit-exact**. Public hashes are `7e07295462d22654` and `429de12325cd4eac`. Remaining every-block leaves under `0x64B38`: `0x80920`, `0x80AE0`, `0x80ED8`.
