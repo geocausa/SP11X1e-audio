@@ -609,3 +609,12 @@ Dynamic, Movie, Music, Game, Voice, OnlineCourse and Personalize all pass the co
 Reference `0x180042590` is now represented by `ubig_stage_b_rt_history_filter64_process()` on its exact one-block branch. The deployed caller always requests `{rows=2, blocks=4, N=64}`; a live equivalence shim proved that the optimized four-block branch is bit-identical to four sequential one-block calls. The promoted one-block source matches **1,000,000 randomized direct DLL calls bit-exact** across the nine-phase x 64-float mutable history row, phase counter and 128-float packed output. Public regression hash: `d0118b361d08db6d`.
 
 A seven-profile live substitution patches the `0x3ABE0` indirect callback to a native four-block wrapper, poisons the original `0x42590` entry, and executes 1,562 wrapper calls / 6,248 native one-block kernels per profile with full chain `PLUGIN_RESULT PASS`. The normalized FFT64 callback at `0x1800D15E0` is still invoked as an explicit dependency by this checkpoint; closing that callback is the next boundary.
+
+
+### Stage-B normalized FFT64 callback closure (`0xD15E0`)
+
+The normalized forward complex FFT64 callback selected by `0x42590` at reference `0x1800D15E0` is now native as `ubig_stage_b_rt_fft64_normalized()`. Its rounding contract is intentionally separate from the earlier unscaled `0xA68C0` FFT: the reference applies `1/64` during the first radix-4 stage, then a four-group radix-16 stage and a final fixed permutation/twiddle stage. The six coefficient families are standard FFT roots represented at their exact binary32 values.
+
+Each fixed reference child was independently reconstructed and gated before composition: `0xCE318` **1,000,000 exact**, `0xCF438` **1,000,000 exact**, and `0xD0388` **1,000,000 exact**. The promoted root `0xD15E0` then matches **1,000,000 randomized complete transforms bit-exact**. Public hash: `a51d8a3291486a98`. Re-running the promoted `0x42590` one-block oracle with this native FFT dependency remains **1,000,000 calls bit-exact**.
+
+The seven-profile live proof now poisons `0x42590`, `0xD15E0`, `0xCE318`, `0xCF438` and `0xD0388` simultaneously. Every profile still passes the complete 781-block chain while executing 1,562 native four-block wrappers / 6,248 native history-filter blocks. Thus the earlier explicit reference FFT dependency is closed.

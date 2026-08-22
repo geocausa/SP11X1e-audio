@@ -1033,6 +1033,14 @@ void ubig_stage_b_rt_late_pipeline_process(
 void ubig_stage_b_rt_fft64(float output[UBIG_STAGE_B_RT_FFT64_FLOATS],
                            const float input[UBIG_STAGE_B_RT_FFT64_FLOATS]);
 
+/* Exact normalized forward complex FFT64 used by the 0x42590 history-filter
+ * path through reference callback 0x1800D15E0. Unlike ubig_stage_b_rt_fft64(),
+ * this schedule scales by 1/64 in its first radix stage and therefore has a
+ * distinct binary32 rounding contract. */
+void ubig_stage_b_rt_fft64_normalized(
+    float output[UBIG_STAGE_B_RT_FFT64_FLOATS],
+    const float input[UBIG_STAGE_B_RT_FFT64_FLOATS]);
+
 /* Exact aligned four-lane max-absolute reducer at 0x1800BB6E0. Counts are
  * positive multiples of four; the deployed late Stage-B path uses 64. */
 float ubig_stage_b_rt_max_abs4(const float *input,uint32_t count);

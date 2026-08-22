@@ -3129,6 +3129,184 @@ void ubig_stage_b_rt_envelope_activity_process(UbigStageBRtEnvelopeState *state,
 }
 
 
+
+static const uint32_t stage_b_rt_fft64_norm_twiddle[6][16]={
+ {0x3f800000u,0x3f3504f3u,0x3f6c835eu,0x3ec3ef15u,0x3f7b14beu,0x3f0e39dau,0x3f54db31u,0x3e47c5c2u,0x3f7ec46du,0x3f226799u,0x3f61c598u,0x3e94a031u,0x3f74fa0bu,0x3ef15aeau,0x3f45e403u,0x3dc8bd36u},
+ {0x00000000u,0xbf3504f3u,0xbec3ef15u,0xbf6c835eu,0xbe47c5c2u,0xbf54db31u,0xbf0e39dau,0xbf7b14beu,0xbdc8bd36u,0xbf45e403u,0xbef15aeau,0xbf74fa0bu,0xbe94a031u,0xbf61c598u,0xbf226799u,0xbf7ec46du},
+ {0x3f800000u,0x00000000u,0x3f3504f3u,0xbf3504f3u,0x3f6c835eu,0xbec3ef15u,0x3ec3ef15u,0xbf6c835eu,0x3f7b14beu,0xbe47c5c2u,0x3f0e39dau,0xbf54db31u,0x3f54db31u,0xbf0e39dau,0x3e47c5c2u,0xbf7b14beu},
+ {0x00000000u,0xbf800000u,0xbf3504f3u,0xbf3504f3u,0xbec3ef15u,0xbf6c835eu,0xbf6c835eu,0xbec3ef15u,0xbe47c5c2u,0xbf7b14beu,0xbf54db31u,0xbf0e39dau,0xbf0e39dau,0xbf54db31u,0xbf7b14beu,0xbe47c5c2u},
+ {0x3f800000u,0xbf3504f3u,0x3ec3ef15u,0xbf6c835eu,0x3f54db31u,0xbf7b14beu,0xbe47c5c2u,0xbf0e39dau,0x3f74fa0bu,0xbf61c598u,0x3dc8bd36u,0xbf45e403u,0x3f226799u,0xbf7ec46du,0xbef15aeau,0xbe94a031u},
+ {0x00000000u,0xbf3504f3u,0xbf6c835eu,0x3ec3ef15u,0xbf0e39dau,0xbe47c5c2u,0xbf7b14beu,0x3f54db31u,0xbe94a031u,0xbef15aeau,0xbf7ec46du,0x3f226799u,0xbf45e403u,0x3dc8bd36u,0xbf61c598u,0x3f74fa0bu}
+};
+
+static float stage_b_rt_fft64_norm_msub(float a,float b,float c,float d)
+{
+    return fmaf(-c,d,a*b);
+}
+
+static float stage_b_rt_fft64_norm_madd(float a,float b,float c,float d)
+{
+    return fmaf(c,d,a*b);
+}
+
+static void stage_b_rt_fft64_norm_radix4(float x[128])
+{
+    const float scale=0x1p-6f;
+    float y[128];
+    for(uint32_t block=0u;block<4u;block++){
+        for(uint32_t lane=0u;lane<4u;lane++){
+            const uint32_t q=block*8u+2u*lane;
+            const float ar=x[q]*scale,ai=x[q+1u]*scale;
+            const float br=x[32u+q]*scale,bi=x[33u+q]*scale;
+            const float cr=x[64u+q]*scale,ci=x[65u+q]*scale;
+            const float dr=x[96u+q]*scale,di=x[97u+q]*scale;
+            const float acr=ar+cr,aci=ai+ci,amcr=ar-cr,amci=ai-ci;
+            const float bdr=br+dr,bdi=bi+di,bmdr=br-dr,bmdi=bi-di;
+            const uint32_t o=block*8u+lane;
+            y[o]=acr+bdr;y[o+4u]=aci+bdi;
+            y[32u+o]=acr-bdr;y[32u+o+4u]=aci-bdi;
+            y[64u+o]=amcr+bmdi;y[64u+o+4u]=amci-bmdr;
+            y[96u+o]=amcr-bmdi;y[96u+o+4u]=amci+bmdr;
+        }
+    }
+    memcpy(x,y,sizeof y);
+}
+
+static void stage_b_rt_fft64_norm_group0(float x[128],uint32_t lane)
+{
+    float q[16];for(uint32_t k=0;k<16u;k++)q[k]=x[2u*k+lane];
+    const float a0=q[0]+q[8],d0=q[0]-q[8],a1=q[1]+q[9],d1=q[1]-q[9];
+    const float a2=q[2]+q[10],d2=q[2]-q[10],a3=q[3]+q[11],d3=q[3]-q[11];
+    const float v0=q[4]+q[12],u0=q[4]-q[12],v1=q[5]+q[13],u1=q[5]-q[13];
+    const float v2=q[6]+q[14],u2=q[6]-q[14],v3=q[7]+q[15],u3=q[7]-q[15];
+    const float o[16]={a0+v0,a1+v1,a2+v2,a3+v3,a0-v0,a1-v1,a2-v2,a3-v3,
+                       d0+u2,d1+u3,d2-u0,d3-u1,d0-u2,d1-u3,d2+u0,d3+u1};
+    for(uint32_t k=0;k<16u;k++)x[2u*k+lane]=o[k];
+}
+
+static void stage_b_rt_fft64_norm_group(float x[128],uint32_t group,uint32_t lane)
+{
+    const uint32_t base=16u*group;
+    float q[16];for(uint32_t k=0;k<16u;k++)q[k]=x[2u*(base+k)+lane];
+    const float A=f32_bits(stage_b_rt_fft64_norm_twiddle[0][group]);
+    const float B=f32_bits(stage_b_rt_fft64_norm_twiddle[1][group]);
+    const float C=f32_bits(stage_b_rt_fft64_norm_twiddle[2][group]);
+    const float D=f32_bits(stage_b_rt_fft64_norm_twiddle[3][group]);
+    const float E=f32_bits(stage_b_rt_fft64_norm_twiddle[4][group]);
+    const float F=f32_bits(stage_b_rt_fft64_norm_twiddle[5][group]);
+    float z=q[8]*C;const float t8=fmaf(-q[10],D,z);
+    z=q[9]*C;const float t9=fmaf(-q[11],D,z);
+    z=q[10]*C;const float t10=fmaf(q[8],D,z);
+    z=q[11]*C;const float t11=fmaf(q[9],D,z);
+    z=q[4]*A;const float t4=fmaf(-q[6],B,z);
+    z=q[5]*A;const float t5=fmaf(-q[7],B,z);
+    z=q[6]*A;const float t6=fmaf(q[4],B,z);
+    z=q[7]*A;const float t7=fmaf(q[5],B,z);
+    z=q[12]*E;const float t12=fmaf(-q[14],F,z);
+    z=q[13]*E;const float t13=fmaf(-q[15],F,z);
+    z=q[14]*E;const float t14=fmaf(q[12],F,z);
+    z=q[15]*E;const float t15=fmaf(q[13],F,z);
+    const float a0=q[0]+t8,d0=q[0]-t8,a1=q[1]+t9,d1=q[1]-t9;
+    const float a2=q[2]+t10,d2=q[2]-t10,a3=q[3]+t11,d3=q[3]-t11;
+    const float u0=t4-t12,v0=t4+t12,u1=t5-t13,v1=t5+t13;
+    const float v2=t6+t14,u2=t6-t14,v3=t7+t15,u3=t7-t15;
+    const float o[16]={a0+v0,a1+v1,a2+v2,a3+v3,a0-v0,a1-v1,a2-v2,a3-v3,
+                       d0+u2,d1+u3,d2-u0,d3-u1,d0-u2,d1-u3,d2+u0,d3+u1};
+    for(uint32_t k=0;k<16u;k++)x[2u*(base+k)+lane]=o[k];
+}
+
+static void stage_b_rt_fft64_norm_radix16(float x[128])
+{
+    stage_b_rt_fft64_norm_group0(x,0u);stage_b_rt_fft64_norm_group0(x,1u);
+    for(uint32_t group=1u;group<4u;group++){
+        stage_b_rt_fft64_norm_group(x,group,0u);
+        stage_b_rt_fft64_norm_group(x,group,1u);
+    }
+}
+
+static void stage_b_rt_fft64_norm_reorder(float output[128],const float input[128])
+{
+    static const uint32_t permutation[4]={0u,4u,2u,6u};
+    for(uint32_t group=0u;group<4u;group++){
+        const float *q=input+32u*group;
+        const float A0=f32_bits(stage_b_rt_fft64_norm_twiddle[0][4u*group]);
+        const float A1=f32_bits(stage_b_rt_fft64_norm_twiddle[0][4u*group+1u]);
+        const float A2=f32_bits(stage_b_rt_fft64_norm_twiddle[0][4u*group+2u]);
+        const float A3=f32_bits(stage_b_rt_fft64_norm_twiddle[0][4u*group+3u]);
+        const float B0=f32_bits(stage_b_rt_fft64_norm_twiddle[1][4u*group]);
+        const float B1=f32_bits(stage_b_rt_fft64_norm_twiddle[1][4u*group+1u]);
+        const float B2=f32_bits(stage_b_rt_fft64_norm_twiddle[1][4u*group+2u]);
+        const float B3=f32_bits(stage_b_rt_fft64_norm_twiddle[1][4u*group+3u]);
+        const float C0=f32_bits(stage_b_rt_fft64_norm_twiddle[2][4u*group]);
+        const float C1=f32_bits(stage_b_rt_fft64_norm_twiddle[2][4u*group+1u]);
+        const float C2=f32_bits(stage_b_rt_fft64_norm_twiddle[2][4u*group+2u]);
+        const float C3=f32_bits(stage_b_rt_fft64_norm_twiddle[2][4u*group+3u]);
+        const float D0=f32_bits(stage_b_rt_fft64_norm_twiddle[3][4u*group]);
+        const float D1=f32_bits(stage_b_rt_fft64_norm_twiddle[3][4u*group+1u]);
+        const float D2=f32_bits(stage_b_rt_fft64_norm_twiddle[3][4u*group+2u]);
+        const float D3=f32_bits(stage_b_rt_fft64_norm_twiddle[3][4u*group+3u]);
+        const float E0=f32_bits(stage_b_rt_fft64_norm_twiddle[4][4u*group]);
+        const float E1=f32_bits(stage_b_rt_fft64_norm_twiddle[4][4u*group+1u]);
+        const float E2=f32_bits(stage_b_rt_fft64_norm_twiddle[4][4u*group+2u]);
+        const float E3=f32_bits(stage_b_rt_fft64_norm_twiddle[4][4u*group+3u]);
+        const float F0=f32_bits(stage_b_rt_fft64_norm_twiddle[5][4u*group]);
+        const float F1=f32_bits(stage_b_rt_fft64_norm_twiddle[5][4u*group+1u]);
+        const float F2=f32_bits(stage_b_rt_fft64_norm_twiddle[5][4u*group+2u]);
+        const float F3=f32_bits(stage_b_rt_fft64_norm_twiddle[5][4u*group+3u]);
+        const float p45=stage_b_rt_fft64_norm_msub(q[2],C0,q[6],D0);
+        const float p47=stage_b_rt_fft64_norm_msub(q[10],C1,q[14],D1);
+        const float p49=stage_b_rt_fft64_norm_msub(q[18],C2,q[22],D2);
+        const float p51=stage_b_rt_fft64_norm_msub(q[26],C3,q[30],D3);
+        const float p21=stage_b_rt_fft64_norm_madd(q[6],C0,q[2],D0);
+        const float p23=stage_b_rt_fft64_norm_madd(q[14],C1,q[10],D1);
+        const float p25=stage_b_rt_fft64_norm_madd(q[22],C2,q[18],D2);
+        const float p27=stage_b_rt_fft64_norm_madd(q[30],C3,q[26],D3);
+        const float p29=stage_b_rt_fft64_norm_msub(q[3],E0,q[7],F0);
+        const float p30=stage_b_rt_fft64_norm_msub(q[11],E1,q[15],F1);
+        const float p31=stage_b_rt_fft64_norm_msub(q[19],E2,q[23],F2);
+        const float p32=stage_b_rt_fft64_norm_msub(q[27],E3,q[31],F3);
+        const float p41=stage_b_rt_fft64_norm_msub(q[1],A0,q[5],B0);
+        const float p42=stage_b_rt_fft64_norm_msub(q[9],A1,q[13],B1);
+        const float p43=stage_b_rt_fft64_norm_msub(q[17],A2,q[21],B2);
+        const float p44=stage_b_rt_fft64_norm_msub(q[25],A3,q[29],B3);
+        const float p17=stage_b_rt_fft64_norm_madd(q[7],E0,q[3],F0);
+        const float p18=stage_b_rt_fft64_norm_madd(q[15],E1,q[11],F1);
+        const float p19=stage_b_rt_fft64_norm_madd(q[23],E2,q[19],F2);
+        const float p20=stage_b_rt_fft64_norm_madd(q[31],E3,q[27],F3);
+        const float p33=stage_b_rt_fft64_norm_madd(q[5],A0,q[1],B0);
+        const float p35=stage_b_rt_fft64_norm_madd(q[13],A1,q[9],B1);
+        const float p37=stage_b_rt_fft64_norm_madd(q[21],A2,q[17],B2);
+        const float p40=stage_b_rt_fft64_norm_madd(q[29],A3,q[25],B3);
+        const float p69=q[0]+p45,p70=q[8]+p47,p71=q[16]+p49,p72=q[24]+p51;
+        const float p65=q[4]+p21,p66=q[12]+p23,p67=q[20]+p25,p68=q[28]+p27;
+        const float p46=q[0]-p45,p48=q[8]-p47,p50=q[16]-p49,p52=q[24]-p51;
+        const float p22=q[4]-p21,p24=q[12]-p23,p26=q[20]-p25,p28=q[28]-p27;
+        const float a25=p41+p29,a27=p42+p30,a63=p43+p31,a64=p44+p32;
+        const float d41=p41-p29,d42=p42-p30,d43=p43-p31,d44=p44-p32;
+        const float a56=p33+p17,a58=p35+p18,a60=p37+p19,a62=p40+p20;
+        const float d33=p33-p17,d35=p35-p18,d37=p37-p19,d40=p40-p20;
+        float *o=output+permutation[group];
+        o[0]=p69+a25;o[1]=p65+a56;o[8]=p71+a63;o[9]=p67+a60;
+        o[16]=p70+a27;o[17]=p66+a58;o[24]=p72+a64;o[25]=p68+a62;
+        o[32]=p46+d33;o[33]=p22-d41;o[40]=p50+d37;o[41]=p26-d43;
+        o[48]=p48+d35;o[49]=p24-d42;o[56]=p52+d40;o[57]=p28-d44;
+        o[64]=p69-a25;o[65]=p65-a56;o[72]=p71-a63;o[73]=p67-a60;
+        o[80]=p70-a27;o[81]=p66-a58;o[88]=p72-a64;o[89]=p68-a62;
+        o[96]=p46-d33;o[97]=p22+d41;o[104]=p50-d37;o[105]=p26+d43;
+        o[112]=p48-d35;o[113]=p24+d42;o[120]=p52-d40;o[121]=p28+d44;
+    }
+}
+
+void ubig_stage_b_rt_fft64_normalized(float output[128],const float input[128])
+{
+    if(!output||!input)return;
+    float work[128];
+    memcpy(work,input,sizeof work);
+    stage_b_rt_fft64_norm_radix4(work);
+    stage_b_rt_fft64_norm_radix16(work);
+    stage_b_rt_fft64_norm_reorder(output,work);
+}
+
 typedef struct { float r,i; } StageBRtComplex64;
 
 static void stage_b_rt_fft64_radix8(StageBRtComplex64 y[8],const StageBRtComplex64 x[8])
