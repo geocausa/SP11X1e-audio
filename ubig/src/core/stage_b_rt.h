@@ -912,6 +912,24 @@ void ubig_stage_b_rt_deep_controller_process(float control,
                                              int32_t *base_meter,
                                              int32_t *output_meter);
 
+#define UBIG_STAGE_B_RT_TRANSFORM64_BLOCKS 4u
+#define UBIG_STAGE_B_RT_TRANSFORM64_ROWS 2u
+#define UBIG_STAGE_B_RT_TRANSFORM64_SOURCE_FLOATS 128u
+#define UBIG_STAGE_B_RT_TRANSFORM64_STATE_FLOATS 576u
+#define UBIG_STAGE_B_RT_TRANSFORM64_OUTPUT_FLOATS 64u
+#define UBIG_STAGE_B_RT_TRANSFORM64_FILTER_FLOATS 640u
+#define UBIG_STAGE_B_RT_TRANSFORM64_PHASE_FLOATS 128u
+
+/* Exact deployed 0x180040BF0 fixed-geometry transform. The 0x49620 caller
+ * fixes four blocks x two rows x 64 complex FFT points. Each state row is a
+ * 16-section, 36-float lattice history. */
+void ubig_stage_b_rt_transform64_process(
+    float *state_rows[UBIG_STAGE_B_RT_TRANSFORM64_ROWS],
+    const float filter[UBIG_STAGE_B_RT_TRANSFORM64_FILTER_FLOATS],
+    const float phase[UBIG_STAGE_B_RT_TRANSFORM64_PHASE_FLOATS],
+    const float *source[UBIG_STAGE_B_RT_TRANSFORM64_BLOCKS][UBIG_STAGE_B_RT_TRANSFORM64_ROWS],
+    float *output[UBIG_STAGE_B_RT_TRANSFORM64_BLOCKS][UBIG_STAGE_B_RT_TRANSFORM64_ROWS]);
+
 #define UBIG_STAGE_B_RT_FFT64_COMPLEX 64u
 #define UBIG_STAGE_B_RT_FFT64_FLOATS 128u
 

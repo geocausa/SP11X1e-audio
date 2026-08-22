@@ -3116,6 +3116,120 @@ void ubig_stage_b_rt_fft64(float output[UBIG_STAGE_B_RT_FFT64_FLOATS],
     }
 }
 
+
+#if defined(__aarch64__)
+static float32x4_t stage_b_rt_reverse4_f32(float32x4_t value)
+{
+    const float32x4_t pairs=vrev64q_f32(value);
+    return vcombine_f32(vget_high_f32(pairs),vget_low_f32(pairs));
+}
+#endif
+
+void ubig_stage_b_rt_transform64_process(
+    float *state_rows[UBIG_STAGE_B_RT_TRANSFORM64_ROWS],
+    const float filter[UBIG_STAGE_B_RT_TRANSFORM64_FILTER_FLOATS],
+    const float phase[UBIG_STAGE_B_RT_TRANSFORM64_PHASE_FLOATS],
+    const float *source[UBIG_STAGE_B_RT_TRANSFORM64_BLOCKS][UBIG_STAGE_B_RT_TRANSFORM64_ROWS],
+    float *output[UBIG_STAGE_B_RT_TRANSFORM64_BLOCKS][UBIG_STAGE_B_RT_TRANSFORM64_ROWS])
+{
+    if(!state_rows||!filter||!phase||!source||!output)return;
+    for(uint32_t block=0u;block<UBIG_STAGE_B_RT_TRANSFORM64_BLOCKS;block++){
+        for(uint32_t row=0u;row<UBIG_STAGE_B_RT_TRANSFORM64_ROWS;row++){
+            if(!state_rows[row]||!source[block][row]||!output[block][row])continue;
+            float fft_input[UBIG_STAGE_B_RT_FFT64_FLOATS];
+            float fft_output[UBIG_STAGE_B_RT_FFT64_FLOATS];
+            const float *src=source[block][row];
+            for(uint32_t chunk=0u;chunk<8u;chunk++){
+                for(uint32_t lane=0u;lane<4u;lane++){
+                    const uint32_t low=4u*chunk+lane;
+                    const uint32_t high=63u-low;
+                    fft_input[2u*low]=src[16u*chunk+4u*lane];
+                    fft_input[2u*low+1u]=-src[16u*chunk+4u*lane+1u];
+                    fft_input[2u*high]=src[16u*chunk+4u*lane+2u];
+                    fft_input[2u*high+1u]=src[16u*chunk+4u*lane+3u];
+                }
+            }
+            ubig_stage_b_rt_fft64(fft_output,fft_input);
+            float *history=state_rows[row];
+            float *dst=output[block][row];
+            for(uint32_t section=0u;section<16u;section++){
+                float *h=history+36u*section;
+                const float *coef=filter+600u-40u*section;
+#if defined(__aarch64__)
+                const float32x4x2_t bins=vld2q_f32(fft_output+8u*section);
+                const float32x4_t phase_r=vld1q_f32(phase+8u*section);
+                const float32x4_t phase_i=vld1q_f32(phase+8u*section+4u);
+                float32x4_t real=vmulq_f32(bins.val[0],phase_r);
+                real=vfmsq_f32(real,bins.val[1],phase_i);
+                float32x4_t imag=vmulq_f32(bins.val[0],phase_i);
+                imag=vfmaq_f32(imag,bins.val[1],phase_r);
+                real=stage_b_rt_reverse4_f32(real);
+                imag=stage_b_rt_reverse4_f32(imag);
+
+                float32x4_t a=vld1q_f32(h);
+                a=vfmaq_f32(a,real,vld1q_f32(coef+36u));
+                const float32x4_t reversed=stage_b_rt_reverse4_f32(a);
+                vst1q_f32(dst+4u*section,vaddq_f32(reversed,reversed));
+
+                a=vld1q_f32(h+4u);
+                a=vfmaq_f32(a,imag,vld1q_f32(coef+32u));
+                vst1q_f32(h,a);
+                float32x4_t b=vld1q_f32(h+12u);
+                b=vfmsq_f32(b,imag,vld1q_f32(coef+24u));
+                a=vld1q_f32(h+8u);
+                a=vfmsq_f32(a,real,vld1q_f32(coef+28u));
+                vst1q_f32(h+4u,a);vst1q_f32(h+8u,b);
+
+                a=vld1q_f32(h+16u);
+                a=vfmaq_f32(a,real,vld1q_f32(coef+20u));
+                b=vld1q_f32(h+20u);
+                b=vfmaq_f32(b,imag,vld1q_f32(coef+16u));
+                vst1q_f32(h+12u,a);vst1q_f32(h+16u,b);
+
+                a=vld1q_f32(h+24u);
+                a=vfmsq_f32(a,real,vld1q_f32(coef+12u));
+                b=vld1q_f32(h+28u);
+                b=vfmsq_f32(b,imag,vld1q_f32(coef+8u));
+                vst1q_f32(h+20u,a);vst1q_f32(h+24u,b);
+
+                b=vmulq_f32(imag,vld1q_f32(coef));
+                a=vld1q_f32(h+32u);
+                a=vfmaq_f32(a,real,vld1q_f32(coef+4u));
+                vst1q_f32(h+28u,a);vst1q_f32(h+32u,b);
+#else
+                float real[4],imag[4];
+                for(uint32_t lane=0u;lane<4u;lane++){
+                    const float xr=fft_output[8u*section+2u*lane];
+                    const float xi=fft_output[8u*section+2u*lane+1u];
+                    const float pr=phase[8u*section+lane];
+                    const float pi=phase[8u*section+4u+lane];
+                    const float rr=xr*pr;
+                    const float ii=xr*pi;
+                    real[3u-lane]=fmaf(-xi,pi,rr);
+                    imag[3u-lane]=fmaf(xi,pr,ii);
+                }
+                for(uint32_t lane=0u;lane<4u;lane++){
+                    const float first=fmaf(real[lane],coef[36u+lane],h[lane]);
+                    dst[4u*section+(3u-lane)]=first+first;
+                    h[lane]=fmaf(imag[lane],coef[32u+lane],h[4u+lane]);
+                    const float s8=fmaf(-real[lane],coef[28u+lane],h[8u+lane]);
+                    const float s12=fmaf(-imag[lane],coef[24u+lane],h[12u+lane]);
+                    h[4u+lane]=s8;h[8u+lane]=s12;
+                    const float s16=fmaf(real[lane],coef[20u+lane],h[16u+lane]);
+                    const float s20=fmaf(imag[lane],coef[16u+lane],h[20u+lane]);
+                    h[12u+lane]=s16;h[16u+lane]=s20;
+                    const float s24=fmaf(-real[lane],coef[12u+lane],h[24u+lane]);
+                    const float s28=fmaf(-imag[lane],coef[8u+lane],h[28u+lane]);
+                    h[20u+lane]=s24;h[24u+lane]=s28;
+                    h[28u+lane]=fmaf(real[lane],coef[4u+lane],h[32u+lane]);
+                    h[32u+lane]=imag[lane]*coef[lane];
+                }
+#endif
+            }
+        }
+    }
+}
+
 float ubig_stage_b_rt_max_abs4(const float *input,uint32_t count)
 {
     if(!input||count<4u||(count&3u)!=0u)return 0.0f;

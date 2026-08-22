@@ -522,3 +522,8 @@ A promoted-source direct differential against the mapped DLL matches **1,000,000
 ### Stage-B specialized FFT64 callback closure
 
 The live `0x180049620` transform context resolves its non-null FFT callback to reference VA `0x1800A68C0`. That specialized unscaled forward complex FFT64 is now native as `ubig_stage_b_rt_fft64()`: isolated first-stage differential **1,000,000 exact**, promoted full transform **1,000,000 direct calls bit-exact**, public hash `5370d7a298fc74d9`. The implementation is radix-8 x radix-8 with only mathematically derived standard `W64` roots. Recovered old FFT/twiddle notes were consulted as a cross-check rather than treated as authoritative for the current DLL.
+
+
+### Stage-B deployed transform64-bank closure
+
+Reference `0x180040BF0`, the indirect every-block transform beneath `0x180049620`, is now native as `ubig_stage_b_rt_transform64_process()`. Live dimensions are invariant `{rows=2, blocks=4, N=64}` across all shipped profiles. Promoted semantic source matches **1,000,000 complete randomized parent calls bit-exact** over all 1,152 mutable lattice-history floats plus all 512 output floats. Public hash: `99ef46ca3663639e`. Its FFT dependency is the independently exact native `0x1800A68C0` helper.

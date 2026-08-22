@@ -336,3 +336,10 @@ Promoted source matches **1,000,000 complete randomized DLL parent calls bit-exa
 The implementation is the exact deployed radix-8 x radix-8 factorization. The first radix-8 pass was isolated by bypassing the second pass in the mapped reference and matches **1,000,000 randomized complete first stages bit-exact**. The promoted complete FFT then matches **1,000,000 randomized direct `0x1800A68C0` calls bit-exact** across all 128 output floats. Its only constants are `sqrt(1/2)` and standard `W64` roots; the root grid is mathematically derived rather than a proprietary tuning payload. Public regression hash: `5370d7a298fc74d9`.
 
 Prior recovered RE archives were checked before promotion. They independently document 64-point Dolby FFT/twiddle work and standard-root tables in the old bass-control analysis; those notes were used only as a guardrail. The current callback layout, radix schedule, natural-order contract and bit-exact gate were re-established against the active `DolbyAPOVR.dll`.
+
+
+## Deployed four-block transform64 bank
+
+`ubig_stage_b_rt_transform64_process()` closes reference parent `0x180040BF0` on the fixed geometry actually supplied by `0x180049620`: four blocks x two rows, 64 complex FFT points, two 576-float lattice-history rows, 640 filter coefficients and 128 phase coefficients. Each 128-float source row is folded into a Hermitian 64-complex frame, transformed by the native exact FFT64, phase-rotated in four-bin vectors, and passed through sixteen 36-float fused lattice sections to produce 64 scalar outputs per row.
+
+A direct mapped-reference oracle retains the real `0x180040BF0` with its live specialized `0x1800A68C0` callback while comparing the semantic native composition. **1,000,000 complete randomized parent calls are bit-exact** across all 1,152 mutable history floats and all 512 output floats per call. The promoted source independently reuses the native FFT64 and preserves the reference `fmla`/`fmls` schedule in the lattice stage. Public regression hash: `99ef46ca3663639e`.

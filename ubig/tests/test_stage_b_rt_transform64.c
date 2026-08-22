@@ -1,0 +1,6 @@
+#include "stage_b_rt.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+static uint32_t q=0x40bf0640u;static uint32_t ru(void){q=q*1664525u+1013904223u;return q;}static float rf(void){uint32_t u=(ru()&0x807fffffu)|(((ru()%24u)+108u)<<23);float f;memcpy(&f,&u,4);return f;}static uint64_t h64(uint64_t h,const void*p,size_t n){const unsigned char*b=p;for(size_t i=0;i<n;i++){h^=b[i];h*=1099511628211ULL;}return h;}
+int main(void){float filter[640],phase[128],src[4][2][128],state[2][576],dst[4][2][64];float *sp[2]={state[0],state[1]};const float *ip[4][2];float *op[4][2];uint64_t h=1469598103934665603ULL;for(unsigned t=0;t<2000u;t++){for(unsigned i=0;i<640;i++)filter[i]=rf();for(unsigned i=0;i<128;i++)phase[i]=rf();for(unsigned b=0;b<4;b++)for(unsigned r=0;r<2;r++){for(unsigned i=0;i<128;i++)src[b][r][i]=rf();ip[b][r]=src[b][r];op[b][r]=dst[b][r];}for(unsigned r=0;r<2;r++)for(unsigned i=0;i<576;i++)state[r][i]=rf();memset(dst,0xa5,sizeof dst);ubig_stage_b_rt_transform64_process(sp,filter,phase,ip,op);h=h64(h,state,sizeof state);h=h64(h,dst,sizeof dst);}if(h!=0x99ef46ca3663639eULL){fprintf(stderr,"Stage-B RT transform64 hash %016llx\n",(unsigned long long)h);return 2;}puts("PASS Stage-B RT transform64 regression");return 0;}
