@@ -321,3 +321,9 @@ The `0x64B38` subtree now has four of its six every-block numerical children in 
 The always-live late controller leaves at reference VAs `0x180080920`, `0x180080AE0`, and `0x180080ED8` are represented by `ubig_stage_b_rt_pair_bounds_process()`, `ubig_stage_b_rt_residual_balance_process()`, and `ubig_stage_b_rt_residual_mean_process()`. Their curve and smoothing coefficients remain caller-owned. The generated reciprocal used for active-lane averaging is ordinary binary32 `1/N` except for the reference's legacy `N=7` value `0x3e124924`, reproduced explicitly to preserve exact behavior without embedding the original reciprocal table.
 
 Promoted source matches **1,000,000 randomized direct reference calls bit-exact per leaf**, including forced seven-active-lane cases for both average-based stages. Public regression hash: `feab20243c13de7c`. With the previously closed dual-envelope, envelope/activity, and neighbor stages, every numerical child executed each block by `0x180064B38` now has a native semantic implementation.
+
+## Late deep controller parent
+
+`ubig_stage_b_rt_deep_controller_process()` is the semantic implementation of reference parent `0x180064B38`; `ubig_stage_b_rt_deep_controller_reset()` covers its `0x180064958` reset path. The parent composes only native leaf APIs and keeps caller-owned coefficients in `UbigStageBRtDeepControllerConfig`. It preserves mode-dependent external status/source handling, the dual-status directional post smoother, the final three-neighbor shaping, correction accumulation into both row banks, and floor-rounded optional meters scaled by 2080 and 4160.
+
+Promoted source matches **1,000,000 complete randomized DLL parent calls bit-exact**, including row-count changes that invoke the reference reset. Public lifecycle hash: `c51343d575cd92dd`.

@@ -2704,6 +2704,116 @@ void ubig_stage_b_rt_residual_mean_process(float gain,float bias,
     for(uint32_t lane=0u;lane<state->active_width;lane++)residual_output[lane]+=old_scalar;
 }
 
+
+void ubig_stage_b_rt_deep_controller_reset(UbigStageBRtDeepControllerState *state,
+                                           uint32_t row_count)
+{
+    if(!state||!state->config||state->config->active_width>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    const uint32_t count=state->config->active_width;
+    state->row_count_cache=row_count;
+
+    state->dual.config=&state->config->dual_envelope;
+    state->dual.active_width=count;
+    for(uint32_t lane=0u;lane<count;lane++){
+        state->dual.primary[lane]=-1.0f;
+        state->dual.secondary[lane]=-1.0f;
+    }
+
+    state->envelope.config=&state->config->envelope;
+    state->envelope.active_width=count;
+    for(uint32_t lane=0u;lane<UBIG_STAGE_B_RT_MAX_BANDS;lane++){
+        state->envelope.status[lane]=0u;
+        state->envelope.envelope[lane]=-1.0f;
+        state->envelope.lane_activity[lane]=0.0f;
+        state->output[lane]=0.0f;
+    }
+    state->envelope.scalar_envelope=-1.0f;
+    state->envelope.activity_state=0.0f;
+
+    state->pair_bounds.config=&state->config->pair_bounds;
+    state->pair_bounds.active_width=count;
+    state->pair_bounds.baseline=f32_bits(0x3d8dc55cu);
+
+    state->residual_mean.config=&state->config->residual_mean;
+    state->residual_mean.active_width=count;
+    state->residual_mean.scalar=0.0f;
+
+    for(uint32_t lane=0u;lane<count;lane++)state->intermediate[lane]=f32_bits(0x3b7c0fc1u);
+}
+
+void ubig_stage_b_rt_deep_controller_process(float control,
+                                             UbigStageBRtDeepControllerState *state,
+                                             const float *lower_source,
+                                             const float *upper_source,
+                                             const int32_t *status,
+                                             const UbigStageBRtDeepControllerControls *controls,
+                                             UbigStageBRtBandRows *analysis_rows,
+                                             UbigStageBRtBandRows *output_rows,
+                                             int32_t *base_meter,
+                                             int32_t *output_meter)
+{
+    if(!state||!state->config||!controls||!analysis_rows||!output_rows||
+       !analysis_rows->rows||!output_rows->rows||
+       state->config->active_width>UBIG_STAGE_B_RT_MAX_BANDS||
+       output_rows->row_count<analysis_rows->row_count)return;
+    const uint32_t count=state->config->active_width;
+    if(state->mode==1u&&!status)return;
+    if(state->row_count_cache!=analysis_rows->row_count||
+       state->dual.config!=&state->config->dual_envelope||
+       state->envelope.config!=&state->config->envelope||
+       state->pair_bounds.config!=&state->config->pair_bounds||
+       state->residual_mean.config!=&state->config->residual_mean)
+        ubig_stage_b_rt_deep_controller_reset(state,analysis_rows->row_count);
+
+    int32_t zero_status[UBIG_STAGE_B_RT_MAX_BANDS]={0};
+    uint32_t dual_status[UBIG_STAGE_B_RT_MAX_BANDS];
+    float lower[UBIG_STAGE_B_RT_MAX_BANDS];
+    float upper[UBIG_STAGE_B_RT_MAX_BANDS];
+    float base[UBIG_STAGE_B_RT_MAX_BANDS];
+    const int32_t *active_status=(state->mode==1u)?status:zero_status;
+
+    ubig_stage_b_rt_dual_envelope_process(controls->dual_offset,&state->dual,
+                                          analysis_rows,dual_status);
+    ubig_stage_b_rt_envelope_activity_process(&state->envelope,analysis_rows,
+                                              state->output);
+    ubig_stage_b_rt_pair_bounds_process(control,controls->subtract,
+                                        controls->base_offset,controls->modulation_scale,
+                                        &state->pair_bounds,
+                                        state->mode==1u?lower_source:NULL,
+                                        state->mode==1u?upper_source:NULL,
+                                        lower,upper,state->envelope.lane_activity);
+    ubig_stage_b_rt_residual_balance_process(state->mode==1u?controls->gain:1.0f,
+                                             active_status,state->dual.secondary,count,
+                                             upper,lower);
+    ubig_stage_b_rt_residual_mean_process(controls->gain,controls->bias,
+                                          &state->residual_mean,state->dual.primary,
+                                          upper,lower,active_status,base,state->output);
+
+    for(uint32_t lane=0u;lane<count;lane++){
+        float current=state->output[lane];
+        const float prior=state->intermediate[lane];
+        if((current<prior&&dual_status[lane]==0u)||
+           (prior<=current&&dual_status[lane]!=0u))
+            current=fmaf(prior,state->config->post_new,current*state->config->post_old);
+        state->intermediate[lane]=current;
+    }
+    ubig_stage_b_rt_neighbor_smooth(count,active_status,state->intermediate,state->output);
+
+    for(uint32_t row=0u;row<state->row_count_cache;row++){
+        float *analysis=analysis_rows->rows[row];
+        float *output=output_rows->rows[row];
+        if(!analysis||!output)return;
+        for(uint32_t lane=0u;lane<count;lane++){
+            analysis[lane]+=state->output[lane];
+            output[lane]+=state->output[lane];
+        }
+    }
+    for(uint32_t lane=0u;lane<count;lane++){
+        if(output_meter)output_meter[lane]=(int32_t)floorf(state->output[lane]*2080.0f);
+        if(base_meter)base_meter[lane]=(int32_t)floorf(base[lane]*4160.0f);
+    }
+}
+
 static float stage_b_rt_dual_curve_primary(const UbigStageBRtDualEnvelopeConfig *config,
                                            float target,float old)
 {

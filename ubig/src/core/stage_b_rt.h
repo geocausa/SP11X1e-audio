@@ -804,6 +804,8 @@ void ubig_stage_b_rt_residual_mean_process(float gain,float bias,
                                            const int32_t *status,
                                            float *base_output,float *residual_output);
 
+
+
 typedef struct {
     float primary_lower_limit;
     float primary_negative_slope;
@@ -862,6 +864,53 @@ int ubig_stage_b_rt_envelope_track(UbigStageBRtEnvelopeState *state,
 void ubig_stage_b_rt_envelope_activity_process(UbigStageBRtEnvelopeState *state,
                                                const UbigStageBRtBandRows *rows,
                                                const float *lane_offset);
+
+typedef struct {
+    uint32_t active_width;
+    UbigStageBRtPairBoundsConfig pair_bounds;
+    UbigStageBRtDualEnvelopeConfig dual_envelope;
+    UbigStageBRtResidualMeanConfig residual_mean;
+    UbigStageBRtEnvelopeConfig envelope;
+    float post_new;
+    float post_old;
+} UbigStageBRtDeepControllerConfig;
+
+typedef struct {
+    float gain;
+    float subtract;
+    float bias;
+    float base_offset;
+    float dual_offset;
+    float modulation_scale;
+} UbigStageBRtDeepControllerControls;
+
+typedef struct {
+    const UbigStageBRtDeepControllerConfig *config;
+    uint32_t mode;
+    uint32_t row_count_cache;
+    UbigStageBRtDualEnvelopeState dual;
+    UbigStageBRtEnvelopeState envelope;
+    UbigStageBRtPairBoundsState pair_bounds;
+    UbigStageBRtResidualMeanState residual_mean;
+    float intermediate[UBIG_STAGE_B_RT_MAX_BANDS];
+    float output[UBIG_STAGE_B_RT_MAX_BANDS];
+} UbigStageBRtDeepControllerState;
+
+/* Exact deployed late Stage-B controller parent at 0x180064B38 plus its
+ * one-time/row-count-change reset at 0x180064958. The semantic state composes
+ * the independently exact native leaves rather than preserving raw DLL offsets. */
+void ubig_stage_b_rt_deep_controller_reset(UbigStageBRtDeepControllerState *state,
+                                           uint32_t row_count);
+void ubig_stage_b_rt_deep_controller_process(float control,
+                                             UbigStageBRtDeepControllerState *state,
+                                             const float *lower_source,
+                                             const float *upper_source,
+                                             const int32_t *status,
+                                             const UbigStageBRtDeepControllerControls *controls,
+                                             UbigStageBRtBandRows *analysis_rows,
+                                             UbigStageBRtBandRows *output_rows,
+                                             int32_t *base_meter,
+                                             int32_t *output_meter);
 
 /* Exact aligned four-lane max-absolute reducer at 0x1800BB6E0. Counts are
  * positive multiples of four; the deployed late Stage-B path uses 64. */
