@@ -20,6 +20,8 @@ UBIG_SP11_STAGEB_PACK=/path/to/private.pack make -C ubig candidate-control-check
 
 That gate verifies request/ack profile switching, entry into Custom with a non-flat 20-band curve, and a second Custom curve update **without changing profile or reconstructing the DSP state**. Private reference differentials remain outside Git.
 
+The existing Windows-taper, final volume-transaction and MSIIR/CKV helpers can now share the candidate control page without changing the Golden default. Their legacy layout remains the default for the installed Windows bridge, while a candidate deployment supplies the `ubig-control-v2` path and `--control-format ubig-v2`. The Python writer and public C control API serialize creation/updates with the same file lock, so endpoint postgain may be queued before LADSPA instantiation without losing the request when the candidate opens the page. The MSIIR reader auto-detects the UbiG v2 header and consumes the same desired postgain used by the final transaction.
+
 Promotion rules:
 
 - never replace the installed Golden plugin merely by building this target;

@@ -308,7 +308,8 @@ def read_generation_node(path: Path) -> int | None:
 
 
 def queue_dolby_postgain_for_generation(
-    state: tuple[float, bool], node_id: int, control: Path, generation_state: Path
+    state: tuple[float, bool], node_id: int, control: Path, generation_state: Path,
+    control_format: str = base.CONTROL_FORMAT_AUTO,
 ) -> int | None:
     """Queue VLLDP postgain once for one Dolby/filter-chain generation.
 
@@ -325,7 +326,10 @@ def queue_dolby_postgain_for_generation(
     ui_scalar, endpoint_db, postgain, _host = base.derive_windows_state(
         pipewire_gain, muted
     )
-    base.write_postgain_request(control, postgain)
+    if control_format == base.CONTROL_FORMAT_AUTO:
+        base.write_postgain_request(control, postgain)
+    else:
+        base.write_postgain_request(control, postgain, control_format)
     generation_state.parent.mkdir(parents=True, exist_ok=True)
     generation_state.write_text(f"{node_id}\n")
     print(
@@ -627,7 +631,7 @@ def run(args: argparse.Namespace) -> int:
         restore_visible_control_state(current_state, node_id, args.wpctl)
         current_node_id = node_id
         queue_dolby_postgain_for_generation(
-            current_state, node_id, args.control, generation_state
+            current_state, node_id, args.control, generation_state, getattr(args, "control_format", base.CONTROL_FORMAT_AUTO)
         )
         target_hardware = hardware_id or current_hardware_id
         if target_hardware is not None:
@@ -641,7 +645,7 @@ def run(args: argparse.Namespace) -> int:
             return 3
         current_node_id = node_id
         queue_dolby_postgain_for_generation(
-            state, node_id, args.control, generation_state
+            state, node_id, args.control, generation_state, getattr(args, "control_format", base.CONTROL_FORMAT_AUTO)
         )
         reconcile(state, hardware_id)
         if not transaction_active:
@@ -680,7 +684,7 @@ def run(args: argparse.Namespace) -> int:
                     state, node_id, hardware_id = state2, node_id2, hardware_id2
                 current_node_id = node_id
                 queue_dolby_postgain_for_generation(
-                    state, node_id, args.control, generation_state
+                    state, node_id, args.control, generation_state, getattr(args, "control_format", base.CONTROL_FORMAT_AUTO)
                 )
                 reconcile(state, hardware_id)
                 break
@@ -782,6 +786,8 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--node", default=base.DEFAULT_NODE)
     p.add_argument("--hardware-node", default=base.DEFAULT_HARDWARE_NODE)
     p.add_argument("--control", type=Path, default=base.default_control_path())
+    p.add_argument("--control-format", choices=(base.CONTROL_FORMAT_AUTO, base.CONTROL_FORMAT_LEGACY, base.CONTROL_FORMAT_UBIG_V2),
+                   default=base.CONTROL_FORMAT_AUTO)
     p.add_argument("--card", default=DEFAULT_CARD)
     p.add_argument("--pcm-status", type=Path, default=DEFAULT_PCM_STATUS)
     p.add_argument("--tlv-write", type=Path, default=DEFAULT_TLV_WRITE)

@@ -41,6 +41,14 @@ POSTGAIN_REQUEST_OFF = 4
 POSTGAIN_NONE = -(1 << 31)
 POSTGAIN_MIN = -1200
 POSTGAIN_MAX = 0
+
+UBIG_CONTROL_MAGIC = 0x55424947
+UBIG_CONTROL_ABI = 2
+UBIG_CONTROL_BYTES = 172
+UBIG_DESIRED_POSTGAIN_OFF = 116
+CONTROL_FORMAT_AUTO = "auto"
+CONTROL_FORMAT_LEGACY = "legacy"
+CONTROL_FORMAT_UBIG_V2 = "ubig-v2"
 MSIIR_IID = 0x489E
 PARAM_COEFFS = 0x08001022
 Q28_ONE = 1 << 28
@@ -142,11 +150,30 @@ def select_ckv_step_postgain(postgain: int) -> int:
     return select_ckv_step_q28(postgain_to_q28(postgain))
 
 
-def read_postgain(path: Path) -> int | None:
+def detect_control_format(path: Path, requested: str = CONTROL_FORMAT_AUTO) -> str:
+    if requested != CONTROL_FORMAT_AUTO:
+        return requested
+    try:
+        data = path.read_bytes()[:12]
+    except FileNotFoundError:
+        return CONTROL_FORMAT_LEGACY
+    if len(data) >= 12:
+        magic, abi, struct_bytes = struct.unpack_from("<III", data, 0)
+        if magic == UBIG_CONTROL_MAGIC and abi == UBIG_CONTROL_ABI and struct_bytes == UBIG_CONTROL_BYTES:
+            return CONTROL_FORMAT_UBIG_V2
+    return CONTROL_FORMAT_LEGACY
+
+
+def read_postgain(path: Path, control_format: str = CONTROL_FORMAT_AUTO) -> int | None:
     try:
         data = path.read_bytes()
     except FileNotFoundError:
         return None
+    if detect_control_format(path, control_format) == CONTROL_FORMAT_UBIG_V2:
+        if len(data) < UBIG_DESIRED_POSTGAIN_OFF + 4:
+            return None
+        value = struct.unpack_from("<i", data, UBIG_DESIRED_POSTGAIN_OFF)[0]
+        return value if POSTGAIN_MIN <= value <= POSTGAIN_MAX else None
     if len(data) < POSTGAIN_REQUEST_OFF + 4:
         return None
     value = struct.unpack_from("<i", data, POSTGAIN_REQUEST_OFF)[0]
@@ -199,7 +226,7 @@ def describe(postgain: int, step: int) -> str:
 
 
 def run_once(args: argparse.Namespace) -> int:
-    pg = read_postgain(args.control)
+    pg = read_postgain(args.control, args.control_format)
     if pg is None:
         print("postgain unavailable", file=sys.stderr)
         return 3
@@ -234,7 +261,7 @@ def run_monitor(args: argparse.Namespace) -> int:
     last_step: int | None = None
     last_error: tuple[int, int] | None = None
     while True:
-        pg = read_postgain(args.control)
+        pg = read_postgain(args.control, args.control_format)
         running = graph_running(args.pcm_status)
         if not running:
             last_running = False
@@ -265,6 +292,8 @@ def run_monitor(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--control", type=Path, default=default_control_path())
+    p.add_argument("--control-format", choices=(CONTROL_FORMAT_AUTO, CONTROL_FORMAT_LEGACY, CONTROL_FORMAT_UBIG_V2),
+                   default=CONTROL_FORMAT_AUTO)
     p.add_argument("--card", default=DEFAULT_CARD)
     p.add_argument("--pcm-status", type=Path, default=DEFAULT_PCM_STATUS)
     p.add_argument("--tlv-write", type=Path, default=DEFAULT_TLV_WRITE)

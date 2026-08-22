@@ -6,8 +6,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+static int lock_fd(int fd)
+{
+    while (flock(fd, LOCK_EX) != 0) {
+        if (errno == EINTR) continue;
+        return -errno;
+    }
+    return UBIG_OK;
+}
+
+static void unlock_fd(int fd)
+{
+    while (flock(fd, LOCK_UN) != 0 && errno == EINTR) {}
+}
 
 static int resolve_path(char out[512], const char *override)
 {
@@ -30,6 +45,8 @@ int ubig_control_open(ubig_control_handle *h, const char *override, int create)
     h->fd = open(h->path, flags, 0600);
     if (h->fd < 0) return -errno;
     if (fchmod(h->fd, 0600)) { int e=errno; close(h->fd); h->fd=-1; return -e; }
+    int locked=0;
+    if(create){int rc=lock_fd(h->fd);if(rc){close(h->fd);h->fd=-1;return rc;}locked=1;}
 
     struct stat st;
     if (fstat(h->fd, &st)) { int e=errno; close(h->fd); h->fd=-1; return -e; }
@@ -57,6 +74,7 @@ int ubig_control_open(ubig_control_handle *h, const char *override, int create)
         __atomic_store_n(&h->page->magic, UBIG_CONTROL_MAGIC, __ATOMIC_RELEASE);
         msync(h->page, sizeof(*h->page), MS_SYNC);
     }
+    if(locked)unlock_fd(h->fd);
     return UBIG_OK;
 }
 
@@ -88,28 +106,34 @@ int ubig_control_snapshot(const ubig_control_handle *h, ubig_control_page *out)
 
 int ubig_control_request_profile(ubig_control_handle *h, ubig_profile p)
 {
-    if (!h || !h->page || p < 0 || p >= UBIG_PROFILE_COUNT) return UBIG_EINVAL;
+    if (!h || !h->page || h->fd < 0 || p < 0 || p >= UBIG_PROFILE_COUNT) return UBIG_EINVAL;
+    int rc=lock_fd(h->fd);if(rc)return rc;
     __atomic_store_n(&h->page->desired_profile, (uint32_t)p, __ATOMIC_RELAXED);
     __atomic_add_fetch(&h->page->request_generation, 1u, __ATOMIC_RELEASE);
+    unlock_fd(h->fd);
     return UBIG_OK;
 }
 
 int ubig_control_request_custom_eq(ubig_control_handle *h, const int32_t v[UBIG_EQ_BANDS])
 {
-    if (!h || !h->page || !v) return UBIG_EINVAL;
+    if (!h || !h->page || h->fd < 0 || !v) return UBIG_EINVAL;
     for (unsigned i=0;i<UBIG_EQ_BANDS;++i) if (v[i] < -192 || v[i] > 192) return UBIG_EINVAL;
+    int rc=lock_fd(h->fd);if(rc)return rc;
     memcpy(h->page->custom_eq, v, sizeof(h->page->custom_eq));
     uint32_t flags=__atomic_load_n(&h->page->desired_flags,__ATOMIC_RELAXED);
     __atomic_store_n(&h->page->desired_flags, flags|UBIG_CONTROL_FLAG_CUSTOM_EQ_VALID, __ATOMIC_RELAXED);
     __atomic_store_n(&h->page->desired_profile, UBIG_PROFILE_CUSTOM, __ATOMIC_RELAXED);
     __atomic_add_fetch(&h->page->request_generation, 1u, __ATOMIC_RELEASE);
+    unlock_fd(h->fd);
     return UBIG_OK;
 }
 
 int ubig_control_request_postgain(ubig_control_handle *h, int32_t postgain)
 {
-    if (!h || !h->page || postgain < -1200 || postgain > 0) return UBIG_EINVAL;
+    if (!h || !h->page || h->fd < 0 || postgain < -1200 || postgain > 0) return UBIG_EINVAL;
+    int rc=lock_fd(h->fd);if(rc)return rc;
     __atomic_store_n(&h->page->desired_postgain, postgain, __ATOMIC_RELAXED);
     __atomic_add_fetch(&h->page->postgain_request_generation, 1u, __ATOMIC_RELEASE);
+    unlock_fd(h->fd);
     return UBIG_OK;
 }

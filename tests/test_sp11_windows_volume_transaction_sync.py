@@ -171,6 +171,17 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
             self.assertEqual(generation.read_text().strip(), "42")
 
 
+    def test_postgain_queue_forwards_ubig_control_format(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            generation = Path(tmpdir) / "generation"
+            control = Path(tmpdir) / "control"
+            with patch.object(sync.base, "write_postgain_request") as write:
+                sync.queue_dolby_postgain_for_generation(
+                    (0.25 ** 3, False), 41, control, generation, sync.base.CONTROL_FORMAT_UBIG_V2
+                )
+            write.assert_called_once_with(control, -332, sync.base.CONTROL_FORMAT_UBIG_V2)
+
+
     def test_control_capacity_detects_stereo_transaction_extension(self):
         class CP:
             returncode = 0
