@@ -728,6 +728,36 @@ void ubig_stage_b_rt_control_cadence_process(UbigStageBRtControlCadence *state,
                                              float features[UBIG_STAGE_B_RT_UNIVERSAL_FEATURES]);
 
 typedef struct {
+    uint32_t winner;
+    float slot1_transfer;
+    float slot2_transfer;
+    float slot5_transfer;
+    float slot6_transfer;
+    float secondary_transfer;
+} UbigStageBRtControlAggregateItem;
+
+typedef struct {
+    uint32_t enabled;
+    float slot2_state;
+    UbigStageBRtHysteresisState hysteresis;
+    float smoothing_keep;
+    float activity_alpha_low;
+    float activity_alpha_high;
+    float activity_state;
+    float final_blend;
+    float final_state;
+} UbigStageBRtControlAggregateState;
+
+#define UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS 5u
+
+/* Exact scalar aggregation above reference parent 0x18007B2F0, corresponding
+ * to reference VA 0x180058480 after the child result has been produced. */
+void ubig_stage_b_rt_control_aggregate_process(UbigStageBRtControlAggregateState *state,
+                                               const UbigStageBRtControlAggregateItem *items,
+                                               uint32_t item_count,
+                                               float output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS]);
+
+typedef struct {
     UbigStageBRtFeatureHistory feature_history;
     UbigStageBRtVariationHistory variation_history;
     UbigStageBRtSegmentRatioHistory segment_ratio_history;

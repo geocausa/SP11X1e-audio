@@ -2446,6 +2446,78 @@ void ubig_stage_b_rt_control_cadence_process(UbigStageBRtControlCadence *state,
     }
 }
 
+static float stage_b_rt_control_asymmetric_smooth(float previous,float current,float keep)
+{
+    if(previous<current)return current;
+    return fmaf(current,1.0f-keep,previous*keep);
+}
+
+void ubig_stage_b_rt_control_aggregate_process(UbigStageBRtControlAggregateState *state,
+                                               const UbigStageBRtControlAggregateItem *items,
+                                               uint32_t item_count,
+                                               float output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS])
+{
+    if(!state||!output||(item_count!=0u&&!items))return;
+    if(state->enabled==0u){
+        output[0]=1.0f;
+        output[1]=1.0f;
+        output[2]=0.0f;
+        output[3]=0.0f;
+        output[4]=f32_bits(0x3ed154a8u);
+        return;
+    }
+
+    const float keep=state->smoothing_keep;
+    const float one_minus_keep=1.0f-keep;
+    for(uint32_t i=0u;i<item_count;i++){
+        const UbigStageBRtControlAggregateItem *item=&items[i];
+        state->hysteresis.response_a=stage_b_rt_control_asymmetric_smooth(
+            state->hysteresis.response_a,item->slot1_transfer,keep);
+        state->slot2_state=stage_b_rt_control_asymmetric_smooth(
+            state->slot2_state,item->slot2_transfer,keep);
+        state->hysteresis.response_b=stage_b_rt_control_asymmetric_smooth(
+            state->hysteresis.response_b,item->slot5_transfer,keep);
+        state->hysteresis.response_c=stage_b_rt_control_asymmetric_smooth(
+            state->hysteresis.response_c,item->slot6_transfer,keep);
+        if(item->winner-5u>1u)
+            state->hysteresis.input=fmaf(item->secondary_transfer,one_minus_keep,
+                                        state->hysteresis.input*keep);
+    }
+
+    float activity=fmaf(-state->hysteresis.response_a,state->hysteresis.response_a,1.0f);
+    activity*=state->slot2_state;
+    const float activity_alpha=(state->activity_state>=activity)?
+                               state->activity_alpha_low:state->activity_alpha_high;
+    state->activity_state=fmaf(state->activity_state,activity_alpha,
+                               (1.0f-activity_alpha)*activity);
+    output[1]=state->activity_state;
+
+    output[0]=ubig_stage_b_rt_hysteresis_process(&state->hysteresis);
+    output[2]=state->hysteresis.response_a;
+    output[3]=state->slot2_state;
+
+    float peak=state->hysteresis.response_a;
+    if(peak<state->hysteresis.response_c)peak=state->hysteresis.response_c;
+    if(peak<state->hysteresis.response_b)peak=state->hysteresis.response_b;
+    float drive=fmaf(-peak,peak,1.0f);
+    drive*=state->slot2_state;
+    float final=(1.0f-state->final_blend)*drive;
+    final=fmaf(state->final_blend,state->final_state,final);
+    state->final_state=final;
+
+    if(final<=f32_bits(0x3e666666u)){
+        output[4]=1.0f-final*f32_bits(0x3ee38e37u);
+    }else if(final<f32_bits(0x3f066666u)){
+        const float shaped=fmaf(final,f32_bits(0x3f2aaaabu),-0.125f);
+        output[4]=1.0f-shaped*4.0f;
+    }else if(final<f32_bits(0x3f3fbe77u)){
+        const float shaped=fmaf(final,f32_bits(0x3ee38e37u),f32_bits(0x3f2aaaabu));
+        output[4]=1.0f-shaped;
+    }else{
+        output[4]=0.0f;
+    }
+}
+
 uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock)
 {
     if(!clock)return 0u;
