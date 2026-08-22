@@ -1195,4 +1195,15 @@ void ubig_stage_b_rt_analysis_controller_process(UbigStageBRtAnalysisController 
                                                  const UbigStageBRtAnalysisControllerConfig *config,
                                                  const float *row0,
                                                  const float *row1);
+
+#define UBIG_STAGE_B_RT_CONTROL_BANK_CHANNELS 4u
+
+/* Exact deployed slot wiring between the four live 0x18007B2F0 controller
+ * results and the 0x180058480 aggregate/Q31 outer-control export. controls may
+ * contain 0..4 entries; the shipped stereo route supplies four. */
+void ubig_stage_b_rt_control_bank_export(
+    UbigStageBRtControlAggregateState *aggregate,
+    const UbigStageBRtControlCadence *controls,
+    uint32_t control_count,
+    int32_t output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS]);
 #endif

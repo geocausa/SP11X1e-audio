@@ -3971,3 +3971,30 @@ void ubig_stage_b_rt_analysis_controller_process(UbigStageBRtAnalysisController 
     ubig_stage_b_rt_control_cadence_process(&state->control,config->control,features);
     ubig_stage_b_rt_universal_unpack_features(&state->analysis_output,features);
 }
+
+static UbigStageBRtControlAggregateItem stage_b_rt_control_bank_item(
+    const UbigStageBRtControlCadence *control)
+{
+    UbigStageBRtControlAggregateItem item={0};
+    if(!control)return item;
+    item.winner=control->primary_result[0];
+    memcpy(&item.slot1_transfer,&control->primary_result[3],sizeof item.slot1_transfer);
+    memcpy(&item.slot2_transfer,&control->primary_result[5],sizeof item.slot2_transfer);
+    memcpy(&item.slot5_transfer,&control->primary_result[11],sizeof item.slot5_transfer);
+    memcpy(&item.slot6_transfer,&control->primary_result[13],sizeof item.slot6_transfer);
+    item.secondary_transfer=control->secondary_result[0];
+    return item;
+}
+
+void ubig_stage_b_rt_control_bank_export(
+    UbigStageBRtControlAggregateState *aggregate,
+    const UbigStageBRtControlCadence *controls,
+    uint32_t control_count,
+    int32_t output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS])
+{
+    if(!aggregate||!output||control_count>UBIG_STAGE_B_RT_CONTROL_BANK_CHANNELS||
+       (control_count!=0u&&!controls))return;
+    UbigStageBRtControlAggregateItem items[UBIG_STAGE_B_RT_CONTROL_BANK_CHANNELS];
+    for(uint32_t i=0u;i<control_count;i++)items[i]=stage_b_rt_control_bank_item(&controls[i]);
+    ubig_stage_b_rt_control_export_process(aggregate,items,control_count,output);
+}
