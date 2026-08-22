@@ -479,3 +479,8 @@ The private integration replacement bypasses both reference bodies and calls the
 ## Dirty-configuration builder elimination (`0x18002F1A8`)
 
 Once the downstream Stage-B audio path is source-owned, the raw dirty-configuration builder has no observable contribution to shipped stereo output. The boundary consumes raw dirty flag `+0x1278` by clearing it and does not execute the reference builder. Fixed seven-profile stress is bit-exact with `0x2F1A8` poisoned. A 16-second deterministic profile sweep compares 1,536,000 float values with zero differences, and a 30-second randomized stress with 33 profile switches, chunks 1..2048 and seven signal classes compares 2,880,000 values with zero differences. The reference-only `0x705E8` reset fires six times in the latter test while the native route executes it zero times, proving that reset state is also dead at this boundary.
+
+
+## Built-in profile property boundary
+
+The shipped seven-profile control path no longer requires the VR scalar property-handler code bodies. The integration adapter owns their exact clamping/scaling and raw dirty-field updates; reference handlers remain a private ABI oracle only. After the recovered audio route became source-owned, the built-in-profile output-mode, frequency-grid/target and regulator-derived-table builders are likewise observationally dead: poisoning `0x32320`, `0x4C560`, `0x4C8E8` and `0x463C0` preserves both fixed and live-switch differentials. This result does not cover an explicit user-provided Custom/GEQ curve, whose semantic target programming remains a separate control feature.
