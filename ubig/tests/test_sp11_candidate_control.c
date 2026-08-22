@@ -48,12 +48,12 @@ static int snapshot_matches(ubig_control_handle *handle,uint32_t generation,uint
     return 0;
 }
 
-static int create_instance(void *library,const char *control_path,const char *pack_path,
-                           CandidateInstance *instance)
+static int create_instance_profile(void *library,const char *control_path,const char *pack_path,
+                                   const char *profile,CandidateInstance *instance)
 {
     if(setenv("UBIG_CONTROL_PATH",control_path,1)||
        setenv("UBIG_SP11_STAGEB_PACK",pack_path,1)||
-       setenv("UBIG_PROFILE","dynamic",1)||setenv("UBIG_GEQ","flat",1))return -1;
+       setenv("UBIG_PROFILE",profile,1)||setenv("UBIG_GEQ","flat",1))return -1;
     DescriptorFn descriptor_fn=(DescriptorFn)dlsym(library,"ladspa_descriptor");
     instance->descriptor=descriptor_fn?descriptor_fn(0):NULL;
     if(!instance->descriptor)return -2;
@@ -65,6 +65,12 @@ static int create_instance(void *library,const char *control_path,const char *pa
     instance->descriptor->connect_port(instance->handle,5,&instance->profile);
     if(instance->descriptor->activate)instance->descriptor->activate(instance->handle);
     return 0;
+}
+
+static int create_instance(void *library,const char *control_path,const char *pack_path,
+                           CandidateInstance *instance)
+{
+    return create_instance_profile(library,control_path,pack_path,"dynamic",instance);
 }
 
 static void run_instance(CandidateInstance *instance,const float *left,const float *right,
@@ -156,8 +162,20 @@ int main(int argc,char **argv)
     if(snapshot_matches(&control_c,0,1,UBIG_PROFILE_DYNAMIC,-332)||snapshot_matches(&control_d,0,1,UBIG_PROFILE_DYNAMIC,0))return 18;
     if(!postgain_changed)return 19;
 
+    char path_e[128];snprintf(path_e,sizeof path_e,"/tmp/ubig-control-e-%ld",(long)getpid());unlink(path_e);
+    ubig_control_handle pre;if(ubig_control_open(&pre,path_e,1)||ubig_control_request_postgain(&pre,-332))return 20;ubig_control_close(&pre);
+    CandidateInstance e={0};if(create_instance_profile(library,path_e,argv[2],"movie",&e))return 21;
+    ubig_control_handle control_e;if(ubig_control_open(&control_e,path_e,0))return 22;
+    ubig_control_page page_e;if(ubig_control_snapshot(&control_e,&page_e)||
+       page_e.request_generation!=0u||page_e.ack_generation!=0u||
+       page_e.desired_profile!=UBIG_PROFILE_MOVIE||page_e.active_profile!=UBIG_PROFILE_MOVIE||
+       page_e.desired_postgain!=-332||page_e.postgain_request_generation!=1u)return 23;
+    make_input(left,right,FRAMES,0);run_instance(&e,left,right,a_left,a_right,FRAMES);
+    if(snapshot_matches(&control_e,0,1,UBIG_PROFILE_MOVIE,-332))return 24;
+
     printf("PASS SP11 candidate public control lifecycle eq_changed=%zu/%u postgain_changed=%zu/%u\n",
            changed,2u*FRAMES,postgain_changed,24u*FRAMES);
+    ubig_control_close(&control_e);e.descriptor->cleanup(e.handle);unlink(path_e);
     ubig_control_close(&control_c);ubig_control_close(&control_d);
     c.descriptor->cleanup(c.handle);d.descriptor->cleanup(d.handle);unlink(path_c);unlink(path_d);
     ubig_control_close(&control_a);ubig_control_close(&control_b);

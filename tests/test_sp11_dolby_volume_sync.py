@@ -115,6 +115,14 @@ def test_control_update_preserves_plugin_ack(tmp_path):
     assert struct.unpack_from("<i", data, mod.POSTGAIN_ACK_OFF)[0] == -423
 
 
+def test_ubig_control_environment_selects_candidate_page(tmp_path, monkeypatch):
+    path = tmp_path / "ubig-control-v2"
+    monkeypatch.setenv("UBIG_CONTROL_PATH", str(path))
+    monkeypatch.setenv("UBIG_CONTROL_FORMAT", "ubig-v2")
+    assert mod.default_control_path() == path
+    assert mod.default_control_format() == mod.CONTROL_FORMAT_UBIG_V2
+
+
 def test_ubig_v2_control_write_creates_page_and_advances_only_postgain_generation(tmp_path):
     path = tmp_path / "ubig-control-v2"
     mod.write_postgain_request(path, -332, mod.CONTROL_FORMAT_UBIG_V2)

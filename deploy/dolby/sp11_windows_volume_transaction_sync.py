@@ -787,7 +787,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--hardware-node", default=base.DEFAULT_HARDWARE_NODE)
     p.add_argument("--control", type=Path, default=base.default_control_path())
     p.add_argument("--control-format", choices=(base.CONTROL_FORMAT_AUTO, base.CONTROL_FORMAT_LEGACY, base.CONTROL_FORMAT_UBIG_V2),
-                   default=base.CONTROL_FORMAT_AUTO)
+                   default=base.default_control_format())
     p.add_argument("--card", default=DEFAULT_CARD)
     p.add_argument("--pcm-status", type=Path, default=DEFAULT_PCM_STATUS)
     p.add_argument("--tlv-write", type=Path, default=DEFAULT_TLV_WRITE)

@@ -29,3 +29,5 @@ Promotion rules:
 - preserve the existing visible-sink / hidden-engine PipeWire ordering and final Qualcomm endpoint-volume transaction;
 - run the M6 fixed-profile, transition, chunking, lifecycle, xrun/NaN and long-run gates before switching the installed graph;
 - retain an immediate rollback to Golden v32 throughout candidate testing.
+
+Disposable deployment is tracked under `deploy/ubig-candidate/`. Its prepare path is non-activating; the switch path records an exact rollback snapshot before replacing the active filter-chain fragment. The package has been exercised in an isolated HOME/runtime with a fake user-systemd boundary through prepare → activate → rollback, restoring the original fragment byte-for-byte.

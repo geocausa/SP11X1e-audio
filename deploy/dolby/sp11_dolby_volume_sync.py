@@ -146,8 +146,16 @@ if len(WINDOWS_ENDPOINT_DB) != 201:
 
 
 def default_control_path() -> Path:
+    override = os.environ.get("UBIG_CONTROL_PATH")
+    if override:
+        return Path(override)
     runtime = os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}"
     return Path(runtime) / DEFAULT_CONTROL_BASENAME
+
+
+def default_control_format() -> str:
+    value = os.environ.get("UBIG_CONTROL_FORMAT", CONTROL_FORMAT_AUTO).strip().lower()
+    return value if value in {CONTROL_FORMAT_AUTO, CONTROL_FORMAT_LEGACY, CONTROL_FORMAT_UBIG_V2} else CONTROL_FORMAT_AUTO
 
 
 def pipewire_ui_scalar_from_linear_gain(gain: float) -> float:
@@ -509,7 +517,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--hardware-node", default=DEFAULT_HARDWARE_NODE)
     p.add_argument("--control", type=Path, default=default_control_path())
     p.add_argument("--control-format", choices=(CONTROL_FORMAT_AUTO, CONTROL_FORMAT_LEGACY, CONTROL_FORMAT_UBIG_V2),
-                   default=CONTROL_FORMAT_AUTO,
+                   default=default_control_format(),
                    help="control-page layout; auto preserves the installed legacy page unless UbiG v2 is detected")
     p.add_argument("--pw-dump", default="pw-dump")
     p.add_argument("--wpctl", default="wpctl")

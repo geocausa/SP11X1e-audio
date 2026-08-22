@@ -316,6 +316,14 @@ static int chain_control_open(ChainInst *p){
     if(override&&*override&&(!strcasecmp(override,"off")||!strcasecmp(override,"none")||!strcmp(override,"0")))return 1;
     int rc=ubig_control_open(&p->control,override,1);if(rc)return rc;
     p->control_ready=1;
+    /* The endpoint-volume service may create the v2 page and queue postgain
+     * before this LADSPA instance exists.  With no main-control request yet,
+     * make the page's desired profile describe the selected cold-start profile
+     * rather than the generic control-page Dynamic initializer.  Never overwrite
+     * a genuinely queued profile/GEQ request. */
+    if(__atomic_load_n(&p->control.page->request_generation,__ATOMIC_ACQUIRE)==0u &&
+       __atomic_load_n(&p->control.page->ack_generation,__ATOMIC_ACQUIRE)==0u)
+        __atomic_store_n(&p->control.page->desired_profile,(uint32_t)p->profile,__ATOMIC_RELAXED);
     __atomic_store_n(&p->control.page->active_profile,(uint32_t)p->profile,__ATOMIC_RELAXED);
     __atomic_store_n(&p->control.page->active_postgain,p->postgain,__ATOMIC_RELEASE);
     return 0;

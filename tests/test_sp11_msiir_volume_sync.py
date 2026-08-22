@@ -64,6 +64,14 @@ def test_read_postgain_control_page(tmp_path):
     assert mod.read_postgain(p) == -578
 
 
+def test_ubig_control_environment_selects_candidate_page(tmp_path, monkeypatch):
+    path = tmp_path / "ubig-control-v2"
+    monkeypatch.setenv("UBIG_CONTROL_PATH", str(path))
+    monkeypatch.setenv("UBIG_CONTROL_FORMAT", "ubig-v2")
+    assert mod.default_control_path() == path
+    assert mod.default_control_format() == mod.CONTROL_FORMAT_UBIG_V2
+
+
 def test_read_postgain_ubig_v2_control_page(tmp_path):
     p = tmp_path / "ubig-control-v2"
     b = bytearray(mod.UBIG_CONTROL_BYTES)
