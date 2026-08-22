@@ -974,6 +974,37 @@ void ubig_stage_b_rt_late_controller_process(
     float *analysis[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_BLOCKS],
     float rows[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_ROW_FLOATS]);
 
+typedef struct {
+    UbigStageBRtDeepControllerState deep;
+    UbigStageBRtLateControllerState late;
+} UbigStageBRtLatePipelineState;
+
+typedef struct {
+    float analysis_offset;
+    const uint32_t *band_ends;
+    const float *deep_lower_source;
+    const float *deep_upper_source;
+    const int32_t *deep_status;
+    const UbigStageBRtDeepControllerControls *deep_controls;
+    const UbigStageBRtLateControllerConfig *late_config;
+} UbigStageBRtLatePipelineConfig;
+
+/* Deployed semantic composition of hot parent 0x180056B80. Shipped geometry
+ * is fixed to two active groups x four complex planes x 77 bins, two 20-band
+ * analysis/output rows, mode 1 and no auxiliary 0x569A0 groups. */
+void ubig_stage_b_rt_late_pipeline_process(
+    float row_offset,
+    UbigStageBRtLatePipelineState *state,
+    const UbigStageBRtLatePipelineConfig *config,
+    UbigStageBRtComplexGroups *groups,
+    UbigStageBRtBandRows *analysis_rows,
+    UbigStageBRtBandRows *output_rows,
+    float linked_accumulator[UBIG_STAGE_B_RT_SP11_BANDS],
+    int32_t *base_meter,
+    int32_t *output_meter,
+    float late_rows[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_ROW_FLOATS]);
+
+
 #define UBIG_STAGE_B_RT_FFT64_COMPLEX 64u
 #define UBIG_STAGE_B_RT_FFT64_FLOATS 128u
 

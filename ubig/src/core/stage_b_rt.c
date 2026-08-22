@@ -2705,6 +2705,56 @@ void ubig_stage_b_rt_residual_mean_process(float gain,float bias,
 }
 
 
+void ubig_stage_b_rt_late_pipeline_process(
+    float row_offset,
+    UbigStageBRtLatePipelineState *state,
+    const UbigStageBRtLatePipelineConfig *config,
+    UbigStageBRtComplexGroups *groups,
+    UbigStageBRtBandRows *analysis_rows,
+    UbigStageBRtBandRows *output_rows,
+    float linked_accumulator[UBIG_STAGE_B_RT_SP11_BANDS],
+    int32_t *base_meter,
+    int32_t *output_meter,
+    float late_rows[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_ROW_FLOATS])
+{
+    if(!state||!config||!groups||!analysis_rows||!output_rows||!linked_accumulator||!late_rows||
+       !config->band_ends||!config->deep_controls||!config->late_config||
+       !groups->groups||groups->group_count!=UBIG_STAGE_B_RT_SP11_ROWS||
+       groups->vectors_per_group!=UBIG_STAGE_B_RT_TARGET_PLANES||
+       analysis_rows->row_count!=UBIG_STAGE_B_RT_SP11_ROWS||
+       output_rows->row_count!=UBIG_STAGE_B_RT_SP11_ROWS)return;
+
+    const int32_t map[UBIG_STAGE_B_RT_SP11_ROWS]={0,1};
+    int32_t *telemetry_rows[UBIG_STAGE_B_RT_SP11_ROWS];
+    for(uint32_t row=0u;row<UBIG_STAGE_B_RT_SP11_ROWS;row++)
+        telemetry_rows[row]=(int32_t*)output_rows->rows[row];
+    UbigStageBRtTelemetryRows telemetry={telemetry_rows};
+    ubig_stage_b_rt_band_log_process(0.0f,config->analysis_offset,groups,0,
+                                     config->band_ends,map,analysis_rows,&telemetry);
+    ubig_stage_b_rt_linked_row_accumulate(analysis_rows,linked_accumulator);
+
+    ubig_stage_b_rt_deep_controller_process(state->late.output,&state->deep,
+                                             config->deep_lower_source,config->deep_upper_source,
+                                             config->deep_status,config->deep_controls,
+                                             analysis_rows,output_rows,base_meter,output_meter);
+
+    UbigStageBRtTargetObject objects[UBIG_STAGE_B_RT_SP11_ROWS];
+    for(uint32_t row=0u;row<UBIG_STAGE_B_RT_SP11_ROWS;row++)
+        for(uint32_t plane=0u;plane<UBIG_STAGE_B_RT_TARGET_PLANES;plane++)
+            objects[row].plane[plane]=groups->groups[row][plane];
+    UbigStageBRtTargetSet targets={UBIG_STAGE_B_RT_SP11_ROWS,UBIG_STAGE_B_RT_SP11_BINS,objects};
+    const uint32_t object_to_row[UBIG_STAGE_B_RT_SP11_ROWS]={0u,1u};
+    const float ceiling_base=f32_bits(0xbe95e7aau);
+    ubig_stage_b_rt_output_shape(row_offset,ceiling_base-row_offset,analysis_rows,output_rows,
+                                 object_to_row,config->band_ends,&targets);
+
+    float *late_analysis[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_BLOCKS];
+    for(uint32_t row=0u;row<UBIG_STAGE_B_RT_LATE_ROWS;row++)
+        for(uint32_t block=0u;block<UBIG_STAGE_B_RT_LATE_BLOCKS;block++)
+            late_analysis[row][block]=groups->groups[row][block];
+    ubig_stage_b_rt_late_controller_process(&state->late,config->late_config,late_analysis,late_rows);
+}
+
 void ubig_stage_b_rt_linked_row_accumulate(const UbigStageBRtBandRows *rows,float *accumulator)
 {
     if(!rows||!rows->rows||!accumulator)return;

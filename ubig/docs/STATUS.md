@@ -537,3 +537,10 @@ Reference parent `0x180049620` is now native on the complete deployed contract a
 ### Stage-B `0x56B80` inline linked-row reducer
 
 The last inline numerical island in hot parent `0x180056B80` is native as `ubig_stage_b_rt_linked_row_accumulate()`. It reproduces the exact two-sided row-link polynomial and accumulation schedule from the reference parent; **1,000,000 randomized instruction-oracle calls are bit-exact**, public hash `70eb81e8929aadbb`. Live typed argument capture also confirms the shipped `0x56B80` contract on all seven profiles: two active groups, four complex vectors per group, 77 bins, two 20-band analysis/output rows, mode=1, secondary mode=0, no optional 0x569A0 auxiliary groups, and a non-null 20-band linked accumulator.
+
+
+## Stage-B late pipeline parent closure
+
+Hot reference parent `0x180056B80` is now semantic source as `ubig_stage_b_rt_late_pipeline_process()`. Its deployed SP11 contract is fixed to two groups × four complex planes × 77 bins, two 20-band row banks, mode 1 / secondary mode 0, with both optional `0x569A0` branches absent. The implementation composes only already-native band-log, linked-row, deep-controller, output-shaper, and late-controller boundaries.
+
+The strongest gate is a live callsite substitution rather than an isolated oracle: the promoted parent replaces `0x56B80` at `0x18003A2B0` inside the complete Dolby chain plugin and passes **all seven shipped profiles, 781/781 blocks each, with `PLUGIN_RESULT PASS`**. Nested reference `0x64B38` and `0x49620` counters become zero under the replacement, proving the semantic parent is executing rather than falling back. The nested `0x60200`/`0x5F5A8` reference calls also disappear because their native semantic implementations are composed directly. Public lifecycle hash: `d12a6d18bdef5fba`.
