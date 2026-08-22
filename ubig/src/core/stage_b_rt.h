@@ -660,6 +660,46 @@ typedef struct {
 uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock);
 
 typedef struct {
+    uint16_t feature_index;
+    uint16_t exponent;
+    float scale;
+    float weight;
+    float center;
+} UbigStageBRtControlTerm;
+
+typedef struct {
+    uint32_t term_count;
+    float transfer_gain;
+    float transfer_bias;
+    const UbigStageBRtControlTerm *terms;
+} UbigStageBRtControlDescriptor;
+
+typedef struct {
+    uint32_t output_index;
+    const UbigStageBRtControlDescriptor *descriptor;
+} UbigStageBRtControlGroup;
+
+#define UBIG_STAGE_B_RT_CONTROL_GROUPS 4u
+#define UBIG_STAGE_B_RT_CONTROL_SLOTS 7u
+#define UBIG_STAGE_B_RT_CONTROL_RESULT_WORDS (1u+2u*UBIG_STAGE_B_RT_CONTROL_SLOTS)
+
+/* Exact table-free scalar transfer at reference VA 0x18008CAA0. */
+float ubig_stage_b_rt_control_transfer(float score,float gain,float bias);
+
+/* Exact single-descriptor scorer at reference VA 0x18008CC38. output[0] is
+ * the transfer value and output[1] is the raw weighted score. */
+void ubig_stage_b_rt_control_score_process(const float *features,
+                                           const UbigStageBRtControlDescriptor *descriptor,
+                                           float output[2]);
+
+/* Exact four-descriptor selector at reference VA 0x18008CE60. result_words[0]
+ * receives the winning output_index; pair (2*i+1,2*i+2) receives the transfer
+ * and raw score for each caller-selected slot i. */
+void ubig_stage_b_rt_control_select_process(const float *features,
+                                            const UbigStageBRtControlGroup groups[UBIG_STAGE_B_RT_CONTROL_GROUPS],
+                                            uint32_t result_words[UBIG_STAGE_B_RT_CONTROL_RESULT_WORDS]);
+
+typedef struct {
     UbigStageBRtFeatureHistory feature_history;
     UbigStageBRtVariationHistory variation_history;
     UbigStageBRtSegmentRatioHistory segment_ratio_history;

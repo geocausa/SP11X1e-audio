@@ -2299,6 +2299,111 @@ void ubig_stage_b_rt_projection_history_process(UbigStageBRtProjectionHistory *s
     if(s->index>=UBIG_STAGE_B_RT_PROJECTION_HISTORY_DEPTH)s->index=0u;
 }
 
+static float stage_b_rt_control_score(const float *features,
+                                      const UbigStageBRtControlDescriptor *descriptor)
+{
+    float score=0.0f;
+    for(uint32_t i=0u;i<descriptor->term_count;i++){
+        const UbigStageBRtControlTerm *term=&descriptor->terms[i];
+        const uint32_t exponent_field=(uint32_t)term->exponent+127u;
+        const float exponent_scale=f32_bits(exponent_field<<23);
+        const float lower=exponent_scale*f32_bits(0xb7000000u);
+        const float upper=exponent_scale*f32_bits(0x37000000u);
+        float value=(features[term->feature_index]-term->center)*term->scale;
+        if(value<lower)value=lower;
+        if(upper<value)value=upper;
+        const float output_scale=f32_bits((138u-(uint32_t)term->exponent)<<23);
+        score=fmaf(term->weight,value*output_scale,score);
+    }
+    return score;
+}
+
+float ubig_stage_b_rt_control_transfer(float score,float gain,float bias)
+{
+    float value=score*gain;
+    value=value+value;
+    value=fmaf(bias,f32_bits(0x3a800000u),value);
+    if(0.125f<value)value=1.0f;
+    else if(value<-0.125f)value=-1.0f;
+    else value*=8.0f;
+
+    const float scaled=value*f32_bits(0x3f38aa3bu);
+    const float quantized_input=(scaled*f32_bits(0x3a800000u))*f32_bits(0x47000000u);
+    int32_t quantized=(int32_t)lrintf(quantized_input);
+    if(32767<quantized)quantized=32767;
+
+    int32_t exponent;
+    if(quantized<=-21)exponent=-21;
+    else exponent=quantized+1;
+    if(21<quantized)exponent=21;
+
+    const float q1024=(float)(quantized*1024);
+    float residual=fmaf(-q1024,f32_bits(0x38000000u),scaled);
+    residual*=f32_bits(0x42000000u);
+    const float y=residual*f32_bits(0x3f317218u);
+    const float y2=y*y;
+    float poly=fmaf(y2,0.5f,y);
+    float power=y2*y;
+    poly=fmaf(power,f32_bits(0x3e2aaaabu),poly);
+    power*=y;
+    poly=fmaf(power,f32_bits(0x3d2aaaabu),poly);
+    power*=y;
+    poly=fmaf(power,f32_bits(0x3c088889u),poly);
+    power*=y;
+    poly=fmaf(power,f32_bits(0x3ab60b61u),poly);
+    const float exp_half=fmaf(poly,0.5f,0.5f);
+
+    if(exponent>=0){
+        const float scale=stage_b_rt_pow2_integer(-1-exponent);
+        const float denominator=fmaf(exp_half,0.5f,scale);
+        return (float)((double)scale/(double)denominator);
+    }
+    const float scale=stage_b_rt_pow2_integer(exponent-1);
+    const float denominator=fmaf(scale,exp_half,0.5f);
+    return (float)(0.5/(double)denominator);
+}
+
+void ubig_stage_b_rt_control_score_process(const float *features,
+                                           const UbigStageBRtControlDescriptor *descriptor,
+                                           float output[2])
+{
+    if(!features||!descriptor||!output||
+       (descriptor->term_count!=0u&&!descriptor->terms))return;
+    const float score=stage_b_rt_control_score(features,descriptor);
+    output[1]=score;
+    output[0]=ubig_stage_b_rt_control_transfer(score,descriptor->transfer_gain,
+                                               descriptor->transfer_bias);
+}
+
+void ubig_stage_b_rt_control_select_process(const float *features,
+                                            const UbigStageBRtControlGroup groups[UBIG_STAGE_B_RT_CONTROL_GROUPS],
+                                            uint32_t result_words[UBIG_STAGE_B_RT_CONTROL_RESULT_WORDS])
+{
+    if(!features||!groups||!result_words)return;
+    if(features[0]<f32_bits(0xbacccccdu)){
+        memset(result_words+1u,0,(UBIG_STAGE_B_RT_CONTROL_RESULT_WORDS-1u)*sizeof(uint32_t));
+        result_words[0]=4u;
+        return;
+    }
+
+    uint32_t winner=0u;
+    float best=-1.0f;
+    for(uint32_t i=0u;i<UBIG_STAGE_B_RT_CONTROL_GROUPS;i++){
+        const UbigStageBRtControlGroup *group=&groups[i];
+        const UbigStageBRtControlDescriptor *descriptor=group->descriptor;
+        if(!descriptor||group->output_index>=UBIG_STAGE_B_RT_CONTROL_SLOTS||
+           (descriptor->term_count!=0u&&!descriptor->terms))return;
+        const float score=stage_b_rt_control_score(features,descriptor);
+        const uint32_t base=2u*group->output_index+1u;
+        float transfer=ubig_stage_b_rt_control_transfer(score,descriptor->transfer_gain,
+                                                        descriptor->transfer_bias);
+        memcpy(result_words+base,&transfer,sizeof transfer);
+        memcpy(result_words+base+1u,&score,sizeof score);
+        if(best<score){best=score;winner=group->output_index;}
+    }
+    result_words[0]=winner;
+}
+
 uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock)
 {
     if(!clock)return 0u;

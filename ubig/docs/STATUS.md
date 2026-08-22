@@ -446,3 +446,7 @@ The remaining large lower-scheduler parent at reference VA `0x1800997D8` is now 
 ### Stage-B universal analysis scheduler closure
 
 The universal scheduler at reference VA `0x18008C6A8` is now native as `ubig_stage_b_rt_scheduler_step()` plus `ubig_stage_b_rt_universal_analysis_process()`. A patched-reference oracle replaced all fifteen child call sites with independent trace stubs and proves **1,000,000 randomized scheduler calls exactly** across call ordering/gating and all six cadence words. Its seven-transform upper group and alternating two-part lower cadence now compose only already-native numerical children, including the newly closed `0x1800997D8` feature-cadence parent. Public lifecycle hash: `6b917f1f081076f3`.
+
+### Stage-B RT control-score/selector closure
+
+The control-score layer immediately above the universal scheduler is now native. The table-free scalar transfer at `0x18008CAA0` matches **1,000,000 randomized direct DLL calls bit-exact**; the single caller-described scorer at `0x18008CC38` matches **500,000 complete randomized calls bit-exact**; and the four-group selector at `0x18008CE60` matches **500,000 complete randomized calls bit-exact** across active/inactive paths and shuffled result slots. All feature-term descriptors remain caller-owned synthetic configuration rather than copied Dolby table bytes. Public combined hash: `cfad6506600a4b95`.
