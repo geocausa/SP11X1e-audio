@@ -49,3 +49,13 @@ The reference changes family state in place without reconstructing the VLLDP obj
 4. continues using the one exact SP11 Stage-A audio configuration for all seven public profiles.
 
 The public engine regression cold-starts every profile and sweeps all seven profile transitions while comparing against an untouched Dynamic Stage-A instance. Output must remain bit-identical.
+
+## Endpoint postgain runtime lane
+
+The SP11 endpoint postgain is part of the common Stage-A compressor runtime vector, not a separate final amplitude multiplier. `FUN_18001D280` maps the raw integer to float32 in this exact operation order:
+
+`float(raw) * 2^-15 * 0x1.f81f82p-1 * 16`
+
+and writes the result to VLLDP state `+0x65C`. The compressor parent call at `0x180020458` passes `state+0x658` as its five-float runtime vector, making postgain precisely `runtime[1]`. The valid recovered endpoint domain is raw `[-1200,0]`, corresponding to DAX's 1/16-dB control units.
+
+UbiG exposes this as `ubig_engine_set_postgain()`. The engine owns a mutable runtime-vector copy so a postgain change does not reconstruct Stage A or clear any persistent history. The zero value is the original native Stage-A baseline. Private original-VLLDP differential testing is bit-exact from 0 through -1200 across representative values and arbitrary host chunk schedules; the public multi-value lifecycle hash is `118d9bc2d1524da1`.

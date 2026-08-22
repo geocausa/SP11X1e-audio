@@ -60,7 +60,8 @@ Replace all non-algorithmic behavior around the first Windows DSP stage:
 - startup/history latency
 - host-chunk invariance
 - profile family retune lifecycle
-- peak/system/postgain control semantics
+- peak/system control semantics
+- endpoint postgain control semantics (**closed natively; exact Stage-A runtime lane 1**)
 - no reset on ordinary PipeWire activate/idle transitions
 
 During M2 the algorithm callback may still be an oracle adapter in test binaries only. Production remains untouched.

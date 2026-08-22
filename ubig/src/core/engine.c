@@ -11,6 +11,7 @@ struct ubig_engine {
     int32_t custom_eq[UBIG_EQ_BANDS];
     ubig_adapter256 stage_a_adapter;
     UbigStageACoreConfig stage_a_config;
+    float stage_a_runtime[5];
     UbigStageACoreState stage_a_core;
     const UbigStageAProfileFamilyState *stage_a_family_state;
     float stage_a_l[UBIG_INTERNAL_BLOCK];
@@ -54,6 +55,8 @@ ubig_engine *ubig_engine_create(const ubig_engine_config *cfg)
     e->process_status=UBIG_OK;
     ubig_adapter256_reset(&e->stage_a_adapter);
     ubig_stage_a_sp11_dynamic_config(&e->stage_a_config);
+    memcpy(e->stage_a_runtime,e->stage_a_config.runtime5,sizeof e->stage_a_runtime);
+    e->stage_a_config.runtime5=e->stage_a_runtime;
     e->stage_a_family_state=ubig_stage_a_sp11_profile_family_state(
         ubig_profile_stage_a_family(cfg->initial_profile));
     if(!e->stage_a_family_state){free(e);return NULL;}
@@ -85,6 +88,26 @@ int ubig_engine_set_profile(ubig_engine *e, ubig_profile p)
         ubig_profile_stage_a_family(p));
     if(!e->stage_a_family_state)return UBIG_ESTATE;
     e->profile = p;
+    return UBIG_OK;
+}
+
+
+static float stage_a_postgain_scalar(int32_t postgain)
+{
+    /* Exact FUN_18001D280 operation order: SCVTF -> *2^-15 ->
+     * *0x1.f81f82p-1 -> *16. The result is the runtime[1] scalar passed
+     * directly to the Stage-A compressor parent. */
+    float value=(float)postgain;
+    value*=0x1p-15f;
+    value*=0x1.f81f82p-1f;
+    value*=16.0f;
+    return value;
+}
+
+int ubig_engine_set_postgain(ubig_engine *e,int32_t postgain)
+{
+    if(!e || postgain < -1200 || postgain > 0) return UBIG_EINVAL;
+    e->stage_a_runtime[1]=stage_a_postgain_scalar(postgain);
     return UBIG_OK;
 }
 

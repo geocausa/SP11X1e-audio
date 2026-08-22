@@ -60,6 +60,11 @@ int ubig_engine_process(ubig_engine *engine,
  * become available. */
 int ubig_engine_set_profile(ubig_engine *engine, ubig_profile profile);
 int ubig_engine_set_custom_eq(ubig_engine *engine, const int32_t values[UBIG_EQ_BANDS]);
+
+/* Raw SP11 VLLDP endpoint postgain in the recovered DAX Q4-dB domain. Valid
+ * values are -1200..0 (-75..0 dB). The setter changes only the native Stage-A
+ * compressor runtime scalar and preserves all adaptive/filterbank history. */
+int ubig_engine_set_postgain(ubig_engine *engine, int32_t postgain);
 ubig_profile ubig_engine_profile(const ubig_engine *engine);
 
 const char *ubig_profile_name(ubig_profile profile);
