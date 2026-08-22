@@ -523,3 +523,10 @@ The shipped source-owned path also does not require the legacy Leveler and multi
 The deployed 48-kHz stereo source path does not require an executable VR reference image. The residual raw callback slots at `+0xB0/+0xB8` may be null once the native history and late-controller pipeline is active; mapped vtables, callsite patches, fallback-function pointers and the reference deinitializer are likewise absent from the validated private path. A destructive integration gate marks every mapped VR code page inaccessible and preserves fixed-profile output, live profile switching and the observed Stage-B call topology.
 
 The stronger private integration runs without loading `DolbyAPOVR.dll` at all. Required slow-control descriptors and projection coefficients are bound from external caller-owned data, and a nonexistent VR-DLL path does not change output. This is an integration-boundary result: public UbiG continues to expose semantic caller-owned configuration rather than reference-image addresses, and any recovered proprietary coefficient payload remains outside the repository.
+
+
+## External Stage-B data pack boundary
+
+A blob-free executable integration may keep recovered endpoint-specific data outside the program image. The validated private pack contains the compact cold-state seed plus caller-owned history, band, deep-controller, control-model and projection data needed by the shipped 48-kHz stereo route. The adapter loads these bytes into semantic buffers before state construction; the executable contains no recovered Stage-B payload arrays and does not load the reference VR DLL.
+
+The pack is an owner-supplied deployment artifact rather than part of the UbiG source distribution. Missing or structurally incompatible data is a hard initialization failure; there is no reference-code fallback. Public algorithms and ABI remain independent of the pack format, which is currently an integration proof rather than a stable UbiG public file format.
