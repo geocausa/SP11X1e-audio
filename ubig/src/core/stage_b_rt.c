@@ -4035,6 +4035,33 @@ uint32_t ubig_stage_b_rt_effective_count(uint32_t expansion_enabled,
     return base_count;
 }
 
+void ubig_stage_b_rt_stream256_process(UbigStageBRtStream256State *state,
+                                       float *host_output,const float *host_input,
+                                       uint32_t frames,UbigStageBRtStream256BlockFn process_block,
+                                       void *context)
+{
+    if(!state||!host_output||!host_input||!process_block||!state->source_buffer||
+       !state->processed_buffer||state->source_channels==0u||state->processed_channels==0u)return;
+    while(frames!=0u){
+        uint32_t position=state->position;
+        if(UBIG_STAGE_B_RT_STREAM256_FRAMES<=position){
+            process_block(context,state->processed_buffer,state->source_buffer);
+            position=0u;
+            state->position=0u;
+        }
+        uint32_t take=UBIG_STAGE_B_RT_STREAM256_FRAMES-position;
+        if(frames<take)take=frames;
+        memcpy(state->source_buffer+(size_t)state->source_channels*position,host_input,
+               (size_t)state->source_channels*take*sizeof(float));
+        memcpy(host_output,state->processed_buffer+(size_t)state->processed_channels*position,
+               (size_t)state->processed_channels*take*sizeof(float));
+        host_input+=(size_t)state->source_channels*take;
+        host_output+=(size_t)state->processed_channels*take;
+        state->position=position+take;
+        frames-=take;
+    }
+}
+
 void ubig_stage_b_rt_history_filter64_process(
     UbigStageBRtHistoryFilter64State *state,const float filter[640],
     const float phase[128],uint32_t history_row,float output[128],

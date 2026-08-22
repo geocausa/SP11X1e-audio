@@ -1140,6 +1140,25 @@ uint32_t ubig_stage_b_rt_effective_count(uint32_t expansion_enabled,
                                          uint32_t base_count,
                                          uint32_t expanded_count);
 
+#define UBIG_STAGE_B_RT_STREAM256_FRAMES 256u
+
+typedef void (*UbigStageBRtStream256BlockFn)(void *context,float *processed,float *source);
+
+typedef struct {
+    float *source_buffer;
+    float *processed_buffer;
+    uint32_t position;
+    uint32_t source_channels;
+    uint32_t processed_channels;
+} UbigStageBRtStream256State;
+
+/* Exact deployed zero-delay streaming accumulator immediately above the
+ * Stage-B frame processor. */
+void ubig_stage_b_rt_stream256_process(UbigStageBRtStream256State *state,
+                                       float *host_output,const float *host_input,
+                                       uint32_t frames,UbigStageBRtStream256BlockFn process_block,
+                                       void *context);
+
 #define UBIG_STAGE_B_RT_HISTORY_FILTER64_N 64u
 #define UBIG_STAGE_B_RT_HISTORY_FILTER64_DEPTH 9u
 #define UBIG_STAGE_B_RT_HISTORY_FILTER64_OUTPUT_FLOATS 128u
