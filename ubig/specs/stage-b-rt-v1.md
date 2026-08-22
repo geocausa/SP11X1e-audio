@@ -455,9 +455,9 @@ The integration proof patches caller `0x1801D1088` to that source reconstruction
 
 ## Deployed runtime wrapper (`0x1801D1000`)
 
-The shipped 48-kHz stereo route fixes the wrapper's preparation mode to 1. Its `0x31B68` child therefore takes the low-rate branch: it copies the two-row input descriptor into caller-owned state, installs the already-recovered history-filter callback/configuration, and invokes the live subset of `0x30F78`. That subset has all optional arguments null, keeps the external event object null, and executes the large `0x2F1A8` configuration child only while the one-shot dirty flag at raw `+0x1278` is set. Instrumentation shows exactly one meaningful `0x2F1A8` setup call per initialized instance; calls after that are state-hash no-ops.
+The shipped 48-kHz stereo route fixes the wrapper's preparation mode to 1. Its `0x31B68` child therefore takes the low-rate branch: it copies the two-row input descriptor into caller-owned state, installs the already-recovered history-filter callback/configuration, and invokes the live subset of `0x30F78`. That subset has all optional arguments null and keeps the external event object null. Earlier raw-reference instrumentation entered the large `0x2F1A8` child while the dirty flag at raw `+0x1278` was set; after the downstream shipped path became native, differential testing proved the derived configuration mutations are not consumed by the source-owned audio route. The native boundary therefore consumes `+0x1278` by clearing it without entering `0x2F1A8`.
 
-A private integration bridge replaces the complete `0x1D1000` vtable entry and poisons reference `0x1D1000`, `0x30F78`, `0x31B68`, `0xF93A8` and `0x3ABE0`. Seven-profile 781-block stress runs remain bit-exact with 781 native wrapper/preparation/count/history-parent calls per profile and only one reference `0x2F1A8` setup invocation. All previously tracked semantic fallbacks remain zero. This leaves `0x2F1A8` as setup-only proprietary code rather than a realtime dependency.
+A private integration bridge replaces the complete `0x1D1000` vtable entry and poisons reference `0x1D1000`, `0x30F78`, `0x31B68`, `0xF93A8`, `0x3ABE0` and now `0x2F1A8`. Seven-profile fixed stress remains exact. Live-switch differentials remain exact for both the original 16-second transition sweep (1,536,000 compared float values) and a 30-second randomized 33-switch stress (2,880,000 compared values, chunks 1..2048 and seven source regimes). Thus no `0x2F1A8` execution or its `0x705E8` reset child is required by the shipped source-owned audio route.
 
 ## Deployed realtime streaming wrappers (`0xF6440`, `0xF65E0`, `0xF94B0`)
 
@@ -474,3 +474,8 @@ The private integration replacement bypasses both reference bodies and calls the
 ## Dirty-config band-floor normalizer (`0x180074220`)
 
 `ubig_stage_b_rt_band_floor_normalize()` owns the bounded 0..20-band numerical leaf used by the dirty-configuration apply path. It preserves the reference FMA ordering, widens the two accumulated binary32 scalars to binary64 for the ratio division, then applies the caller-owned per-band floor and `1/16` weighted sum. Direct randomized differential: **1,000,000 calls bit-exact**. Public hash: `ec6fbb394aa2a5b8`.
+
+
+## Dirty-configuration builder elimination (`0x18002F1A8`)
+
+Once the downstream Stage-B audio path is source-owned, the raw dirty-configuration builder has no observable contribution to shipped stereo output. The boundary consumes raw dirty flag `+0x1278` by clearing it and does not execute the reference builder. Fixed seven-profile stress is bit-exact with `0x2F1A8` poisoned. A 16-second deterministic profile sweep compares 1,536,000 float values with zero differences, and a 30-second randomized stress with 33 profile switches, chunks 1..2048 and seven signal classes compares 2,880,000 values with zero differences. The reference-only `0x705E8` reset fires six times in the latter test while the native route executes it zero times, proving that reset state is also dead at this boundary.

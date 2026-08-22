@@ -629,7 +629,7 @@ The active caller at `0x1801D1088` is patched directly to this reconstruction an
 
 - Promoted reference `0x1800F93A8` as `ubig_stage_b_rt_effective_count()`; **1,000,000 randomized direct DLL calls are bit-exact**, public hash `f0da54428e921941`.
 - The deployed `0x180031B68` path is fixed to 48-kHz mode 1 and reduces to descriptor/state preparation plus the live subset of `0x180030F78`.
-- `0x18002F1A8` is now classified as setup-only on the shipped route: it is entered 781 times but mutates state only on the first dirty-configuration call; calls 2..781 are full-state-hash no-ops. Its heavy `0x705E8`, `0x4E900`, and `0x3EA30` children are cold; only one `0x74220` setup call and one memcpy occur.
+- Earlier raw-reference instrumentation classified `0x18002F1A8` as the remaining dirty-configuration apply. After the downstream shipped route became source-owned, a stronger boundary test showed that none of its derived state is consumed by the native audio path: replacing the entire call with only `state[+0x1278]=0` and poisoning `0x2F1A8` preserves bit-exact output. Its `0x705E8` reset consequently becomes dead on that source-owned route; `0x74220` remains promoted independently as a documented numerical leaf.
 - A private integration proof replaces vtable entry `0x1801D1000` with source orchestration and poisons `0x1D1000`, `0x30F78`, `0x31B68`, `0xF93A8`, and `0x3ABE0`. Dynamic/Movie/Music/Game/Voice/OnlineCourse/Personalize each remain bit-exact for 781 blocks with 781 native wrapper calls and only one setup-only reference `0x2F1A8` call.
 
 ### Stage-B realtime streaming-wrapper closure (`0xF6440` / `0xF65E0` / `0xF94B0`)
@@ -647,3 +647,9 @@ A private bridge replaces the outer hot entry itself, poisons `0x1D10C8` and `0x
 ### Stage-B dirty-config band-floor leaf (`0x74220`)
 
 The bounded 20-band normalizer called by the remaining dirty-configuration builder is now native as `ubig_stage_b_rt_band_floor_normalize()`. It copies the caller-owned band vector, accumulates cube and weighted-square terms with the reference binary32 FMA schedule, forms their positive ratio through the reference binary64 division boundary, floors each band against the weighted threshold, and returns the exact weighted sum. The weight vector remains caller-owned and is not embedded in UbiG. A direct DLL differential passes **1,000,000 randomized calls bit-exact** for counts 0..20; public regression hash: `ec6fbb394aa2a5b8`.
+
+### Stage-B dirty-configuration builder elimination (`0x2F1A8`)
+
+The final recurring proprietary configuration apply above the native Stage-B audio path is no longer required by the shipped source-owned route. The native `0x30F78` boundary now treats raw `+0x1278` purely as a consumed dirty flag: when set, it clears the flag and performs no `0x2F1A8` call. The mapped reference `0x18002F1A8` entry is poisoned with `BRK`. All seven fixed-profile complete-chain stress runs remain bit-exact.
+
+This was also tested against the immediately preceding exact bridge under live retargeting. The original 16-second mixed-chunk Dynamic→Music→Movie→Game→Voice→OnlineCourse→Personalize→Dynamic differential remains **0 differences / 1,536,000 float values**. A stronger 30-second randomized stress uses host chunks 1..2048, 33 pseudo-random profile switches, and rotating silence, impulses, tones+noise, DC, square-like, chirp and wide-noise source regimes; it compares **2,880,000 float outputs with zero differences**. The reference side enters `0x2F1A8` 33 times and its `0x705E8` child six times, while the native side executes neither. This proves those derived/reset mutations are observationally dead once the recovered downstream audio path owns its live state directly.
