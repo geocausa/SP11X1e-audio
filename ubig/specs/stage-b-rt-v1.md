@@ -509,3 +509,10 @@ Audio equality alone is not sufficient evidence for further constructor-state re
 PE-relative pointers left by the raw constructor are not part of the semantic cold-state ABI. The deployed 48-kHz configuration can bind source-owned history-filter coefficients, phase data, history coefficient vectors, band endpoints and feature boundaries; the deep-controller tuning can likewise bind an external lane-weight vector. The private integration proof zeros the corresponding original image regions after binding and preserves both bit-exact output and the observed Stage-B call topology.
 
 The five slow-control scoring models are already represented publicly by `UbigStageBRtControlDescriptor` and `UbigStageBRtControlTerm`. The shipped model happens to contain four 500-term primary descriptors and one 500-term secondary descriptor, but those coefficient payloads remain **caller-owned data** and are not embedded into UbiG. A private integration proof relocates each complete descriptor to external storage, zeros the original image copies, and keeps all seven fixed profiles plus deterministic/randomized live profile switching exact. Consequently the source-owned cold graph requires no direct DLL pointer; an eventual blob-free deployment supplies its chosen compatible model pack through the semantic descriptor boundary.
+
+
+## Deployed post-constructor tuning bindings
+
+The 76-entry projection LUT is ordinary caller-owned configuration. The deployed private adapter may bind an external 76-float vector and does not require the table to reside in the reference image; destructive testing zeros the mapped original while preserving fixed-profile and live-switch output/cadence.
+
+The shipped source-owned path also does not require the legacy Leveler and multiband global tuning-table bindings. Leveler dispatch is invoked but returns at its disabled gate before any tuning pointer is read under all seven shipped profiles and live profile switching; the multiband native adapter is not entered at all on this route. Integrations therefore need not materialize those dormant tuning bindings unless they intentionally enable the corresponding optional paths.
