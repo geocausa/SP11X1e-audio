@@ -975,6 +975,19 @@ void ubig_stage_b_rt_late_controller_process(
     float rows[UBIG_STAGE_B_RT_LATE_ROWS][UBIG_STAGE_B_RT_LATE_ROW_FLOATS]);
 
 typedef struct {
+    int32_t code[UBIG_STAGE_B_RT_MAX_BANDS];
+    int32_t scaled[UBIG_STAGE_B_RT_MAX_BANDS];
+    float value[UBIG_STAGE_B_RT_MAX_BANDS];
+    const float *coeff; /* {rise_floor, fall_floor, rise_alpha, fall_alpha} */
+} UbigStageBRtTelemetrySmoothState;
+
+/* Exact live telemetry smoother in the final inline tail of 0x1800376B0. */
+void ubig_stage_b_rt_telemetry_smooth(UbigStageBRtTelemetrySmoothState *state,
+                                      const int32_t *code,
+                                      const float *input,
+                                      uint32_t count);
+
+typedef struct {
     UbigStageBRtDeepControllerState deep;
     UbigStageBRtLateControllerState late;
 } UbigStageBRtLatePipelineState;

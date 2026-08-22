@@ -366,3 +366,10 @@ Promoted source was compared against an extracted AArch64 instruction oracle pre
 `ubig_stage_b_rt_late_pipeline_process()` is the deployed semantic form of hot parent `0x180056B80`. The shipped route is fixed at two active groups × four complex planes × 77 bins, two twenty-band analysis/output rows, primary mode 1, secondary mode 0, and no auxiliary `0x1800569A0` groups. The parent now composes only native boundaries: `ubig_stage_b_rt_band_log_process()`, the exact inline `ubig_stage_b_rt_linked_row_accumulate()`, `ubig_stage_b_rt_deep_controller_process()`, `ubig_stage_b_rt_output_shape()`, and `ubig_stage_b_rt_late_controller_process()`.
 
 A live replacement plugin substitutes the promoted UbiG parent directly at outer callsite `0x18003A2B0`, maps only the surrounding raw reference state/descriptors into semantic structures, and runs the complete chain harness. **All seven shipped profiles pass exactly for all 781 block calls per profile.** Instrumentation confirms the replacement is genuinely active: nested proprietary `0x180064B38` and `0x180049620` call counts fall to zero, and the extra nested reference `0x180060200`/`0x18005F5A8` calls likewise disappear; no fixed-route invocation falls back to the DLL parent. Public synthetic lifecycle hash: `d12a6d18bdef5fba`.
+
+
+## Outer-parent telemetry smoother
+
+`ubig_stage_b_rt_telemetry_smooth()` closes the live twenty-lane inline tail at `0x18003A31C..0x18003A3CC`, immediately after the native late-pipeline parent. It clamps the incoming integer code to [-192,576], applies the caller-owned four-coefficient rise/fall state smoother, enforces the branch-specific additive floor, then exports the floor-rounded state scaled by 2080 and clamped to the same integer interval.
+
+The promoted source matches an extracted AArch64 instruction oracle for **1,000,000 randomized complete calls bit-exact**, preserving the reference add/multiply/FMA ordering and all three mutated twenty-lane banks. Public hash: `36e53311bbfee0ec`. This removes the last standalone numerical loop after `0x180056B80` from the hot `0x1800376B0` route.

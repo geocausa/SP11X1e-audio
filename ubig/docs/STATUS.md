@@ -544,3 +544,8 @@ The last inline numerical island in hot parent `0x180056B80` is native as `ubig_
 Hot reference parent `0x180056B80` is now semantic source as `ubig_stage_b_rt_late_pipeline_process()`. Its deployed SP11 contract is fixed to two groups × four complex planes × 77 bins, two 20-band row banks, mode 1 / secondary mode 0, with both optional `0x569A0` branches absent. The implementation composes only already-native band-log, linked-row, deep-controller, output-shaper, and late-controller boundaries.
 
 The strongest gate is a live callsite substitution rather than an isolated oracle: the promoted parent replaces `0x56B80` at `0x18003A2B0` inside the complete Dolby chain plugin and passes **all seven shipped profiles, 781/781 blocks each, with `PLUGIN_RESULT PASS`**. Nested reference `0x64B38` and `0x49620` counters become zero under the replacement, proving the semantic parent is executing rather than falling back. The nested `0x60200`/`0x5F5A8` reference calls also disappear because their native semantic implementations are composed directly. Public lifecycle hash: `d12a6d18bdef5fba`.
+
+
+### Stage-B outer telemetry-tail closure
+
+The post-`0x56B80` twenty-lane telemetry state loop in outer parent `0x1800376B0` is native as `ubig_stage_b_rt_telemetry_smooth()`. It owns the exact rise/fall branch, caller-owned four-coefficient smoothing, [-192,576] code/output clamps, and floor-rounded ×2080 export. Promoted source passes **1,000,000 randomized instruction-oracle calls bit-exact** across state and both integer output banks; public hash `36e53311bbfee0ec`.

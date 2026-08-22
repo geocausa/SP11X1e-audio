@@ -2705,6 +2705,32 @@ void ubig_stage_b_rt_residual_mean_process(float gain,float bias,
 }
 
 
+void ubig_stage_b_rt_telemetry_smooth(UbigStageBRtTelemetrySmoothState *state,
+                                      const int32_t *code,
+                                      const float *input,
+                                      uint32_t count)
+{
+    if(!state||!state->coeff||!code||!input||count>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    for(uint32_t i=0u;i<count;i++){
+        int32_t x=code[i];
+        if(x<-192)x=-192;
+        if(x>576)x=576;
+        state->code[i]=x;
+        const float old=state->value[i];
+        const float current=input[i];
+        float alpha,minimum;
+        if(current>=old){alpha=state->coeff[2];minimum=state->coeff[0]+current;}
+        else{alpha=state->coeff[3];minimum=state->coeff[1]+old;}
+        float next=fmaf(current,alpha,(1.0f-alpha)*old);
+        if(next<minimum)next=minimum;
+        state->value[i]=next;
+        int32_t scaled=(int32_t)floorf(next*2080.0f);
+        if(scaled<-192)scaled=-192;
+        if(scaled>576)scaled=576;
+        state->scaled[i]=scaled;
+    }
+}
+
 void ubig_stage_b_rt_late_pipeline_process(
     float row_offset,
     UbigStageBRtLatePipelineState *state,
