@@ -1117,6 +1117,13 @@ void ubig_stage_b_rt_control_export_process(UbigStageBRtControlAggregateState *s
 void ubig_stage_b_rt_pair_transform(float *row_a,float *row_b,
                                     uint32_t complex_bins,float scale);
 
+/* Exact deployed inverse/main-bank pair transform from the outer Stage-B
+ * parent. It preserves the reference FMUL/FMA/FMSUB schedule; the optional
+ * legacy secondary bank uses a different sign convention and is not part of
+ * the shipped SP11 stereo contract. */
+void ubig_stage_b_rt_pair_inverse_transform(float *row_a,float *row_b,
+                                            uint32_t complex_bins,float scale);
+
 /* Exact deployed unit-float to signed Q31 conversion used five times per
  * active outer Stage-B block. Values >= +1 saturate to INT32_MAX and values
  * <= -1 saturate to INT32_MIN; interior scaled values round to nearest-even. */

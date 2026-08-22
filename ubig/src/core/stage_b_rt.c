@@ -3830,6 +3830,23 @@ void ubig_stage_b_rt_pair_transform(float *row_a,float *row_b,
     }
 }
 
+void ubig_stage_b_rt_pair_inverse_transform(float *row_a,float *row_b,
+                                            uint32_t complex_bins,float scale)
+{
+    if(!row_a||!row_b)return;
+    for(uint32_t k=0u;k<complex_bins;k++){
+        const uint32_t i=2u*k;
+        const float ar=row_a[i];
+        const float ai=row_a[i+1u];
+        const float ar_scaled=ar*scale;
+        const float ai_scaled=ai*scale;
+        row_a[i]=fmaf(row_b[i],scale,ar_scaled);
+        row_a[i+1u]=fmaf(row_b[i+1u],scale,ai_scaled);
+        row_b[i]=fmaf(-row_b[i],scale,ar_scaled);
+        row_b[i+1u]=fmaf(-row_b[i+1u],scale,ai_scaled);
+    }
+}
+
 int32_t ubig_stage_b_rt_q31_encode(float value)
 {
     if(value>=1.0f)return INT32_C(0x7fffffff);
