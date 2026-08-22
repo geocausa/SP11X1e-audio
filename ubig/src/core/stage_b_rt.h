@@ -757,6 +757,36 @@ void ubig_stage_b_rt_control_aggregate_process(UbigStageBRtControlAggregateState
                                                uint32_t item_count,
                                                float output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS]);
 
+typedef struct {
+    float smooth_keep;
+    float smooth_inject;
+    float lower_limit;
+    float negative_slope;
+    float quadratic_scale;
+    float quadratic_limit;
+    float linear_offset;
+    const float *lane_weight;
+} UbigStageBRtEnvelopeConfig;
+
+typedef struct {
+    const UbigStageBRtEnvelopeConfig *config;
+    uint32_t active_width;
+    uint32_t status[UBIG_STAGE_B_RT_MAX_BANDS];
+    float envelope[UBIG_STAGE_B_RT_MAX_BANDS];
+    float scalar_envelope;
+    float activity_state;
+    float lane_activity[UBIG_STAGE_B_RT_MAX_BANDS];
+} UbigStageBRtEnvelopeState;
+
+/* Exact 0x180080278 max-row envelope tracker and its enclosing 0x180080658
+ * activity smoother. All curve/smoothing coefficients remain caller-owned. */
+int ubig_stage_b_rt_envelope_track(UbigStageBRtEnvelopeState *state,
+                                   const UbigStageBRtBandRows *rows,
+                                   const float *lane_offset);
+void ubig_stage_b_rt_envelope_activity_process(UbigStageBRtEnvelopeState *state,
+                                               const UbigStageBRtBandRows *rows,
+                                               const float *lane_offset);
+
 /* Exact aligned four-lane max-absolute reducer at 0x1800BB6E0. Counts are
  * positive multiples of four; the deployed late Stage-B path uses 64. */
 float ubig_stage_b_rt_max_abs4(const float *input,uint32_t count);

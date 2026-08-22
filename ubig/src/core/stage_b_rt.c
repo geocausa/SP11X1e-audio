@@ -2541,6 +2541,107 @@ uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock)
     return actions;
 }
 
+static float stage_b_rt_envelope_curve(const UbigStageBRtEnvelopeConfig *config,
+                                      float target,float old)
+{
+    const float half_old=old*0.5f;
+    const float delta=target*0.5f-half_old;
+    float value;
+    if(delta<0.0f){
+        float term=config->negative_slope*delta;
+        if(term<config->lower_limit)term=config->lower_limit;
+        value=term+half_old;
+    }else if(config->quadratic_limit<delta){
+        value=config->linear_offset+delta+half_old;
+    }else{
+        float x=delta*4.0f;
+        x=x*x;
+        value=fmaf(x,config->quadratic_scale,half_old);
+    }
+    return value+value;
+}
+
+int ubig_stage_b_rt_envelope_track(UbigStageBRtEnvelopeState *state,
+                                   const UbigStageBRtBandRows *rows,
+                                   const float *lane_offset)
+{
+    if(!state||!state->config||!rows||!rows->rows||!lane_offset||
+       state->active_width>UBIG_STAGE_B_RT_MAX_BANDS)return 0;
+    const float smooth_limit=f32_bits(0x3e1d89d9u);
+    const float poly_a=f32_bits(0x3f229946u);
+    const float poly_b=f32_bits(0x3e722614u);
+    const float poly_c=f32_bits(0x3cfbf0a8u);
+    const float poly_d=f32_bits(0x3abdb181u);
+    float smooth=-1.0f;
+    for(uint32_t lane=0u;lane<state->active_width;lane++){
+        float maximum=-1.0f;
+        for(uint32_t row=0u;row<rows->row_count;row++){
+            const float value=rows->rows[row][lane];
+            if(maximum<value)maximum=value;
+        }
+        const float target=maximum+lane_offset[lane];
+        const float envelope=stage_b_rt_envelope_curve(state->config,target,state->envelope[lane]);
+        state->envelope[lane]=envelope;
+        state->status[lane]=(uint32_t)(envelope<target);
+
+        const float high=(smooth<target)?target:smooth;
+        const float difference=target-smooth;
+        const float magnitude=(-difference<difference)?difference:-difference;
+        if(magnitude<smooth_limit){
+            float z=fmaf(-magnitude,poly_a,poly_b);
+            z=fmaf(z,magnitude,-poly_c);
+            z=fmaf(z,magnitude,poly_d);
+            z=fmaf(z,16.0f,high);
+            if(z<-1.0f)z=-1.0f;
+            if(1.0f<z)z=1.0f;
+            smooth=z;
+        }else smooth=high;
+    }
+    const float scalar=stage_b_rt_envelope_curve(state->config,smooth,state->scalar_envelope);
+    state->scalar_envelope=scalar;
+    return scalar<smooth;
+}
+
+void ubig_stage_b_rt_envelope_activity_process(UbigStageBRtEnvelopeState *state,
+                                               const UbigStageBRtBandRows *rows,
+                                               const float *lane_offset)
+{
+    if(!state||!state->config||!state->config->lane_weight||!rows||!rows->rows||
+       !lane_offset||state->active_width>UBIG_STAGE_B_RT_MAX_BANDS)return;
+    const int rising=ubig_stage_b_rt_envelope_track(state,rows,lane_offset);
+    float maximum=-1.0f;
+    float accumulator=-1.0f;
+    const float high_bias=f32_bits(0x3e1d89d9u);
+    const float low_bias=f32_bits(0x3d1d89d9u);
+    for(uint32_t lane=0u;lane<state->active_width;lane++){
+        const float half=state->envelope[lane]*0.5f;
+        const float high=half-high_bias;
+        if(maximum<high)maximum=high;
+        const float low=half-low_bias;
+        if(low<=maximum){
+            const float weighted=state->config->lane_weight[lane]*(maximum-low);
+            accumulator=fmaf(weighted,0.25f,accumulator);
+        }
+    }
+    float activity=(accumulator+1.0f)*8.0f;
+    if(activity<0.0f)activity=0.0f;
+    const float cap=f32_bits(0x3d44ec4fu);
+    if(cap<activity)activity=cap;
+    activity*=f32_bits(0x3f266600u);
+    float target=fmaf(-activity,f32_bits(0x42000000u),1.0f);
+    if(!rising||target<state->activity_state)
+        target=fmaf(state->config->smooth_keep,state->activity_state,
+                    state->config->smooth_inject*target);
+    for(uint32_t lane=0u;lane<state->active_width;lane++){
+        float value=target;
+        if(state->status[lane]==0u||target<state->lane_activity[lane])
+            value=fmaf(state->config->smooth_keep,state->lane_activity[lane],
+                       state->config->smooth_inject*target);
+        state->lane_activity[lane]=value;
+    }
+    state->activity_state=target;
+}
+
 float ubig_stage_b_rt_max_abs4(const float *input,uint32_t count)
 {
     if(!input||count<4u||(count&3u)!=0u)return 0.0f;

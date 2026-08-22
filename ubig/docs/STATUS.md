@@ -495,3 +495,8 @@ The direct-call census has now been extended to the actual end of `0x1800376B0` 
 Two hot leaves under the still-open `0x49620` controller are native. `ubig_stage_b_rt_symmetric_history_mix()` closes `0x18006DCF8` with **1,000,000 randomized direct DLL calls bit-exact** over its complete output/history mutation; public hash `c3af0d13d4cae940`. `ubig_stage_b_rt_max_abs4()` closes the aligned `0x1800BB6E0` fast reducer with **1,000,000 direct randomized calls bit-exact**; public hash `4c720017ecc09f55`, deployed count 64.
 
 Deep live census now pins the remaining branches. `0x64B38` runs its six numerical children (`0x7FE80`, `0x80658`, `0x80920`, `0x80AE0`, `0x80ED8`, `0x7FC08`) every block, with only the `0x64958` reset limited to setup. `0x49620` uses the aligned fast path exclusively: 8× `0xBAF40`, 8× native `0xBB6E0`, 8× native `0x6DCF8`, and 1× `0x17C370` per block; all alternative scalar/unaligned leaves are dead. `0x17C370` has independently matched libc `frexp()` bit-exact for 1,000,000 positive finite probes.
+
+
+### Stage-B deep-tail envelope/activity closure
+
+The `0x180080278` max-row envelope tracker and its always-live `0x180080658` parent are native as `ubig_stage_b_rt_envelope_track()` / `ubig_stage_b_rt_envelope_activity_process()`. Each promoted boundary passes **1,000,000 randomized DLL calls bit-exact** across all persistent lane/scalar state; the semantic configuration keeps every curve, weighting and temporal coefficient caller-owned. Public hash `67d4c3f543a46a84`. The open `0x64B38` subtree is now reduced to the other five live siblings (`0x7FE80`, `0x80920`, `0x80AE0`, `0x80ED8`, `0x7FC08`) plus its orchestration.
