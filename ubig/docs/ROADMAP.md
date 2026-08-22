@@ -85,13 +85,13 @@ Preferred target: Movie first, then Music, then the common Dynamic family.
 
 Exit: UbiG first-stage output/state passes the frozen oracle corpus while the second Windows stage remains behind it only in a private lab hybrid.
 
-Current checkpoint: the SP11 48 kHz Stage-A cold scheduler is native and reaches the public engine API for all seven profiles. The frozen Dynamic engine fixture is bit-exact including the outer 256-frame accumulator. Movie/Music retain a distinct recovered staged VLLDP family, but direct Stage-A-only stress differentials prove that family is audio-bit-transparent on this endpoint; transitions therefore change the family state marker in place without resetting Stage-A history. The next substantive de-blob boundary is Stage B / VR.
+Current checkpoint: the SP11 48 kHz Stage-A scheduler is native and reaches the public engine API for all seven profiles. A private whole-chain hybrid now substitutes this public engine for the Windows VLLDP stage and remains bit-exact through fixed-profile, deterministic transition and randomized long-history tests. The VLLDP DLL is not loaded at all in that hybrid, so M3 algorithm/runtime replacement is complete for the shipped endpoint. Remaining work is Stage B / VR construction and control de-blob.
 
 ### M4 — native UbiG second-stage / VR replacement
 
 Reconstruct only the SP11 stereo speaker behavior actually exercised by the endpoint:
 
-Current progress: the Volume-Leveler/DRC coefficient mapper, 80-slot adaptive-history accumulator, and enclosing long-memory writer are native and bit-exact. The next boundary is the surrounding Stage-B Leveler process/orchestration that feeds this controller from live band analysis.
+Current progress: the shipped Stage-B realtime audio route is source-owned through its outer streaming/transition wrappers, and the remaining raw dirty-config apply has been proven observationally dead on that native route. Combined with native Stage A, the lab chain now has an all-native audio callback and no VLLDP DLL dependency. The VR image is still used to construct/tune the Stage-B object graph and for small property-handler calls during profile retargeting; those initialization/control dependencies are the next boundary.
 
 - effective stereo output-mode policy
 - Volume Leveler / DRC including long-memory adaptive controller
