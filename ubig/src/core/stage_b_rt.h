@@ -1159,6 +1159,13 @@ void ubig_stage_b_rt_stream256_process(UbigStageBRtStream256State *state,
                                        uint32_t frames,UbigStageBRtStream256BlockFn process_block,
                                        void *context);
 
+/* Exact bounded band-floor normalizer at reference 0x180074220. The 20-band
+ * weight vector is caller-owned. Ratio formation intentionally widens the two
+ * accumulated float32 scalars to double before division, matching the shipped
+ * ARM64 boundary. */
+void ubig_stage_b_rt_band_floor_normalize(const float *input,const float *weights,
+                                          uint32_t count,float *output,float *weighted_sum);
+
 #define UBIG_STAGE_B_RT_HISTORY_FILTER64_N 64u
 #define UBIG_STAGE_B_RT_HISTORY_FILTER64_DEPTH 9u
 #define UBIG_STAGE_B_RT_HISTORY_FILTER64_OUTPUT_FLOATS 128u

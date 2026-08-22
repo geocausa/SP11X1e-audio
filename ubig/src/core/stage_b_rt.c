@@ -4062,6 +4062,34 @@ void ubig_stage_b_rt_stream256_process(UbigStageBRtStream256State *state,
     }
 }
 
+void ubig_stage_b_rt_band_floor_normalize(const float *input,const float *weights,
+                                          uint32_t count,float *output,float *weighted_sum)
+{
+    if(!input||!weights||!output||!weighted_sum||count>20u)return;
+    float local[20];
+    if(count!=0u)memcpy(local,input,(size_t)count*sizeof(float));
+    float cube_sum=0.0f;
+    float weighted_square_sum=0.0f;
+    for(uint32_t i=0u;i<count;i++){
+        const float value=local[i];
+        const float square=value*value;
+        cube_sum=fmaf(value,square,cube_sum);
+        weighted_square_sum=fmaf(weights[i],square,weighted_square_sum);
+    }
+    float ratio=0.0f;
+    if(cube_sum>0.0f&&weighted_square_sum>0.0f)
+        ratio=(float)((double)cube_sum/(double)weighted_square_sum);
+    float sum=0.0f;
+    for(uint32_t i=0u;i<count;i++){
+        float value=local[i]*0.25f;
+        const float floor=(weights[i]*0.125f)*ratio;
+        if(!(value>floor))value=floor;
+        output[i]=value;
+        sum=fmaf(0.0625f,value,sum);
+    }
+    *weighted_sum=sum;
+}
+
 void ubig_stage_b_rt_history_filter64_process(
     UbigStageBRtHistoryFilter64State *state,const float filter[640],
     const float phase[128],uint32_t history_row,float output[128],
