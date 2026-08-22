@@ -1342,6 +1342,56 @@ void ubig_stage_b_rt_stat32(const float input[32],float *mean,float *deviation)
     *deviation=sqrtf(energy)*stage_b_rt_pow2_integer(1-shift);
 }
 
+static float stage_b_rt_cadence_mean(float accumulator,uint32_t accumulator_shift,
+                                      float outgoing,uint32_t *used_shift)
+{
+    uint32_t shift=(uint32_t)stage_b_rt_spectral_shift(outgoing);
+    if(accumulator_shift<shift)shift=accumulator_shift;
+    const float accumulator_term=stage_b_rt_pow2_integer((int32_t)shift-(int32_t)accumulator_shift)*accumulator;
+    const float outgoing_term=stage_b_rt_pow2_integer((int32_t)shift-5)*outgoing;
+    float sum=accumulator_term+outgoing_term;
+    sum*=f32_bits(0x3d000000u);
+    *used_shift=shift;
+    return stage_b_rt_pow2_integer(5-(int32_t)shift)*sum;
+}
+
+void ubig_stage_b_rt_cadence_summary_process(UbigStageBRtCadenceSummary *s,
+                                             float output[UBIG_STAGE_B_RT_CADENCE_OUTPUTS],
+                                             float scratch[32])
+{
+    if(!s||!output||!scratch)return;
+    const uint32_t previous=(s->cursor.index==0u)?31u:s->cursor.index-1u;
+
+    for(uint32_t column=0u;column<UBIG_STAGE_B_RT_CADENCE_COLUMNS;column++){
+        for(uint32_t row=0u;row<32u;row++)scratch[row]=s->matrix[row][column];
+        uint32_t shift;
+        output[column]=stage_b_rt_cadence_mean(s->column_accumulator[column],
+                                                s->column_shift[column],
+                                                s->matrix[previous][column],&shift);
+        output[UBIG_STAGE_B_RT_CADENCE_COLUMNS+column]=
+            ubig_stage_b_rt_deviation32(output[column],scratch,shift);
+    }
+
+    for(uint32_t column=0u;column<UBIG_STAGE_B_RT_CADENCE_DELTAS;column++){
+        for(uint32_t row=0u;row<32u;row++){
+            const float high=s->matrix[row][column+1u]*0.5f;
+            scratch[row]=fmaf(-s->matrix[row][column],0.5f,high);
+        }
+        const float previous_high=s->matrix[previous][column+1u]*0.5f;
+        const float outgoing=fmaf(-s->matrix[previous][column],0.5f,previous_high);
+        uint32_t shift;
+        const uint32_t mean_index=2u*UBIG_STAGE_B_RT_CADENCE_COLUMNS+column;
+        output[mean_index]=stage_b_rt_cadence_mean(s->delta_accumulator[column],
+                                                   s->delta_shift[column],outgoing,&shift);
+        output[mean_index+UBIG_STAGE_B_RT_CADENCE_DELTAS]=
+            ubig_stage_b_rt_deviation32(output[mean_index],scratch,shift);
+    }
+
+    uint32_t next=s->cursor.index+s->cursor.step;
+    if(next>=32u)next-=32u;
+    s->cursor.index=next;
+}
+
 void ubig_stage_b_rt_stat32_step(UbigStageBRtStatCursor *cursor,
                                  const float input[32],
                                  float scratch[32],

@@ -185,3 +185,8 @@ Promoted-source private differentials: rank leaf **500,000 complete randomized c
 ## Sorted rank/peak metrics
 
 `ubig_stage_b_rt_rank_metrics()` owns the lower-cadence 32-value rank transform at reference VA `0x1800A02A8`. It sorts the caller row in scratch, derives the exact top-two and shoulder aggregates with the reference rounding schedule, then emits the gain-scaled peak and bounded ratio metric. Scratch may alias input, matching the deployed helper. Promoted-source private differential: **500,000 complete randomized DLL calls bit-exact**, including aliased and separate scratch layouts. Public regression hash: `9a0861d04a41b2fd`.
+
+
+## Eight-column cadence summary
+
+`ubig_stage_b_rt_cadence_summary_process()` closes the lower-cadence transform at reference VA `0x180096C28`. It gathers all eight columns of the semantic 32x8 history, combines caller-owned normalized accumulators with the outgoing circular row, computes supplied-mean deviations, then repeats the exact process for the seven half-scaled adjacent-column differences. The accumulator values and their binary shifts remain explicit caller-owned state. Promoted-source private differential: **300,000 complete randomized DLL calls bit-exact**, comparing all 30 outputs, final 32-float scratch, cursor update and untouched raw state. Public lifecycle hash: `2fa8b774beb5b760`.

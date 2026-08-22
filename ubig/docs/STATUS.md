@@ -421,3 +421,8 @@ The lower-cadence sorted rank/shoulder leaf and its 32x3 enclosing history contr
 ### Stage-B RT sorted rank-metrics closure
 
 The lower-cadence sorted peak/shoulder helper is native as `ubig_stage_b_rt_rank_metrics()`. Promoted source matches **500,000 complete randomized DLL calls bit-exact**, including input/scratch aliasing. Public hash: `9a0861d04a41b2fd`.
+
+
+### Stage-B RT eight-column cadence-summary closure
+
+The lower-cadence 32x8 column-plus-adjacent-difference transform is native as `ubig_stage_b_rt_cadence_summary_process()`. Promoted source matches **300,000 complete randomized DLL calls bit-exact** across all 30 outputs, scratch and cursor state. Public lifecycle hash: `2fa8b774beb5b760`.

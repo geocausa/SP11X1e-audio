@@ -465,6 +465,25 @@ typedef struct {
     uint32_t index;
 } UbigStageBRtStatCursor;
 
+#define UBIG_STAGE_B_RT_CADENCE_COLUMNS 8u
+#define UBIG_STAGE_B_RT_CADENCE_DELTAS 7u
+#define UBIG_STAGE_B_RT_CADENCE_OUTPUTS 30u
+
+typedef struct {
+    float matrix[32][UBIG_STAGE_B_RT_CADENCE_COLUMNS];
+    UbigStageBRtStatCursor cursor;
+    float column_accumulator[UBIG_STAGE_B_RT_CADENCE_COLUMNS];
+    float delta_accumulator[UBIG_STAGE_B_RT_CADENCE_DELTAS];
+    uint32_t column_shift[UBIG_STAGE_B_RT_CADENCE_COLUMNS];
+    uint32_t delta_shift[UBIG_STAGE_B_RT_CADENCE_DELTAS];
+} UbigStageBRtCadenceSummary;
+
+/* Exact lower-cadence 8-column / 7-adjacent-difference summary transform.
+ * Accumulators and their binary normalization shifts are caller-owned state. */
+void ubig_stage_b_rt_cadence_summary_process(UbigStageBRtCadenceSummary *state,
+                                             float output[UBIG_STAGE_B_RT_CADENCE_OUTPUTS],
+                                             float scratch[32]);
+
 /* Copy one 32-value row to caller scratch, compute the exact statistic, then
  * advance the 32-slot cursor by its caller-owned step. */
 void ubig_stage_b_rt_stat32_step(UbigStageBRtStatCursor *cursor,
