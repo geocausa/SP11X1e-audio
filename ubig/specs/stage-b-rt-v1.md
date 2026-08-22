@@ -496,3 +496,9 @@ This is an integration-boundary result, not a public requirement to preserve the
 For the deployed SP11 48-kHz stereo endpoint, the generic `LibWrapperVr` constructor and initialization machinery are not semantic runtime requirements. Source-owned integration may construct the small wrapper shell directly, use the fixed `{512,256}` frame geometry, allocate the deployed persistent/scratch requirements directly, and retain only the two 256-frame interleaved streamer buffers. Default headphone tuning, generic DSP-mode selection, the generic 38,400-sample delay allocation and the initial output-mode setter are outside the observed speaker-path contract once downstream processing is source-owned.
 
 This boundary is validated by all seven fixed profiles plus deterministic and randomized live profile switching with zero output differences. The next semantic construction boundary is the core/state graph created by reference `0x18002BE18`; its proprietary object layout remains private and is not part of the public Stage-B ABI.
+
+## Native cold core-state construction
+
+The deployed 48-kHz stereo integration does not require the proprietary `0x18002BE18` constructor body. Differential liveness reduction proves that only 736 bytes of its 298,937-byte pre-profile persistent image are observable after the source-owned realtime and built-in-profile boundaries are applied. These bytes consist of relocatable internal references, compact scalar/count state and immutable-table references; all other constructor output may be zero.
+
+A valid source integration may therefore build this cold state semantically from zeroed storage plus the recovered live fields rather than preserve or execute the original constructor. The proprietary raw layout remains an implementation detail and is not part of the public UbiG ABI. Remaining immutable table references are tracked separately for source ownership.
