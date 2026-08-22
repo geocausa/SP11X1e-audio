@@ -3847,6 +3847,153 @@ void ubig_stage_b_rt_pair_inverse_transform(float *row_a,float *row_b,
     }
 }
 
+static void stage_b_rt_fft4(float *output,const float *input)
+{
+    const float a=input[4]+input[0];
+    const float b=input[0]-input[4];
+    const float c=input[1]-input[5];
+    const float d=input[5]+input[1];
+    const float e=input[6]+input[2];
+    const float f=input[7]+input[3];
+    const float g=input[2]-input[6];
+    const float h=input[3]-input[7];
+    output[0]=e+a;
+    output[1]=f+d;
+    output[4]=a-e;
+    output[5]=d-f;
+    output[2]=h+b;
+    output[3]=c-g;
+    output[6]=b-h;
+    output[7]=g+c;
+}
+
+static void stage_b_rt_fft8(float *output,const float *input)
+{
+    const float twiddle=f32_bits(0x3f3504f3u);
+    float f16=input[8]+input[0];
+    float f8=input[0]-input[8];
+    float f13=input[9]+input[1];
+    float f7=input[1]-input[9];
+    float f12=input[12]+input[4];
+    float f4=input[4]-input[12];
+    float f2=input[13]+input[5];
+    float f1=input[5]-input[13];
+    float f6=f12+f16;
+    f16=f16-f12;
+    float f10=f2+f13;
+    f13=f13-f2;
+    f12=f1+f8;
+    f8=f8-f1;
+    float f17=f7-f4;
+    f4=f4+f7;
+    float f14=input[10]+input[2];
+    float f5=input[2]-input[10];
+    float f11=input[11]+input[3];
+    float f3=input[3]-input[11];
+    float f9=input[14]+input[6];
+    f7=input[6]-input[14];
+    f1=input[15]+input[7];
+    f2=input[7]-input[15];
+    float f15=f9+f14;
+    f14=f14-f9;
+    f9=f1+f11;
+    f11=f11-f1;
+    output[8]=f6-f15;
+    output[9]=f10-f9;
+    output[0]=f15+f6;
+    output[1]=f9+f10;
+    output[12]=f16-f11;
+    output[13]=f14+f13;
+    output[4]=f11+f16;
+    output[5]=f13-f14;
+    f6=(f2+f5)*twiddle;
+    f13=f3-f7;
+    f7=f7+f3;
+    f2=(f5-f2)*twiddle;
+    f5=fmaf(f13,twiddle,f6);
+    f6=fmaf(f13,twiddle,-f6);
+    f3=fmaf(-f7,twiddle,f2);
+    f2=fmaf(f7,twiddle,f2);
+    output[10]=f12-f5;
+    output[11]=f17-f6;
+    output[2]=f5+f12;
+    output[3]=f6+f17;
+    output[14]=f3+f8;
+    output[15]=f2+f4;
+    output[6]=f8-f3;
+    output[7]=f4-f2;
+}
+
+void ubig_stage_b_rt_history_transform32(UbigStageBRtHistoryTransform32 *state,
+                                         uint32_t history_row,float output[32],
+                                         const float tail[6])
+{
+    if(!state||!state->history_rows||!state->primary||!state->secondary||
+       !output||!tail||state->count==0u||!state->history_rows[history_row])return;
+    memset(output,0,32u*sizeof(float));
+    uintptr_t history_address=(uintptr_t)state->history_rows[history_row];
+    float *history=(float *)((history_address+31u)&~(uintptr_t)31u);
+    for(uint32_t i=0u;i<state->count;i++){
+        const float ar=state->primary[2u*i];
+        const float ai=state->primary[2u*i+1u];
+        const float br=state->secondary[2u*i];
+        const float bi=state->secondary[2u*i+1u];
+        float t0,t1,t2,t3,t4,t5;
+        if(i==state->count-1u){
+            t0=tail[0];t1=tail[1];t2=tail[2];t3=tail[3];t4=tail[4];t5=tail[5];
+        }else{
+            const float *src=history+6u*i;
+            t0=src[0];t1=src[1];t2=src[2];t3=src[3];t4=src[4];t5=src[5];
+        }
+        if(i!=0u){
+            float *dst=history+6u*(i-1u);
+            dst[0]=t0;dst[1]=t1;dst[2]=t2;dst[3]=t3;dst[4]=t4;dst[5]=t5;
+        }
+        float product=t0*ar;
+        const float r0=fmaf(-t1,ai,product);
+        product=t1*ar;
+        const float i0=fmaf(t0,ai,product);
+        product=t2*br;
+        const float r1=fmaf(-t3,bi,product);
+        product=t3*br;
+        const float i1=fmaf(t2,bi,product);
+        product=t4*br;
+        const float r2=fmaf(-t5,bi,product);
+        product=t5*br;
+        const float i2=fmaf(t4,bi,product);
+        const uint32_t phase=(uint32_t)((int32_t)i-(int32_t)state->count+state->phase+1);
+        uint32_t slot=(phase&7u)*2u;
+        output[slot]+=r0;
+        output[slot+1u]+=i0;
+        slot=((phase&3u)+8u)*2u;
+        output[slot]+=r1;
+        output[slot+1u]+=i1;
+        slot=((phase&3u)+12u)*2u;
+        output[slot]+=r2;
+        output[slot+1u]+=i2;
+    }
+    float transformed[32];
+    stage_b_rt_fft8(transformed,output);
+    stage_b_rt_fft4(transformed+16,output+16);
+    stage_b_rt_fft4(transformed+24,output+24);
+    output[0]=transformed[0];output[1]=transformed[1];
+    output[2]=transformed[14];output[3]=-transformed[15];
+    output[4]=transformed[2];output[5]=transformed[3];
+    output[6]=transformed[12];output[7]=-transformed[13];
+    output[8]=transformed[4];output[9]=transformed[5];
+    output[10]=transformed[18];output[11]=transformed[19];
+    output[12]=transformed[6];output[13]=transformed[7];
+    output[14]=transformed[8];output[15]=transformed[9];
+    output[16]=transformed[20];output[17]=transformed[21];
+    output[18]=transformed[10];output[19]=transformed[11];
+    output[20]=transformed[22];output[21]=transformed[23];
+    output[22]=transformed[30];output[23]=transformed[31];
+    output[24]=transformed[16];output[25]=transformed[17];
+    output[26]=transformed[24];output[27]=transformed[25];
+    output[28]=transformed[26];output[29]=transformed[27];
+    output[30]=transformed[28];output[31]=transformed[29];
+}
+
 int32_t ubig_stage_b_rt_q31_encode(float value)
 {
     if(value>=1.0f)return INT32_C(0x7fffffff);

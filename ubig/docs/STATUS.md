@@ -586,3 +586,11 @@ The deployed stereo contract no longer executes reference outer parent `0x180037
 The full plugin stress harness passes bit-exact for Dynamic, Movie, Music, Game, Voice, OnlineCourse and Personalize. Every profile executes 781 native outer-parent calls and 781 native `0x58480` aggregate calls, with 3,124 native analysis-controller updates, scheduler cadence 195 upper / 39 lower-A / 39 lower-B, and zero semantic fallback. The native multiband parent executes 781 times on Dynamic/Movie/Voice/OnlineCourse/Personalize and remains correctly absent on Music/Game. The old `0x376B0` entry is poisoned for the entire run, so this is a negative execution proof as well as an output-equivalence proof.
 
 This closes proprietary **code execution** for the deployed Stage-B outer parent. The private bridge still consumes caller-owned initialized coefficient/model tables and raw state layouts supplied by the existing object construction path; independent generation of those tuning/data objects remains separate work.
+
+### Stage-B 32-value history transform (`0x4A570`) closure
+
+The only substantive live child still above the now-native `0x376B0` outer parent is native as `ubig_stage_b_rt_history_transform32()`. Reference `0x18004A570` maintains a caller-owned six-float-per-step history, applies two complex coefficient streams, accumulates three phase-wrapped complex lanes, runs fixed 8-point plus two 4-point kernels, and exports the reference 32-float permutation/sign layout. The promoted source includes those small kernels directly, so reference callback entries `0x1800D1EC0` and `0x1800D23E0` are no longer required.
+
+A direct DLL oracle passes **1,000,000 randomized complete calls bit-exact**, including mutable history, varying 1..16 tap counts, varying signed phases and deliberately misaligned raw history bases. Public deterministic hash: `53ef0081132f4037`.
+
+The stronger live proof replaces all 6,248 `0x4A570` calls in each 781-block profile stress run with the native implementation, replaces the live `0x5AD38` export call with its proven zero-row no-op, and poisons mapped entries `0x4A570`, `0xD1EC0`, `0xD23E0` and `0x5AD38` with `BRK`. Dynamic, Movie, Music, Game, Voice, OnlineCourse and Personalize all remain bit-exact. The sibling branches `0x5BC98`, `0x5C6D0` and `0x45288` remain zero-call under the deployed contract.

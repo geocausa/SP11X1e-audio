@@ -1124,6 +1124,27 @@ void ubig_stage_b_rt_pair_transform(float *row_a,float *row_b,
 void ubig_stage_b_rt_pair_inverse_transform(float *row_a,float *row_b,
                                             uint32_t complex_bins,float scale);
 
+#define UBIG_STAGE_B_RT_HISTORY32_FLOATS 32u
+#define UBIG_STAGE_B_RT_HISTORY32_TAIL 6u
+
+typedef struct {
+    float **history_rows;
+    const float *primary;
+    const float *secondary;
+    uint32_t count;
+    int32_t phase;
+} UbigStageBRtHistoryTransform32;
+
+/* Exact live spectral-history transform at reference 0x18004A570. The caller
+ * supplies one mutable six-float-per-step history row, two complex coefficient
+ * streams and the final six-float tail. The fixed 32-float output internally
+ * uses the recovered 8-point and 4-point kernels; no reference callbacks are
+ * required. */
+void ubig_stage_b_rt_history_transform32(UbigStageBRtHistoryTransform32 *state,
+                                         uint32_t history_row,
+                                         float output[UBIG_STAGE_B_RT_HISTORY32_FLOATS],
+                                         const float tail[UBIG_STAGE_B_RT_HISTORY32_TAIL]);
+
 /* Exact deployed unit-float to signed Q31 conversion used five times per
  * active outer Stage-B block. Values >= +1 saturate to INT32_MAX and values
  * <= -1 saturate to INT32_MIN; interior scaled values round to nearest-even. */
