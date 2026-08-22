@@ -457,6 +457,25 @@ float ubig_stage_b_rt_scaled_sum(const float *input,uint32_t count,int32_t expon
  * magnitudes for bins 1..16; DC is intentionally omitted. */
 void ubig_stage_b_rt_spectrum32(const float input[32],float output[16]);
 
+#define UBIG_STAGE_B_RT_SLOPE32_VALUES 32u
+
+typedef struct {
+    float combined[UBIG_STAGE_B_RT_SLOPE32_VALUES];
+    float positive_row0[UBIG_STAGE_B_RT_SLOPE32_VALUES];
+    float positive_row1[UBIG_STAGE_B_RT_SLOPE32_VALUES];
+    float normalized_row0[UBIG_STAGE_B_RT_SLOPE32_VALUES];
+    float normalized_row1[UBIG_STAGE_B_RT_SLOPE32_VALUES];
+} UbigStageBRtSlope32;
+
+/* Exact deployed dual-row positive-slope preparation. The two input rows are
+ * normalized by one shared binary exponent, filtered by the reference centered
+ * first-difference kernel, half-wave rectified, summed, then normalized by the
+ * mean energy of both normalized rows. Intermediate banks remain visible
+ * because the following lower-scheduler stage consumes them. */
+void ubig_stage_b_rt_slope32_prepare(const float row0[UBIG_STAGE_B_RT_SLOPE32_VALUES],
+                                     const float row1[UBIG_STAGE_B_RT_SLOPE32_VALUES],
+                                     UbigStageBRtSlope32 *output);
+
 /* Exact 32-value RMS deviation around a caller-supplied mean. shift is the
  * binary normalization exponent selected by the enclosing cadence transform. */
 float ubig_stage_b_rt_deviation32(float mean,const float input[32],uint32_t shift);

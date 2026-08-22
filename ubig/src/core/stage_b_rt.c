@@ -1512,6 +1512,69 @@ void ubig_stage_b_rt_spectrum32(const float input[32],float output[16])
     }
 }
 
+
+void ubig_stage_b_rt_slope32_prepare(const float row0[UBIG_STAGE_B_RT_SLOPE32_VALUES],
+                                     const float row1[UBIG_STAGE_B_RT_SLOPE32_VALUES],
+                                     UbigStageBRtSlope32 *out)
+{
+    if(!row0||!row1||!out)return;
+    int32_t shift=32;
+    for(uint32_t lane=0u;lane<UBIG_STAGE_B_RT_SLOPE32_VALUES;lane++){
+        int32_t lane_shift=stage_b_rt_spectral_shift(row0[lane]);
+        if(lane_shift<shift)shift=lane_shift;
+        lane_shift=stage_b_rt_spectral_shift(row1[lane]);
+        if(lane_shift<shift)shift=lane_shift;
+    }
+
+    const float input_scale=stage_b_rt_pow2_integer(shift-1);
+    for(uint32_t lane=0u;lane<UBIG_STAGE_B_RT_SLOPE32_VALUES;lane++){
+        out->normalized_row0[lane]=row0[lane]*input_scale;
+        out->normalized_row1[lane]=row1[lane]*input_scale;
+    }
+
+    const float coefficient=f32_bits(0x3f0a9555u);
+    for(uint32_t lane=0u;lane<UBIG_STAGE_B_RT_SLOPE32_VALUES;lane++){
+        float value=0.0f;
+        if(lane>0u)value=fmaf(out->normalized_row0[lane-1u],-coefficient,value);
+        value=fmaf(out->normalized_row0[lane],0.0f,value);
+        if(lane+1u<UBIG_STAGE_B_RT_SLOPE32_VALUES)
+            value=fmaf(out->normalized_row0[lane+1u],coefficient,value);
+        out->positive_row0[lane]=value;
+
+        value=0.0f;
+        if(lane>0u)value=fmaf(out->normalized_row1[lane-1u],-coefficient,value);
+        value=fmaf(out->normalized_row1[lane],0.0f,value);
+        if(lane+1u<UBIG_STAGE_B_RT_SLOPE32_VALUES)
+            value=fmaf(out->normalized_row1[lane+1u],coefficient,value);
+        out->positive_row1[lane]=value;
+    }
+
+    for(uint32_t lane=0u;lane<UBIG_STAGE_B_RT_SLOPE32_VALUES;lane++){
+        if(out->positive_row0[lane]<0.0f)out->positive_row0[lane]=0.0f;
+        if(out->positive_row1[lane]<0.0f)out->positive_row1[lane]=0.0f;
+        out->combined[lane]=out->positive_row0[lane]+out->positive_row1[lane];
+    }
+
+    const float one_over_32=f32_bits(0x3d000000u);
+    float row1_mean=out->normalized_row1[0]*one_over_32;
+    for(uint32_t lane=1u;lane<UBIG_STAGE_B_RT_SLOPE32_VALUES;lane++)
+        row1_mean=fmaf(out->normalized_row1[lane],one_over_32,row1_mean);
+    float row0_mean=out->normalized_row0[0]*one_over_32;
+    for(uint32_t lane=1u;lane<UBIG_STAGE_B_RT_SLOPE32_VALUES;lane++)
+        row0_mean=fmaf(out->normalized_row0[lane],one_over_32,row0_mean);
+    const float mean=row0_mean+row1_mean;
+    if(mean>0.0f){
+        const int32_t mean_shift=stage_b_rt_spectral_shift(mean);
+        const float scaled_mean=stage_b_rt_pow2_integer(mean_shift)*mean;
+        const float inverse=(float)(0.5/(double)scaled_mean);
+        const float output_scale=stage_b_rt_pow2_integer(mean_shift-4);
+        for(uint32_t lane=0u;lane<UBIG_STAGE_B_RT_SLOPE32_VALUES;lane++){
+            const float normalized=out->combined[lane]*inverse;
+            out->combined[lane]=normalized*output_scale;
+        }
+    }
+}
+
 float ubig_stage_b_rt_deviation32(float mean,const float input[32],uint32_t shift)
 {
     if(!input)return 0.0f;

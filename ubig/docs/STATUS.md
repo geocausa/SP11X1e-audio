@@ -430,3 +430,7 @@ The lower-cadence 32x8 column-plus-adjacent-difference transform is native as `u
 ### Stage-B RT 32-sample spectrum closure
 
 The deployed lower-scheduler 32-sample real-spectrum helper is native as `ubig_stage_b_rt_spectrum32()`. Live instrumentation fixes the endpoint contract at a 32-sample real input and sixteen magnitude bins. Its specialized complex FFT-16 and real-FFT postprocess were each independently proven for **1,000,000 randomized calls bit-exact**, and the complete promoted spectrum helper matches **1,000,000 randomized DLL calls bit-exact**. The native implementation uses only binary32 mathematical FFT roots and embeds no reference tuning/table payload. Public regression hash: `cd4d1e7a9ed1b455`.
+
+### Stage-B RT dual-row slope preparation closure
+
+The no-subcall lower-scheduler transform at reference VA `0x18009D278` is native as `ubig_stage_b_rt_slope32_prepare()`. It finds one shared binary normalization exponent across two 32-value rows, applies the exact centered first-difference coefficient, half-wave rectifies both derivative rows, sums them, and normalizes the combined 32-value slope descriptor against the mean of both normalized source rows. All four intermediate 32-value banks remain explicit because the following scheduler child consumes them. Promoted source matches **1,000,000 complete randomized DLL calls bit-exact** across the full 160-float workspace. Public lifecycle hash: `6cefd05c85465fda`.
