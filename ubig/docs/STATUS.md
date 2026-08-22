@@ -10,7 +10,7 @@ The declared SP11 48 kHz stereo userspace engine is now implementation-complete
 independently of its promotion soak. Source-owned Stage A and Stage B, all
 seven profiles, live non-flat Custom/GEQ and endpoint postgain are connected in
 the running candidate without loading either proprietary Dolby userspace DLL.
-The corrected-v3 external owner data pack remains a required construction-time
+The corrected-v4 external owner data pack remains a required construction-time
 input; its public generation/minimization is still a distribution-provenance
 task, not an executable engine island.
 
@@ -27,6 +27,18 @@ preserved filter-chain PID `180679` with no new kernel PA/SoundWire/XRUN/GLINK
 fault or userspace NaN/Inf/crash marker. This closes the usable GEQ/control
 deliverable. Seek, physical acoustics, longer protection observation and the
 eight-hour run remain promotion evidence only.
+
+## Built-in profile retarget regression correction — v4 owner pack
+
+A post-package listening check exposed a real Stage-B regression that the earlier corrected-v3 oracle did not catch: the public profile control page acknowledged built-in preset changes, but the source-owned dirty-config boundary cleared `+0x1278` without materializing the requested Leveler/Dialog/IEQ state consumed by the native DSP. Custom/GEQ remained audible because it had a separately reconstructed runtime path.
+
+The old claim that reference builder `0x18002F1A8` was observationally dead is therefore **superseded**. The accepted source-owned replacement now performs the small request→runtime field reduction, reconstructs the built-in Balanced/Warm IEQ source-gate path, and binds the already-native Leveler/multiband code to caller-owned immutable tables supplied by private owner pack v4. No Windows code executes in the candidate. The added owner-data window is mapped read-only and non-executable.
+
+Offline qualification against the preserved builder is exact for all seven fixed profiles on a 5-second deterministic stereo corpus: **0 differing float values / 480,000 values per profile**. The public candidate-control gate now additionally warms two identical Dynamic instances and switches only one to Movie; the repaired candidate diverges on **3,456 / 3,840** compared output values, so another all-presets-collapse regression fails loudly. Full public qualification after the repair: `make -C ubig check` PASS and `pytest` **211 passed, 3 skipped, 6 subtests passed**.
+
+Private owner pack v4 is reproducible with `ubig/tools/build_stageb_v4_pack.py`; current SHA-256 is `30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df`. The tracked candidate remains free of PE-loader/vendor-DLL references and links only libc/libm plus the platform loader.
+
+The repaired v4 candidate was then staged, the previously active v3 candidate was rolled back to the exact saved Golden fragment (`5c7333076ce895621d36710f1e8e6c2f5050746e52df6cfe1a2916e11f0406d7`), and v4 was activated through the normal rollback wrapper. Live filter-chain PID `599944` remained unchanged while Movie→Music→Game→Voice→Course→Dynamic→Movie→Custom requests were consumed on silent 48-kHz wake streams; final generation/ack is `8/8` with `last_error=0`. The private owner-data window is mapped `r--p` at `0x1801ff000–0x1802c1000`, and `MemoryDenyWriteExecute=yes` is active. The saved Custom curve was restored; endpoint postgain is `-467/-467`, recomputed by the existing volume transaction helper from current system volume. Since activation there are zero matched kernel PA/WSA/SoundWire/XRUN/GLINK faults, zero filter-chain error/NaN/Inf/crash markers and zero helper fatal failures. Golden rollback remains present.
 
 ## Completed today
 
@@ -672,7 +684,7 @@ A private bridge replaces the outer hot entry itself, poisons `0x1D10C8` and `0x
 
 The bounded 20-band normalizer called by the remaining dirty-configuration builder is now native as `ubig_stage_b_rt_band_floor_normalize()`. It copies the caller-owned band vector, accumulates cube and weighted-square terms with the reference binary32 FMA schedule, forms their positive ratio through the reference binary64 division boundary, floors each band against the weighted threshold, and returns the exact weighted sum. The weight vector remains caller-owned and is not embedded in UbiG. A direct DLL differential passes **1,000,000 randomized calls bit-exact** for counts 0..20; public regression hash: `ec6fbb394aa2a5b8`.
 
-### Stage-B dirty-configuration builder elimination (`0x2F1A8`)
+### Stage-B dirty-configuration builder elimination (`0x2F1A8`) — superseded by v4 retarget correction
 
 The final recurring proprietary configuration apply above the native Stage-B audio path is no longer required by the shipped source-owned route. The native `0x30F78` boundary now treats raw `+0x1278` purely as a consumed dirty flag: when set, it clears the flag and performs no `0x2F1A8` call. The mapped reference `0x18002F1A8` entry is poisoned with `BRK`. All seven fixed-profile complete-chain stress runs remain bit-exact.
 
@@ -700,9 +712,9 @@ The private corrected-v3 integration also reconstructs the GEQ dirty-apply bridg
 
 ### Tracked SP11 native LADSPA candidate boundary
 
-The corrected source-owned chain is now promoted out of `/tmp` into the tracked, **non-default** integration target `src/integration/sp11_ladspa_candidate.c`. `make -C ubig candidate-ladspa` builds `build/ubig-sp11-candidate.so` under the repository's normal `-Wall -Wextra -Werror` policy. The candidate has no PE-loader API, vendor-DLL path, executable reference callback, or embedded recovered Stage-B payload; it fails construction when the external corrected-v3 owner pack is absent. Its dynamic dependencies are only the ordinary C/math runtime, and an `open/openat` trace of a 32k-frame render records the private pack open and **zero vendor-DLL opens**.
+The corrected source-owned chain is now promoted out of `/tmp` into the tracked, **non-default** integration target `src/integration/sp11_ladspa_candidate.c`. `make -C ubig candidate-ladspa` builds `build/ubig-sp11-candidate.so` under the repository's normal `-Wall -Wextra -Werror` policy. The candidate has no PE-loader API, vendor-DLL path, executable reference callback, or embedded recovered Stage-B payload; it fails construction when the external corrected-v4 owner pack is absent. Its dynamic dependencies are only the ordinary C/math runtime, and an `open/openat` trace of a 32k-frame render records the private pack open and **zero vendor-DLL opens**.
 
-The candidate now consumes the public `ubig-control-v2` mmap ABI rather than the historical two-byte profile-control shim. A tracked private-pack gate (`candidate-control-check`) validates request/ack generation, in-place Dynamic→Movie→Custom switching, initial non-flat Custom target application, a second **same-profile Custom EQ update** without reconstruction, and the native endpoint-postgain request/ack path (on its own generation pair, independent of profile/GEQ); the two otherwise-identical Custom instances diverge on 640 / 960 output values only after the different second EQ request, while a separate cold pair with postgains -332 and 0 diverges on 10,240 / 11,520 values after the native request is acknowledged. With runtime control disabled for the differential, the tracked candidate remains bit-exact against the corrected-v3 private proof for all seven 200,000-frame profiles, a fixed non-flat Custom render, deterministic live switching (**0 / 1,536,000 differences**) and the randomized 30-second / 33-switch stress (**0 / 2,880,000 differences**).
+The candidate now consumes the public `ubig-control-v2` mmap ABI rather than the historical two-byte profile-control shim. The tracked private-pack gate (`candidate-control-check`) validates request/ack generation, requires PCM divergence after an otherwise-identical Dynamic→Movie retarget (**3,456 / 3,840 changed output values**), checks initial non-flat Custom target application plus a second same-profile Custom EQ update (**640 / 960 changed values**), and verifies endpoint postgain on its independent generation pair (**10,240 / 11,520 changed values**). With runtime control disabled, the repaired v4 candidate is bit-exact to the preserved dirty-config builder for all seven fixed profiles on the current 5-second corpus (**0 / 480,000 differing float values per profile**). Historical corrected-v3 deterministic/randomized switching remains useful downstream-state provenance but is explicitly not accepted as proof that built-in profile retargeting is audible, because that oracle collapsed the profile configuration state.
 
 The production endpoint-volume consumers now have an explicit migration path to that same v2 page. The Windows-taper writer supports legacy and UbiG-v2 layouts, creates a valid v2 page with the header committed last, advances only the independent postgain generation, and serializes with the public C control API via `flock`. `sp11_windows_volume_transaction_sync.py` forwards the selected control format when it freezes per-Dolby-generation postgain, and `sp11_msiir_volume_sync.py` auto-detects/read the v2 desired-postgain field for CKV selection. A pre-instantiation integration probe queues `-332` through the transaction helper into a new v2 page and the MSIIR reader recovers the same value with postgain generation 1 while the profile generation remains 0. The legacy default path remains untouched until the disposable candidate deployment explicitly opts into v2.
 

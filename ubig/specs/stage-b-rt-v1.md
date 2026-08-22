@@ -478,6 +478,8 @@ The private integration replacement bypasses both reference bodies and calls the
 
 ## Dirty-configuration builder elimination (`0x18002F1A8`)
 
+**Superseded 2026-08-22:** the earlier acceptance oracle preserved a common reconstructed Stage-B state across built-in profiles and therefore could not detect that clearing the dirty flag collapsed their runtime Leveler/Dialog/IEQ state. The accepted v4 candidate instead source-owns the small dirty-config field reduction and IEQ source-gate derivation, with caller-owned immutable tables supplied by the private v4 pack. The repaired implementation is bit-exact to the preserved builder for all seven fixed profiles and the public control gate requires Dynamic→Movie PCM divergence. The historical text below is retained only as provenance of the invalidated proof.
+
 Once the downstream Stage-B audio path is source-owned, the raw dirty-configuration builder has no observable contribution to shipped stereo output. The boundary consumes raw dirty flag `+0x1278` by clearing it and does not execute the reference builder. Fixed seven-profile stress is bit-exact with `0x2F1A8` poisoned. A 16-second deterministic profile sweep compares 1,536,000 float values with zero differences, and a 30-second randomized stress with 33 profile switches, chunks 1..2048 and seven signal classes compares 2,880,000 values with zero differences. The reference-only `0x705E8` reset fires six times in the latter test while the native route executes it zero times, proving that reset state is also dead at this boundary.
 
 

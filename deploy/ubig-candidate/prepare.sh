@@ -3,8 +3,8 @@ set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
-PACK=${UBIG_SP11_STAGEB_PACK:-"$HOME/.local/share/ubig-private/sp11-stageb-v3.pack"}
-EXPECTED_PACK_SHA=${UBIG_SP11_STAGEB_PACK_SHA:-c993c123f2cb3b92776754da2383217e00b5f290664571f12cfb62b9afb3a175}
+PACK=${UBIG_SP11_STAGEB_PACK:-"$HOME/.local/share/ubig-private/sp11-stageb-v4.pack"}
+EXPECTED_PACK_SHA=${UBIG_SP11_STAGEB_PACK_SHA:-30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df}
 LIBDIR=${UBIG_CANDIDATE_LIBDIR:-"$HOME/.local/lib/ubig-candidate"}
 STAGEDIR=${UBIG_CANDIDATE_STAGEDIR:-"$HOME/.local/share/ubig-candidate"}
 PLUGIN="$LIBDIR/ubig-sp11-candidate.so"

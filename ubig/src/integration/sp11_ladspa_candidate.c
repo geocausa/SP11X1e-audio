@@ -74,6 +74,9 @@ typedef struct {
 } ChainProfileCfg;
 
 static const int32_t vr_centers[20]={47,141,234,328,469,656,844,1031,1313,1688,2250,3000,3750,4688,5813,7125,9000,11250,13875,19688};
+static const int32_t vr_ieq_balanced[20]={157,167,218,218,203,188,192,192,205,213,218,209,193,159,134,97,71,22,-90,-283};
+static const int32_t vr_ieq_warm[20]={114,146,183,169,170,128,103,90,98,126,127,140,96,85,80,66,38,-32,-132,-275};
+static const int32_t *vr_profile_ieq_curve(ChainProfile p){return (p==CHAIN_PROFILE_MOVIE||p==CHAIN_PROFILE_MUSIC)?vr_ieq_warm:vr_ieq_balanced;}
 static const ChainProfileCfg chain_profiles[CHAIN_PROFILE_COUNT]={
     [CHAIN_PROFILE_DYNAMIC]={"dynamic",1,5,1,5,1,10,1,96,1,10,10,10,96,11,0},
     [CHAIN_PROFILE_MOVIE]={"movie",1,0,1,2,0,6,0,72,1,16,10,16,104,11,1},
@@ -223,8 +226,19 @@ static int vr_apply_geq(ChainInst *p,void *core){
     return vr_apply_geq_values(p,core,p->custom_eq);
 }
 
+static int vr_apply_ieq_values(void *core,const int32_t target[20]){
+    uint8_t *raw=(uint8_t*)core+0x754;UbigStageBRtBandControlMap map;
+    for(uint32_t i=0;i<20u;i++){memcpy(&map.weight[i],raw+4u*i,4);map.lower_index[i]=d(raw,0xa0u+4u*i);map.control_frequency[i]=(int32_t)d(raw,0x148u+4u*i);}
+    map.output_count=d(raw,0x140);map.control_count=d(raw,0x144);
+    if(ubig_stage_b_rt_band_control_map_prepare(&map,vr_centers,20u,vr_centers,20u)==2u)return -1;
+    for(uint32_t i=0;i<20u;i++){memcpy(raw+4u*i,&map.weight[i],4);wd(raw,0xa0u+4u*i,map.lower_index[i]);wd(raw,0x148u+4u*i,(uint32_t)map.control_frequency[i]);}
+    wd(raw,0x140,map.output_count);wd(raw,0x144,map.control_count);
+    if(ubig_stage_b_rt_band_target_apply(&map,(int32_t*)((uint8_t*)core+0x704),target,-480,480))wd(core,0x6fc,1u);
+    if(d(core,0x6fc))wd(core,0x1278,1u);
+    return 0;
+}
 static unsigned long g_cvrcomplex_noop;
-static int vr_apply_profile_complex(ChainInst *p,void *core,const ChainProfileCfg *pc){(void)p;(void)core;(void)pc;++g_cvrcomplex_noop;return 0;}
+static int vr_apply_profile_complex(ChainInst *p,void *core,const ChainProfileCfg *pc){(void)pc;++g_cvrcomplex_noop;return vr_apply_ieq_values(core,vr_profile_ieq_curve(p->profile));}
 
 static int vr_apply_profile(ChainInst *p,uint8_t *inner){
     const ChainProfileCfg *pc=&chain_profiles[p->profile];
@@ -283,6 +297,8 @@ static int vr_retarget_profile(ChainInst *p,void *core,ChainProfile old_profile,
     VR_SCALAR_CHANGED(virt_surround,VR_H_VIRT_SURROUND);
     VR_SCALAR_CHANGED(volmax_boost,VR_H_VOLMAX_BOOST);
 #undef VR_SCALAR_CHANGED
+
+    if(vr_profile_ieq_curve(old_profile)!=vr_profile_ieq_curve(new_profile) && vr_apply_ieq_values(core,vr_profile_ieq_curve(new_profile)))return -4;
 
     if(old_profile!=CHAIN_PROFILE_PERSONALIZE && new_profile==CHAIN_PROFILE_PERSONALIZE){
         if(vr_apply_geq(p,core)<0)return -2;
@@ -1026,7 +1042,36 @@ static uint32_t native30f78_live(void *state_v){
    for(uint32_t i=0;i<n;i++)wwf(s,0x9fc+4u*i,(float)(int32_t)rr32(s,0xa50+4u*i)*k);
    ww32(s,0xaa0,0u);ww32(s,0x9e8,rr32(s,0xa4c));
   }
-  ++g_c2fref;ww32(s,0x1278,0u);
+  ++g_c2fref;
+  if(rr32(s,0x6fc)!=0u){
+    uint8_t *cfg=(uint8_t*)rp376(s,0x28);uint8_t *ws=(uint8_t*)rp376(s,0x12e8);if(!cfg||!ws)abort();
+    const uint32_t n=rr32(cfg,0x0c);if(n>20u)abort();
+    UbigStageBLevelerSourceGate *gate=(UbigStageBLevelerSourceGate*)(void*)(((uintptr_t)ws+7u)&~(uintptr_t)7u);
+    float *source=(float*)(void*)(((uintptr_t)ws+0x1au)&~(uintptr_t)3u);const float k=fb376(0x39fc0fc1u);
+    for(uint32_t i=0;i<n;i++){
+        const float x=((float)(int32_t)rr32(s,0x704u+4u*i)*k)*13.0f;
+        int32_t ip=(int32_t)floorf(x);const float f=x-(float)ip;
+        float poly=fmaf(f,fb376(0x3d714000u),fb376(0x3e827800u));
+        poly=fmaf(f,poly,fb376(0x3f2fb000u));
+        poly=fmaf(f,poly,1.0f);
+        uint32_t bits;memcpy(&bits,&poly,4);bits+=(uint32_t)ip<<23;memcpy(&source[i],&bits,4);source[i]*=0.125f;
+    }
+    float sum=0.0f;ubig_stage_b_rt_band_floor_normalize(source,g34_band_weights,n,source,&sum);
+    if(sum>0.0f){const float inv=(float)(1.0/(double)sum);for(uint32_t i=0;i<n;i++)source[i]*=inv;}else if(n)memset(source,0,(size_t)n*4u);
+    gate->source=source;gate->gate=sum;gate->reserved=0u;wp376(s,0x12f0,gate);ww32(s,0x6fc,0u);ww32(s,0x700,1u);
+  }
+  /* Source-owned reduction of the deployed profile dirty-config apply. These are
+     direct request->runtime copies observed at the reference boundary; no
+     proprietary builder executes. */
+  ww32(s,0x610,0u);wwf(s,0x638,rrf(s,0x634));
+  ww32(s,0x66c,rr32(s,0x668));ww32(s,0x674,rr32(s,0x670));ww32(s,0x67c,rr32(s,0x678));
+  ww32(s,0x684,rr32(s,0x680));ww32(s,0x68c,rr32(s,0x688));ww32(s,0x694,rr32(s,0x698));
+  ww32(s,0x6a8,rr32(s,0x6ac));ww32(s,0x6b0,rr32(s,0x6b4));wwf(s,0x6c0,rrf(s,0x6c4));
+  ww32(s,0x6d0,rr32(s,0x6cc));ww32(s,0x6d8,rr32(s,0x6d4));ww32(s,0x6e0,rr32(s,0x6dc));ww32(s,0x6e8,rr32(s,0x6e4));
+  ww32(s,0x6f0,rr32(s,0x6ec));wwf(s,0x6f8,rrf(s,0x6f4));
+  ww32(s,0x998,rr32(s,0x994));ww32(s,0x9a0,rr32(s,0x99c));ww32(s,0x9a8,rr32(s,0x9a4));ww32(s,0x9bc,0u);
+  ww32(s,0xdcc,0u);wwf(s,0xdd0,0.75f);ww32(s,0xdd4,rr32(s,0xdd8));
+  ww32(s,0x1278,0u);
  }
  uint32_t out;
  if(rr32(s,0x12c)==0u){switch(rr32(s,0x11c)){case 0u:out=1u;break;case 3u:case 4u:case 10u:out=6u;break;case 5u:case 6u:case 11u:out=8u;break;case 7u:out=10u;break;default:out=2u;break;}}
@@ -1239,7 +1284,7 @@ static void init_owned_core_cfg(void){
     wq_core64(g_owned_core_cfg,0x70,0ULL);
     wq_core64(g_owned_core_cfg,0x78,0ULL);
     wq_core64(g_owned_core_cfg,0x80,0ULL);
-    wq_core64(g_owned_core_cfg,0x88,0ULL);
+    wq_core64(g_owned_core_cfg,0x88,UINT64_C(0x1802007d0));
     wq_core64(g_owned_core_cfg,0x98,0ULL);
     wq_core64(g_owned_core_cfg,0xa0,0ULL);
 }
@@ -1251,22 +1296,26 @@ static uint8_t g_upper_projection_table[19u*0x30u] __attribute__((aligned(16)));
 static float g_owned_late_response[5] __attribute__((aligned(16)));
 static float g_owned_late_history_kernel[64] __attribute__((aligned(32)));
 static uint64_t g_pack_old_core_base,g_pack_old_pe_base;
+enum { OWNED_VR_STATIC_BYTES=0xc2000u };
+#define OWNED_VR_STATIC_VA UINT64_C(0x1801ff000)
+static uint8_t *g_owned_vr_static;
 
 static int load_private_stageb_pack(void){
     const char *path=getenv("UBIG_SP11_STAGEB_PACK");
     if(!path||!*path)path=getenv("SP11_VR_STAGEB_PACK");
     if(!path||!*path)return -7;
     FILE *f=fopen(path,"rb"); if(!f)return -1;
-    uint8_t h[96]; if(fread(h,1,sizeof h,f)!=sizeof h){fclose(f);return -2;}
-    if(memcmp(h,"UBGVRP3\0",8)!=0){fclose(f);return -3;}
+    uint8_t h[112]; if(fread(h,1,sizeof h,f)!=sizeof h){fclose(f);return -2;}
+    if(memcmp(h,"UBGVRP4\0",8)!=0){fclose(f);return -3;}
     uint32_t version=0,core_bytes=0,shape[16];
     memcpy(&version,h+8,4);memcpy(&core_bytes,h+12,4);
     memcpy(&g_pack_old_core_base,h+16,8);memcpy(&g_pack_old_pe_base,h+24,8);memcpy(shape,h+32,sizeof shape);
+    uint64_t static_va=0,static_bytes=0;memcpy(&static_va,h+96,8);memcpy(&static_bytes,h+104,8);
     const uint32_t expect[16]={0xc0u,22u,22u,640u,128u,20u,9u,0x90u,20u,5u,
                                OWNED_CONTROL_DESC_BYTES,UBIG_STAGE_B_RT_PROJECTION_LUT,
                                8u,19u*0x30u,5u,64u};
-    if(version!=3u||core_bytes!=OWNED_CORE_SNAPSHOT_BYTES||!g_pack_old_core_base||!g_pack_old_pe_base||
-       memcmp(shape,expect,sizeof shape)!=0){fclose(f);return -4;}
+    if(version!=4u||core_bytes!=OWNED_CORE_SNAPSHOT_BYTES||!g_pack_old_core_base||!g_pack_old_pe_base||
+       static_va!=OWNED_VR_STATIC_VA||static_bytes!=OWNED_VR_STATIC_BYTES||memcmp(shape,expect,sizeof shape)!=0){fclose(f);return -4;}
 #define RDBUF(x) do{ if(fread((x),1,sizeof(x),f)!=sizeof(x)){fclose(f);return -5;} }while(0)
     RDBUF(g_owned_core_snapshot);
     RDBUF(g_owned_core_cfg_template);
@@ -1285,7 +1334,20 @@ static int load_private_stageb_pack(void){
     RDBUF(g_owned_late_response);
     RDBUF(g_owned_late_history_kernel);
 #undef RDBUF
-    if(fgetc(f)!=EOF){fclose(f);return -6;}
+    if(!g_owned_vr_static){
+        int mf=MAP_PRIVATE|MAP_ANONYMOUS;
+#ifdef MAP_FIXED_NOREPLACE
+        mf|=MAP_FIXED_NOREPLACE;
+#else
+        mf|=0x100000;
+#endif
+        void *m=mmap((void*)(uintptr_t)OWNED_VR_STATIC_VA,OWNED_VR_STATIC_BYTES,PROT_READ|PROT_WRITE,mf,-1,0);
+        if(m==MAP_FAILED||(uintptr_t)m!=OWNED_VR_STATIC_VA){if(m!=MAP_FAILED)munmap(m,OWNED_VR_STATIC_BYTES);fclose(f);return -6;}
+        g_owned_vr_static=(uint8_t*)m;
+        if(fread(g_owned_vr_static,1,OWNED_VR_STATIC_BYTES,f)!=OWNED_VR_STATIC_BYTES){munmap(g_owned_vr_static,OWNED_VR_STATIC_BYTES);g_owned_vr_static=NULL;fclose(f);return -7;}
+        if(mprotect(g_owned_vr_static,OWNED_VR_STATIC_BYTES,PROT_READ)){munmap(g_owned_vr_static,OWNED_VR_STATIC_BYTES);g_owned_vr_static=NULL;fclose(f);return -8;}
+    }else if(fseek(f,OWNED_VR_STATIC_BYTES,SEEK_CUR)){fclose(f);return -9;}
+    if(fgetc(f)!=EOF){fclose(f);return -10;}
     fclose(f);g_projection_lut=g_owned_projection_lut;return 0;
 }
 
@@ -1309,6 +1371,7 @@ static void *native_vr_core_ctor64(ChainInst *p,uint8_t *b){
                 qv=(uint64_t)(uintptr_t)(g_upper_projection_table+(r-0x2686b0ULL));
             else if(r==0x244d10ULL)qv=(uint64_t)(uintptr_t)g_owned_late_response;
             else if(r==0x245200ULL)qv=(uint64_t)(uintptr_t)g_owned_late_history_kernel;
+            else if(UINT64_C(0x180000000)+r>=OWNED_VR_STATIC_VA && UINT64_C(0x180000000)+r<OWNED_VR_STATIC_VA+OWNED_VR_STATIC_BYTES)qv=UINT64_C(0x180000000)+r;
             else qv=0ULL;
             memcpy(b+off,&qv,8);
         }
@@ -1396,8 +1459,17 @@ static int vr_build(ChainInst *p){
     if(native_init_inner(p))return -2;
     if(vr_apply_profile(p,p->vr_inner))return -5;
     g_c705native=0;g_couter_native=0;g_c94native=0;g_c6440native=0;g_c65native=0;g_c1dnative=0;g_c30native=g_c2fref=0;g_c31native=g_cf93native=0;g_c3anative=g_c3awrap=g_c425=g_c425blocks=0;g_c5cenative=0;g_c4a570=g_c5bc98=g_c5c6d0=g_c45288=g_c5ad38=0;g_c376native=0;g_c60200=g_c596e0=g_c54a48=g_c5f5a8=0;g_c602fallback=g_c5ffallback=g_c558_native=g_c4bab_native=0;g_c56b80=g_c56fallback=0;g_c54native=g_c54fallback=0;g_c34native=g_c34fallback=0;g_c347native=g_c456native=g_c4f1native=g_cq31native=0;g_c7b2f0=g_c7bnative=g_c7bfallback=g_c9cbnative=g_c9cbfallback=g_c8cnative=g_c8cfallback=g_cuppernative=g_cloweranative=g_clowerbnative=g_c584native=g_c584fallback=0;
-    /* Leveler tuning tables are unreachable on the shipped source-owned route: the wrapper returns before tuning use. */
-    /* Multiband tuning tables are unreachable because the deployed native parent does not enter sib54native. */
+    if(!g_owned_vr_static)return -18;
+    void **g34lt=(void**)(uintptr_t)UINT64_C(0x180267190);for(unsigned i=0;i<8u;i++)g34_lookup.table[i]=(const float*)g34lt[i];
+    unsigned char *g34iv=(unsigned char*)(uintptr_t)UINT64_C(0x1802670E0);const float *g34base=(const float*)(uintptr_t)UINT64_C(0x180244010);
+    for(unsigned i=0;i<8u;i++){g34_inverse.slopes[i]=*(const float**)(g34iv+8u*i);g34_inverse.length[i]=*(uint32_t*)(g34iv+0x40u+4u*i);g34_inverse.knots[i]=*(const float**)(g34iv+0xb0u+8u*i);g34_inverse.baseline[i]=g34base[i];}
+    g34_cubic=(const UbigStageBLevelerNormalizedCubic*)(uintptr_t)UINT64_C(0x1802BFFC0);g34_offsets=(const float*)(uintptr_t)UINT64_C(0x180267140);
+    g34_thresholds=(const float*)(uintptr_t)UINT64_C(0x1802445C0);g34_band_weights=(const float*)(uintptr_t)UINT64_C(0x180242370);g34_tail=(const float*)(uintptr_t)UINT64_C(0x18023DD90);
+    g34_prev_base=(const uint8_t*)(uintptr_t)UINT64_C(0x1801FFA00);g34_tmpl_base=(const uint8_t*)(uintptr_t)UINT64_C(0x1801FFED0);
+    g54_curve_fall=(const UbigStageBRtCurveRecord*)(uintptr_t)UINT64_C(0x18023FC90);g54_curve_rise=(const UbigStageBRtCurveRecord*)(uintptr_t)UINT64_C(0x18023FD60);
+    g54_tail_weights=(const float*)(uintptr_t)UINT64_C(0x1802401E0);g54_chain_coeff=(const float*)(uintptr_t)UINT64_C(0x18023FB50);
+    g54_mode_ref[0]=(uint8_t*)(uintptr_t)UINT64_C(0x180246E80);g54_mode_ref[1]=(uint8_t*)(uintptr_t)UINT64_C(0x180246930);g54_mode_ref[2]=(uint8_t*)(uintptr_t)UINT64_C(0x180245E90);
+    g54_mode_slope[0]=(uint8_t*)(uintptr_t)UINT64_C(0x1802463E0);g54_mode_slope[1]=(uint8_t*)(uintptr_t)UINT64_C(0x180247920);g54_mode_slope[2]=(uint8_t*)(uintptr_t)UINT64_C(0x1802473D0);
     /* Direct-inner experiment: the exact native stream and frame processors
        consume LibWrapperVr directly. The 3.75 MiB outer APO object and its
        0x1B96B8 transition wrapper are not constructed or initialized. */

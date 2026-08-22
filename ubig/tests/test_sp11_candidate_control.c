@@ -116,6 +116,33 @@ int main(int argc,char **argv)
     if(count_differences(a_left,b_left,FRAMES)||count_differences(a_right,b_right,FRAMES))return 7;
     base+=FRAMES;
 
+    char path_p[128],path_q[128];
+    snprintf(path_p,sizeof path_p,"/tmp/ubig-control-p-%ld",(long)getpid());
+    snprintf(path_q,sizeof path_q,"/tmp/ubig-control-q-%ld",(long)getpid());
+    unlink(path_p);unlink(path_q);
+    CandidateInstance pinst={0},qinst={0};
+    if(create_instance(library,path_p,argv[2],&pinst)||create_instance(library,path_q,argv[2],&qinst))return 25;
+    ubig_control_handle control_p,control_q;
+    if(ubig_control_open(&control_p,path_p,0)||ubig_control_open(&control_q,path_q,0))return 26;
+    size_t profile_changed=0;
+    for(unsigned block=0;block<4u;block++){
+        make_input(left,right,FRAMES,(size_t)block*FRAMES);
+        run_instance(&pinst,left,right,a_left,a_right,FRAMES);
+        run_instance(&qinst,left,right,b_left,b_right,FRAMES);
+        if(count_differences(a_left,b_left,FRAMES)||count_differences(a_right,b_right,FRAMES))return 27;
+    }
+    if(ubig_control_request_profile(&control_p,UBIG_PROFILE_MOVIE))return 28;
+    for(unsigned block=4u;block<8u;block++){
+        make_input(left,right,FRAMES,(size_t)block*FRAMES);
+        run_instance(&pinst,left,right,a_left,a_right,FRAMES);
+        run_instance(&qinst,left,right,b_left,b_right,FRAMES);
+        profile_changed+=count_differences(a_left,b_left,FRAMES)+count_differences(a_right,b_right,FRAMES);
+    }
+    if(snapshot_matches(&control_p,1,0,UBIG_PROFILE_MOVIE,0)||snapshot_matches(&control_q,0,0,UBIG_PROFILE_DYNAMIC,0))return 29;
+    if(!profile_changed)return 30;
+    ubig_control_close(&control_p);ubig_control_close(&control_q);
+    pinst.descriptor->cleanup(pinst.handle);qinst.descriptor->cleanup(qinst.handle);unlink(path_p);unlink(path_q);
+
     if(ubig_control_request_profile(&control_a,UBIG_PROFILE_MOVIE)||
        ubig_control_request_profile(&control_b,UBIG_PROFILE_MOVIE))return 8;
     make_input(left,right,FRAMES,base);
@@ -173,8 +200,8 @@ int main(int argc,char **argv)
     make_input(left,right,FRAMES,0);run_instance(&e,left,right,a_left,a_right,FRAMES);
     if(snapshot_matches(&control_e,0,1,UBIG_PROFILE_MOVIE,-332))return 24;
 
-    printf("PASS SP11 candidate public control lifecycle eq_changed=%zu/%u postgain_changed=%zu/%u\n",
-           changed,2u*FRAMES,postgain_changed,24u*FRAMES);
+    printf("PASS SP11 candidate public control lifecycle profile_changed=%zu/%u eq_changed=%zu/%u postgain_changed=%zu/%u\n",
+           profile_changed,8u*FRAMES,changed,2u*FRAMES,postgain_changed,24u*FRAMES);
     ubig_control_close(&control_e);e.descriptor->cleanup(e.handle);unlink(path_e);
     ubig_control_close(&control_c);ubig_control_close(&control_d);
     c.descriptor->cleanup(c.handle);d.descriptor->cleanup(d.handle);unlink(path_c);unlink(path_d);

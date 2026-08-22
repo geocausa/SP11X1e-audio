@@ -2,7 +2,7 @@
 set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-PACK=${UBIG_SP11_STAGEB_PACK:-"$HOME/.local/share/ubig-private/sp11-stageb-v3.pack"}
+PACK=${UBIG_SP11_STAGEB_PACK:-"$HOME/.local/share/ubig-private/sp11-stageb-v4.pack"}
 LIBDIR=${UBIG_CANDIDATE_LIBDIR:-"$HOME/.local/lib/ubig-candidate"}
 STAGEDIR=${UBIG_CANDIDATE_STAGEDIR:-"$HOME/.local/share/ubig-candidate"}
 STATEDIR=${UBIG_CANDIDATE_STATEDIR:-"${XDG_STATE_HOME:-$HOME/.local/state}/ubig-candidate"}
