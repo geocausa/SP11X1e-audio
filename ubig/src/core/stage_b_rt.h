@@ -912,6 +912,15 @@ void ubig_stage_b_rt_deep_controller_process(float control,
                                              int32_t *base_meter,
                                              int32_t *output_meter);
 
+#define UBIG_STAGE_B_RT_FFT64_COMPLEX 64u
+#define UBIG_STAGE_B_RT_FFT64_FLOATS 128u
+
+/* Exact specialized forward complex FFT at 0x1800A68C0. The deployed
+ * 0x49620 path fixes N=64; input/output are natural-order interleaved complex
+ * binary32 values and the transform is unscaled. */
+void ubig_stage_b_rt_fft64(float output[UBIG_STAGE_B_RT_FFT64_FLOATS],
+                           const float input[UBIG_STAGE_B_RT_FFT64_FLOATS]);
+
 /* Exact aligned four-lane max-absolute reducer at 0x1800BB6E0. Counts are
  * positive multiples of four; the deployed late Stage-B path uses 64. */
 float ubig_stage_b_rt_max_abs4(const float *input,uint32_t count);

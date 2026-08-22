@@ -3013,6 +3013,109 @@ void ubig_stage_b_rt_envelope_activity_process(UbigStageBRtEnvelopeState *state,
     state->activity_state=target;
 }
 
+
+typedef struct { float r,i; } StageBRtComplex64;
+
+static void stage_b_rt_fft64_radix8(StageBRtComplex64 y[8],const StageBRtComplex64 x[8])
+{
+    const float h=f32_bits(0x3f3504f3u);
+    const float r0=x[0].r,i0=x[0].i,r1=x[1].r,i1=x[1].i;
+    const float r2=x[2].r,i2=x[2].i,r3=x[3].r,i3=x[3].i;
+    const float r4=x[4].r,i4=x[4].i,r5=x[5].r,i5=x[5].i;
+    const float r6=x[6].r,i6=x[6].i,r7=x[7].r,i7=x[7].i;
+    const float a04r=r0+r4,d04r=r0-r4,a04i=i0+i4,d04i=i0-i4;
+    const float a26r=r2+r6,d26r=r2-r6,a26i=i2+i6,d26i=i2-i6;
+    const float e2r=a04r-a26r,e0r=a04r+a26r;
+    const float e3r=d04r-d26i,e1r=d04r+d26i;
+    const float e0i=a04i+a26i,e2i=a04i-a26i;
+    const float e3i=d04i+d26r,e1i=d04i-d26r;
+
+    const float a15r=r1+r5,d15r=r1-r5,a15i=i1+i5,d15i=i1-i5;
+    const float a37r=r3+r7,d37r=r3-r7,a37i=i3+i7,d37i=i3-i7;
+    const float o1r=d15r+d37i;
+    const float h_o1r=o1r*h;
+    const float o1i=d15i-d37r;
+    const float h_o1i=o1i*h;
+    const float o3r=d15r-d37i;
+    const float nh_o3r=o3r*(-h);
+    const float o3i=d15i+d37r;
+    const float o2i=a15i-a37i;
+    const float nh_o3i=o3i*(-h);
+    const float o0r=a15r+a37r;
+    const float t3r=nh_o3r-nh_o3i;
+    const float o0i=a15i+a37i;
+    const float neg_o2r=a37r-a15r;
+    const float t1r=h_o1r+h_o1i;
+    const float t3i=nh_o3i+nh_o3r;
+    const float t1i=h_o1i-h_o1r;
+
+    y[0]=(StageBRtComplex64){e0r+o0r,e0i+o0i};
+    y[4]=(StageBRtComplex64){e0r-o0r,e0i-o0i};
+    y[1]=(StageBRtComplex64){e1r+t1r,e1i+t1i};
+    y[5]=(StageBRtComplex64){e1r-t1r,e1i-t1i};
+    y[2]=(StageBRtComplex64){e2r+o2i,e2i+neg_o2r};
+    y[6]=(StageBRtComplex64){e2r-o2i,e2i-neg_o2r};
+    y[3]=(StageBRtComplex64){e3r+t3r,e3i+t3i};
+    y[7]=(StageBRtComplex64){e3r-t3r,e3i-t3i};
+}
+
+static const float stage_b_rt_fft64_tw_c[8][8]={
+ {0x1.0000000000000p+0f,0x1.0000000000000p+0f,0x1.0000000000000p+0f,0x1.0000000000000p+0f,0x1.0000000000000p+0f,0x1.0000000000000p+0f,0x1.0000000000000p+0f,0x1.0000000000000p+0f},
+ {0x1.0000000000000p+0f,0x1.fd88da0000000p-1f,0x1.f6297c0000000p-1f,0x1.e9f4160000000p-1f,0x1.d906bc0000000p-1f,0x1.c38b300000000p-1f,0x1.a9b6620000000p-1f,0x1.8bc8060000000p-1f},
+ {0x1.0000000000000p+0f,0x1.f6297c0000000p-1f,0x1.d906bc0000000p-1f,0x1.a9b6620000000p-1f,0x1.6a09e60000000p-1f,0x1.1c73b40000000p-1f,0x1.87de2a0000000p-2f,0x1.8f8b840000000p-3f},
+ {0x1.0000000000000p+0f,0x1.e9f4160000000p-1f,0x1.a9b6620000000p-1f,0x1.44cf320000000p-1f,0x1.87de2a0000000p-2f,0x1.917a6c0000000p-4f,-0x1.8f8b840000000p-3f,-0x1.e2b5d40000000p-2f},
+ {0x1.0000000000000p+0f,0x1.d906bc0000000p-1f,0x1.6a09e60000000p-1f,0x1.87de2a0000000p-2f,0x0.0p+0f,-0x1.87de2a0000000p-2f,-0x1.6a09e60000000p-1f,-0x1.d906bc0000000p-1f},
+ {0x1.0000000000000p+0f,0x1.c38b300000000p-1f,0x1.1c73b40000000p-1f,0x1.917a6c0000000p-4f,-0x1.87de2a0000000p-2f,-0x1.8bc8060000000p-1f,-0x1.f6297c0000000p-1f,-0x1.e9f4160000000p-1f},
+ {0x1.0000000000000p+0f,0x1.a9b6620000000p-1f,0x1.87de2a0000000p-2f,-0x1.8f8b840000000p-3f,-0x1.6a09e60000000p-1f,-0x1.f6297c0000000p-1f,-0x1.d906bc0000000p-1f,-0x1.1c73b40000000p-1f},
+ {0x1.0000000000000p+0f,0x1.8bc8060000000p-1f,0x1.8f8b840000000p-3f,-0x1.e2b5d40000000p-2f,-0x1.d906bc0000000p-1f,-0x1.e9f4160000000p-1f,-0x1.1c73b40000000p-1f,0x1.917a6c0000000p-4f},
+};
+static const float stage_b_rt_fft64_tw_s[8][8]={
+ {-0x0.0p+0f,-0x0.0p+0f,-0x0.0p+0f,-0x0.0p+0f,-0x0.0p+0f,-0x0.0p+0f,-0x0.0p+0f,-0x0.0p+0f},
+ {-0x0.0p+0f,-0x1.917a6c0000000p-4f,-0x1.8f8b840000000p-3f,-0x1.2940620000000p-2f,-0x1.87de2a0000000p-2f,-0x1.e2b5d40000000p-2f,-0x1.1c73b40000000p-1f,-0x1.44cf320000000p-1f},
+ {-0x0.0p+0f,-0x1.8f8b840000000p-3f,-0x1.87de2a0000000p-2f,-0x1.1c73b40000000p-1f,-0x1.6a09e60000000p-1f,-0x1.a9b6620000000p-1f,-0x1.d906bc0000000p-1f,-0x1.f6297c0000000p-1f},
+ {-0x0.0p+0f,-0x1.2940620000000p-2f,-0x1.1c73b40000000p-1f,-0x1.8bc8060000000p-1f,-0x1.d906bc0000000p-1f,-0x1.fd88da0000000p-1f,-0x1.f6297c0000000p-1f,-0x1.c38b300000000p-1f},
+ {-0x0.0p+0f,-0x1.87de2a0000000p-2f,-0x1.6a09e60000000p-1f,-0x1.d906bc0000000p-1f,-0x1.0000000000000p+0f,-0x1.d906bc0000000p-1f,-0x1.6a09e60000000p-1f,-0x1.87de2a0000000p-2f},
+ {-0x0.0p+0f,-0x1.e2b5d40000000p-2f,-0x1.a9b6620000000p-1f,-0x1.fd88da0000000p-1f,-0x1.d906bc0000000p-1f,-0x1.44cf320000000p-1f,-0x1.8f8b840000000p-3f,0x1.2940620000000p-2f},
+ {-0x0.0p+0f,-0x1.1c73b40000000p-1f,-0x1.d906bc0000000p-1f,-0x1.f6297c0000000p-1f,-0x1.6a09e60000000p-1f,-0x1.8f8b840000000p-3f,0x1.87de2a0000000p-2f,0x1.a9b6620000000p-1f},
+ {-0x0.0p+0f,-0x1.44cf320000000p-1f,-0x1.f6297c0000000p-1f,-0x1.c38b300000000p-1f,-0x1.87de2a0000000p-2f,0x1.2940620000000p-2f,0x1.a9b6620000000p-1f,0x1.fd88da0000000p-1f},
+};
+
+
+void ubig_stage_b_rt_fft64(float output[UBIG_STAGE_B_RT_FFT64_FLOATS],
+                           const float input[UBIG_STAGE_B_RT_FFT64_FLOATS])
+{
+    if(!output||!input)return;
+    StageBRtComplex64 stage[8][8];
+    for(uint32_t n1=0u;n1<8u;n1++){
+        StageBRtComplex64 x[8],y[8];
+        for(uint32_t n2=0u;n2<8u;n2++){
+            const uint32_t index=n1+8u*n2;
+            x[n2].r=input[2u*index];
+            x[n2].i=input[2u*index+1u];
+        }
+        stage_b_rt_fft64_radix8(y,x);
+        for(uint32_t k2=0u;k2<8u;k2++)stage[n1][k2]=y[k2];
+    }
+    for(uint32_t k2=0u;k2<8u;k2++){
+        StageBRtComplex64 x[8],y[8];
+        for(uint32_t n1=0u;n1<8u;n1++){
+            const StageBRtComplex64 a=stage[n1][k2];
+            const float c=stage_b_rt_fft64_tw_c[k2][n1];
+            const float si=stage_b_rt_fft64_tw_s[k2][n1];
+            const float real_base=a.r*c;
+            const float imag_base=a.i*c;
+            x[n1].r=fmaf(-a.i,si,real_base);
+            x[n1].i=fmaf(a.r,si,imag_base);
+        }
+        stage_b_rt_fft64_radix8(y,x);
+        for(uint32_t k1=0u;k1<8u;k1++){
+            const uint32_t k=k2+8u*k1;
+            output[2u*k]=y[k1].r;
+            output[2u*k+1u]=y[k1].i;
+        }
+    }
+}
+
 float ubig_stage_b_rt_max_abs4(const float *input,uint32_t count)
 {
     if(!input||count<4u||(count&3u)!=0u)return 0.0f;

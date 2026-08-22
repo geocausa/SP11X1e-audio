@@ -327,3 +327,12 @@ Promoted source matches **1,000,000 randomized direct reference calls bit-exact 
 `ubig_stage_b_rt_deep_controller_process()` is the semantic implementation of reference parent `0x180064B38`; `ubig_stage_b_rt_deep_controller_reset()` covers its `0x180064958` reset path. The parent composes only native leaf APIs and keeps caller-owned coefficients in `UbigStageBRtDeepControllerConfig`. It preserves mode-dependent external status/source handling, the dual-status directional post smoother, the final three-neighbor shaping, correction accumulation into both row banks, and floor-rounded optional meters scaled by 2080 and 4160.
 
 Promoted source matches **1,000,000 complete randomized DLL parent calls bit-exact**, including row-count changes that invoke the reference reset. Public lifecycle hash: `c51343d575cd92dd`.
+
+
+## Specialized deployed FFT64 callback
+
+`ubig_stage_b_rt_fft64()` closes the specialized callback at reference VA `0x1800A68C0`, selected indirectly by the live `0x180049620` path through its `0x180040BF0` transform context. Live capture fixes that callback at **N=64**, with `0x40BF0` dimensions `{2,4,64}` on every shipped profile. Impulse probes establish an unscaled forward complex DFT in natural frequency order.
+
+The implementation is the exact deployed radix-8 x radix-8 factorization. The first radix-8 pass was isolated by bypassing the second pass in the mapped reference and matches **1,000,000 randomized complete first stages bit-exact**. The promoted complete FFT then matches **1,000,000 randomized direct `0x1800A68C0` calls bit-exact** across all 128 output floats. Its only constants are `sqrt(1/2)` and standard `W64` roots; the root grid is mathematically derived rather than a proprietary tuning payload. Public regression hash: `5370d7a298fc74d9`.
+
+Prior recovered RE archives were checked before promotion. They independently document 64-point Dolby FFT/twiddle work and standard-root tables in the old bass-control analysis; those notes were used only as a guardrail. The current callback layout, radix schedule, natural-order contract and bit-exact gate were re-established against the active `DolbyAPOVR.dll`.
