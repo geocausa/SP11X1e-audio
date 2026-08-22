@@ -757,6 +757,41 @@ void ubig_stage_b_rt_control_aggregate_process(UbigStageBRtControlAggregateState
                                                uint32_t item_count,
                                                float output[UBIG_STAGE_B_RT_CONTROL_AGGREGATE_OUTPUTS]);
 
+typedef struct {
+    const uint32_t *indices;
+    const float *weights;
+    uint32_t count;
+} UbigStageBRtSparseMix;
+
+/* Weighted sparse complex-row mixer recovered from 0x18004B890. Input rows
+ * are indexed first by mix->indices[] and then by channel. A zero-count mix
+ * clears 2*complex_bins output floats and returns 1; non-empty mixes return 0. */
+int ubig_stage_b_rt_sparse_complex_mix(float *output,
+                                       const float *const *const *rows,
+                                       const UbigStageBRtSparseMix *mix,
+                                       uint32_t channel,
+                                       uint32_t complex_bins);
+
+typedef struct {
+    uint32_t row_count;
+    uint32_t channel_count;
+    uint32_t complex_bins;
+    float ***rows;
+} UbigStageBRtComplexMatrix;
+
+typedef struct {
+    const UbigStageBRtSparseMix *mixes;
+    uint32_t source_rows;
+    uint32_t target_rows;
+} UbigStageBRtSparseRemapPlan;
+
+/* Exact sparse row remapper at 0x18004BAB0. The source_rows prefix is mixed
+ * through aligned workspace before write-back so source rows may overlap the
+ * destination matrix; rows appended beyond the prefix are generated in place. */
+uint32_t ubig_stage_b_rt_sparse_remap(UbigStageBRtComplexMatrix *matrix,
+                                      const UbigStageBRtSparseRemapPlan *plan,
+                                      void *workspace);
+
 /* Exact five-word control export used by deployed outer parent 0x1800376B0:
  * scalar aggregation at 0x180058480 followed by signed-Q31 conversion of all
  * five outputs in their deployed 0x654..0x664 order. */

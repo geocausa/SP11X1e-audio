@@ -2541,6 +2541,88 @@ uint32_t ubig_stage_b_rt_scheduler_step(UbigStageBRtSchedulerClock *clock)
     return actions;
 }
 
+int ubig_stage_b_rt_sparse_complex_mix(float *output,
+                                      const float *const *const *rows,
+                                      const UbigStageBRtSparseMix *mix,
+                                      uint32_t channel,
+                                      uint32_t complex_bins)
+{
+    if(!output||!rows||!mix||(mix->count!=0u&&(!mix->indices||!mix->weights)))return -1;
+    if(mix->count==0u){
+        memset(output,0,(size_t)complex_bins*2u*sizeof(float));
+        return 1;
+    }
+    uint32_t j=0u;
+    for(;j+1u<mix->count;j+=2u){
+        const float *a=rows[mix->indices[j]][channel];
+        const float *b=rows[mix->indices[j+1u]][channel];
+        const float wa=mix->weights[j];
+        const float wb=mix->weights[j+1u];
+        if(j==0u){
+            for(uint32_t k=0u;k<complex_bins;k++){
+                const uint32_t i=2u*k;
+                const float real0=a[i]*wa;
+                const float imag0=a[i+1u]*wa;
+                output[i]=fmaf(b[i],wb,real0);
+                output[i+1u]=fmaf(b[i+1u],wb,imag0);
+            }
+        }else{
+            for(uint32_t k=0u;k<complex_bins;k++){
+                const uint32_t i=2u*k;
+                const float real0=fmaf(a[i],wa,output[i]);
+                const float imag0=fmaf(a[i+1u],wa,output[i+1u]);
+                output[i]=fmaf(b[i],wb,real0);
+                output[i+1u]=fmaf(b[i+1u],wb,imag0);
+            }
+        }
+    }
+    if(j<mix->count){
+        const float *a=rows[mix->indices[j]][channel];
+        const float wa=mix->weights[j];
+        if(j==0u){
+            for(uint32_t i=0u;i<2u*complex_bins;i++)output[i]=a[i]*wa;
+        }else{
+            for(uint32_t i=0u;i<2u*complex_bins;i++)output[i]=fmaf(a[i],wa,output[i]);
+        }
+    }
+    return 0;
+}
+
+uint32_t ubig_stage_b_rt_sparse_remap(UbigStageBRtComplexMatrix *matrix,
+                                      const UbigStageBRtSparseRemapPlan *plan,
+                                      void *workspace)
+{
+    if(!matrix||!plan||!matrix->rows||!plan->mixes||!workspace)return 0u;
+    const uint32_t prefix=plan->source_rows<plan->target_rows?plan->source_rows:plan->target_rows;
+    uint32_t zero_mask=0u;
+    const float *const *const *source_rows=(const float *const *const *)matrix->rows;
+
+    for(uint32_t row=prefix;row<plan->target_rows;row++){
+        for(uint32_t channel=0u;channel<matrix->channel_count;channel++){
+            if(ubig_stage_b_rt_sparse_complex_mix(matrix->rows[row][channel],source_rows,
+                                                   &plan->mixes[row],channel,
+                                                   matrix->complex_bins)!=0)
+                zero_mask|=UINT32_C(1)<<(row&31u);
+        }
+    }
+
+    const size_t stride_floats=(size_t)((matrix->complex_bins+3u)>>2)*8u;
+    float *scratch=(float*)(((uintptr_t)workspace+31u)&~(uintptr_t)31u);
+    for(uint32_t channel=0u;channel<matrix->channel_count;channel++){
+        for(uint32_t row=0u;row<prefix;row++){
+            if(ubig_stage_b_rt_sparse_complex_mix(scratch+(size_t)row*stride_floats,
+                                                   source_rows,&plan->mixes[row],channel,
+                                                   matrix->complex_bins)!=0)
+                zero_mask|=UINT32_C(1)<<(row&31u);
+        }
+        for(uint32_t row=0u;row<prefix;row++)
+            memcpy(matrix->rows[row][channel],scratch+(size_t)row*stride_floats,
+                   (size_t)matrix->complex_bins*2u*sizeof(float));
+    }
+    matrix->row_count=plan->target_rows;
+    return zero_mask;
+}
+
 void ubig_stage_b_rt_control_export_process(UbigStageBRtControlAggregateState *state,
                                             const UbigStageBRtControlAggregateItem *items,
                                             uint32_t item_count,
