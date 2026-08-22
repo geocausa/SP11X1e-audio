@@ -3627,6 +3627,145 @@ UbigStageBRtSparseRemapPlan *ubig_stage_b_rt_sparse_plan_build(
     return plan;
 }
 
+static void stage_b_rt_store_u32(void *destination,uint32_t value)
+{
+    memcpy(destination,&value,sizeof value);
+}
+
+static void stage_b_rt_store_u64(void *destination,uint64_t value)
+{
+    memcpy(destination,&value,sizeof value);
+}
+
+static uint64_t stage_b_rt_load_u64(const void *source)
+{
+    uint64_t value;
+    memcpy(&value,source,sizeof value);
+    return value;
+}
+
+static void stage_b_rt_fill_u32(void *destination,uint32_t value,uint32_t count)
+{
+    uint8_t *bytes=(uint8_t *)destination;
+    for(uint32_t i=0u;i<count;i++)stage_b_rt_store_u32(bytes+(size_t)i*4u,value);
+}
+
+static void stage_b_rt_outer_support_state_init(void *state)
+{
+    uint8_t *bytes=(uint8_t *)state;
+    memset(bytes,0,0x5dcu);
+    stage_b_rt_store_u32(bytes+0x5dcu,1u);
+    stage_b_rt_store_u32(bytes+0x5e0u,UINT32_C(0x3f11a2f0));
+    stage_b_rt_store_u32(bytes+0x5e4u,0u);
+}
+
+void *ubig_stage_b_rt_outer_support_build(uint32_t descriptor_width,
+                                          uint32_t active_width,
+                                          void *workspace)
+{
+    if(!workspace||active_width>UBIG_STAGE_B_RT_MAX_BANDS)return NULL;
+
+    const uintptr_t base=(uintptr_t)workspace;
+    const uintptr_t root=(base+(uintptr_t)7u)&~(uintptr_t)7u;
+    const uintptr_t pair_rows=(base+(uintptr_t)0x46u)&~(uintptr_t)7u;
+    uintptr_t cursor=base+(uintptr_t)0x85u;
+    for(uint32_t i=0u;i<2u;i++){
+        const uintptr_t row=cursor&~(uintptr_t)31u;
+        stage_b_rt_store_u64((void *)(pair_rows+(uintptr_t)i*8u),(uint64_t)row);
+        stage_b_rt_fill_u32((void *)row,UINT32_C(0xbf800000),UBIG_STAGE_B_RT_MAX_BANDS);
+        cursor+=(uintptr_t)0x6fu;
+    }
+    stage_b_rt_store_u32((void *)(pair_rows+16u),descriptor_width);
+    stage_b_rt_store_u32((void *)(pair_rows+20u),1u);
+    stage_b_rt_store_u32((void *)(pair_rows+24u),UINT32_C(0x3c23d70a));
+    stage_b_rt_store_u64((void *)(root+16u),(uint64_t)pair_rows);
+
+    const uintptr_t pair_state=(base+(uintptr_t)0x14bu)&~(uintptr_t)7u;
+    const uintptr_t zero_row=(base+(uintptr_t)0x18au)&~(uintptr_t)31u;
+    const uintptr_t negative_row=(base+(uintptr_t)0x1f9u)&~(uintptr_t)31u;
+    stage_b_rt_store_u64((void *)pair_state,0u);
+    stage_b_rt_store_u64((void *)(pair_state+8u),(uint64_t)negative_row);
+    stage_b_rt_store_u64((void *)(pair_state+16u),(uint64_t)zero_row);
+    stage_b_rt_store_u32((void *)(pair_state+28u),UINT32_C(0x3f7ffffe));
+    stage_b_rt_fill_u32((void *)zero_row,0u,UBIG_STAGE_B_RT_MAX_BANDS);
+    stage_b_rt_fill_u32((void *)negative_row,UINT32_C(0xbf800000),UBIG_STAGE_B_RT_MAX_BANDS);
+    stage_b_rt_store_u64((void *)(root+8u),(uint64_t)pair_state);
+
+    const uintptr_t four_group=(base+(uintptr_t)0x250u)&~(uintptr_t)7u;
+    const uintptr_t four_rows=(base+(uintptr_t)0x25fu)&~(uintptr_t)7u;
+    stage_b_rt_store_u64((void *)four_group,(uint64_t)four_rows);
+    cursor=base+(uintptr_t)0x29eu;
+    for(uint32_t i=0u;i<4u;i++){
+        const uintptr_t row=cursor&~(uintptr_t)31u;
+        stage_b_rt_store_u64((void *)(four_rows+(uintptr_t)i*8u),(uint64_t)row);
+        stage_b_rt_fill_u32((void *)row,UINT32_C(0xbf800000),UBIG_STAGE_B_RT_MAX_BANDS);
+        cursor+=(uintptr_t)0x6fu;
+    }
+    stage_b_rt_store_u64((void *)(root+24u),(uint64_t)four_group);
+
+    const uintptr_t tail_base=base+(uintptr_t)0x43bu;
+    const uintptr_t three_group=(tail_base+(uintptr_t)7u)&~(uintptr_t)7u;
+    const uintptr_t three_rows=(tail_base+(uintptr_t)0x16u)&~(uintptr_t)7u;
+    stage_b_rt_store_u64((void *)three_group,(uint64_t)three_rows);
+    cursor=tail_base+(uintptr_t)0x4du;
+    for(uint32_t i=0u;i<3u;i++){
+        const uintptr_t row=cursor&~(uintptr_t)31u;
+        stage_b_rt_store_u64((void *)(three_rows+(uintptr_t)i*8u),(uint64_t)row);
+        stage_b_rt_fill_u32((void *)row,UINT32_C(0xbf800000),UBIG_STAGE_B_RT_MAX_BANDS);
+        cursor+=(uintptr_t)0x6fu;
+    }
+    stage_b_rt_store_u64((void *)root,(uint64_t)three_group);
+
+    const uintptr_t controller=(tail_base+(uintptr_t)0x182u)&~(uintptr_t)7u;
+    const uintptr_t record_a=(tail_base+(uintptr_t)0x791u)&~(uintptr_t)7u;
+    const uintptr_t record_b=(tail_base+(uintptr_t)0x7d8u)&~(uintptr_t)7u;
+    stage_b_rt_store_u64((void *)(controller+16u),(uint64_t)record_a);
+    stage_b_rt_store_u64((void *)(controller+24u),(uint64_t)record_b);
+    cursor=tail_base+(uintptr_t)0x818u;
+    for(uint32_t i=0u;i<4u;i++){
+        const uintptr_t row_a=(cursor+(uintptr_t)0x1fu)&~(uintptr_t)31u;
+        const uintptr_t row_b=(cursor+(uintptr_t)0x8eu)&~(uintptr_t)31u;
+        stage_b_rt_store_u64((void *)(record_a+(uintptr_t)i*16u),(uint64_t)row_a);
+        stage_b_rt_store_u64((void *)(record_b+(uintptr_t)i*16u),(uint64_t)row_b);
+        stage_b_rt_store_u32((void *)(record_a+(uintptr_t)i*16u+8u),UINT32_C(0x3f4d4e84));
+        stage_b_rt_fill_u32((void *)row_a,UINT32_C(0x3ee14b2a),UBIG_STAGE_B_RT_MAX_BANDS);
+        cursor+=(uintptr_t)0xdeu;
+    }
+    stage_b_rt_outer_support_state_init((void *)(controller+0x20u));
+    stage_b_rt_store_u64((void *)(controller+4u),0u);
+    stage_b_rt_store_u32((void *)controller,UINT32_C(0x3f7ffffe));
+    for(uint32_t i=0u;i<4u;i++){
+        const uintptr_t row_b=(uintptr_t)stage_b_rt_load_u64((const void *)(record_b+(uintptr_t)i*16u));
+        stage_b_rt_store_u32((void *)(record_b+(uintptr_t)i*16u+8u),UINT32_C(0xbf7ffffe));
+        stage_b_rt_fill_u32((void *)row_b,UINT32_C(0xbf7ffffe),UBIG_STAGE_B_RT_MAX_BANDS);
+    }
+    stage_b_rt_outer_support_state_init((void *)(controller+0x20u));
+    stage_b_rt_store_u64((void *)(root+40u),(uint64_t)controller);
+
+    const uintptr_t band_state=(tail_base+(uintptr_t)0xb97u)&~(uintptr_t)7u;
+    stage_b_rt_store_u64((void *)(band_state+672u),1u);
+    for(uint32_t group=0u;group<4u;group++){
+        stage_b_rt_store_u32((void *)(band_state+0x140u+(uintptr_t)group*4u+336u),UINT32_C(0xbf7ffffe));
+        stage_b_rt_store_u32((void *)(band_state+0x140u+(uintptr_t)group*4u),0u);
+        for(uint32_t lane=0u;lane<active_width;lane++){
+            const uint32_t index=group*UBIG_STAGE_B_RT_MAX_BANDS+lane;
+            stage_b_rt_store_u32((void *)(band_state+(uintptr_t)index*4u),0u);
+            stage_b_rt_store_u32((void *)(band_state+(uintptr_t)(index+0x54u)*4u),UINT32_C(0xbf7ffffe));
+        }
+    }
+    stage_b_rt_store_u64((void *)(root+32u),(uint64_t)band_state);
+
+    const uintptr_t pair=(tail_base+(uintptr_t)0xe46u)&~(uintptr_t)7u;
+    const uintptr_t row_a=(tail_base+(uintptr_t)0xe59u)&~(uintptr_t)3u;
+    const uintptr_t row_b=(tail_base+(uintptr_t)0xeacu)&~(uintptr_t)3u;
+    stage_b_rt_fill_u32((void *)row_a,0u,UBIG_STAGE_B_RT_MAX_BANDS);
+    stage_b_rt_fill_u32((void *)row_b,0u,UBIG_STAGE_B_RT_MAX_BANDS);
+    stage_b_rt_store_u64((void *)pair,(uint64_t)row_a);
+    stage_b_rt_store_u64((void *)(pair+8u),(uint64_t)row_b);
+    stage_b_rt_store_u64((void *)(root+48u),(uint64_t)pair);
+    return (void *)root;
+}
+
 uint32_t ubig_stage_b_rt_sparse_remap(UbigStageBRtComplexMatrix *matrix,
                                       const UbigStageBRtSparseRemapPlan *plan,
                                       void *workspace)

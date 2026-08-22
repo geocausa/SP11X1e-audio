@@ -1089,6 +1089,14 @@ typedef struct {
 UbigStageBRtSparseRemapPlan *ubig_stage_b_rt_sparse_plan_build(
     uint32_t source_rows,uint32_t target_rows,const float *dense,void *workspace);
 
+/* Setup-only opaque workspace constructor used by the deployed outer Stage-B
+ * parent when its two-row support descriptor is first activated. The returned
+ * object and every nested pointer live inside caller-owned workspace. The
+ * recovered endpoint contract uses active_width <= 20. Reference 0x180045600. */
+void *ubig_stage_b_rt_outer_support_build(uint32_t descriptor_width,
+                                          uint32_t active_width,
+                                          void *workspace);
+
 /* Exact sparse row remapper at 0x18004BAB0. The source_rows prefix is mixed
  * through aligned workspace before write-back so source rows may overlap the
  * destination matrix; rows appended beyond the prefix are generated in place. */
