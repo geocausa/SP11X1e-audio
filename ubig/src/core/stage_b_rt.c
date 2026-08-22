@@ -3847,6 +3847,89 @@ void ubig_stage_b_rt_pair_inverse_transform(float *row_a,float *row_b,
     }
 }
 
+void ubig_stage_b_rt_history_filter64_process(
+    UbigStageBRtHistoryFilter64State *state,const float filter[640],
+    const float phase[128],uint32_t history_row,float output[128],
+    const float source[64])
+{
+    if(!state||!state->history_rows||!state->counter||!state->fft64||
+       !filter||!phase||!output||!source||!state->history_rows[history_row])return;
+    const uint32_t counter=state->counter[history_row];
+    const uint32_t current=counter%UBIG_STAGE_B_RT_HISTORY_FILTER64_DEPTH;
+    float *history=state->history_rows[history_row];
+    _Alignas(32) float spectrum[128];
+    _Alignas(32) float transformed[128];
+#if defined(__aarch64__)
+    for(uint32_t chunk=0u;chunk<16u;chunk++){
+        const uint32_t offset=4u*chunk;
+        const float32x4_t input=vld1q_f32(source+offset);
+        const float32x4_t half=vmulq_n_f32(input,0.5f);
+        const float32x4_t s0=vld1q_f32(history+((current+0u)%9u)*64u+offset);
+        const float32x4_t s1=vld1q_f32(history+((current+1u)%9u)*64u+offset);
+        const float32x4_t s2=vld1q_f32(history+((current+2u)%9u)*64u+offset);
+        const float32x4_t s3=vld1q_f32(history+((current+3u)%9u)*64u+offset);
+        const float32x4_t s4=vld1q_f32(history+((current+4u)%9u)*64u+offset);
+        const float32x4_t s5=vld1q_f32(history+((current+5u)%9u)*64u+offset);
+        const float32x4_t s6=vld1q_f32(history+((current+6u)%9u)*64u+offset);
+        const float32x4_t s7=vld1q_f32(history+((current+7u)%9u)*64u+offset);
+        const float32x4_t s8=vld1q_f32(history+((current+8u)%9u)*64u+offset);
+        const float *coef=filter+40u*chunk;
+        float32x4_t even=vmulq_f32(s0,vld1q_f32(coef+0));
+        even=vfmsq_f32(even,s2,vld1q_f32(coef+8));
+        even=vfmaq_f32(even,s4,vld1q_f32(coef+16));
+        float32x4_t odd=vmulq_f32(s1,vld1q_f32(coef+4));
+        even=vfmsq_f32(even,s6,vld1q_f32(coef+24));
+        odd=vfmsq_f32(odd,s3,vld1q_f32(coef+12));
+        even=vfmaq_f32(even,s8,vld1q_f32(coef+32));
+        odd=vfmaq_f32(odd,s5,vld1q_f32(coef+20));
+        odd=vfmsq_f32(odd,s7,vld1q_f32(coef+28));
+        vst1q_f32(history+current*64u+offset,half);
+        odd=vfmaq_f32(odd,half,vld1q_f32(coef+36));
+        const float32x4_t p0=vld1q_f32(phase+8u*chunk);
+        const float32x4_t p1=vld1q_f32(phase+8u*chunk+4u);
+        float32x4_t imag=vmulq_f32(odd,p1);
+        float32x4_t real=vmulq_f32(odd,p0);
+        imag=vfmaq_f32(imag,even,p0);
+        real=vfmsq_f32(real,even,p1);
+        vst1q_f32(spectrum+8u*chunk,vzip1q_f32(real,imag));
+        vst1q_f32(spectrum+8u*chunk+4u,vzip2q_f32(real,imag));
+    }
+#else
+    for(uint32_t chunk=0u;chunk<16u;chunk++){
+        const uint32_t offset=4u*chunk;
+        for(uint32_t lane=0u;lane<4u;lane++){
+            const uint32_t x=offset+lane;
+            const float half=source[x]*0.5f;
+            const float *coef=filter+40u*chunk+lane;
+            float even=history[((current+0u)%9u)*64u+x]*coef[0];
+            even=fmaf(-history[((current+2u)%9u)*64u+x],coef[8],even);
+            even=fmaf(history[((current+4u)%9u)*64u+x],coef[16],even);
+            float odd=history[((current+1u)%9u)*64u+x]*coef[4];
+            even=fmaf(-history[((current+6u)%9u)*64u+x],coef[24],even);
+            odd=fmaf(-history[((current+3u)%9u)*64u+x],coef[12],odd);
+            even=fmaf(history[((current+8u)%9u)*64u+x],coef[32],even);
+            odd=fmaf(history[((current+5u)%9u)*64u+x],coef[20],odd);
+            odd=fmaf(-history[((current+7u)%9u)*64u+x],coef[28],odd);
+            history[current*64u+x]=half;
+            odd=fmaf(half,coef[36],odd);
+            const float p0=phase[8u*chunk+lane],p1=phase[8u*chunk+4u+lane];
+            const float imag=fmaf(even,p0,odd*p1);
+            const float real=fmaf(-even,p1,odd*p0);
+            spectrum[8u*chunk+2u*lane]=real;
+            spectrum[8u*chunk+2u*lane+1u]=imag;
+        }
+    }
+#endif
+    state->fft64(transformed,spectrum);
+    for(uint32_t bin=0u;bin<32u;bin++){
+        output[4u*bin]=transformed[2u*bin];
+        output[4u*bin+1u]=transformed[2u*bin+1u];
+        output[4u*bin+2u]=transformed[2u*(64u-bin)-2u];
+        output[4u*bin+3u]=-transformed[2u*(64u-bin)-1u];
+    }
+    state->counter[history_row]=counter+1u;
+}
+
 static void stage_b_rt_fft4(float *output,const float *input)
 {
     const float a=input[4]+input[0];

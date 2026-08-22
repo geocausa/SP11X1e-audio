@@ -602,3 +602,10 @@ The active reference parent immediately above `0x376B0` is no longer executed. A
 The replacement preserves the reference persistent three-slot input ring update, ×0.125 complex input staging, 0x1E8-byte history-tail copy, exact caller-workspace row layout needed by the late controller, and the reference `0x3E0E457B` offset before composing directly into native `0x376B0`. Because the deployed export descriptor has zero input rows, the trailing `0x5AD38` path has no observable work and disappears entirely from the native parent.
 
 Dynamic, Movie, Music, Game, Voice, OnlineCourse and Personalize all pass the complete 781-block chain harness bit-exact with **781 native `0x5CE70` replacements**, **6,248 native history transforms**, **781 native `0x376B0` calls**, 3,124 native analysis-controller calls, and zero semantic fallback. The original `0x5CE70`, `0x4A570`, `0xD1EC0`, `0xD23E0`, `0x5AD38`, `0x376B0` and the previously closed lower subtree remain poisoned throughout the run.
+
+
+### Stage-B 0x42590 history-filter kernel
+
+Reference `0x180042590` is now represented by `ubig_stage_b_rt_history_filter64_process()` on its exact one-block branch. The deployed caller always requests `{rows=2, blocks=4, N=64}`; a live equivalence shim proved that the optimized four-block branch is bit-identical to four sequential one-block calls. The promoted one-block source matches **1,000,000 randomized direct DLL calls bit-exact** across the nine-phase x 64-float mutable history row, phase counter and 128-float packed output. Public regression hash: `d0118b361d08db6d`.
+
+A seven-profile live substitution patches the `0x3ABE0` indirect callback to a native four-block wrapper, poisons the original `0x42590` entry, and executes 1,562 wrapper calls / 6,248 native one-block kernels per profile with full chain `PLUGIN_RESULT PASS`. The normalized FFT64 callback at `0x1800D15E0` is still invoked as an explicit dependency by this checkpoint; closing that callback is the next boundary.

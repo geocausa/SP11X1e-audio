@@ -1124,6 +1124,28 @@ void ubig_stage_b_rt_pair_transform(float *row_a,float *row_b,
 void ubig_stage_b_rt_pair_inverse_transform(float *row_a,float *row_b,
                                             uint32_t complex_bins,float scale);
 
+#define UBIG_STAGE_B_RT_HISTORY_FILTER64_N 64u
+#define UBIG_STAGE_B_RT_HISTORY_FILTER64_DEPTH 9u
+#define UBIG_STAGE_B_RT_HISTORY_FILTER64_OUTPUT_FLOATS 128u
+
+typedef void (*UbigStageBRtFft64Callback)(float *output,const float *input);
+
+typedef struct {
+    float **history_rows;
+    uint32_t *counter;
+    UbigStageBRtFft64Callback fft64;
+} UbigStageBRtHistoryFilter64State;
+
+/* Exact one-block branch of reference 0x180042590. The deployed caller's
+ * four-block optimized path is bit-identical to four sequential one-block
+ * calls. Each history row owns nine 64-float phases and a monotonically
+ * increasing phase counter. */
+void ubig_stage_b_rt_history_filter64_process(
+    UbigStageBRtHistoryFilter64State *state,
+    const float filter[640],const float phase[128],uint32_t history_row,
+    float output[UBIG_STAGE_B_RT_HISTORY_FILTER64_OUTPUT_FLOATS],
+    const float source[UBIG_STAGE_B_RT_HISTORY_FILTER64_N]);
+
 #define UBIG_STAGE_B_RT_HISTORY32_FLOATS 32u
 #define UBIG_STAGE_B_RT_HISTORY32_TAIL 6u
 
