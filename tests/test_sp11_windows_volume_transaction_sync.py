@@ -150,7 +150,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
             self.assertEqual(sync.find_mute_control_numid(), 34)
             self.assertEqual(sync.find_volume_only_control_numid(), 35)
 
-    def test_postgain_is_queued_once_per_dolby_generation(self):
+    def test_postgain_tracks_live_endpoint_and_requeues_on_generation(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             generation = Path(tmpdir) / "generation"
             control = Path(tmpdir) / "control"
@@ -158,17 +158,34 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
                 first = sync.queue_dolby_postgain_for_generation(
                     (0.25 ** 3, False), 41, control, generation
                 )
-                same = sync.queue_dolby_postgain_for_generation(
+                unchanged = sync.queue_dolby_postgain_for_generation(
+                    (0.25 ** 3, False), 41, control, generation
+                )
+                live = sync.queue_dolby_postgain_for_generation(
                     (0.50 ** 3, False), 41, control, generation
                 )
                 replacement = sync.queue_dolby_postgain_for_generation(
                     (0.50 ** 3, False), 42, control, generation
                 )
             self.assertEqual(first, -332)
-            self.assertIsNone(same)
-            self.assertNotEqual(replacement, -332)
-            self.assertEqual(write.call_count, 2)
-            self.assertEqual(generation.read_text().strip(), "42")
+            self.assertIsNone(unchanged)
+            self.assertEqual(live, -167)
+            self.assertEqual(replacement, -167)
+            self.assertEqual(write.call_count, 3)
+            self.assertEqual(generation.read_text().strip(), "42 -167")
+
+    def test_legacy_generation_file_forces_one_postgain_refresh(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            generation = Path(tmpdir) / "generation"
+            generation.write_text("41\n")
+            control = Path(tmpdir) / "control"
+            with patch.object(sync.base, "write_postgain_request") as write:
+                value = sync.queue_dolby_postgain_for_generation(
+                    (0.25 ** 3, False), 41, control, generation
+                )
+            self.assertEqual(value, -332)
+            write.assert_called_once()
+            self.assertEqual(generation.read_text().strip(), "41 -332")
 
 
     def test_postgain_queue_forwards_ubig_control_format(self):
@@ -508,7 +525,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
 
         self.assertEqual(len(snapshots), 1)
         self.assertEqual(applied, [(0.25 ** 3, False), (0.5 ** 3, False)])
-        queue.assert_called_once()
+        self.assertEqual(queue.call_count, 2)
 
     def test_recreated_visible_sink_inherits_previous_state_before_transaction(self):
         class FakeStdout:

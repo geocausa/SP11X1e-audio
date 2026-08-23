@@ -1541,14 +1541,19 @@ static void chain_run(LADSPA_Handle h,unsigned long n){
     unsigned long pos=0;
     while(pos<n){
         uint32_t take=(uint32_t)((n-pos)>RT_CHUNK_FRAMES?RT_CHUNK_FRAMES:(n-pos));
-        if(ubig_engine_process(p->native_stage_a,il+pos,ir+pos,p->native_stage_a_l,p->native_stage_a_r,take)!=UBIG_OK){p->ready=0;for(uint32_t i=0;i<take;i++)p->native_stage_a_l[i]=p->native_stage_a_r[i]=0.0f;}
-        for(uint32_t i=0;i<take;i++){p->buf_b[2*i]=p->native_stage_a_l[i];p->buf_b[2*i+1]=p->native_stage_a_r[i];p->buf_a[2*i]=p->buf_a[2*i+1]=0.0f;}
-        Conn ri={p->buf_b,take,1},ro={p->buf_a,0,0};Conn *rip=&ri,*rop=&ro;
+        /* Windows sample dependency is source -> DolbyApoVr -> VLLDP.
+         * Full-memory captures prove the valid VR output bytes are exactly the
+         * VLLDP input bytes.  Keep both persistent engines in-place; only the
+         * sample-flow order is significant here. */
+        for(uint32_t i=0;i<take;i++){p->buf_a[2*i]=il[pos+i];p->buf_a[2*i+1]=ir[pos+i];p->buf_b[2*i]=p->buf_b[2*i+1]=0.0f;}
+        Conn ri={p->buf_a,take,1},ro={p->buf_b,0,0};Conn *rip=&ri,*rop=&ro;
         native_f6440(p->vr_inner,1,&rip,1,&rop);
-        if(ro.flags==2)memset(p->buf_a,0,(size_t)take*2*sizeof(float));
+        if(ro.flags==2)memset(p->buf_b,0,(size_t)take*2*sizeof(float));
+        for(uint32_t i=0;i<take;i++){p->native_stage_a_l[i]=p->buf_b[2*i];p->native_stage_a_r[i]=p->buf_b[2*i+1];}
+        if(ubig_engine_process(p->native_stage_a,p->native_stage_a_l,p->native_stage_a_r,p->native_stage_a_l,p->native_stage_a_r,take)!=UBIG_OK){p->ready=0;for(uint32_t i=0;i<take;i++)p->native_stage_a_l[i]=p->native_stage_a_r[i]=0.0f;}
         for(uint32_t i=0;i<take;i++){
             if(dry){ol[pos+i]=il[pos+i];or[pos+i]=ir[pos+i];}
-            else {ol[pos+i]=p->buf_a[2*i];or[pos+i]=p->buf_a[2*i+1];}
+            else {ol[pos+i]=p->native_stage_a_l[i];or[pos+i]=p->native_stage_a_r[i];}
         }
         pos+=take;
     }
