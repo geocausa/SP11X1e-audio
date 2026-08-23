@@ -188,7 +188,14 @@ The full journal and strict decoder output are preserved under
 The reviewed machine-readable result is
 `artifacts/reviewed/linux-protectdiag-20260802-result.json`.
 
-## Candidate disposition
+## Historical candidate disposition (superseded)
+
+> The text below records the decision made during the diagnostic run. It was
+> reversed later on 2026-08-02 after the Windows GSL warning policy was proven
+> and the Clean2 filtered topology reproduced a physical right-only failure.
+> The current decision is to preserve the full Windows aggregate; see the
+> erratum at the top of this document and
+> `docs/findings/2026-08-02-windows-graph-calibration-warning-policy.md`.
 
 The filtered aggregate is promoted: it removes a public-API-proven GET-only
 record from a SET transaction and is accepted at runtime without altering any

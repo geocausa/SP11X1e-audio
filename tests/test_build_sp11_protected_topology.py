@@ -11,6 +11,21 @@ assert SPEC.loader
 SPEC.loader.exec_module(MODULE)
 
 
+def test_graph_calibration_variant_defaults_legacy_manifest_to_windows_full():
+    assert MODULE.validate_graph_calibration_variant({}, "windows-full") == "windows-full"
+
+
+def test_graph_calibration_variant_requires_explicit_settable_opt_in():
+    record = {"variant": "settable-v1"}
+    try:
+        MODULE.validate_graph_calibration_variant(record, "windows-full")
+    except ValueError as exc:
+        assert "requires explicit --graph-calibration-variant settable-v1" in str(exc)
+    else:
+        raise AssertionError("settable-v1 stage compiled without explicit opt-in")
+    assert MODULE.validate_graph_calibration_variant(record, "settable-v1") == "settable-v1"
+
+
 def test_private_data_header():
     payload = bytes.fromhex("0100000002000000")
     block = MODULE.private_data(0x53503101, payload)

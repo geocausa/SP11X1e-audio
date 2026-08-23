@@ -5,6 +5,7 @@ from tools.acdb_protection_stage_builder import (
     VOLUME_GAIN_PARAMETER,
     _calibration_offsets,
     align8,
+    filter_set_cfg_records,
     parse_subgraph_calibration_lut,
     serialize_cdlu_group,
     serialize_parameter,
@@ -34,6 +35,26 @@ class AcdbProtectionStageBuilderTests(unittest.TestCase):
         )
         self.assertEqual(body[16:21], b"abcde")
         self.assertEqual(body[21:], b"\0\0\0")
+
+    def test_get_only_spr_session_time_filter_is_explicit_and_exact(self):
+        before = serialize_parameter(0x4001, 0x08001026, b"\1\0\0\0")
+        session_time = serialize_parameter(0x412B, 0x0800113D, bytes(28))
+        after = serialize_parameter(0x412B, 0x0800115B, bytes(44))
+
+        filtered, excluded = filter_set_cfg_records(before + session_time + after)
+
+        self.assertEqual(filtered, before + after)
+        self.assertEqual(len(excluded), 1)
+        self.assertEqual(excluded[0]["frame_index"], 1)
+        self.assertEqual(excluded[0]["offset"], len(before))
+        self.assertEqual(excluded[0]["frame_size"], 48)
+        self.assertEqual(excluded[0]["name"], "PARAM_ID_SPR_SESSION_TIME")
+
+    def test_get_only_filter_preserves_other_spr_records(self):
+        body = serialize_parameter(0x412B, 0x080010C4, bytes(4))
+        filtered, excluded = filter_set_cfg_records(body)
+        self.assertEqual(filtered, body)
+        self.assertEqual(excluded, [])
 
     def test_cdlu_group_preserves_descriptor_order(self):
         payload_a = b"A" * 4

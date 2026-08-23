@@ -69,6 +69,24 @@ SP11_FULL_VOLUME_GRAPH_CAL_SHA256 = (
     "2a654ffa7a4467c93ecfc64f380974df0bccdd5c67959ba6ac7c59a008358ca1"
 )
 
+# The Windows ACDB corpus contains one readback-only SPR status parameter in
+# the graph-calibration aggregate. Windows sends the aggregate unchanged and
+# treats the resulting status as a warning, so `windows-full` remains the
+# canonical/Golden policy. `settable-v1` is an explicit future-topology
+# experiment that removes only this API-proven GET-only record.
+GRAPH_CALIBRATION_VARIANTS = ("windows-full", "settable-v1")
+SET_CFG_EXCLUSIONS = {
+    (0x0000412B, 0x0800113D): {
+        "name": "PARAM_ID_SPR_SESSION_TIME",
+        "reason": "GET-only SPR session-time readback cannot be sent via SET_CFG",
+        "api_source": "Audioreach audioreach-engine fwk/spf/modules/spr/api/spr_api.h",
+    }
+}
+SP11_SETTABLE_GRAPH_CAL_SIZE = 10416
+SP11_SETTABLE_GRAPH_CAL_SHA256 = (
+    "6b111c9c26fe190a94e1709f650666f25a3afb5c54e7ae1cad6662af5dcf9971"
+)
+
 # Seven captured Windows initializations used these byte-identical dynamic
 # bodies.  They remain a separate stage because Windows inserts SP and SPVI
 # tag calibration around them.
@@ -129,6 +147,46 @@ def serialize_parameter(iid: int, param_id: int, payload: bytes) -> bytes:
     """Serialize one apm_module_param_data record with eight-byte padding."""
     frame = struct.pack("<IIII", iid, param_id, len(payload), 0) + payload
     return frame.ljust(align8(len(frame)), b"\0")
+
+
+
+def filter_set_cfg_records(data: bytes) -> tuple[bytes, list[dict]]:
+    """Remove only API-proven GET-only records from a SET_CFG aggregate."""
+    output = bytearray()
+    excluded = []
+    offset = 0
+    frame_index = 0
+    while offset < len(data):
+        if len(data) - offset < 16:
+            raise ValueError(f"short parameter header at graph offset {offset}")
+        iid, param_id, payload_size, error_code = struct.unpack_from(
+            "<IIII", data, offset
+        )
+        frame_size = align8(16 + payload_size)
+        if offset + frame_size > len(data):
+            raise ValueError(f"short parameter frame at graph offset {offset}")
+        frame = data[offset : offset + frame_size]
+        exclusion = SET_CFG_EXCLUSIONS.get((iid, param_id))
+        if exclusion is None:
+            output += frame
+        else:
+            payload = frame[16 : 16 + payload_size]
+            excluded.append(
+                {
+                    "frame_index": frame_index,
+                    "offset": offset,
+                    "iid": f"0x{iid:08x}",
+                    "param_id": f"0x{param_id:08x}",
+                    "payload_size": payload_size,
+                    "error_code": error_code,
+                    "payload_sha256": sha256(payload),
+                    "frame_size": frame_size,
+                    **exclusion,
+                }
+            )
+        offset += frame_size
+        frame_index += 1
+    return bytes(output), excluded
 
 
 def _pool_payload(pool: bytes, offset: int) -> bytes:
@@ -426,7 +484,15 @@ def serialize_tag_row(
     }
 
 
-def build_stages(data: bytes, source: str = "<bytes>") -> tuple[dict[str, bytes], dict]:
+def build_stages(
+    data: bytes,
+    source: str = "<bytes>",
+    graph_calibration_variant: str = "windows-full",
+) -> tuple[dict[str, bytes], dict]:
+    if graph_calibration_variant not in GRAPH_CALIBRATION_VARIANTS:
+        raise ValueError(
+            f"unknown graph calibration variant: {graph_calibration_variant}"
+        )
     source_hash = sha256(data)
     chunks = parse_chunks(data)
     required = {"CSLU", "CAKT", "CDLU", "CDDE", "CDDO", "POOL"}
@@ -446,11 +512,33 @@ def build_stages(data: bytes, source: str = "<bytes>") -> tuple[dict[str, bytes]
         if subgraph_id == SPEAKER_SUBGRAPH_ID:
             speaker_group = group
 
+    source_graph_body = bytes(graph_body)
     if source_hash == SP11_REV_0D_SHA256:
-        if len(graph_body) != SP11_FULL_VOLUME_GRAPH_CAL_SIZE:
+        if len(source_graph_body) != SP11_FULL_VOLUME_GRAPH_CAL_SIZE:
             raise ValueError("reviewed REV_0D graph-calibration size changed")
-        if sha256(graph_body) != SP11_FULL_VOLUME_GRAPH_CAL_SHA256:
+        if sha256(source_graph_body) != SP11_FULL_VOLUME_GRAPH_CAL_SHA256:
             raise ValueError("reviewed REV_0D graph-calibration bytes changed")
+
+    graph_exclusions: list[dict] = []
+    if graph_calibration_variant == "settable-v1":
+        graph_body, graph_exclusions = filter_set_cfg_records(source_graph_body)
+        if source_hash == SP11_REV_0D_SHA256:
+            if len(graph_exclusions) != 1:
+                raise ValueError("reviewed REV_0D GET-only exclusion count changed")
+            excluded = graph_exclusions[0]
+            if (
+                excluded["frame_index"] != 63
+                or excluded["offset"] != 8352
+                or excluded["payload_size"] != 28
+                or excluded["frame_size"] != 48
+            ):
+                raise ValueError("reviewed REV_0D GET-only record moved or changed")
+            if len(graph_body) != SP11_SETTABLE_GRAPH_CAL_SIZE:
+                raise ValueError("settable graph-calibration size changed")
+            if sha256(graph_body) != SP11_SETTABLE_GRAPH_CAL_SHA256:
+                raise ValueError("settable graph-calibration bytes changed")
+    else:
+        graph_body = source_graph_body
 
     render_body, render_meta = serialize_tag_row(
         data,
@@ -579,11 +667,18 @@ def build_stages(data: bytes, source: str = "<bytes>") -> tuple[dict[str, bytes]
         "graph_groups": graph_groups,
         "stages": {
             "graph-calibration": {
+                "variant": graph_calibration_variant,
                 "parameter_count": sum(
                     group["parameter_count"] for group in graph_groups
-                ),
+                ) - len(graph_exclusions),
                 "serialized_size": len(graph_body),
                 "serialized_sha256": sha256(graph_body),
+                "source_parameter_count": sum(
+                    group["parameter_count"] for group in graph_groups
+                ),
+                "source_serialized_size": len(source_graph_body),
+                "source_serialized_sha256": sha256(source_graph_body),
+                "excluded_get_only_records": graph_exclusions,
             },
             "render-endpoint-calibration": {
                 **render_meta,
@@ -674,6 +769,15 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--metadata", type=Path)
     parser.add_argument(
+        "--graph-calibration-variant",
+        choices=GRAPH_CALIBRATION_VARIANTS,
+        default="windows-full",
+        help=(
+            "graph calibration policy; windows-full is Golden-compatible, "
+            "settable-v1 removes only the reviewed GET-only SPR session-time record"
+        ),
+    )
+    parser.add_argument(
         "--allow-unexpected-source",
         action="store_true",
         help="permit a source whose SHA-256 is not the reviewed REV_0D file",
@@ -681,7 +785,11 @@ def main() -> int:
     args = parser.parse_args()
 
     data = args.acdb.read_bytes()
-    stages, metadata = build_stages(data, str(args.acdb.resolve()))
+    stages, metadata = build_stages(
+        data,
+        str(args.acdb.resolve()),
+        graph_calibration_variant=args.graph_calibration_variant,
+    )
     if (
         not metadata["source_matches_expected_rev_0d"]
         and not args.allow_unexpected_source

@@ -17,6 +17,7 @@ from pathlib import Path
 
 
 GRAPH_ID = 0
+GRAPH_CALIBRATION_VARIANTS = ("windows-full", "settable-v1")
 PLAYBACK_BACKEND_ID = 105  # WSA_CODEC_DMA_RX_0
 VI_BACKEND_ID = 106  # WSA_CODEC_DMA_TX_0
 CPS_BACKEND_ID = 108  # WSA_CODEC_DMA_TX_1
@@ -122,7 +123,24 @@ def windows_default_control_payload(control: dict) -> bytes:
     return private_data(0x08001061, aggregate)
 
 
-def load_inputs(model_path: Path, stages_dir: Path, control_path: Path):
+def validate_graph_calibration_variant(record: dict, expected: str) -> str:
+    """Require deliberate opt-in before compiling a non-Golden graph stage."""
+    actual = record.get("variant", "windows-full")
+    if actual not in GRAPH_CALIBRATION_VARIANTS:
+        raise ValueError(f"unknown graph calibration variant in manifest: {actual}")
+    if actual != expected:
+        raise ValueError(
+            f"graph calibration variant {actual} requires explicit --graph-calibration-variant {actual}"
+        )
+    return actual
+
+
+def load_inputs(
+    model_path: Path,
+    stages_dir: Path,
+    control_path: Path,
+    graph_calibration_variant: str = "windows-full",
+):
     model = json.loads(model_path.read_text(encoding="utf-8"))
     manifest = json.loads(
         (stages_dir / "manifest.json").read_text(encoding="utf-8")
@@ -137,10 +155,14 @@ def load_inputs(model_path: Path, stages_dir: Path, control_path: Path):
     ]
     if len(admitted) != 26:
         raise ValueError("canonical model no longer has exactly 26 admitted edges")
+    if graph_calibration_variant not in GRAPH_CALIBRATION_VARIANTS:
+        raise ValueError(f"unknown requested graph calibration variant: {graph_calibration_variant}")
     stage_payloads = {}
     for name, raw_type in RAW_TYPES.items():
         payload = (stages_dir / f"{name}.bin").read_bytes()
         record = manifest["stages"][name]
+        if name == "graph-calibration":
+            validate_graph_calibration_variant(record, graph_calibration_variant)
         if len(payload) != record["serialized_size"]:
             raise ValueError(f"{name} size differs from its manifest")
         stage_payloads[name] = private_data(raw_type, payload)
@@ -445,9 +467,20 @@ def main() -> int:
     parser.add_argument("stages_dir", type=Path)
     parser.add_argument("control_links", type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument(
+        "--graph-calibration-variant",
+        choices=GRAPH_CALIBRATION_VARIANTS,
+        default="windows-full",
+        help="must explicitly match a non-Golden graph-calibration stage manifest",
+    )
     args = parser.parse_args()
 
-    inputs = load_inputs(args.model, args.stages_dir, args.control_links)
+    inputs = load_inputs(
+        args.model,
+        args.stages_dir,
+        args.control_links,
+        graph_calibration_variant=args.graph_calibration_variant,
+    )
     rendered = render(*inputs)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(rendered, encoding="utf-8")

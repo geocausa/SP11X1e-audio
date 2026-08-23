@@ -1,0 +1,57 @@
+{
+  "date": "2026-08-23",
+  "policy": "windows-full remains canonical; settable-v1 is explicit quarantined future experiment",
+  "reviewed_acdb_sha256": "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde",
+  "windows_full_graph": {
+    "excluded_get_only_records": [],
+    "parameter_count": 107,
+    "serialized_sha256": "2a654ffa7a4467c93ecfc64f380974df0bccdd5c67959ba6ac7c59a008358ca1",
+    "serialized_size": 10464,
+    "source_parameter_count": 107,
+    "source_serialized_sha256": "2a654ffa7a4467c93ecfc64f380974df0bccdd5c67959ba6ac7c59a008358ca1",
+    "source_serialized_size": 10464,
+    "variant": "windows-full"
+  },
+  "settable_v1_graph": {
+    "excluded_get_only_records": [
+      {
+        "api_source": "Audioreach audioreach-engine fwk/spf/modules/spr/api/spr_api.h",
+        "error_code": 0,
+        "frame_index": 63,
+        "frame_size": 48,
+        "iid": "0x0000412b",
+        "name": "PARAM_ID_SPR_SESSION_TIME",
+        "offset": 8352,
+        "param_id": "0x0800113d",
+        "payload_sha256": "3addfb141cd7c9c4c6543a82191a3707ac29c7a041217782e61d4d91c691aee8",
+        "payload_size": 28,
+        "reason": "GET-only SPR session-time readback cannot be sent via SET_CFG"
+      }
+    ],
+    "parameter_count": 106,
+    "serialized_sha256": "6b111c9c26fe190a94e1709f650666f25a3afb5c54e7ae1cad6662af5dcf9971",
+    "serialized_size": 10416,
+    "source_parameter_count": 107,
+    "source_serialized_sha256": "2a654ffa7a4467c93ecfc64f380974df0bccdd5c67959ba6ac7c59a008358ca1",
+    "source_serialized_size": 10464,
+    "variant": "settable-v1"
+  },
+  "historical_filtered_graph_byte_compare": "IDENTICAL",
+  "current_topology": {
+    "windows_full_bytes": 30256,
+    "windows_full_sha256": "1b0c7217fc67bb11da002b06563dd8c411b0f0e35ac40778bff3d65093061c9d",
+    "installed_golden_v32_sha256": "1b0c7217fc67bb11da002b06563dd8c411b0f0e35ac40778bff3d65093061c9d",
+    "windows_full_cmp_installed": "IDENTICAL",
+    "settable_v1_bytes": 30208,
+    "settable_v1_sha256": "d65cba4c18d5d2b1c391c7d92d6a62b479bcfcefe16d405b8dac44217c97b9b0"
+  },
+  "variant_guard": {
+    "default": "windows-full",
+    "filtered_requires_explicit_cli": "--graph-calibration-variant settable-v1",
+    "negative_test_exit_code": 1
+  },
+  "regression": "201 passed, 3 skipped, 6 subtests passed",
+  "golden_v32_verifier": "PASS",
+  "deployment_performed": false,
+  "historical_physical_disposition": "Clean2 filtered topology rejected after reproducible physical right-only failure; Windows-full control retained both speakers"
+}

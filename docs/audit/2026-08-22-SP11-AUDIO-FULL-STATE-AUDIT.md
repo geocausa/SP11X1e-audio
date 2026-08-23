@@ -22,7 +22,7 @@ feedback is active in the accepted Windows-shaped 8/24-kHz layout, and the
 current boot contains no PA fault/recovery, SoundWire fault, XRUN or canonical
 GLINK timeout.
 
-The main remaining risk is **housekeeping and qualification, not a broken live
+The main remaining risk is **UbiG physical qualification, not a broken live
 audio path**. The reproducibility risk identified in F01 was closed on
 2026-08-23: Golden v32 is now replayable from a hash-pinned pristine Linux
 7.1.5 base plus a compact tracked source overlay and ordered patches 0069-0071.
@@ -231,24 +231,43 @@ The UbiG filter-chain process remained at PID 599944 and no PA/SoundWire/XRUN,
 canonical GLINK-timeout, kernel Oops or call-trace match appeared after teardown.
 No reboot or live audio graph restart was required.
 
-### F05 — LOW: one known GET-only record still produces aggregate SET_CFG noise
+### F05 — CLOSED 2026-08-23: GET-only calibration warning is accepted Windows-parity behavior
 
-**Where:** graph calibration record 63, IID `0x412b`, PID `0x0800113d`;
-`tools/acdb_protection_stage_builder.py` historical dirty-tree candidate.
+**Where:** graph calibration frame 63, IID `0x412b`, PID `0x0800113d`;
+`tools/acdb_protection_stage_builder.py`,
+`tools/build_sp11_protected_topology.py`, and
+`artifacts/reviewed/2026-08-23-f05-graph-calibration-policy/`.
 
-**What:** Each graph birth logs `AR_EUNSUPPORTED` because the aggregate contains
-the 28-byte `PARAM_ID_SPR_SESSION_TIME` GET-only readback record. The graph then
-continues exactly under the proven Qualcomm GSL policy; the other 106 records
-and all protected stages are accepted.
+**Resolution:** The 28-byte `PARAM_ID_SPR_SESSION_TIME` payload is a public-API
+GET-only readback record, serialized as one 48-byte aligned frame inside the
+10,464-byte graph-calibration `SET_CFG` aggregate. That explains the scoped
+`AR_EUNSUPPORTED` status, but the warning is not a missing protection stage.
+Hash-bound Windows qcadcm/GSL analysis proves Windows sends the full 107-record
+aggregate and explicitly downgrades status 3 at this calibration boundary to a
+warning before graph construction continues. The accepted full-aggregate Linux
+control retained both speakers; the later Clean2 106-record filtered topology
+was rejected after a reproducible physical right-only failure.
 
-**Why it matters:** It is log noise and an ambiguity for future diagnostics,
-not evidence that calibration or protection failed. A filtered 10,416-byte,
-106-record body was previously built and live-accepted, with tests retained in
-the mixed historical tree.
+The old filter implementation has nevertheless been normalized into the clean
+source as an explicitly versioned diagnostic path. The stage builder defaults
+to `windows-full`; `settable-v1` removes only frame 63 and reproduces the exact
+historical 10,416-byte / 106-record SHA-256
+`6b111c9c26fe190a94e1709f650666f25a3afb5c54e7ae1cad6662af5dcf9971`.
+The topology builder refuses that manifest unless the same variant is requested
+explicitly. Every non-graph stage remains byte-identical between policies.
 
-**Required closure:** port the filter and its regression into the clean tree as
-a deliberately versioned future-topology change, then re-run topology hash and
-physical gates. Do not silently mutate Golden-v32's canonical topology.
+A fresh default full-topology build produced SHA-256
+`1b0c7217fc67bb11da002b06563dd8c411b0f0e35ac40778bff3d65093061c9d`
+and compared byte-for-byte identical to the installed Golden-v32 topology. The
+explicit offline filtered candidate compiled/decoded at 30,208 bytes, SHA-256
+`d65cba4c18d5d2b1c391c7d92d6a62b479bcfcefe16d405b8dac44217c97b9b0`,
+but was not installed because the existing physical A/B already rejects that
+policy for promotion. The full suite passed `201 passed, 3 skipped, 6 subtests
+passed`, and the Golden-v32 verifier remained PASS.
+
+**Result:** F05 is closed as a documented accepted-warning policy. No Golden
+mutation is pending; `settable-v1` remains quarantined for future isolated
+experiments only if new physical evidence justifies revisiting it.
 
 ### F06 — MEDIUM, narrowed 2026-08-23: only matched physical acoustic promotion gate remains
 
@@ -432,8 +451,8 @@ these deletions only after F01 clean replay and explicit manifest validation.
    machine-verifiable M6 gates are GREEN as of 2026-08-23.
 3. If stronger bass certainty is desired, repeat sub-315-Hz RAW work in a quiet
    controlled window; do not tune against the current low-confidence residual.
-4. Port the GET-only calibration filter as a future versioned topology change,
-   not a silent v32 mutation.
+4. **DONE 2026-08-23:** GET-only graph-calibration policy normalized (F05);
+   `windows-full` remains Golden-exact and `settable-v1` is explicit/quarantined.
 5. **DONE 2026-08-23:** manifest-driven disk/GRUB/build cleanup (F07);
    Golden v32 verifier PASS after cleanup.
 
