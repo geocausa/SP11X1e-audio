@@ -1,0 +1,112 @@
+{
+  "date": "2026-08-23",
+  "candidate_commit": "209ce0c",
+  "plugin_sha256": "b57d9cf7ef0482ab0c6cb3089d3d456dc034a66c4244b835ca97989883de8e2c",
+  "private_pack_sha256": "30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df",
+  "private_pack_static_window_sha256": "707722c70b5792b3e9d7a237f61dbc601f3c92c1e8638717c34118e723997e22",
+  "filter_chain_pid": 599944,
+  "filter_chain_process_time": "Sat Aug 22 23:11:09 2026   33491    09:18:11",
+  "continuous_activation": {
+    "start": "2026-08-22T23:11:10+01:00",
+    "greater_than_8_hours": true,
+    "restart_count": 0
+  },
+  "program_seek_lifecycle": {
+    "source": "The White Stripes - Seven Nation Army (Official Music Video).mp3",
+    "source_sha256": "951a65cc63fee17622485c1d94708614005524c7e20f86d3d815327f6bd0e8b3",
+    "endpoint": "effect_input.sp11_windows_dolby",
+    "visible_volume": 0.14,
+    "safety": "visible endpoint muted; exact endpoint DSP mute=1 confirmed by transaction helper",
+    "seeks": [
+      {
+        "from": 25.774388807,
+        "to": 55.0,
+        "after": 55.0
+      },
+      {
+        "from": 58.941199678,
+        "to": 12.0,
+        "after": 12.0
+      },
+      {
+        "from": 16.04277433,
+        "to": 90.0,
+        "after": 90.0
+      }
+    ],
+    "filter_pid_preserved": true,
+    "filter_restarts": 0,
+    "kernel_faults": 0,
+    "filter_fault_markers": 0,
+    "control_snapshot_preserved": {
+      "generation": [
+        9,
+        9
+      ],
+      "profile": "Custom",
+      "postgain": [
+        -467,
+        -467
+      ],
+      "postgain_generation": [
+        1,
+        1
+      ],
+      "last_error": 0
+    },
+    "restore": "visible mute cleared; endpoint DSP mute=0 confirmed on silent graph reopen; volume remained 0.14"
+  },
+  "physical_output_protection_telemetry": {
+    "program_source_sha256": "951a65cc63fee17622485c1d94708614005524c7e20f86d3d815327f6bd0e8b3",
+    "visible_volume": 0.14,
+    "duration_seconds": 30,
+    "endpoint_muted": false,
+    "debugfs_rows": 20,
+    "debugfs_active_rows": 18,
+    "rows_by_amp": {
+      "sdw:1:0:0217:0204:00:0": 10,
+      "sdw:1:0:0217:0204:00:1": 10
+    },
+    "active_pa_error_nonzero": 0,
+    "active_current_limit_override": 0,
+    "active_current_limit_codes": [
+      "17"
+    ],
+    "active_pa_values": [
+      "01"
+    ],
+    "active_status_pairs": [
+      [
+        "2f",
+        "00"
+      ]
+    ],
+    "active_error_pairs": [
+      [
+        "00",
+        "00"
+      ]
+    ],
+    "bounded_kernel_samples_per_amp": 40,
+    "bounded_failed_masks": [
+      "0x0"
+    ],
+    "kernel_faults": 0,
+    "filter_pid_preserved": true,
+    "filter_restarts": 0,
+    "observer_parameter_restored": 0
+  },
+  "owner_pack_reproduction": {
+    "builder": "ubig/tools/build_stageb_v4_pack.py",
+    "inputs_private_owner_supplied": true,
+    "output_bytes": 1139037,
+    "output_sha256": "30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df",
+    "byte_identical_to_active_pack": true,
+    "output_mode": "0600",
+    "private_payload_committed": false
+  },
+  "remaining": [
+    "matched physical Windows-vs-UbiG acoustic matrix / operator listening verdict"
+  ],
+  "result": "PASS_ALL_MACHINE_VERIFIABLE_M6_GATES_PHYSICAL_WINDOWS_ACOUSTIC_MATRIX_REMAINS"
+}

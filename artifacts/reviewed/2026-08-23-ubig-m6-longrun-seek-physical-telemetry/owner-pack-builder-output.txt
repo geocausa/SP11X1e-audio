@@ -1,0 +1,4 @@
+output=/tmp/sp11-stageb-v4-repro-2649415.pack
+bytes=1139037
+sha256=30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df
+static_sha256=707722c70b5792b3e9d7a237f61dbc601f3c92c1e8638717c34118e723997e22

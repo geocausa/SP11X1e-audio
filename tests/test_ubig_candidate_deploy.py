@@ -24,7 +24,7 @@ def test_candidate_prepare_and_switch_keep_deblob_and_rollback_gates():
     assert "candidate-control-check" in prepare
     assert "sp11-windows-volume-transaction-sync" in prepare
     assert "sp11-msiir-volume-sync" in prepare
-    assert "c993c123f2cb3b92776754da2383217e00b5f290664571f12cfb62b9afb3a175" in prepare
+    assert "30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df" in prepare
     assert "DolbyAPOVR\\.dll|DolbyAPOvlldp150\\.dll|sp11_pe_load" in prepare
     assert "MemoryDenyWriteExecute=yes" in switch
     assert "Environment=UBIG_CONTROL_FORMAT=ubig-v2" in switch

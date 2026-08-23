@@ -1,0 +1,24 @@
+[filter-chain]
+ActiveState=active
+SubState=running
+MainPID=599944
+NRestarts=0
+ExecMainStartTimestamp=Sat 2026-08-22 23:11:10 BST
+MemoryCurrent=20115456
+MemoryPeak=20852736
+[volume-transaction]
+ActiveState=active
+SubState=running
+MainPID=599940
+NRestarts=0
+ExecMainStartTimestamp=Sat 2026-08-22 23:11:10 BST
+[process]
+ 599944 Sat Aug 22 23:11:09 2026   33555    09:19:15  0.0  0.1 /usr/bin/pipewire -c filter-chain.conf
+[plugin]
+b57d9cf7ef0482ab0c6cb3089d3d456dc034a66c4244b835ca97989883de8e2c  /home/geoca/.local/lib/ubig-candidate/ubig-sp11-candidate.so
+[pack]
+30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df  /home/geoca/.local/share/ubig-private/sp11-stageb-v4.pack
+[observer]
+sp11_observe_samples=0
+[visible]
+Volume: 0.14
