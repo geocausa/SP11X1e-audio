@@ -1,0 +1,51 @@
+# F04 SP11 lifecycle trace teardown — pre-state
+captured=2026-08-23T08:09:40+01:00
+
+[service]
+enabled
+active
+ActiveState=active
+SubState=exited
+FragmentPath=/etc/systemd/system/sp11-wsa-boot-lifecycle-trace.service
+UnitFileState=enabled
+ExecMainStartTimestamp=Fri 2026-08-21 12:34:54 BST
+ExecMainPID=1033
+
+[hashes]
+23c14eb8606c26ffbcefb267f5f7d88db2d6c2aa70433b75ec0ab255312291ef  /etc/systemd/system/sp11-wsa-boot-lifecycle-trace.service
+674ceb77c93a7671f37b44b13322ce4c36c25cc78b46ddd3e036ca87ebffb51b  /usr/local/sbin/sp11-wsa-boot-lifecycle-trace
+
+[tracefs]
+tracing_on=1
+current_tracer=nop
+buffer_size_kb=8195
+
+[kprobe_events]
+p:sp11/sp11_wsa_hw_params wsa884x_hw_params substream=%x0:u64 params=%x1:u64 dai=%x2:u64
+p:sp11/sp11_wsa_mute wsa884x_mute_stream dai=%x0:u64 mute=%x1:s32 stream=%x2:s32
+p:sp11/sp11_wsa_spkr_event wsa884x_spkr_event widget=%x0:u64 event=%x2:u32
+p:sp11/sp11_macro_interp wsa_macro_enable_interpolator widget=%x0:u64 event=%x2:u32
+p:sp11/sp11_swr_hw_params qcom_swrm_hw_params substream=%x0:u64 params=%x1:u64 dai=%x2:u64
+p:sp11/sp11_swr_suspend swrm_runtime_suspend dev=%x0:u64
+p:sp11/sp11_swr_resume swrm_runtime_resume dev=%x0:u64
+p:sp11/sp11_sdw_prepare sdw_prepare_stream stream=%x0:u64
+p:sp11/sp11_sdw_enable sdw_enable_stream stream=%x0:u64
+p:sp11/sp11_sdw_disable sdw_disable_stream stream=%x0:u64
+p:sp11/sp11_sdw_deprepare sdw_deprepare_stream stream=%x0:u64
+
+[set_event]
+sp11:sp11_sdw_deprepare
+sp11:sp11_sdw_disable
+sp11:sp11_sdw_enable
+sp11:sp11_sdw_prepare
+sp11:sp11_swr_resume
+sp11:sp11_swr_suspend
+sp11:sp11_swr_hw_params
+sp11:sp11_macro_interp
+sp11:sp11_wsa_spkr_event
+sp11:sp11_wsa_mute
+sp11:sp11_wsa_hw_params
+
+[non_sp11_enabled_events]
+
+[instances]

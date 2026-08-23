@@ -1,0 +1,26 @@
+# F04 SP11 lifecycle trace teardown — post-state
+captured=2026-08-23T08:11:26+01:00
+
+[service]
+enabled=disabled
+active=inactive
+
+[tracefs]
+tracing_on=0
+current_tracer=nop
+buffer_size_kb=8195
+sp11_event_dir=absent
+sp11_kprobe_count=0
+all_kprobe_count=0
+set_event_lines=0
+non_sp11_enabled_event_count=0
+trace_instance_count=0
+
+[retained provenance hashes]
+23c14eb8606c26ffbcefb267f5f7d88db2d6c2aa70433b75ec0ab255312291ef  /etc/systemd/system/sp11-wsa-boot-lifecycle-trace.service
+674ceb77c93a7671f37b44b13322ce4c36c25cc78b46ddd3e036ca87ebffb51b  /usr/local/sbin/sp11-wsa-boot-lifecycle-trace
+
+[runtime sanity]
+kernel=7.1.5-sp11-render-parity-v4+
+filter_chain= 599944 /usr/bin/pipewire -c filter-chain.conf
+kernel_audio_fault_matches_since_teardown:

@@ -199,23 +199,34 @@ would leave hashes without the underlying capture.
 acoustic set locally, with transfer ZIP hashes and extraction counts. Keep the
 SP7 originals.
 
-### F04 — MEDIUM: diagnostic lifecycle kprobes remain armed on the daily driver
+### F04 — CLOSED 2026-08-23: diagnostic lifecycle kprobes disarmed
 
-**Where:** enabled `sp11-wsa-boot-lifecycle-trace.service`,
-`/usr/local/sbin/sp11-wsa-boot-lifecycle-trace`, tracefs group `sp11`.
+**Where:** `sp11-wsa-boot-lifecycle-trace.service`,
+`/usr/local/sbin/sp11-wsa-boot-lifecycle-trace`, tracefs group `sp11`, and
+`artifacts/reviewed/2026-08-23-f04-lifecycle-trace-teardown/`.
 
-**What:** Eleven read-only lifecycle kprobes are armed, tracing is on, and an
-8192-KB trace buffer is reserved. The probes do not write codec registers and
-there is no observed audio fault, but this is diagnostic state rather than a
-production requirement.
+**Pre-state:** The service was enabled and active/exited since the Aug-21 boot.
+Tracefs had `tracing_on=1`, `current_tracer=nop`, an 8195-KB buffer and eleven
+enabled `sp11/*` kprobes. `set_event` contained exactly those eleven events.
+A root-side inventory found no enabled non-SP11 trace events, no trace
+instances and no process holding tracefs open. A bounded trace tail confirmed
+the probes were still firing on normal PipeWire playback lifecycle activity.
 
-**Why it matters:** It adds avoidable tracing overhead, occupies global ftrace
-state and can confuse later experiments about which observer owns tracing.
+**Action:** The exact unit, arming script, hashes, probe definitions and bounded
+trace tail were preserved first. The `sp11` event group was then disabled,
+global tracing was stopped only after confirming there was no other tracing
+owner, and exactly the eleven `sp11/*` probes were removed. The arming service
+was stopped and disabled without deleting its unit or script.
 
-**Required closure:** after preserving the trace/service provenance, explicitly
-disable the event group, remove only `sp11/*` probes, disable the service and
-verify no other tracing owner is active. This can be done without reboot, but
-was not mixed into this read-only runtime audit.
+**Post-state:** `sp11-wsa-boot-lifecycle-trace.service` is disabled/inactive;
+`tracing_on=0`; `current_tracer=nop`; `events/sp11` is absent; there are zero
+SP11 kprobes, zero total dynamic kprobes, zero `set_event` entries, zero enabled
+non-SP11 events and zero trace instances. The retained unit/script hashes remain
+`23c14eb8606c26ffbcefb267f5f7d88db2d6c2aa70433b75ec0ab255312291ef`
+and `674ceb77c93a7671f37b44b13322ce4c36c25cc78b46ddd3e036ca87ebffb51b`.
+The UbiG filter-chain process remained at PID 599944 and no PA/SoundWire/XRUN,
+canonical GLINK-timeout, kernel Oops or call-trace match appeared after teardown.
+No reboot or live audio graph restart was required.
 
 ### F05 — LOW: one known GET-only record still produces aggregate SET_CFG noise
 
@@ -357,8 +368,7 @@ No deletion was performed in this audit.
    controlled window; do not tune against the current low-confidence residual.
 4. Port the GET-only calibration filter as a future versioned topology change,
    not a silent v32 mutation.
-5. Disarm stale diagnostic kprobes and then perform manifest-driven disk/GRUB
-   cleanup.
+5. Perform manifest-driven disk/GRUB cleanup now that F01 and F04 are closed.
 
 Suspend/resume, microphone capture on SP11 and Bluetooth remain deliberately
 outside the built-in-speaker sound-quality gate.

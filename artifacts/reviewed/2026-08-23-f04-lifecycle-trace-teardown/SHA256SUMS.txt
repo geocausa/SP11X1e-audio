@@ -1,0 +1,5 @@
+76aec751e28ade3d0aab6c406638eda78e3cfc014f9af9aa02784838d3f300be  artifacts/reviewed/2026-08-23-f04-lifecycle-trace-teardown/POST-STATE.txt
+0b31a4ec1b21432c7af95e7d736c9597e93601468b897e5eb3d11486901170ca  artifacts/reviewed/2026-08-23-f04-lifecycle-trace-teardown/PRE-STATE.txt
+674ceb77c93a7671f37b44b13322ce4c36c25cc78b46ddd3e036ca87ebffb51b  artifacts/reviewed/2026-08-23-f04-lifecycle-trace-teardown/sp11-wsa-boot-lifecycle-trace
+23c14eb8606c26ffbcefb267f5f7d88db2d6c2aa70433b75ec0ab255312291ef  artifacts/reviewed/2026-08-23-f04-lifecycle-trace-teardown/sp11-wsa-boot-lifecycle-trace.service
+b6592f013ccaba2452060316ecbe705cf5e0a053ce2b37076a6766156a441cd9  artifacts/reviewed/2026-08-23-f04-lifecycle-trace-teardown/trace-tail-before-teardown.txt
