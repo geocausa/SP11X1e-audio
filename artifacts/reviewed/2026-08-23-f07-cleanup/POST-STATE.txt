@@ -1,0 +1,38 @@
+# F07 manifest-driven cleanup — post-state
+completed=2026-08-23
+
+[boot/grub]
+initial_sp11_grub_fragments=29
+final_sp11_grub_fragments=4
+removed_sp11_grub_fragments=25
+initial_sp11_boot_dirs=26
+final_sp11_boot_dirs=4
+removed_sp11_boot_dirs=22
+removed_boot_payload_apparent_size=4.4G
+kept_menu_ids=sp11-audio-v32-feedback-exact-golden,sp11-audio-golden-v31,sp11-audio-golden-v28,sp11-audio-cps-v3
+saved_entry=sp11-audio-v32-feedback-exact-golden
+keeper_file_hashes=24/24 PASS
+
+[kernel workspace]
+peak_observed_workspace_before_cleanup=129G
+final_workspace=56G
+removed_object_trees=build-softpause-full-20260813(32G),build-cps-v3-20260811(32G),build-audio-powerlab-20260810(5.4G)
+old_kitchen_compact_provenance_preserved=yes
+candidate_tree_before=25G
+candidate_tree_after=6.0G
+candidate_generated_payload_items_removed=302
+candidate_generated_payload_manifest_bytes=20315453840
+preserved_candidate_classes=source,provenance,psycho-acoustic-evidence
+retained_clean_replay_tree=.golden-v32-repro (~33G)
+retained_pristine_base=linux-7.1.5
+
+[disk]
+pre_cleanup_observed=96% used, ~12G free
+post_cleanup=60% used, ~103G free
+
+[final validation]
+Golden v32 verifier=PASS
+live kernel srcversions=PASS 5/5
+v32 feedback parameters active=PASS
+reboot_performed=no
+running Golden boot files modified=no

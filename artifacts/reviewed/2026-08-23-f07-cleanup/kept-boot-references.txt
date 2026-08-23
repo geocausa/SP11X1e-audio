@@ -1,0 +1,8 @@
+## /boot/sp11-7.1.5-audio-v32-feedback-exact-golden
+/etc/grub.d/81_sp11_audio_v32_feedback_exact_golden
+## /boot/sp11-7.1.5-audio-golden-v31-ckv-delta
+/etc/grub.d/97_sp11_audio_golden_v31
+## /boot/sp11-7.1.5-audio-rpv4-macro84-winproducer-nohd2-wsa-windows-3state-retain-dp2offset2-v28-idlegated
+/etc/grub.d/98_sp11_audio_golden_v28
+## /boot/sp11-7.1.5-audio-cps-v3
+/etc/grub.d/58_sp11_audio_cps_v3

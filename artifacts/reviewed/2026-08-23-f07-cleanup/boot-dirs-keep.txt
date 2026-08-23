@@ -1,0 +1,4 @@
+/boot/sp11-7.1.5-audio-cps-v3
+/boot/sp11-7.1.5-audio-golden-v31-ckv-delta
+/boot/sp11-7.1.5-audio-rpv4-macro84-winproducer-nohd2-wsa-windows-3state-retain-dp2offset2-v28-idlegated
+/boot/sp11-7.1.5-audio-v32-feedback-exact-golden

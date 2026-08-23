@@ -1,0 +1,17 @@
+fc4e4af8bec4fa8ab6425d134d2e709c4bbdfbd1a2145a7c2e5ea49d4e78c481  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-audio-powerlab-20260810/compile.h
+362c3d70d5e11f3fd70b4483a8cc19c8e1d2c9f5b6cf0b1633d5c7a05b01b8df  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-audio-powerlab-20260810/config
+e06a7a6233b372c771e6ad71d4b744d1c02fb888cc85d82de3f5a648be56eb37  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-audio-powerlab-20260810/kernel.release
+1cfac9dc3cf26560e16821112b7eb13cfb21f0b8e59b650767b012ad75a09176  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-audio-powerlab-20260810/Module.symvers.zst
+afeb72a5a5cd4e8f4fb328239e03f8b23353713c141853d158be035291ad071f  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-audio-powerlab-20260810/PROVENANCE.txt
+fc4e4af8bec4fa8ab6425d134d2e709c4bbdfbd1a2145a7c2e5ea49d4e78c481  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-cps-v3-20260811/compile.h
+f2e5113d24b20b915035cdbc57e91534c40b8a1dce64427b69d114c2d9d30543  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-cps-v3-20260811/config
+80a2bf80e301495bbb875310c61b346a902729ab04fcf312762be57ac3575ae7  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-cps-v3-20260811/kernel.release
+f642ffb7f464a8dca76cc52e6f90f9222ec5059f8d734504f2996ff2b6aa31c3  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-cps-v3-20260811/Module.symvers.zst
+4f3386146bf7da028e0318c926834d2cd5e7dc5516739782b0a59ce8549f8dc0  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-cps-v3-20260811/PROVENANCE.txt
+6eaf33da5cbe92fee8752ef20fafed5ae3598bb14137ae294a52659068e04880  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-cps-v3-20260811/utsversion.h
+fc4e4af8bec4fa8ab6425d134d2e709c4bbdfbd1a2145a7c2e5ea49d4e78c481  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-softpause-full-20260813/compile.h
+4fed1ee935cff7589ed2941d0bf2ddec4ddd2a03d919b9dc30ce20f5d85665ca  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-softpause-full-20260813/config
+bc5ff6d1eb61ff6a4472bda36cab704e308a5bfabc8fe9a1a4cae7aeee8d072d  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-softpause-full-20260813/kernel.release
+a283aa558a5032965fe440e069195bd50076d64bbc0d8395453481eec47b9091  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-softpause-full-20260813/Module.symvers.zst
+b5e985bc09191d2db15c285c3f16686c2f8891e65302c6125607442438c38cb8  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-softpause-full-20260813/PROVENANCE.txt
+c600cd4498bd0ad2eb05f43ef29222382c183b04fdfbbe11eb512b5a5f18de41  artifacts/reviewed/2026-08-23-f07-cleanup/old-kitchens/build-softpause-full-20260813/utsversion.h

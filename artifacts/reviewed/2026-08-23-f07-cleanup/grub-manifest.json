@@ -1,0 +1,234 @@
+[
+  {
+    "fragment": "/etc/grub.d/58_sp11_audio_cps_v3",
+    "id": "sp11-audio-cps-v3",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-cps-v3"
+    ],
+    "action": "KEEP"
+  },
+  {
+    "fragment": "/etc/grub.d/81_sp11_audio_v32_feedback_exact_golden",
+    "id": "sp11-audio-v32-feedback-exact-golden",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v32-feedback-exact-golden"
+    ],
+    "action": "KEEP"
+  },
+  {
+    "fragment": "/etc/grub.d/82_sp11_audio_v31_postpa_offset2_cpswake_tap3",
+    "id": "sp11-audio-v31-postpa-offset2-cpswake-tap3",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-wsa-protclk-postpa-offset2-cpswake-fwselect"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/83_sp11_audio_v31_postpa_offset2_tap3",
+    "id": "sp11-audio-v31-postpa-offset2-tap3",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-wsa-protclk-postpa-offset2-fwselect"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/83_sp11_audio_v31_wsa_protclk_postpa_offset2",
+    "id": "sp11-audio-v31-wsa-protclk-postpa-offset2",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-wsa-protclk-postpa-offset2"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/84_sp11_audio_v31_postpa_offset2_tap2",
+    "id": "sp11-audio-v31-postpa-offset2-tap2",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-wsa-protclk-postpa-offset2-fwselect"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/84_sp11_audio_v31_wsa_protclk_postpa",
+    "id": "sp11-audio-v31-wsa-protclk-postpa",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-wsa-protclk-postpa"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/86_sp11_audio_v31_stm_hwd4_probe",
+    "id": "sp11-audio-v31-stm-hwd4-probe",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-stm-hwd4-probe"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/87_sp11_audio_v31_dp14_tap3forced",
+    "id": "sp11-audio-v31-dp14-tap3forced",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-dp14-tap3forced"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/87_sp11_audio_v31_feedback_active_offset2_zero",
+    "id": "sp11-audio-v31-feedback-active-offset2-zero",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-feedback-active-offset2-zero"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/88_sp11_audio_v31_dp14_tap2forced",
+    "id": "sp11-audio-v31-dp14-tap2forced",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-dp14-tap2forced"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/88_sp11_audio_v31_feedback_offset2_tap3forced",
+    "id": "sp11-audio-v31-feedback-offset2-tap3forced",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-feedback-offset2-tap3forced"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/89_sp11_audio_v31_dp14_shadow",
+    "id": "sp11-audio-v31-dp14-shadow",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-dp14-shadow"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/89_sp11_audio_v31_feedback_offset2_tap2forced",
+    "id": "sp11-audio-v31-feedback-offset2-tap2forced",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-feedback-offset2-tap2forced"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/90_sp11_audio_v31_hostclk_pcm105c",
+    "id": "sp11-audio-v31-hostclk-pcm105c",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-hostclk-pcm105c"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/91_sp11_audio_v31_cps_pcm_105c_tap3_clock312",
+    "id": "sp11-audio-v31-cps-pcm-105c-tap3-clock312",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-cps-pcm-port-ctrl-105c"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/91_sp11_audio_v31_wsa_host_clk_div2",
+    "id": "sp11-audio-v31-wsa-host-clk-div2",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-wsa-host-clk-div2"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/91_sp11_audio_v31_wsa_protclk_offset2_combo",
+    "id": "sp11-audio-v31-wsa-protclk-offset2-combo",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-wsa-protclk-offset2-combo"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/92_sp11_audio_v31_cps_pcm_port_ctrl_105c",
+    "id": "sp11-audio-v31-cps-pcm-port-ctrl-105c",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-cps-pcm-port-ctrl-105c"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/92_sp11_audio_v31_wsa_protclk_machine_oracle",
+    "id": "sp11-audio-v31-wsa-protclk-machine-oracle",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-wsa-protclk-machine-oracle"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/93_sp11_audio_v31_cps_pcm_port_ctrl",
+    "id": "sp11-audio-v31-cps-pcm-port-ctrl",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-cps-pcm-port-ctrl"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/93_sp11_audio_v31_wsa_protclk_oracle",
+    "id": "sp11-audio-v31-wsa-protclk-oracle",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-wsa-protclk-oracle"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/94_sp11_audio_v31_feedback_poststart_v2",
+    "id": "sp11-audio-v31-feedback-poststart-v2",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-feedback-poststart-v2"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/94_sp11_audio_v31_postpa_offset2_cpswake_canonical",
+    "id": "sp11-audio-v31-postpa-offset2-cpswake-canonical",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-wsa-protclk-postpa-offset2-cpswake-fwselect"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/95_sp11_audio_v31_feedback_poststart",
+    "id": "sp11-audio-v31-feedback-poststart",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-feedback-poststart"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/95_sp11_audio_v31_vi_macro_diag",
+    "id": "sp11-audio-v31-vi-macro-diag",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-vi-macro-diag"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/96_sp11_audio_v31_tap3diag",
+    "id": "sp11-audio-v31-tap3diag",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-v31-tap3diag"
+    ],
+    "action": "REMOVE"
+  },
+  {
+    "fragment": "/etc/grub.d/97_sp11_audio_golden_v31",
+    "id": "sp11-audio-golden-v31",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-golden-v31-ckv-delta"
+    ],
+    "action": "KEEP"
+  },
+  {
+    "fragment": "/etc/grub.d/98_sp11_audio_golden_v28",
+    "id": "sp11-audio-golden-v28",
+    "bootdirs": [
+      "/boot/sp11-7.1.5-audio-rpv4-macro84-winproducer-nohd2-wsa-windows-3state-retain-dp2offset2-v28-idlegated"
+    ],
+    "action": "KEEP"
+  }
+]

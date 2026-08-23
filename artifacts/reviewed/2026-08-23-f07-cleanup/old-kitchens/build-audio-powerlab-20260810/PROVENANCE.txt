@@ -1,0 +1,5 @@
+path=/home/geoca/Documents/SP11-PROJECT/02-kernel/build-audio-powerlab-20260810
+size=5.4G
+config_sha256=362c3d70d5e11f3fd70b4483a8cc19c8e1d2c9f5b6cf0b1633d5c7a05b01b8df
+module_symvers_sha256=24a30af19eb720cef7592fb2a9e2b14e01900f08ea259c513f8c0ca3b7bc3058
+kernelrelease=7.1.5-sp11-audio-clean+

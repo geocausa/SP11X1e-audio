@@ -1,0 +1,12 @@
+path=/home/geoca/Documents/SP11-PROJECT/02-kernel/build-cps-v3-20260811
+size=32G
+config_sha256=f2e5113d24b20b915035cdbc57e91534c40b8a1dce64427b69d114c2d9d30543
+module_symvers_sha256=e4505d0471a9e9d9c181b3e2723ac99613dfb98d827685e85f02cdd87ab47b5a
+kernelrelease=7.1.5-sp11-cps-v3
+vmlinux_size=566365816
+vmlinux_sha256=c952224c79b1c4e3b8abb472f8acde6805a4b334f28583a2f2a3875a5743da84
+[modules]
+sound/soc/codecs/snd-soc-lpass-wsa-macro.ko srcversion=F681186BB3D24B32621905D sha256=dd5d18c650610137b2e2d2f1f56661592d879489f51c94ae2d00b6f98822844e
+drivers/soundwire/soundwire-qcom.ko srcversion=406975A3ED60935B31491BF sha256=6c857e50f39818622e2c0c6c2afe3724799afe177078ce8d5da318f0036fbada
+sound/soc/qcom/snd-soc-x1e80100.ko srcversion=13326073E27DFA035180C56 sha256=9b9f4fda692c68807e19161e65eb596df288d25d2878a37623ffa7ce848f2b45
+sound/soc/qcom/qdsp6/snd-q6apm.ko srcversion=33A967D3234788A8A777592 sha256=bfac37578c4432b56b6d283807a3a1290324998b881e4c28c3a4e40a113dda66

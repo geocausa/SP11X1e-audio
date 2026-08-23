@@ -1,0 +1,12 @@
+path=/home/geoca/Documents/SP11-PROJECT/02-kernel/build-softpause-full-20260813
+size=32G
+config_sha256=4fed1ee935cff7589ed2941d0bf2ddec4ddd2a03d919b9dc30ce20f5d85665ca
+module_symvers_sha256=251db699b2576d81c4d37d316a048f2a057955f4bfde9bed2465382010498ae4
+kernelrelease=7.1.5-sp11-render-parity-v4+
+vmlinux_size=566276104
+vmlinux_sha256=5bd01eaf8ec49a5f7be54fcfc4b413b211456b5268c5131b8ada3d692dead2a6
+[modules]
+sound/soc/codecs/snd-soc-lpass-wsa-macro.ko srcversion=F32C7A03F713D1B20F0BF78 sha256=e08fbba386b928d3c402e2f57fdef70b377270e613be3369f3591aca750235ca
+drivers/soundwire/soundwire-qcom.ko srcversion=406975A3ED60935B31491BF sha256=d677453dba928949e5b70471050eb1b9cf346b5bbf73c783905c20e81fb962b9
+sound/soc/qcom/snd-soc-x1e80100.ko srcversion=13326073E27DFA035180C56 sha256=36631039c029a5ce5df2adc52a05d0f7cacaa7c282c2daee802b97eb34e4f043
+sound/soc/qcom/qdsp6/snd-q6apm.ko srcversion=71CDE1039F9209C3B0E89E0 sha256=1872ba015beb7b684ca21a4ed23cfdeaadb265663b30c0ae4d3a5156e89dd373

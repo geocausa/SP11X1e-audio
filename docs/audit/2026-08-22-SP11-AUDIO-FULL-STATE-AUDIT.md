@@ -271,33 +271,49 @@ candidate activation, longer physical-output PA/protection telemetry, and a
 public/reproducible owner-pack generation/distribution story. Golden rollback
 must remain installed until these pass.
 
-### F07 — MEDIUM: diagnostic boot/build clutter consumes substantial space
+### F07 — CLOSED 2026-08-23: diagnostic boot/build clutter cleaned
 
-**Where:** `/boot`, `/etc/grub.d`, `02-kernel`.
+**Where:** `/boot`, `/etc/grub.d`, `02-kernel`, and
+`artifacts/reviewed/2026-08-23-f07-cleanup/`.
 
-**What:** There are 29 SP11 audio GRUB fragments and roughly two dozen v31
-diagnostic boot directories, mostly 179–201 MB each plus a 472-MB DP14 shadow
-and 660-MB CPS-v3 rescue. The kernel workspace is 112 GB, dominated by:
+**Pre-state:** There were 29 SP11 GRUB fragments and 26 SP11 boot directories.
+The kernel workspace reached roughly 129 GB during the F01 clean replay, with
+only about 12 GB filesystem free space at 96% usage. The largest obsolete
+objects were the 32-GB soft-pause build, the 32-GB CPS-v3 build, the 5.4-GB
+power-lab build and a 25-GB candidate tree dominated by duplicate initrd,
+verification and module payloads.
 
-- `build-softpause-full-20260813` — 32 GB;
-- `build-cps-v3-20260811` — 32 GB;
-- `candidates/` — 25 GB;
-- `build-audio-powerlab-20260810` — 5.4 GB;
-- source snapshots — several 1.8–2.4 GB trees;
-- `v3-runtime-backups` — 1.9 GB.
+**Manifest and rollback policy:** The cleanup retained exactly four boot menu
+IDs and their boot directories: Golden v32 (current/saved), Golden v31, Golden
+v28 and CPS-v3 rescue. The manifest accounted for every SP11 boot directory and
+fragment before deletion. There were no symlinks under the SP11 boot trees, and
+the current `/proc/cmdline` plus GRUB environment both identified Golden v32.
+Hashes of all 24 files in the four retained boot trees were captured before
+cleanup and verified unchanged afterward.
 
-**Dependency result:** Golden v32 is self-contained and hash-pinned in its own
-boot directory. Its files are regular files, not symlinks into diagnostic boot
-directories. Deleting unrelated diagnostic entries later will not break the
-current v32 entry. Keep v31, v28 and CPS-v3 until the operator chooses a smaller
-rollback set.
+**Action:** Twenty-five disposable/diagnostic GRUB fragments and 22 matching
+boot directories were removed, reclaiming about 4.4 GB, then `update-grub`
+regenerated a menu containing only the four retained SP11 IDs. Compact
+provenance (`.config`, `Module.symvers`, kernel-release/compiler metadata and
+key hashes) was preserved before deleting the obsolete 32-GB soft-pause,
+32-GB CPS-v3 and 5.4-GB power-lab object trees. In `candidates/`, an explicit
+302-item manifest removed generated initrd/unpack/verify/extract trees and
+standalone candidate initrd/vmlinuz/module copies (about 20.3 GB of manifested
+payload) while preserving source, provenance and psycho-acoustic evidence.
+The candidate tree shrank from 25 GB to 6.0 GB.
 
-**Required closure:** F01 is complete, so manifest-driven cleanup is now
-unblocked. Retain `repro/golden-v32/`, the reviewed F01 closure evidence, the
-hash-pinned pristine Linux 7.1.5 base, one clean replay work tree while cleanup
-is being reviewed, and the operator-selected rollback boot set. Then remove
-rejected candidate initrd trees/modules and their matching `/etc/grub.d`
-fragments in one reviewed manifest-driven cleanup.
+**Post-state:** `02-kernel` is 56 GB, including the retained ~33-GB successful
+clean Golden-v32 replay tree and pristine Linux 7.1.5 base. Filesystem usage is
+about 60% with roughly 103 GB free. `/boot` and `/etc/grub.d` each contain only
+the four selected SP11 rollback/current entries, and `saved_entry` remains
+`sp11-audio-v32-feedback-exact-golden`. The Golden-v32 verifier passed after
+cleanup, including all five live module srcversions and the v32 feedback
+parameters. No reboot occurred and no running Golden boot artifact was changed.
+
+**Result:** the audit's storage/boot clutter finding is closed. Smaller source,
+staging and historical backup trees remain intentionally because they are
+provenance/evidence rather than the rejected duplicate payload class targeted
+by F07.
 
 ### F08 — LOW: old condition-skipped services and one redundant SP7 file remain
 
@@ -347,15 +363,17 @@ when its absence is demonstrated.
 - both new SP7 preservation archives and original SP7 evidence;
 - private UbiG owner pack while the candidate is under test.
 
-### Likely removable now after a manifest review
+### Removed in the 2026-08-23 F07 follow-up
 
 - forced TAP2/TAP3, DP14, host-clock, post-start, active-Offset2 and other
-  rejected/diagnostic `/boot` directories plus their exact GRUB fragments;
-- unpacked initrd copies duplicated inside rejected candidate directories;
-- obsolete object trees once one exact-v32 clean rebuild tree has passed;
-- condition-skipped diagnostic service units after their provenance is kept.
+  rejected/diagnostic `/boot` directories plus 25 exact GRUB fragments;
+- generated initrd/unpack/verify/extract and duplicate module payloads inside
+  rejected candidate directories, via the reviewed 302-item manifest;
+- obsolete 32-GB soft-pause, 32-GB CPS-v3 and 5.4-GB power-lab object trees,
+  after compact build provenance was preserved.
 
-No deletion was performed in this audit.
+The original read-only audit deleted nothing; the later F07 closure performed
+these deletions only after F01 clean replay and explicit manifest validation.
 
 ## Completion gates after this audit
 
@@ -368,7 +386,8 @@ No deletion was performed in this audit.
    controlled window; do not tune against the current low-confidence residual.
 4. Port the GET-only calibration filter as a future versioned topology change,
    not a silent v32 mutation.
-5. Perform manifest-driven disk/GRUB cleanup now that F01 and F04 are closed.
+5. **DONE 2026-08-23:** manifest-driven disk/GRUB/build cleanup (F07);
+   Golden v32 verifier PASS after cleanup.
 
 Suspend/resume, microphone capture on SP11 and Bluetooth remain deliberately
 outside the built-in-speaker sound-quality gate.
@@ -379,5 +398,6 @@ outside the built-in-speaker sound-quality gate.
 - refreshed the workspace README and current-Golden pointer;
 - preserved the missing SP7 audit and v32 acoustic evidence locally;
 - added this audit and a v32 warning banner to the canonical render ledger;
-- did not reboot, arm a one-shot boot, replace runtime audio components or
-  delete rollback/build data.
+- later closed F04 and F07 without rebooting or replacing runtime audio
+  components; F07 retained the selected v32/v31/v28/CPS-v3 rollback set and
+  removed only manifest-reviewed diagnostic/build payloads.
