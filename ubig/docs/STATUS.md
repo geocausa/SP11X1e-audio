@@ -1,4 +1,4 @@
-# UbiG status — 2026-08-22
+# UbiG status — 2026-08-23
 
 Branch: `ubig/deblob-main`
 Workspace: `/home/geoca/Documents/SP11-PROJECT/03-UbiG`
@@ -25,8 +25,10 @@ The installed package queued an unchanged Movie request on the active
 candidate, advanced generation `3 -> 4`, received acknowledgement `4 / 4`, and
 preserved filter-chain PID `180679` with no new kernel PA/SoundWire/XRUN/GLINK
 fault or userspace NaN/Inf/crash marker. This closes the usable GEQ/control
-deliverable. Seek, physical acoustics, longer protection observation and the
-eight-hour run remain promotion evidence only.
+deliverable. The later 2026-08-23 M6 campaign also closed seek, longer
+protection observation, >8-hour stability and the fresh matched physical
+Windows-vs-UbiG acoustic matrix. Only the operator's subjective promotion
+verdict remains.
 
 ## Built-in profile retarget regression correction — v4 owner pack
 
@@ -106,7 +108,7 @@ The preserved Dynamic cold-start Stage-A scheduler fixture is now 3,072 / 3,072 
 
 ## Integration boundary
 
-Do not install UbiG into the live PipeWire path yet. Golden v32 remains the protected production baseline until the native userspace integration/promotion gate is explicitly passed.
+The disposable UbiG candidate is now active in the live PipeWire path for qualification, but it is **not promoted**. Golden v32 remains the protected production baseline and exact rollback until the operator explicitly accepts the listening A/B and requests promotion.
 
 ## Stage-A multiband compressor primitives — checkpoint 3
 
@@ -795,3 +797,30 @@ The remaining production-relevant VLLDP endpoint-volume control has now been loc
 `ubig_engine_set_postgain()` now owns this control in the recovered raw domain `[-1200,0]` (DAX Q4 dB, i.e. -75..0 dB). Each engine gets a mutable copy of the otherwise immutable five-float Stage-A runtime vector; the setter changes only lane 1 and preserves adapter, filterbank, compressor and limiter history. Default zero remains byte-identical to the prior engine behavior.
 
 A private original-VLLDP scheduler oracle was made postgain-selectable and compared directly with the public UbiG engine. Representative values spanning the entire range (`0,-1,-2,-3,-4,-5,-8,-10,-12,-16,-20,-24,-32,-40,-48,-50,-64,-80,-96,-100,-128,-200,-385,-423,-545,-595,-900,-950,-1000,-1100,-1199,-1200`) are **bit-exact** on the 2,048-frame deterministic corpus. A second matrix over postgains `{0,-1,-10,-50,-385,-595,-1200}` and host schedules `64`, `480`, `1024`, `127/353`, and `31/225/480/17/777` is also bit-exact. Direct compressor range checks remain state/row/telemetry bit-exact through `-1200`. Public lifecycle regression hash: `118d9bc2d1524da1`.
+
+## M6 fresh Windows physical acoustic gate — 2026-08-23
+
+The final objective promotion gate is now GREEN. A one-shot EFI boot into native
+Windows was used to avoid comparing UbiG against stale room/microphone geometry.
+The Windows Dolby Access settings hive independently reports Movie profile with
+Intelligent EQ Off. Windows and UbiG then ran the exact same deterministic
+consumer-matrix-v3 source at 25%, two passes each, with the same SP7 RAW
+microphone endpoint at 0.000 dB gain and same-run digital normalization.
+
+On common repeat-stable rows, normalized physical/digital transfer differs by
+**0.227030 dB MAE from 315 Hz up** and **0.221240 dB from 630 Hz up**, with
+near-zero bias. The 0.05 -> 0.20 level-law comparison is **0.264778 dB MAE**
+across ten common stable frequency/channel pairs. The fresh matrix therefore
+closes the objective physical acoustic gate.
+
+After returning to Linux, Golden-v32 verification passes, the saved GRUB default
+remains Golden v32, the one-shot BootNext is cleared, and the user's saved
+Custom 20-band EQ / 14% endpoint is restored exactly. Public candidate-control
+and Python regressions remain GREEN (`211 passed, 3 skipped, 6 subtests
+passed`).
+
+The operator also heard consecutive native-Windows and UbiG Movie/10%
+19-49-second *Seven Nation Army* excerpts. No subjective verdict is inferred
+from playback alone. UbiG therefore remains a disposable candidate until the
+operator explicitly accepts that A/B and requests promotion. Full reviewed
+evidence: `docs/findings/2026-08-23-UBIG-M6-FRESH-WINDOWS-ACOUSTIC-GATE.md`.

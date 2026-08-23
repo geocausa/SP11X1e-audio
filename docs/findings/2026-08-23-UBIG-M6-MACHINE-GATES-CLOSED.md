@@ -4,7 +4,7 @@ Date: 2026-08-23
 Candidate: `209ce0c` + documentation/test checkpoint from this finding
 Plugin SHA-256: `b57d9cf7ef0482ab0c6cb3089d3d456dc034a66c4244b835ca97989883de8e2c`
 Private Stage-B v4 pack SHA-256: `30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df`
-Result: **all machine-verifiable M6 gates PASS; matched physical Windows acoustic verdict remains**
+Result: **all machine-verifiable M6 gates PASS; this checkpoint is superseded by the later fresh physical acoustic PASS**
 
 The active source-owned candidate has now passed the M6 gates that can be
 established without pretending a digital measurement is a physical Windows
@@ -89,12 +89,14 @@ material.
 One stale deployment test still pinned the retired v3 pack hash; it was updated
 to the reviewed v4 hash and the suite returned GREEN.
 
-## Remaining promotion gate
+## Superseded remaining-gate note
 
-Only the matched **physical Windows-vs-UbiG acoustic matrix / operator listening
-verdict** remains before UbiG can be considered for Golden promotion and before
-the Windows userspace bridge can be retired. Golden v32 rollback therefore
-remains installed and untouched.
+The matched physical Windows-vs-UbiG matrix was completed later on 2026-08-23
+and passed. See
+`docs/findings/2026-08-23-UBIG-M6-FRESH-WINDOWS-ACOUSTIC-GATE.md`. Only the
+operator's explicit subjective listening/promotion verdict remains before the
+Windows userspace bridge may be retired. Golden v32 rollback remains installed
+and untouched.
 
-Machine-readable/raw evidence is under
+Machine-readable/raw evidence for this earlier machine checkpoint is under
 `artifacts/reviewed/2026-08-23-ubig-m6-longrun-seek-physical-telemetry/`.
