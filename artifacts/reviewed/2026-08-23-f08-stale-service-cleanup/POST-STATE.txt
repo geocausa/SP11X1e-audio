@@ -1,0 +1,26 @@
+# F08 stale service/SP7 housekeeping — post-state
+captured=2026-08-23T08:33:55+01:00
+[local units]
+sp11-audio-first-boot.service enabled=disabled
+sp11-audio-first-boot.service active=inactive
+sp11-tap3diag-restore.service enabled=disabled
+sp11-tap3diag-restore.service active=inactive
+sp11-wsa-ucm31-v7-overlay.service enabled=disabled
+sp11-wsa-ucm31-v7-overlay.service active=inactive
+sp11-audio-v32-verify.service enabled=enabled
+sp11-audio-v32-verify.service active=active
+sp11-bt-fix.service enabled=enabled
+sp11-bt-fix.service active=active
+[ucm mount]
+TARGET SOURCE         FSTYPE OPTIONS
+/      /dev/nvme0n1p5 ext4   rw,relatime
+[SP7 redundant extract]
+path=C:\Users\SurfacePro7\Documents\SP11X1e-audio-adie\artifacts\reviewed\2026-08-16-windows-qcaucd-wsa-passive-extract.txt
+before_bytes=12721
+before_lines=330
+before_sha256=87E636E3C65F149F9B0E60C80CF9BE61FAB9C034E7F7DF7F9F3C74F964417673
+removed=yes
+SP7_worktree_status=clean
+[tracked source evidence]
+dd8ef0672eb28cd55719fbde7d840d23a98d1bf8a9cf32a50a246e65f7b6a47f  artifacts/reviewed/2026-08-16-windows-qcaucd-wsa-passive.log
+tracked_raw_log_hash_matches_reviewed_json=yes

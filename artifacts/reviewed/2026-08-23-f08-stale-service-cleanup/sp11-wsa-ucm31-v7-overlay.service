@@ -1,0 +1,15 @@
+[Unit]
+Description=SP11 one-shot WSA CSR route-zero UCM overlay (v7)
+After=local-fs.target
+Before=systemd-user-sessions.service display-manager.service
+ConditionKernelCommandLine=sp11_wsa_ucm31_v7=1
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/mount --bind /home/geoca/Documents/SP11-PROJECT/02-kernel/candidates/rpv4-macro84-winproducer-nohd2-csren0-ucm31-v7-idlegated-20260816/SP11-HiFi.v7.conf /usr/share/alsa/ucm2/Qualcomm/x1e80100/SP11-HiFi.conf
+ExecStart=/usr/bin/mount -o remount,bind,ro /usr/share/alsa/ucm2/Qualcomm/x1e80100/SP11-HiFi.conf
+ExecStop=/usr/bin/umount /usr/share/alsa/ucm2/Qualcomm/x1e80100/SP11-HiFi.conf
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -339,13 +339,37 @@ staging and historical backup trees remain intentionally because they are
 provenance/evidence rather than the rejected duplicate payload class targeted
 by F07.
 
-### F08 — LOW: old condition-skipped services and one redundant SP7 file remain
+### F08 — CLOSED 2026-08-23: stale condition-skipped services and redundant SP7 extract cleaned
 
-Enabled but condition-skipped units include the old UCM overlay and first-boot
-helpers. They do not alter this boot but make system state harder to read.
-SP7's `SP11X1e-audio-adie` worktree also has one untracked 330-line passive WSA
-extract; the full source log is already tracked on main. Preserve or remove it
-only as explicit housekeeping, not as a missing discovery.
+**Where:** system units `sp11-audio-first-boot.service`,
+`sp11-tap3diag-restore.service`, `sp11-wsa-ucm31-v7-overlay.service`; SP7
+worktree `C:\Users\SurfacePro7\Documents\SP11X1e-audio-adie`; reviewed
+evidence `artifacts/reviewed/2026-08-23-f08-stale-service-cleanup/`.
+
+**Pre-state:** all three units were enabled but inactive with
+`ConditionResult=no`. They target, respectively, the obsolete
+`sp11_entry=7.1.5-sp11-audio-vi` first-boot capture, the removed TAP3 diagnostic
+boot, and the old `sp11_wsa_ucm31_v7=1` bind-mount UCM experiment. No UCM bind
+mount was active. Their exact unit/helper bytes and SHA-256 values were
+preserved before changing enablement.
+
+**Action/post-state:** only those three stale units were disabled. The active
+`sp11-audio-v32-verify.service` and `sp11-bt-fix.service` remain enabled and
+active/exited. The unit files/scripts themselves remain on disk for provenance;
+only their boot-enable symlinks were removed.
+
+SP7's ADIE evidence worktree contained one untracked 12,721-byte / 330-line
+normalized passive WSA extract, SHA-256
+`87E636E3C65F149F9B0E60C80CF9BE61FAB9C034E7F7DF7F9F3C74F964417673`.
+That exact extract hash is already recorded in tracked
+`2026-08-16-windows-qcaucd-wsa-passive.json`, and the full tracked raw source log
+matches its recorded SHA-256
+`DD8EF0672EB28CD55719FBDE7D840D23A98D1BF8A9CF32A50A246E65F7B6A47F`.
+The redundant untracked extract was therefore removed explicitly; the SP7
+worktree is clean afterward.
+
+**Result:** F08 is closed without altering any active audio service, UCM file,
+Golden boot artifact or tracked evidence.
 
 ### F09 — INFO: unmerged branches do not represent a missing runtime merge
 

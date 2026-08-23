@@ -1,0 +1,45 @@
+# F08 stale service pre-state
+captured=2026-08-23T08:32:07+01:00
+[sp11-audio-first-boot.service]
+ActiveState=inactive
+SubState=dead
+FragmentPath=/etc/systemd/system/sp11-audio-first-boot.service
+UnitFileState=enabled
+ConditionResult=no
+ExecMainStatus=0
+[sp11-tap3diag-restore.service]
+ActiveState=inactive
+SubState=dead
+FragmentPath=/etc/systemd/system/sp11-tap3diag-restore.service
+UnitFileState=enabled
+ConditionResult=no
+ExecMainStatus=0
+[sp11-wsa-ucm31-v7-overlay.service]
+ActiveState=inactive
+SubState=dead
+FragmentPath=/etc/systemd/system/sp11-wsa-ucm31-v7-overlay.service
+UnitFileState=enabled
+ConditionResult=no
+ExecMainStatus=0
+[sp11-audio-v32-verify.service]
+ActiveState=active
+SubState=exited
+FragmentPath=/etc/systemd/system/sp11-audio-v32-verify.service
+UnitFileState=enabled
+ConditionResult=yes
+ExecMainStatus=0
+[sp11-bt-fix.service]
+ActiveState=active
+SubState=exited
+FragmentPath=/etc/systemd/system/sp11-bt-fix.service
+UnitFileState=enabled
+ConditionResult=yes
+ExecMainStatus=0
+[ucm mount]
+TARGET SOURCE         FSTYPE OPTIONS
+/      /dev/nvme0n1p5 ext4   rw,relatime
+[hashes]
+051c276cea7494e2cadcbba98d13ee150760fa2acdd95ee59cceaddf9a5e7b44  /etc/systemd/system/sp11-audio-first-boot.service
+8decc7cc28a0406ed0433b86906ca90fc06d4e30060dddb82de715456a0e9008  /etc/systemd/system/sp11-tap3diag-restore.service
+fd641c70d78bccb107b9b1ac27ce5af4f28418358400ed12cfc525387b90d0fd  /etc/systemd/system/sp11-wsa-ucm31-v7-overlay.service
+abefd8344cc881485edc92878f406b5d8c80b4c6b31eea6aeb4798d25a7df23d  /usr/local/libexec/sp11-audio-first-boot

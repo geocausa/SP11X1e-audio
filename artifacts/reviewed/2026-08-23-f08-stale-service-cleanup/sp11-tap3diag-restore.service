@@ -1,0 +1,11 @@
+[Unit]
+Description=Restore Golden v31 SP11 topology after TAP3 diagnostic graph loads
+After=multi-user.target
+ConditionKernelCommandLine=sp11_diag_tap3=1
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'sleep 20; cp -f /usr/lib/firmware/qcom/x1e80100/.X1E80100-Microsoft-Surface-Pro-11-Render-Parity-tplg.bin.golden-v31-backup /usr/lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-Render-Parity-tplg.bin; chmod 0644 /usr/lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-Render-Parity-tplg.bin; sha256sum /usr/lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-Render-Parity-tplg.bin > /var/lib/sp11-tap3diag-restored.sha256; sync'
+
+[Install]
+WantedBy=multi-user.target
