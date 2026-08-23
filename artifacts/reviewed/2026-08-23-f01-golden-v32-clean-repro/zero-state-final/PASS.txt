@@ -1,0 +1,35 @@
+F01 Golden v32 zero-state closure run
+started=2026-08-23T07:10:47+01:00
+completed=2026-08-23T08:04:08+01:00
+exit_code=0
+result=GOLDEN v32 CLEAN REPRODUCTION PASS
+
+[Golden-v31 srcversions]
+snd-q6apm.ko 687B16CF9C43B43E90C0746
+snd-soc-lpass-wsa-macro.ko 4AF6F542C17BA6DD46586DA
+snd-soc-wsa884x.ko A4F2E38C5C27D13E327887B
+snd-soc-x1e80100.ko 13326073E27DFA035180C56
+soundwire-qcom.ko 406975A3ED60935B31491BF
+
+[Golden-v32 srcversions]
+snd-q6apm.ko 687B16CF9C43B43E90C0746
+snd-soc-lpass-wsa-macro.ko F32C7A03F713D1B20F0BF78
+snd-soc-wsa884x.ko 5859E70AFD0A1D420E8ADD4
+snd-soc-x1e80100.ko 13326073E27DFA035180C56
+soundwire-qcom.ko D008A3D6B585C11BE023992
+
+[Golden-v32 runtime digests]
+snd-q6apm.ko 9b8640f4a258ccedb4d9916792d705884ba4b3a0977ca785f95ffb4f64051574
+snd-soc-lpass-wsa-macro.ko ba47f37e7e77ac5fdc768d8d0372fcda3cb3708aec68c0b2c2ddbd01eb01befa
+snd-soc-wsa884x.ko e5cc1082fd741beb4f761ff01ba1f05a450c643a1d144ca44a99dff532074695
+snd-soc-x1e80100.ko ddb640b16f44aba84d06e450a2f8ddc760dc5a50ba9bc825a4591c4e21fed1ee
+soundwire-qcom.ko 3ef35d330ff0449b35462c920435e700d825c4fd2b218ee316dd495985ff8676
+
+[Promoted v32 source hashes]
+139e30f93406bcfd32900312ce59690a8664dc09d3b5a56866d5b5ccec009841  sound/soc/codecs/lpass-wsa-macro.c
+e77c20e355bf279c08087f08b5b225777f1ebb57fddcee166ddc5e3d77e24b2e  sound/soc/codecs/lpass-wsa-macro.h
+67c95c5bb1928a4bc2da0c4bd1ddbf7e6e48419ba126bfd4304a1b3378931138  sound/soc/codecs/wsa884x.c
+2f788d4b1da620e259e7a5c32021e4ee990ed0765da2c88f1f6e901d900f30e0  drivers/soundwire/qcom.c
+
+[Non-fatal stderr classification]
+Only compiler -Wframe-larger-than warnings were emitted; no source, patch, modpost, srcversion, runtime-digest, or recipe gate failed.

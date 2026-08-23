@@ -12,3 +12,4 @@ Makefile text eol=lf
 deploy/dolby/sp11-dolby text eol=lf
 *.ps1 text eol=crlf
 artifacts/reviewed/2026-08-15-qcadcm-hw-rsc-bootzero.log -text -diff
+repro/golden-v32/source-overlay/** whitespace=-trailing-space

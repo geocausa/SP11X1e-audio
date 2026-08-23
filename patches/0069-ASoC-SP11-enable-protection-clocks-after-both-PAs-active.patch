@@ -1,0 +1,170 @@
+From: SP11 Audio Reverse Engineering <sp11-audio@local>
+Date: Thu, 20 Aug 2026 23:46:00 +0100
+Subject: [PATCH 0069] ASoC: SP11: enable WSA protection clocks after both PAs are active
+
+Native Windows starts the WSA speaker-protection TX clocks only after both
+WSA8845 amplifiers have completed PA enable.  The earlier machine-prepare
+experiment enabled them too early and could trigger PA recovery/static.
+
+Keep protection-clock ownership in the WSA macro.  Have each amplifier report
+its completed PA transition, enable VI/CPS TX clocks only when both PAs are up,
+and disable them before the first PA teardown.  This is the exact source delta
+used by Golden v32 on top of the Golden-v31 WSA transport state.
+
+Signed-off-by: SP11 Audio Reverse Engineering <sp11-audio@local>
+---
+--- a/sound/soc/codecs/lpass-wsa-macro.c
++++ b/sound/soc/codecs/lpass-wsa-macro.c
+@@ -1578,6 +1578,65 @@
+ 	}
+ }
+ 
++/*
++ * SP11 Windows orders the protection-clock resource after both WSA8845
++ * GLOBAL_PA_EN writes.  Keep the register ownership in the WSA macro and let
++ * the amplifiers report only their PA lifecycle boundary.
++ */
++static DEFINE_MUTEX(sp11_protclk_lock);
++static struct snd_soc_component *sp11_protclk_component;
++static unsigned int sp11_pa_users;
++static bool sp11_protclk_enabled;
++
++void wsa_macro_sp11_pa_event(bool enable)
++{
++	struct snd_soc_component *component;
++
++	mutex_lock(&sp11_protclk_lock);
++	component = sp11_protclk_component;
++	if (!component)
++		goto out;
++
++	if (enable) {
++		if (sp11_pa_users < 2)
++			sp11_pa_users++;
++
++		if (sp11_pa_users == 2 && !sp11_protclk_enabled) {
++			wsa_macro_enable_disable_vi_sense(component, true,
++				CDC_WSA_TX0_SPKR_PROT_PATH_CTL,
++				CDC_WSA_TX1_SPKR_PROT_PATH_CTL, 0);
++			wsa_macro_enable_disable_vi_sense(component, true,
++				CDC_WSA_TX2_SPKR_PROT_PATH_CTL,
++				CDC_WSA_TX3_SPKR_PROT_PATH_CTL, 0);
++			sp11_protclk_enabled = true;
++			dev_info(component->dev,
++				 "SP11POSTPA: WSA protection clocks enabled after both PAs\n");
++		}
++	} else {
++		/*
++		 * Conservative teardown: remove the feedback clocks while both
++		 * PAs are still up, before the first amp executes its stop table.
++		 */
++		if (sp11_pa_users == 2 && sp11_protclk_enabled) {
++			wsa_macro_enable_disable_vi_sense(component, false,
++				CDC_WSA_TX0_SPKR_PROT_PATH_CTL,
++				CDC_WSA_TX1_SPKR_PROT_PATH_CTL, 0);
++			wsa_macro_enable_disable_vi_sense(component, false,
++				CDC_WSA_TX2_SPKR_PROT_PATH_CTL,
++				CDC_WSA_TX3_SPKR_PROT_PATH_CTL, 0);
++			sp11_protclk_enabled = false;
++			dev_info(component->dev,
++				 "SP11POSTPA: WSA protection clocks disabled before PA teardown\n");
++		}
++
++		if (sp11_pa_users)
++			sp11_pa_users--;
++	}
++out:
++	mutex_unlock(&sp11_protclk_lock);
++}
++EXPORT_SYMBOL_GPL(wsa_macro_sp11_pa_event);
++
+ static void wsa_macro_enable_disable_vi_feedback(struct snd_soc_component *component,
+ 						 bool enable, u32 rate)
+ {
+@@ -2722,6 +2781,12 @@
+ 
+ 	snd_soc_component_init_regmap(comp, wsa->regmap);
+ 
++	mutex_lock(&sp11_protclk_lock);
++	sp11_protclk_component = comp;
++	sp11_pa_users = 0;
++	sp11_protclk_enabled = false;
++	mutex_unlock(&sp11_protclk_lock);
++
+ 	wsa->spkr_gain_offset = WSA_MACRO_GAIN_OFFSET_M1P5_DB;
+ 
+ 	/* set SPKR rate to FS_2P4_3P072 */
+@@ -2822,9 +2887,21 @@
+ 	return devm_of_clk_add_hw_provider(dev, of_clk_hw_simple_get, hw);
+ }
+ 
++static void wsa_macro_component_remove(struct snd_soc_component *comp)
++{
++	mutex_lock(&sp11_protclk_lock);
++	if (sp11_protclk_component == comp) {
++		sp11_protclk_component = NULL;
++		sp11_pa_users = 0;
++		sp11_protclk_enabled = false;
++	}
++	mutex_unlock(&sp11_protclk_lock);
++}
++
+ static const struct snd_soc_component_driver wsa_macro_component_drv = {
+ 	.name = "WSA MACRO",
+ 	.probe = wsa_macro_component_probe,
++	.remove = wsa_macro_component_remove,
+ 	.controls = wsa_macro_snd_controls,
+ 	.num_controls = ARRAY_SIZE(wsa_macro_snd_controls),
+ 	.dapm_widgets = wsa_macro_dapm_widgets,
+--- a/sound/soc/codecs/lpass-wsa-macro.h
++++ b/sound/soc/codecs/lpass-wsa-macro.h
+@@ -13,5 +13,6 @@
+ };
+ 
+ int wsa_macro_set_spkr_mode(struct snd_soc_component *component, int mode);
++void wsa_macro_sp11_pa_event(bool enable);
+ 
+ #endif /* __LPASS_WSA_MACRO_H__ */
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -30,6 +30,8 @@
+ #include <sound/soc.h>
+ #include <sound/tlv.h>
+ 
++#include "lpass-wsa-macro.h"
++
+ #define WSA884X_BASE			0x3000
+ #define WSA884X_ANA_BG_TSADC_BASE       (WSA884X_BASE + 0x0001)
+ #define WSA884X_BG_CTRL			(WSA884X_ANA_BG_TSADC_BASE + 0x00)
+@@ -753,6 +755,7 @@
+ 	u8 visense_channel_mask;
+ 	bool cps_enabled;
+ 	bool sp11_windows_lifecycle;
++	bool sp11_protclk_reported;
+ 	struct gpio_desc *sd_n;
+ 	struct reset_control *sd_reset;
+ 	bool port_prepared[WSA884X_MAX_SWR_PORTS];
+@@ -2396,6 +2399,11 @@
+ 
+ 	if (wsa884x_sp11_windows_profile(wsa884x)) {
+ 		if (mute) {
++			if (wsa884x->sp11_protclk_reported) {
++				wsa_macro_sp11_pa_event(false);
++				wsa884x->sp11_protclk_reported = false;
++			}
++
+ 			wsa884x_sp11_write_sequence(wsa884x, sp11_windows_stop,
+ 						    ARRAY_SIZE(sp11_windows_stop));
+ 		} else {
+@@ -2411,6 +2419,11 @@
+ 			if (!regmap_read(wsa884x->regmap, WSA884X_PA_FSM_STA1, &sta1) &&
+ 			    (sta1 & WSA884X_PA_ERROR_MASK))
+ 				wsa884x_recover_pa(wsa884x, true);
++
++			if (!wsa884x->sp11_protclk_reported) {
++				wsa_macro_sp11_pa_event(true);
++				wsa884x->sp11_protclk_reported = true;
++			}
+ 		}
+ 
+ 		return 0;

@@ -1,0 +1,3 @@
+2fac7303af3736c926f1be26f1bfeefd81998f6e51fca1d2b25dc217cc603637  ../../patches/0069-ASoC-SP11-enable-protection-clocks-after-both-PAs-active.patch
+3c62fb6297f8d74dd38beb637625ad551b0ee82f317c64a29aecd49644343720  ../../patches/0070-soundwire-qcom-SP11-use-Windows-active-Offset2-on-feedback-ports.patch
+2b5bac376782e0b62595cd4d1a705be910a8816b7bb5f948c39ea6b7de1c5ed8  ../../patches/0071-soundwire-qcom-SP11-add-CPS-wake-and-packetization-parity.patch

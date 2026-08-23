@@ -1,0 +1,4 @@
+139e30f93406bcfd32900312ce59690a8664dc09d3b5a56866d5b5ccec009841  sound/soc/codecs/lpass-wsa-macro.c
+e77c20e355bf279c08087f08b5b225777f1ebb57fddcee166ddc5e3d77e24b2e  sound/soc/codecs/lpass-wsa-macro.h
+67c95c5bb1928a4bc2da0c4bd1ddbf7e6e48419ba126bfd4304a1b3378931138  sound/soc/codecs/wsa884x.c
+2f788d4b1da620e259e7a5c32021e4ee990ed0765da2c88f1f6e901d900f30e0  drivers/soundwire/qcom.c

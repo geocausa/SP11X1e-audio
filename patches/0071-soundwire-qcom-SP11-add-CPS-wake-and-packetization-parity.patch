@@ -1,0 +1,64 @@
+From: SP11 Audio Reverse Engineering <sp11-audio@local>
+Date: Thu, 20 Aug 2026 21:30:00 +0100
+Subject: [PATCH 0071] soundwire: qcom: SP11 add CPS wake and packetization parity
+
+Native Windows programs the WSA controller route at 0x105c to 0x0005000f and
+DP13 PCM_CTRL to 3 before CPS feedback runs.  Add the opt-in SP11 parity gate
+on top of the accepted active-Offset2 change.  These are the final SoundWire
+source changes carried by Golden v32.
+
+Signed-off-by: SP11 Audio Reverse Engineering <sp11-audio@local>
+---
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -135,6 +135,12 @@
+ MODULE_PARM_DESC(sp11_feedback_active_offset2_zero,
+ 		 "Clear WSA feedback ports 10/11/13 Offset2 only while enabling channels");
+ 
++/* SP11 diagnostic: Windows WSA controller/CPS packetization state. */
++static bool sp11_cps_pcm_route_105c;
++module_param_named(sp11_cps_pcm_route_105c, sp11_cps_pcm_route_105c, bool, 0644);
++MODULE_PARM_DESC(sp11_cps_pcm_route_105c,
++		 "Program Windows WSA route 0x105c and CPS DP13 PCM control 0x1d54");
++
+ static bool qcom_swrm_is_sp11_feedback_port(unsigned int port_num)
+ {
+ 	return port_num == 10 || port_num == 11 || port_num == 13;
+@@ -1057,6 +1063,37 @@
+ 
+ 	pcfg = &ctrl->pconfig[params->port_num];
+ 
++	/*
++	 * Native Windows speaker start also programs controller route 0x105c
++	 * and CPS DIN DP13 PCM control 0x1d54.  This was insufficient by
++	 * itself, but is re-tested here only after PROTCLK + Offset2 parity.
++	 */
++	if (sp11_cps_pcm_route_105c &&
++	    of_machine_is_compatible("microsoft,denali") &&
++	    bus->controller_id == MASTER_ID_WSA && params->port_num == 13) {
++		u32 route_old = 0;
++		u32 pcm_old = 0;
++		u32 pcm_reg = 0x1054 + params->port_num * 0x100;
++
++		ret = ctrl->reg_read(ctrl, 0x105c, &route_old);
++		if (ret)
++			goto err;
++		if (route_old != 0x0005000f) {
++			ret = ctrl->reg_write(ctrl, 0x105c, 0x0005000f);
++			if (ret)
++				goto err;
++		}
++		ret = ctrl->reg_read(ctrl, pcm_reg, &pcm_old);
++		if (ret)
++			goto err;
++		ret = ctrl->reg_write(ctrl, pcm_reg, 0x3);
++		dev_info(ctrl->dev,
++			 "SP11 CPS wake parity: bank=%u route_old=%#x route_new=0x5000f pcm_reg=%#x pcm_old=%#x pcm_new=0x3 ret=%d\n",
++			 bank, route_old, pcm_reg, pcm_old, ret);
++		if (ret)
++			goto err;
++	}
++
+ 	value = pcfg->off1 << SWRM_DP_PORT_CTRL_OFFSET1_SHFT;
+ 	value |= pcfg->off2 << SWRM_DP_PORT_CTRL_OFFSET2_SHFT;
+ 	value |= pcfg->si & 0xff;

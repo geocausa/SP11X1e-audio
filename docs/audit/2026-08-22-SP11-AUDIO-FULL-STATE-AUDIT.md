@@ -22,13 +22,14 @@ feedback is active in the accepted Windows-shaped 8/24-kHz layout, and the
 current boot contains no PA fault/recovery, SoundWire fault, XRUN or canonical
 GLINK timeout.
 
-The main risk is **reproducibility and housekeeping, not a broken live audio
-path**. Exact v32 binaries and decisive source fragments are preserved, but the
-mutable 112-GB kernel kitchen is not one clean replayable source tree and Git
-does not contain the final v32 kernel deltas as a normalized patch series. One
-source snapshot has already drifted after the exact module was built. This can
-make a future rebuild silently lose working v31/v32 behavior even though the
-current deployment is correct.
+The main remaining risk is **housekeeping and qualification, not a broken live
+audio path**. The reproducibility risk identified in F01 was closed on
+2026-08-23: Golden v32 is now replayable from a hash-pinned pristine Linux
+7.1.5 base plus a compact tracked source overlay and ordered patches 0069-0071.
+A zero-state build reproduced all five deployed v31 identities, all five v32
+identities, and the runtime ELF payload digests of all five historical Golden
+modules. The large historical kitchens are therefore no longer the sole source
+of truth, although cleanup remains a separate manifest-driven task.
 
 The active userspace graph is the disposable UbiG candidate, not the promoted
 Windows-binary bridge. Its source and latest bounded gates are pushed, it is
@@ -122,51 +123,54 @@ driver is blocking Golden v32.
 
 ## Findings
 
-### F01 — HIGH: exact v32 is binary-verifiable but not clean-source replayable
+### F01 — CLOSED 2026-08-23: Golden v32 clean-source replay is proven
 
-**Where:** `02-kernel/`, `patches/`, `deploy/golden-v32/`.
+**Where:** `repro/golden-v32/`, `patches/0069-*` through `patches/0071-*`,
+`artifacts/reviewed/2026-08-23-f01-golden-v32-clean-repro/`.
 
-**What:** The v32 verifier proves the deployed binary identity, but the Git
-patch series ends at `0068` (Golden-v31 volume-only control). The final v32
-post-PA protection-clock, feedback active-Offset2 and CPS-wake deltas are
-documented as findings/manifests rather than normalized kernel patches.
+**Closure:** Golden v32 is no longer dependent on reconstructing state from the
+mutable kernel kitchens. The accepted source lineage is expressed as:
 
-The local source/build state is split:
+- pristine `linux-7.1.5`, pinned by whole-tree SHA-256
+  `7e5f8ccd76f625cb678028fe6bab2d3ef0c03878c2af21433c96f4a78b813fef`;
+- a tracked 23-file Golden-v31 source overlay with per-file SHA-256 manifest;
+- the pinned Golden kernel config SHA-256
+  `4fed1ee935cff7589ed2941d0bf2ddec4ddd2a03d919b9dc30ce20f5d85665ca`;
+- ordered patch `0069` for post-PA protection-clock ownership, `0070` for the
+  active feedback Offset2 setting, and `0071` for CPS wake/packetization parity.
 
-- the exact WSA macro source and matching build output remain in the
-  `sp11-softpause` kitchen;
-- the exact v32 WSA884x source is preserved as
-  `v31-feedback-consolidated-exact-golden-20260820/provenance/wsa884x.exact-golden-postpa.c`
-  (SHA-256
-  `67c95c5bb1928a4bc2da0c4bd1ddbf7e6e48419ba126bfd4304a1b3378931138`);
-- the mutable `sp11-softpause` WSA884x source was subsequently changed and no
-  longer contains the exact Golden-v31 DP1/DP2/DP3 SIMPLE declarations, even
-  though its old compiled output and the deployed exact module do; the current
-  source SHA-256 is
-  `0615f2294c7bc8d512af8aaabda88af90653ac8344e72c4c743274051124b35b`;
-- the exact SoundWire source/module lives in the isolated
-  `v31-wsa-protclk-offset2-cpswake-20260820` candidate rather than the main
-  build output;
-- exact q6apm compressed binaries are preserved in the Golden-v31/v32 initrd
-  trees; for example, `golden-v31-ckv-delta-20260818/initrd-tree/.../snd-q6apm.ko.zst`
-  is manifest-exact SHA-256
-  `acf8ba1e6ded43cfac86afa7d12dd30dabd972286e74b021fbb7bddf98955033`
-  and srcversion `687B16CF9C43B43E90C0746`, but the obvious candidate
-  source output currently reports srcversion `F123824980FC2D98FEEE369`; the
-  main kitchen output also differs;
-- exact machine-driver outputs remain in the CPS-v3 and soft-pause build trees,
-  but their source/header/build inputs still need to be frozen with the other
-  four modules rather than inferred from module identity alone.
+The reconstruction also explains the historical identity mismatch that made
+several obvious source trees look wrong: the promoted modules were produced by
+a mixed Kbuild context. The exact recipe preserves that context deliberately:
+WSA macro and X1E use in-tree `O=` outputs; WSA884x, SoundWire and q6apm use
+scoped `M=` builds against the same clean output environment where required by
+the historical module identity.
 
-**Why it matters:** A future “full bake” from the most obvious 32-GB build tree
-can boot successfully yet omit accepted audio semantics. This is the highest
-risk of repeating the earlier Wi-Fi/audio regression or losing a solved fix.
+On 2026-08-23, `repro/golden-v32/build-and-verify.sh` deleted its work area and
+started from the pinned pristine tree. The zero-state run completed at
+`2026-08-23T08:04:08+01:00` with `GOLDEN v32 CLEAN REPRODUCTION PASS`. It first
+reproduced all five deployed Golden-v31 srcversions, then applied only
+0069-0071 and reproduced the five Golden-v32 srcversions:
 
-**Required closure:** freeze hashes of the five exact source files and required
-headers; export the three v32 deltas as ordered patches after `0068`; define one
-clean base and one scripted build/install verifier; rebuild in a disposable
-tree and require the five manifest srcversions before considering old build
-trees removable. Do not rebuild/deploy from the mutable kitchen first.
+- WSA macro `F32C7A03F713D1B20F0BF78`;
+- WSA884x `5859E70AFD0A1D420E8ADD4`;
+- SoundWire QCOM `D008A3D6B585C11BE023992`;
+- X1E80100 machine driver `13326073E27DFA035180C56`;
+- q6apm `687B16CF9C43B43E90C0746`.
+
+The gate additionally hashes runtime-relevant ELF allocatable, relocation,
+`.modinfo` and `__versions` sections while excluding path-sensitive DWARF,
+symbol/string tables, compiler comments and build-id metadata. All five clean
+outputs match the preserved historical Golden runtime payload digests exactly.
+Raw `.ko` SHA-256 is intentionally not the replay criterion because build-path
+DWARF and, for the historical q6apm copy, module-signing bytes are not runtime
+semantic identity.
+
+**Result:** the audit's only HIGH finding is closed. Old build trees are now
+eligible for F07 manifest-driven cleanup, subject to keeping the tracked replay
+recipe, reviewed closure evidence, pristine base, and chosen rollback boot
+artifacts. No running Golden module, boot image, GRUB default or live audio path
+was changed by this closure.
 
 ### F02 — MEDIUM, corrected: project entry documents were stale
 
@@ -277,11 +281,12 @@ directories. Deleting unrelated diagnostic entries later will not break the
 current v32 entry. Keep v31, v28 and CPS-v3 until the operator chooses a smaller
 rollback set.
 
-**Required closure:** first finish F01. Then retain the exact v32 source/provenance
-set and one clean rebuild tree; archive reviewed evidence; remove rejected
-candidate initrd trees/modules and their matching `/etc/grub.d` fragments in a
-single manifest-driven cleanup. Do not delete the 32-GB kitchens until exact
-source replay has passed.
+**Required closure:** F01 is complete, so manifest-driven cleanup is now
+unblocked. Retain `repro/golden-v32/`, the reviewed F01 closure evidence, the
+hash-pinned pristine Linux 7.1.5 base, one clean replay work tree while cleanup
+is being reviewed, and the operator-selected rollback boot set. Then remove
+rejected candidate initrd trees/modules and their matching `/etc/grub.d`
+fragments in one reviewed manifest-driven cleanup.
 
 ### F08 — LOW: old condition-skipped services and one redundant SP7 file remain
 
@@ -325,13 +330,13 @@ when its absence is demonstrated.
 - `/boot/sp11-7.1.5-audio-v32-feedback-exact-golden`;
 - Golden v31 and v28 boot directories and CPS-v3 rescue until the operator
   explicitly reduces rollback coverage;
-- `v31-feedback-consolidated-exact-golden-20260820` and the exact source
-  candidates named in F01;
+- `repro/golden-v32/`, the reviewed F01 closure evidence and the hash-pinned
+  pristine Linux 7.1.5 base;
 - canonical main and UbiG Git worktrees;
 - both new SP7 preservation archives and original SP7 evidence;
 - private UbiG owner pack while the candidate is under test.
 
-### Likely removable after F01 and a manifest review
+### Likely removable now after a manifest review
 
 - forced TAP2/TAP3, DP14, host-clock, post-start, active-Offset2 and other
   rejected/diagnostic `/boot` directories plus their exact GRUB fragments;
@@ -343,7 +348,8 @@ No deletion was performed in this audit.
 
 ## Completion gates after this audit
 
-1. Normalize and test the exact-v32 source/patch/build recipe (F01).
+1. **DONE 2026-08-23:** normalize and test the exact-v32 source/patch/build
+   recipe (F01); zero-state replay PASS.
 2. Finish UbiG M6 without touching Golden rollback: non-muted acoustics,
    seek/program content, >8-hour soak, longer protection telemetry and owner-
    pack packaging.

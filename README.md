@@ -241,3 +241,19 @@ The archived PipeWire EQ is disabled and is not part of parity work. The Dolby
 identity boundary must remain bit-transparent until the vendor processing is
 understood well enough to implement and test it without hiding defects in the
 kernel, topology or protection path.
+
+### Golden v32 clean kernel replay
+
+Audit finding F01 is closed by the tracked clean replay recipe in
+`repro/golden-v32/`. It rebuilds from a hash-pinned pristine Linux 7.1.5 tree
+plus the tracked 23-file Golden-v31 overlay, applies ordered patches 0069-0071,
+and verifies both the five Golden module `srcversion`s and runtime ELF payload
+digests.
+
+```bash
+JOBS=8 ./repro/golden-v32/build-and-verify.sh
+```
+
+The recipe is verification-only: it does not install modules, modify GRUB or
+reboot. See `repro/golden-v32/README.md` before changing `SP11_REPRO_WORK`,
+because that work directory is deleted at the start of each run.

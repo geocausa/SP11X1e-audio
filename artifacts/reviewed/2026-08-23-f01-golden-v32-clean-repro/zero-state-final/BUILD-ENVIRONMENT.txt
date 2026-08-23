@@ -1,0 +1,8 @@
+kernelrelease=7.1.5-sp11-render-parity-v4+
+base=/home/geoca/Documents/SP11-PROJECT/02-kernel/linux-7.1.5
+base_tree_sha256=7e5f8ccd76f625cb678028fe6bab2d3ef0c03878c2af21433c96f4a78b813fef
+config_sha256=4fed1ee935cff7589ed2941d0bf2ddec4ddd2a03d919b9dc30ce20f5d85665ca
+gcc=gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+ld=GNU ld (GNU Binutils for Ubuntu) 2.46
+make=GNU Make 4.4.1
+jobs=8

@@ -1,0 +1,63 @@
+From: SP11 Audio Reverse Engineering <sp11-audio@local>
+Date: Thu, 20 Aug 2026 15:40:00 +0100
+Subject: [PATCH 0070] soundwire: qcom: SP11 use Windows active Offset2 on feedback ports
+
+On native Windows the WSA feedback master ports 10, 11 and 13 use active
+Offset2=0 when their channel mask is enabled.  Preserve the inactive schedule,
+but under the SP11 opt-in parity parameter clear Offset2 at the active-enable
+boundary for those three ports only.
+
+Signed-off-by: SP11 Audio Reverse Engineering <sp11-audio@local>
+---
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -122,6 +122,23 @@
+ #define SWRM_DP_PORT_CTRL_EN_CHAN_SHFT				0x18
+ #define SWRM_DP_PORT_CTRL_OFFSET2_SHFT				0x10
+ #define SWRM_DP_PORT_CTRL_OFFSET1_SHFT				0x08
++
++/*
++ * SP11/Denali diagnostic parity gate.  Native Windows programs active WSA
++ * feedback master ports 10/11/13 with Offset2 == 0 immediately before graph
++ * start.  Golden Linux preserves the inactive 0xff Offset2 when enabling the
++ * channel mask.  Keep this opt-in and touch only those three ports.
++ */
++static bool sp11_feedback_active_offset2_zero;
++module_param_named(sp11_feedback_active_offset2_zero,
++		   sp11_feedback_active_offset2_zero, bool, 0644);
++MODULE_PARM_DESC(sp11_feedback_active_offset2_zero,
++		 "Clear WSA feedback ports 10/11/13 Offset2 only while enabling channels");
++
++static bool qcom_swrm_is_sp11_feedback_port(unsigned int port_num)
++{
++	return port_num == 10 || port_num == 11 || port_num == 13;
++}
+ #define SWRM_AHB_BRIDGE_WR_DATA_0				0xc85
+ #define SWRM_AHB_BRIDGE_WR_ADDR_0				0xc89
+ #define SWRM_AHB_BRIDGE_RD_ADDR_0				0xc8d
+@@ -1116,10 +1133,23 @@
+ 
+ 	ctrl->reg_read(ctrl, reg, &val);
+ 
+-	if (enable_ch->enable)
++	if (enable_ch->enable) {
++		u32 old = val;
++
++		if (sp11_feedback_active_offset2_zero &&
++		    qcom_swrm_is_sp11_feedback_port(enable_ch->port_num))
++			val &= ~(0xff << SWRM_DP_PORT_CTRL_OFFSET2_SHFT);
++
+ 		val |= (enable_ch->ch_mask << SWRM_DP_PORT_CTRL_EN_CHAN_SHFT);
+-	else
++
++		if (sp11_feedback_active_offset2_zero &&
++		    qcom_swrm_is_sp11_feedback_port(enable_ch->port_num))
++			dev_info(ctrl->dev,
++				 "SP11 feedback active Offset2 parity: port=%u bank=%u old=%#010x new=%#010x ch=%#x\n",
++				 enable_ch->port_num, bank, old, val, enable_ch->ch_mask);
++	} else {
+ 		val &= ~(0xff << SWRM_DP_PORT_CTRL_EN_CHAN_SHFT);
++	}
+ 
+ 	return ctrl->reg_write(ctrl, reg, val);
+ }
