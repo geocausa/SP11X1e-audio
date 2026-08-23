@@ -1,0 +1,14 @@
+F02/F03 closure verification — 2026-08-23
+
+F02 entry state:
+- workspace README: Golden v32; UbiG only remaining gate = matched physical Windows-vs-UbiG acoustic matrix / operator verdict
+- CURRENT-AUDIO-GOLDEN.txt: dated 2026-08-23; points to canonical main/audit rather than frozen commit hash
+- docs/checkpoints/CURRENT-SP11-AUDIO.md: dated 2026-08-23; UbiG pushed tip 1db43db; retained boot set v32/v31/v28/CPS-v3
+- render parity ledger: explicit 2026-08-22 Golden-v32 audit banner retained
+
+F03 preservation state:
+- v32 extracted payload: 72 files / 668415138 bytes
+- v32 transfer ZIP SHA256: c2cb90948c1ac02724493ee67a5b4213f163d28e4dc2f7dba942b61a138bbe6d
+- older audit extracted payload: 74 files / 133219644 bytes
+- older audit transfer ZIP SHA256: 7ccc98400567a14541b708196ea542cb1b794b7db844546fcddd9a23b86422f8
+- preservation manifests present; originals retained on SP7

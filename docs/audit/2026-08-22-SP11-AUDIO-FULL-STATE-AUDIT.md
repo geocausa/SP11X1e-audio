@@ -175,7 +175,7 @@ recipe, reviewed closure evidence, pristine base, and chosen rollback boot
 artifacts. No running Golden module, boot image, GRUB default or live audio path
 was changed by this closure.
 
-### F02 — MEDIUM, corrected: project entry documents were stale
+### F02 — CLOSED 2026-08-23: project entry documents are current
 
 **Where:** workspace `README.md`, `CURRENT-AUDIO-GOLDEN.txt`, and the old
 canonical render ledger.
@@ -185,11 +185,20 @@ absent CPS/PBR and runtime volume as future work. The current-Golden file still
 named v31. The long render ledger's “Overall gate” still names v31 even though
 v32 was promoted on Aug-21.
 
-**Action:** The two workspace entry files were updated during this audit. The
-ledger receives an explicit v32 audit banner in the audit commit; its detailed
-v31 chronology remains valuable historical evidence and is not rewritten.
+**Closure:** The workspace README and `CURRENT-AUDIO-GOLDEN.txt` were updated
+for Golden v32 during the audit and refreshed again on 2026-08-23 so the live
+userspace note now states the actual remaining UbiG gate rather than the already
+closed seek/soak/telemetry work. `CURRENT-AUDIO-GOLDEN.txt` references canonical
+`main`/the audit instead of freezing a commit hash that immediately goes stale.
+`docs/checkpoints/CURRENT-SP11-AUDIO.md` was refreshed to pushed UbiG tip
+`1db43db` and the four-entry post-F07 rollback set. The long render ledger has an
+explicit v32 audit banner; its detailed v31 chronology remains valuable
+historical evidence and is intentionally not rewritten.
 
-### F03 — MEDIUM, corrected: newer SP7 raw evidence was not mirrored locally
+**Result:** F02 is closed; the project entry points agree on Golden v32 and the
+single remaining physical UbiG promotion gate.
+
+### F03 — CLOSED 2026-08-23: decisive SP7 raw evidence is preserved locally
 
 **Where:** SP7 `Documents\KDNET\Codex\acoustic-reference-keyboard-length-20260821`
 and the Aug-22 `SP11-AUDIO-AUDIT` preservation paths.
@@ -198,9 +207,20 @@ and the Aug-22 `SP11-AUDIO-AUDIT` preservation paths.
 WAVs, but the decisive raw evidence existed only on SP7. A single-machine loss
 would leave hashes without the underlying capture.
 
-**Action:** Preserve both the 74-file older audit set and the 72-file v32
-acoustic set locally, with transfer ZIP hashes and extraction counts. Keep the
-SP7 originals.
+**Closure:** Both preservation sets were rechecked on 2026-08-23. The v32
+archive extracts to exactly 72 files / 668,415,138 bytes and its transfer ZIP
+SHA-256 is
+`c2cb90948c1ac02724493ee67a5b4213f163d28e4dc2f7dba942b61a138bbe6d`.
+The older audit archive extracts to exactly 74 files / 133,219,644 bytes and its
+transfer ZIP SHA-256 is
+`7ccc98400567a14541b708196ea542cb1b794b7db844546fcddd9a23b86422f8`.
+Their preservation manifests remain under
+`00-RE-archive/SP7-v32-acoustic-evidence-preservation-20260822/` and
+`00-RE-archive/SP7-AUDIO-AUDIT-preservation-20260822T2025/`; the SP7 originals
+were not altered by preservation.
+
+**Result:** F03 is closed; the reviewed hashes retain their underlying raw
+capture material on a second machine/local archive.
 
 ### F04 — CLOSED 2026-08-23: diagnostic lifecycle kprobes disarmed
 

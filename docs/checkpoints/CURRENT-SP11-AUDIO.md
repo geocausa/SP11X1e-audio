@@ -2,18 +2,20 @@
 
 **Read this first when resuming the project.**
 
-Date: 2026-08-21
+Date: 2026-08-23
 Current promoted Golden: **v32**
 Repository: `geocausa/SP11X1e-audio`
 Canonical branch: `main`
 Development lineage `agent/psycho-bass-20260818` has been fast-forwarded into `main` through the v32 promotion history.
 
-> **2026-08-22 live-userspace note:** the promoted kernel/protection baseline
+> **2026-08-23 live-userspace note:** the promoted kernel/protection baseline
 > remains Golden v32, but the current per-user PipeWire graph is the disposable
-> UbiG candidate from `ubig/deblob-main` at `a92e5ef`. It is not promoted to
-> Golden and retains exact rollback to the Windows-binary bridge. See
-> `docs/audit/2026-08-22-SP11-AUDIO-FULL-STATE-AUDIT.md` for verified gates,
-> provenance findings and remaining UbiG M6 work.
+> UbiG candidate from `ubig/deblob-main` at pushed tip `1db43db`. It is not
+> promoted to Golden and retains exact rollback to the Windows-binary bridge.
+> All machine-verifiable M6 gates are GREEN; only the matched physical
+> Windows-vs-UbiG acoustic matrix / operator listening verdict remains. See
+> `docs/audit/2026-08-22-SP11-AUDIO-FULL-STATE-AUDIT.md` for the current gate
+> and provenance decisions.
 
 ## Machine / boot state
 
@@ -25,8 +27,9 @@ Development lineage `agent/psycho-bass-20260818` has been fast-forwarded into `m
 - Canonical topology SHA256:
   `1b0c7217fc67bb11da002b06563dd8c411b0f0e35ac40778bff3d65093061c9d`.
 - Read-only identity guard: `sp11-audio-v32-verify.service`.
-- Forced TAP2/TAP3 boot topologies are diagnostic-only; they can stall ADSP/GLINK
-  teardown during reboot and are no longer required to prove feedback.
+- F07 removed the obsolete TAP2/TAP3 and other diagnostic boot entries after
+  preserving manifests/provenance. The retained SP11 boot set is exactly Golden
+  v32, Golden v31, Golden v28 and CPS-v3 rescue.
 
 ## Golden v32 in one paragraph
 
