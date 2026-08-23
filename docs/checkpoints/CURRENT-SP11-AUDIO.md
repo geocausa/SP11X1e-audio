@@ -10,10 +10,11 @@ Development lineage `agent/psycho-bass-20260818` has been fast-forwarded into `m
 
 > **2026-08-23 live-userspace note:** the promoted kernel/protection baseline
 > remains Golden v32, but the current per-user PipeWire graph is the disposable
-> UbiG candidate from `ubig/deblob-main` at pushed tip `1db43db`. It is not
+> UbiG candidate from `ubig/deblob-main` at pushed tip `e128acd`. It is not
 > promoted to Golden and retains exact rollback to the Windows-binary bridge.
-> All machine-verifiable M6 gates are GREEN; only the matched physical
-> Windows-vs-UbiG acoustic matrix / operator listening verdict remains. See
+> All objective M6 gates, including a fresh same-geometry native-Windows-vs-UbiG
+> physical acoustic matrix, are GREEN. Only the operator's explicit subjective
+> listening/promotion verdict remains. See
 > `docs/audit/2026-08-22-SP11-AUDIO-FULL-STATE-AUDIT.md` for the current gate
 > and provenance decisions.
 
@@ -51,6 +52,13 @@ mean absolute from 315 Hz up and ~0.20 dB from 630 Hz up; noise-robust matched
 below 315 Hz remains lower-confidence because the fixed SP7 fixture is in a
 normal household environment, not an anechoic room. PA24 remains the accepted
 production point; there is no current evidence to raise it toward PA31.
+
+For the active UbiG candidate, a fresh 2026-08-23 Movie/25% native-Windows vs
+UbiG two-pass matrix in the same current SP7 geometry is tighter still after
+same-run digital normalization: ~`0.227 dB` MAE from 315 Hz up and ~`0.221 dB`
+from 630 Hz up, with near-zero bias. This closes the objective UbiG M6 acoustic
+gate. UbiG is nevertheless not Golden until the operator explicitly accepts the
+consecutive Windows/UbiG listening A/B and requests promotion.
 
 ## Exact promoted module identities
 

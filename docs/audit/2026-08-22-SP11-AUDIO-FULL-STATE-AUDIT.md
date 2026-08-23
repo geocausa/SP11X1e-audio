@@ -7,10 +7,13 @@ boot, the canonical Git repository and research branches, the local reverse-
 engineering archive/kernel kitchen, the older Linux `SP11-AUDIO-AUDIT` copy,
 and the live SP7 evidence store available through PiMaster.
 
-The operator required **no reboot**. No GRUB default, boot image, initramfs,
-DTB, kernel module, topology, UCM route or live amplifier control was replaced.
-The running audio graph was not restarted. Read-only checks and previously
-bounded instrumentation were used.
+The original 2026-08-22 audit required **no reboot**. No GRUB default, boot
+image, initramfs, DTB, kernel module, topology, UCM route or live amplifier
+control was replaced during that pass, and the running audio graph was not
+restarted. Later 2026-08-23 closure follow-ups are explicitly dated below. F06
+used an operator-authorized one-shot native-Windows oracle reboot and then
+returned to the unchanged Golden-v32 default; no promoted boot artifact was
+replaced.
 
 ## Executive result
 
@@ -22,25 +25,27 @@ feedback is active in the accepted Windows-shaped 8/24-kHz layout, and the
 current boot contains no PA fault/recovery, SoundWire fault, XRUN or canonical
 GLINK timeout.
 
-The main remaining risk is **UbiG physical qualification, not a broken live
-audio path**. The reproducibility risk identified in F01 was closed on
+There is now **no unresolved technical finding in this audit**. The only
+remaining UbiG action is the operator's subjective listening/promotion decision,
+not a broken or unqualified measured audio path. The reproducibility risk
+identified in F01 was closed on
 2026-08-23: Golden v32 is now replayable from a hash-pinned pristine Linux
 7.1.5 base plus a compact tracked source overlay and ordered patches 0069-0071.
 A zero-state build reproduced all five deployed v31 identities, all five v32
 identities, and the runtime ELF payload digests of all five historical Golden
 modules. The large historical kitchens are therefore no longer the sole source
-of truth, although cleanup remains a separate manifest-driven task.
+of truth; the later F07 manifest-driven cleanup was completed and Golden-v32
+verification remained PASS afterward.
 
 The active userspace graph is the disposable UbiG candidate, not the promoted
-Windows-binary bridge. Its source and latest bounded gates are pushed, it is
+Windows-binary bridge. Its source and objective M6 evidence are pushed, it is
 W^X-hardened and maps no Windows DSP DLL, but it is **not Golden yet**. Follow-up
-M6 work on 2026-08-23 closed every machine-verifiable promotion gate: the same
-filter process exceeded eight continuous hours with zero restarts, deterministic
-program seeks passed under exact DSP mute, a 30-second real-output WSA telemetry
-run was fault-clean, and the tracked private-pack builder reproduced the active
-v4 owner pack byte-for-byte from owner-supplied inputs. The only remaining M6
-promotion gate is the matched physical Windows-vs-UbiG acoustic matrix / operator
-listening verdict.
+M6 work on 2026-08-23 closed every machine-verifiable gate and then completed a
+fresh native-Windows-vs-UbiG physical matrix in the same current SP7 geometry.
+Same-run normalized physical/digital transfer differs by only 0.227 dB MAE from
+315 Hz up and 0.221 dB from 630 Hz up, with near-zero bias. The objective F06
+acoustic finding is therefore closed. Only the operator's explicit subjective
+listening/promotion verdict remains before UbiG can replace the Windows bridge.
 
 ## Authoritative current state
 
@@ -187,16 +192,17 @@ v32 was promoted on Aug-21.
 
 **Closure:** The workspace README and `CURRENT-AUDIO-GOLDEN.txt` were updated
 for Golden v32 during the audit and refreshed again on 2026-08-23 so the live
-userspace note now states the actual remaining UbiG gate rather than the already
-closed seek/soak/telemetry work. `CURRENT-AUDIO-GOLDEN.txt` references canonical
+userspace note now states the actual remaining UbiG decision rather than the
+already closed objective M6 work. `CURRENT-AUDIO-GOLDEN.txt` references canonical
 `main`/the audit instead of freezing a commit hash that immediately goes stale.
-`docs/checkpoints/CURRENT-SP11-AUDIO.md` was refreshed to pushed UbiG tip
-`1db43db` and the four-entry post-F07 rollback set. The long render ledger has an
-explicit v32 audit banner; its detailed v31 chronology remains valuable
-historical evidence and is intentionally not rewritten.
+`docs/checkpoints/CURRENT-SP11-AUDIO.md` was refreshed through pushed UbiG
+acoustic-gate tip `e128acd` and the four-entry post-F07 rollback set. The long
+render ledger has an explicit v32 audit banner; its detailed v31 chronology
+remains valuable historical evidence and is intentionally not rewritten.
 
-**Result:** F02 is closed; the project entry points agree on Golden v32 and the
-single remaining physical UbiG promotion gate.
+**Result:** F02 is closed; the project entry points agree on Golden v32, the
+objective UbiG acoustic PASS, and the sole remaining subjective promotion
+verdict.
 
 ### F03 — CLOSED 2026-08-23: decisive SP7 raw evidence is preserved locally
 
@@ -289,12 +295,12 @@ passed`, and the Golden-v32 verifier remained PASS.
 mutation is pending; `settable-v1` remains quarantined for future isolated
 experiments only if new physical evidence justifies revisiting it.
 
-### F06 — MEDIUM, narrowed 2026-08-23: only matched physical acoustic promotion gate remains
+### F06 — CLOSED 2026-08-23: fresh Windows-vs-UbiG physical acoustic matrix passes
 
 **Where:** `/home/geoca/Documents/SP11-PROJECT/03-UbiG`, branch
-`ubig/deblob-main`, pushed tip `1db43db`.
+`ubig/deblob-main`, pushed acoustic-gate tip `e128acd`.
 
-**Current candidate identity:** plugin SHA-256
+**Candidate identity:** plugin SHA-256
 `b57d9cf7ef0482ab0c6cb3089d3d456dc034a66c4244b835ca97989883de8e2c`;
 private Stage-B v4 pack SHA-256
 `30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df`;
@@ -303,36 +309,71 @@ static-window SHA-256
 The filter-chain maps the source-owned UbiG plugin and no Windows DSP DLL;
 `MemoryDenyWriteExecute=yes` remains effective.
 
-**Machine-verifiable M6 closure:** The same `filter-chain.service` process,
-PID 599944, has been continuously active since 2026-08-22 23:11:10 BST with
-`NRestarts=0` and exceeded nine hours during the follow-up. The exact retained
-Seven Nation Army source reproduced the three deterministic FLUSH|ACCURATE
-program seeks under exact endpoint DSP mute with no candidate restart,
-control-generation movement, xrun/NaN/crash marker or kernel audio fault. A
-separate 30-second unmuted physical-output run at the existing 14% visible
-volume retained both WSA amps at PA `01`, status `2f/00`, errors `00/00`,
-current-limit code 17/no override; the bounded kernel observer returned 40
-samples per amp with `failed=0x0` and no WSA/SoundWire/XRUN/canonical-GLINK
-fault. The observer was returned to zero afterward.
+**Earlier M6 machine gates:** >8-hour single-process stability, deterministic
+program seek, repeated playback, volume/mute, profile/Custom transitions,
+real-output PA/protection telemetry, private-pack reproducibility and the public
+regression suite were already GREEN. Candidate control and the full Python suite
+remain PASS (`211 passed, 3 skipped, 6 subtests passed`).
 
-The private-owner-pack distribution/reproduction story is also now explicit and
-proven. `ubig/tools/build_stageb_v4_pack.py` regenerated a mode-0600,
-1,139,037-byte v4 pack byte-for-byte identical to the active pack from the
-owner's private v3 pack plus locally owned `DolbyAPOVR.dll`; no private/vendor
-payload is stored in Git. Candidate control checks pass and the full Python
-suite is `211 passed, 3 skipped, 6 subtests passed`. One stale test expectation
-for the retired v3 pack hash was corrected as part of the M6 checkpoint.
+**Fresh matched physical gate:** the SP11 was rebooted once through one-shot EFI
+`BootNext` into native Windows, leaving firmware order and the saved Golden-v32
+GRUB default unchanged. The Dolby Access settings hive was read directly and
+reported `{"IntelligentEqualizerType":"Off","Type":"Movie"}`. Windows and
+UbiG then ran the exact deterministic consumer-matrix-v3 source (SHA-256
+`ed983fb77f7f42ff4f593d75c981ad41e26f25eae7fd46d23c49a9867a8558fe`)
+at 25% endpoint, two passes each, using the same SP7 RAW microphone endpoint at
+0.000 dB capture gain. Each physical tone row was normalized by the digital
+fundamental from that same run; rows were admitted only when repeat delta was
+<=1.0 dB on both systems.
 
-Reviewed evidence is under
-`03-UbiG/artifacts/reviewed/2026-08-23-ubig-m6-longrun-seek-physical-telemetry/`
-and the corresponding finding is
-`03-UbiG/docs/findings/2026-08-23-UBIG-M6-MACHINE-GATES-CLOSED.md`.
+On common repeat-stable normalized physical/digital-transfer rows:
 
-**Remaining before promotion:** only a matched **physical Windows-vs-UbiG
-acoustic matrix / operator listening verdict**. This cannot be inferred from
-PipeWire samples or protection telemetry. Golden v32 rollback must remain
-installed until that physical gate passes. The Windows userspace bridge must not
-be retired before then.
+- **315 Hz+:** 34 rows, `0.227030 dB` MAE, `-0.004343 dB` UbiG-Windows bias,
+  `1.010819 dB` maximum absolute difference;
+- **630 Hz+:** 30 rows, `0.221240 dB` MAE, `+0.015177 dB` bias,
+  `1.010819 dB` maximum absolute difference;
+- **0.05 -> 0.20 level law:** 10 common stable frequency/channel pairs,
+  `0.264778 dB` MAE, `+0.208133 dB` bias, `0.767633 dB` max absolute.
+
+Fresh physical SP7 RAW hashes are
+`205c57da4b52e7c8de1ae52064b58032228c052e7173605235cd223dc6362a78`
+(Windows) and
+`1e84911defa35c5622cf0de9a598e831021d7da31fba75bcdb6297637d5bfa37`
+(UbiG). Fresh digital captures are
+`4b418c6769f3c982db7126cf6405b7d290d445c08ba456f7797084b7e335f1e1`
+(Windows WASAPI loopback) and
+`674485308a6aaa8d404e797b6498e36ce476c80d1b6ca05dce2956b845c077a7`
+(UbiG post-DSP PipeWire).
+
+The earlier multi-dB offsets seen against the retained Aug-21 Windows capture
+therefore came from stale physical geometry/environment, not a comparable large
+UbiG DSP error: they disappear in the fresh same-geometry acquisition.
+
+**Real-program sanity A/B:** native Windows Movie/10% and UbiG Movie/10% each
+played the same 19-49 s excerpt of the retained Seven Nation Army MP3 (SHA-256
+`951a65cc63fee17622485c1d94708614005524c7e20f86d3d815327f6bd0e8b3`).
+Both SP7 RAW and digital captures are preserved. The music pair is deliberately
+not the quantitative oracle because Windows MediaPlayer and Linux GStreamer have
+different playback-start latency. No subjective operator verdict is inferred
+from playback alone.
+
+**Post-return state:** the machine is back on the exact Golden-v32 boot marker,
+Golden-v32 verifier PASS, one-shot `BootNext` cleared, saved GRUB default still
+`sp11-audio-v32-feedback-exact-golden`, UbiG saved Custom profile/20-band EQ and
+14% endpoint restored exactly, services active with zero restarts, and no new
+WSA/SoundWire/XRUN/GLINK/kernel audio fault matched after the Linux return boot.
+
+Reviewed public evidence is under
+`artifacts/reviewed/2026-08-23-f06-ubig-fresh-windows-acoustic/` and UbiG
+`artifacts/reviewed/2026-08-23-ubig-m6-fresh-windows-acoustic/`. Decisive raw
+WAVs/loopbacks are preserved outside Git under
+`00-RE-archive/ubig-m6-acoustic-20260823/` with a self-verifying SHA-256
+manifest.
+
+**Result:** the objective F06 physical acoustic finding is closed. UbiG remains
+**unpromoted** and the Windows userspace bridge must remain available until the
+operator explicitly accepts the subjective A/B and requests promotion. This is
+now a promotion decision, not an unresolved technical audit finding.
 
 ### F07 — CLOSED 2026-08-23: diagnostic boot/build clutter cleaned
 
@@ -466,9 +507,9 @@ these deletions only after F01 clean replay and explicit manifest validation.
 
 1. **DONE 2026-08-23:** normalize and test the exact-v32 source/patch/build
    recipe (F01); zero-state replay PASS.
-2. Finish UbiG M6 without touching Golden rollback: only the matched physical
-   Windows-vs-UbiG acoustic matrix / operator listening verdict remains; all
-   machine-verifiable M6 gates are GREEN as of 2026-08-23.
+2. **DONE 2026-08-23 (objective M6):** fresh matched Windows-vs-UbiG physical
+   acoustic matrix passed and F06 is closed. UbiG remains unpromoted until the
+   operator explicitly accepts the subjective A/B; Golden rollback stays intact.
 3. If stronger bass certainty is desired, repeat sub-315-Hz RAW work in a quiet
    controlled window; do not tune against the current low-confidence residual.
 4. **DONE 2026-08-23:** GET-only graph-calibration policy normalized (F05);
@@ -481,10 +522,13 @@ outside the built-in-speaker sound-quality gate.
 
 ## Audit changes and publication
 
-- completed and pushed the coherent UbiG pre-audit work as `a92e5ef`, then follow-up M6 machine-gate closure as `1db43db`;
+- completed and pushed the coherent UbiG pre-audit work as `a92e5ef`, M6 machine-gate closure as `1db43db`, and fresh Windows acoustic-gate closure as `e128acd`;
 - refreshed the workspace README and current-Golden pointer;
 - preserved the missing SP7 audit and v32 acoustic evidence locally;
 - added this audit and a v32 warning banner to the canonical render ledger;
 - later closed F04 and F07 without rebooting or replacing runtime audio
   components; F07 retained the selected v32/v31/v28/CPS-v3 rollback set and
-  removed only manifest-reviewed diagnostic/build payloads.
+  removed only manifest-reviewed diagnostic/build payloads;
+- F06 used an explicitly authorized one-shot native-Windows oracle boot, then
+  returned to unchanged Golden v32 with the saved GRUB default intact and the
+  verifier PASS.
