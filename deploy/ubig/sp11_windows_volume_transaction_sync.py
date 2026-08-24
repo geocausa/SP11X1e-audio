@@ -81,7 +81,7 @@ VOLUME_ONLY_CONTROL_NAME = "SP11 Windows Volume Only"
 MUTE_CONTROL_NAME = "SP11 Windows Endpoint Mute"
 DEFAULT_CARD = "hw:0"
 DEFAULT_PCM_STATUS = Path("/proc/asound/card0/pcm0p/sub0/status")
-DEFAULT_TLV_WRITE = Path.home() / ".local/lib/ubig-private/tlv_write"
+DEFAULT_TLV_WRITE = Path.home() / ".local/lib/ubig/tlv_write"
 DEFAULT_DELTA_TABLE = (
     ROOT / "deploy/ubig/sp11_gainstep_runtime_deltas.json"
     if ROOT is not None

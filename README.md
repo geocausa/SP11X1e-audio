@@ -1,259 +1,142 @@
 # Surface Pro 11 (X1E) audio for Linux
 
 Evidence-driven Linux built-in-speaker enablement and Windows-parity work for
-the Microsoft Surface Pro 11 with Qualcomm X1E80100 AudioReach, SoundWire and
-dual WSA884x amplifiers.
+the Microsoft Surface Pro 11 with Qualcomm X1E80100 AudioReach, SoundWire,
+dual WSA884x amplifiers, and the native **UbiG** userspace speaker engine.
 
-> **Current recommended state — GOLDEN v32 (2026-08-21).** v32 is the
-> promoted/default SP11 Linux built-in-speaker stack. It keeps Golden v31's
-> kernel, DTB, q6apm, canonical topology, exact mute/volume/CKV semantics and
-> accepted WSA8845 transport fixes, then closes the remaining VI/CPS feedback
-> dataplane with three Windows-proven deltas: protection TX clocks only after
-> both PAs are active, active feedback `Offset2=0` on SoundWire ports 10/11/13,
-> and the CPS controller wake/packetization state. On the **canonical topology**
-> Linux now emits native VI TAP2 at 8 kHz / 640-byte payload and native CPS TAP3
-> at 24 kHz / 1920-byte payload with Windows-range magnitudes. Repeated
-> silence/tone stress, a -12/-6/-3/0 dB 997-Hz staircase, >8 h idle, and normal
-> reboot gates completed with zero PA faults/recoveries and zero canonical
-> GLINK timeouts. Golden v31 remains an explicit fixed-initrd fallback.
+> **Current recommended state — GOLDEN v33 + UbiG (2026-08-24).** The built-in
+> speaker output/protection target is closed at measurement-level Windows parity.
+> Golden v33 keeps the complete Golden-v32 AudioReach/WSA8845/SoundWire,
+> mute/volume/CKV and VI/CPS lifecycle and adds one Windows-proven producer fix:
+> physically materialize WSA `TOP_CFG1=0x03` after each enabled VI pair. This
+> corrects pre-SPVI TAP2 from Linux `I,V,I,V` to native-Windows `V,I,V,I` from
+> the first valid packet while leaving q6apm/SP_VI unmodified.
 >
-> Start with [`deploy/golden-v32/`](deploy/golden-v32/), the
-> [`Golden v32 promotion checkpoint`](docs/checkpoints/2026-08-21-GOLDEN-V32-PROMOTED.md),
-> the [`CURRENT handoff`](docs/checkpoints/CURRENT-SP11-AUDIO.md), and the canonical
-> [`render-parity ledger`](docs/audit/2026-08-12-SP11-RENDER-PARITY-LEDGER.md).
+> UbiG is the production Linux userspace speaker-DSP identity. The visible sink
+> is `effect_input.sp11_ubig`; active Linux nodes/services no longer use the
+> proprietary Windows vendor name. Historical Windows-oracle material retains
+> vendor identifiers only where needed for provenance.
 >
-> **Rough Windows-parity estimate (2026-08-21): ~98% overall, with a practical
-> 97–99% engineering range for normal built-in-speaker use.** This is not a
-> mathematical audio-quality score. In current matched two-pass SP7 RAW tests,
-> Windows vs v32 differs by only ~0.29 dB mean absolute in normalized level law
-> from 315 Hz up (~0.20 dB from 630 Hz up). A matched 30 s *Seven Nation Army*
-> program test gives ~0.34 dB mean absolute physical/digital-transfer difference
-> from 315 Hz up (~0.28 dB from 630 Hz up), while the Windows/Linux digital
-> program drive itself stays within ~0.26 dB by band. The remaining uncertainty
-> is mainly below 315 Hz, where the small speakers and ordinary household
-> measurement environment make cars/planes/floor/room noise disproportionately
-> important. See the
-> [`v32 acoustic-parity estimate`](docs/checkpoints/2026-08-21-V32-WINDOWS-ACOUSTIC-PARITY-ESTIMATE.md).
+> Fresh source-identical quiet-room Windows/Linux program A/B is within roughly
+> **0.1 dB** across useful bands at both 10% and 50%. At 50%, the 10-second
+> interior differs by **+0.027 dB broadband** and **+0.002 dB over 80 Hz–10 kHz**
+> with envelope correlation **0.956**. A 20-cycle true-cold 50% protection soak
+> alternating 160/997 Hz completed with **20 enables, 20 disables, 0 PA faults,
+> 0 `err0=0x20`, and 0 XRUNs**.
+
+Start with [`deploy/golden-v33/`](deploy/golden-v33/),
+[`deploy/ubig/`](deploy/ubig/), the
+[`Golden v33 promotion checkpoint`](docs/checkpoints/2026-08-24-GOLDEN-V33-PROMOTED.md),
+and the [`CURRENT handoff`](docs/checkpoints/CURRENT-SP11-AUDIO.md).
 
 ## Recommended boot set
 
 | Entry | Role | Status |
 |---|---|---|
-| `sp11-audio-v32-feedback-exact-golden` | Daily driver | **Promoted/default** |
-| `sp11-audio-golden-v31` | Fixed-initrd rollback | **Keep** |
-| `sp11-audio-golden-v28` | Historical comparison | **Keep** |
-| `sp11-audio-cps-v3` | Conservative rescue | **Keep** |
+| `sp11-audio-golden-v33-topcfg1-physical-vi` | Daily driver | **Promoted/default** |
+| `sp11-audio-v32-feedback-exact-golden` | Immediate fixed-initrd rollback | **Keep** |
+| `sp11-audio-golden-v31` | Historical rollback | Keep |
+| `sp11-audio-golden-v28` | Historical comparison | Keep |
+| `sp11-audio-cps-v3` | Conservative rescue | Keep |
 
-Historical one-off and forced-TAP candidates are diagnostic artifacts, not
-normal boot targets. In particular, forced TAP2/TAP3 topology boots can stall
-ADSP/GLINK teardown at reboot; Golden v32 does **not** require them because VI
-and CPS are visible on the canonical topology.
+Recent SP_VI/TOP_CFG1 diagnostic candidates are superseded and must not remain
+normal boot targets. In particular, the downstream SP_VI `[2,1,4,3]` experiment
+is rejected: after the producer was corrected it became a double swap and
+reproduced right-amplifier fault/static behavior.
 
-## What Golden v32 reproduces
+## Golden v33 in one paragraph
 
-Golden v32 includes the accepted v31 baseline plus the now-closed feedback path:
+Golden v33 is Golden v32 plus patch
+[`0072`](patches/0072-ASoC-lpass-wsa-macro-SP11-materialize-Windows-TOP-CFG1.patch).
+Native Windows physically writes WSA macro `TOP_CFG1=0x03` after each enabled VI
+pair; Linux's regmap default did not guarantee that the physical register was
+materialized. The v33 write changes TAP2 itself, before SP_VI, to Windows
+`V,I,V,I`. `snd_q6apm` remains the Golden build (`687B16CF9C43B43E90C0746`).
 
-- protected AudioReach speaker graph with SP/SPVI protection and CPS feedback;
-- original matching SP11 Dolby VR/VLLDP code on Linux, effective Movie profile;
-- correct pre-Dolby PCM boundary and frozen-per-generation VLLDP postgain lifecycle;
-- measured Windows endpoint taper and 2% media-key step;
-- final AudioReach `VOL_CTRL` Q28 with Windows left-new/right-old -> both-new ordering;
-- all 30 recovered volume-dependent GainStep/MSIIR rows;
-- Qualcomm prior-CKV -> new-CKV changed-key calibration semantics (`vol->vol`,
-  `cal->vol`, `vol->cal`), closing the pathological 40-Hz Volume-Up transient;
-- exact final endpoint DSP mute at `0x4a63 / 0x08001039`, with hardware mute
-  retained only as fail-closed fallback;
-- Windows SOFT_PAUSE and delayed-audio drain behavior;
-- exact recovered WSA8845 63-write cold init, 10-write START and 6-write STOP;
-- resident SoundWire clock-stop retention without replaying cold codec state;
-- DP1/DAC `BlockCtrl3=0x00`, DP2/COMP `OffsetCtrl2=0x07`, and
-  DP3/BOOST `OffsetCtrl2=0x1f`;
-- Windows PA-before-protection-clock ordering, eliminating the early-candidate
-  PA fault/static-ghost loop;
-- active SoundWire feedback `Offset2=0` on ports 10/11/13;
-- CPS wake/packetization state `0x105c=0x0005000f` + DP13 `0x1d54=3`;
-- **native canonical VI TAP2: 8 kHz / 640-byte payload, nonzero/unique,
-  Windows-range magnitude**;
-- **native canonical CPS TAP3: 24 kHz / 1920-byte payload, nonzero,
-  ~449–452k RMS versus native Windows ~455k**;
-- demand-driven PA idle teardown and clean canonical reboot behavior;
-- deterministic SP7 external-mic seek closure.
+The root module tree is synchronized to the same v33 WSA macro as the fixed
+initrd, closing the future-initramfs-regeneration trap. Golden v32 fixed boot
+assets remain untouched rollback.
 
-The promoted identity is hash-pinned in
-[`deploy/golden-v32/manifest.json`](deploy/golden-v32/manifest.json). Golden v31
-remains preserved at [`deploy/golden-v31/`](deploy/golden-v31/) as the immediate
-rollback baseline.
+## UbiG production userspace
 
-## Current status / what remains open
+UbiG is the source-owned native SP11 userspace speaker engine. Its public
+48-kHz stereo path implements the accepted Stage A/Stage B behavior, seven
+profiles, live Custom/20-band GEQ, endpoint postgain and the realtime control
+page without loading proprietary Windows DSP binaries.
 
-The built-in-speaker **VI/CPS feedback dataplane and daily-driver lifecycle are
-GREEN** on Golden v32. Remaining work is non-blocking relative to that closure:
+Canonical active names:
 
-1. **Sub-315-Hz acoustic confidence.** Current 315 Hz+ Windows/v32 parity is
-   already in the few-tenths-of-a-dB class. Repeat deep-bass work only in a quiet
-   household window or with a more controlled fixture; do not tune PA/EQ against
-   isolated room, neighbour, car, aircraft or floor impulses. PA24 remains the
-   accepted production point.
-2. **Pristine-source packaging.** Normalize the historical Phase91 platform
-   baseline into a clean public replayable patch series; do not imply private
-   vendor firmware/ACDB bytes are redistributable.
-3. **Diagnostic teardown.** Forced TAP2/TAP3 topology is diagnostic-only because
-   it can leave ADSP/GLINK teardown waiting during reboot. Canonical v32 feedback
-   does not depend on it.
-4. **Out-of-scope hardware.** Suspend/resume, microphone/input and Bluetooth are
-   outside the current built-in-speaker completion gate.
+- stable plugin: `~/.local/lib/ubig/ubig-sp11.so`
+- stable ALSA TLV helper: `~/.local/lib/ubig/tlv_write`
 
-## Reproducing the current recipe
+- visible/default sink: `effect_input.sp11_ubig`
+- hidden engine: `effect_input.sp11_ubig_engine`
+- engine output: `effect_output.sp11_ubig`
+- diagnostic bypass: `effect_input.sp11_ubig_bypass`
+- services: `sp11-ubig-volume-sync.service` and
+  `sp11-ubig-monitor-link.service`
 
-The repository deliberately separates redistributable integration from private
-vendor material.
+See [`ubig/`](ubig/), [`deploy/ubig/`](deploy/ubig/) and
+[`ubig/docs/STATUS.md`](ubig/docs/STATUS.md).
+
+## Verification
+
+On the deployed SP11:
 
 ```bash
-git clone git@github.com:geocausa/SP11X1e-audio.git
-cd SP11X1e-audio
-./deploy/golden-v32/verify-golden-v32.sh
+sudo ./deploy/golden-v33/verify-golden-v33.sh
 ```
 
-For Dolby, place your own matching SP11 vendor DLLs in
-`~/.local/lib/sp11-dolby/`; `deploy/dolby/build-production.sh` verifies their
-pinned SHA-256 values before building and refuses mismatches. Private ACDB,
-firmware and dumps are likewise not redistributed.
-
-Once the exact Golden v32 boot artifacts are present at the manifest path:
+For a clean source replay:
 
 ```bash
-sudo ./deploy/golden-v32/install-grub-entry.sh
+JOBS=8 ./repro/golden-v33/build-and-verify.sh
 ```
 
-That command verifies the image, recreates the hash-pinned Golden v32 GRUB entry
-and selects it as the saved default. It **does not reboot**.
+The v33 reproduction first passes the complete v32 clean recipe, then applies
+only patch 0072 and requires the exact v33 source SHA, module srcversions and
+runtime ELF digest.
 
-The complete pristine kernel build is intentionally not advertised as solved
-until the old Phase91 platform baseline has been replayed into a clean patch
-series. The current manifest + findings + patch history make the deployed state
-auditable from the known SP11 7.1.5 platform baseline without pretending vendor
-bytes or unnormalized history are public source.
+## Packages / release
 
-## Proven rollback baseline
+The release publishes:
 
-`sp11-audio-cps-v3` remains the conservative rescue image. Its provenance is in
-[`deploy/audio-cps-v3/DEPLOYMENT-PROVENANCE.md`](deploy/audio-cps-v3/DEPLOYMENT-PROVENANCE.md).
-Every new kernel bake must still pass `tools/verify_sp11_kernel_bake.py` with its
-final DTB before it can replace a connected development machine.
+- `ubig-control` — GTK4 UbiG profile / 20-band GEQ control application;
+- `sp11x1e-audio-golden-v33` — hash-pinned v33 WSA root-module hardening,
+  initramfs guard and boot identity verifier.
+
+Neither package redistributes private Windows vendor binaries, ACDB, owner packs
+or firmware.
 
 ## Evidence policy
 
-The recovered corpus contains strong evidence, incomplete fragments and prior
-AI-generated analysis. This repository follows these rules:
-
 - Bind claims to hashes, addresses, captures or reproducible live observations.
-- Prefer the shipped Windows binaries and dynamic QGPR/KD captures over prose
-  produced in earlier sessions.
-- Record hypotheses as hypotheses and preserve corrected conclusions.
-- Keep raw vendor firmware, ACDB and dumps untracked unless redistribution
-  rights are known.
-- Never overwrite a working kernel, DTB, topology or UCM installation; every
-  candidate gets a separate rollback-safe boot entry.
-- Do not treat a successful PCM open or graph start as proof that speaker
-  protection is actively limiting the hardware.
+- Prefer native Windows runtime/binary evidence over generic Qualcomm assumptions
+  when they disagree on this board.
+- Preserve rejected experiments and corrected conclusions.
+- Keep private vendor binaries, ACDB and owner-only tuning payloads out of Git.
+- Every risky kernel experiment gets a rollback-safe boot path.
+- Direct debugger physical WSA MMIO reads are not an accepted method on this
+  machine.
 
 ## Repository map
 
 | Path | Purpose |
 |---|---|
-| [`deploy/golden-v32/`](deploy/golden-v32/) | Promoted Golden v32 manifest, verifier and GRUB installer |
-| [`deploy/golden-v31/`](deploy/golden-v31/) | Golden v31 fixed-initrd rollback recipe |
-| [`deploy/audio-clean/`](deploy/audio-clean/) | Accepted boot identity, hashes and Phase91 boot assets |
-| [`deploy/ucm2/`](deploy/ucm2/) | SP11 ALSA UCM policy |
-| [`deploy/pipewire/98-sp11-dolby-bypass.conf`](deploy/pipewire/98-sp11-dolby-bypass.conf) | Identity boundary reserved for Dolby work |
-| [`patches/`](patches/) | Ordered Linux changes and their status |
-| [`docs/audit/`](docs/audit/) | Windows/Linux transaction and provenance audits |
-| [`docs/findings/`](docs/findings/) | Evidence-backed technical findings and corrections |
-| [`docs/deployment/`](docs/deployment/) | Candidate identities, validation gates and outcomes |
-| [`artifacts/reviewed/`](artifacts/reviewed/) | Small reviewed records safe to version |
-| [`tools/`](tools/) | Capture, topology, ACDB and QGPR analysis utilities |
-| [`tools/dolby/`](tools/dolby/) | State-pinned Dolby oracle parser and discriminating matrix-stimulus generator |
+| [`deploy/golden-v33/`](deploy/golden-v33/) | Current Golden identity / verifier / hardening |
+| [`repro/golden-v33/`](repro/golden-v33/) | Clean v32→v33 source reproduction |
+| [`deploy/ubig/`](deploy/ubig/) | Production UbiG userspace namespace/helpers |
+| [`ubig/`](ubig/) | Native UbiG DSP engine/control source |
+| [`packaging/debian/`](packaging/debian/) | Debian release builders |
+| [`patches/`](patches/) | Ordered Linux source deltas |
+| [`docs/checkpoints/`](docs/checkpoints/) | Promotion and current-state records |
+| [`docs/findings/`](docs/findings/) | Evidence-backed technical findings |
+| [`artifacts/reviewed/`](artifacts/reviewed/) | Small reviewed evidence records |
+| [`deploy/golden-v32/`](deploy/golden-v32/) | Immediate fixed-initrd rollback baseline |
 
-The accepted decision is documented in
-[`2026-08-01-audio-clean-baseline.md`](docs/deployment/2026-08-01-audio-clean-baseline.md).
-The Windows/Linux start sequence is in
-[`2026-07-28-windows-linux-start-transaction-ledger.md`](docs/audit/2026-07-28-windows-linux-start-transaction-ledger.md).
+## Remaining scope
 
-## Reproducing the tracked analysis
-
-Analyze a local state-pinned Dolby capture without committing the raw WAV/DMP:
-
-```sh
-python tools/dolby/analyze_state_pinned_oracle.py \
-  --source-wav sp11-known-input-stimulus-48k.wav \
-  --loopback-wav windows-loopback-20260807-075900.wav \
-  --dump audiodg-2800-source27p5.dmp
-```
-
-Generate the next in-phase / left-only / anti-phase discriminator locally:
-
-```sh
-python tools/dolby/generate_stereo_matrix_probe.py diagnostic-stereo-matrix-75hz.wav
-```
-
-
-Lint and inventory a decoded or binary AudioReach topology:
-
-```sh
-./tools/ar_topology_lint.py topology.bin
-./tools/ar_topology_inventory.py topology.bin --json inventory.json --markdown inventory.md
-```
-
-Decode Windows ACDB graph objects and their selector/connection metadata:
-
-```sh
-./tools/ar_graph_open_inventory.py 01e842_POOL.bin --offset 0x35d84
-./tools/acdb_gkv_inventory.py GKVT.bin GKVL.bin --pool 01e842_POOL.bin --json windows-gkv.json
-./tools/acdb_sclu_inventory.py 00ea12_SCLU.bin \
-  --scde 00f4be_SCDE.bin --scdo 00f4f2_SCDO.bin \
-  --pool 01e842_POOL.bin --json windows-sclu.json
-```
-
-Reconstruct the typed graph closure and decode the captured activation lists:
-
-```sh
-./tools/windows_graph_closure.py windows-bundle.json windows-sclu.json \
-  --json windows-closure.json
-./tools/qgpr_activation_inventory.py qgpr.decoded.csv windows-gkv.json \
-  --json activations.json
-```
-
-Decode an armed CPS V3 live-observer journal without assigning physical units
-to the raw register words:
-
-```sh
-journalctl -b -o short-monotonic -g 'SP11 WSA live sample=' \
-  | ./tools/sp11_wsa_live_decode.py /dev/stdin --output wsa-live.json
-```
-
-The repository intentionally does not offer a blind one-command installer for
-unknown machines. Deployment is tied to the exact SP11 hardware, hashes and
-rollback procedure recorded under `deploy/` and `docs/deployment/`.
-
-## Scope boundary
-
-The archived PipeWire EQ is disabled and is not part of parity work. The Dolby
-identity boundary must remain bit-transparent until the vendor processing is
-understood well enough to implement and test it without hiding defects in the
-kernel, topology or protection path.
-
-### Golden v32 clean kernel replay
-
-Audit finding F01 is closed by the tracked clean replay recipe in
-`repro/golden-v32/`. It rebuilds from a hash-pinned pristine Linux 7.1.5 tree
-plus the tracked 23-file Golden-v31 overlay, applies ordered patches 0069-0071,
-and verifies both the five Golden module `srcversion`s and runtime ELF payload
-digests.
-
-```bash
-JOBS=8 ./repro/golden-v32/build-and-verify.sh
-```
-
-The recipe is verification-only: it does not install modules, modify GRUB or
-reboot. See `repro/golden-v32/README.md` before changing `SP11_REPRO_WORK`,
-because that work directory is deleted at the start of each run.
+The built-in speaker output/protection target is closed. New work should begin
+from Golden v33 + UbiG and be tracked as a separate subsystem target (for
+example microphone/input, suspend/resume or Bluetooth) rather than reopening
+the accepted speaker path without reproducible evidence.

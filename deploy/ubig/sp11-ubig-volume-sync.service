@@ -8,6 +8,8 @@ Wants=pipewire.service wireplumber.service
 Type=simple
 Environment=XDG_RUNTIME_DIR=%t
 Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=%t/bus
+Environment=UBIG_CONTROL_PATH=%t/ubig-control-v2
+Environment=UBIG_CONTROL_FORMAT=ubig-v2
 ExecStart=%h/.local/bin/sp11-volume-sync-dispatch
 Restart=on-failure
 RestartSec=1

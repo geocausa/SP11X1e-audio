@@ -722,3 +722,23 @@ BlockCtrl3 register for DP1/DAC and SIMPLE OffsetCtrl2 for DP3/BOOST. The
 Qualcomm master schedule supplies Windows values `0x00` and `0x1f`
 respectively; no constant transport values are invented. This is structural
 fidelity only and does not change the causal DP2/static conclusion.
+
+## `0072-ASoC-lpass-wsa-macro-SP11-materialize-Windows-TOP-CFG1.patch`
+
+Golden-v33 delta on top of the verified Golden-v32 reconstruction. Native
+Windows `qcaucd` physically writes WSA macro `TOP_CFG1=0x03` after each enabled
+VI pair. On SP11 Linux, `0x03` existed as a regmap default but was not guaranteed
+to be materialized physically under the cache policy.
+
+The mismatch is observable before SP_VI: Golden v32 first-valid TAP2 is
+`I,V,I,V`, while native Windows is `V,I,V,I`. This Denali-only write changes the
+producer itself to Windows `V,I,V,I` from the first valid packet while keeping
+Golden q6apm/SP_VI unchanged.
+
+The previous downstream SP_VI `[2,1,4,3]` reorder is rejected. Combined with
+this producer correction it double-swapped the contract and reproduced right-PA
+`err0=0x20` / static failures at 40/50%. Patch 0072 is therefore the accepted
+producer-boundary fix.
+
+Patch SHA-256:
+`3e4b214a78c9282af49c9b3d0b2e6f5249a5d9d9b93757dc506d90bac44a96e4`.

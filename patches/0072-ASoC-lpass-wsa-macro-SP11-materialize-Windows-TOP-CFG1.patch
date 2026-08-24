@@ -1,0 +1,33 @@
+From: SP11 Audio Reverse Engineering <sp11-audio@local>
+Date: Mon, 24 Aug 2026 02:15:00 +0100
+Subject: [PATCH 0072] ASoC: lpass-wsa-macro: materialize SP11 Windows TOP_CFG1
+
+Native Windows writes WSA macro TOP_CFG1=0x03 after each enabled VI pair.
+Linux carried 0x03 as a regmap default, but the SP11 cache policy can leave the
+physical register unwritten.
+
+The difference is observable before SP_VI: Golden v32 produces first-valid TAP2
+in I,V,I,V physical-lane order, while native Windows produces V,I,V,I.
+Materializing TOP_CFG1=0x03 on Denali changes the Linux producer itself to
+Windows V,I,V,I without changing q6apm/SP_VI channel mapping.
+
+A downstream SP_VI channel reorder was explicitly rejected. Once TOP_CFG1 was
+also materialized it became a double correction and reproduced right-amplifier
+err0=0x20 fault/static failures at 40/50%. Keep the correction at the WSA
+producer boundary where Windows performs it.
+
+Signed-off-by: SP11 Audio Reverse Engineering <sp11-audio@local>
+---
+--- a/sound/soc/codecs/lpass-wsa-macro.c
++++ b/sound/soc/codecs/lpass-wsa-macro.c
+@@ -1562,6 +1562,10 @@
+ 		snd_soc_component_update_bits(component, tx_reg1,
+ 					      CDC_WSA_TX_SPKR_PROT_RESET_MASK,
+ 					      CDC_WSA_TX_SPKR_PROT_NO_RESET);
++
++		/* Windows qcaucd materializes TOP_CFG1 after each enabled VI pair. */
++		if (of_machine_is_compatible("microsoft,denali"))
++			snd_soc_component_write(component, CDC_WSA_TOP_TOP_CFG1, 0x03);
+ 	} else {
+ 		snd_soc_component_update_bits(component, tx_reg0,
+ 					      CDC_WSA_TX_SPKR_PROT_RESET_MASK,

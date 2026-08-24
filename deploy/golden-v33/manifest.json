@@ -1,0 +1,60 @@
+{
+  "name": "SP11 Audio GOLDEN v33 \u2014 TOP_CFG1 physical VI parity",
+  "date": "2026-08-24",
+  "status": "promoted-default",
+  "kernel_release": "7.1.5-sp11-render-parity-v4+",
+  "boot_marker": "7.1.5-sp11-golden-v33-topcfg1-physical-vi",
+  "grub_id": "sp11-audio-golden-v33-topcfg1-physical-vi",
+  "boot_directory": "/boot/sp11-7.1.5-audio-golden-v33-topcfg1-physical-vi",
+  "base": {
+    "golden": "v32",
+    "kernel_dtb_q6apm_soundwire_wsa884x": "unchanged from Golden v32",
+    "canonical_topology_sha256": "1b0c7217fc67bb11da002b06563dd8c411b0f0e35ac40778bff3d65093061c9d"
+  },
+  "boot_artifacts": {
+    "vmlinuz-7.1.5-sp11-render-parity-v4+": "bca0a336c15d2995c61b8df9d449afb9df5fc8776a3da1ad034616f917bb428a",
+    "initrd.img-7.1.5-sp11-render-parity-v4+-golden-v33-topcfg1": "19db416046a363821f1d0887a43562d69c3593f6df85b7b16017adcc6bc59a44",
+    "x1e80100-microsoft-denali-sp11-audio-rpv4-macro84-winproducer-nohd2-wsa-windows-3state-retain-dp2offset2-v28-idlegated.dtb": "3530e3426c500d664be6ed3ef066d1b548025ba8286a5810e8b98c591b6555ca"
+  },
+  "modules": {
+    "snd_soc_lpass_wsa_macro": {
+      "srcversion": "3FAA616CDE10DDBF9D90D6F",
+      "zst_sha256": "39674078b0781323464b3de647caf9db0b25cde51d447e8e0253630de91d3f2d"
+    },
+    "snd_soc_wsa884x": {
+      "srcversion": "5859E70AFD0A1D420E8ADD4",
+      "zst_sha256": "7ce1a39f867bc6914e73f71508512ff94b028e9bf243c434c1302c82c81b0c6b"
+    },
+    "soundwire_qcom": {
+      "srcversion": "D008A3D6B585C11BE023992",
+      "zst_sha256": "6c580955cb3e977298a0f5a8fb6c60ce13fe365e28ec9c22d5961b08e5959e88"
+    },
+    "snd_soc_x1e80100": {
+      "srcversion": "13326073E27DFA035180C56",
+      "role": "unchanged Golden v32"
+    },
+    "snd_q6apm": {
+      "srcversion": "687B16CF9C43B43E90C0746",
+      "zst_sha256": "acf8ba1e6ded43cfac86afa7d12dd30dabd972286e74b021fbb7bddf98955033",
+      "role": "unchanged Golden mapping; no SP_VI reorder"
+    }
+  },
+  "proven_delta": [
+    "On microsoft,denali physically write WSA TOP_CFG1=0x03 after each enabled VI pair, matching native Windows and correcting pre-SPVI TAP2 from I,V,I,V to V,I,V,I."
+  ],
+  "objective_gates": {
+    "first_frame": "Windows and v33 TAP2 are V,I,V,I from the first valid packet; v32 was I,V,I,V. No sentinel/garbage startup block.",
+    "quiet_zero": "Dedicated literal-zero starts stay near the SP7 RAW room floor (~-97 dBFS in 3\u201320 kHz).",
+    "windows_linux_10pct": "fresh source-identical quiet-room A/B within about \u00b10.1 dB across useful bands.",
+    "windows_linux_50pct": "10 s interior: broadband +0.027 dB; 80 Hz\u201310 kHz +0.002 dB; 200 Hz\u20135 kHz -0.011 dB; 315 Hz\u20138 kHz -0.022 dB; 3\u201310 kHz -0.016 dB; 40\u2013120 Hz +0.089 dB; envelope correlation 0.956.",
+    "cold_soak": "20/20 true-cold 50% cycles alternating 160/997 Hz at 0.20 source peak; 20 enables/20 disables; zero PA faults, zero err0=0x20, zero XRUN/underrun/overrun.",
+    "one_off_note": "A stricter 50 ms post-analysis found one isolated broadband burst on soak cycle 1. It had no kernel fault and did not recur in cycles 2\u201320 or a dedicated long-idle two-birth literal-zero reproduction; retained as non-reproducible evidence."
+  },
+  "hardening": {
+    "root_module_sha256": "39674078b0781323464b3de647caf9db0b25cde51d447e8e0253630de91d3f2d",
+    "policy": "The root module tree is synchronized to v33 so future initramfs generation cannot silently restore v32. Golden v32 fixed boot assets remain untouched rollback."
+  },
+  "userspace": "UbiG production namespace: effect_input.sp11_ubig",
+  "saved_default": "sp11-audio-golden-v33-topcfg1-physical-vi",
+  "fallback": "sp11-audio-v32-feedback-exact-golden"
+}
