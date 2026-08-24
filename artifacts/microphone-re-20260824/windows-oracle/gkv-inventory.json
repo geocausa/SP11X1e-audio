@@ -1,0 +1,4920 @@
+{
+  "cross_bundle_edges": [
+    {
+      "connection_pool_offsets": [
+        "0x0000127c",
+        "0x00029128",
+        "0x0002a450",
+        "0x0002bf24",
+        "0x00030aec",
+        "0x00032c00",
+        "0x00034d14",
+        "0x00036e28",
+        "0x00038f3c",
+        "0x0003b050",
+        "0x0003d164",
+        "0x0003eca8",
+        "0x0003ffe8",
+        "0x00041328",
+        "0x00042668",
+        "0x000439a8"
+      ],
+      "destination_iid": "0x00004747",
+      "destination_owners": [
+        {
+          "module_id": "0x07001015",
+          "module_name": "MFC",
+          "pool_offsets": [
+            "0x0000127c"
+          ],
+          "subgraph_id": "0xb000008c"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004002",
+      "source_owners": [
+        {
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "pool_offsets": [
+            "0x00029128",
+            "0x0002a450",
+            "0x0002bf24",
+            "0x00030aec",
+            "0x00032c00",
+            "0x00034d14",
+            "0x00036e28",
+            "0x00038f3c",
+            "0x0003b050",
+            "0x0003d164",
+            "0x0003eca8",
+            "0x0003ffe8",
+            "0x00041328",
+            "0x00042668",
+            "0x000439a8"
+          ],
+          "subgraph_id": "0xb0000001"
+        }
+      ],
+      "source_port": 5
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0001a4cc",
+        "0x00029128",
+        "0x0002a450",
+        "0x0002bf24",
+        "0x00030aec",
+        "0x00032c00",
+        "0x00034d14",
+        "0x00036e28",
+        "0x00038f3c",
+        "0x0003b050",
+        "0x0003d164",
+        "0x0003eca8",
+        "0x0003ffe8",
+        "0x00041328",
+        "0x00042668",
+        "0x000439a8"
+      ],
+      "destination_iid": "0x000047c9",
+      "destination_owners": [
+        {
+          "module_id": "0x07001015",
+          "module_name": "MFC",
+          "pool_offsets": [
+            "0x0001a4cc"
+          ],
+          "subgraph_id": "0xb000009a"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004002",
+      "source_owners": [
+        {
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "pool_offsets": [
+            "0x00029128",
+            "0x0002a450",
+            "0x0002bf24",
+            "0x00030aec",
+            "0x00032c00",
+            "0x00034d14",
+            "0x00036e28",
+            "0x00038f3c",
+            "0x0003b050",
+            "0x0003d164",
+            "0x0003eca8",
+            "0x0003ffe8",
+            "0x00041328",
+            "0x00042668",
+            "0x000439a8"
+          ],
+          "subgraph_id": "0xb0000001"
+        }
+      ],
+      "source_port": 9
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00001b10",
+        "0x00029128",
+        "0x0002a450",
+        "0x0002bf24",
+        "0x00030aec",
+        "0x00032c00",
+        "0x00034d14",
+        "0x00036e28",
+        "0x00038f3c",
+        "0x0003b050",
+        "0x0003d164",
+        "0x0003eca8",
+        "0x0003ffe8",
+        "0x00041328",
+        "0x00042668",
+        "0x000439a8"
+      ],
+      "destination_iid": "0x00004730",
+      "destination_owners": [
+        {
+          "module_id": "0x07001015",
+          "module_name": "MFC",
+          "pool_offsets": [
+            "0x00001b10"
+          ],
+          "subgraph_id": "0xb000008a"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004002",
+      "source_owners": [
+        {
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "pool_offsets": [
+            "0x00029128",
+            "0x0002a450",
+            "0x0002bf24",
+            "0x00030aec",
+            "0x00032c00",
+            "0x00034d14",
+            "0x00036e28",
+            "0x00038f3c",
+            "0x0003b050",
+            "0x0003d164",
+            "0x0003eca8",
+            "0x0003ffe8",
+            "0x00041328",
+            "0x00042668",
+            "0x000439a8"
+          ],
+          "subgraph_id": "0xb0000001"
+        }
+      ],
+      "source_port": 11
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0002b874",
+        "0x00031f0c",
+        "0x00034020",
+        "0x00036134",
+        "0x00038248",
+        "0x0003a35c",
+        "0x0003c470",
+        "0x0004aafc",
+        "0x0004b7cc"
+      ],
+      "destination_iid": "0x0000410a",
+      "destination_owners": [
+        {
+          "module_id": "0x0700101a",
+          "module_name": "DATA_LOGGING",
+          "pool_offsets": [
+            "0x0002b874"
+          ],
+          "subgraph_id": "0xb000004d"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004033",
+      "source_owners": [
+        {
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "pool_offsets": [
+            "0x00031f0c",
+            "0x00034020",
+            "0x00036134",
+            "0x00038248",
+            "0x0003a35c",
+            "0x0003c470",
+            "0x0004aafc",
+            "0x0004b7cc"
+          ],
+          "subgraph_id": "0xb0000014"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00031f0c",
+        "0x000493b4"
+      ],
+      "destination_iid": "0x0000414a",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000493b4"
+          ],
+          "subgraph_id": "0xb0000039"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004047",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00031f0c"
+          ],
+          "subgraph_id": "0xb0000016"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00034020",
+        "0x000493b4"
+      ],
+      "destination_iid": "0x0000414a",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000493b4"
+          ],
+          "subgraph_id": "0xb0000039"
+        }
+      ],
+      "destination_port": 4,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000404f",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00034020"
+          ],
+          "subgraph_id": "0xb0000017"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00036134",
+        "0x000493b4"
+      ],
+      "destination_iid": "0x0000414a",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000493b4"
+          ],
+          "subgraph_id": "0xb0000039"
+        }
+      ],
+      "destination_port": 6,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004067",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00036134"
+          ],
+          "subgraph_id": "0xb0000019"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00038248",
+        "0x000493b4"
+      ],
+      "destination_iid": "0x0000414a",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000493b4"
+          ],
+          "subgraph_id": "0xb0000039"
+        }
+      ],
+      "destination_port": 8,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000406f",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00038248"
+          ],
+          "subgraph_id": "0xb000001a"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0003a35c",
+        "0x000493b4"
+      ],
+      "destination_iid": "0x0000414a",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000493b4"
+          ],
+          "subgraph_id": "0xb0000039"
+        }
+      ],
+      "destination_port": 10,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000407d",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0003a35c"
+          ],
+          "subgraph_id": "0xb0000020"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0003c470",
+        "0x000493b4"
+      ],
+      "destination_iid": "0x0000414a",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000493b4"
+          ],
+          "subgraph_id": "0xb0000039"
+        }
+      ],
+      "destination_port": 12,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004087",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0003c470"
+          ],
+          "subgraph_id": "0xb0000021"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0002e30c",
+        "0x0002ffb8",
+        "0x00046214",
+        "0x00049d6c"
+      ],
+      "destination_iid": "0x0000411e",
+      "destination_owners": [
+        {
+          "module_id": "0x0700101a",
+          "module_name": "DATA_LOGGING",
+          "pool_offsets": [
+            "0x00049d6c"
+          ],
+          "subgraph_id": "0xb0000051"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004106",
+      "source_owners": [
+        {
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "pool_offsets": [
+            "0x0002e30c",
+            "0x0002ffb8",
+            "0x00046214"
+          ],
+          "subgraph_id": "0xb0000004"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0003d164",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 16,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000412b",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0003d164"
+          ],
+          "subgraph_id": "0xb000007e"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0003dcb0",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 16,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000412c",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0003dcb0"
+          ],
+          "subgraph_id": "0xb000006a"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0003e484",
+        "0x00047720"
+      ],
+      "destination_iid": "0x00004147",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00047720"
+          ],
+          "subgraph_id": "0xb000004b"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000412d",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0003e484"
+          ],
+          "subgraph_id": "0xb00000ce"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x000493b4",
+        "0x0004aafc"
+      ],
+      "destination_iid": "0x0000414a",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000493b4"
+          ],
+          "subgraph_id": "0xb0000039"
+        }
+      ],
+      "destination_port": 14,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000412e",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0004aafc"
+          ],
+          "subgraph_id": "0xb0000023"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0003eca8",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 18,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000412f",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0003eca8"
+          ],
+          "subgraph_id": "0xb000007c"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0003f7f4",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 18,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004130",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0003f7f4"
+          ],
+          "subgraph_id": "0xb000006c"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0003ffe8",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 20,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004131",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0003ffe8"
+          ],
+          "subgraph_id": "0xb000007a"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00040b34",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 20,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004132",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00040b34"
+          ],
+          "subgraph_id": "0xb0000068"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00041328",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 22,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004133",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00041328"
+          ],
+          "subgraph_id": "0xb0000080"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00041e74",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 22,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004134",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00041e74"
+          ],
+          "subgraph_id": "0xb000006e"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x000493b4",
+        "0x0004b7cc"
+      ],
+      "destination_iid": "0x0000414a",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000493b4"
+          ],
+          "subgraph_id": "0xb0000039"
+        }
+      ],
+      "destination_port": 16,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004135",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0004b7cc"
+          ],
+          "subgraph_id": "0xb0000037"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00042668",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 24,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004137",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00042668"
+          ],
+          "subgraph_id": "0xb0000082"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x000431b4",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 24,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004138",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x000431b4"
+          ],
+          "subgraph_id": "0xb0000070"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x000439a8",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 26,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000413b",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x000439a8"
+          ],
+          "subgraph_id": "0xb0000026"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00044424",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 26,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000413c",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00044424"
+          ],
+          "subgraph_id": "0xb000002b"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00044b48",
+        "0x00047720"
+      ],
+      "destination_iid": "0x00004147",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00047720"
+          ],
+          "subgraph_id": "0xb000004b"
+        }
+      ],
+      "destination_port": 4,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000413e",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00044b48"
+          ],
+          "subgraph_id": "0xb00000d2"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0004523c",
+        "0x00048210"
+      ],
+      "destination_iid": "0x00004148",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00048210"
+          ],
+          "subgraph_id": "0xb000001e"
+        }
+      ],
+      "destination_port": 6,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000413f",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0004523c"
+          ],
+          "subgraph_id": "0xb00000df"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00045960",
+        "0x000486c4"
+      ],
+      "destination_iid": "0x00004149",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000486c4"
+          ],
+          "subgraph_id": "0xb000004f"
+        }
+      ],
+      "destination_port": 6,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004141",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00045960"
+          ],
+          "subgraph_id": "0xb00000f3"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00046214",
+        "0x000498b8"
+      ],
+      "destination_iid": "0x0000414b",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000498b8"
+          ],
+          "subgraph_id": "0xb0000013"
+        }
+      ],
+      "destination_port": 6,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004143",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00046214"
+          ],
+          "subgraph_id": "0xb0000010"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0002bf24",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004156",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0002bf24"
+          ],
+          "subgraph_id": "0xb0000028"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0001d864",
+        "0x0002adc4",
+        "0x0002ca10",
+        "0x000316a8",
+        "0x000337bc",
+        "0x000358d0",
+        "0x000379e4",
+        "0x00039af8",
+        "0x0003bc0c",
+        "0x0003dcb0",
+        "0x0003f7f4",
+        "0x00040b34",
+        "0x00041e74",
+        "0x000431b4",
+        "0x00044424"
+      ],
+      "destination_iid": "0x00004777",
+      "destination_owners": [
+        {
+          "module_id": "0x07001015",
+          "module_name": "MFC",
+          "pool_offsets": [
+            "0x0001d864"
+          ],
+          "subgraph_id": "0xb0000090"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000415e",
+      "source_owners": [
+        {
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "pool_offsets": [
+            "0x0002adc4",
+            "0x0002ca10",
+            "0x000316a8",
+            "0x000337bc",
+            "0x000358d0",
+            "0x000379e4",
+            "0x00039af8",
+            "0x0003bc0c",
+            "0x0003dcb0",
+            "0x0003f7f4",
+            "0x00040b34",
+            "0x00041e74",
+            "0x000431b4",
+            "0x00044424"
+          ],
+          "subgraph_id": "0xb000002a"
+        }
+      ],
+      "source_port": 5
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0001dfa8",
+        "0x0002adc4",
+        "0x0002ca10",
+        "0x000316a8",
+        "0x000337bc",
+        "0x000358d0",
+        "0x000379e4",
+        "0x00039af8",
+        "0x0003bc0c",
+        "0x0003dcb0",
+        "0x0003f7f4",
+        "0x00040b34",
+        "0x00041e74",
+        "0x000431b4",
+        "0x00044424"
+      ],
+      "destination_iid": "0x0000478f",
+      "destination_owners": [
+        {
+          "module_id": "0x07001015",
+          "module_name": "MFC",
+          "pool_offsets": [
+            "0x0001dfa8"
+          ],
+          "subgraph_id": "0xb0000092"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000415e",
+      "source_owners": [
+        {
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "pool_offsets": [
+            "0x0002adc4",
+            "0x0002ca10",
+            "0x000316a8",
+            "0x000337bc",
+            "0x000358d0",
+            "0x000379e4",
+            "0x00039af8",
+            "0x0003bc0c",
+            "0x0003dcb0",
+            "0x0003f7f4",
+            "0x00040b34",
+            "0x00041e74",
+            "0x000431b4",
+            "0x00044424"
+          ],
+          "subgraph_id": "0xb000002a"
+        }
+      ],
+      "source_port": 7
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0002e30c",
+        "0x000498b8"
+      ],
+      "destination_iid": "0x0000414b",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000498b8"
+          ],
+          "subgraph_id": "0xb0000013"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004196",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0002e30c"
+          ],
+          "subgraph_id": "0xb0000007"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0002ca10",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000419a",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0002ca10"
+          ],
+          "subgraph_id": "0xb000002d"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0002ffb8",
+        "0x000498b8"
+      ],
+      "destination_iid": "0x0000414b",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000498b8"
+          ],
+          "subgraph_id": "0xb0000013"
+        }
+      ],
+      "destination_port": 4,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x000041a7",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0002ffb8"
+          ],
+          "subgraph_id": "0xb0000008"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00038f3c",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 12,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x000041d6",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00038f3c"
+          ],
+          "subgraph_id": "0xb0000034"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0003b050",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 14,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x000041fa",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0003b050"
+          ],
+          "subgraph_id": "0xb0000036"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x000316a8",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 4,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x000044ea",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x000316a8"
+          ],
+          "subgraph_id": "0xb0000066"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x000337bc",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 6,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x000045b8",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x000337bc"
+          ],
+          "subgraph_id": "0xb0000073"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00030aec",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 4,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x000045cb",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00030aec"
+          ],
+          "subgraph_id": "0xb0000074"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00032c00",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 6,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x000045ea",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00032c00"
+          ],
+          "subgraph_id": "0xb0000076"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00034d14",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 8,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x000045fd",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00034d14"
+          ],
+          "subgraph_id": "0xb0000077"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00036e28",
+        "0x00046c78"
+      ],
+      "destination_iid": "0x00004144",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00046c78"
+          ],
+          "subgraph_id": "0xb0000045"
+        }
+      ],
+      "destination_port": 10,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000461c",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00036e28"
+          ],
+          "subgraph_id": "0xb0000079"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00039af8",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 12,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x000046cb",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x00039af8"
+          ],
+          "subgraph_id": "0xb0000084"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x000358d0",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 8,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x000046ea",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x000358d0"
+          ],
+          "subgraph_id": "0xb0000086"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x000379e4",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 10,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004709",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x000379e4"
+          ],
+          "subgraph_id": "0xb0000088"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0003bc0c",
+        "0x000471cc"
+      ],
+      "destination_iid": "0x00004145",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000471cc"
+          ],
+          "subgraph_id": "0xb0000047"
+        }
+      ],
+      "destination_port": 14,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000471c",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0003bc0c"
+          ],
+          "subgraph_id": "0xb0000089"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x00019a64",
+        "0x0002d194",
+        "0x0002ee40",
+        "0x0004523c"
+      ],
+      "destination_iid": "0x00004895",
+      "destination_owners": [
+        {
+          "module_id": "0x0700101a",
+          "module_name": "DATA_LOGGING",
+          "pool_offsets": [
+            "0x00019a64"
+          ],
+          "subgraph_id": "0xb00000b3"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004859",
+      "source_owners": [
+        {
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "pool_offsets": [
+            "0x0002d194",
+            "0x0002ee40",
+            "0x0004523c"
+          ],
+          "subgraph_id": "0xb00000ac"
+        }
+      ],
+      "source_port": 5
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0002b410",
+        "0x0002d194",
+        "0x0002ee40",
+        "0x0004523c"
+      ],
+      "destination_iid": "0x000040f3",
+      "destination_owners": [
+        {
+          "module_id": "0x0700101a",
+          "module_name": "DATA_LOGGING",
+          "pool_offsets": [
+            "0x0002b410"
+          ],
+          "subgraph_id": "0xb0000049"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004859",
+      "source_owners": [
+        {
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "pool_offsets": [
+            "0x0002d194",
+            "0x0002ee40",
+            "0x0004523c"
+          ],
+          "subgraph_id": "0xb00000ac"
+        }
+      ],
+      "source_port": 7
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0002d194",
+        "0x00048210"
+      ],
+      "destination_iid": "0x00004148",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00048210"
+          ],
+          "subgraph_id": "0xb000001e"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000486f",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0002d194"
+          ],
+          "subgraph_id": "0xb00000ae"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0002ee40",
+        "0x00048210"
+      ],
+      "destination_iid": "0x00004148",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x00048210"
+          ],
+          "subgraph_id": "0xb000001e"
+        }
+      ],
+      "destination_port": 4,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x0000487c",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0002ee40"
+          ],
+          "subgraph_id": "0xb00000af"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0001ef44",
+        "0x0003e484",
+        "0x00044b48",
+        "0x00047bc4"
+      ],
+      "destination_iid": "0x000049f2",
+      "destination_owners": [
+        {
+          "module_id": "0x07001015",
+          "module_name": "MFC",
+          "pool_offsets": [
+            "0x0001ef44"
+          ],
+          "subgraph_id": "0xb00000d9"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004988",
+      "source_owners": [
+        {
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "pool_offsets": [
+            "0x0003e484",
+            "0x00044b48",
+            "0x00047bc4"
+          ],
+          "subgraph_id": "0xb00000cc"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0001f698",
+        "0x0003e484",
+        "0x00044b48",
+        "0x00047bc4"
+      ],
+      "destination_iid": "0x00004a08",
+      "destination_owners": [
+        {
+          "module_id": "0x07001015",
+          "module_name": "MFC",
+          "pool_offsets": [
+            "0x0001f698"
+          ],
+          "subgraph_id": "0xb00000db"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004988",
+      "source_owners": [
+        {
+          "module_id": "0x07001011",
+          "module_name": "SPLITTER",
+          "pool_offsets": [
+            "0x0003e484",
+            "0x00044b48",
+            "0x00047bc4"
+          ],
+          "subgraph_id": "0xb00000cc"
+        }
+      ],
+      "source_port": 5
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0002d988",
+        "0x000486c4"
+      ],
+      "destination_iid": "0x00004149",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000486c4"
+          ],
+          "subgraph_id": "0xb000004f"
+        }
+      ],
+      "destination_port": 2,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004af8",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0002d988"
+          ],
+          "subgraph_id": "0xb00000f0"
+        }
+      ],
+      "source_port": 3
+    },
+    {
+      "connection_pool_offsets": [
+        "0x0002f634",
+        "0x000486c4"
+      ],
+      "destination_iid": "0x00004149",
+      "destination_owners": [
+        {
+          "module_id": "0x07001010",
+          "module_name": "SAL",
+          "pool_offsets": [
+            "0x000486c4"
+          ],
+          "subgraph_id": "0xb000004f"
+        }
+      ],
+      "destination_port": 4,
+      "local_scopes": [
+        "external_destination",
+        "external_source"
+      ],
+      "source_iid": "0x00004b00",
+      "source_owners": [
+        {
+          "module_id": "0x07001032",
+          "module_name": "SPR",
+          "pool_offsets": [
+            "0x0002f634"
+          ],
+          "subgraph_id": "0xb00000f1"
+        }
+      ],
+      "source_port": 3
+    }
+  ],
+  "evidence_class": "static Windows ACDB lookup inventory; not runtime selection",
+  "gkvl": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\sp11-microphone-re-20260824\\acdb-0d\\GKVL.bin",
+  "gkvl_sha256": "824497e10881b2d33d0787c3864bf50d241ec951484ef766ee439e843dd51af4",
+  "gkvt": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\sp11-microphone-re-20260824\\acdb-0d\\GKVT.bin",
+  "gkvt_sha256": "7178285fc655efd7b8b521b5c7f1338ce5a7e58cfda5f314835e9c77c7707800",
+  "pool": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Codex\\sp11-microphone-re-20260824\\acdb-0d\\POOL.bin",
+  "pool_sha256": "35073b935392fa6981f514d14871b003442e47d8a96b24a34b845e1b3f0ae759",
+  "schemas": [
+    {
+      "key_count": 0,
+      "schema_index": 0,
+      "variants": [
+        {
+          "gkvl_offset": "0x00000000",
+          "key_ids": [],
+          "rows": [
+            {
+              "aux_offset": "0x00000138",
+              "key_values": [],
+              "key_vector": {},
+              "pool_graph": {
+                "connection_count": 3,
+                "module_count": 5,
+                "parsed_bundle_sha256": "006c3bbf50bddd13b36d107d770cd9987b39d43438c239476afda959d410114b",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb000000e",
+                  "0xb000001c"
+                ]
+              },
+              "pool_offset": "0x00000154",
+              "row_index": 0
+            }
+          ],
+          "variant_index": 0
+        }
+      ]
+    },
+    {
+      "key_count": 1,
+      "schema_index": 1,
+      "variants": [
+        {
+          "gkvl_offset": "0x00000010",
+          "key_ids": [
+            "0x01000006"
+          ],
+          "rows": [
+            {
+              "aux_offset": "0x00000000",
+              "key_values": [
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 13,
+                "module_count": 13,
+                "parsed_bundle_sha256": "ef8be1788b59c29ab0246216dee1e330324465f129b4da1dcdff0985fc185c07",
+                "record_count": 1,
+                "subgraph_ids": [
+                  "0xb0000001"
+                ]
+              },
+              "pool_offset": "0x00029128",
+              "row_index": 0
+            }
+          ],
+          "variant_index": 0
+        }
+      ]
+    },
+    {
+      "key_count": 5,
+      "schema_index": 2,
+      "variants": [
+        {
+          "gkvl_offset": "0x00000024",
+          "key_ids": [
+            "0x01000008",
+            "0x01000009",
+            "0x0100000a",
+            "0x0100000b",
+            "0x0100000c"
+          ],
+          "rows": [
+            {
+              "aux_offset": "0x00000014",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 9,
+                "module_count": 10,
+                "parsed_bundle_sha256": "d54ac3ba5ec075bcfa36578b037b465c01258963f0288dc0376834f19d64f18f",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb00000b2",
+                  "0xb00000b3"
+                ]
+              },
+              "pool_offset": "0x00019a64",
+              "row_index": 0
+            }
+          ],
+          "variant_index": 0
+        },
+        {
+          "gkvl_offset": "0x00000048",
+          "key_ids": [
+            "0x01000008",
+            "0x01000009",
+            "0x0100000b",
+            "0x0100000c",
+            "0x0100000d"
+          ],
+          "rows": [
+            {
+              "aux_offset": "0x00000030",
+              "key_values": [
+                "0x00000002",
+                "0x00000005",
+                "0x00000004",
+                "0x00000005",
+                "0x00000006"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000005",
+                "0x0100000b": "0x00000004",
+                "0x0100000c": "0x00000005",
+                "0x0100000d": "0x00000006"
+              },
+              "pool_graph": {
+                "connection_count": 7,
+                "module_count": 10,
+                "parsed_bundle_sha256": "150a6c9579bde8870acb588b910ace0cdf758e35ac248c8edda7c8144a7d9a47",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000e0",
+                  "0xb00000e1",
+                  "0xb00000e2"
+                ]
+              },
+              "pool_offset": "0x00019ec8",
+              "row_index": 0
+            },
+            {
+              "aux_offset": "0x0000005c",
+              "key_values": [
+                "0x00000002",
+                "0x00000005",
+                "0x00000005",
+                "0x00000005",
+                "0x00000007"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000005",
+                "0x0100000b": "0x00000005",
+                "0x0100000c": "0x00000005",
+                "0x0100000d": "0x00000007"
+              },
+              "pool_graph": {
+                "connection_count": 16,
+                "module_count": 17,
+                "parsed_bundle_sha256": "2b9b1d48155266b7fac1ba3a7e23b066a198d6d9560179cc045b12d7e998cf7a",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000099",
+                  "0xb000009a",
+                  "0xb000009b"
+                ]
+              },
+              "pool_offset": "0x0001a4cc",
+              "row_index": 1
+            }
+          ],
+          "variant_index": 1
+        }
+      ]
+    },
+    {
+      "key_count": 6,
+      "schema_index": 3,
+      "variants": [
+        {
+          "gkvl_offset": "0x00000088",
+          "key_ids": [
+            "0x01000001",
+            "0x01000002",
+            "0x01000003",
+            "0x01000004",
+            "0x01000005",
+            "0x01000006"
+          ],
+          "rows": [
+            {
+              "aux_offset": "0x00000088",
+              "key_values": [
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 28,
+                "module_count": 28,
+                "parsed_bundle_sha256": "2aab268d8850ce4d4bd48b5f48f83de1065abbeee0bfc33f9d87a00f748727fb",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb0000011",
+                  "0xb0000028"
+                ]
+              },
+              "pool_offset": "0x0002bf24",
+              "row_index": 0
+            },
+            {
+              "aux_offset": "0x000000b4",
+              "key_values": [
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 18,
+                "module_count": 18,
+                "parsed_bundle_sha256": "838c8564e6dec13d9866be678cc54414568a1fa3444b34497a54dbbe2b9f974b",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb000002d",
+                  "0xb000002e"
+                ]
+              },
+              "pool_offset": "0x0002ca10",
+              "row_index": 1
+            },
+            {
+              "aux_offset": "0x000000e0",
+              "key_values": [
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x0000000a"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x0000000a"
+              },
+              "pool_graph": {
+                "connection_count": 19,
+                "module_count": 18,
+                "parsed_bundle_sha256": "03faafc271a92b8f592a9605187a36a643d0e2c9cc40cfc4369382138f5bfdba",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000ac",
+                  "0xb00000ad",
+                  "0xb00000ae"
+                ]
+              },
+              "pool_offset": "0x0002d194",
+              "row_index": 2
+            },
+            {
+              "aux_offset": "0x0000010c",
+              "key_values": [
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x0000000b"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x0000000b"
+              },
+              "pool_graph": {
+                "connection_count": 23,
+                "module_count": 24,
+                "parsed_bundle_sha256": "47e3f7aa80bbcbc4cad60adb002136898ff594b677a795dab39a88990b66029c",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000ee",
+                  "0xb00000ef",
+                  "0xb00000f0"
+                ]
+              },
+              "pool_offset": "0x0002d988",
+              "row_index": 3
+            },
+            {
+              "aux_offset": "0x00022768",
+              "key_values": [
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x0000000e"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x0000000e"
+              },
+              "pool_graph": {
+                "connection_count": 4,
+                "module_count": 6,
+                "parsed_bundle_sha256": "596de2e15ccdb6d805a4f82b903ebfafe9c95e1b38bf54cac4a1343c9b2b6af5",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb000003d",
+                  "0xb000003e"
+                ]
+              },
+              "pool_offset": "0x00022784",
+              "row_index": 4
+            },
+            {
+              "aux_offset": "0x0001ff20",
+              "key_values": [
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x00000001",
+                "0x0000000f"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x0000000f"
+              },
+              "pool_graph": {
+                "connection_count": 26,
+                "module_count": 27,
+                "parsed_bundle_sha256": "b42eda7dead80146c01631d15cb472d866f8f2686355c075c35d8197490681b0",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000004",
+                  "0xb0000005",
+                  "0xb0000007"
+                ]
+              },
+              "pool_offset": "0x0002e30c",
+              "row_index": 5
+            },
+            {
+              "aux_offset": "0x00000478",
+              "key_values": [
+                "0x00000001",
+                "0x00000001",
+                "0x00000002",
+                "0x00000001",
+                "0x00000001",
+                "0x0000000a"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x0000000a"
+              },
+              "pool_graph": {
+                "connection_count": 19,
+                "module_count": 18,
+                "parsed_bundle_sha256": "0b9bb8cb0ada577d7babc9ab332014192de81a66178ffc00a788682964c544e3",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000ac",
+                  "0xb00000ad",
+                  "0xb00000af"
+                ]
+              },
+              "pool_offset": "0x0002ee40",
+              "row_index": 6
+            },
+            {
+              "aux_offset": "0x000004a4",
+              "key_values": [
+                "0x00000001",
+                "0x00000001",
+                "0x00000002",
+                "0x00000001",
+                "0x00000001",
+                "0x0000000b"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x0000000b"
+              },
+              "pool_graph": {
+                "connection_count": 23,
+                "module_count": 24,
+                "parsed_bundle_sha256": "e74c7fff23b693770b8592bce48323588e1f27173465284f363cba87698e4605",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000ee",
+                  "0xb00000ef",
+                  "0xb00000f1"
+                ]
+              },
+              "pool_offset": "0x0002f634",
+              "row_index": 7
+            },
+            {
+              "aux_offset": "0x0001ff4c",
+              "key_values": [
+                "0x00000001",
+                "0x00000001",
+                "0x00000002",
+                "0x00000001",
+                "0x00000001",
+                "0x0000000f"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x0000000f"
+              },
+              "pool_graph": {
+                "connection_count": 26,
+                "module_count": 27,
+                "parsed_bundle_sha256": "9e0445acff5f7de1619b6bb8226272b2ef183a017f2ff0be39abf735d9993cba",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000004",
+                  "0xb0000005",
+                  "0xb0000008"
+                ]
+              },
+              "pool_offset": "0x0002ffb8",
+              "row_index": 8
+            },
+            {
+              "aux_offset": "0x000004d0",
+              "key_values": [
+                "0x00000001",
+                "0x00000002",
+                "0x00000001",
+                "0x00000001",
+                "0x00000002",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000002",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000002",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 31,
+                "module_count": 31,
+                "parsed_bundle_sha256": "a292c0db8908c3bfe8a8b88be78d9cd87433c633fe5a0cd4f4f40ef3617e0c55",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb0000074",
+                  "0xb0000075"
+                ]
+              },
+              "pool_offset": "0x00030aec",
+              "row_index": 9
+            },
+            {
+              "aux_offset": "0x000004fc",
+              "key_values": [
+                "0x00000001",
+                "0x00000002",
+                "0x00000001",
+                "0x00000001",
+                "0x00000002",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000002",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000002",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 22,
+                "module_count": 21,
+                "parsed_bundle_sha256": "b357e0a12a9410fab8e94a1aa1408e527e5e0909719b4b229ccb9ea062a01ce4",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb0000066",
+                  "0xb0000067"
+                ]
+              },
+              "pool_offset": "0x000316a8",
+              "row_index": 10
+            },
+            {
+              "aux_offset": "0x00020600",
+              "key_values": [
+                "0x00000001",
+                "0x00000002",
+                "0x00000001",
+                "0x00000001",
+                "0x00000002",
+                "0x0000000c"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000002",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000002",
+                "0x01000006": "0x0000000c"
+              },
+              "pool_graph": {
+                "connection_count": 26,
+                "module_count": 28,
+                "parsed_bundle_sha256": "02ea80fd14fdef7a51e90aab2bcaf78bfd7a4677776a183e41df1ee9402ef4e6",
+                "record_count": 5,
+                "subgraph_ids": [
+                  "0xb0000009",
+                  "0xb000000c",
+                  "0xb0000014",
+                  "0xb0000015",
+                  "0xb0000016"
+                ]
+              },
+              "pool_offset": "0x00031f0c",
+              "row_index": 11
+            },
+            {
+              "aux_offset": "0x00000528",
+              "key_values": [
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000002",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000002",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 31,
+                "module_count": 31,
+                "parsed_bundle_sha256": "b1fbd094b6b0a0c465fed3cec60ad574f802f4d3e978890b96ae397bf5e56d77",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb0000075",
+                  "0xb0000076"
+                ]
+              },
+              "pool_offset": "0x00032c00",
+              "row_index": 12
+            },
+            {
+              "aux_offset": "0x00000554",
+              "key_values": [
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000002",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000002",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 22,
+                "module_count": 21,
+                "parsed_bundle_sha256": "eea590247aeced972dfe4a35001fd44dc05b312265f233d4a005d001d273deeb",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb0000067",
+                  "0xb0000073"
+                ]
+              },
+              "pool_offset": "0x000337bc",
+              "row_index": 13
+            },
+            {
+              "aux_offset": "0x0002064c",
+              "key_values": [
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x0000000c"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000002",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000002",
+                "0x01000006": "0x0000000c"
+              },
+              "pool_graph": {
+                "connection_count": 26,
+                "module_count": 28,
+                "parsed_bundle_sha256": "1cb5018d2b0d6e8477bb07b4be53d001fb4072344c971d6d6081508f4bacad35",
+                "record_count": 5,
+                "subgraph_ids": [
+                  "0xb0000009",
+                  "0xb000000c",
+                  "0xb0000014",
+                  "0xb0000015",
+                  "0xb0000017"
+                ]
+              },
+              "pool_offset": "0x00034020",
+              "row_index": 14
+            },
+            {
+              "aux_offset": "0x00000580",
+              "key_values": [
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000003",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000003",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 31,
+                "module_count": 31,
+                "parsed_bundle_sha256": "7edc4d6544b979fea15e1ba5fb9e72eabf664012e7ca829eb7a2078927de6f60",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb0000077",
+                  "0xb0000078"
+                ]
+              },
+              "pool_offset": "0x00034d14",
+              "row_index": 15
+            },
+            {
+              "aux_offset": "0x000005ac",
+              "key_values": [
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000003",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000003",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 22,
+                "module_count": 21,
+                "parsed_bundle_sha256": "2569c85a71d187c588c4ff6fc71bb306c670cc71b78160e21def7de8ef436443",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb0000086",
+                  "0xb0000087"
+                ]
+              },
+              "pool_offset": "0x000358d0",
+              "row_index": 16
+            },
+            {
+              "aux_offset": "0x00020698",
+              "key_values": [
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x0000000c"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000003",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000003",
+                "0x01000006": "0x0000000c"
+              },
+              "pool_graph": {
+                "connection_count": 26,
+                "module_count": 28,
+                "parsed_bundle_sha256": "4449e1619f9e19bfb6e7f287da094e3a0f5674794c47ffacf31e97748d13ca33",
+                "record_count": 5,
+                "subgraph_ids": [
+                  "0xb0000009",
+                  "0xb000000c",
+                  "0xb0000014",
+                  "0xb0000018",
+                  "0xb0000019"
+                ]
+              },
+              "pool_offset": "0x00036134",
+              "row_index": 17
+            },
+            {
+              "aux_offset": "0x000005d8",
+              "key_values": [
+                "0x00000001",
+                "0x00000003",
+                "0x00000002",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000003",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000003",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 31,
+                "module_count": 31,
+                "parsed_bundle_sha256": "1b4850ccb2b90908bbc6a7d2c08f6e7f19ed24633ed20415ece9cf6a7f02803a",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb0000078",
+                  "0xb0000079"
+                ]
+              },
+              "pool_offset": "0x00036e28",
+              "row_index": 18
+            },
+            {
+              "aux_offset": "0x00000604",
+              "key_values": [
+                "0x00000001",
+                "0x00000003",
+                "0x00000002",
+                "0x00000001",
+                "0x00000003",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000003",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000003",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 22,
+                "module_count": 21,
+                "parsed_bundle_sha256": "63973b9d1bd6c8de93b0039f3ca58036652a1b6602fed2f53c57ab6644f5742b",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb0000087",
+                  "0xb0000088"
+                ]
+              },
+              "pool_offset": "0x000379e4",
+              "row_index": 19
+            },
+            {
+              "aux_offset": "0x000206e4",
+              "key_values": [
+                "0x00000001",
+                "0x00000003",
+                "0x00000002",
+                "0x00000001",
+                "0x00000003",
+                "0x0000000c"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000003",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000003",
+                "0x01000006": "0x0000000c"
+              },
+              "pool_graph": {
+                "connection_count": 26,
+                "module_count": 28,
+                "parsed_bundle_sha256": "7762dbaef1229762aec9de4900b452680b8a3954e949c4525fabaf2c468b9656",
+                "record_count": 5,
+                "subgraph_ids": [
+                  "0xb0000009",
+                  "0xb000000c",
+                  "0xb0000014",
+                  "0xb0000018",
+                  "0xb000001a"
+                ]
+              },
+              "pool_offset": "0x00038248",
+              "row_index": 20
+            },
+            {
+              "aux_offset": "0x00000630",
+              "key_values": [
+                "0x00000001",
+                "0x00000004",
+                "0x00000001",
+                "0x00000001",
+                "0x00000004",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000004",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000004",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 31,
+                "module_count": 31,
+                "parsed_bundle_sha256": "426bdd735651305da4cf99682f6c797d9c8900a170f34c8c526cbf7ff4578a33",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb0000034",
+                  "0xb0000035"
+                ]
+              },
+              "pool_offset": "0x00038f3c",
+              "row_index": 21
+            },
+            {
+              "aux_offset": "0x0000065c",
+              "key_values": [
+                "0x00000001",
+                "0x00000004",
+                "0x00000001",
+                "0x00000001",
+                "0x00000004",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000004",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000004",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 22,
+                "module_count": 21,
+                "parsed_bundle_sha256": "32a3d63c309c5275b765c02e16834385bfaaf896c6f59c2cdd90b75461faa2c9",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb0000084",
+                  "0xb0000085"
+                ]
+              },
+              "pool_offset": "0x00039af8",
+              "row_index": 22
+            },
+            {
+              "aux_offset": "0x00020730",
+              "key_values": [
+                "0x00000001",
+                "0x00000004",
+                "0x00000001",
+                "0x00000001",
+                "0x00000004",
+                "0x0000000c"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000004",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000004",
+                "0x01000006": "0x0000000c"
+              },
+              "pool_graph": {
+                "connection_count": 26,
+                "module_count": 28,
+                "parsed_bundle_sha256": "ac6db27b544281e43b76c43d94de8622b1d8ec4ee1b28885e5868784de2b2395",
+                "record_count": 5,
+                "subgraph_ids": [
+                  "0xb0000009",
+                  "0xb000000c",
+                  "0xb0000014",
+                  "0xb000001b",
+                  "0xb0000020"
+                ]
+              },
+              "pool_offset": "0x0003a35c",
+              "row_index": 23
+            },
+            {
+              "aux_offset": "0x00000688",
+              "key_values": [
+                "0x00000001",
+                "0x00000004",
+                "0x00000002",
+                "0x00000001",
+                "0x00000004",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000004",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000004",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 31,
+                "module_count": 31,
+                "parsed_bundle_sha256": "0e9697ab7826c01af562ed741ae05e67572726775d1d32bdf1ab3e05a598f275",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb0000035",
+                  "0xb0000036"
+                ]
+              },
+              "pool_offset": "0x0003b050",
+              "row_index": 24
+            },
+            {
+              "aux_offset": "0x000006b4",
+              "key_values": [
+                "0x00000001",
+                "0x00000004",
+                "0x00000002",
+                "0x00000001",
+                "0x00000004",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000004",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000004",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 22,
+                "module_count": 21,
+                "parsed_bundle_sha256": "0e2d9d2db797cd3f6add3e698ba880d7a510c10ec711d47f8f64b0496df3ca3a",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb0000085",
+                  "0xb0000089"
+                ]
+              },
+              "pool_offset": "0x0003bc0c",
+              "row_index": 25
+            },
+            {
+              "aux_offset": "0x0002077c",
+              "key_values": [
+                "0x00000001",
+                "0x00000004",
+                "0x00000002",
+                "0x00000001",
+                "0x00000004",
+                "0x0000000c"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000001",
+                "0x01000002": "0x00000004",
+                "0x01000003": "0x00000002",
+                "0x01000004": "0x00000001",
+                "0x01000005": "0x00000004",
+                "0x01000006": "0x0000000c"
+              },
+              "pool_graph": {
+                "connection_count": 26,
+                "module_count": 28,
+                "parsed_bundle_sha256": "fc49fa00130e9278468c8d93fa2e0bd7a2cf6dbf1ee89cd5453f348034af2028",
+                "record_count": 5,
+                "subgraph_ids": [
+                  "0xb0000009",
+                  "0xb000000c",
+                  "0xb0000014",
+                  "0xb000001b",
+                  "0xb0000021"
+                ]
+              },
+              "pool_offset": "0x0003c470",
+              "row_index": 26
+            },
+            {
+              "aux_offset": "0x000006e0",
+              "key_values": [
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000002",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000002",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 28,
+                "module_count": 29,
+                "parsed_bundle_sha256": "fc8de152cbc23e90cfed40cb6107d0d1799b848e4344960cfabc332b30e6652f",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb000007e",
+                  "0xb000007f"
+                ]
+              },
+              "pool_offset": "0x0003d164",
+              "row_index": 27
+            },
+            {
+              "aux_offset": "0x0000070c",
+              "key_values": [
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000002",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000002",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 17,
+                "module_count": 19,
+                "parsed_bundle_sha256": "9656f2a52c1e65fd3c84e21dd53142efebbc37c371c0ae4b54badae32024c827",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb000006a",
+                  "0xb000006b"
+                ]
+              },
+              "pool_offset": "0x0003dcb0",
+              "row_index": 28
+            },
+            {
+              "aux_offset": "0x00000738",
+              "key_values": [
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x00000008"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000002",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000002",
+                "0x01000006": "0x00000008"
+              },
+              "pool_graph": {
+                "connection_count": 20,
+                "module_count": 20,
+                "parsed_bundle_sha256": "bc49473d23e44303ad2868eaac6032d137b0b269fc5822e7dc0696e36600f80e",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000cc",
+                  "0xb00000cd",
+                  "0xb00000ce"
+                ]
+              },
+              "pool_offset": "0x0003e484",
+              "row_index": 29
+            },
+            {
+              "aux_offset": "0x0004aab0",
+              "key_values": [
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x0000000c"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000002",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000002",
+                "0x01000006": "0x0000000c"
+              },
+              "pool_graph": {
+                "connection_count": 23,
+                "module_count": 26,
+                "parsed_bundle_sha256": "54effb78ca80b288415a0080ccbead2157dd3aba85d973c64115868680ce93ec",
+                "record_count": 5,
+                "subgraph_ids": [
+                  "0xb0000009",
+                  "0xb000000c",
+                  "0xb0000014",
+                  "0xb0000022",
+                  "0xb0000023"
+                ]
+              },
+              "pool_offset": "0x0004aafc",
+              "row_index": 30
+            },
+            {
+              "aux_offset": "0x00000764",
+              "key_values": [
+                "0x00000002",
+                "0x00000003",
+                "0x00000001",
+                "0x00000002",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000003",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000003",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 28,
+                "module_count": 29,
+                "parsed_bundle_sha256": "7eecaab3c9a0c4420ae0c6de3c83615d2a40da9c10441042cb6b0b6788742aff",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb000007c",
+                  "0xb000007d"
+                ]
+              },
+              "pool_offset": "0x0003eca8",
+              "row_index": 31
+            },
+            {
+              "aux_offset": "0x00000790",
+              "key_values": [
+                "0x00000002",
+                "0x00000003",
+                "0x00000001",
+                "0x00000002",
+                "0x00000003",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000003",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000003",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 19,
+                "module_count": 19,
+                "parsed_bundle_sha256": "cb9ab978d886d0ded348ff3b03c78627f9908dfb6ba08dcde7ebc50489e24ca5",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb000006c",
+                  "0xb000006d"
+                ]
+              },
+              "pool_offset": "0x0003f7f4",
+              "row_index": 32
+            },
+            {
+              "aux_offset": "0x000007bc",
+              "key_values": [
+                "0x00000002",
+                "0x00000004",
+                "0x00000001",
+                "0x00000002",
+                "0x00000004",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000004",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000004",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 28,
+                "module_count": 29,
+                "parsed_bundle_sha256": "1d7ebc0a16306d9161a25e73b283dc370a9097e8647544072885554da30b045d",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb000007a",
+                  "0xb000007b"
+                ]
+              },
+              "pool_offset": "0x0003ffe8",
+              "row_index": 33
+            },
+            {
+              "aux_offset": "0x000007e8",
+              "key_values": [
+                "0x00000002",
+                "0x00000004",
+                "0x00000001",
+                "0x00000002",
+                "0x00000004",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000004",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000004",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 19,
+                "module_count": 19,
+                "parsed_bundle_sha256": "ac28dbd90b4832d31bb4091c79a29ab4c9abb54956a4ca5ca34df8e5097826fe",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb0000068",
+                  "0xb0000069"
+                ]
+              },
+              "pool_offset": "0x00040b34",
+              "row_index": 34
+            },
+            {
+              "aux_offset": "0x00000814",
+              "key_values": [
+                "0x00000002",
+                "0x00000006",
+                "0x00000001",
+                "0x00000002",
+                "0x00000006",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000006",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000006",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 28,
+                "module_count": 29,
+                "parsed_bundle_sha256": "a398aed9a23457243fb46cbd1bc1c8d7fa07b3a6196590482ac87930241b73f6",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb0000080",
+                  "0xb0000081"
+                ]
+              },
+              "pool_offset": "0x00041328",
+              "row_index": 35
+            },
+            {
+              "aux_offset": "0x00000840",
+              "key_values": [
+                "0x00000002",
+                "0x00000006",
+                "0x00000001",
+                "0x00000002",
+                "0x00000006",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000006",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000006",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 19,
+                "module_count": 19,
+                "parsed_bundle_sha256": "81da26b83dd3a17941c4d60c98a8beb1e789018d7ea73ba53a81d42a13151e9e",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb000006e",
+                  "0xb000006f"
+                ]
+              },
+              "pool_offset": "0x00041e74",
+              "row_index": 36
+            },
+            {
+              "aux_offset": "0x0004b780",
+              "key_values": [
+                "0x00000002",
+                "0x00000006",
+                "0x00000001",
+                "0x00000002",
+                "0x00000006",
+                "0x0000000c"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000006",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000006",
+                "0x01000006": "0x0000000c"
+              },
+              "pool_graph": {
+                "connection_count": 23,
+                "module_count": 26,
+                "parsed_bundle_sha256": "988dcf4c978685470022f0f794b901fc2d9b77816c2e3df5a646428995e4778a",
+                "record_count": 5,
+                "subgraph_ids": [
+                  "0xb0000009",
+                  "0xb000000c",
+                  "0xb0000014",
+                  "0xb0000029",
+                  "0xb0000037"
+                ]
+              },
+              "pool_offset": "0x0004b7cc",
+              "row_index": 37
+            },
+            {
+              "aux_offset": "0x0000086c",
+              "key_values": [
+                "0x00000002",
+                "0x00000007",
+                "0x00000001",
+                "0x00000002",
+                "0x00000007",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000007",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000007",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 28,
+                "module_count": 29,
+                "parsed_bundle_sha256": "1f7ba15ff4ff45de8e188c61ea536b84f6360bea63b77ca67102271137a643de",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb0000082",
+                  "0xb0000083"
+                ]
+              },
+              "pool_offset": "0x00042668",
+              "row_index": 38
+            },
+            {
+              "aux_offset": "0x00000898",
+              "key_values": [
+                "0x00000002",
+                "0x00000007",
+                "0x00000001",
+                "0x00000002",
+                "0x00000007",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000002",
+                "0x01000002": "0x00000007",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000002",
+                "0x01000005": "0x00000007",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 19,
+                "module_count": 19,
+                "parsed_bundle_sha256": "f9903ba694faca41bdc11d1ab39efa141cf8dc68feefefda0c1e1c5e811fc6c7",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb0000070",
+                  "0xb0000071"
+                ]
+              },
+              "pool_offset": "0x000431b4",
+              "row_index": 39
+            },
+            {
+              "aux_offset": "0x000008c4",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000003",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000003",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 25,
+                "module_count": 26,
+                "parsed_bundle_sha256": "a58dfa1f38df5273c39e65032fc432622573de8164d1a010b83a68818834dd33",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb0000026",
+                  "0xb0000027"
+                ]
+              },
+              "pool_offset": "0x000439a8",
+              "row_index": 40
+            },
+            {
+              "aux_offset": "0x000008f0",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000003"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000003",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000003",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x00000003"
+              },
+              "pool_graph": {
+                "connection_count": 16,
+                "module_count": 16,
+                "parsed_bundle_sha256": "fae0b5243d53dbfb036e69728045d3e01d90c4c153db1381ae649060deb9ec8f",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb000002b",
+                  "0xb000002c"
+                ]
+              },
+              "pool_offset": "0x00044424",
+              "row_index": 41
+            },
+            {
+              "aux_offset": "0x0000091c",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000008"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000003",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000003",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x00000008"
+              },
+              "pool_graph": {
+                "connection_count": 15,
+                "module_count": 15,
+                "parsed_bundle_sha256": "8d3c8ccdf9f2f4243ca0064f3ec7310670a3a557ddca9e20e77f6f1baa1a1732",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000cc",
+                  "0xb00000d1",
+                  "0xb00000d2"
+                ]
+              },
+              "pool_offset": "0x00044b48",
+              "row_index": 42
+            },
+            {
+              "aux_offset": "0x00000948",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x0000000a"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000003",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000003",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x0000000a"
+              },
+              "pool_graph": {
+                "connection_count": 14,
+                "module_count": 14,
+                "parsed_bundle_sha256": "b0d943838695d20e3cda6765b8dbe988c056101bb4e86ebd66ed9f560bb1643d",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000ac",
+                  "0xb00000de",
+                  "0xb00000df"
+                ]
+              },
+              "pool_offset": "0x0004523c",
+              "row_index": 43
+            },
+            {
+              "aux_offset": "0x00000974",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x0000000b"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000003",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000003",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x0000000b"
+              },
+              "pool_graph": {
+                "connection_count": 18,
+                "module_count": 20,
+                "parsed_bundle_sha256": "5c0888083e6424dc846bbb555128704d17adaff5d196dad05d123dd7df569c74",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000ee",
+                  "0xb00000f2",
+                  "0xb00000f3"
+                ]
+              },
+              "pool_offset": "0x00045960",
+              "row_index": 44
+            },
+            {
+              "aux_offset": "0x0001ff78",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x0000000f"
+              ],
+              "key_vector": {
+                "0x01000001": "0x00000003",
+                "0x01000002": "0x00000001",
+                "0x01000003": "0x00000001",
+                "0x01000004": "0x00000003",
+                "0x01000005": "0x00000001",
+                "0x01000006": "0x0000000f"
+              },
+              "pool_graph": {
+                "connection_count": 21,
+                "module_count": 23,
+                "parsed_bundle_sha256": "78b8a3f99ca25089fac6a8d35db56a826c569ee795500f0151655dbab51a11ae",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000004",
+                  "0xb000000f",
+                  "0xb0000010"
+                ]
+              },
+              "pool_offset": "0x00046214",
+              "row_index": 45
+            }
+          ],
+          "variant_index": 0
+        },
+        {
+          "gkvl_offset": "0x00000650",
+          "key_ids": [
+            "0x01000006",
+            "0x01000008",
+            "0x01000009",
+            "0x0100000a",
+            "0x0100000b",
+            "0x0100000c"
+          ],
+          "rows": [
+            {
+              "aux_offset": "0x00029694",
+              "key_values": [
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x00000001",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 22,
+                "module_count": 11,
+                "parsed_bundle_sha256": "39c0c1766561570e30c12162725211395983a83736d9e2eaa53490729d8f8a8c",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb0000045",
+                  "0xb0000046"
+                ]
+              },
+              "pool_offset": "0x00046c78",
+              "row_index": 0
+            },
+            {
+              "aux_offset": "0x000009a0",
+              "key_values": [
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000002",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x00000001",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000002",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 21,
+                "module_count": 23,
+                "parsed_bundle_sha256": "d6a7e4177164846851bb1951e24e96944ff33dd26b423c61dcc250d88e14ef16",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000001",
+                  "0xb000000d",
+                  "0xb00000b5"
+                ]
+              },
+              "pool_offset": "0x0002a450",
+              "row_index": 1
+            },
+            {
+              "aux_offset": "0x000296b0",
+              "key_values": [
+                "0x00000003",
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x00000003",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 22,
+                "module_count": 11,
+                "parsed_bundle_sha256": "dd2a35e533d019f670972bbfc7a30dcd6e4e3fe209df2b11eba768847efa02c2",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb0000047",
+                  "0xb0000048"
+                ]
+              },
+              "pool_offset": "0x000471cc",
+              "row_index": 2
+            },
+            {
+              "aux_offset": "0x000009cc",
+              "key_values": [
+                "0x00000003",
+                "0x00000003",
+                "0x00000001",
+                "0x00000002",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x00000003",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000002",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 13,
+                "module_count": 14,
+                "parsed_bundle_sha256": "9b83266469bb69e6949ca908f349854931566f91c1554b26ee0ee232ef8b9c5f",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000002a",
+                  "0xb000002f",
+                  "0xb0000030"
+                ]
+              },
+              "pool_offset": "0x0002adc4",
+              "row_index": 3
+            },
+            {
+              "aux_offset": "0x000297bc",
+              "key_values": [
+                "0x00000008",
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x00000008",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 11,
+                "module_count": 11,
+                "parsed_bundle_sha256": "f5a8b46686e2322364e67db71730a4be93609098c4d3d0d71ebc77e7f08ee5be",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb000004b",
+                  "0xb000004c"
+                ]
+              },
+              "pool_offset": "0x00047720",
+              "row_index": 4
+            },
+            {
+              "aux_offset": "0x000009f8",
+              "key_values": [
+                "0x00000008",
+                "0x00000003",
+                "0x00000001",
+                "0x00000002",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x00000008",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000002",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 13,
+                "module_count": 14,
+                "parsed_bundle_sha256": "46933e1f4987fc5eb167c3f16662fe90b81a30229319d382db9b31c7c4be7b88",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000cc",
+                  "0xb00000d3",
+                  "0xb00000d4"
+                ]
+              },
+              "pool_offset": "0x00047bc4",
+              "row_index": 5
+            },
+            {
+              "aux_offset": "0x00000a24",
+              "key_values": [
+                "0x0000000a",
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x0000000a",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 12,
+                "module_count": 11,
+                "parsed_bundle_sha256": "57525aaecbfdaaaacc0cea6a42b3d580d0464e4a2e9d52447f9417cbcb7318a8",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb000001d",
+                  "0xb000001e"
+                ]
+              },
+              "pool_offset": "0x00048210",
+              "row_index": 6
+            },
+            {
+              "aux_offset": "0x0002974c",
+              "key_values": [
+                "0x0000000a",
+                "0x00000003",
+                "0x00000001",
+                "0x00000002",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x0000000a",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000002",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 9,
+                "module_count": 10,
+                "parsed_bundle_sha256": "c965549e53ebfda7aadaaac052459446a1223edadde80fe63ff409b39b855f39",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb0000049",
+                  "0xb000004a"
+                ]
+              },
+              "pool_offset": "0x0002b410",
+              "row_index": 7
+            },
+            {
+              "aux_offset": "0x0002a3f4",
+              "key_values": [
+                "0x0000000b",
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x0000000b",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 12,
+                "module_count": 11,
+                "parsed_bundle_sha256": "18528adb9fe76634881c1277d263446149ef9723c8139f03a84b2c1a90887f6a",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb000004f",
+                  "0xb0000050"
+                ]
+              },
+              "pool_offset": "0x000486c4",
+              "row_index": 8
+            },
+            {
+              "aux_offset": "0x00000a40",
+              "key_values": [
+                "0x0000000b",
+                "0x00000003",
+                "0x00000001",
+                "0x00000002",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x0000000b",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000002",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 17,
+                "module_count": 20,
+                "parsed_bundle_sha256": "95110c71a8f77e7ba1100edefb6ef66b535c65f812f9a5093aaaed98bb37325f",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000ee",
+                  "0xb00000f4",
+                  "0xb00000f5"
+                ]
+              },
+              "pool_offset": "0x00048b78",
+              "row_index": 9
+            },
+            {
+              "aux_offset": "0x000207c8",
+              "key_values": [
+                "0x0000000c",
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x0000000c",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 17,
+                "module_count": 11,
+                "parsed_bundle_sha256": "171a45c5ab786f96f77ca0cc061594784654320e8ee28a4741471d9e26cc77ee",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb0000038",
+                  "0xb0000039"
+                ]
+              },
+              "pool_offset": "0x000493b4",
+              "row_index": 10
+            },
+            {
+              "aux_offset": "0x000297d8",
+              "key_values": [
+                "0x0000000c",
+                "0x00000003",
+                "0x00000001",
+                "0x00000002",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x0000000c",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000002",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 9,
+                "module_count": 10,
+                "parsed_bundle_sha256": "5d37cef8b353fa792e13227691e9d7465a8c1f44e1b474d5b1791ccbddbed4e1",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb000004d",
+                  "0xb000004e"
+                ]
+              },
+              "pool_offset": "0x0002b874",
+              "row_index": 11
+            },
+            {
+              "aux_offset": "0x0001ffa4",
+              "key_values": [
+                "0x0000000f",
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x0000000f",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 12,
+                "module_count": 11,
+                "parsed_bundle_sha256": "0927ee637917fe085bc52b2d3609a3447ce44354eedcad6bfd82102041807343",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb0000012",
+                  "0xb0000013"
+                ]
+              },
+              "pool_offset": "0x000498b8",
+              "row_index": 12
+            },
+            {
+              "aux_offset": "0x0002bcd8",
+              "key_values": [
+                "0x0000000f",
+                "0x00000003",
+                "0x00000001",
+                "0x00000002",
+                "0x00000003",
+                "0x00000001"
+              ],
+              "key_vector": {
+                "0x01000006": "0x0000000f",
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000002",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001"
+              },
+              "pool_graph": {
+                "connection_count": 9,
+                "module_count": 10,
+                "parsed_bundle_sha256": "251915d1f76c312d5adc754e17f7c1ec3ea419a50a25782d24f00cea6ea504f5",
+                "record_count": 2,
+                "subgraph_ids": [
+                  "0xb0000051",
+                  "0xb0000052"
+                ]
+              },
+              "pool_offset": "0x00049d6c",
+              "row_index": 13
+            }
+          ],
+          "variant_index": 1
+        },
+        {
+          "gkvl_offset": "0x00000818",
+          "key_ids": [
+            "0x01000008",
+            "0x01000009",
+            "0x0100000a",
+            "0x0100000b",
+            "0x0100000c",
+            "0x0100000d"
+          ],
+          "rows": [
+            {
+              "aux_offset": "0x00000a6c",
+              "key_values": [
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x00000002"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000002",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000002",
+                "0x0100000d": "0x00000002"
+              },
+              "pool_graph": {
+                "connection_count": 18,
+                "module_count": 21,
+                "parsed_bundle_sha256": "3fa5db2d34578eb94a38a54b85adf3452652680d630750ad2092de2dacaea75c",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000006",
+                  "0xb000008e",
+                  "0xb000008f"
+                ]
+              },
+              "pool_offset": "0x00000a98",
+              "row_index": 0
+            },
+            {
+              "aux_offset": "0x000011cc",
+              "key_values": [
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x00000004"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000002",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000002",
+                "0x0100000d": "0x00000004"
+              },
+              "pool_graph": {
+                "connection_count": 14,
+                "module_count": 18,
+                "parsed_bundle_sha256": "516b68563363f94dc0947acb0174389024990f157262142d2c71c2de435faae9",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000031",
+                  "0xb0000094",
+                  "0xb0000095"
+                ]
+              },
+              "pool_offset": "0x0001d1d0",
+              "row_index": 1
+            },
+            {
+              "aux_offset": "0x000011f8",
+              "key_values": [
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x00000005"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000002",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000002",
+                "0x0100000d": "0x00000005"
+              },
+              "pool_graph": {
+                "connection_count": 13,
+                "module_count": 16,
+                "parsed_bundle_sha256": "ade24d0af05e4730d4f092f17bb321a3e9c9d01d144fc49b008226502e029024",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000001f",
+                  "0xb0000062",
+                  "0xb0000063"
+                ]
+              },
+              "pool_offset": "0x00026ca8",
+              "row_index": 2
+            },
+            {
+              "aux_offset": "0x00001224",
+              "key_values": [
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x00000009"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000002",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000002",
+                "0x0100000d": "0x00000009"
+              },
+              "pool_graph": {
+                "connection_count": 15,
+                "module_count": 18,
+                "parsed_bundle_sha256": "d31618172ffc4f104b067e0c853a03fd7d50a277b3d4b2fef85b5da576a06542",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000d5",
+                  "0xb00000d6",
+                  "0xb00000d7"
+                ]
+              },
+              "pool_offset": "0x0001e8a0",
+              "row_index": 3
+            },
+            {
+              "aux_offset": "0x0002107c",
+              "key_values": [
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x0000000d"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000002",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000002",
+                "0x0100000d": "0x0000000d"
+              },
+              "pool_graph": {
+                "connection_count": 18,
+                "module_count": 23,
+                "parsed_bundle_sha256": "705f24699b9776a93e805672f6af2792dfbe25d9d5a66f5375fb6921e87120a0",
+                "record_count": 5,
+                "subgraph_ids": [
+                  "0xb0000009",
+                  "0xb000000c",
+                  "0xb000003a",
+                  "0xb000003b",
+                  "0xb000003c"
+                ]
+              },
+              "pool_offset": "0x000297f4",
+              "row_index": 4
+            },
+            {
+              "aux_offset": "0x00022bc0",
+              "key_values": [
+                "0x00000002",
+                "0x00000002",
+                "0x00000001",
+                "0x00000002",
+                "0x00000002",
+                "0x00000010"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000002",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000002",
+                "0x0100000d": "0x00000010"
+              },
+              "pool_graph": {
+                "connection_count": 13,
+                "module_count": 16,
+                "parsed_bundle_sha256": "30c4e4b8fad3e6f0e8375bfea926798cf68c680e1683ea630fa6830d3bcc9d3a",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000003f",
+                  "0xb0000040",
+                  "0xb0000041"
+                ]
+              },
+              "pool_offset": "0x00024124",
+              "row_index": 5
+            },
+            {
+              "aux_offset": "0x00001250",
+              "key_values": [
+                "0x00000002",
+                "0x00000005",
+                "0x00000001",
+                "0x00000002",
+                "0x00000005",
+                "0x00000002"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000005",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000005",
+                "0x0100000d": "0x00000002"
+              },
+              "pool_graph": {
+                "connection_count": 23,
+                "module_count": 24,
+                "parsed_bundle_sha256": "1006b0b558cc000201cd136bf0120b09dc4187bf751969580434da8df0ec5c82",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000006",
+                  "0xb000008c",
+                  "0xb000008d"
+                ]
+              },
+              "pool_offset": "0x0000127c",
+              "row_index": 6
+            },
+            {
+              "aux_offset": "0x00001a60",
+              "key_values": [
+                "0x00000002",
+                "0x00000005",
+                "0x00000001",
+                "0x00000002",
+                "0x00000005",
+                "0x00000004"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000005",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000005",
+                "0x0100000d": "0x00000004"
+              },
+              "pool_graph": {
+                "connection_count": 19,
+                "module_count": 21,
+                "parsed_bundle_sha256": "e5aed0a1baf711c360b6211e5584b075b89398256cb09a2f29fd92af6ffaa615",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000031",
+                  "0xb0000090",
+                  "0xb0000091"
+                ]
+              },
+              "pool_offset": "0x0001d864",
+              "row_index": 7
+            },
+            {
+              "aux_offset": "0x00001a8c",
+              "key_values": [
+                "0x00000002",
+                "0x00000005",
+                "0x00000001",
+                "0x00000002",
+                "0x00000005",
+                "0x00000005"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000005",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000005",
+                "0x0100000d": "0x00000005"
+              },
+              "pool_graph": {
+                "connection_count": 13,
+                "module_count": 16,
+                "parsed_bundle_sha256": "9e0b7e78bc685c4439e1c78a573f9f717872f7c7efd044e21fbe3e00d171406d",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000001f",
+                  "0xb00000b6",
+                  "0xb00000b7"
+                ]
+              },
+              "pool_offset": "0x00028a34",
+              "row_index": 8
+            },
+            {
+              "aux_offset": "0x00001ab8",
+              "key_values": [
+                "0x00000002",
+                "0x00000005",
+                "0x00000001",
+                "0x00000002",
+                "0x00000005",
+                "0x00000009"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000005",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000005",
+                "0x0100000d": "0x00000009"
+              },
+              "pool_graph": {
+                "connection_count": 20,
+                "module_count": 21,
+                "parsed_bundle_sha256": "54d76e3c0e79cacc9b4483d9766a00a037307e40a9fb9ea6a61152b595b82d86",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000d7",
+                  "0xb00000d8",
+                  "0xb00000d9"
+                ]
+              },
+              "pool_offset": "0x0001ef44",
+              "row_index": 9
+            },
+            {
+              "aux_offset": "0x00022bec",
+              "key_values": [
+                "0x00000002",
+                "0x00000005",
+                "0x00000001",
+                "0x00000002",
+                "0x00000005",
+                "0x00000010"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000005",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000005",
+                "0x0100000d": "0x00000010"
+              },
+              "pool_graph": {
+                "connection_count": 13,
+                "module_count": 16,
+                "parsed_bundle_sha256": "d4f1101c30ff75c909c5350f5f2eef5870f2933459d6d952ec209d9276bd600c",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000040",
+                  "0xb0000041",
+                  "0xb0000042"
+                ]
+              },
+              "pool_offset": "0x00024768",
+              "row_index": 10
+            },
+            {
+              "aux_offset": "0x00001ae4",
+              "key_values": [
+                "0x00000002",
+                "0x00000006",
+                "0x00000001",
+                "0x00000002",
+                "0x00000006",
+                "0x00000002"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000006",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000006",
+                "0x0100000d": "0x00000002"
+              },
+              "pool_graph": {
+                "connection_count": 24,
+                "module_count": 25,
+                "parsed_bundle_sha256": "4891d8a9d3d527dbb048e1005bca71c57a419b4e4ca2b66e89a0b8b096f2e764",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000006",
+                  "0xb000008a",
+                  "0xb000008b"
+                ]
+              },
+              "pool_offset": "0x00001b10",
+              "row_index": 11
+            },
+            {
+              "aux_offset": "0x00002324",
+              "key_values": [
+                "0x00000002",
+                "0x00000006",
+                "0x00000001",
+                "0x00000002",
+                "0x00000006",
+                "0x00000004"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000006",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000006",
+                "0x0100000d": "0x00000004"
+              },
+              "pool_graph": {
+                "connection_count": 19,
+                "module_count": 21,
+                "parsed_bundle_sha256": "496fdd36b2ebe7d0b7365a6793750dd7b2e94e555efffa7ac2359f7b5a824f82",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000031",
+                  "0xb0000092",
+                  "0xb0000093"
+                ]
+              },
+              "pool_offset": "0x0001dfa8",
+              "row_index": 12
+            },
+            {
+              "aux_offset": "0x00002350",
+              "key_values": [
+                "0x00000002",
+                "0x00000006",
+                "0x00000001",
+                "0x00000002",
+                "0x00000006",
+                "0x00000005"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000006",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000006",
+                "0x0100000d": "0x00000005"
+              },
+              "pool_graph": {
+                "connection_count": 13,
+                "module_count": 16,
+                "parsed_bundle_sha256": "23ff7828c5b1feaea02603931dab40cdffbd2c2c1235ec52fed9465bbc732155",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000002",
+                  "0xb0000003",
+                  "0xb000001f"
+                ]
+              },
+              "pool_offset": "0x000272ec",
+              "row_index": 13
+            },
+            {
+              "aux_offset": "0x0000237c",
+              "key_values": [
+                "0x00000002",
+                "0x00000006",
+                "0x00000001",
+                "0x00000002",
+                "0x00000006",
+                "0x00000009"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000006",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000006",
+                "0x0100000d": "0x00000009"
+              },
+              "pool_graph": {
+                "connection_count": 20,
+                "module_count": 21,
+                "parsed_bundle_sha256": "27fefda5ce7664d5acb17122c817b9b6fc91e046dabe1ba8c38095b6651b095f",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000d7",
+                  "0xb00000da",
+                  "0xb00000db"
+                ]
+              },
+              "pool_offset": "0x0001f698",
+              "row_index": 14
+            },
+            {
+              "aux_offset": "0x00022c18",
+              "key_values": [
+                "0x00000002",
+                "0x00000006",
+                "0x00000001",
+                "0x00000002",
+                "0x00000006",
+                "0x00000010"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000002",
+                "0x01000009": "0x00000006",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000002",
+                "0x0100000c": "0x00000006",
+                "0x0100000d": "0x00000010"
+              },
+              "pool_graph": {
+                "connection_count": 13,
+                "module_count": 16,
+                "parsed_bundle_sha256": "999a18828068bd9e66b36d8a7e83d911e013ae4472ea73936ce5c0e3b3b816c9",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000040",
+                  "0xb0000041",
+                  "0xb0000043"
+                ]
+              },
+              "pool_offset": "0x00024dac",
+              "row_index": 15
+            },
+            {
+              "aux_offset": "0x000023a8",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000002"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001",
+                "0x0100000d": "0x00000002"
+              },
+              "pool_graph": {
+                "connection_count": 9,
+                "module_count": 12,
+                "parsed_bundle_sha256": "42f8ba682bfc0ad5f48d967fa8b68742fc39e2126b158609f3f72a9faf52574a",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000006",
+                  "0xb000000a",
+                  "0xb000000b"
+                ]
+              },
+              "pool_offset": "0x000023d4",
+              "row_index": 16
+            },
+            {
+              "aux_offset": "0x00002958",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000004"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001",
+                "0x0100000d": "0x00000004"
+              },
+              "pool_graph": {
+                "connection_count": 10,
+                "module_count": 13,
+                "parsed_bundle_sha256": "c029aebbd16ea8d6d8423bd44827eb23f950f0d442574815a8dbc45715249430",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000031",
+                  "0xb0000032",
+                  "0xb0000033"
+                ]
+              },
+              "pool_offset": "0x00002984",
+              "row_index": 17
+            },
+            {
+              "aux_offset": "0x00002f38",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000005"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001",
+                "0x0100000d": "0x00000005"
+              },
+              "pool_graph": {
+                "connection_count": 11,
+                "module_count": 14,
+                "parsed_bundle_sha256": "1781c15d81a5502adad5dc24f6192f3f7c75e0e1c4d595fda772e017ee8c6d74",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb000001f",
+                  "0xb0000024",
+                  "0xb0000025"
+                ]
+              },
+              "pool_offset": "0x00027930",
+              "row_index": 18
+            },
+            {
+              "aux_offset": "0x00002f64",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000009"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001",
+                "0x0100000d": "0x00000009"
+              },
+              "pool_graph": {
+                "connection_count": 8,
+                "module_count": 11,
+                "parsed_bundle_sha256": "119ac6c472b26ec85403bed2a0f43fe868c4885987ba4315a0c40d1fbb17b15b",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb00000d7",
+                  "0xb00000dc",
+                  "0xb00000dd"
+                ]
+              },
+              "pool_offset": "0x00002f90",
+              "row_index": 19
+            },
+            {
+              "aux_offset": "0x00022c44",
+              "key_values": [
+                "0x00000003",
+                "0x00000001",
+                "0x00000001",
+                "0x00000003",
+                "0x00000001",
+                "0x00000010"
+              ],
+              "key_vector": {
+                "0x01000008": "0x00000003",
+                "0x01000009": "0x00000001",
+                "0x0100000a": "0x00000001",
+                "0x0100000b": "0x00000003",
+                "0x0100000c": "0x00000001",
+                "0x0100000d": "0x00000010"
+              },
+              "pool_graph": {
+                "connection_count": 12,
+                "module_count": 15,
+                "parsed_bundle_sha256": "ed28e355ec8aeedcbdc0685d9e362c407ace44841dc821bdc5176fa141a9a0bc",
+                "record_count": 3,
+                "subgraph_ids": [
+                  "0xb0000040",
+                  "0xb0000041",
+                  "0xb0000044"
+                ]
+              },
+              "pool_offset": "0x00026694",
+              "row_index": 20
+            }
+          ],
+          "variant_index": 2
+        }
+      ]
+    }
+  ]
+}
