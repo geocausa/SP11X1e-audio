@@ -1,0 +1,5 @@
+#include "stage_b_rt.h"
+#include <stdint.h>
+#include <stdio.h>
+static uint32_t rng=0x62c71a95u;static uint32_t ru(void){rng=rng*1664525u+1013904223u;return rng;}static float fr(float a,float b){return a+(b-a)*(float)(ru()>>8)*(1.0f/16777216.0f);}static uint64_t h64(uint64_t h,const void*p,size_t n){const unsigned char*b=p;for(size_t i=0;i<n;i++){h^=b[i];h*=1099511628211ULL;}return h;}
+int main(void){float in[96],w[8];uint32_t bd[9];UbigStageBRtVariationHistory s={0};uint64_t h=1469598103934665603ULL;for(unsigned call=0;call<12000;call++){uint32_t seg=1u+ru()%8u,n=seg+1u+ru()%(96u-seg);for(uint32_t i=0;i<n;i++)in[i]=fr(-2,2);bd[0]=0;uint32_t cur=0;for(uint32_t j=0;j<seg;j++){uint32_t rem=seg-j-1u,max=n-rem,span=max-cur;cur+=1u+ru()%span;bd[j+1]=cur;w[j]=fr(.02f,1.2f);}UbigStageBRtVariationConfig c={seg,bd,w};ubig_stage_b_rt_variation_history_process(&s,&c,in,n);h=h64(h,&s,sizeof s);}if(h!=0x30dc7f36314596d8ULL){fprintf(stderr,"Stage-B variation hash %016llx\n",(unsigned long long)h);return 2;}puts("PASS Stage-B RT variation-history regression");return 0;}

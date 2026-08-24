@@ -1,0 +1,8 @@
+2026-08-23T08:26:32+01:00 SP11X1e sp11-volume-sync-dispatch[599940]: endpoint_dsp_mute=1 hardware_backstop=fail-closed-only
+2026-08-23T08:26:32+01:00 SP11X1e sp11-volume-sync-dispatch[599940]: pipewire_gain=0.002772 ui_scalar=0.140475 windows_db=-29.180 final_q28=0x009154e1 gainstep=1 delta=216 sequence=windows-lr:init hardware_scalar=1.000000 muted=yes
+2026-08-23T08:26:32+01:00 SP11X1e sp11-volume-sync-dispatch[599940]: wsa_rx_active=84 (0 dB native-Windows producer)
+2026-08-23T08:26:54+01:00 SP11X1e sp11-volume-sync-dispatch[599940]: wsa_rx_active=81 (-3 dB Golden idle baseline)
+2026-08-23T08:27:14+01:00 SP11X1e sp11-volume-sync-dispatch[599940]: endpoint_dsp_mute=0 hardware_backstop=fail-closed-only
+2026-08-23T08:27:14+01:00 SP11X1e sp11-volume-sync-dispatch[599940]: pipewire_gain=0.002772 ui_scalar=0.140475 windows_db=-29.180 final_q28=0x009154e1 gainstep=1 delta=216 sequence=windows-lr:init hardware_scalar=1.000000 muted=no
+2026-08-23T08:27:14+01:00 SP11X1e sp11-volume-sync-dispatch[599940]: wsa_rx_active=84 (0 dB native-Windows producer)
+2026-08-23T08:27:19+01:00 SP11X1e sp11-volume-sync-dispatch[599940]: wsa_rx_active=81 (-3 dB Golden idle baseline)

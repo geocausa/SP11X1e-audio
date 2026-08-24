@@ -1,0 +1,5 @@
+#include "stage_b_rt.h"
+#include <stdint.h>
+#include <stdio.h>
+static uint32_t rng=0x6f2148b3u;static uint32_t ru(void){rng=rng*1664525u+1013904223u;return rng;}static float fr(float a,float b){return a+(b-a)*(float)(ru()>>8)*(1.0f/16777216.0f);}static uint64_t h64(uint64_t h,const void*p,size_t n){const unsigned char*b=p;for(size_t i=0;i<n;i++){h^=b[i];h*=1099511628211ULL;}return h;}
+int main(void){static const uint32_t bounds[9]={0,5,12,20,30,40,50,63,77};UbigStageBRtFeatureHistoryConfig cfg={bounds,4};UbigStageBRtFeatureHistory s={0};UbigStageBRtSpectralExport in={0};in.count=77;uint64_t h=1469598103934665603ULL;for(unsigned call=0;call<12000;call++){if((call%5u)==0u)s.phase=(s.index+2u)&31u;else if((call%7u)==0u)s.phase=(s.phase+5u)&31u;in.exponent=(int32_t)(ru()%25u)-12;in.aggregate=((call%37u)==0u)?0.0f:fr(0.0001f,0.4f);for(unsigned i=0;i<77;i++)in.bins[i]=fr(-0.25f,0.5f);ubig_stage_b_rt_feature_history_process(&s,&cfg,&in);h=h64(h,&s,sizeof s);}if(h!=0xf36e7119af54a2beULL){fprintf(stderr,"Stage-B feature-history hash %016llx\n",(unsigned long long)h);return 2;}puts("PASS Stage-B RT feature-history regression");return 0;}

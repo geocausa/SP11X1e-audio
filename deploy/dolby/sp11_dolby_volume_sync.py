@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import codecs
+import fcntl
 import json
 import math
 import os
@@ -50,6 +51,17 @@ POSTGAIN_ACK_OFF = 8
 POSTGAIN_NONE = -(1 << 31)
 POSTGAIN_MIN = -1200
 POSTGAIN_MAX = 0
+
+UBIG_CONTROL_MAGIC = 0x55424947
+UBIG_CONTROL_ABI = 2
+UBIG_CONTROL_BYTES = 172
+UBIG_DESIRED_POSTGAIN_OFF = 116
+UBIG_ACTIVE_POSTGAIN_OFF = 120
+UBIG_POSTGAIN_REQUEST_GEN_OFF = 124
+UBIG_POSTGAIN_ACK_GEN_OFF = 128
+CONTROL_FORMAT_AUTO = "auto"
+CONTROL_FORMAT_LEGACY = "legacy"
+CONTROL_FORMAT_UBIG_V2 = "ubig-v2"
 DEFAULT_NODE = "effect_input.sp11_windows_dolby"
 DEFAULT_HARDWARE_NODE = "alsa_output.platform-sound.HiFi__Speaker__sink"
 DEFAULT_CONTROL_BASENAME = "sp11-dolby-profile.control"
@@ -134,8 +146,16 @@ if len(WINDOWS_ENDPOINT_DB) != 201:
 
 
 def default_control_path() -> Path:
+    override = os.environ.get("UBIG_CONTROL_PATH")
+    if override:
+        return Path(override)
     runtime = os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}"
     return Path(runtime) / DEFAULT_CONTROL_BASENAME
+
+
+def default_control_format() -> str:
+    value = os.environ.get("UBIG_CONTROL_FORMAT", CONTROL_FORMAT_AUTO).strip().lower()
+    return value if value in {CONTROL_FORMAT_AUTO, CONTROL_FORMAT_LEGACY, CONTROL_FORMAT_UBIG_V2} else CONTROL_FORMAT_AUTO
 
 
 def pipewire_ui_scalar_from_linear_gain(gain: float) -> float:
@@ -226,33 +246,81 @@ def extract_node_id(entries: Any, node_name: str) -> int | None:
     return None
 
 
-def read_control_postgain(path: Path) -> tuple[int | None, int | None]:
+def detect_control_format(path: Path, requested: str = CONTROL_FORMAT_AUTO) -> str:
+    if requested != CONTROL_FORMAT_AUTO:
+        return requested
+    try:
+        data = path.read_bytes()[:12]
+    except FileNotFoundError:
+        return CONTROL_FORMAT_LEGACY
+    if len(data) >= 12:
+        magic, abi, struct_bytes = struct.unpack_from("<III", data, 0)
+        if magic == UBIG_CONTROL_MAGIC and abi == UBIG_CONTROL_ABI and struct_bytes == UBIG_CONTROL_BYTES:
+            return CONTROL_FORMAT_UBIG_V2
+    return CONTROL_FORMAT_LEGACY
+
+
+def read_control_postgain(path: Path, control_format: str = CONTROL_FORMAT_AUTO) -> tuple[int | None, int | None]:
     try:
         data = path.read_bytes()
     except FileNotFoundError:
         return None, None
+    fmt = detect_control_format(path, control_format)
+    if fmt == CONTROL_FORMAT_UBIG_V2:
+        req = struct.unpack_from("<i", data, UBIG_DESIRED_POSTGAIN_OFF)[0] if len(data) >= UBIG_DESIRED_POSTGAIN_OFF + 4 else None
+        ack = struct.unpack_from("<i", data, UBIG_ACTIVE_POSTGAIN_OFF)[0] if len(data) >= UBIG_ACTIVE_POSTGAIN_OFF + 4 else None
+        return req, ack
     req = struct.unpack_from("<i", data, POSTGAIN_REQUEST_OFF)[0] if len(data) >= POSTGAIN_REQUEST_OFF + 4 else None
     ack = struct.unpack_from("<i", data, POSTGAIN_ACK_OFF)[0] if len(data) >= POSTGAIN_ACK_OFF + 4 else None
     return req, ack
 
 
-def write_postgain_request(path: Path, value: int) -> None:
+def _ensure_ubig_v2_control(fd: int) -> None:
+    header = os.pread(fd, 12, 0)
+    valid = False
+    if len(header) == 12:
+        magic, abi, struct_bytes = struct.unpack("<III", header)
+        valid = magic == UBIG_CONTROL_MAGIC and abi == UBIG_CONTROL_ABI and struct_bytes == UBIG_CONTROL_BYTES
+    if valid and os.fstat(fd).st_size >= UBIG_CONTROL_BYTES:
+        return
+    os.ftruncate(fd, UBIG_CONTROL_BYTES)
+    page = bytearray(UBIG_CONTROL_BYTES)
+    struct.pack_into("<I", page, 4, UBIG_CONTROL_ABI)
+    struct.pack_into("<I", page, 8, UBIG_CONTROL_BYTES)
+    # Desired/active profile and postgain default to Dynamic / 0 in the zeroed page.
+    os.pwrite(fd, page, 0)
+    os.pwrite(fd, struct.pack("<I", UBIG_CONTROL_MAGIC), 0)
+
+
+def write_postgain_request(path: Path, value: int, control_format: str = CONTROL_FORMAT_AUTO) -> None:
     if not POSTGAIN_MIN <= value <= POSTGAIN_MAX:
         raise ValueError(f"postgain out of range: {value}")
     path.parent.mkdir(parents=True, exist_ok=True)
+    fmt = detect_control_format(path, control_format)
     fd = os.open(path, os.O_RDWR | os.O_CREAT | os.O_CLOEXEC, 0o600)
     try:
         os.fchmod(fd, 0o600)
-        old_size = os.fstat(fd).st_size
-        if old_size < CONTROL_BYTES:
-            os.ftruncate(fd, CONTROL_BYTES)
-            if old_size < POSTGAIN_REQUEST_OFF + 4:
-                os.pwrite(fd, struct.pack("<i", POSTGAIN_NONE), POSTGAIN_REQUEST_OFF)
-            if old_size < POSTGAIN_ACK_OFF + 4:
-                os.pwrite(fd, struct.pack("<i", POSTGAIN_NONE), POSTGAIN_ACK_OFF)
-        os.pwrite(fd, struct.pack("<i", value), POSTGAIN_REQUEST_OFF)
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        if fmt == CONTROL_FORMAT_UBIG_V2:
+            _ensure_ubig_v2_control(fd)
+            raw = os.pread(fd, 4, UBIG_POSTGAIN_REQUEST_GEN_OFF)
+            generation = struct.unpack("<I", raw)[0] if len(raw) == 4 else 0
+            os.pwrite(fd, struct.pack("<i", value), UBIG_DESIRED_POSTGAIN_OFF)
+            os.pwrite(fd, struct.pack("<I", (generation + 1) & 0xFFFFFFFF), UBIG_POSTGAIN_REQUEST_GEN_OFF)
+        else:
+            old_size = os.fstat(fd).st_size
+            if old_size < CONTROL_BYTES:
+                os.ftruncate(fd, CONTROL_BYTES)
+                if old_size < POSTGAIN_REQUEST_OFF + 4:
+                    os.pwrite(fd, struct.pack("<i", POSTGAIN_NONE), POSTGAIN_REQUEST_OFF)
+                if old_size < POSTGAIN_ACK_OFF + 4:
+                    os.pwrite(fd, struct.pack("<i", POSTGAIN_NONE), POSTGAIN_ACK_OFF)
+            os.pwrite(fd, struct.pack("<i", value), POSTGAIN_REQUEST_OFF)
     finally:
-        os.close(fd)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_UN)
+        finally:
+            os.close(fd)
 
 
 def iter_json_stream(fd: int) -> Iterable[Any]:
@@ -323,7 +391,7 @@ def describe(pipewire_gain: float, muted: bool, ui_scalar: float, endpoint_db: f
 
 def apply_state(state: tuple[float, bool], hardware_id: int | None, control: Path,
                 dry_run: bool, last: tuple[int, int, bool] | None,
-                wpctl: str = "wpctl") -> tuple[int, int, bool] | None:
+                wpctl: str = "wpctl", control_format: str = CONTROL_FORMAT_AUTO) -> tuple[int, int, bool] | None:
     pipewire_gain, muted = state
     ui_scalar, endpoint_db, postgain, hardware_scalar = derive_windows_state(pipewire_gain, muted)
     # Signature is stable enough to suppress monitor echoes from our hardware
@@ -334,7 +402,10 @@ def apply_state(state: tuple[float, bool], hardware_id: int | None, control: Pat
     if hardware_id is None and not dry_run:
         raise RuntimeError(f"hardware node not found: {DEFAULT_HARDWARE_NODE}")
     if not dry_run:
-        write_postgain_request(control, postgain)
+        if control_format == CONTROL_FORMAT_AUTO:
+            write_postgain_request(control, postgain)
+        else:
+            write_postgain_request(control, postgain, control_format)
         # Endpoint attenuation is downstream of Dolby/AudioEngine on Windows.
         # Directly overriding the hidden ALSA sink leaves the virtual sink's
         # visible user scalar untouched; passive PipeWire forwarding is thus
@@ -343,6 +414,14 @@ def apply_state(state: tuple[float, bool], hardware_id: int | None, control: Pat
         set_hardware_mute(hardware_id, muted, wpctl)
     print(describe(pipewire_gain, muted, ui_scalar, endpoint_db, postgain, hardware_scalar), flush=True)
     return signature
+
+
+def apply_state_from_args(args: argparse.Namespace, state: tuple[float, bool],
+                          hardware_id: int | None, last: tuple[int, int, bool] | None):
+    control_format = getattr(args, "control_format", CONTROL_FORMAT_AUTO)
+    if control_format == CONTROL_FORMAT_AUTO:
+        return apply_state(state, hardware_id, args.control, args.dry_run, last, args.wpctl)
+    return apply_state(state, hardware_id, args.control, args.dry_run, last, args.wpctl, control_format)
 
 
 def settled_state(pw_dump: str, node_name: str, hardware_name: str, delay_ms: int) -> tuple[tuple[float, bool] | None, int | None]:
@@ -359,7 +438,7 @@ def run_once(args: argparse.Namespace) -> int:
         print(f"node not found or has no volume Props: {args.node}", file=sys.stderr)
         return 3
     hardware_id = extract_node_id(entries, args.hardware_node)
-    apply_state(state, hardware_id, args.control, args.dry_run, None, args.wpctl)
+    apply_state_from_args(args, state, hardware_id, None)
     return 0
 
 
@@ -386,7 +465,7 @@ def run_monitor(args: argparse.Namespace) -> int:
             )
             hardware_id = snap_hw or hardware_id
             if initial is not None and hardware_id is not None:
-                last = apply_state(initial, hardware_id, args.control, args.dry_run, None, args.wpctl)
+                last = apply_state_from_args(args, initial, hardware_id, None)
                 break
             if time.monotonic() >= deadline:
                 break
@@ -409,7 +488,7 @@ def run_monitor(args: argparse.Namespace) -> int:
                     state, snap_hw = settled_state(args.pw_dump, args.node, args.hardware_node, 0)
                     hardware_id = snap_hw or hardware_id
                     if state is not None:
-                        last = apply_state(state, hardware_id, args.control, args.dry_run, None, args.wpctl)
+                        last = apply_state_from_args(args, state, hardware_id, None)
 
             state = extract_node_volume(value, args.node)
             if state is not None and last is not None and time.monotonic() < guard_until:
@@ -424,7 +503,7 @@ def run_monitor(args: argparse.Namespace) -> int:
                 hardware_id = snap_hw or hardware_id
             if state is None:
                 continue
-            last = apply_state(state, hardware_id, args.control, args.dry_run, last, args.wpctl)
+            last = apply_state_from_args(args, state, hardware_id, last)
     finally:
         if proc.poll() is None:
             proc.terminate()
@@ -437,6 +516,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--node", default=DEFAULT_NODE)
     p.add_argument("--hardware-node", default=DEFAULT_HARDWARE_NODE)
     p.add_argument("--control", type=Path, default=default_control_path())
+    p.add_argument("--control-format", choices=(CONTROL_FORMAT_AUTO, CONTROL_FORMAT_LEGACY, CONTROL_FORMAT_UBIG_V2),
+                   default=default_control_format(),
+                   help="control-page layout; auto preserves the installed legacy page unless UbiG v2 is detected")
     p.add_argument("--pw-dump", default="pw-dump")
     p.add_argument("--wpctl", default="wpctl")
     p.add_argument("--once", action="store_true", help="read one pw-dump snapshot and exit")

@@ -6,12 +6,12 @@ This synchronizer is selected only when the candidate kernel exposes
 VOL_CTRL followed by the complete four-frame GainStep OOB delta.  Only after
 that succeeds does it move the hidden ALSA sink to unity.
 
-Windows KDNET and stationary-loopback captures prove that endpoint slider
-changes do not retune VLLDP while its Dolby APO instance remains alive.  Dolby
-postgain is therefore queued once per visible/hidden filter-chain generation,
-not on ordinary live volume changes.  A replacement Dolby engine gets the
-current endpoint-derived postgain once; that value then remains frozen until
-the engine is recreated.
+Fresh same-process Windows speaker-branch memory capture proves that VLLDP
+postgain follows endpoint master volume live: the staged/applied fields are
+exactly ``round(endpoint_dB * 16)`` at every tested 8..50% point and return to
+the original value on the downward sweep.  The control is therefore updated on
+ordinary live volume changes as well as forced once for every replacement Dolby
+engine generation.
 
 Steady-state volume changes are consumed from ``pw-dump -m`` rather than a
 timer.  This preserves the recovered Windows ordering without allowing the
@@ -48,6 +48,9 @@ ROOT = SCRIPT_DIR.parents[1] if SCRIPT_DIR.name == "dolby" else None
 
 def load_module(source_name: str, installed_name: str, module_name: str):
     candidates = []
+    helper_dir = os.environ.get("UBIG_VOLUME_HELPER_DIR")
+    if helper_dir:
+        candidates.append(Path(helper_dir) / installed_name)
     if ROOT is not None:
         candidates.append(ROOT / "deploy/dolby" / source_name)
     candidates.append(Path.home() / ".local/bin" / installed_name)
@@ -300,36 +303,54 @@ def default_generation_state() -> Path:
     return Path(f"/run/user/{os.getuid()}/sp11-dolby-volume-generation")
 
 
-def read_generation_node(path: Path) -> int | None:
+def read_generation_postgain(path: Path) -> tuple[int, int | None] | None:
+    """Read the last queued ``(node generation, postgain)`` state.
+
+    Older deployments stored only the node id.  Treat that legacy form as an
+    unknown postgain so the first reconciliation safely re-queues the current
+    endpoint value without breaking an in-place upgrade.
+    """
     try:
-        return int(path.read_text().strip())
+        fields = path.read_text().split()
+        if not fields:
+            return None
+        node_id = int(fields[0])
+        postgain = int(fields[1]) if len(fields) > 1 else None
+        return node_id, postgain
     except (FileNotFoundError, OSError, ValueError):
         return None
 
 
 def queue_dolby_postgain_for_generation(
-    state: tuple[float, bool], node_id: int, control: Path, generation_state: Path
+    state: tuple[float, bool], node_id: int, control: Path, generation_state: Path,
+    control_format: str = base.CONTROL_FORMAT_AUTO,
 ) -> int | None:
-    """Queue VLLDP postgain once for one Dolby/filter-chain generation.
+    """Queue exact Windows VLLDP postgain when node or endpoint state changes.
 
-    Fresh Windows KDNET proves live endpoint SetVolume updates final VOL_CTRL and
-    GainStep/CKV but does not enter either recovered VLLDP postgain setter.  A
-    second stationary-loopback experiment proves even idle -> new-stream starts
-    leave the upstream Dolby transfer unchanged while the same APO instance is
-    alive.  Linux therefore updates this control only when its Dolby engine is
-    newly instantiated (represented by a new visible filter-chain node id).
+    Same-process native-Windows speaker-branch dumps on 2026-08-23 directly
+    measured VLLDP ``core+0xBB0`` (applied) and ``core+0xBB4`` (staged) across
+    an 8/10/15/17/20/25/30/40/50% up/down sweep.  Both fields followed
+    ``round(endpoint_dB * 16)`` exactly while the VLLDP object identity and
+    profile controls remained unchanged.  Therefore a live endpoint-volume
+    gesture must update this lane; a replacement node also forces a re-queue
+    even when the numerical postgain is unchanged.
     """
-    if read_generation_node(generation_state) == node_id:
-        return None
     pipewire_gain, muted = state
     ui_scalar, endpoint_db, postgain, _host = base.derive_windows_state(
         pipewire_gain, muted
     )
-    base.write_postgain_request(control, postgain)
+    previous = read_generation_postgain(generation_state)
+    if previous == (node_id, postgain):
+        return None
+    if control_format == base.CONTROL_FORMAT_AUTO:
+        base.write_postgain_request(control, postgain)
+    else:
+        base.write_postgain_request(control, postgain, control_format)
     generation_state.parent.mkdir(parents=True, exist_ok=True)
-    generation_state.write_text(f"{node_id}\n")
+    generation_state.write_text(f"{node_id} {postgain}\n")
+    reason = "generation" if previous is None or previous[0] != node_id else "endpoint"
     print(
-        f"dolby_generation={node_id} ui_scalar={ui_scalar:.6f} "
+        f"dolby_generation={node_id} reason={reason} ui_scalar={ui_scalar:.6f} "
         f"windows_db={endpoint_db:.3f} queued_postgain={postgain} "
         f"muted={'yes' if muted else 'no'}",
         flush=True,
@@ -493,6 +514,12 @@ def run(args: argparse.Namespace) -> int:
         current_state = state
         current_hardware_id = hardware_id
 
+        if current_node_id is not None:
+            queue_dolby_postgain_for_generation(
+                state, current_node_id, args.control, generation_state,
+                getattr(args, "control_format", base.CONTROL_FORMAT_AUTO),
+            )
+
         if not msiir.graph_running(args.pcm_status):
             if prior_new_ckv and rx_gain_active:
                 try:
@@ -626,9 +653,6 @@ def run(args: argparse.Namespace) -> int:
         # is authoritative across object recreation and is restored first.
         restore_visible_control_state(current_state, node_id, args.wpctl)
         current_node_id = node_id
-        queue_dolby_postgain_for_generation(
-            current_state, node_id, args.control, generation_state
-        )
         target_hardware = hardware_id or current_hardware_id
         if target_hardware is not None:
             reconcile(current_state, target_hardware)
@@ -640,9 +664,6 @@ def run(args: argparse.Namespace) -> int:
             print("volume or hardware node unavailable", file=sys.stderr)
             return 3
         current_node_id = node_id
-        queue_dolby_postgain_for_generation(
-            state, node_id, args.control, generation_state
-        )
         reconcile(state, hardware_id)
         if not transaction_active:
             print("graph idle; host attenuation established")
@@ -679,9 +700,6 @@ def run(args: argparse.Namespace) -> int:
                         continue
                     state, node_id, hardware_id = state2, node_id2, hardware_id2
                 current_node_id = node_id
-                queue_dolby_postgain_for_generation(
-                    state, node_id, args.control, generation_state
-                )
                 reconcile(state, hardware_id)
                 break
             if time.monotonic() >= deadline:
@@ -782,6 +800,8 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--node", default=base.DEFAULT_NODE)
     p.add_argument("--hardware-node", default=base.DEFAULT_HARDWARE_NODE)
     p.add_argument("--control", type=Path, default=base.default_control_path())
+    p.add_argument("--control-format", choices=(base.CONTROL_FORMAT_AUTO, base.CONTROL_FORMAT_LEGACY, base.CONTROL_FORMAT_UBIG_V2),
+                   default=base.default_control_format())
     p.add_argument("--card", default=DEFAULT_CARD)
     p.add_argument("--pcm-status", type=Path, default=DEFAULT_PCM_STATUS)
     p.add_argument("--tlv-write", type=Path, default=DEFAULT_TLV_WRITE)

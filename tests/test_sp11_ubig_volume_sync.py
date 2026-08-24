@@ -4,8 +4,8 @@ import struct
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "deploy" / "dolby" / "sp11_dolby_volume_sync.py"
-spec = importlib.util.spec_from_file_location("sp11_dolby_volume_sync", SCRIPT)
+SCRIPT = ROOT / "deploy" / "ubig" / "sp11_ubig_volume_sync.py"
+spec = importlib.util.spec_from_file_location("sp11_ubig_volume_sync", SCRIPT)
 mod = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
 spec.loader.exec_module(mod)
@@ -113,6 +113,30 @@ def test_control_update_preserves_plugin_ack(tmp_path):
     assert data[:2] == bytes((5, 5))
     assert struct.unpack_from("<i", data, mod.POSTGAIN_REQUEST_OFF)[0] == -332
     assert struct.unpack_from("<i", data, mod.POSTGAIN_ACK_OFF)[0] == -423
+
+
+def test_ubig_control_environment_selects_candidate_page(tmp_path, monkeypatch):
+    path = tmp_path / "ubig-control-v2"
+    monkeypatch.setenv("UBIG_CONTROL_PATH", str(path))
+    monkeypatch.setenv("UBIG_CONTROL_FORMAT", "ubig-v2")
+    assert mod.default_control_path() == path
+    assert mod.default_control_format() == mod.CONTROL_FORMAT_UBIG_V2
+
+
+def test_ubig_v2_control_write_creates_page_and_advances_only_postgain_generation(tmp_path):
+    path = tmp_path / "ubig-control-v2"
+    mod.write_postgain_request(path, -332, mod.CONTROL_FORMAT_UBIG_V2)
+    data = path.read_bytes()
+    assert len(data) == mod.UBIG_CONTROL_BYTES
+    assert struct.unpack_from("<III", data, 0) == (mod.UBIG_CONTROL_MAGIC, mod.UBIG_CONTROL_ABI, mod.UBIG_CONTROL_BYTES)
+    assert struct.unpack_from("<i", data, mod.UBIG_DESIRED_POSTGAIN_OFF)[0] == -332
+    assert struct.unpack_from("<I", data, mod.UBIG_POSTGAIN_REQUEST_GEN_OFF)[0] == 1
+    assert struct.unpack_from("<I", data, 16)[0] == 0
+    mod.write_postgain_request(path, -423)
+    data = path.read_bytes()
+    assert struct.unpack_from("<i", data, mod.UBIG_DESIRED_POSTGAIN_OFF)[0] == -423
+    assert struct.unpack_from("<I", data, mod.UBIG_POSTGAIN_REQUEST_GEN_OFF)[0] == 2
+    assert struct.unpack_from("<I", data, 16)[0] == 0
 
 
 def test_apply_state_coordinates_postgain_and_hidden_hardware(tmp_path, monkeypatch):

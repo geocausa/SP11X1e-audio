@@ -1,0 +1,308 @@
+#ifndef UBIG_STAGE_B_LEVELER_PRIMITIVES_H
+#define UBIG_STAGE_B_LEVELER_PRIMITIVES_H
+#include <stdint.h>
+
+/* Exact coefficient mapper used by the SP11 Stage-B Volume-Leveler/DRC
+ * adaptive controller. config[1]/config[2] are the two branch coefficients;
+ * config[0] is not read by this bounded primitive. */
+void ubig_stage_b_leveler_coeff_triplet(uint32_t mode,
+                                        const float config[3],
+                                        float blend,
+                                        float history,
+                                        float drive,
+                                        float *out_a,
+                                        float *out_b,
+                                        float *out_adaptive);
+/* Exact 80-slot adaptive-history accumulator used by the Leveler/DRC writer. */
+typedef struct {
+    float bins[51];
+    float total;
+    uint32_t count;
+    uint32_t ring_bin[80];
+    float ring_lo[80];
+    float ring_hi[80];
+    float ring_total[80];
+    uint32_t ring_pos;
+    float phase;
+    uint32_t reset_max;
+    float max_a;
+    float max_b;
+} UbigStageBLevelerHistory;
+
+void ubig_stage_b_leveler_history_init(UbigStageBLevelerHistory *state);
+
+void ubig_stage_b_leveler_history_update(UbigStageBLevelerHistory *state,
+                                         float step,
+                                         float value_a,
+                                         float value_b);
+/* Exact 17-float post-controller scalar-transfer curve builder/evaluator.
+ * The builder updates only the dynamic fields owned by the reference helper;
+ * caller-owned threshold/static fields remain untouched. */
+void ubig_stage_b_leveler_curve_build(float curve[17],
+                                      float anchor,
+                                      float slope_control,
+                                      float delta);
+float ubig_stage_b_leveler_piecewise(const float curve[17], float input);
+
+/* Exact bounded row-history/lifecycle primitive used by the Leveler producer. */
+typedef struct {
+    float *previous;
+    float *current;
+    uint32_t hold;
+    int32_t event_age;
+    float coefficient;
+    uint32_t reserved;
+} UbigStageBLevelerRowState;
+
+typedef struct {
+    uint32_t reserved;
+    float delta_threshold;
+    float release;
+    uint32_t hold_limit;
+} UbigStageBLevelerRowConfig;
+
+typedef struct {
+    uint32_t event;
+    uint32_t hold_expired;
+    float coefficient;
+} UbigStageBLevelerRowResult;
+
+void ubig_stage_b_leveler_row_update(UbigStageBLevelerRowState *state,
+                                     const UbigStageBLevelerRowConfig *config,
+                                     const float *input,
+                                     uint32_t count,
+                                     uint32_t force_event,
+                                     UbigStageBLevelerRowResult *result,
+                                     float metric);
+
+/* Exact producer-side per-band floor clamp. Valid SP11 rows have >=7 lanes. */
+void ubig_stage_b_leveler_apply_row_floors(uint32_t count,float *values);
+
+/* Exact row preparation/linking subpath used by the Leveler producer. */
+typedef struct {
+    uint32_t count;
+    uint32_t width;
+    float **rows;
+} UbigStageBLevelerInputRows;
+
+typedef struct {
+    uint32_t count;
+    uint32_t width;
+    float **rows;
+    uint32_t row_capacity;
+    uint32_t width_capacity;
+} UbigStageBLevelerPreparedRows;
+
+void ubig_stage_b_leveler_prepare_rows(const float *base,
+                                       const UbigStageBLevelerInputRows *input,
+                                       UbigStageBLevelerPreparedRows *output,
+                                       float bias);
+
+/* Exact per-lane row transition helper used by the Leveler producer. */
+typedef struct {
+    float previous_offset;
+    float input_offset;
+    float rise_previous;
+    float rise_input;
+    float fall_previous;
+    float fall_input;
+} UbigStageBLevelerTransitionRecord;
+
+float *ubig_stage_b_leveler_transition_row(const float *input,
+                                           uint32_t count,
+                                           uint32_t copy_only,
+                                           uint32_t common_config,
+                                           const UbigStageBLevelerTransitionRecord *large_rise,
+                                           const UbigStageBLevelerTransitionRecord *normal,
+                                           float *state,
+                                           float rise_threshold);
+
+/* Exact symmetric finite-row filter used by the Leveler producer. */
+typedef struct {
+    const float *coefficients;
+    const float *post_scale;
+    uint32_t taps;
+    uint32_t reserved;
+} UbigStageBLevelerSymmetricFilter;
+
+void ubig_stage_b_leveler_symmetric_filter(const UbigStageBLevelerSymmetricFilter *filter,
+                                           const float *input,
+                                           uint32_t count,
+                                           float *output);
+
+/* Exact symmetric-filter + conditional overshoot blend wrapper. */
+void ubig_stage_b_leveler_filter_blend(const UbigStageBLevelerSymmetricFilter *filter,
+                                       uint32_t count,
+                                       const float *blend,
+                                       const float *input,
+                                       float *output);
+
+/* Exact in-place ceiling clamp over scalar+row storage (count+1 floats). */
+void ubig_stage_b_leveler_row_ceiling(float *values,uint32_t count,float ceiling);
+
+/* Exact two-state coefficient selector/smoother used by the Leveler mixer. */
+typedef struct {
+    float positive_near;
+    float positive_far;
+    float neutral_primary;
+    float negative_primary;
+    float neutral_mix;
+    float negative_mix;
+} UbigStageBLevelerPairCoefficients;
+
+typedef struct {
+    float base;
+    float negative;
+    float alternate;
+    uint32_t negative_mode;
+    uint32_t compare_enable;
+    uint32_t use_alternate;
+} UbigStageBLevelerPairControl;
+
+/* Exact centered-distribution statistic used by the Leveler producer. */
+float ubig_stage_b_leveler_distribution_stat(uint32_t count,const float *values);
+
+/* Caller-owned coefficient/exponent record for the normalized cubic mapper. */
+typedef struct {
+    float constant;
+    uint32_t reserved;
+    float coeff1;
+    int32_t exp1;
+    float coeff2;
+    int32_t exp2;
+    float coeff3;
+    int32_t exp3;
+} UbigStageBLevelerNormalizedCubic;
+
+typedef struct {
+    const float *table[8];
+} UbigStageBLevelerLookupTables;
+
+/* Exact seven-fixed-plus-tail lookup mapper. The eight curves are caller-owned
+ * configuration and are deliberately not embedded by UbiG. */
+void ubig_stage_b_leveler_lookup_map(uint32_t count,
+                                     const float *input,
+                                     float *output,
+                                     const UbigStageBLevelerLookupTables *tables);
+
+/* Exact linked lookup reducer; the per-band offset vector and lookup curves are
+ * caller-owned configuration. */
+float ubig_stage_b_leveler_lookup_link(const float *fallback,
+                                       const float *input,
+                                       uint32_t count,
+                                       float floor_value,
+                                       const float *offsets,
+                                       const UbigStageBLevelerLookupTables *tables);
+
+/* Exact cross-row soft-link residual accumulation. Source/weight/destination
+ * matrices use the SP11 fixed 20-float row stride. */
+void ubig_stage_b_leveler_link_residual(uint32_t row_count,
+                                        uint32_t width,
+                                        const float *source_rows,
+                                        const float *compare_row,
+                                        const float *weight_rows,
+                                        float *destination_rows);
+
+typedef struct {
+    const float *slopes[8];
+    const float *knots[8];
+    uint32_t length[8];
+    float baseline[8];
+} UbigStageBLevelerInverseLookupTables;
+
+/* Exact two-stage lookup worker. Both lookup families remain caller-owned data. */
+void ubig_stage_b_leveler_dual_lookup(const float *lookup_input,
+                                      const float *secondary,
+                                      uint32_t count,
+                                      float *output,
+                                      float bias0,
+                                      float bias1,
+                                      const UbigStageBLevelerLookupTables *lookup_tables,
+                                      const UbigStageBLevelerInverseLookupTables *inverse_tables);
+
+/* Exact SP11 stereo matrix parent around row transition, dual lookup and
+ * linked residual accumulation. Both lookup families remain caller-owned. */
+void ubig_stage_b_leveler_matrix_process(float *const *state_rows,
+                                         const UbigStageBLevelerTransitionRecord *transition,
+                                         const float *const *input_rows,
+                                         const float *const *secondary_rows,
+                                         const float *weight_rows,
+                                         uint32_t row_count,
+                                         uint32_t width,
+                                         uint32_t copy_only,
+                                         float initial_bias,
+                                         float lookup_bias,
+                                         float *destination_rows,
+                                         const UbigStageBLevelerLookupTables *lookup_tables,
+                                         const UbigStageBLevelerInverseLookupTables *inverse_tables);
+
+/* Exact producer tail shaping: first 12 lanes zero, remaining lanes use
+ * caller-owned tail coefficients. The SP11 contract uses eight tail entries. */
+void ubig_stage_b_leveler_tail_shape(uint32_t count,
+                                     float *output,
+                                     float control,
+                                     const float *tail_coefficients);
+
+/* Exact offset/minimum/regression parent around the linked lookup reducer. */
+float ubig_stage_b_leveler_lookup_regression(uint32_t count,
+                                             const float *input,
+                                             const float *fallback,
+                                             const float *offsets,
+                                             const UbigStageBLevelerLookupTables *tables);
+
+typedef struct {
+    float out0;
+    float out1;
+    float *transition_state;
+    float *cubic_state;
+    float factor;
+    float feedback;
+} UbigStageBLevelerLookupState;
+
+typedef struct {
+    const UbigStageBLevelerTransitionRecord *transition;
+    float feedback_mix;
+    float decay;
+    float low;
+    float high;
+    float response_scale;
+    int32_t response_exp;
+} UbigStageBLevelerLookupConfig;
+
+typedef struct {
+    uint32_t flag;
+    float out0;
+    float out1;
+} UbigStageBLevelerLookupResult;
+
+/* Exact parent around transition -> lookup -> normalized cubic mapping. Lookup
+ * curves and cubic coefficients remain explicit caller-owned configuration. */
+void ubig_stage_b_leveler_lookup_process(UbigStageBLevelerLookupState *state,
+                                         const UbigStageBLevelerLookupConfig *config,
+                                         const float *input,
+                                         uint32_t count,
+                                         uint32_t copy_only,
+                                         UbigStageBLevelerLookupResult *result,
+                                         float control,
+                                         float history,
+                                         const UbigStageBLevelerLookupTables *tables,
+                                         const UbigStageBLevelerNormalizedCubic *cubic);
+
+
+/* Exact max-normalized cubic row mapper. write_only=0 also returns the exact
+ * 0.05-weighted mean absolute change from the prior output row. */
+float ubig_stage_b_leveler_normalized_cubic(const float *input,
+                                            float *output,
+                                            uint32_t count,
+                                            uint32_t write_only,
+                                            const UbigStageBLevelerNormalizedCubic *config);
+
+
+void ubig_stage_b_leveler_pair_smooth(const UbigStageBLevelerPairCoefficients *coefficients,
+                                      const UbigStageBLevelerPairControl *control,
+                                      float *state_a,
+                                      float *state_b,
+                                      float target_a,
+                                      float target_b,
+                                      float mix);
+#endif

@@ -1,0 +1,292 @@
+{
+  "schema": "ubig.sp11.stage_a.dynamic_tuning.v1",
+  "provenance_category": "DEVICE_TUNING",
+  "description": "SP11 48 kHz Stage-A audio configuration plus recovered profile-family state. The common and Movie/Music families are distinct staged state but are proven bit-transparent at the Stage-A audio boundary on this endpoint.",
+  "input_scale_f32_bits": "0x3f8e38e4",
+  "limiter_ceiling_f32_bits": "0x3f7ff972",
+  "analysis_enable": 1,
+  "compressor_enable": 1,
+  "compressor_mode": 1,
+  "native_count": 8,
+  "drive_state_f32_bits": "0x00000000",
+  "controller_drive_units_2080": 14,
+  "compressor": {
+    "sample_rate": 48000,
+    "bands": 20,
+    "scalar_cfg_f32_bits": [
+      "0x3f5ccf8e",
+      "0x3e0cc1c8",
+      "0x3f76b582",
+      "0x3d14a7d8",
+      "0x3f7f0e2d",
+      "0x3b71d343"
+    ],
+    "dual_cfg_f32_bits": [
+      "0xba21df8d",
+      "0x3c96072f",
+      "0x3eb55340",
+      "0x3db43958",
+      "0xbd34b671",
+      "0xb8817fa4",
+      "0x3af20c78",
+      "0x3f01abd8",
+      "0x3e010625",
+      "0xbdbfa4d2"
+    ],
+    "flag_cfg_f32_bits": [
+      "0x3f7e1d3e",
+      "0x3bf1610b",
+      "0x3f7e1d3e",
+      "0x3bf1610b"
+    ],
+    "band_update_cfg_f32_bits": [
+      "0x3f7da51c",
+      "0x3c16b906",
+      "0x3f7ef35c",
+      "0x3b8651dd",
+      "0x3c3655c3"
+    ],
+    "hold_samples": 192,
+    "transition_cfg_f32_bits": [
+      "0xb921df8d",
+      "0x3b971227",
+      "0x3ed56130",
+      "0x3d99999a",
+      "0xbd199110"
+    ],
+    "reserved_u32": 0,
+    "direction_cfg_f32_bits": [
+      "0x3f7da51c",
+      "0x3c16b906"
+    ],
+    "severity_coeff_f32_bits": [
+      "0x3a27aafa",
+      "0x3c70ef93",
+      "0x3d1a31e4",
+      "0x3d8044e9",
+      "0x3dbeb1fe",
+      "0x3df17357",
+      "0x3e05f883",
+      "0x3e203204",
+      "0x3e3c74bc",
+      "0x3e745942",
+      "0x3ec146e4",
+      "0x3f0438d7",
+      "0x3ef3a6a9",
+      "0x3eb73916",
+      "0x3e658afa",
+      "0x3e0f159c",
+      "0x3da3653c",
+      "0x3d23c88f",
+      "0x3c77a52e",
+      "0x3b5def29"
+    ],
+    "distribution": [
+      47,
+      141,
+      234,
+      328,
+      469,
+      656,
+      844,
+      1031,
+      1313,
+      1688,
+      2250,
+      3000,
+      3750,
+      4688,
+      5813,
+      7125,
+      9000,
+      11250,
+      13875,
+      19688
+    ]
+  },
+  "base_rows_units_2080": [
+    [
+      -16,
+      18,
+      16,
+      30,
+      16,
+      -32,
+      -16,
+      -32,
+      -16,
+      -32,
+      -48,
+      -62,
+      -64,
+      -64,
+      -16,
+      -16,
+      -16,
+      16,
+      80,
+      48
+    ],
+    [
+      0,
+      32,
+      32,
+      45,
+      16,
+      0,
+      -16,
+      -16,
+      -16,
+      0,
+      -32,
+      -38,
+      -48,
+      -48,
+      0,
+      0,
+      0,
+      32,
+      96,
+      64
+    ]
+  ],
+  "side_a_units_2080": [
+    -266,
+    -304,
+    -384,
+    -429,
+    -430,
+    -418,
+    -349,
+    -192,
+    -192,
+    -192,
+    -192,
+    -192,
+    -192,
+    -192,
+    -192,
+    -192,
+    -192,
+    -192,
+    -192,
+    -192
+  ],
+  "side_b_units_2080": [
+    -74,
+    -112,
+    -192,
+    -237,
+    -238,
+    -226,
+    -157,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "mask": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "runtime_f32_bits": [
+    "0x3f400000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000"
+  ],
+  "channel_mix_units_2080": [
+    216,
+    216,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "profile_family_state": {
+    "common": {
+      "groups": [
+        [
+          20,
+          0,
+          32767,
+          10,
+          20,
+          0
+        ]
+      ],
+      "channel_deviation": 0,
+      "slow_gain_enable": 0,
+      "slow_gain_mix": 256
+    },
+    "movie_music": {
+      "groups": [
+        [
+          2,
+          -256,
+          12980,
+          3,
+          20,
+          64
+        ],
+        [
+          7,
+          -160,
+          16366,
+          10,
+          20,
+          64
+        ],
+        [
+          16,
+          0,
+          32767,
+          10,
+          20,
+          0
+        ],
+        [
+          20,
+          0,
+          32767,
+          10,
+          20,
+          0
+        ]
+      ],
+      "channel_deviation": 96,
+      "slow_gain_enable": 1,
+      "slow_gain_mix": 103
+    }
+  }
+}

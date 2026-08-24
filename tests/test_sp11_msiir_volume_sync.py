@@ -5,7 +5,7 @@ import struct
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "deploy" / "dolby" / "sp11_msiir_volume_sync.py"
+SCRIPT = ROOT / "deploy" / "ubig" / "sp11_msiir_volume_sync.py"
 spec = importlib.util.spec_from_file_location("sp11_msiir_volume_sync", SCRIPT)
 mod = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
@@ -62,3 +62,22 @@ def test_read_postgain_control_page(tmp_path):
     struct.pack_into("<i", b, 4, -578)
     p.write_bytes(b)
     assert mod.read_postgain(p) == -578
+
+
+def test_ubig_control_environment_selects_candidate_page(tmp_path, monkeypatch):
+    path = tmp_path / "ubig-control-v2"
+    monkeypatch.setenv("UBIG_CONTROL_PATH", str(path))
+    monkeypatch.setenv("UBIG_CONTROL_FORMAT", "ubig-v2")
+    assert mod.default_control_path() == path
+    assert mod.default_control_format() == mod.CONTROL_FORMAT_UBIG_V2
+
+
+def test_read_postgain_ubig_v2_control_page(tmp_path):
+    p = tmp_path / "ubig-control-v2"
+    b = bytearray(mod.UBIG_CONTROL_BYTES)
+    struct.pack_into("<III", b, 0, mod.UBIG_CONTROL_MAGIC, mod.UBIG_CONTROL_ABI, mod.UBIG_CONTROL_BYTES)
+    struct.pack_into("<i", b, mod.UBIG_DESIRED_POSTGAIN_OFF, -332)
+    p.write_bytes(b)
+    assert mod.detect_control_format(p) == mod.CONTROL_FORMAT_UBIG_V2
+    assert mod.read_postgain(p) == -332
+    assert mod.read_postgain(p, mod.CONTROL_FORMAT_UBIG_V2) == -332

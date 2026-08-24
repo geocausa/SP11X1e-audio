@@ -1,0 +1,5 @@
+#include "stage_b_rt.h"
+#include <stdint.h>
+#include <stdio.h>
+static uint32_t rng=0x718c4d29u;static uint32_t ru(void){rng=rng*1664525u+1013904223u;return rng;}static float fr(float a,float b){return a+(b-a)*(float)(ru()>>8)*(1.0f/16777216.0f);}static uint64_t h64(uint64_t h,const void*p,size_t n){const unsigned char*b=p;for(size_t i=0;i<n;i++){h^=b[i];h*=1099511628211ULL;}return h;}
+int main(void){float m[32][8],scratch[64],mean[8]={0},dev[8]={0};UbigStageBRtStatCursor c={3,19};uint64_t h=1469598103934665603ULL;for(unsigned t=0;t<50000;t++){for(unsigned r=0;r<32;r++)for(unsigned j=0;j<8;j++)m[r][j]=(ru()%19u==0u)?0.0f:fr(-2,2);for(unsigned i=0;i<64;i++)scratch[i]=fr(-7,7);c.step=ru()%32u;uint32_t prefix=ru()%33u;ubig_stage_b_rt_stat32_ring_columns(&c,m,prefix,scratch,mean,dev);h=h64(h,scratch,sizeof scratch);h=h64(h,mean,sizeof mean);h=h64(h,dev,sizeof dev);h=h64(h,&c,sizeof c);}if(h!=0xc9f97bfc431c117dULL){fprintf(stderr,"Stage-B stat-ring hash %016llx\n",(unsigned long long)h);return 2;}puts("PASS Stage-B RT ring-column statistics regression");return 0;}

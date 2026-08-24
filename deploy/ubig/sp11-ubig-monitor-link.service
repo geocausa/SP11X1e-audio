@@ -1,0 +1,14 @@
+[Unit]
+Description=SP11 unity monitor to hidden UbiG engine links
+After=pipewire.service wireplumber.service
+Wants=pipewire.service wireplumber.service
+
+[Service]
+Type=simple
+Environment=XDG_RUNTIME_DIR=%t
+ExecStart=%h/.local/bin/sp11-ubig-monitor-link
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=default.target

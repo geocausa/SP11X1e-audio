@@ -1,0 +1,5 @@
+#include "stage_a_filterbank_sp11.h"
+#include <stdint.h>
+#include <stdio.h>
+static uint64_t h64(uint64_t h,const void*p,size_t n){const unsigned char*b=p;for(size_t i=0;i<n;i++){h^=b[i];h*=1099511628211ULL;}return h;}
+int main(void){const UbigStageAAnalyzerDesc*a=ubig_stage_a_sp11_analyzer_desc();const UbigStageASynthDesc*s=ubig_stage_a_sp11_synth_desc();if(!a||!s||a->block_frames!=256||a->hop_frames!=64||a->transform_span!=320||a->phases!=2||a->bands!=20)return 2;uint64_t h=1469598103934665603ULL;unsigned g[5]={a->block_frames,a->hop_frames,a->transform_span,a->phases,a->bands};h=h64(h,g,sizeof g);h=h64(h,a->pre_twiddle,640*4);h=h64(h,a->edge_window,64*4);h=h64(h,a->reduce_start,20*4);h=h64(h,a->reduce_count,20*4);h=h64(h,a->reduce_coeff,UBIG_SP11_REDUCE_COEFFS*4);h=h64(h,&a->log_scale,4);for(int p=0;p<2;p++){h=h64(h,s->band_start[p],20*4);h=h64(h,s->band_count[p],20*4);h=h64(h,s->mix_coeff[p],(p?UBIG_SP11_SYNTH1_COEFFS:UBIG_SP11_SYNTH0_COEFFS)*4);}if(h!=0xa69a0c676cfb844dULL){fprintf(stderr,"SP11 filterbank tuning hash %016llx\n",(unsigned long long)h);return 3;}puts("PASS native SP11 filterbank descriptor regression");return 0;}

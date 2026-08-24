@@ -1,0 +1,6 @@
+#include "stage_b_rt.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+static uint32_t q=0x4b890a55u;static uint32_t ru(void){q=q*1664525u+1013904223u;return q;}static float rf(void){return ((int32_t)(ru()>>8)-0x7fffff)*(1.0f/8388608.0f);}static uint64_t h64(uint64_t h,const void*p,size_t n){const unsigned char*b=p;for(size_t i=0;i<n;i++){h^=b[i];h*=1099511628211ULL;}return h;}
+int main(void){enum{R=10,C=4,B=77,W=154};float data[R][C][W],out[W];const float *chp[R][C];const float *const *rows[R];uint32_t idx[R];float wt[R];uint64_t h=1469598103934665603ULL;for(unsigned r=0;r<R;r++){rows[r]=chp[r];for(unsigned c=0;c<C;c++)chp[r][c]=data[r][c];}for(unsigned t=0;t<50000;t++){uint32_t bins=ru()%(B+1u),ch=ru()%C,n=ru()%(R+1u);for(unsigned r=0;r<R;r++)for(unsigned c=0;c<C;c++)for(unsigned i=0;i<W;i++)data[r][c][i]=rf();for(unsigned i=0;i<R;i++){idx[i]=ru()%R;wt[i]=rf();}for(unsigned i=0;i<W;i++)out[i]=rf();UbigStageBRtSparseMix m={idx,wt,n};int rc=ubig_stage_b_rt_sparse_complex_mix(out,rows,&m,ch,bins);h=h64(h,&rc,sizeof rc);h=h64(h,out,sizeof out);}if(h!=0x3ec058aa58b2fc4cULL){fprintf(stderr,"Stage-B RT sparse-mix hash %016llx\n",(unsigned long long)h);return 2;}puts("PASS Stage-B RT sparse complex mix regression");return 0;}

@@ -1,0 +1,55 @@
+{
+  "date": "2026-08-22",
+  "scope": "UbiG engine-control completion and arm64 Debian package live gate",
+  "engine_contract": {
+    "sample_rate_hz": 48000,
+    "channels": 2,
+    "stage_a_source_owned": true,
+    "stage_b_source_owned": true,
+    "profiles": 7,
+    "custom_geq_bands": 20,
+    "custom_geq_raw_domain": [-192, 192],
+    "custom_geq_ui_db_domain": [-12.0, 12.0],
+    "vendor_dll_loaded": false,
+    "external_owner_data_pack_required": true,
+    "owner_pack_scope": "construction-time endpoint state/tuning data; no executable code; not distributed in ubig-control",
+    "implementation_status": "complete for declared SP11 stereo contract"
+  },
+  "package": {
+    "name": "ubig-control",
+    "version": "0.1.0",
+    "architecture": "arm64",
+    "path": "dist/ubig-control_0.1.0_arm64.deb",
+    "sha256": "eb7c1bcc0f835b3d41d626c7b550f29907cfabaa6b433ec720b88908705e0d57",
+    "reproducible_two_builds": true,
+    "contents": ["ubig-geq GTK4 application", "native ubigctl", "desktop entry", "SVG icon", "control documentation"],
+    "excludes": ["kernel", "topology", "PipeWire graph", "private Stage-B owner pack", "DSP plugin replacement"],
+    "installed": true
+  },
+  "tests": {
+    "control_app_pytest": "4 passed",
+    "native_engine_make_check": "PASS",
+    "desktop_file_validate": "PASS",
+    "installed_python_gtk_import": "PASS"
+  },
+  "live_same_profile_gate": {
+    "requested_profile": "Movie",
+    "request_generation_before": 3,
+    "request_generation_after": 4,
+    "ack_generation_after": 4,
+    "filter_chain_pid_before": 180679,
+    "filter_chain_pid_after": 180679,
+    "postgain_request_generation": 1,
+    "postgain_ack_generation": 1,
+    "desired_postgain": -365,
+    "active_postgain": -365,
+    "last_error": 0,
+    "new_kernel_audio_or_protection_fault": false,
+    "new_userspace_xrun_nan_inf_crash": false
+  },
+  "qualification_boundary": {
+    "engine_completion_requires_eight_hour_soak": false,
+    "golden_promotion_requires_eight_hour_soak": true,
+    "remaining_promotion_evidence": ["seek/program content", "physical acoustic comparison", "longer physical-output protection telemetry", "continuous eight-hour stability"]
+  }
+}

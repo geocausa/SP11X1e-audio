@@ -150,7 +150,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
             self.assertEqual(sync.find_mute_control_numid(), 34)
             self.assertEqual(sync.find_volume_only_control_numid(), 35)
 
-    def test_postgain_is_queued_once_per_dolby_generation(self):
+    def test_postgain_tracks_live_endpoint_and_requeues_on_generation(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             generation = Path(tmpdir) / "generation"
             control = Path(tmpdir) / "control"
@@ -158,17 +158,45 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
                 first = sync.queue_dolby_postgain_for_generation(
                     (0.25 ** 3, False), 41, control, generation
                 )
-                same = sync.queue_dolby_postgain_for_generation(
+                unchanged = sync.queue_dolby_postgain_for_generation(
+                    (0.25 ** 3, False), 41, control, generation
+                )
+                live = sync.queue_dolby_postgain_for_generation(
                     (0.50 ** 3, False), 41, control, generation
                 )
                 replacement = sync.queue_dolby_postgain_for_generation(
                     (0.50 ** 3, False), 42, control, generation
                 )
             self.assertEqual(first, -332)
-            self.assertIsNone(same)
-            self.assertNotEqual(replacement, -332)
-            self.assertEqual(write.call_count, 2)
-            self.assertEqual(generation.read_text().strip(), "42")
+            self.assertIsNone(unchanged)
+            self.assertEqual(live, -167)
+            self.assertEqual(replacement, -167)
+            self.assertEqual(write.call_count, 3)
+            self.assertEqual(generation.read_text().strip(), "42 -167")
+
+    def test_legacy_generation_file_forces_one_postgain_refresh(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            generation = Path(tmpdir) / "generation"
+            generation.write_text("41\n")
+            control = Path(tmpdir) / "control"
+            with patch.object(sync.base, "write_postgain_request") as write:
+                value = sync.queue_dolby_postgain_for_generation(
+                    (0.25 ** 3, False), 41, control, generation
+                )
+            self.assertEqual(value, -332)
+            write.assert_called_once()
+            self.assertEqual(generation.read_text().strip(), "41 -332")
+
+
+    def test_postgain_queue_forwards_ubig_control_format(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            generation = Path(tmpdir) / "generation"
+            control = Path(tmpdir) / "control"
+            with patch.object(sync.base, "write_postgain_request") as write:
+                sync.queue_dolby_postgain_for_generation(
+                    (0.25 ** 3, False), 41, control, generation, sync.base.CONTROL_FORMAT_UBIG_V2
+                )
+            write.assert_called_once_with(control, -332, sync.base.CONTROL_FORMAT_UBIG_V2)
 
 
     def test_control_capacity_detects_stereo_transaction_extension(self):
@@ -497,7 +525,7 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
 
         self.assertEqual(len(snapshots), 1)
         self.assertEqual(applied, [(0.25 ** 3, False), (0.5 ** 3, False)])
-        queue.assert_called_once()
+        self.assertEqual(queue.call_count, 2)
 
     def test_recreated_visible_sink_inherits_previous_state_before_transaction(self):
         class FakeStdout:
@@ -673,6 +701,30 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         apply_tx.assert_not_called()
         self.assertEqual(hardware_mutes[-1], True)
         self.assertTrue(hardware_volumes)
+
+    def test_dispatch_prefers_explicit_candidate_helper_dir(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            helper_dir = Path(tmpdir) / "candidate-bin"
+            helper_dir.mkdir()
+            helper = helper_dir / "sp11-windows-volume-transaction-sync"
+            helper.write_text("#!/bin/sh\n")
+            with patch.dict(sync.os.environ, {"UBIG_VOLUME_HELPER_DIR": str(helper_dir)}, clear=False):
+                self.assertEqual(dispatch.resolve_program("sp11-windows-volume-transaction-sync"), helper)
+
+    def test_load_module_prefers_explicit_candidate_helper_dir(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            helper_dir = Path(tmpdir) / "candidate-bin"
+            helper_dir.mkdir()
+            helper = helper_dir / "test-helper"
+            helper.write_text("answer = 84\n")
+            installed = Path(tmpdir) / ".local/bin/test-helper"
+            installed.parent.mkdir(parents=True)
+            installed.write_text("answer = 42\n")
+            with patch.dict(sync.os.environ, {"UBIG_VOLUME_HELPER_DIR": str(helper_dir)}, clear=False), \
+                 patch.object(sync, "ROOT", None), \
+                 patch.object(sync.Path, "home", return_value=Path(tmpdir)):
+                module = sync.load_module("unused.py", "test-helper", "test_candidate_helper")
+        self.assertEqual(module.answer, 84)
 
     def test_load_module_accepts_extensionless_installed_helper(self):
         with tempfile.TemporaryDirectory() as tmpdir:

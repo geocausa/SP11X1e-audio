@@ -1,0 +1,76 @@
+{
+  "source_sha256": "951a65cc63fee17622485c1d94708614005524c7e20f86d3d815327f6bd0e8b3",
+  "matrix": {
+    "315_hz_and_up": {
+      "physical_common_repeat_stable": {
+        "count": 7,
+        "mae_db": 0.5996869472043583,
+        "bias_ubig_minus_windows_db": 0.10252372347807283,
+        "max_abs_db": 1.5332935552826825
+      },
+      "digital_common_repeat_stable": {
+        "count": 4,
+        "mae_db": 0.3887503196709474,
+        "bias_ubig_minus_windows_db": 0.2655149573810007,
+        "max_abs_db": 0.7229908258575506
+      },
+      "normalized_transfer_common_repeat_stable": {
+        "count": 34,
+        "mae_db": 0.2270299695274678,
+        "bias_ubig_minus_windows_db": -0.004343403147336076,
+        "max_abs_db": 1.0108187401496025
+      }
+    },
+    "630_hz_and_up": {
+      "physical_common_repeat_stable": {
+        "count": 6,
+        "mae_db": 0.6860659088481486,
+        "bias_ubig_minus_windows_db": 0.13317987361468772,
+        "max_abs_db": 1.5332935552826825
+      },
+      "digital_common_repeat_stable": {
+        "count": 3,
+        "mae_db": 0.4405920338209815,
+        "bias_ubig_minus_windows_db": 0.2762782174343859,
+        "max_abs_db": 0.7229908258575506
+      },
+      "normalized_transfer_common_repeat_stable": {
+        "count": 30,
+        "mae_db": 0.22123980808116528,
+        "bias_ubig_minus_windows_db": 0.015177493304400021,
+        "max_abs_db": 1.0108187401496025
+      }
+    },
+    "level_law_0p05_to_0p2_common_stable": {
+      "count": 10,
+      "mae_db": 0.26477799282874626,
+      "bias_ubig_minus_windows_db": 0.20813332963377604,
+      "max_abs_db": 0.7676330276239014
+    }
+  },
+  "hashes": {
+    "windows_sp7_raw": "205c57da4b52e7c8de1ae52064b58032228c052e7173605235cd223dc6362a78",
+    "ubig_sp7_raw": "1e84911defa35c5622cf0de9a598e831021d7da31fba75bcdb6297637d5bfa37",
+    "windows_loopback": "4b418c6769f3c982db7126cf6405b7d290d445c08ba456f7797084b7e335f1e1",
+    "ubig_post_dsp": "674485308a6aaa8d404e797b6498e36ce476c80d1b6ca05dce2956b845c077a7",
+    "windows_music_sp7_raw": "719f9b7e88351cbedc3542d41cbb65b387999a7eb9ce143b1e909fe0bdd2a925",
+    "ubig_music_sp7_raw": "cbea8753bc7faf1052b3e83621e3a666e92ce5be002d72b74f3e7ba0f4eea3b3",
+    "windows_music_loopback": "33918d40191297efccb6fd6245aa2d0ff6afea466da61553a48c09c0a4a1c4b5",
+    "ubig_music_post_dsp": "a3881e7e0dd963e8574d9433fa28ba5444556eacfc0b888c241aedf8a017f83a",
+    "full_comparison_json": "761f70cd23224c425301ffb07783a32643a91b5bbf406f4d616b2daea00e8a60"
+  },
+  "conditions": {
+    "profile": "Movie",
+    "intelligent_eq": "Off on Windows",
+    "matrix_endpoint_percent": 25,
+    "music_endpoint_percent": 10,
+    "sp7_raw_gain_db": 0.0,
+    "matrix_two_passes": true,
+    "repeat_stable_threshold_db": 1.0,
+    "windows_pretest_endpoint_percent": 10,
+    "windows_endpoint_restored_percent": 10,
+    "linux_pretest_profile": "Custom",
+    "linux_pretest_endpoint_percent": 14,
+    "linux_state_restored": true
+  }
+}

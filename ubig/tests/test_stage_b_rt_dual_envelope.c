@@ -1,0 +1,6 @@
+#include "stage_b_rt.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+static uint32_t q=0x7fe80a55u;static uint32_t ru(void){q=q*1664525u+1013904223u;return q;}static float rf(float a,float b){return a+(b-a)*(float)(ru()>>8)*(1.0f/16777216.0f);}static uint64_t h64(uint64_t h,const void*p,size_t n){const unsigned char*b=p;for(size_t i=0;i<n;i++){h^=b[i];h*=1099511628211ULL;}return h;}
+int main(void){float data[8][20],*rp[8];for(unsigned r=0;r<8;r++)rp[r]=data[r];uint64_t h=1469598103934665603ULL;for(unsigned t=0;t<50000;t++){UbigStageBRtDualEnvelopeConfig c={rf(-.5f,0),rf(.05f,1.5f),rf(.01f,2),rf(.005f,.2f),rf(-.1f,.1f),rf(-.5f,0),rf(.05f,1.5f),rf(.01f,2),rf(.005f,.2f),rf(-.1f,.1f)};UbigStageBRtDualEnvelopeState s={0};s.config=&c;s.active_width=ru()%21u;for(unsigned i=0;i<20;i++){s.primary[i]=rf(-1.2f,1.2f);s.secondary[i]=rf(-1.2f,1.2f);for(unsigned r=0;r<8;r++)data[r][i]=rf(-1.2f,1.2f);}UbigStageBRtBandRows rows={ru()%9u,20u,rp,20u};uint32_t st[20]={0};ubig_stage_b_rt_dual_envelope_process(rf(-.3f,.3f),&s,&rows,st);h=h64(h,st,sizeof st);h=h64(h,s.primary,sizeof s.primary);h=h64(h,s.secondary,sizeof s.secondary);}if(h!=0x7e07295462d22654ULL){fprintf(stderr,"Stage-B RT dual-envelope hash %016llx\n",(unsigned long long)h);return 2;}puts("PASS Stage-B RT dual-envelope regression");return 0;}

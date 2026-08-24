@@ -1,0 +1,113 @@
+{
+  "date": "2026-08-22",
+  "scope": "UbiG built-in profile retarget regression correction and Stage-B owner-pack v4 offline gate",
+  "golden_v32_modified": false,
+  "rebooted": false,
+  "root_cause": "source-owned dirty-config boundary consumed the profile dirty flag without materializing Leveler/Dialog/IEQ runtime state; Custom/GEQ used a separate working path",
+  "superseded_claim": "0x18002F1A8 dirty-config builder observationally dead for built-in profiles",
+  "repair": {
+    "windows_code_executed_by_candidate": false,
+    "source_owned_dirty_apply": true,
+    "source_owned_builtin_ieq": true,
+    "leveler_multiband_native": true,
+    "owner_static_data_read_only_non_executable": true
+  },
+  "owner_pack_v4": {
+    "path": "~/.local/share/ubig-private/sp11-stageb-v4.pack",
+    "bytes": 1139037,
+    "sha256": "30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df",
+    "static_window_sha256": "707722c70b5792b3e9d7a237f61dbc601f3c92c1e8638717c34118e723997e22",
+    "tracked_builder": "ubig/tools/build_stageb_v4_pack.py",
+    "reproducible_byte_identical": true
+  },
+  "candidate": {
+    "sha256": "b57d9cf7ef0482ab0c6cb3089d3d456dc034a66c4244b835ca97989883de8e2c",
+    "vendor_loader_strings": false,
+    "dynamic_dependencies": [
+      "libm.so.6",
+      "libc.so.6",
+      "ld-linux-aarch64.so.1"
+    ],
+    "gnu_stack_executable": false
+  },
+  "fixed_profile_reference_differential": {
+    "corpus_frames": 240000,
+    "float_values_per_profile": 480000,
+    "profiles": {
+      "Dynamic": 0,
+      "Movie": 0,
+      "Music": 0,
+      "Game": 0,
+      "Voice": 0,
+      "Course": 0,
+      "Custom": 0
+    }
+  },
+  "public_candidate_control_gate": {
+    "dynamic_to_movie_changed_values": 3456,
+    "dynamic_to_movie_compared_values": 3840,
+    "custom_eq_changed_values": 640,
+    "custom_eq_compared_values": 960,
+    "postgain_changed_values": 10240,
+    "postgain_compared_values": 11520
+  },
+  "tests": {
+    "make_check": "PASS",
+    "pytest": "211 passed, 3 skipped, 6 subtests passed"
+  },
+  "activation_status": "active disposable v4 candidate; Golden rollback retained",
+  "live_activation": {
+    "activated": true,
+    "filter_chain_pid": 599944,
+    "marker_pack": "/home/geoca/.local/share/ubig-private/sp11-stageb-v4.pack",
+    "marker_pack_sha256": "30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df",
+    "golden_rollback_verified_before_activation": true,
+    "golden_rollback_config_sha256": "5c7333076ce895621d36710f1e8e6c2f5050746e52df6cfe1a2916e11f0406d7",
+    "owner_static_mapping": "0x1801ff000-0x1802c1000 r--p",
+    "memory_deny_write_execute": true,
+    "live_profile_sequence": [
+      "Movie",
+      "Music",
+      "Game",
+      "Voice",
+      "Course",
+      "Dynamic",
+      "Movie",
+      "Custom"
+    ],
+    "request_generation_final": 8,
+    "ack_generation_final": 8,
+    "filter_chain_pid_stable_during_switches": true,
+    "last_error": 0,
+    "restored_saved_profile": "Custom",
+    "restored_saved_custom_eq": [
+      147,
+      115,
+      72,
+      48,
+      30,
+      0,
+      0,
+      0,
+      0,
+      19,
+      42,
+      64,
+      75,
+      83,
+      98,
+      128,
+      0,
+      0,
+      0,
+      0
+    ],
+    "desired_postgain": -467,
+    "active_postgain": -467,
+    "postgain_note": "recomputed by the existing volume transaction helper from current UI/system volume after graph restart",
+    "silent_wake_stream_used_for_idle_request_ack": true,
+    "new_kernel_audio_protection_fault_matches": 0,
+    "new_filter_chain_error_nan_inf_crash_matches": 0,
+    "new_helper_fatal_failure_matches": 0
+  }
+}

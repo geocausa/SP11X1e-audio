@@ -1,0 +1,750 @@
+{
+  "candidate_commit_before_gate": "6da6140",
+  "candidate_plugin_sha256": "1b3e3110c07bdc5b21e3c59ee75482a598c35e3acf27c2e600fbc6fa50355eb8",
+  "comparison": {
+    "0": {
+      "active_sample_count": 11,
+      "mismatches": [],
+      "pass": true,
+      "sequences": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    "1": {
+      "active_sample_count": 11,
+      "mismatches": [],
+      "pass": true,
+      "sequences": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    }
+  },
+  "date": "2026-08-22",
+  "golden_reference": {
+    "common_readback": {
+      "cps_control_register": "0x00",
+      "current_limit_code": 17,
+      "current_limit_override": false,
+      "current_limit_register": "0x44",
+      "error": [
+        "0x00",
+        "0x00"
+      ],
+      "failed_read_mask": "0x0",
+      "interrupt": [
+        "0x00",
+        "0x00"
+      ],
+      "pa_enable": "0x01",
+      "status": [
+        "0x2f",
+        "0x00"
+      ],
+      "wavg_register": "0x00"
+    },
+    "path": "artifacts/reviewed/linux-render-parity-wsa-observer-20260814.json"
+  },
+  "interpretation": {
+    "active_common_readback_matches_reviewed_golden": true,
+    "new_wsa_error_or_interrupt": false,
+    "raw_adc_temperature_vbat_exact_match_required": false,
+    "raw_measurement_note": "raw ADC/temperature/VBAT words are environment- and operating-state-dependent; they are retained as evidence but are not calibrated physical units",
+    "startup_sample_zero": "sequence 0 was captured before PA enable on both amplifiers; sequences 1..11 are the active-PA comparison set"
+  },
+  "kernel": "7.1.5-sp11-render-parity-v4+",
+  "observer": {
+    "decoded": {
+      "samples": [
+        {
+          "adc_raw": "0x0000",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.014143,
+          "pa": "0x00",
+          "sequence": 0,
+          "sta0": "0x00",
+          "sta1": "0x00",
+          "temperature_raw": "0x0000",
+          "vbat_raw": "0x0000",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x0000",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.014986,
+          "pa": "0x00",
+          "sequence": 0,
+          "sta0": "0x00",
+          "sta1": "0x00",
+          "temperature_raw": "0x0000",
+          "vbat_raw": "0x0000",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0xc5a0",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.13017,
+          "pa": "0x01",
+          "sequence": 1,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6d00",
+          "vbat_raw": "0xc4c0",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6fa0",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.131211,
+          "pa": "0x01",
+          "sequence": 1,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6f80",
+          "vbat_raw": "0xc4c0",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6fe0",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.242197,
+          "pa": "0x01",
+          "sequence": 2,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6fc0",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0xc560",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.242994,
+          "pa": "0x01",
+          "sequence": 2,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6d40",
+          "vbat_raw": "0xc4c0",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0xc560",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.355247,
+          "pa": "0x01",
+          "sequence": 3,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6d40",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6f20",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.356238,
+          "pa": "0x01",
+          "sequence": 3,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6fc0",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6f20",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.466156,
+          "pa": "0x01",
+          "sequence": 4,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6fc0",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0xc5a0",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.467035,
+          "pa": "0x01",
+          "sequence": 4,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6d80",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6da0",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.57846,
+          "pa": "0x01",
+          "sequence": 5,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6d80",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6fe0",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.579281,
+          "pa": "0x01",
+          "sequence": 5,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6fc0",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6f60",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.690246,
+          "pa": "0x01",
+          "sequence": 6,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6fc0",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6de0",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.690767,
+          "pa": "0x01",
+          "sequence": 6,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6d80",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0xc560",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.802332,
+          "pa": "0x01",
+          "sequence": 7,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6d80",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6fe0",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.803494,
+          "pa": "0x01",
+          "sequence": 7,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6fc0",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6f20",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.915062,
+          "pa": "0x01",
+          "sequence": 8,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6fc0",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0xc5a0",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115105.915938,
+          "pa": "0x01",
+          "sequence": 8,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6d80",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6d20",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115106.026058,
+          "pa": "0x01",
+          "sequence": 9,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6d80",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0xc520",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115106.027209,
+          "pa": "0x01",
+          "sequence": 9,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x7000",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0xc520",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115106.13817,
+          "pa": "0x01",
+          "sequence": 10,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x7000",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6d20",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115106.139294,
+          "pa": "0x01",
+          "sequence": 10,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6d80",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0x6d60",
+          "amplifier": 1,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115106.252325,
+          "pa": "0x01",
+          "sequence": 11,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x6d80",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        },
+        {
+          "adc_raw": "0xc5e0",
+          "amplifier": 0,
+          "cps": "0x00",
+          "err0": "0x00",
+          "err1": "0x00",
+          "failed_mask": "0x0",
+          "ilim": "0x44",
+          "intr0": "0x00",
+          "intr1": "0x00",
+          "monotonic_seconds": 115106.252886,
+          "pa": "0x01",
+          "sequence": 11,
+          "sta0": "0x2f",
+          "sta1": "0x00",
+          "temperature_raw": "0x7000",
+          "vbat_raw": "0xc480",
+          "wavg": "0x00"
+        }
+      ],
+      "schema": "sp11-wsa884x-live-observer-v1",
+      "summary": {
+        "amplifier_count": 2,
+        "amplifiers": {
+          "0": {
+            "adc_raw": {
+              "maximum": "0xc5e0",
+              "minimum": "0x0000",
+              "unique_count": 7,
+              "values": [
+                "0x0000",
+                "0x6f20",
+                "0x6f60",
+                "0x6fa0",
+                "0x6fe0",
+                "0xc520",
+                "0xc5e0"
+              ]
+            },
+            "cps_control_values": [
+              "0x00"
+            ],
+            "current_limit": [
+              {
+                "current_limit_code": 17,
+                "override_enabled": false,
+                "register": "0x44"
+              }
+            ],
+            "error_values": {
+              "err0": [
+                "0x00"
+              ],
+              "err1": [
+                "0x00"
+              ]
+            },
+            "failed_masks": [
+              "0x0"
+            ],
+            "interrupt_values": {
+              "intr0": [
+                "0x00"
+              ],
+              "intr1": [
+                "0x00"
+              ]
+            },
+            "pa_values": [
+              "0x00",
+              "0x01"
+            ],
+            "sample_count": 12,
+            "sequences": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "status_values": {
+              "sta0": [
+                "0x00",
+                "0x2f"
+              ],
+              "sta1": [
+                "0x00"
+              ]
+            },
+            "temperature_raw": {
+              "maximum": "0x7000",
+              "minimum": "0x0000",
+              "unique_count": 4,
+              "values": [
+                "0x0000",
+                "0x6f80",
+                "0x6fc0",
+                "0x7000"
+              ]
+            },
+            "vbat_raw": {
+              "maximum": "0xc4c0",
+              "minimum": "0x0000",
+              "unique_count": 3,
+              "values": [
+                "0x0000",
+                "0xc480",
+                "0xc4c0"
+              ]
+            },
+            "wavg_values": [
+              "0x00"
+            ]
+          },
+          "1": {
+            "adc_raw": {
+              "maximum": "0xc5a0",
+              "minimum": "0x0000",
+              "unique_count": 7,
+              "values": [
+                "0x0000",
+                "0x6d20",
+                "0x6d60",
+                "0x6da0",
+                "0x6de0",
+                "0xc560",
+                "0xc5a0"
+              ]
+            },
+            "cps_control_values": [
+              "0x00"
+            ],
+            "current_limit": [
+              {
+                "current_limit_code": 17,
+                "override_enabled": false,
+                "register": "0x44"
+              }
+            ],
+            "error_values": {
+              "err0": [
+                "0x00"
+              ],
+              "err1": [
+                "0x00"
+              ]
+            },
+            "failed_masks": [
+              "0x0"
+            ],
+            "interrupt_values": {
+              "intr0": [
+                "0x00"
+              ],
+              "intr1": [
+                "0x00"
+              ]
+            },
+            "pa_values": [
+              "0x00",
+              "0x01"
+            ],
+            "sample_count": 12,
+            "sequences": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "status_values": {
+              "sta0": [
+                "0x00",
+                "0x2f"
+              ],
+              "sta1": [
+                "0x00"
+              ]
+            },
+            "temperature_raw": {
+              "maximum": "0x6d80",
+              "minimum": "0x0000",
+              "unique_count": 4,
+              "values": [
+                "0x0000",
+                "0x6d00",
+                "0x6d40",
+                "0x6d80"
+              ]
+            },
+            "vbat_raw": {
+              "maximum": "0xc4c0",
+              "minimum": "0x0000",
+              "unique_count": 3,
+              "values": [
+                "0x0000",
+                "0xc480",
+                "0xc4c0"
+              ]
+            },
+            "wavg_values": [
+              "0x00"
+            ]
+          }
+        },
+        "sample_count": 24
+      },
+      "units_note": "adc_raw, temperature_raw and vbat_raw are uncalibrated 16-bit register words; no physical-unit conversion is asserted."
+    },
+    "interval_ms": 100,
+    "parameter_after_gate": 0,
+    "requested_samples_per_amplifier": 12
+  },
+  "result": "PASS_BOUNDED_ACTIVE_WSA_COMMON_READBACK",
+  "safety": {
+    "endpoint_dsp_mute": true,
+    "physical_output_intentionally_suppressed": true,
+    "source_pcm": "3 s stereo two-tone, 0.025 amplitude at 440/660 Hz"
+  },
+  "schema": "sp11-ubig-m6-wsa-protection-observer-v1",
+  "wsa884x_srcversion": "5859E70AFD0A1D420E8ADD4"
+}

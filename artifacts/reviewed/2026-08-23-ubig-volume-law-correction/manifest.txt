@@ -1,0 +1,35 @@
+UbiG volume-law correction evidence manifest — 2026-08-23
+
+Native Windows ascending six-volume SP7 RAW:
+2D00DFACAF8F18C83A8423AF8059A41A10463593ABFD35F32652A54E5B763E62
+C:\Users\SurfacePro7\Documents\KDNET\Codex\ubig-volume-sweep-20260823\tone-matrix-windows\external-mic-raw-20260823-105122.wav
+
+Corrected UbiG authoritative six-volume SP7 RAW:
+9B7AEB785D0F3DDDEB754BA9CE6B314A983615B5FBF6C57D57C70D2C735D8D15
+C:\Users\SurfacePro7\Documents\KDNET\Codex\ubig-volume-sweep-20260823\full-linux-orderfix-authoritative\external-mic-raw-20260823-141103.wav
+
+Corrected UbiG authoritative post-DSP digital:
+826b9c2db854ff5f3207f4b8ac4476331527ecdc4e673ebf2c0d7253f4f519a2
+/home/geoca/Documents/SP11-PROJECT/00-RE-archive/ubig-volume-sweep-20260823/tone-matrix/linux-orderfix-authoritative/digital-post-ubig.wav
+
+SP7 corrected physical parity analysis:
+CCF91977984BAE57032BA7B591ABBD5E0D1565CEE37921056FD112FCB9477C12
+C:\Users\SurfacePro7\Documents\KDNET\Codex\ubig-volume-sweep-20260823\full-linux-orderfix-authoritative\full-physical-parity.json
+
+Fresh native Windows 40/50 pair:
+719A73D97231A21D330D5FA5E83BC2FCAAAE4416274F88E7EF2C43B41ED7BA2A
+
+Fresh corrected-order Linux 40/50 pair:
+12C70FD7D19A31298FE5E2FF684699D2697BE3859F11B4195518D3A698FB75C3
+
+MSIIR CKV12->16->12 functional SP7 RAW:
+6FA7848B59327CFA66C9A9EBE2FAE30F2DF670CA6A1758489D7EEF38BB14B065
+C:\Users\SurfacePro7\Documents\KDNET\Codex\ubig-volume-sweep-20260823\msiir-functional-probe-tlv\external-mic-raw-20260823-144002.wav
+
+Live corrected candidate binary at checkpoint:
+429f90fd51bc1f92ea8dcf80f3c76ee63cca205dadfe7e9e1aef60aa0cf32ec3
+/home/geoca/.local/lib/ubig-candidate/ubig-sp11-candidate.so
+
+Source tone matrix:
+bd898605f45248ba7c479ef585e9b1cecfceb56b140355785f96d9b3ed61c5f8
+volume-law-tone-matrix.wav

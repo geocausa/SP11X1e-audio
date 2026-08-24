@@ -1,0 +1,8 @@
+build/
+private/
+oracles/private/
+*.so
+*.dll
+*.bin
+*.dump
+*.dmp

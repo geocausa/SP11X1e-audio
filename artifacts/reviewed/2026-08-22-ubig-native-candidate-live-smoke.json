@@ -1,0 +1,61 @@
+{
+  "date": "2026-08-22",
+  "host": "SP11X1e",
+  "branch_checkpoint": "ubig/deblob-main@7d2381e",
+  "candidate": {
+    "plugin": "/home/geoca/.local/lib/ubig-candidate/ubig-sp11-candidate.so",
+    "sha256": "1b3e3110c07bdc5b21e3c59ee75482a598c35e3acf27c2e600fbc6fa50355eb8",
+    "private_pack_sha256": "c993c123f2cb3b92776754da2383217e00b5f290664571f12cfb62b9afb3a175",
+    "pipewire_label": "ubig_sp11_candidate",
+    "filter_chain_pid": 180679,
+    "memory_deny_write_execute": true,
+    "vendor_dll_or_windows_bridge_mapped": false
+  },
+  "control": {
+    "path": "/run/user/1000/ubig-control-v2",
+    "abi": 2,
+    "startup_profile": "Movie",
+    "startup_postgain": -365,
+    "startup_postgain_request_generation": 1,
+    "startup_postgain_ack_generation_after_first_stream": 1,
+    "main_generation_after_live_switches": 3,
+    "main_ack_generation_after_live_switches": 3,
+    "live_switch_sequence": ["Game", "Custom(non-flat)", "Movie"],
+    "postgain_generation_unchanged_by_profile_eq_switches": true
+  },
+  "live_streams": {
+    "finite_silence_frames_profile_switch_gate": 480000,
+    "finite_silence_frames_mute_idle_gate": 144000,
+    "finite_silence_frames_wake_gate": 96000,
+    "filter_chain_pid_preserved_across_idle_wake": true,
+    "visible_volume_before": 0.22,
+    "visible_volume_after": 0.22,
+    "mute_restored": true
+  },
+  "services": {
+    "filter_chain": "active",
+    "volume_transaction_sync": "active_from_candidate_staged_helper",
+    "msiir_standalone": "inactive_success_combined_transaction_owns_gainstep",
+    "monitor_link": "active"
+  },
+  "fault_scan": {
+    "filter_chain_xrun_nan_segfault_abort": 0,
+    "new_runtime_wsa_pa_soundwire_fault": 0,
+    "known_graph_start_apm_set_cfg_status3": 1,
+    "known_graph_start_note": "APM_CMD_SET_CFG 0x01001006 returned AR_EUNSUPPORTED and the kernel explicitly continued as Qualcomm GSL does; all subsequent protected graph stages were accepted. This is a documented Golden-baseline event, not a UbiG regression."
+  },
+  "rollback": {
+    "golden_fragment_snapshot": "/home/geoca/.local/state/ubig-candidate/98-sp11-windows-dolby.conf.rollback",
+    "prior_trial_exact_rollback_proven": true,
+    "golden_plugin_left_installed": true
+  },
+  "result": "PASS_FIRST_M6_DISPOSABLE_SMOKE",
+  "remaining": [
+    "non-silent on-device waveform/acoustic gate",
+    "volume scalar sweep with exact restore",
+    "seek/repeated playback corpus",
+    "long-run >8h stability",
+    "PA/protection telemetry comparison against Golden v32",
+    "physical acoustic matrix against Windows reference"
+  ]
+}
