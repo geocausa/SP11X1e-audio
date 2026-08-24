@@ -171,7 +171,23 @@ The type-0x0B qcaucd interface-ID table maps:
 0x01020003 -> provider index 11, mask 0x00000800
 ```
 
-All four lanes relevant to EP16/EP2 (`0`, `1`, `8`, `9`) are enabled by the live SP11 TCSR availability value `0xECBFFF9F`.
+The masks shown in this provider table belong to the qcaucd provider/interface-record namespace; they must **not** be interpreted as the live TCSR availability bits.
+
+The TCSR/resource-availability gate is a separate namespace selected from the **first word** of each `0x08000021` triple. Static recovery of `FUN_14004a418` gives the relevant mapping:
+
+```text
+0x00020000 / 0x00020001 -> availability class 3 -> TCSR mask 0x00000100
+0x00020002 / 0x00020003 -> availability class 4 -> TCSR mask 0x00000200
+```
+
+Therefore:
+
+```text
+EP16 uses first words 0x00020001 and 0x00020000 -> TCSR mask 0x100
+EP2  uses first words 0x00020002 and 0x00020000 -> TCSR masks 0x200 and 0x100
+```
+
+Both required TCSR masks are present in the live SP11 availability value `0xECBFFF9F`.
 
 ## Provenance correction
 
@@ -185,6 +201,8 @@ EP2  -> 0x01020000, 0x01020001
 ```
 
 This correction was made immediately after detection; no runtime or Linux state depended on the incorrect transcription.
+
+A second interpretation correction followed immediately: the masks in the `0x0104xxxx`/`0x0102xxxx` provider table were initially described as TCSR lanes. `FUN_14004a418` proves the TCSR gate is instead selected from the first word of each ACDB interface triple. The provider-ID masks and TCSR availability masks are therefore separate namespaces; the corrected mapping is documented above.
 
 ## Important model correction / open discriminator
 
