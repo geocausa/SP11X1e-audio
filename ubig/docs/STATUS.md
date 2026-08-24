@@ -1,8 +1,27 @@
-# UbiG status — 2026-08-23
+# UbiG status — 2026-08-24
 
 Branch: `ubig/deblob-main`
 Workspace: `/home/geoca/Documents/SP11-PROJECT/03-UbiG`
-Protected integration baseline: Golden v32 (`main` at creation: `8118a64`)
+Production integration baseline: Golden v33; Golden v32 retained as rollback
+
+## Promoted production state — 2026-08-24
+
+UbiG is now the production Linux userspace speaker engine on Golden v33. The
+active PipeWire namespace is `effect_input.sp11_ubig` /
+`effect_input.sp11_ubig_engine` / `effect_output.sp11_ubig`; the volume-sync
+and monitor-link units are `sp11-ubig-*`. The previous Windows-vendor-branded
+Linux sink/service names have been removed from the active deployment.
+
+The promotion basis includes the completed M6 gates plus the final Golden-v33
+physical feedback correction and direct quiet-room OS A/B: source-identical
+Windows/Linux program output is within about 0.1 dB across useful bands at both
+10% and 50%, and 20/20 true-cold 50% protection cycles completed with zero PA
+faults, zero `err0=0x20`, and zero XRUNs.
+
+`deploy/ubig/` is the canonical production userspace deployment.
+`deploy/ubig-candidate/` remains only as rollback-safe rebuild/staging tooling.
+Historical Windows-oracle trees retain vendor names solely as provenance.
+
 
 ## Engine-complete / control-package checkpoint
 
@@ -27,8 +46,7 @@ preserved filter-chain PID `180679` with no new kernel PA/SoundWire/XRUN/GLINK
 fault or userspace NaN/Inf/crash marker. This closes the usable GEQ/control
 deliverable. The later 2026-08-23 M6 campaign also closed seek, longer
 protection observation, >8-hour stability and the fresh matched physical
-Windows-vs-UbiG acoustic matrix. Only the operator's subjective promotion
-verdict remains.
+Windows-vs-UbiG acoustic matrix. The operator promotion verdict is now accepted; the engine is production.
 
 ## Built-in profile retarget regression correction — v4 owner pack
 
@@ -108,7 +126,7 @@ The preserved Dynamic cold-start Stage-A scheduler fixture is now 3,072 / 3,072 
 
 ## Integration boundary
 
-The disposable UbiG candidate is now active in the live PipeWire path for qualification, but it is **not promoted**. Golden v32 remains the protected production baseline and exact rollback until the operator explicitly accepts the listening A/B and requests promotion.
+UbiG is promoted in the live PipeWire path. Golden v32 remains an explicit kernel rollback; Golden v33 is the production kernel baseline.
 
 ## Stage-A multiband compressor primitives — checkpoint 3
 

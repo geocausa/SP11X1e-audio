@@ -1,6 +1,6 @@
-# SP11 UbiG disposable candidate deployment
+# SP11 UbiG rollback-safe staging deployment
 
-This directory is the first **non-Golden** deployment wrapper for the source-owned UbiG LADSPA candidate. It deliberately preserves the existing SP11 visible-sink / hidden-engine PipeWire graph, monitor-link names, final AudioReach volume transaction, MSIIR/CKV service and rollback Windows bridge. Only the hidden LADSPA implementation changes.
+This directory is retained as the rollback-safe build/staging wrapper for the now-promoted source-owned UbiG engine. The canonical production namespace and helpers live under `deploy/ubig/`; this wrapper rebuilds/stages the same native engine without mutating the currently active graph until `switch.sh activate` is requested.
 
 Nothing here is installed by the normal UbiG build. `prepare.sh` is safe to run while the Golden graph is active: it rebuilds the tracked candidate, executes `candidate-control-check`, verifies the pinned corrected-v4 private pack, audits dynamic dependencies/vendor-loader strings, and stages a per-user plugin/config plus matching endpoint-volume/transaction/MSIIR helper copies under `~/.local`. It does **not** restart PipeWire or replace the active graph.
 
@@ -25,4 +25,4 @@ deploy/ubig-candidate/switch.sh rollback
 
 The candidate pack is private owner-supplied data and is never copied into Git. The current disposable checkpoint pins the v4 SHA-256 `30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df`; override both the pack path and expected hash deliberately if a later reviewed pack supersedes it. The tracked `ubig/tools/build_stageb_v4_pack.py` reproducibly rebuilds that private v4 pack from the owner's v3 pack plus local `DolbyAPOVR.dll`; no owner payload is committed.
 
-Activation is not a promotion to Golden. As of the 2026-08-23 final objective M6 checkpoint, waveform/profile/Custom transitions, volume/mute, deterministic program seek, idle/wake, repeated playback, xrun/NaN monitoring, >8-hour continuous stability, real-output PA/protection telemetry, private-pack reproducibility **and the fresh matched Windows-vs-UbiG physical acoustic matrix are GREEN**. Only the operator's explicit subjective listening/promotion verdict remains before the Windows userspace bridge may be removed.
+The objective M6 gates and operator promotion verdict are closed. This wrapper remains useful for controlled rebuild/rollback testing, but `deploy/ubig/` is the production identity.

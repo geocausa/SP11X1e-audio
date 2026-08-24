@@ -110,7 +110,7 @@ typedef struct {
 } ChainInst;
 
 static ChainProfile chain_profile_from_env(void){
-    const char *v=getenv("UBIG_PROFILE"); if(!v||!*v)v=getenv("SP11_DOLBY_PROFILE");
+    const char *v=getenv("UBIG_PROFILE");
     if(!v || !*v || !strcasecmp(v,"dynamic")) return CHAIN_PROFILE_DYNAMIC;
     if(!strcasecmp(v,"movie")) return CHAIN_PROFILE_MOVIE;
     if(!strcasecmp(v,"music")) return CHAIN_PROFILE_MUSIC;
@@ -177,7 +177,7 @@ typedef void (*VrRegTuneFn)(void*,uint32_t,const int32_t*,const int32_t*,const i
 #define VR_BAND_TARGET_VA      0x18004C8E8ULL
 #define VR_REG_TUNING_VA       0x1800463C0ULL
 static int vr_parse_geq(int32_t target[20]){
-    const char *v=getenv("UBIG_GEQ"); if(!v||!*v)v=getenv("SP11_DOLBY_GEQ");
+    const char *v=getenv("UBIG_GEQ");
     if(!v || !*v || !strcasecmp(v,"off") || !strcasecmp(v,"flat")) return 0;
     for(int i=0;i<20;i++){
         char *end=NULL; long x=strtol(v,&end,10);

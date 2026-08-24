@@ -25,10 +25,10 @@ UBIG_SP11_STAGEB_PACK="$PACK" make -C "$ROOT/ubig" candidate-control-check
 
 mkdir -p "$LIBDIR" "$STAGEDIR" "$HELPERDIR"
 install -m 0755 "$ROOT/ubig/build/ubig-sp11-candidate.so" "$PLUGIN"
-install -m 0755 "$ROOT/deploy/dolby/sp11_volume_sync_dispatch.py" "$HELPERDIR/sp11-volume-sync-dispatch"
-install -m 0755 "$ROOT/deploy/dolby/sp11_dolby_volume_sync.py" "$HELPERDIR/sp11-dolby-volume-sync"
-install -m 0755 "$ROOT/deploy/dolby/sp11_windows_volume_transaction_sync.py" "$HELPERDIR/sp11-windows-volume-transaction-sync"
-install -m 0755 "$ROOT/deploy/dolby/sp11_msiir_volume_sync.py" "$HELPERDIR/sp11-msiir-volume-sync"
+install -m 0755 "$ROOT/deploy/ubig/sp11_volume_sync_dispatch.py" "$HELPERDIR/sp11-volume-sync-dispatch"
+install -m 0755 "$ROOT/deploy/ubig/sp11_ubig_volume_sync.py" "$HELPERDIR/sp11-ubig-volume-sync"
+install -m 0755 "$ROOT/deploy/ubig/sp11_windows_volume_transaction_sync.py" "$HELPERDIR/sp11-windows-volume-transaction-sync"
+install -m 0755 "$ROOT/deploy/ubig/sp11_msiir_volume_sync.py" "$HELPERDIR/sp11-msiir-volume-sync"
 python3 - "$SCRIPT_DIR/98-sp11-ubig-candidate.conf.in" "$CONF" "$PLUGIN" <<'PY'
 from pathlib import Path
 import sys

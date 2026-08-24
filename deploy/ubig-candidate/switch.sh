@@ -17,12 +17,12 @@ export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=$RUNTIME_D
 PLUGIN="$LIBDIR/ubig-sp11-candidate.so"
 STAGED_CONF="$STAGEDIR/98-sp11-ubig-candidate.conf"
 HELPERDIR="$STAGEDIR/bin"
-ACTIVE_CONF="$CONFIG_HOME/pipewire/filter-chain.conf.d/98-sp11-windows-dolby.conf"
-ROLLBACK_CONF="$STATEDIR/98-sp11-windows-dolby.conf.rollback"
+ACTIVE_CONF="$CONFIG_HOME/pipewire/filter-chain.conf.d/98-sp11-ubig.conf"
+ROLLBACK_CONF="$STATEDIR/98-sp11-ubig.conf.rollback"
 MARKER="$STATEDIR/active"
 CONTROL="$RUNTIME_DIR/ubig-control-v2"
 FILTER_DROPIN="$CONFIG_HOME/systemd/user/filter-chain.service.d/zz-ubig-candidate.conf"
-VOLUME_DROPIN="$CONFIG_HOME/systemd/user/sp11-dolby-volume-sync.service.d/zz-ubig-candidate.conf"
+VOLUME_DROPIN="$CONFIG_HOME/systemd/user/sp11-ubig-volume-sync.service.d/zz-ubig-candidate.conf"
 MSIIR_DROPIN="$CONFIG_HOME/systemd/user/sp11-msiir-volume-sync.service.d/zz-ubig-candidate.conf"
 
 systemctl_user() { systemctl --user "$@"; }
@@ -58,10 +58,10 @@ EOD
 restart_graph() {
     systemctl_user daemon-reload
     systemctl_user stop filter-chain.service || true
-    systemctl_user restart sp11-dolby-volume-sync.service || true
+    systemctl_user restart sp11-ubig-volume-sync.service || true
     systemctl_user restart sp11-msiir-volume-sync.service || true
     systemctl_user start filter-chain.service
-    systemctl_user restart sp11-dolby-monitor-link.service || true
+    systemctl_user restart sp11-ubig-monitor-link.service || true
 }
 
 activate() {
@@ -105,7 +105,7 @@ rollback() {
     rm -f "$FILTER_DROPIN" "$VOLUME_DROPIN" "$MSIIR_DROPIN" "$CONTROL"
     rm -f "$MARKER"
     restart_graph
-    echo "SP11 Golden Windows bridge restored. Candidate files remain staged for inspection."
+    echo "SP11 Golden UbiG graph restored. Candidate files remain staged for inspection."
 }
 
 status() {

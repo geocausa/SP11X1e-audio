@@ -5,7 +5,7 @@ import struct
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "deploy" / "dolby" / "sp11_msiir_volume_sync.py"
+SCRIPT = ROOT / "deploy" / "ubig" / "sp11_msiir_volume_sync.py"
 spec = importlib.util.spec_from_file_location("sp11_msiir_volume_sync", SCRIPT)
 mod = importlib.util.module_from_spec(spec)
 assert spec.loader is not None

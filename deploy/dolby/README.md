@@ -1,5 +1,10 @@
 # SP11 original Windows Dolby host
 
+> **Historical Windows-vendor bridge only.** The active Linux product and
+> user-facing namespace is UbiG; use `deploy/ubig/`. This directory is retained
+> solely to preserve provenance for the earlier reference bridge.
+
+
 This directory contains only Linux-side deployment files. The proprietary
 Dolby DLLs are intentionally not stored in Git.
 

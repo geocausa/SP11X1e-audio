@@ -10,9 +10,9 @@ def test_candidate_pipewire_template_preserves_golden_node_contract():
     assert 'plugin = "@PLUGIN@"' in text
     assert "label  = ubig_sp11_candidate" in text
     for name in (
-        "effect_input.sp11_windows_dolby",
-        "effect_input.sp11_windows_dolby_engine",
-        "effect_output.sp11_windows_dolby",
+        "effect_input.sp11_ubig",
+        "effect_input.sp11_ubig_engine",
+        "effect_output.sp11_ubig",
     ):
         assert name in text
     assert "sp11_dolby_windows_chain" not in text
@@ -31,7 +31,7 @@ def test_candidate_prepare_and_switch_keep_deblob_and_rollback_gates():
     assert "Environment=UBIG_VOLUME_HELPER_DIR=$HELPERDIR" in switch
     assert "ExecStart=$HELPERDIR/sp11-volume-sync-dispatch" in switch
     assert "ExecStart=$HELPERDIR/sp11-msiir-volume-sync" in switch
-    assert "98-sp11-windows-dolby.conf.rollback" in switch
+    assert "98-sp11-ubig.conf.rollback" in switch
     assert 'install -m 0644 "$ROLLBACK_CONF" "$ACTIVE_CONF"' in switch
 
 
