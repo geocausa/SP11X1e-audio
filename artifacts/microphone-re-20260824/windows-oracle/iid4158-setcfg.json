@@ -1,0 +1,79 @@
+{
+  "cdde_group_count": 208,
+  "cddo_group_count": 145,
+  "cdlu_pair_count": 172,
+  "chunk_sha256": {
+    "CDDE": "89664441efbee81dbec49f4a87db6d2f6badf6a9d652184385f6f73a5bce418d",
+    "CDDO": "aeb7976d89ab0e04ef0a982e0cf32b19ad91bbd971020ca091fd76affb818652",
+    "CDLU": "07bc769c13a693d589d2d714685bce38d0d65d1042e44f3098b5f43a1b196259",
+    "POOL": "35073b935392fa6981f514d14871b003442e47d8a96b24a34b845e1b3f0ae759"
+  },
+  "entries": [
+    {
+      "iid": "0x00004158",
+      "param_id": "0x08001018",
+      "payload_hex": "01000000",
+      "payload_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
+      "payload_size": 4,
+      "pool_offset": "0x00003ec8",
+      "references": [
+        {
+          "cdde_group_offset": "0x00000474",
+          "cddo_group_offset": "0x00000248",
+          "cdlu_positions": [
+            "0x000000a0"
+          ],
+          "group_row_index": 5
+        }
+      ]
+    },
+    {
+      "iid": "0x00004158",
+      "param_id": "0x08001176",
+      "payload_hex": "00000000",
+      "payload_sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+      "payload_size": 4,
+      "pool_offset": "0x00003f40",
+      "references": [
+        {
+          "cdde_group_offset": "0x00000474",
+          "cddo_group_offset": "0x00000248",
+          "cdlu_positions": [
+            "0x000000a0"
+          ],
+          "group_row_index": 6
+        }
+      ]
+    },
+    {
+      "iid": "0x00004158",
+      "param_id": "0x080013d5",
+      "payload_hex": "00000000",
+      "payload_sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+      "payload_size": 4,
+      "pool_offset": "0x00003f40",
+      "references": [
+        {
+          "cdde_group_offset": "0x00000474",
+          "cddo_group_offset": "0x00000248",
+          "cdlu_positions": [
+            "0x000000a0"
+          ],
+          "group_row_index": 7
+        }
+      ]
+    }
+  ],
+  "evidence_class": "B: static Windows ACDB CDLU-referenced CDDE/CDDO/POOL mapping; not runtime selection or command order",
+  "format": "SP11 ACDB static SET_CFG descriptor inventory",
+  "format_version": 1,
+  "iid_param_count": 3,
+  "iid_params_with_multiple_payloads": [],
+  "mapping_count": 3,
+  "source": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Gemini\\DUMP\\acdb_cal_0D.acdb",
+  "source_sha256": "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde",
+  "source_size": 440150,
+  "target_iids": [
+    "0x00004158"
+  ]
+}

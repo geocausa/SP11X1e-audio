@@ -1,0 +1,2503 @@
+{
+  "acdb": "C:\\Users\\SurfacePro7\\Documents\\KDNET\\Claude\\AUDIO\\SP11-WINDOWS-AUDIO\\driverstore\\surface_acsp8380.inf_arm64_f6524e4db745e12a\\REV_0D\\acdb_cal_0D.acdb",
+  "sha256": "a0a8635ba65127180a1caef46af61c00171c9a93cbf8b5f5650709b4638decde",
+  "driver_module_count": 11,
+  "driver_module_ids": [
+    "0x08000020",
+    "0x08000023",
+    "0x08000027",
+    "0x0800002a",
+    "0x08000030",
+    "0x08000040",
+    "0x08000042",
+    "0x08000050",
+    "0x08000060",
+    "0x08000080",
+    "0x08000090"
+  ],
+  "gclu_record_count": 15,
+  "gckt_schemas": [
+    {
+      "offset": "0x00000000",
+      "key_ids": [
+        "0x01000006",
+        "0x01000010"
+      ],
+      "key_names": [
+        "render_endpoint",
+        "channel_count"
+      ]
+    },
+    {
+      "offset": "0x0000000c",
+      "key_ids": [
+        "0x0100000d",
+        "0x01000010"
+      ],
+      "key_names": [
+        "capture_endpoint",
+        "channel_count"
+      ]
+    },
+    {
+      "offset": "0x00000018",
+      "key_ids": [
+        "0x01000006"
+      ],
+      "key_names": [
+        "render_endpoint"
+      ]
+    },
+    {
+      "offset": "0x00000020",
+      "key_ids": [
+        "0x01000006",
+        "0x0100000d"
+      ],
+      "key_names": [
+        "render_endpoint",
+        "capture_endpoint"
+      ]
+    },
+    {
+      "offset": "0x0000002c",
+      "key_ids": [
+        "0x0100000d"
+      ],
+      "key_names": [
+        "capture_endpoint"
+      ]
+    },
+    {
+      "offset": "0x00000034",
+      "key_ids": [],
+      "key_names": []
+    },
+    {
+      "offset": "0x00000038",
+      "key_ids": [
+        "0x01000029"
+      ],
+      "key_names": [
+        "dsp_gpio_resource"
+      ]
+    }
+  ],
+  "records": [
+    {
+      "record_index": 0,
+      "module_id": "0x08000020",
+      "gckt_schema_offset": "0x00000000",
+      "gcdt_offset": "0x00000000",
+      "key_ids": [
+        "0x01000006",
+        "0x01000010"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 1,
+              "value_hex": "0x00000001"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 2,
+              "value_hex": "0x00000002"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x00000000",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x00018d7c",
+              "size": 32,
+              "sha256": "c7a34c907cfc018a45d07fc3d0284e07a120fa042723ad9cf29694d6b200ff9e",
+              "payload_hex": "0000000002000000000008000500010300000000010008000600010300000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x000214b4",
+              "size": 36,
+              "sha256": "c471162ea675afc5c39fe90bd47d2f3f50f6e2b82abc4c00a7558f234b5c3672",
+              "payload_hex": "040000001500031005000000130010100000000006001010240000000e000c1001000000"
+            }
+          ]
+        },
+        {
+          "row_index": 1,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 1,
+              "value_hex": "0x00000001"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 4,
+              "value_hex": "0x00000004"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x0000000c",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x00018ddc",
+              "size": 56,
+              "sha256": "d4e8c6bf3b085a1f60ccce922c918141fd6ab68b4ac1bef2aca76c97c344f95e",
+              "payload_hex": "0000000004000000000008000500010300000000010008000600010300000000040008000700010300000000050008000800010300000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x00018da0",
+              "size": 52,
+              "sha256": "db5b3d409570e74d0c12fc959945ca1deed7feab555ff9455a23a843d28b1d57",
+              "payload_hex": "060000001500031005000000130010100000000006001010240000000e000c1001000000060015101b0000000800151000000000"
+            }
+          ]
+        },
+        {
+          "row_index": 2,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 3,
+              "value_hex": "0x00000003"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 1,
+              "value_hex": "0x00000001"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x00000018",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x00018e18",
+              "size": 20,
+              "sha256": "f4a96e0aa372b99e7d8248526881c1119bbe69f9a5a81663142a06ee833b9c42",
+              "payload_hex": "0000000001000000000004000100010300000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x00018e34",
+              "size": 36,
+              "sha256": "57f33ef27b37702328953a799a1d9f53073866f255ae1616bdc10880e0442879",
+              "payload_hex": "04000000150003100500000009000b100400000006001010000000000e000c1001000000"
+            }
+          ]
+        },
+        {
+          "row_index": 3,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 3,
+              "value_hex": "0x00000003"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 2,
+              "value_hex": "0x00000002"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x00000024",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x00018e60",
+              "size": 32,
+              "sha256": "2ed66b9b5421c5b9da1641b0c3079eb8a1d79ccd47dff6f187dc0c550f448035",
+              "payload_hex": "0000000002000000000004000100010300000000010004000200010300000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x00018e34",
+              "size": 36,
+              "sha256": "57f33ef27b37702328953a799a1d9f53073866f255ae1616bdc10880e0442879",
+              "payload_hex": "04000000150003100500000009000b100400000006001010000000000e000c1001000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 1,
+      "module_id": "0x08000020",
+      "gckt_schema_offset": "0x0000000c",
+      "gcdt_offset": "0x00000048",
+      "key_ids": [
+        "0x0100000d",
+        "0x01000010"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 2,
+              "value_hex": "0x00000002"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 1,
+              "value_hex": "0x00000001"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x00000030",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x000214e0",
+              "size": 20,
+              "sha256": "db0ce1a6897070ddd2699477339d5eb6d2b57283e48593858e8dd480eea8ed8b",
+              "payload_hex": "0100000001000000020002000000020100000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x00018e84",
+              "size": 44,
+              "sha256": "39bcccc7ae7cd1ae668ffadc832a217c0a16c4ef8cb96b88c59c55394e02dd33",
+              "payload_hex": "050000000d000d10010000000f000d1008070000060005102400000015000310030000000700081008000000"
+            }
+          ]
+        },
+        {
+          "row_index": 1,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 2,
+              "value_hex": "0x00000002"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 2,
+              "value_hex": "0x00000002"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x0000003c",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x000214fc",
+              "size": 32,
+              "sha256": "137bcb9bbd26d6513e813f3743ff98b2340e8a90faf9c6c081592e1f7b8beda9",
+              "payload_hex": "0100000002000000020002000000020100000000000002000100020100000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x00021520",
+              "size": 60,
+              "sha256": "bb15ee76ea814a8161375dd4c1d0f6c5ce12627ebea27927a3a08bdf81227a80",
+              "payload_hex": "070000000d000d10010000000f000d1008070000060005100c000000150003100300000007000810080000000d000d10030000000f000d1008070000"
+            }
+          ]
+        },
+        {
+          "row_index": 2,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 4,
+              "value_hex": "0x00000004"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 1,
+              "value_hex": "0x00000001"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x00000048",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x00018eb8",
+              "size": 20,
+              "sha256": "2328c71d6e637f63219c8118d23b80cb4d371651e6f9b09e2d029bbbd9eb0057",
+              "payload_hex": "0100000001000000010001020400040100000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x00018ed4",
+              "size": 52,
+              "sha256": "123588ea660837b5225c1e000e760ab605078bd8b440c3a19da5c7064c147672",
+              "payload_hex": "060000000d000d10020000000f000d10080700000600051010000000150003100300000009000710020000000600071024000000"
+            }
+          ]
+        },
+        {
+          "row_index": 3,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 5,
+              "value_hex": "0x00000005"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 2,
+              "value_hex": "0x00000002"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x00000054",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x0001cc94",
+              "size": 32,
+              "sha256": "3af32b03388449d0f2c416d3944df17c6bf144de4d41c4e13ed65fba9c055cfd",
+              "payload_hex": "0100000002000000010002000000040100000000000002000100040100000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x0001b360",
+              "size": 36,
+              "sha256": "a88bb269ea7e11c73d06a14b867f300e72002fd8bc773c279f1ba2a32ba1c7cc",
+              "payload_hex": "040000000d000d10010000000f000d100807000015000310030000000700081008000000"
+            }
+          ]
+        },
+        {
+          "row_index": 4,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 5,
+              "value_hex": "0x00000005"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 4,
+              "value_hex": "0x00000004"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x00000060",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x00018f10",
+              "size": 56,
+              "sha256": "5ef50ce9b8cea2f0b161dc65e2051642ff73d13c91d5056f06b0fa1e3cf26812",
+              "payload_hex": "0100000004000000020002000000040100000000010002000100040100000000030002000200040100000000000002000300040100000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x00018f4c",
+              "size": 60,
+              "sha256": "2a7a730a6294c999f67266b5189a7204b0400638c6ab825d84c9d1254bcb2e42",
+              "payload_hex": "070000000d000d10010000000f000d10080700000d000d10030000000f000d1008070000060005100600000015000310030000000700081008000000"
+            }
+          ]
+        },
+        {
+          "row_index": 5,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 6,
+              "value_hex": "0x00000006"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 2,
+              "value_hex": "0x00000002"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x0000006c",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x00018f90",
+              "size": 32,
+              "sha256": "485b5ae59f9bfb23bc114980e2f11a1138bee2a240844242ed7a92eeab36fb1a",
+              "payload_hex": "0100000002000000010002000000020100000000000002000100020100000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x00018fb4",
+              "size": 44,
+              "sha256": "cfbb6021997737c80201719cc6a3e6fedf027e88d29789871de3f3c90e8adfb7",
+              "payload_hex": "050000000d000d10030000000f000d1008070000060005102400000015000310030000000700081008000000"
+            }
+          ]
+        },
+        {
+          "row_index": 6,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 7,
+              "value_hex": "0x00000007"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 2,
+              "value_hex": "0x00000002"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x0000006c",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x00018f90",
+              "size": 32,
+              "sha256": "485b5ae59f9bfb23bc114980e2f11a1138bee2a240844242ed7a92eeab36fb1a",
+              "payload_hex": "0100000002000000010002000000020100000000000002000100020100000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x00018fb4",
+              "size": 44,
+              "sha256": "cfbb6021997737c80201719cc6a3e6fedf027e88d29789871de3f3c90e8adfb7",
+              "payload_hex": "050000000d000d10030000000f000d1008070000060005102400000015000310030000000700081008000000"
+            }
+          ]
+        },
+        {
+          "row_index": 7,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 16,
+              "value_hex": "0x00000010"
+            },
+            {
+              "key_id": "0x01000010",
+              "name": "channel_count",
+              "value": 2,
+              "value_hex": "0x00000002"
+            }
+          ],
+          "gcde_offset": "0x00000000",
+          "gcdo_offset": "0x00000054",
+          "params": [
+            {
+              "param_id": "0x08000021",
+              "pool_offset": "0x0001cc94",
+              "size": 32,
+              "sha256": "3af32b03388449d0f2c416d3944df17c6bf144de4d41c4e13ed65fba9c055cfd",
+              "payload_hex": "0100000002000000010002000000040100000000000002000100040100000000"
+            },
+            {
+              "param_id": "0x08000022",
+              "pool_offset": "0x0001b360",
+              "size": 36,
+              "sha256": "a88bb269ea7e11c73d06a14b867f300e72002fd8bc773c279f1ba2a32ba1c7cc",
+              "payload_hex": "040000000d000d10010000000f000d100807000015000310030000000700081008000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 2,
+      "module_id": "0x08000023",
+      "gckt_schema_offset": "0x00000018",
+      "gcdt_offset": "0x000000d0",
+      "key_ids": [
+        "0x01000006"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 3,
+              "value_hex": "0x00000003"
+            }
+          ],
+          "gcde_offset": "0x0000000c",
+          "gcdo_offset": "0x00000078",
+          "params": [
+            {
+              "param_id": "0x08000024",
+              "pool_offset": "0x00018fe8",
+              "size": 112,
+              "sha256": "682b8b0ef3cbd6c3050c9e02a868e7035162e6aac6dd1a1ad244ce3b2a841ee2",
+              "payload_hex": "600000002c0100004006000000000000010000000200000008070000010000000100000001000000010000000100000088130000000000000000000000000000030000001e00000063000000f90000005802000000000000000000000000000000000000000000000000000000000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 3,
+      "module_id": "0x08000027",
+      "gckt_schema_offset": "0x00000020",
+      "gcdt_offset": "0x000000e4",
+      "key_ids": [
+        "0x01000006",
+        "0x0100000d"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 3,
+              "value_hex": "0x00000003"
+            },
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 4,
+              "value_hex": "0x00000004"
+            }
+          ],
+          "gcde_offset": "0x00000014",
+          "gcdo_offset": "0x00000080",
+          "params": [
+            {
+              "param_id": "0x08000028",
+              "pool_offset": "0x0001905c",
+              "size": 108,
+              "sha256": "a4550c8d806242f1ed232a48d94d58a119b7f4fed0e67f0d4a3593cf1d495130",
+              "payload_hex": "010000000000000000000010000000000000000000000000000000000000001000000000000000000000000000000000000000100000000000000000000000000000000000000010000000000000000000000000000000000000001000000000000000000000000000000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 4,
+      "module_id": "0x0800002a",
+      "gckt_schema_offset": "0x00000018",
+      "gcdt_offset": "0x000000fc",
+      "key_ids": [
+        "0x01000006"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 1,
+              "value_hex": "0x00000001"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x00000088",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x00021974",
+              "size": 124,
+              "sha256": "090cdaabb5283b236e6073e823dcb4fd6f622180bd493cab1dd2e2174e2ec688",
+              "payload_hex": "1e000000000000006f0e6d0193fa8d01cedeb101abffd801e6a70302f6283202aedb6402e0209c021c62d80276121a0363af6103a9c1af0362de04041ca861040ed0c6046a173505ce50ad05d6613006d544bf06b00a5b07e8dc0408d3ffbd0807d58709fedd630af5be530b0f42590cc15a760d8829ad0e00000010"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019154",
+              "size": 12,
+              "sha256": "a8f47645d666541d01aa7f834818199261eb95095106c4766eb3b1e5e80cc977",
+              "payload_hex": "0e0000000400000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019168",
+              "size": 16,
+              "sha256": "360729ce577ef11124e8ed632c5e5bd60af8519b1c035e961c5613f9fbfe96b2",
+              "payload_hex": "0e000000040000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 1,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 3,
+              "value_hex": "0x00000003"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x00000098",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x000190d0",
+              "size": 124,
+              "sha256": "fd3c4ee1586817b484d4bea601519125e97f5bcef983491395b51141c84c4a23",
+              "payload_hex": "1e000000000000006b42310363af6103edfa94038e50cb0362de04043ed54104df6882040ed0c604d9440f05b8045c05ce50ad05156e0306a0a55e06d544bf06b29d25070e079207e8dc0408b0807e089e59ff0807d58709ba66180a6489b10af5be530b1291ff0b8691b50cc15a760d5890420e94df1a0f00000010"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019154",
+              "size": 12,
+              "sha256": "a8f47645d666541d01aa7f834818199261eb95095106c4766eb3b1e5e80cc977",
+              "payload_hex": "0e0000000400000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019168",
+              "size": 16,
+              "sha256": "360729ce577ef11124e8ed632c5e5bd60af8519b1c035e961c5613f9fbfe96b2",
+              "payload_hex": "0e000000040000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 2,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 8,
+              "value_hex": "0x00000008"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x00000098",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x000190d0",
+              "size": 124,
+              "sha256": "fd3c4ee1586817b484d4bea601519125e97f5bcef983491395b51141c84c4a23",
+              "payload_hex": "1e000000000000006b42310363af6103edfa94038e50cb0362de04043ed54104df6882040ed0c604d9440f05b8045c05ce50ad05156e0306a0a55e06d544bf06b29d25070e079207e8dc0408b0807e089e59ff0807d58709ba66180a6489b10af5be530b1291ff0b8691b50cc15a760d5890420e94df1a0f00000010"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019154",
+              "size": 12,
+              "sha256": "a8f47645d666541d01aa7f834818199261eb95095106c4766eb3b1e5e80cc977",
+              "payload_hex": "0e0000000400000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019168",
+              "size": 16,
+              "sha256": "360729ce577ef11124e8ed632c5e5bd60af8519b1c035e961c5613f9fbfe96b2",
+              "payload_hex": "0e000000040000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 3,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 10,
+              "value_hex": "0x0000000a"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x00000098",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x000190d0",
+              "size": 124,
+              "sha256": "fd3c4ee1586817b484d4bea601519125e97f5bcef983491395b51141c84c4a23",
+              "payload_hex": "1e000000000000006b42310363af6103edfa94038e50cb0362de04043ed54104df6882040ed0c604d9440f05b8045c05ce50ad05156e0306a0a55e06d544bf06b29d25070e079207e8dc0408b0807e089e59ff0807d58709ba66180a6489b10af5be530b1291ff0b8691b50cc15a760d5890420e94df1a0f00000010"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019154",
+              "size": 12,
+              "sha256": "a8f47645d666541d01aa7f834818199261eb95095106c4766eb3b1e5e80cc977",
+              "payload_hex": "0e0000000400000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019168",
+              "size": 16,
+              "sha256": "360729ce577ef11124e8ed632c5e5bd60af8519b1c035e961c5613f9fbfe96b2",
+              "payload_hex": "0e000000040000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 4,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 11,
+              "value_hex": "0x0000000b"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x00000098",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x000190d0",
+              "size": 124,
+              "sha256": "fd3c4ee1586817b484d4bea601519125e97f5bcef983491395b51141c84c4a23",
+              "payload_hex": "1e000000000000006b42310363af6103edfa94038e50cb0362de04043ed54104df6882040ed0c604d9440f05b8045c05ce50ad05156e0306a0a55e06d544bf06b29d25070e079207e8dc0408b0807e089e59ff0807d58709ba66180a6489b10af5be530b1291ff0b8691b50cc15a760d5890420e94df1a0f00000010"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019154",
+              "size": 12,
+              "sha256": "a8f47645d666541d01aa7f834818199261eb95095106c4766eb3b1e5e80cc977",
+              "payload_hex": "0e0000000400000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019168",
+              "size": 16,
+              "sha256": "360729ce577ef11124e8ed632c5e5bd60af8519b1c035e961c5613f9fbfe96b2",
+              "payload_hex": "0e000000040000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 5,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 12,
+              "value_hex": "0x0000000c"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x00000098",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x000190d0",
+              "size": 124,
+              "sha256": "fd3c4ee1586817b484d4bea601519125e97f5bcef983491395b51141c84c4a23",
+              "payload_hex": "1e000000000000006b42310363af6103edfa94038e50cb0362de04043ed54104df6882040ed0c604d9440f05b8045c05ce50ad05156e0306a0a55e06d544bf06b29d25070e079207e8dc0408b0807e089e59ff0807d58709ba66180a6489b10af5be530b1291ff0b8691b50cc15a760d5890420e94df1a0f00000010"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019154",
+              "size": 12,
+              "sha256": "a8f47645d666541d01aa7f834818199261eb95095106c4766eb3b1e5e80cc977",
+              "payload_hex": "0e0000000400000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019168",
+              "size": 16,
+              "sha256": "360729ce577ef11124e8ed632c5e5bd60af8519b1c035e961c5613f9fbfe96b2",
+              "payload_hex": "0e000000040000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 6,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 15,
+              "value_hex": "0x0000000f"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x000000a8",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x0001fe50",
+              "size": 124,
+              "sha256": "21b3867d98f18523000c271791785f19e76784a4da5aedbb80baadf8c78a6163",
+              "payload_hex": "1e000000000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019200",
+              "size": 12,
+              "sha256": "adb87882d6709e8651ffcdff00a0c5b7cd845fad8d961683079517b38c3515ea",
+              "payload_hex": "0e0000000000000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019214",
+              "size": 16,
+              "sha256": "27a1e2a632b4ceadb354ff2c7b87b2c2a3be623012f3a5f5cbe503d53b5197e6",
+              "payload_hex": "0e000000000000000400000003000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 5,
+      "module_id": "0x0800002a",
+      "gckt_schema_offset": "0x0000002c",
+      "gcdt_offset": "0x00000158",
+      "key_ids": [
+        "0x0100000d"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 2,
+              "value_hex": "0x00000002"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x000000b8",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x0001917c",
+              "size": 124,
+              "sha256": "bb4ef31e0f06f9d03b83a6fcfd0c89c5240baaf00a3f9a039307269bee0091c0",
+              "payload_hex": "1e00000000000000babe150011d81900ab762200c3f5280059ae3000ca903300cfea40000ae36600e28681004a49cd005a5b45019a999901e6a70302192c89026b42310362de0404df688204d9440f05d544bf06e8dc040807d587096489b10af5be530b5890420e00000010f8c099162d98ec1f3f78b23fa43995fd"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019200",
+              "size": 12,
+              "sha256": "adb87882d6709e8651ffcdff00a0c5b7cd845fad8d961683079517b38c3515ea",
+              "payload_hex": "0e0000000000000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019214",
+              "size": 16,
+              "sha256": "27a1e2a632b4ceadb354ff2c7b87b2c2a3be623012f3a5f5cbe503d53b5197e6",
+              "payload_hex": "0e000000000000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 1,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 4,
+              "value_hex": "0x00000004"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x000000b8",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x0001917c",
+              "size": 124,
+              "sha256": "bb4ef31e0f06f9d03b83a6fcfd0c89c5240baaf00a3f9a039307269bee0091c0",
+              "payload_hex": "1e00000000000000babe150011d81900ab762200c3f5280059ae3000ca903300cfea40000ae36600e28681004a49cd005a5b45019a999901e6a70302192c89026b42310362de0404df688204d9440f05d544bf06e8dc040807d587096489b10af5be530b5890420e00000010f8c099162d98ec1f3f78b23fa43995fd"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019200",
+              "size": 12,
+              "sha256": "adb87882d6709e8651ffcdff00a0c5b7cd845fad8d961683079517b38c3515ea",
+              "payload_hex": "0e0000000000000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019214",
+              "size": 16,
+              "sha256": "27a1e2a632b4ceadb354ff2c7b87b2c2a3be623012f3a5f5cbe503d53b5197e6",
+              "payload_hex": "0e000000000000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 2,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 5,
+              "value_hex": "0x00000005"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x000000b8",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x0001917c",
+              "size": 124,
+              "sha256": "bb4ef31e0f06f9d03b83a6fcfd0c89c5240baaf00a3f9a039307269bee0091c0",
+              "payload_hex": "1e00000000000000babe150011d81900ab762200c3f5280059ae3000ca903300cfea40000ae36600e28681004a49cd005a5b45019a999901e6a70302192c89026b42310362de0404df688204d9440f05d544bf06e8dc040807d587096489b10af5be530b5890420e00000010f8c099162d98ec1f3f78b23fa43995fd"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019200",
+              "size": 12,
+              "sha256": "adb87882d6709e8651ffcdff00a0c5b7cd845fad8d961683079517b38c3515ea",
+              "payload_hex": "0e0000000000000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019214",
+              "size": 16,
+              "sha256": "27a1e2a632b4ceadb354ff2c7b87b2c2a3be623012f3a5f5cbe503d53b5197e6",
+              "payload_hex": "0e000000000000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 3,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 6,
+              "value_hex": "0x00000006"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x000000b8",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x0001917c",
+              "size": 124,
+              "sha256": "bb4ef31e0f06f9d03b83a6fcfd0c89c5240baaf00a3f9a039307269bee0091c0",
+              "payload_hex": "1e00000000000000babe150011d81900ab762200c3f5280059ae3000ca903300cfea40000ae36600e28681004a49cd005a5b45019a999901e6a70302192c89026b42310362de0404df688204d9440f05d544bf06e8dc040807d587096489b10af5be530b5890420e00000010f8c099162d98ec1f3f78b23fa43995fd"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019200",
+              "size": 12,
+              "sha256": "adb87882d6709e8651ffcdff00a0c5b7cd845fad8d961683079517b38c3515ea",
+              "payload_hex": "0e0000000000000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019214",
+              "size": 16,
+              "sha256": "27a1e2a632b4ceadb354ff2c7b87b2c2a3be623012f3a5f5cbe503d53b5197e6",
+              "payload_hex": "0e000000000000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 4,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 7,
+              "value_hex": "0x00000007"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x000000b8",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x0001917c",
+              "size": 124,
+              "sha256": "bb4ef31e0f06f9d03b83a6fcfd0c89c5240baaf00a3f9a039307269bee0091c0",
+              "payload_hex": "1e00000000000000babe150011d81900ab762200c3f5280059ae3000ca903300cfea40000ae36600e28681004a49cd005a5b45019a999901e6a70302192c89026b42310362de0404df688204d9440f05d544bf06e8dc040807d587096489b10af5be530b5890420e00000010f8c099162d98ec1f3f78b23fa43995fd"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019200",
+              "size": 12,
+              "sha256": "adb87882d6709e8651ffcdff00a0c5b7cd845fad8d961683079517b38c3515ea",
+              "payload_hex": "0e0000000000000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019214",
+              "size": 16,
+              "sha256": "27a1e2a632b4ceadb354ff2c7b87b2c2a3be623012f3a5f5cbe503d53b5197e6",
+              "payload_hex": "0e000000000000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 5,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 9,
+              "value_hex": "0x00000009"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x000000b8",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x0001917c",
+              "size": 124,
+              "sha256": "bb4ef31e0f06f9d03b83a6fcfd0c89c5240baaf00a3f9a039307269bee0091c0",
+              "payload_hex": "1e00000000000000babe150011d81900ab762200c3f5280059ae3000ca903300cfea40000ae36600e28681004a49cd005a5b45019a999901e6a70302192c89026b42310362de0404df688204d9440f05d544bf06e8dc040807d587096489b10af5be530b5890420e00000010f8c099162d98ec1f3f78b23fa43995fd"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019200",
+              "size": 12,
+              "sha256": "adb87882d6709e8651ffcdff00a0c5b7cd845fad8d961683079517b38c3515ea",
+              "payload_hex": "0e0000000000000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019214",
+              "size": 16,
+              "sha256": "27a1e2a632b4ceadb354ff2c7b87b2c2a3be623012f3a5f5cbe503d53b5197e6",
+              "payload_hex": "0e000000000000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 6,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 13,
+              "value_hex": "0x0000000d"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x000000b8",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x0001917c",
+              "size": 124,
+              "sha256": "bb4ef31e0f06f9d03b83a6fcfd0c89c5240baaf00a3f9a039307269bee0091c0",
+              "payload_hex": "1e00000000000000babe150011d81900ab762200c3f5280059ae3000ca903300cfea40000ae36600e28681004a49cd005a5b45019a999901e6a70302192c89026b42310362de0404df688204d9440f05d544bf06e8dc040807d587096489b10af5be530b5890420e00000010f8c099162d98ec1f3f78b23fa43995fd"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019200",
+              "size": 12,
+              "sha256": "adb87882d6709e8651ffcdff00a0c5b7cd845fad8d961683079517b38c3515ea",
+              "payload_hex": "0e0000000000000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019214",
+              "size": 16,
+              "sha256": "27a1e2a632b4ceadb354ff2c7b87b2c2a3be623012f3a5f5cbe503d53b5197e6",
+              "payload_hex": "0e000000000000000400000003000000"
+            }
+          ]
+        },
+        {
+          "row_index": 7,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 16,
+              "value_hex": "0x00000010"
+            }
+          ],
+          "gcde_offset": "0x0000001c",
+          "gcdo_offset": "0x000000b8",
+          "params": [
+            {
+              "param_id": "0x0800002b",
+              "pool_offset": "0x0001917c",
+              "size": 124,
+              "sha256": "bb4ef31e0f06f9d03b83a6fcfd0c89c5240baaf00a3f9a039307269bee0091c0",
+              "payload_hex": "1e00000000000000babe150011d81900ab762200c3f5280059ae3000ca903300cfea40000ae36600e28681004a49cd005a5b45019a999901e6a70302192c89026b42310362de0404df688204d9440f05d544bf06e8dc040807d587096489b10af5be530b5890420e00000010f8c099162d98ec1f3f78b23fa43995fd"
+            },
+            {
+              "param_id": "0x0800002c",
+              "pool_offset": "0x00019200",
+              "size": 12,
+              "sha256": "adb87882d6709e8651ffcdff00a0c5b7cd845fad8d961683079517b38c3515ea",
+              "payload_hex": "0e0000000000000003000000"
+            },
+            {
+              "param_id": "0x0800002d",
+              "pool_offset": "0x00019214",
+              "size": 16,
+              "sha256": "27a1e2a632b4ceadb354ff2c7b87b2c2a3be623012f3a5f5cbe503d53b5197e6",
+              "payload_hex": "0e000000000000000400000003000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 6,
+      "module_id": "0x08000030",
+      "gckt_schema_offset": "0x00000018",
+      "gcdt_offset": "0x000001c0",
+      "key_ids": [
+        "0x01000006"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 11,
+              "value_hex": "0x0000000b"
+            }
+          ],
+          "gcde_offset": "0x0000002c",
+          "gcdo_offset": "0x000000c8",
+          "params": [
+            {
+              "param_id": "0x08000031",
+              "pool_offset": "0x00019228",
+              "size": 676,
+              "sha256": "bacabeea6cdb70e4bc3f6d54be13020571e7b4679c2ed859632cb48383e70f51",
+              "payload_hex": "15000000803e000000000000000000000000000000000000040000000000000000000000007d00000000000000000000000000000000000004000000000000000000000044ac00000000000000000000000000000000000004000000000000000000000080bb0000000000000000000000000000000000000400000000000000000000000000000000e204000000000000000000000000000400000000000000000000000000000000d0070000000000000000000000000004000000000000000000000000000000000000000800000000000000000000000400000000000000000000000000000000000000080000000000000000000000040000000000000000000000000000000000000000000000040000000000000004000000000000000000000000000000000000000000000008000000000000000400000000000000000000000000000000000000000000000c00000000000000040000000000000000000000000000000000000000000000100000000000000004000000000000000000000000000000000000000000000000000000ffffffff040000000000000000000000000000000000000000000000000000000100000004000000000000000000000000000000000000000000000000000000020000000400000000000000000000000000000000000000000000000000000008000000040000000000000000000000000000000000000000000000000000000900000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000004000000020000000000000000000000000000000000000000000000000000000400000000000000fa000000"
+            },
+            {
+              "param_id": "0x08000032",
+              "pool_offset": "0x000194d4",
+              "size": 264,
+              "sha256": "691f0d4aff08e17f1efd181f85d1790b083acfd2b3aa3e6abcd845b886d2d71b",
+              "payload_hex": "0d000000112b000000000000000000000700000000000000e02e000000000000000000000700000000000000803e0000000000000000000007000000000000002256000000000000000000000700000000000000c05d000000000000000000000700000000000000007d00000000000000000000070000000000000044ac00000000000000000000070000000000000080bb0000000000000000000007000000000000000000000000e803000000000007000000000000000000000000000000020000000700000000000000000000000000000000000000070000000100000000000000000000000000000007000000020000000000000000000000000000000400000000000000"
+            },
+            {
+              "param_id": "0x08000033",
+              "pool_offset": "0x000195e0",
+              "size": 52,
+              "sha256": "d3fd1201e78f8815bb2547dd0a73d15890bbb0d1ac614196d3c97f30164a05cb",
+              "payload_hex": "0400000044ac0000000000000000000080bb00000000000000000000000000000100000003000000000000000200000001020000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 7,
+      "module_id": "0x08000040",
+      "gckt_schema_offset": "0x00000034",
+      "gcdt_offset": "0x000001d4",
+      "key_ids": [],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [],
+          "gcde_offset": "0x0000003c",
+          "gcdo_offset": "0x000000d8",
+          "params": [
+            {
+              "param_id": "0x08000041",
+              "pool_offset": "0x000097ec",
+              "size": 8,
+              "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+              "payload_hex": "0000000000000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 8,
+      "module_id": "0x08000042",
+      "gckt_schema_offset": "0x00000018",
+      "gcdt_offset": "0x000001e4",
+      "key_ids": [
+        "0x01000006"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 1,
+              "value_hex": "0x00000001"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x000000e0",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00020e68",
+              "size": 140,
+              "sha256": "6500e7873f19908de9e09dff41aa85ce323d538af4305c0097470593f681497d",
+              "payload_hex": "01000000000000000000000000000000000000000100000001000000000000000100000000000000000000000100000000000000000000000000ff7f01000000ffffffff1000000001000000ffffffff010000000000000000000000d29cca7e000000000c00000000000000060000000000000000d8b80524faffffdc05000064000000000000000b000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x00020efc",
+              "size": 12,
+              "sha256": "5f52621bbd8acae81e53a8f0fde40b0652042ae713cc816153ab74801ef9b902",
+              "payload_hex": "020000000000040000000200"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x0001b3bc",
+              "size": 2236,
+              "sha256": "093ad0e6bdefe1c9d4ba184541c94887815957f57de99df76cf5444ca90966b8",
+              "payload_hex": "1200000000000008ffffffff010000000500000060ea0000000000000000000000000008000000000c000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000002000000000000000000000000000000030000000000000000000000000000000400000000000000000000000000000005000000000000000000000000000000060000000000000000000000000000000700000000000000000000000000000008000000000000000000000000000000090000000000000000000000000000000a0000000000000000000000000000000b00000000000008010000000500000005000000360100002c010000000000000500000058020000900100000100000005000000e8030000900100000200000005000000b80b0000900100000300000005000000701700002c01000004000000000000080200000007000000010000003c000000f40100000000000005000000aa00000090010000010000000500000036010000c80000000200000006000000b80b00002c010000030000000600000070170000900100000400000006000000e02e0000900100000500000004000000b0360000c8000000060000000000000803000000060000000100000036010000580200000000000005000000580200002c0100000100000005000000e8030000640000000200000006000000b80b0000c80000000300000006000000701700002c0100000400000004000000e02e00008403000005000000000000080400000008000000010000003c000000900100000000000005000000aa0000002c01000001000000050000003601000000000000020000000600000058020000900100000300000006000000e80300002c0100000400000005000000b80b000064000000050000000500000070170000900100000600000003000000e02e000058020000070000000000000805000000050000000200000036010000580200000000000006000000580200002c0100000100000005000000e8030000c80000000200000005000000b80b000058020000030000000300000070170000840300000400000000000008060000000a000000010000003c0000002c0100000000000005000000aa000000580200000100000005000000360100002c010000020000000600000058020000c80000000300000006000000e8030000640000000400000005000000b80b0000640000000500000005000000701700002c0100000600000005000000e02e0000580200000700000005000000b0360000200300000800000003000000803e0000840300000900000000000008070000000700000001000000aa000000580200000000000005000000360100002c0100000100000005000000580200002c0100000200000005000000e8030000000000000300000006000000b80b00002c0100000400000006000000701700002c0100000500000006000000e02e00002c0100000600000000000008080000000a000000020000003c0000002c0100000000000005000000aa00000000000000010000000500000036010000c8000000020000000500000058020000c80000000300000005000000e80300002c0100000400000005000000b80b00002c0100000500000005000000701700002c0100000600000005000000e02e0000c80000000700000005000000b0360000c80000000800000003000000803e0000640000000900000000000008090000000200000001000000aa000000900100000000000003000000b03600009001000001000000000000080a00000007000000020000003c000000640000000000000005000000aa0000002c01000001000000050000003601000090010000020000000500000058020000f40100000300000005000000e80300002c0100000400000005000000b80b0000000000000500000004000000701700006400000006000000000000080b000000050000000600000036010000640000000000000006000000580200002c0100000100000005000000e8030000000000000200000005000000b80b0000900100000300000005000000701700009001000004000000000000080c00000007000000010000003c000000f40100000000000005000000aa0000002c0100000100000006000000360100002c010000020000000600000058020000f40100000300000006000000e8030000c80000000400000005000000b80b0000c80000000500000003000000701700005802000006000000000000080d00000008000000020000003c000000c80000000000000006000000aa0000002c0100000100000006000000360100002c010000020000000600000058020000640000000300000005000000e80300002c0100000400000005000000b80b000090010000050000000500000070170000f40100000600000003000000e02e0000f401000007000000000000080e00000009000000010000003c0000002c0100000000000005000000aa0000006400000001000000060000003601000064000000020000000600000058020000c80000000300000006000000e8030000640000000400000005000000b80b0000c8000000050000000500000070170000900100000600000005000000e02e0000f40100000700000003000000b03600005802000008000000000000080f0000000900000001000000aa0000002c01000000000000050000003601000064000000010000000600000058020000640000000200000006000000e8030000c80000000300000006000000b80b00002c010000040000000600000070170000c80000000500000006000000e02e0000640000000600000006000000b0360000c80000000700000005000000803e00005802000008000000000000081000000008000000010000003c000000f40100000000000005000000aa0000002c01000001000000050000003601000000000000020000000600000058020000d4feffff0300000006000000e803000038ffffff0400000005000000b80b000000000000050000000500000070170000f40100000600000003000000e02e00005802000007000000"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00020f74",
+              "size": 100,
+              "sha256": "751a12affae362dfcfddfe85e9225cfb552d887a1ce91efacbbebc05a438ffe2",
+              "payload_hex": "02000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+            }
+          ]
+        },
+        {
+          "row_index": 1,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 3,
+              "value_hex": "0x00000003"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000100",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x0001b3b0",
+              "size": 8,
+              "sha256": "48a4a42f50e2d44ef29bb977df33248d00423b9d206c10b1347155d1a2ee491f",
+              "payload_hex": "0100000000000400"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x0001b3bc",
+              "size": 2236,
+              "sha256": "093ad0e6bdefe1c9d4ba184541c94887815957f57de99df76cf5444ca90966b8",
+              "payload_hex": "1200000000000008ffffffff010000000500000060ea0000000000000000000000000008000000000c000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000002000000000000000000000000000000030000000000000000000000000000000400000000000000000000000000000005000000000000000000000000000000060000000000000000000000000000000700000000000000000000000000000008000000000000000000000000000000090000000000000000000000000000000a0000000000000000000000000000000b00000000000008010000000500000005000000360100002c010000000000000500000058020000900100000100000005000000e8030000900100000200000005000000b80b0000900100000300000005000000701700002c01000004000000000000080200000007000000010000003c000000f40100000000000005000000aa00000090010000010000000500000036010000c80000000200000006000000b80b00002c010000030000000600000070170000900100000400000006000000e02e0000900100000500000004000000b0360000c8000000060000000000000803000000060000000100000036010000580200000000000005000000580200002c0100000100000005000000e8030000640000000200000006000000b80b0000c80000000300000006000000701700002c0100000400000004000000e02e00008403000005000000000000080400000008000000010000003c000000900100000000000005000000aa0000002c01000001000000050000003601000000000000020000000600000058020000900100000300000006000000e80300002c0100000400000005000000b80b000064000000050000000500000070170000900100000600000003000000e02e000058020000070000000000000805000000050000000200000036010000580200000000000006000000580200002c0100000100000005000000e8030000c80000000200000005000000b80b000058020000030000000300000070170000840300000400000000000008060000000a000000010000003c0000002c0100000000000005000000aa000000580200000100000005000000360100002c010000020000000600000058020000c80000000300000006000000e8030000640000000400000005000000b80b0000640000000500000005000000701700002c0100000600000005000000e02e0000580200000700000005000000b0360000200300000800000003000000803e0000840300000900000000000008070000000700000001000000aa000000580200000000000005000000360100002c0100000100000005000000580200002c0100000200000005000000e8030000000000000300000006000000b80b00002c0100000400000006000000701700002c0100000500000006000000e02e00002c0100000600000000000008080000000a000000020000003c0000002c0100000000000005000000aa00000000000000010000000500000036010000c8000000020000000500000058020000c80000000300000005000000e80300002c0100000400000005000000b80b00002c0100000500000005000000701700002c0100000600000005000000e02e0000c80000000700000005000000b0360000c80000000800000003000000803e0000640000000900000000000008090000000200000001000000aa000000900100000000000003000000b03600009001000001000000000000080a00000007000000020000003c000000640000000000000005000000aa0000002c01000001000000050000003601000090010000020000000500000058020000f40100000300000005000000e80300002c0100000400000005000000b80b0000000000000500000004000000701700006400000006000000000000080b000000050000000600000036010000640000000000000006000000580200002c0100000100000005000000e8030000000000000200000005000000b80b0000900100000300000005000000701700009001000004000000000000080c00000007000000010000003c000000f40100000000000005000000aa0000002c0100000100000006000000360100002c010000020000000600000058020000f40100000300000006000000e8030000c80000000400000005000000b80b0000c80000000500000003000000701700005802000006000000000000080d00000008000000020000003c000000c80000000000000006000000aa0000002c0100000100000006000000360100002c010000020000000600000058020000640000000300000005000000e80300002c0100000400000005000000b80b000090010000050000000500000070170000f40100000600000003000000e02e0000f401000007000000000000080e00000009000000010000003c0000002c0100000000000005000000aa0000006400000001000000060000003601000064000000020000000600000058020000c80000000300000006000000e8030000640000000400000005000000b80b0000c8000000050000000500000070170000900100000600000005000000e02e0000f40100000700000003000000b03600005802000008000000000000080f0000000900000001000000aa0000002c01000000000000050000003601000064000000010000000600000058020000640000000200000006000000e8030000c80000000300000006000000b80b00002c010000040000000600000070170000c80000000500000006000000e02e0000640000000600000006000000b0360000c80000000700000005000000803e00005802000008000000000000081000000008000000010000003c000000f40100000000000005000000aa0000002c01000001000000050000003601000000000000020000000600000058020000d4feffff0300000006000000e803000038ffffff0400000005000000b80b000000000000050000000500000070170000f40100000600000003000000e02e00005802000007000000"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        },
+        {
+          "row_index": 2,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 8,
+              "value_hex": "0x00000008"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000120",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x00003ebc",
+              "size": 4,
+              "sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+              "payload_hex": "ffffffff"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        },
+        {
+          "row_index": 3,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 10,
+              "value_hex": "0x0000000a"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000120",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x00003ebc",
+              "size": 4,
+              "sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+              "payload_hex": "ffffffff"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        },
+        {
+          "row_index": 4,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 11,
+              "value_hex": "0x0000000b"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000120",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x00003ebc",
+              "size": 4,
+              "sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+              "payload_hex": "ffffffff"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        },
+        {
+          "row_index": 5,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 12,
+              "value_hex": "0x0000000c"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000120",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x00003ebc",
+              "size": 4,
+              "sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+              "payload_hex": "ffffffff"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        },
+        {
+          "row_index": 6,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 14,
+              "value_hex": "0x0000000e"
+            }
+          ],
+          "gcde_offset": "0x00000064",
+          "gcdo_offset": "0x00000140",
+          "params": [
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        },
+        {
+          "row_index": 7,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 15,
+              "value_hex": "0x0000000f"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000120",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x00003ebc",
+              "size": 4,
+              "sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+              "payload_hex": "ffffffff"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 9,
+      "module_id": "0x08000042",
+      "gckt_schema_offset": "0x0000002c",
+      "gcdt_offset": "0x0000024c",
+      "key_ids": [
+        "0x0100000d"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 2,
+              "value_hex": "0x00000002"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000148",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x00019630",
+              "size": 16,
+              "sha256": "b360b427bf3619f619dbaa1ac0c3db9a7bda2f8d1d9c80025762ab5c9766907f",
+              "payload_hex": "03000000000001000000020000000300"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x00003ebc",
+              "size": 4,
+              "sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+              "payload_hex": "ffffffff"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        },
+        {
+          "row_index": 1,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 4,
+              "value_hex": "0x00000004"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000168",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00021564",
+              "size": 96,
+              "sha256": "62d958f300ef59a85e20b48ea3751c52bc82d526c9f59bae476c3a414d245edc",
+              "payload_hex": "01000000000000000000000000000000000000000100000001000000000000000100000001000000000000000100000000000000010000000100000000000000010000000000ff7f000000000000000001000000020000000300000004000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x0001961c",
+              "size": 12,
+              "sha256": "836fc1a2dd673a052cd51dc8add5b61f29820e4c1b8f04a9f1f3e18923cbdf7b",
+              "payload_hex": "020000000000010000000200"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x00003ebc",
+              "size": 4,
+              "sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+              "payload_hex": "ffffffff"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x000215c8",
+              "size": 100,
+              "sha256": "3227a1931ccaa866fb1f65805c54bb7be5cda2103cae034bb6e16647b406ba31",
+              "payload_hex": "020000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020002000000070002000c0002000000000000000000000000000000000000000000000000000000000000000000"
+            }
+          ]
+        },
+        {
+          "row_index": 2,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 5,
+              "value_hex": "0x00000005"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000188",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00020f10",
+              "size": 96,
+              "sha256": "db5e0a8e46dc233d0dc41263dffc1e03484bcf4eaa78df30b06db8e1431c7bac",
+              "payload_hex": "01000000000000000000000000000000000000000100000001000000000000000100000001000000000000000100000000000000010000000100000000000000010000000000ff7f010000000000000001000000020000000300000004000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x00019630",
+              "size": 16,
+              "sha256": "b360b427bf3619f619dbaa1ac0c3db9a7bda2f8d1d9c80025762ab5c9766907f",
+              "payload_hex": "03000000000001000000020000000300"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x00003ebc",
+              "size": 4,
+              "sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+              "payload_hex": "ffffffff"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00020fe0",
+              "size": 148,
+              "sha256": "64a9abac5916e3e38e0f3f518b0a5d844bb84ef4472e592cf059cd6b3eb3f871",
+              "payload_hex": "030000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020002000000070002000c0002000000000000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+            }
+          ]
+        },
+        {
+          "row_index": 3,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 9,
+              "value_hex": "0x00000009"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000120",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x00003ebc",
+              "size": 4,
+              "sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+              "payload_hex": "ffffffff"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        },
+        {
+          "row_index": 4,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 13,
+              "value_hex": "0x0000000d"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000120",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x00003ebc",
+              "size": 4,
+              "sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+              "payload_hex": "ffffffff"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        },
+        {
+          "row_index": 5,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 16,
+              "value_hex": "0x00000010"
+            }
+          ],
+          "gcde_offset": "0x00000044",
+          "gcdo_offset": "0x00000120",
+          "params": [
+            {
+              "param_id": "0x08000043",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000044",
+              "pool_offset": "0x0001b38c",
+              "size": 32,
+              "sha256": "5e4ffd7d196e150659e625599778aa9c37538bb184fce71b42b1d5b339f2aeec",
+              "payload_hex": "0100000000000000010000000000000001000000000000000100000000000000"
+            },
+            {
+              "param_id": "0x08000045",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000046",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000047",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000048",
+              "pool_offset": "0x00003ebc",
+              "size": 4,
+              "sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+              "payload_hex": "ffffffff"
+            },
+            {
+              "param_id": "0x08000049",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 10,
+      "module_id": "0x08000050",
+      "gckt_schema_offset": "0x00000018",
+      "gcdt_offset": "0x0000029c",
+      "key_ids": [
+        "0x01000006"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 12,
+              "value_hex": "0x0000000c"
+            }
+          ],
+          "gcde_offset": "0x0000006c",
+          "gcdo_offset": "0x000001a8",
+          "params": [
+            {
+              "param_id": "0x08000051",
+              "pool_offset": "0x0001fe08",
+              "size": 32,
+              "sha256": "237c7d87e01d52200e5f969dc4500deb85d82ec0113497d090b0ede678c994a5",
+              "payload_hex": "01000000b4000000140000009001000003000000010000000200000003000000"
+            },
+            {
+              "param_id": "0x08000052",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 11,
+      "module_id": "0x08000050",
+      "gckt_schema_offset": "0x0000002c",
+      "gcdt_offset": "0x000002b0",
+      "key_ids": [
+        "0x0100000d"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x0100000d",
+              "name": "capture_endpoint",
+              "value": 13,
+              "value_hex": "0x0000000d"
+            }
+          ],
+          "gcde_offset": "0x0000006c",
+          "gcdo_offset": "0x000001b4",
+          "params": [
+            {
+              "param_id": "0x08000051",
+              "pool_offset": "0x00003f40",
+              "size": 4,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "payload_hex": "00000000"
+            },
+            {
+              "param_id": "0x08000052",
+              "pool_offset": "0x0001fe2c",
+              "size": 32,
+              "sha256": "41bed5a75f292597c35e44df09bb8e16b05f91ab23abac85d6f385d1a9864a64",
+              "payload_hex": "0100000034000000140000009001000003000000010000000200000003000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 12,
+      "module_id": "0x08000060",
+      "gckt_schema_offset": "0x00000038",
+      "gcdt_offset": "0x000002c4",
+      "key_ids": [
+        "0x01000029"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x01000029",
+              "name": "dsp_gpio_resource",
+              "value": 0,
+              "value_hex": "0x00000000"
+            }
+          ],
+          "gcde_offset": "0x00000078",
+          "gcdo_offset": "0x000001c0",
+          "params": [
+            {
+              "param_id": "0x08000061",
+              "pool_offset": "0x00019644",
+              "size": 76,
+              "sha256": "bebc6a71abacb64024c3754ca2ce5d71730fb82a1da963f7031a09aa970152a1",
+              "payload_hex": "03000000030000000100000001000000000000000000000000000000040000000100000001000000000000000200000000000000050000000100000001000000000000000200000000000000"
+            },
+            {
+              "param_id": "0x08000062",
+              "pool_offset": "0x00019698",
+              "size": 76,
+              "sha256": "7caa99143805af6d48c1ac2b1b16da50c924a8880eb4c0b068b0c209a80f8e8e",
+              "payload_hex": "03000000030000000100000001000000000000000100000000000000040000000100000001000000000000000100000000000000050000000100000001000000000000000100000000000000"
+            }
+          ]
+        },
+        {
+          "row_index": 1,
+          "keys": [
+            {
+              "key_id": "0x01000029",
+              "name": "dsp_gpio_resource",
+              "value": 1,
+              "value_hex": "0x00000001"
+            }
+          ],
+          "gcde_offset": "0x00000078",
+          "gcdo_offset": "0x000001cc",
+          "params": [
+            {
+              "param_id": "0x08000061",
+              "pool_offset": "0x000196ec",
+              "size": 76,
+              "sha256": "0405e0b9f61fb6da4719fd5b25af5a78488a64f7e1f608816f9b54a4f6a26f35",
+              "payload_hex": "03000000000000000100000001000000000000000000000000000000010000000100000001000000000000000200000000000000020000000100000001000000000000000200000000000000"
+            },
+            {
+              "param_id": "0x08000062",
+              "pool_offset": "0x00019740",
+              "size": 76,
+              "sha256": "3240ad6fcb700f622d7d3b3161503efb32350c847bdc146252d6f53204368ee2",
+              "payload_hex": "03000000000000000100000001000000000000000100000000000000010000000100000001000000000000000100000000000000020000000100000001000000000000000100000000000000"
+            }
+          ]
+        },
+        {
+          "row_index": 2,
+          "keys": [
+            {
+              "key_id": "0x01000029",
+              "name": "dsp_gpio_resource",
+              "value": 2,
+              "value_hex": "0x00000002"
+            }
+          ],
+          "gcde_offset": "0x00000078",
+          "gcdo_offset": "0x000001d8",
+          "params": [
+            {
+              "param_id": "0x08000061",
+              "pool_offset": "0x00019794",
+              "size": 52,
+              "sha256": "ea3ac0c2dda6f4f364dc46cbd95283ca555ca28ca67ea4d119180bf0374c9936",
+              "payload_hex": "020000000a00000001000000020000000000000000000000000000000b0000000100000002000000000000000200000000000000"
+            },
+            {
+              "param_id": "0x08000062",
+              "pool_offset": "0x000197d0",
+              "size": 52,
+              "sha256": "16daf42715f0fe048af1829affceaa0b3f7ef9511fe2625b367a68e1eb2726b0",
+              "payload_hex": "020000000a00000001000000010000000000000001000000000000000b0000000100000001000000000000000100000000000000"
+            }
+          ]
+        },
+        {
+          "row_index": 3,
+          "keys": [
+            {
+              "key_id": "0x01000029",
+              "name": "dsp_gpio_resource",
+              "value": 3,
+              "value_hex": "0x00000003"
+            }
+          ],
+          "gcde_offset": "0x00000078",
+          "gcdo_offset": "0x000001e4",
+          "params": [
+            {
+              "param_id": "0x08000061",
+              "pool_offset": "0x0001980c",
+              "size": 52,
+              "sha256": "9ce98689fafcd4cdfc5d034c31d5959de2417fc8a48071ac92788c35e10aa4d1",
+              "payload_hex": "02000000060000000100000001000000010000000100000003000000070000000100000001000000000000000100000003000000"
+            },
+            {
+              "param_id": "0x08000062",
+              "pool_offset": "0x00019848",
+              "size": 52,
+              "sha256": "0f64fbea65cb04921d131b057d62acf06d2f0611cc79cfcf4a4217b615aeba62",
+              "payload_hex": "02000000060000000100000001000000010000000100000000000000070000000100000001000000000000000100000000000000"
+            }
+          ]
+        },
+        {
+          "row_index": 4,
+          "keys": [
+            {
+              "key_id": "0x01000029",
+              "name": "dsp_gpio_resource",
+              "value": 4,
+              "value_hex": "0x00000004"
+            }
+          ],
+          "gcde_offset": "0x00000078",
+          "gcdo_offset": "0x000001f0",
+          "params": [
+            {
+              "param_id": "0x08000061",
+              "pool_offset": "0x00019884",
+              "size": 52,
+              "sha256": "4f7954f83d2ad8825746d5258d22402a47010d1a1917ad30ab6f2d2c6e0e3370",
+              "payload_hex": "02000000080000000100000001000000010000000100000003000000090000000100000001000000000000000100000003000000"
+            },
+            {
+              "param_id": "0x08000062",
+              "pool_offset": "0x000198c0",
+              "size": 52,
+              "sha256": "0bc71262263fdaa189d29831a4e9a98e2660d9f9fafdd0062080bed7734e82af",
+              "payload_hex": "02000000080000000100000001000000010000000100000000000000090000000100000001000000000000000100000000000000"
+            }
+          ]
+        },
+        {
+          "row_index": 5,
+          "keys": [
+            {
+              "key_id": "0x01000029",
+              "name": "dsp_gpio_resource",
+              "value": 5,
+              "value_hex": "0x00000005"
+            }
+          ],
+          "gcde_offset": "0x00000078",
+          "gcdo_offset": "0x000001fc",
+          "params": [
+            {
+              "param_id": "0x08000061",
+              "pool_offset": "0x000198fc",
+              "size": 52,
+              "sha256": "b3f74dc23c1ad479bb98b50b61bb7a4447f143f9be7a40eaeb200cf72c672640",
+              "payload_hex": "020000000c00000001000000010000000100000001000000030000000d0000000100000001000000000000000100000003000000"
+            },
+            {
+              "param_id": "0x08000062",
+              "pool_offset": "0x00019938",
+              "size": 52,
+              "sha256": "978f6207e076ed7dffb01681a2c429cf189afc43490882f60da3adb1cfff7589",
+              "payload_hex": "020000000c00000001000000010000000100000001000000000000000d0000000100000001000000000000000100000000000000"
+            }
+          ]
+        },
+        {
+          "row_index": 6,
+          "keys": [
+            {
+              "key_id": "0x01000029",
+              "name": "dsp_gpio_resource",
+              "value": 6,
+              "value_hex": "0x00000006"
+            }
+          ],
+          "gcde_offset": "0x00000078",
+          "gcdo_offset": "0x00000208",
+          "params": [
+            {
+              "param_id": "0x08000061",
+              "pool_offset": "0x00019974",
+              "size": 52,
+              "sha256": "892d622222d6528afea98e4d6a48a4781dbbacca93376ac0378e7bc62b4f1ffe",
+              "payload_hex": "020000000f0000000100000002000000000000000000000004000000100000000100000002000000000000000200000004000000"
+            },
+            {
+              "param_id": "0x08000062",
+              "pool_offset": "0x000199b0",
+              "size": 52,
+              "sha256": "63487f60d722679b06406b811668b7f084cf854e7e399f02880601b2760101f0",
+              "payload_hex": "020000000f0000000100000001000000000000000100000000000000100000000100000001000000000000000100000000000000"
+            }
+          ]
+        },
+        {
+          "row_index": 7,
+          "keys": [
+            {
+              "key_id": "0x01000029",
+              "name": "dsp_gpio_resource",
+              "value": 7,
+              "value_hex": "0x00000007"
+            }
+          ],
+          "gcde_offset": "0x00000078",
+          "gcdo_offset": "0x00000214",
+          "params": [
+            {
+              "param_id": "0x08000061",
+              "pool_offset": "0x000199ec",
+              "size": 52,
+              "sha256": "08f3766568bbe3db9905080ec6e22a773387b02920a0bc6c18f7b0f6acdb0a60",
+              "payload_hex": "02000000110000000100000001000000010000000100000003000000120000000100000001000000000000000100000003000000"
+            },
+            {
+              "param_id": "0x08000062",
+              "pool_offset": "0x00019a28",
+              "size": 52,
+              "sha256": "c9233c79c10d2eb5781f1af575c8e0245bbb7aeeafc1b1d100a51e7d72aaee87",
+              "payload_hex": "02000000110000000100000001000000010000000100000000000000120000000100000001000000000000000100000000000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 13,
+      "module_id": "0x08000080",
+      "gckt_schema_offset": "0x00000018",
+      "gcdt_offset": "0x0000032c",
+      "key_ids": [
+        "0x01000006"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 15,
+              "value_hex": "0x0000000f"
+            }
+          ],
+          "gcde_offset": "0x00000084",
+          "gcdo_offset": "0x00000220",
+          "params": [
+            {
+              "param_id": "0x08000081",
+              "pool_offset": "0x0001fed4",
+              "size": 40,
+              "sha256": "cf8556a8ae2c6797ef500dd6e58a40a6831d1b033d96a6e2e9792e1cb773f668",
+              "payload_hex": "d7000000ad005008004b004b000000011000000f0203030300aa0000000000000000000000000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "record_index": 14,
+      "module_id": "0x08000090",
+      "gckt_schema_offset": "0x00000018",
+      "gcdt_offset": "0x00000340",
+      "key_ids": [
+        "0x01000006"
+      ],
+      "rows": [
+        {
+          "row_index": 0,
+          "keys": [
+            {
+              "key_id": "0x01000006",
+              "name": "render_endpoint",
+              "value": 1,
+              "value_hex": "0x00000001"
+            }
+          ],
+          "gcde_offset": "0x0000008c",
+          "gcdo_offset": "0x00000228",
+          "params": [
+            {
+              "param_id": "0x08000091",
+              "pool_offset": "0x000219f8",
+              "size": 24,
+              "sha256": "f1a3f896e492e5de594597a3b42823de236d6cc944f7f0fc9f58c9bf96447630",
+              "payload_hex": "010000000300000000000000040000000000000001000000"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
