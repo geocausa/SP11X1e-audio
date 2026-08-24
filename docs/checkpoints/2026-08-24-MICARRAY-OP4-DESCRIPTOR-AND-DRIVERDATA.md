@@ -110,7 +110,7 @@ triple 0:
 
 triple 1:
   0x00020000
-  0x01020001
+  0x01040001
   0x00000000
 ```
 
@@ -141,20 +141,19 @@ triple 1:
   0
 ```
 
-Therefore EP16 and EP2 share the second interface tuple exactly:
+The corrected little-endian u32 decode shows that EP16 and EP2 do **not** share an interface tuple. Instead each endpoint is entirely contained in a distinct interface-ID family:
 
 ```text
-0x00020000 -> 0x01020001
+EP16:
+  0x00020001 -> 0x01040000
+  0x00020000 -> 0x01040001
+
+EP2:
+  0x00020002 -> 0x01020000
+  0x00020000 -> 0x01020001
 ```
 
-but their first tuple differs:
-
-```text
-EP16: 0x00020001 -> 0x01040000
-EP2 : 0x00020002 -> 0x01020000
-```
-
-This is stronger evidence than treating EP16 as merely a loopback/reference graph. Its visible MicArray start path resolves into concrete hardware-interface driver data.
+This is stronger evidence than treating EP16 as merely a loopback/reference graph. Its visible MicArray start path resolves into concrete hardware-interface driver data, and the normal EP16 path is cleanly separated from the EP2 interface family.
 
 ## qcaucd interface-ID provider table
 
@@ -172,7 +171,20 @@ The type-0x0B qcaucd interface-ID table maps:
 0x01020003 -> provider index 11, mask 0x00000800
 ```
 
-All three lanes relevant to EP16/EP2 (`0`, `8`, `9`) are enabled by the live SP11 TCSR availability value `0xECBFFF9F`.
+All four lanes relevant to EP16/EP2 (`0`, `1`, `8`, `9`) are enabled by the live SP11 TCSR availability value `0xECBFFF9F`.
+
+## Provenance correction
+
+The first version of this checkpoint transcribed EP16 triple 1 as `0x01020001` by visually reading the raw payload hex rather than decoding each 4-byte field as little-endian u32. Re-decoding the canonical JSON payload word-for-word gives `0x01040001`.
+
+The corrected endpoint split is therefore exact and cleaner:
+
+```text
+EP16 -> 0x01040000, 0x01040001
+EP2  -> 0x01020000, 0x01020001
+```
+
+This correction was made immediately after detection; no runtime or Linux state depended on the incorrect transcription.
 
 ## Important model correction / open discriminator
 
