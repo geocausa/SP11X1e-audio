@@ -1,0 +1,303 @@
+From: SP11 audio reverse-engineering <sp11-audio@local>
+Date: Tue, 25 Aug 2026 16:20:00 +0100
+Subject: [PATCH] ASoC: q6apm: SP11 persist EP16 push endpoint graph
+
+The fresh Windows MicArray oracle shows EP16 is endpoint-owned, not
+application-owned. Its SH_MEM_PUSH_MODE graph remains started, and the
+position-page producer counter keeps advancing after the recording client
+exits. Recycling AudioSrv/EndpointBuilder does not create another EP16
+graph.
+
+Preserve the q6apm graph client for SH_MEM_PUSH_MODE capture
+across ALSA close. The persistent object owns the GPR port, APM graph,
+ring config and position page. Each ALSA open attaches a transient client
+through an RCU
+pointer. Close detaches it without sending GRAPH_STOP or GRAPH_CLOSE.
+Watermark delivery resolves only the current client, so no callback retains
+a freed substream.
+
+A later client reuses the running producer without resending ring config or
+resetting its position. The real STOP/CLOSE boundary moves to q6apm DAI
+removal. Persistent endpoints are quiesced before devres tears down the PCM
+component and fixed ring mapping.
+
+This is restricted to the Windows-derived SH_MEM_PUSH_MODE capture path. It
+does not change conventional RD_SHARED_MEM capture or protected render pull
+ownership.
+
+Signed-off-by: SP11 audio reverse-engineering <sp11-audio@local>
+---
+diff --git a/sound/soc/qcom/qdsp6/q6apm-dai.c b/sound/soc/qcom/qdsp6/q6apm-dai.c
+index 2ad5515..9e977bc 100644
+--- a/sound/soc/qcom/qdsp6/q6apm-dai.c
++++ b/sound/soc/qcom/qdsp6/q6apm-dai.c
+@@ -16,6 +16,7 @@
+ #include <linux/dma-mapping.h>
+ #include <linux/completion.h>
+ #include <linux/jiffies.h>
++#include <linux/rcupdate.h>
+ #include <sound/pcm_params.h>
+ #include "q6apm.h"
+ 
+@@ -65,6 +66,8 @@ static const struct snd_compr_codec_caps q6apm_compr_caps = {
+ 	.descriptor[0].formats = 0,
+ };
+ 
++struct q6apm_push_endpoint;
++
+ enum stream_state {
+ 	Q6APM_STREAM_IDLE = 0,
+ 	Q6APM_STREAM_STOPPED,
+@@ -89,6 +92,7 @@ struct q6apm_dai_rtd {
+ 	bool next_track;
+ 	enum stream_state state;
+ 	struct q6apm_graph *graph;
++	struct q6apm_push_endpoint *push_endpoint;
+ 	spinlock_t lock;
+ 	bool notify_on_drain;
+ 	bool soft_paused;
+@@ -96,8 +100,18 @@ struct q6apm_dai_rtd {
+ 	struct completion soft_resume_done;
+ };
+ 
++struct q6apm_push_endpoint {
++	int graph_id;
++	struct q6apm_graph *graph;
++	struct q6apm_dai_rtd __rcu *client;
++	bool configured;
++	struct list_head node;
++};
++
+ struct q6apm_dai_data {
+ 	long long sid;
++	struct mutex push_lock;
++	struct list_head push_endpoints;
+ };
+ 
+ static const struct snd_pcm_hardware q6apm_dai_hardware_capture = {
+@@ -188,6 +202,55 @@ static const struct snd_pcm_hardware q6apm_dai_hardware_sp11_push = {
+ 	.fifo_size =		0,
+ };
+ 
++static struct q6apm_push_endpoint *
++q6apm_dai_find_push_endpoint(struct q6apm_dai_data *pdata, int graph_id)
++{
++	struct q6apm_push_endpoint *endpoint;
++
++	list_for_each_entry(endpoint, &pdata->push_endpoints, node)
++		if (endpoint->graph_id == graph_id)
++			return endpoint;
++
++	return NULL;
++}
++
++static void q6apm_dai_push_event_handler(uint32_t opcode, uint32_t token,
++					 void *payload, void *priv)
++{
++	struct q6apm_push_endpoint *endpoint = priv;
++	struct q6apm_dai_rtd *prtd;
++	struct snd_pcm_substream *substream;
++
++	if (opcode != APM_CLIENT_EVENT_PULL_WATERMARK)
++		return;
++
++	rcu_read_lock();
++	prtd = rcu_dereference(endpoint->client);
++	if (prtd && READ_ONCE(prtd->state) == Q6APM_STREAM_RUNNING) {
++		substream = READ_ONCE(prtd->substream);
++		if (substream)
++			snd_pcm_period_elapsed(substream);
++	}
++	rcu_read_unlock();
++}
++
++static void q6apm_dai_detach_push_client(struct q6apm_dai_data *pdata,
++					 struct q6apm_dai_rtd *prtd)
++{
++	struct q6apm_push_endpoint *endpoint = prtd->push_endpoint;
++
++	if (!endpoint)
++		return;
++
++	mutex_lock(&pdata->push_lock);
++	if (rcu_access_pointer(endpoint->client) == prtd)
++		rcu_assign_pointer(endpoint->client, NULL);
++	mutex_unlock(&pdata->push_lock);
++
++	synchronize_rcu();
++	prtd->push_endpoint = NULL;
++}
++
+ static void event_handler(uint32_t opcode, uint32_t token, void *payload, void *priv)
+ {
+ 	struct q6apm_dai_rtd *prtd = priv;
+@@ -299,11 +362,21 @@ static int q6apm_dai_prepare(struct snd_soc_component *component,
+ 	}
+ 
+ 	/*
+-	 * The SP11 pull endpoint is configured once for the lifetime of its
+-	 * graph.  ALSA may call prepare again on the same open stream, including
+-	 * after STOP.  Re-sending the pull-ring parameter is rejected by the DSP
+-	 * with AR_EALREADY, while the fixed 48 kHz stereo format cannot change.
+-	 * Keep the persistent graph running and only re-arm the host-side state.
++	 * Windows owns the EP16 push graph at endpoint lifetime, not application
++	 * lifetime.  A new ALSA client therefore reuses the already configured
++	 * and running graph without resending the circular-buffer parameter or
++	 * changing the DSP producer position.
++	 */
++	if (prtd->graph->push_mode && prtd->push_endpoint &&
++	    READ_ONCE(prtd->push_endpoint->configured)) {
++		prtd->state = Q6APM_STREAM_RUNNING;
++		dev_info(dev, "SP11 EP16 rebound to persistent push graph\n");
++		return 0;
++	}
++
++	/*
++	 * Circular endpoints are configured once for a given open stream. ALSA
++	 * may call prepare again after STOP; do not duplicate ring setup.
+ 	 */
+ 	if ((prtd->graph->pull_mode || prtd->graph->push_mode) &&
+ 	    prtd->state != Q6APM_STREAM_IDLE) {
+@@ -373,6 +446,9 @@ static int q6apm_dai_prepare(struct snd_soc_component *component,
+ 		return ret;
+ 	}
+ 
++	if (prtd->graph->push_mode && prtd->push_endpoint)
++		WRITE_ONCE(prtd->push_endpoint->configured, true);
++
+ 	if (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
+ 	    !prtd->graph->push_mode) {
+ 		int i;
+@@ -547,11 +623,49 @@ static int q6apm_dai_open(struct snd_soc_component *component,
+ 	init_completion(&prtd->soft_pause_done);
+ 	init_completion(&prtd->soft_resume_done);
+ 	prtd->substream = substream;
+-	prtd->graph = q6apm_graph_open(dev, event_handler, prtd, graph_id, substream->stream);
+-	if (IS_ERR(prtd->graph)) {
+-		dev_err(dev, "%s: Could not allocate memory\n", __func__);
+-		ret = PTR_ERR(prtd->graph);
+-		goto err;
++
++	if (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
++	    q6apm_graph_is_push_mode(dev, graph_id)) {
++		struct q6apm_push_endpoint *endpoint;
++
++		mutex_lock(&pdata->push_lock);
++		endpoint = q6apm_dai_find_push_endpoint(pdata, graph_id);
++		if (!endpoint) {
++			endpoint = kzalloc_obj(*endpoint);
++			if (!endpoint) {
++				mutex_unlock(&pdata->push_lock);
++				ret = -ENOMEM;
++				goto err;
++			}
++			endpoint->graph_id = graph_id;
++			endpoint->graph = q6apm_graph_open(
++				dev, q6apm_dai_push_event_handler, endpoint,
++				graph_id, substream->stream);
++			if (IS_ERR(endpoint->graph)) {
++				ret = PTR_ERR(endpoint->graph);
++				kfree(endpoint);
++				mutex_unlock(&pdata->push_lock);
++				goto err;
++			}
++			list_add_tail(&endpoint->node, &pdata->push_endpoints);
++		}
++		if (rcu_access_pointer(endpoint->client)) {
++			mutex_unlock(&pdata->push_lock);
++			ret = -EBUSY;
++			goto err;
++		}
++		prtd->graph = endpoint->graph;
++		prtd->push_endpoint = endpoint;
++		rcu_assign_pointer(endpoint->client, prtd);
++		mutex_unlock(&pdata->push_lock);
++	} else {
++		prtd->graph = q6apm_graph_open(
++			dev, event_handler, prtd, graph_id, substream->stream);
++		if (IS_ERR(prtd->graph)) {
++			dev_err(dev, "%s: Could not allocate memory\n", __func__);
++			ret = PTR_ERR(prtd->graph);
++			goto err;
++		}
+ 	}
+ 
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+@@ -606,6 +720,8 @@ static int q6apm_dai_open(struct snd_soc_component *component,
+ 
+ 	return 0;
+ err:
++	if (prtd->push_endpoint)
++		q6apm_dai_detach_push_client(pdata, prtd);
+ 	kfree(prtd);
+ 
+ 	return ret;
+@@ -616,6 +732,16 @@ static int q6apm_dai_close(struct snd_soc_component *component,
+ {
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+ 	struct q6apm_dai_rtd *prtd = runtime->private_data;
++	struct q6apm_dai_data *pdata = snd_soc_component_get_drvdata(component);
++
++	if (prtd->graph->push_mode && prtd->push_endpoint) {
++		WRITE_ONCE(prtd->state, Q6APM_STREAM_STOPPED);
++		q6apm_dai_detach_push_client(pdata, prtd);
++		prtd->graph = NULL;
++		kfree(prtd);
++		runtime->private_data = NULL;
++		return 0;
++	}
+ 
+ 	if (prtd->state) {
+ 		/* only stop graph that is started */
+@@ -1160,6 +1286,9 @@ static int q6apm_dai_probe(struct platform_device *pdev)
+ 	if (!pdata)
+ 		return -ENOMEM;
+ 
++	mutex_init(&pdata->push_lock);
++	INIT_LIST_HEAD(&pdata->push_endpoints);
++
+ 	rc = of_parse_phandle_with_fixed_args(node, "iommus", 1, 0, &args);
+ 	if (rc < 0)
+ 		pdata->sid = -1;
+@@ -1171,6 +1300,33 @@ static int q6apm_dai_probe(struct platform_device *pdev)
+ 	return devm_snd_soc_register_component(dev, &q6apm_fe_dai_component, NULL, 0);
+ }
+ 
++static void q6apm_dai_remove(struct platform_device *pdev)
++{
++	struct q6apm_dai_data *pdata = dev_get_drvdata(&pdev->dev);
++	struct q6apm_push_endpoint *endpoint, *tmp;
++	LIST_HEAD(cleanup);
++
++	if (!pdata)
++		return;
++
++	mutex_lock(&pdata->push_lock);
++	list_for_each_entry(endpoint, &pdata->push_endpoints, node)
++		rcu_assign_pointer(endpoint->client, NULL);
++	list_splice_init(&pdata->push_endpoints, &cleanup);
++	mutex_unlock(&pdata->push_lock);
++
++	synchronize_rcu();
++	list_for_each_entry_safe(endpoint, tmp, &cleanup, node) {
++		list_del(&endpoint->node);
++		if (endpoint->graph) {
++			if (READ_ONCE(endpoint->graph->ar_graph->start_count) > 0)
++				q6apm_graph_stop(endpoint->graph);
++			q6apm_graph_close(endpoint->graph);
++		}
++		kfree(endpoint);
++	}
++}
++
+ #ifdef CONFIG_OF
+ static const struct of_device_id q6apm_dai_device_id[] = {
+ 	{ .compatible = "qcom,q6apm-dais" },
+@@ -1185,6 +1341,7 @@ static struct platform_driver q6apm_dai_platform_driver = {
+ 		.of_match_table = of_match_ptr(q6apm_dai_device_id),
+ 	},
+ 	.probe = q6apm_dai_probe,
++	.remove = q6apm_dai_remove,
+ };
+ module_platform_driver(q6apm_dai_platform_driver);
+ 
