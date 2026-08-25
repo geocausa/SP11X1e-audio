@@ -1,0 +1,127 @@
+Opened log file 'C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\row5-caller-20260825_22f4_2026-08-25_09-33-58-521.log'
+     0 e Disable Clear  fffff802`381507a8     0001 (0001) qcadcm8380+0x307a8 ".if (@x0 != 0xacdb0017) { gc } .else { r @$t2=poi(@x1+8); .if ((dwo(@$t2+4)==2)&(dwo(@$t2+0xc)==2)&(dwo(@$t2+0x14)==1)&(dwo(@$t2+0x1c)==2)&(dwo(@$t2+0x24)==2)&(dwo(@$t2+0x2c)==0x10)) { .echo ===== ROW5_CALL =====; .printf \"hit=%d lr=%p vec=%p\\n\",@$t0,@lr,@$t2; k L18; r @$t0=@$t0+1; gc } .else { gc } }"
+
+===== ROW5_CALL =====
+hit=0 lr=fffff8023817ef10 vec=ffff988112078a90
+ # Child-SP          RetAddr               Call Site
+00 ffffed8e`809bfdf0 fffff802`3817ef10     qcadcm8380+0x307a8
+01 ffffed8e`809bfdf0 fffff802`381b4da4     qcadcm8380+0x5ef10
+02 ffffed8e`809bfe10 fffff802`381b53a4     qcadcm8380+0x94da4
+03 ffffed8e`809bfe50 fffff802`381b8ecc     qcadcm8380+0x953a4
+04 ffffed8e`809bfe80 fffff802`38187b38     qcadcm8380+0x98ecc
+05 ffffed8e`809bfee0 fffff802`38189528     qcadcm8380+0x67b38
+06 ffffed8e`809bffe0 fffff802`3784cf1c     qcadcm8380+0x69528
+07 ffffed8e`809c00d0 fffff802`3784f1ac     qcaucd8380+0x4cf1c
+08 ffffed8e`809c0490 fffff802`3d162588     qcaucd8380+0x4f1ac
+09 ffffed8e`809c0970 fffff802`3d15df18     qcasd8380+0x32588
+0a ffffed8e`809c09c0 fffff802`3d15e6d0     qcasd8380+0x2df18
+0b ffffed8e`809c0a60 fffff802`3d132388     qcasd8380+0x2e6d0
+0c ffffed8e`809c0aa0 fffff802`3d138860     qcasd8380+0x2388
+0d ffffed8e`809c0ad0 fffff802`3884d744     qcasd8380+0x8860
+0e ffffed8e`809c0af0 fffff802`3898238c     nt!IopProcessWorkItem+0x174
+0f ffffed8e`809c0b60 fffff802`388f54dc     nt!ExpWorkerThread+0x54c
+10 ffffed8e`809c0d30 fffff802`38c31744     nt!PspSystemThreadStartup+0x7c
+11 ffffed8e`809c0d90 00000000`00000000     nt!KiStartSystemThread+0x24
+===== ROW5_CALL =====
+hit=1 lr=fffff8023817ef10 vec=ffff988112078a90
+ # Child-SP          RetAddr               Call Site
+00 ffffed8e`809bfdf0 fffff802`3817ef10     qcadcm8380+0x307a8
+01 ffffed8e`809bfdf0 fffff802`381b4e00     qcadcm8380+0x5ef10
+02 ffffed8e`809bfe10 fffff802`381b53a4     qcadcm8380+0x94e00
+03 ffffed8e`809bfe50 fffff802`381b8ecc     qcadcm8380+0x953a4
+04 ffffed8e`809bfe80 fffff802`38187b38     qcadcm8380+0x98ecc
+05 ffffed8e`809bfee0 fffff802`38189528     qcadcm8380+0x67b38
+06 ffffed8e`809bffe0 fffff802`3784cf1c     qcadcm8380+0x69528
+07 ffffed8e`809c00d0 fffff802`3784f1ac     qcaucd8380+0x4cf1c
+08 ffffed8e`809c0490 fffff802`3d162588     qcaucd8380+0x4f1ac
+09 ffffed8e`809c0970 fffff802`3d15df18     qcasd8380+0x32588
+0a ffffed8e`809c09c0 fffff802`3d15e6d0     qcasd8380+0x2df18
+0b ffffed8e`809c0a60 fffff802`3d132388     qcasd8380+0x2e6d0
+0c ffffed8e`809c0aa0 fffff802`3d138860     qcasd8380+0x2388
+0d ffffed8e`809c0ad0 fffff802`3884d744     qcasd8380+0x8860
+0e ffffed8e`809c0af0 fffff802`3898238c     nt!IopProcessWorkItem+0x174
+0f ffffed8e`809c0b60 fffff802`388f54dc     nt!ExpWorkerThread+0x54c
+10 ffffed8e`809c0d30 fffff802`38c31744     nt!PspSystemThreadStartup+0x7c
+11 ffffed8e`809c0d90 00000000`00000000     nt!KiStartSystemThread+0x24
+===== ROW5_CALL =====
+hit=2 lr=fffff8023817ef10 vec=ffff988112078a90
+ # Child-SP          RetAddr               Call Site
+00 ffffed8e`809bfdf0 fffff802`3817ef10     qcadcm8380+0x307a8
+01 ffffed8e`809bfdf0 fffff802`381b4da4     qcadcm8380+0x5ef10
+02 ffffed8e`809bfe10 fffff802`381b53a4     qcadcm8380+0x94da4
+03 ffffed8e`809bfe50 fffff802`381b8ee0     qcadcm8380+0x953a4
+04 ffffed8e`809bfe80 fffff802`38187b38     qcadcm8380+0x98ee0
+05 ffffed8e`809bfee0 fffff802`38189528     qcadcm8380+0x67b38
+06 ffffed8e`809bffe0 fffff802`3784cf1c     qcadcm8380+0x69528
+07 ffffed8e`809c00d0 fffff802`3784f1ac     qcaucd8380+0x4cf1c
+08 ffffed8e`809c0490 fffff802`3d162588     qcaucd8380+0x4f1ac
+09 ffffed8e`809c0970 fffff802`3d15df18     qcasd8380+0x32588
+0a ffffed8e`809c09c0 fffff802`3d15e6d0     qcasd8380+0x2df18
+0b ffffed8e`809c0a60 fffff802`3d132388     qcasd8380+0x2e6d0
+0c ffffed8e`809c0aa0 fffff802`3d138860     qcasd8380+0x2388
+0d ffffed8e`809c0ad0 fffff802`3884d744     qcasd8380+0x8860
+0e ffffed8e`809c0af0 fffff802`3898238c     nt!IopProcessWorkItem+0x174
+0f ffffed8e`809c0b60 fffff802`388f54dc     nt!ExpWorkerThread+0x54c
+10 ffffed8e`809c0d30 fffff802`38c31744     nt!PspSystemThreadStartup+0x7c
+11 ffffed8e`809c0d90 00000000`00000000     nt!KiStartSystemThread+0x24
+===== ROW5_CALL =====
+hit=3 lr=fffff8023817ef10 vec=ffff988112078a90
+ # Child-SP          RetAddr               Call Site
+00 ffffed8e`809bfdf0 fffff802`3817ef10     qcadcm8380+0x307a8
+01 ffffed8e`809bfdf0 fffff802`381b4e00     qcadcm8380+0x5ef10
+02 ffffed8e`809bfe10 fffff802`381b53a4     qcadcm8380+0x94e00
+03 ffffed8e`809bfe50 fffff802`381b8ee0     qcadcm8380+0x953a4
+04 ffffed8e`809bfe80 fffff802`38187b38     qcadcm8380+0x98ee0
+05 ffffed8e`809bfee0 fffff802`38189528     qcadcm8380+0x67b38
+06 ffffed8e`809bffe0 fffff802`3784cf1c     qcadcm8380+0x69528
+07 ffffed8e`809c00d0 fffff802`3784f1ac     qcaucd8380+0x4cf1c
+08 ffffed8e`809c0490 fffff802`3d162588     qcaucd8380+0x4f1ac
+09 ffffed8e`809c0970 fffff802`3d15df18     qcasd8380+0x32588
+0a ffffed8e`809c09c0 fffff802`3d15e6d0     qcasd8380+0x2df18
+0b ffffed8e`809c0a60 fffff802`3d132388     qcasd8380+0x2e6d0
+0c ffffed8e`809c0aa0 fffff802`3d138860     qcasd8380+0x2388
+0d ffffed8e`809c0ad0 fffff802`3884d744     qcasd8380+0x8860
+0e ffffed8e`809c0af0 fffff802`3898238c     nt!IopProcessWorkItem+0x174
+0f ffffed8e`809c0b60 fffff802`388f54dc     nt!ExpWorkerThread+0x54c
+10 ffffed8e`809c0d30 fffff802`38c31744     nt!PspSystemThreadStartup+0x7c
+11 ffffed8e`809c0d90 00000000`00000000     nt!KiStartSystemThread+0x24
+===== ROW5_CALL =====
+hit=4 lr=fffff8023817ef10 vec=ffff988112078a90
+ # Child-SP          RetAddr               Call Site
+00 ffffed8e`809bfdf0 fffff802`3817ef10     qcadcm8380+0x307a8
+01 ffffed8e`809bfdf0 fffff802`381b4da4     qcadcm8380+0x5ef10
+02 ffffed8e`809bfe10 fffff802`381b53a4     qcadcm8380+0x94da4
+03 ffffed8e`809bfe50 fffff802`381b8f3c     qcadcm8380+0x953a4
+04 ffffed8e`809bfe80 fffff802`38187b38     qcadcm8380+0x98f3c
+05 ffffed8e`809bfee0 fffff802`38189528     qcadcm8380+0x67b38
+06 ffffed8e`809bffe0 fffff802`3784cf1c     qcadcm8380+0x69528
+07 ffffed8e`809c00d0 fffff802`3784f1ac     qcaucd8380+0x4cf1c
+08 ffffed8e`809c0490 fffff802`3d162588     qcaucd8380+0x4f1ac
+09 ffffed8e`809c0970 fffff802`3d15df18     qcasd8380+0x32588
+0a ffffed8e`809c09c0 fffff802`3d15e6d0     qcasd8380+0x2df18
+0b ffffed8e`809c0a60 fffff802`3d132388     qcasd8380+0x2e6d0
+0c ffffed8e`809c0aa0 fffff802`3d138860     qcasd8380+0x2388
+0d ffffed8e`809c0ad0 fffff802`3884d744     qcasd8380+0x8860
+0e ffffed8e`809c0af0 fffff802`3898238c     nt!IopProcessWorkItem+0x174
+0f ffffed8e`809c0b60 fffff802`388f54dc     nt!ExpWorkerThread+0x54c
+10 ffffed8e`809c0d30 fffff802`38c31744     nt!PspSystemThreadStartup+0x7c
+11 ffffed8e`809c0d90 00000000`00000000     nt!KiStartSystemThread+0x24
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`388013b0 d43e0000 brk         #0xF000
+0: kd> bc *; .logclose; .echo === F_5EF10 ===; uf qcadcm8380+0x5ef10; .echo === AROUND_94D80 ===; u qcadcm8380+0x94d60 L80; .echo === AROUND_95340 ===; u qcadcm8380+0x95320 L80; .echo === AROUND_98E80 ===; u qcadcm8380+0x98e80 L100
+Closing open log file C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\row5-caller-20260825_22f4_2026-08-25_09-33-58-521.log

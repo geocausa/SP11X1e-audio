@@ -1,0 +1,91 @@
+﻿{
+    "format":  "SP11 MicArray row5 hardware-interface discovery oracle",
+    "format_version":  1,
+    "finding":  "The EP16 row5 GKV is used as pre-open endpoint hardware-interface discovery context, not as a second graph-open.",
+    "row5_gkv":  {
+                     "0x01000008":  2,
+                     "0x01000009":  2,
+                     "0x0100000a":  1,
+                     "0x0100000b":  2,
+                     "0x0100000c":  2,
+                     "0x0100000d":  16
+                 },
+    "qcadcm":  {
+                   "acdb_get_graph_tag_key_vectors_opcode":  "0xacdb0017",
+                   "acdb_wrapper_rva":  "0x5eee8",
+                   "get_graph_tag_id_kvs_rva":  "0x94d60",
+                   "get_hw_if_type_rva":  "0x95378",
+                   "get_ep_hw_if_cfg_rva":  "0x98e28",
+                   "ep_hw_if_return_probe_rva":  "0x99034",
+                   "hw_interface_graph_key":  "0x01000012",
+                   "endpoint_hw_tag_family":  {
+                                                  "category1":  "0x04010003",
+                                                  "category2":  "0x04010004",
+                                                  "category3":  "0x04010005"
+                                              }
+               },
+    "row5_acdb_calls":  [
+                            {
+                                "hit":  0,
+                                "phase":  "size",
+                                "tag":  "0x04010003",
+                                "get_ep_hw_if_cfg_return_rva":  "0x98ecc"
+                            },
+                            {
+                                "hit":  1,
+                                "phase":  "fill",
+                                "tag":  "0x04010003",
+                                "get_ep_hw_if_cfg_return_rva":  "0x98ecc"
+                            },
+                            {
+                                "hit":  2,
+                                "phase":  "size",
+                                "tag":  "0x04010004",
+                                "get_ep_hw_if_cfg_return_rva":  "0x98ee0"
+                            },
+                            {
+                                "hit":  3,
+                                "phase":  "fill",
+                                "tag":  "0x04010004",
+                                "get_ep_hw_if_cfg_return_rva":  "0x98ee0"
+                            },
+                            {
+                                "hit":  4,
+                                "phase":  "size_probe_only",
+                                "tag":  "0x04010005",
+                                "get_ep_hw_if_cfg_return_rva":  "0x98f3c"
+                            }
+                        ],
+    "live_ep16_returns":  [
+                              {
+                                  "endpoint":  16,
+                                  "status":  0,
+                                  "EpHwIfType":  2,
+                                  "EpFxHwIfType":  0
+                              },
+                              {
+                                  "endpoint":  16,
+                                  "status":  0,
+                                  "EpHwIfType":  2,
+                                  "EpFxHwIfType":  0
+                              }
+                          ],
+    "interpretation":  {
+                           "ep_hw_if_type_2":  "qcadcm endpoint-hardware category 2 / graph selector value carried by key 0x01000012",
+                           "selected_tag":  "0x04010004",
+                           "selected_tagged_module":  {
+                                                          "subgraph":  "0xb0000041",
+                                                          "module_id":  "0x07001024",
+                                                          "iid":  "0x000040c8",
+                                                          "name":  "CODEC_DMA_SOURCE"
+                                                      },
+                           "ep_fx_hw_if_type_0":  "no separate endpoint-FX hardware-interface category selected for this MicArray path",
+                           "physical_lpaif_is_separate":  true,
+                           "physical_lpaif_note":  "Do not equate EpHwIfType=2 with PARAM_ID_CODEC_DMA_INTF_CFG.lpaif_type. Existing capture CODEC_DMA rows independently use physical lpaif_type=3/interface_index=1."
+                       },
+    "evidence":  {
+                     "raw_caller_log":  "artifacts/microphone-re-20260824/windows-oracle/runtime/2026-08-25-micarray-row5-hwif-caller-kd.log",
+                     "raw_caller_log_sha256":  "195f7264b9b66329c117cd676570dafe8ad49e5d09fd9eaea8dc0c7dbbd58bcd",
+                     "live_return_observation":  "Two non-blocking KD return-probe hits at qcadcm+0x99034 during an ordinary Windows MicArray capture."
+                 }
+}
