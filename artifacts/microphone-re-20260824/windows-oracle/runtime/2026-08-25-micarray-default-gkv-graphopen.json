@@ -1,0 +1,197 @@
+{
+  "acdb_command": {
+    "name": "AcdbCmdGetGraphTagKeyVectors",
+    "opcode": "0xacdb0017"
+  },
+  "date": "2026-08-25",
+  "distinct_graph_tag_key_vectors": [
+    {
+      "kv": {
+        "0x01000008": "0x00000002",
+        "0x01000009": "0x00000002",
+        "0x0100000a": "0x00000001",
+        "0x0100000b": "0x00000002",
+        "0x0100000c": "0x00000002",
+        "0x0100000d": "0x00000010"
+      },
+      "occurrences": 3
+    },
+    {
+      "kv": {
+        "0x01000008": "0x00000003",
+        "0x01000009": "0x00000001",
+        "0x0100000a": "0x00000001",
+        "0x0100000b": "0x00000003",
+        "0x0100000c": "0x00000001",
+        "0x0100000d": "0x00000010"
+      },
+      "occurrences": 6
+    }
+  ],
+  "evidence_class": "live Windows KDNET ordinary default MicArray capture; read-only observation",
+  "graph_open": {
+    "bytes_parsed": 1496,
+    "payload_sha256": "f5c112b8b45aea730e06650995574ff2f88c747685a080a2118a3a1aadd2d4bb",
+    "runtime_inter_subgraph_edges": [
+      {
+        "destination_iid": "0x000040bf",
+        "destination_port": 2,
+        "source_iid": "0x000040c7",
+        "source_port": 7,
+        "static_sclu_relationship": 73
+      },
+      {
+        "destination_iid": "0x000040db",
+        "destination_port": 2,
+        "source_iid": "0x000040c4",
+        "source_port": 1,
+        "static_sclu_relationship": 72
+      }
+    ],
+    "segment0_bytes": 1416,
+    "segment1_bytes": 80,
+    "selected_subgraphs": [
+      "0xb0000044",
+      "0xb0000040",
+      "0xb0000041"
+    ],
+    "sequence": 0,
+    "total_bytes": 1496
+  },
+  "graph_tag_key_vectors": [
+    {
+      "count": 6,
+      "kv": {
+        "0x01000008": "0x00000002",
+        "0x01000009": "0x00000002",
+        "0x0100000a": "0x00000001",
+        "0x0100000b": "0x00000002",
+        "0x0100000c": "0x00000002",
+        "0x0100000d": "0x00000010"
+      },
+      "sequence": 0
+    },
+    {
+      "count": 6,
+      "kv": {
+        "0x01000008": "0x00000002",
+        "0x01000009": "0x00000002",
+        "0x0100000a": "0x00000001",
+        "0x0100000b": "0x00000002",
+        "0x0100000c": "0x00000002",
+        "0x0100000d": "0x00000010"
+      },
+      "sequence": 1
+    },
+    {
+      "count": 6,
+      "kv": {
+        "0x01000008": "0x00000002",
+        "0x01000009": "0x00000002",
+        "0x0100000a": "0x00000001",
+        "0x0100000b": "0x00000002",
+        "0x0100000c": "0x00000002",
+        "0x0100000d": "0x00000010"
+      },
+      "sequence": 2
+    },
+    {
+      "count": 6,
+      "kv": {
+        "0x01000008": "0x00000003",
+        "0x01000009": "0x00000001",
+        "0x0100000a": "0x00000001",
+        "0x0100000b": "0x00000003",
+        "0x0100000c": "0x00000001",
+        "0x0100000d": "0x00000010"
+      },
+      "sequence": 3
+    },
+    {
+      "count": 6,
+      "kv": {
+        "0x01000008": "0x00000003",
+        "0x01000009": "0x00000001",
+        "0x0100000a": "0x00000001",
+        "0x0100000b": "0x00000003",
+        "0x0100000c": "0x00000001",
+        "0x0100000d": "0x00000010"
+      },
+      "sequence": 4
+    },
+    {
+      "count": 6,
+      "kv": {
+        "0x01000008": "0x00000003",
+        "0x01000009": "0x00000001",
+        "0x0100000a": "0x00000001",
+        "0x0100000b": "0x00000003",
+        "0x0100000c": "0x00000001",
+        "0x0100000d": "0x00000010"
+      },
+      "sequence": 5
+    },
+    {
+      "count": 6,
+      "kv": {
+        "0x01000008": "0x00000003",
+        "0x01000009": "0x00000001",
+        "0x0100000a": "0x00000001",
+        "0x0100000b": "0x00000003",
+        "0x0100000c": "0x00000001",
+        "0x0100000d": "0x00000010"
+      },
+      "sequence": 6
+    },
+    {
+      "count": 6,
+      "kv": {
+        "0x01000008": "0x00000003",
+        "0x01000009": "0x00000001",
+        "0x0100000a": "0x00000001",
+        "0x0100000b": "0x00000003",
+        "0x0100000c": "0x00000001",
+        "0x0100000d": "0x00000010"
+      },
+      "sequence": 7
+    },
+    {
+      "count": 6,
+      "kv": {
+        "0x01000008": "0x00000003",
+        "0x01000009": "0x00000001",
+        "0x0100000a": "0x00000001",
+        "0x0100000b": "0x00000003",
+        "0x0100000c": "0x00000001",
+        "0x0100000d": "0x00000010"
+      },
+      "sequence": 8
+    }
+  ],
+  "interpretation": {
+    "actual_graph_open": "The only captured GraphOpen packet is the EP16 row20 SG44/SG40/SG41 graph and contains both SCLU bridge edges.",
+    "constraint": "Do not assign Windows UI enhancement semantics to row5 or row20 from this baseline alone.",
+    "post_graph_open": "Six subsequent AcdbCmdGetGraphTagKeyVectors queries use the complete EP16 row20 vector (3/1/1/3/1/0x10).",
+    "pre_graph_open": "Three AcdbCmdGetGraphTagKeyVectors queries use the complete EP16 row5 vector (2/2/1/2/2/0x10). This is a pre-open tag-vector lookup, not a second graph-open."
+  },
+  "known_rows": {
+    "row20": {
+      "0x01000008": "0x00000003",
+      "0x01000009": "0x00000001",
+      "0x0100000a": "0x00000001",
+      "0x0100000b": "0x00000003",
+      "0x0100000c": "0x00000001",
+      "0x0100000d": "0x00000010"
+    },
+    "row5": {
+      "0x01000008": "0x00000002",
+      "0x01000009": "0x00000002",
+      "0x0100000a": "0x00000001",
+      "0x0100000b": "0x00000002",
+      "0x0100000c": "0x00000002",
+      "0x0100000d": "0x00000010"
+    }
+  },
+  "raw_log": "2026-08-25-micarray-default-gkv-graphopen-kd.log",
+  "raw_log_sha256": "072468cd8fda62f822097cfc50d72437ec010109021a6f917993e7ab82ce3040"
+}
