@@ -1,0 +1,7 @@
+68f359b941ec75e5fc5d9bee43112d23dbef87b447261dee33cad5bac8868122  /home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/lpass-macro-common.c
+b66d7c488b434c2ffb5b2fa7c9d8dacc8c44ccca95eefbd62e03ac488a234918  /home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/lpass-macro-common.h
+d92a4a152807f297920e34495431edef80d3f3739b310d37db2aa99b7c05cc67  /home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/lpass-va-macro.c
+ead411a50f238a3424d4a51fd83b8404d4b0e048f4b976946a824680a065471e  /home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/lpass-tx-macro.c
+a75a88d94f26d961c9234b52711e0b96fd2aead306c79b81e1b37f839a0c8a4d  /home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/snd-soc-lpass-macro-common.ko
+85847b0f256be62da2f897a140129c29a225c9f8f09ca6b6af456902307081f0  /home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/snd-soc-lpass-va-macro.ko
+139b82fbad795a5d2820875cdcfd780b0a60b14b3864d5849e80ad4d4df6ee72  /home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/snd-soc-lpass-tx-macro.ko

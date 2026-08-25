@@ -1,0 +1,52 @@
+From: SP11 audio reverse-engineering <sp11-audio@local>
+Date: Tue, 25 Aug 2026 19:41:00 +0100
+Subject: [PATCH] ASoC: lpass-tx-macro: SP11 order VA DMIC before rate
+
+The Windows EP16 qcaucd register oracle programs both TX DMIC selectors,
+then acquires the shared VA DMIC clock, and only afterwards programs TX
+path rate/clock state.
+
+Linux ASoC calls the TX codec DAI hw_params callback before DAPM powers the
+DEC widgets. Patch 0078 originally acquired the VA resource from DEC
+POST_PMU, so tx_macro_hw_params() could write CDC_TXn_PCM_RATE first.
+
+A fail-closed SP11 diagnostic returned -EAGAIN immediately before those
+rate writes. The same snd_pcm_hw_params() call then completed without the
+hard reset seen when the writes were allowed, localizing the first unsafe
+boundary to this ordering inversion.
+
+For the exact Denali EP16 AIF1 DEC0+DEC1 route, acquire the VA-owned DMIC
+resource before programming TX PCM rate. The existing POST_PMU request is
+idempotent once the resource is active, and POST_PMD remains the measured
+Windows release point.
+
+Signed-off-by: SP11 audio reverse-engineering <sp11-audio@local>
+---
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -1225,6 +1225,25 @@
+ 		return -EINVAL;
+ 	}
+ 
++	/*
++	 * ASoC calls the codec DAI hw_params callback before powering the DAPM
++	 * DEC widgets.  Windows does the opposite dependency ordering for EP16:
++	 * both TX lane selectors are established, then VA enables the shared
++	 * DMIC clock, and only then does TX program its path rate/clock state.
++	 * Acquire the VA-owned resource here so the following rate writes cannot
++	 * precede it.  The POST_PMU request is intentionally idempotent and the
++	 * existing POST_PMD path remains the Windows-matched release boundary.
++	 */
++	if (of_machine_is_compatible("microsoft,denali") &&
++	    dai->id == TX_MACRO_AIF1_CAP &&
++	    tx->active_ch_mask[dai->id] == (BIT(TX_MACRO_DEC0) | BIT(TX_MACRO_DEC1))) {
++		int ret;
++
++		ret = tx_macro_sp11_va_dmic_request(component, true);
++		if (ret)
++			return ret;
++	}
++
+ 	for_each_set_bit(decimator, &tx->active_ch_mask[dai->id], TX_MACRO_DEC_MAX)
+ 		snd_soc_component_update_bits(component, CDC_TXn_TX_PATH_CTL(decimator),
+ 					      CDC_TXn_PCM_RATE_MASK,

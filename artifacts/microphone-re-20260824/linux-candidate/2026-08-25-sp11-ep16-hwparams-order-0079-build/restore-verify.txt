@@ -1,0 +1,7 @@
+/home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/lpass-macro-common.c: OK
+/home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/lpass-macro-common.h: OK
+/home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/lpass-va-macro.c: OK
+/home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/lpass-tx-macro.c: OK
+/home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/snd-soc-lpass-macro-common.ko: OK
+/home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/snd-soc-lpass-va-macro.ko: OK
+/home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs/snd-soc-lpass-tx-macro.ko: OK

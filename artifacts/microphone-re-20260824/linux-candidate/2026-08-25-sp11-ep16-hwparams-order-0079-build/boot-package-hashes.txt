@@ -1,0 +1,7 @@
+79ffe8daca281a118d960190b1add1c2c541b4925fccc518a5a198840f431751  /boot/sp11-7.1.5-audio-mic-ep16-hwparams-gate-v3/initrd.img-7.1.5-sp11-mic-ep16-hwparams-gate-v3
+bca0a336c15d2995c61b8df9d449afb9df5fc8776a3da1ad034616f917bb428a  /boot/sp11-7.1.5-audio-mic-ep16-hwparams-gate-v3/vmlinuz-7.1.5-sp11-render-parity-v4+
+6d10c0ca560c550312e7971ffea2f03c56dbda1844f49c9defd41ea09b50e22d  /boot/sp11-7.1.5-audio-mic-ep16-hwparams-gate-v3/x1e80100-microsoft-denali-sp11-mic-ep16-hwparams-gate-v3.dtb
+767445b0db80ba7f9e761fc1a4f0360ab71aea8e6330bd4abd70d69769cdf000  /boot/sp11-7.1.5-audio-mic-ep16-hwparams-order-v4/initrd.img-7.1.5-sp11-mic-ep16-hwparams-order-v4
+b916d54b20227565110fa873be2934a42a906015e64ae155880ae9e20aea49a6  /boot/sp11-7.1.5-audio-mic-ep16-hwparams-order-v4/SHA256SUMS
+bca0a336c15d2995c61b8df9d449afb9df5fc8776a3da1ad034616f917bb428a  /boot/sp11-7.1.5-audio-mic-ep16-hwparams-order-v4/vmlinuz-7.1.5-sp11-render-parity-v4+
+6d10c0ca560c550312e7971ffea2f03c56dbda1844f49c9defd41ea09b50e22d  /boot/sp11-7.1.5-audio-mic-ep16-hwparams-order-v4/x1e80100-microsoft-denali-sp11-mic-ep16-hwparams-order-v4.dtb

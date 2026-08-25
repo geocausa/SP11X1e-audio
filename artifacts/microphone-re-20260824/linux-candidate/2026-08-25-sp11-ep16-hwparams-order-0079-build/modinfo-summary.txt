@@ -1,0 +1,15 @@
+=== snd-soc-lpass-macro-common.ko ===
+filename:       /home/geoca/Documents/SP11-PROJECT/01-audio-mic-re-20260825/artifacts/microphone-re-20260824/linux-candidate/2026-08-25-sp11-ep16-hwparams-order-0079-build/snd-soc-lpass-macro-common.ko
+srcversion:     E744E31FAC4B46B553A2EE7
+depends:        
+vermagic:       7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64
+=== snd-soc-lpass-tx-macro.ko ===
+filename:       /home/geoca/Documents/SP11-PROJECT/01-audio-mic-re-20260825/artifacts/microphone-re-20260824/linux-candidate/2026-08-25-sp11-ep16-hwparams-order-0079-build/snd-soc-lpass-tx-macro.ko
+srcversion:     CBB00512E87DAE89AB0C188
+depends:        snd-soc-core,snd-soc-lpass-macro-common
+vermagic:       7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64
+=== snd-soc-lpass-va-macro.ko ===
+filename:       /home/geoca/Documents/SP11-PROJECT/01-audio-mic-re-20260825/artifacts/microphone-re-20260824/linux-candidate/2026-08-25-sp11-ep16-hwparams-order-0079-build/snd-soc-lpass-va-macro.ko
+srcversion:     9CE7843C1E3859DCB8D4669
+depends:        snd-soc-core,snd-soc-lpass-macro-common
+vermagic:       7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64
