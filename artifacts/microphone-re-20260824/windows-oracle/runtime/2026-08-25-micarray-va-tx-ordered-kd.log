@@ -1,0 +1,185 @@
+Opened log file 'C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\mic-va-tx-ordered_0448_2026-08-25_17-15-11-887'
+     0 e Disable Clear  fffff801`64380348     0001 (0001) Unable to load image qcaucd8380.sys, Win32 error 0n2
+qcaucd8380+0x20348 ".if ((@w0==2)&&((@w1<0x1000)||((@w1>=0x3000)&&(@w1<=0x30ff)))) {.printf \"REGSEQ n=%u reg=%04x mask=%02x shift=%u value=%02x lr=%p\\n\",@$t0,@w1,@w2,@w3,@w4,@lr; r @$t0=@$t0+1;} .else {}; g"
+
+DriverEntry failed 0xc0000034 for driver \REGISTRY\MACHINE\SYSTEM\ControlSet001\Services\WUDFRd
+-successfully opened handle 00000000000003A4 for Invoke driver 
+
+-SSGTZD random number generated was 0x3d24d08e from Invoke driver 
+
+-SSGServicesInvokeInit with status 0x0 
+
+Handle opened to SMCInvoke driver successfully 0x0
+
+Queue created successfully 0x0
+
+Interface published for SSGUMD successfully 0x0
+
+SSGServicesCreateDevice returned with status 0x0
+
+DriverEntry failed 0xc035001e for driver \REGISTRY\MACHINE\SYSTEM\ControlSet001\Services\l1vhlwf
+DriverEntry failed 0xc00000bb for driver \REGISTRY\MACHINE\SYSTEM\ControlSet001\Services\NetworkPrivacyPolicy
+Unknown( 12): GUID=d809e859-1b35-3328-8332-8eb0e0d87cb2 (No Format Information found).
+Unknown( 13): GUID=d809e859-1b35-3328-8332-8eb0e0d87cb2 (No Format Information found).
+Unknown( 10): GUID=a695a0d8-0d20-3611-496a-a7892eb09e72 (No Format Information found).
+Unknown( 11): GUID=a695a0d8-0d20-3611-496a-a7892eb09e72 (No Format Information found).
+Unknown( 12): GUID=a695a0d8-0d20-3611-496a-a7892eb09e72 (No Format Information found).
+Unknown( 10): GUID=f481b552-c976-3fae-1f34-caedc673ac98 (No Format Information found).
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff801`614013b0 d43e0000 brk         #0xF000
+0: kd> bl; u qcaucd8380+0x20348 L8
+     0 e Disable Clear  fffff801`64380348     0001 (0001) qcaucd8380+0x20348 ".if ((@w0==2)&&((@w1<0x1000)||((@w1>=0x3000)&&(@w1<=0x30ff)))) {.printf \"REGSEQ n=%u reg=%04x mask=%02x shift=%u value=%02x lr=%p\\n\",@$t0,@w1,@w2,@w3,@w4,@lr; r @$t0=@$t0+1;} .else {}; g"
+
+qcaucd8380+0x20348:
+fffff801`64380348 d503237f pacibsp
+fffff801`6438034c a9bc53f3 stp         x19,x20,[sp,#-0x40]!
+fffff801`64380350 a9015bf5 stp         x21,x22,[sp,#0x10]
+fffff801`64380354 a90263f7 stp         x23,x24,[sp,#0x20]
+fffff801`64380358 a9036bf9 stp         x25,x26,[sp,#0x30]
+fffff801`6438035c a9be7bfd stp         fp,lr,[sp,#-0x20]!
+fffff801`64380360 910003fd mov         fp,sp
+fffff801`64380364 2a0003f9 mov         w25,w0
+0: kd> g
+DBGK: DbgkWerCaptureLiveKernelDump: WerLiveKernelCreateReport failed, status 0xc0000099.
+
+Numeric expression missing from '&((@w1<0x1000)||((@w1>=0x3000)&&(@w1<=0x30ff)))) {.printf "REGSEQ n=%u reg=%04x mask=%02x shift=%u value=%02x lr=%p\n",@$t0,@w1,@w2,@w3,@w4,@lr; r @$t0=@$t0+1;} .else {}; g'
+qcaucd8380+0x20348:
+fffff801`64380348 d503237f pacibsp
+0: kd> bc 0; r @$t0=0; bp qcaucd8380+0x20348 ".if ((@w0==2)&((@w1<0x1000)|((@w1>=0x3000)&(@w1<=0x30ff)))) { .printf \"REGSEQ n=%d reg=%04x mask=%02x shift=%u value=%02x lr=%p\\n\",@$t0,@w1,@w2,@w3,@w4,@lr; r @$t0=@$t0+1; gc } .else { gc }"; bl; g
+     0 e Disable Clear  fffff801`64380348     0001 (0001) qcaucd8380+0x20348 ".if ((@w0==2)&((@w1<0x1000)|((@w1>=0x3000)&(@w1<=0x30ff)))) { .printf \"REGSEQ n=%d reg=%04x mask=%02x shift=%u value=%02x lr=%p\\n\",@$t0,@w1,@w2,@w3,@w4,@lr; r @$t0=@$t0+1; gc } .else { gc }"
+
+REGSEQ n=0 reg=3004 mask=01 shift=0 value=01 lr=fffff8016437d61c
+REGSEQ n=1 reg=3080 mask=02 shift=1 value=01 lr=fffff8016437d638
+REGSEQ n=2 reg=0000 mask=01 shift=0 value=01 lr=fffff8016437d6e0
+REGSEQ n=3 reg=0004 mask=01 shift=0 value=01 lr=fffff8016437d6fc
+REGSEQ n=4 reg=0100 mask=f0 shift=4 value=02 lr=fffff80164394728
+REGSEQ n=5 reg=0104 mask=03 shift=0 value=00 lr=fffff801643947b8
+REGSEQ n=6 reg=0408 mask=01 shift=0 value=01 lr=fffff80164394814
+REGSEQ n=7 reg=0404 mask=80 shift=7 value=01 lr=fffff80164394860
+REGSEQ n=8 reg=0108 mask=f0 shift=4 value=01 lr=fffff80164394728
+REGSEQ n=9 reg=010c mask=03 shift=0 value=00 lr=fffff801643947b8
+REGSEQ n=10 reg=0488 mask=01 shift=0 value=01 lr=fffff80164394814
+REGSEQ n=11 reg=0484 mask=80 shift=7 value=01 lr=fffff80164394860
+REGSEQ n=12 reg=3094 mask=80 shift=0 value=00 lr=fffff80164393ac4
+REGSEQ n=13 reg=3084 mask=0e shift=1 value=02 lr=fffff801643937f0
+REGSEQ n=14 reg=3084 mask=01 shift=0 value=01 lr=fffff80164393bc8
+REGSEQ n=15 reg=3094 mask=80 shift=0 value=00 lr=fffff80164393ac4
+REGSEQ n=16 reg=0400 mask=10 shift=4 value=01 lr=fffff80164394588
+REGSEQ n=17 reg=0480 mask=10 shift=4 value=01 lr=fffff80164394588
+REGSEQ n=18 reg=0404 mask=01 shift=0 value=00 lr=fffff80164394c80
+REGSEQ n=19 reg=0484 mask=01 shift=0 value=00 lr=fffff80164394c80
+REGSEQ n=20 reg=0404 mask=60 shift=5 value=02 lr=fffff80164394ed4
+REGSEQ n=21 reg=0484 mask=60 shift=5 value=02 lr=fffff80164394ed4
+REGSEQ n=22 reg=0400 mask=0f shift=0 value=04 lr=fffff80164394b50
+REGSEQ n=23 reg=0400 mask=20 shift=5 value=01 lr=fffff80164394b84
+REGSEQ n=24 reg=0480 mask=0f shift=0 value=04 lr=fffff80164394b50
+REGSEQ n=25 reg=0480 mask=20 shift=5 value=01 lr=fffff80164394b84
+REGSEQ n=26 reg=0404 mask=10 shift=4 value=01 lr=fffff80164394ed4
+REGSEQ n=27 reg=0484 mask=10 shift=4 value=01 lr=fffff80164394ed4
+REGSEQ n=28 reg=0400 mask=10 shift=4 value=00 lr=fffff80164394588
+REGSEQ n=29 reg=0480 mask=10 shift=4 value=00 lr=fffff80164394588
+DBGK: DbgkWerCaptureLiveKernelDump: WerLiveKernelCreateReport failed, status 0xc0000099.
+
+REGSEQ n=30 reg=0404 mask=60 shift=5 value=01 lr=fffff801643941a0
+REGSEQ n=31 reg=0418 mask=02 shift=1 value=01 lr=fffff801643941c0
+REGSEQ n=32 reg=0418 mask=02 shift=1 value=00 lr=fffff80164394228
+REGSEQ n=33 reg=0484 mask=60 shift=5 value=01 lr=fffff801643941a0
+REGSEQ n=34 reg=0498 mask=02 shift=1 value=01 lr=fffff801643941c0
+REGSEQ n=35 reg=0498 mask=02 shift=1 value=00 lr=fffff80164394228
+REGSEQ n=36 reg=0400 mask=10 shift=4 value=01 lr=fffff80164394588
+REGSEQ n=37 reg=0480 mask=10 shift=4 value=01 lr=fffff80164394588
+REGSEQ n=38 reg=3084 mask=01 shift=0 value=00 lr=fffff8016439399c
+REGSEQ n=39 reg=0400 mask=0f shift=0 value=04 lr=fffff80164394a30
+REGSEQ n=40 reg=0400 mask=20 shift=5 value=00 lr=fffff80164394a68
+REGSEQ n=41 reg=0480 mask=0f shift=0 value=04 lr=fffff80164394a30
+REGSEQ n=42 reg=0480 mask=20 shift=5 value=00 lr=fffff80164394a68
+REGSEQ n=43 reg=0400 mask=10 shift=4 value=00 lr=fffff80164394588
+REGSEQ n=44 reg=0480 mask=10 shift=4 value=00 lr=fffff80164394588
+REGSEQ n=45 reg=0000 mask=01 shift=0 value=00 lr=fffff8016437d42c
+REGSEQ n=46 reg=0004 mask=01 shift=0 value=00 lr=fffff8016437d448
+REGSEQ n=47 reg=3000 mask=01 shift=0 value=00 lr=fffff8016437d384
+REGSEQ n=48 reg=3004 mask=01 shift=0 value=00 lr=fffff8016437d3a0
+REGSEQ n=49 reg=3000 mask=01 shift=0 value=01 lr=fffff8016437d600
+REGSEQ n=50 reg=3004 mask=01 shift=0 value=01 lr=fffff8016437d61c
+REGSEQ n=51 reg=3080 mask=02 shift=1 value=01 lr=fffff8016437d638
+REGSEQ n=52 reg=0000 mask=01 shift=0 value=01 lr=fffff8016437d6e0
+REGSEQ n=53 reg=0004 mask=01 shift=0 value=01 lr=fffff8016437d6fc
+REGSEQ n=54 reg=0100 mask=f0 shift=4 value=02 lr=fffff80164394728
+REGSEQ n=55 reg=0104 mask=03 shift=0 value=00 lr=fffff801643947b8
+REGSEQ n=56 reg=0408 mask=01 shift=0 value=01 lr=fffff80164394814
+REGSEQ n=57 reg=0404 mask=80 shift=7 value=01 lr=fffff80164394860
+REGSEQ n=58 reg=0108 mask=f0 shift=4 value=01 lr=fffff80164394728
+REGSEQ n=59 reg=010c mask=03 shift=0 value=00 lr=fffff801643947b8
+REGSEQ n=60 reg=0488 mask=01 shift=0 value=01 lr=fffff80164394814
+REGSEQ n=61 reg=0484 mask=80 shift=7 value=01 lr=fffff80164394860
+REGSEQ n=62 reg=3094 mask=80 shift=0 value=00 lr=fffff80164393ac4
+REGSEQ n=63 reg=3084 mask=0e shift=1 value=02 lr=fffff801643937f0
+REGSEQ n=64 reg=3084 mask=01 shift=0 value=01 lr=fffff80164393bc8
+REGSEQ n=65 reg=3094 mask=80 shift=0 value=00 lr=fffff80164393ac4
+REGSEQ n=66 reg=0400 mask=10 shift=4 value=01 lr=fffff80164394588
+REGSEQ n=67 reg=0480 mask=10 shift=4 value=01 lr=fffff80164394588
+REGSEQ n=68 reg=0404 mask=01 shift=0 value=00 lr=fffff80164394c80
+REGSEQ n=69 reg=0484 mask=01 shift=0 value=00 lr=fffff80164394c80
+REGSEQ n=70 reg=0404 mask=60 shift=5 value=02 lr=fffff80164394ed4
+REGSEQ n=71 reg=0484 mask=60 shift=5 value=02 lr=fffff80164394ed4
+REGSEQ n=72 reg=0400 mask=0f shift=0 value=04 lr=fffff80164394b50
+REGSEQ n=73 reg=0400 mask=20 shift=5 value=01 lr=fffff80164394b84
+REGSEQ n=74 reg=0480 mask=0f shift=0 value=04 lr=fffff80164394b50
+REGSEQ n=75 reg=0480 mask=20 shift=5 value=01 lr=fffff80164394b84
+REGSEQ n=76 reg=0404 mask=10 shift=4 value=01 lr=fffff80164394ed4
+REGSEQ n=77 reg=0484 mask=10 shift=4 value=01 lr=fffff80164394ed4
+REGSEQ n=78 reg=0400 mask=10 shift=4 value=00 lr=fffff80164394588
+REGSEQ n=79 reg=0480 mask=10 shift=4 value=00 lr=fffff80164394588
+REGSEQ n=80 reg=0404 mask=60 shift=5 value=01 lr=fffff801643941a0
+REGSEQ n=81 reg=0418 mask=02 shift=1 value=01 lr=fffff801643941c0
+REGSEQ n=82 reg=0418 mask=02 shift=1 value=00 lr=fffff80164394228
+REGSEQ n=83 reg=0484 mask=60 shift=5 value=01 lr=fffff801643941a0
+REGSEQ n=84 reg=0498 mask=02 shift=1 value=01 lr=fffff801643941c0
+REGSEQ n=85 reg=0498 mask=02 shift=1 value=00 lr=fffff80164394228
+REGSEQ n=86 reg=0400 mask=10 shift=4 value=01 lr=fffff80164394588
+REGSEQ n=87 reg=0480 mask=10 shift=4 value=01 lr=fffff80164394588
+REGSEQ n=88 reg=3084 mask=01 shift=0 value=00 lr=fffff8016439399c
+REGSEQ n=89 reg=0400 mask=0f shift=0 value=04 lr=fffff80164394a30
+REGSEQ n=90 reg=0400 mask=20 shift=5 value=00 lr=fffff80164394a68
+REGSEQ n=91 reg=0480 mask=0f shift=0 value=04 lr=fffff80164394a30
+REGSEQ n=92 reg=0480 mask=20 shift=5 value=00 lr=fffff80164394a68
+REGSEQ n=93 reg=0400 mask=10 shift=4 value=00 lr=fffff80164394588
+REGSEQ n=94 reg=0480 mask=10 shift=4 value=00 lr=fffff80164394588
+REGSEQ n=95 reg=0000 mask=01 shift=0 value=00 lr=fffff8016437d42c
+REGSEQ n=96 reg=0004 mask=01 shift=0 value=00 lr=fffff8016437d448
+REGSEQ n=97 reg=3000 mask=01 shift=0 value=00 lr=fffff8016437d384
+REGSEQ n=98 reg=3004 mask=01 shift=0 value=00 lr=fffff8016437d3a0
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff801`614013b0 d43e0000 brk         #0xF000
+0: kd> bc *; .logclose; g
+Closing open log file C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\mic-va-tx-ordered_0448_2026-08-25_17-15-11-887

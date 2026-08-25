@@ -1,0 +1,491 @@
+{
+  "schema": 1,
+  "subject": "SP11 Windows MicArray EP16 ordered TX+VA register lifecycle",
+  "source": "artifacts/microphone-re-20260824/windows-oracle/runtime/2026-08-25-micarray-va-tx-ordered-kd.log",
+  "source_sha256": "0fe9a747171cd3f45b1d833e57190218b3b74bab164b8acbaabc08316a695f87",
+  "qcaucd": {
+    "image": "qcaucd8380.sys",
+    "image_timestamp": "2025-06-03T01:50:17",
+    "runtime_base": "0xfffff80164360000",
+    "masked_rmw_rva": "0x20348"
+  },
+  "logical_windows": {
+    "tx": "0x0000-0x0fff -> LPASS TX macro (physical base 0x06ae0000)",
+    "va": "0x3000-0x30ff -> LPASS VA macro; 0x3084 maps physical 0x06d44084"
+  },
+  "capture": {
+    "second_run_start_n": 49,
+    "second_run_end_n": 98,
+    "record_count": 50,
+    "notes": "Second run is self-contained and free of the initial WinDbg condition-expression error."
+  },
+  "ordering_closure": {
+    "startup": [
+      "VA shared gates 0x3000/0x3004/0x3080",
+      "TX shared gates 0x0000/0x0004",
+      "TX lane select/mode 0x0100..0x0484",
+      "VA DMIC0 acquire 0x3094/0x3084",
+      "TX path mute/rate/clock programming"
+    ],
+    "teardown": [
+      "TX runtime-stop preamble",
+      "VA DMIC0 run bit clear at 0x3084",
+      "TX path clocks/rates stop",
+      "TX shared gates 0x0000/0x0004 clear",
+      "VA shared gates 0x3000/0x3004 clear"
+    ],
+    "linux_placement": "Acquire the shared VA DMIC0 resource after TX input/mode selection and before TX path enable; release it before final TX path/gate teardown."
+  },
+  "records": [
+    {
+      "n": 49,
+      "reg": "0x3000",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x01",
+      "lr": "fffff8016437d600",
+      "phase": "shared_clock_start"
+    },
+    {
+      "n": 50,
+      "reg": "0x3004",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x01",
+      "lr": "fffff8016437d61c",
+      "phase": "shared_clock_start"
+    },
+    {
+      "n": 51,
+      "reg": "0x3080",
+      "mask": "0x02",
+      "shift": 1,
+      "value": "0x01",
+      "lr": "fffff8016437d638",
+      "phase": "shared_clock_start"
+    },
+    {
+      "n": 52,
+      "reg": "0x0000",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x01",
+      "lr": "fffff8016437d6e0",
+      "phase": "shared_clock_start"
+    },
+    {
+      "n": 53,
+      "reg": "0x0004",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x01",
+      "lr": "fffff8016437d6fc",
+      "phase": "shared_clock_start"
+    },
+    {
+      "n": 54,
+      "reg": "0x0100",
+      "mask": "0xf0",
+      "shift": 4,
+      "value": "0x02",
+      "lr": "fffff80164394728",
+      "phase": "tx_lane_select"
+    },
+    {
+      "n": 55,
+      "reg": "0x0104",
+      "mask": "0x03",
+      "shift": 0,
+      "value": "0x00",
+      "lr": "fffff801643947b8",
+      "phase": "tx_lane_select"
+    },
+    {
+      "n": 56,
+      "reg": "0x0408",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x01",
+      "lr": "fffff80164394814",
+      "phase": "tx_lane_select"
+    },
+    {
+      "n": 57,
+      "reg": "0x0404",
+      "mask": "0x80",
+      "shift": 7,
+      "value": "0x01",
+      "lr": "fffff80164394860",
+      "phase": "tx_lane_select"
+    },
+    {
+      "n": 58,
+      "reg": "0x0108",
+      "mask": "0xf0",
+      "shift": 4,
+      "value": "0x01",
+      "lr": "fffff80164394728",
+      "phase": "tx_lane_select"
+    },
+    {
+      "n": 59,
+      "reg": "0x010c",
+      "mask": "0x03",
+      "shift": 0,
+      "value": "0x00",
+      "lr": "fffff801643947b8",
+      "phase": "tx_lane_select"
+    },
+    {
+      "n": 60,
+      "reg": "0x0488",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x01",
+      "lr": "fffff80164394814",
+      "phase": "tx_lane_select"
+    },
+    {
+      "n": 61,
+      "reg": "0x0484",
+      "mask": "0x80",
+      "shift": 7,
+      "value": "0x01",
+      "lr": "fffff80164394860",
+      "phase": "tx_lane_select"
+    },
+    {
+      "n": 62,
+      "reg": "0x3094",
+      "mask": "0x80",
+      "shift": 0,
+      "value": "0x00",
+      "lr": "fffff80164393ac4",
+      "phase": "va_dmic_acquire"
+    },
+    {
+      "n": 63,
+      "reg": "0x3084",
+      "mask": "0x0e",
+      "shift": 1,
+      "value": "0x02",
+      "lr": "fffff801643937f0",
+      "phase": "va_dmic_acquire"
+    },
+    {
+      "n": 64,
+      "reg": "0x3084",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x01",
+      "lr": "fffff80164393bc8",
+      "phase": "va_dmic_acquire"
+    },
+    {
+      "n": 65,
+      "reg": "0x3094",
+      "mask": "0x80",
+      "shift": 0,
+      "value": "0x00",
+      "lr": "fffff80164393ac4",
+      "phase": "va_dmic_acquire"
+    },
+    {
+      "n": 66,
+      "reg": "0x0400",
+      "mask": "0x10",
+      "shift": 4,
+      "value": "0x01",
+      "lr": "fffff80164394588",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 67,
+      "reg": "0x0480",
+      "mask": "0x10",
+      "shift": 4,
+      "value": "0x01",
+      "lr": "fffff80164394588",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 68,
+      "reg": "0x0404",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x00",
+      "lr": "fffff80164394c80",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 69,
+      "reg": "0x0484",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x00",
+      "lr": "fffff80164394c80",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 70,
+      "reg": "0x0404",
+      "mask": "0x60",
+      "shift": 5,
+      "value": "0x02",
+      "lr": "fffff80164394ed4",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 71,
+      "reg": "0x0484",
+      "mask": "0x60",
+      "shift": 5,
+      "value": "0x02",
+      "lr": "fffff80164394ed4",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 72,
+      "reg": "0x0400",
+      "mask": "0x0f",
+      "shift": 0,
+      "value": "0x04",
+      "lr": "fffff80164394b50",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 73,
+      "reg": "0x0400",
+      "mask": "0x20",
+      "shift": 5,
+      "value": "0x01",
+      "lr": "fffff80164394b84",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 74,
+      "reg": "0x0480",
+      "mask": "0x0f",
+      "shift": 0,
+      "value": "0x04",
+      "lr": "fffff80164394b50",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 75,
+      "reg": "0x0480",
+      "mask": "0x20",
+      "shift": 5,
+      "value": "0x01",
+      "lr": "fffff80164394b84",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 76,
+      "reg": "0x0404",
+      "mask": "0x10",
+      "shift": 4,
+      "value": "0x01",
+      "lr": "fffff80164394ed4",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 77,
+      "reg": "0x0484",
+      "mask": "0x10",
+      "shift": 4,
+      "value": "0x01",
+      "lr": "fffff80164394ed4",
+      "phase": "tx_path_start"
+    },
+    {
+      "n": 78,
+      "reg": "0x0400",
+      "mask": "0x10",
+      "shift": 4,
+      "value": "0x00",
+      "lr": "fffff80164394588",
+      "phase": "tx_runtime_stop_preamble"
+    },
+    {
+      "n": 79,
+      "reg": "0x0480",
+      "mask": "0x10",
+      "shift": 4,
+      "value": "0x00",
+      "lr": "fffff80164394588",
+      "phase": "tx_runtime_stop_preamble"
+    },
+    {
+      "n": 80,
+      "reg": "0x0404",
+      "mask": "0x60",
+      "shift": 5,
+      "value": "0x01",
+      "lr": "fffff801643941a0",
+      "phase": "tx_runtime_stop_preamble"
+    },
+    {
+      "n": 81,
+      "reg": "0x0418",
+      "mask": "0x02",
+      "shift": 1,
+      "value": "0x01",
+      "lr": "fffff801643941c0",
+      "phase": "tx_runtime_stop_preamble"
+    },
+    {
+      "n": 82,
+      "reg": "0x0418",
+      "mask": "0x02",
+      "shift": 1,
+      "value": "0x00",
+      "lr": "fffff80164394228",
+      "phase": "tx_runtime_stop_preamble"
+    },
+    {
+      "n": 83,
+      "reg": "0x0484",
+      "mask": "0x60",
+      "shift": 5,
+      "value": "0x01",
+      "lr": "fffff801643941a0",
+      "phase": "tx_runtime_stop_preamble"
+    },
+    {
+      "n": 84,
+      "reg": "0x0498",
+      "mask": "0x02",
+      "shift": 1,
+      "value": "0x01",
+      "lr": "fffff801643941c0",
+      "phase": "tx_runtime_stop_preamble"
+    },
+    {
+      "n": 85,
+      "reg": "0x0498",
+      "mask": "0x02",
+      "shift": 1,
+      "value": "0x00",
+      "lr": "fffff80164394228",
+      "phase": "tx_runtime_stop_preamble"
+    },
+    {
+      "n": 86,
+      "reg": "0x0400",
+      "mask": "0x10",
+      "shift": 4,
+      "value": "0x01",
+      "lr": "fffff80164394588",
+      "phase": "tx_runtime_stop_preamble"
+    },
+    {
+      "n": 87,
+      "reg": "0x0480",
+      "mask": "0x10",
+      "shift": 4,
+      "value": "0x01",
+      "lr": "fffff80164394588",
+      "phase": "tx_runtime_stop_preamble"
+    },
+    {
+      "n": 88,
+      "reg": "0x3084",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x00",
+      "lr": "fffff8016439399c",
+      "phase": "va_dmic_release"
+    },
+    {
+      "n": 89,
+      "reg": "0x0400",
+      "mask": "0x0f",
+      "shift": 0,
+      "value": "0x04",
+      "lr": "fffff80164394a30",
+      "phase": "tx_path_stop"
+    },
+    {
+      "n": 90,
+      "reg": "0x0400",
+      "mask": "0x20",
+      "shift": 5,
+      "value": "0x00",
+      "lr": "fffff80164394a68",
+      "phase": "tx_path_stop"
+    },
+    {
+      "n": 91,
+      "reg": "0x0480",
+      "mask": "0x0f",
+      "shift": 0,
+      "value": "0x04",
+      "lr": "fffff80164394a30",
+      "phase": "tx_path_stop"
+    },
+    {
+      "n": 92,
+      "reg": "0x0480",
+      "mask": "0x20",
+      "shift": 5,
+      "value": "0x00",
+      "lr": "fffff80164394a68",
+      "phase": "tx_path_stop"
+    },
+    {
+      "n": 93,
+      "reg": "0x0400",
+      "mask": "0x10",
+      "shift": 4,
+      "value": "0x00",
+      "lr": "fffff80164394588",
+      "phase": "tx_path_stop"
+    },
+    {
+      "n": 94,
+      "reg": "0x0480",
+      "mask": "0x10",
+      "shift": 4,
+      "value": "0x00",
+      "lr": "fffff80164394588",
+      "phase": "tx_path_stop"
+    },
+    {
+      "n": 95,
+      "reg": "0x0000",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x00",
+      "lr": "fffff8016437d42c",
+      "phase": "shared_clock_stop"
+    },
+    {
+      "n": 96,
+      "reg": "0x0004",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x00",
+      "lr": "fffff8016437d448",
+      "phase": "shared_clock_stop"
+    },
+    {
+      "n": 97,
+      "reg": "0x3000",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x00",
+      "lr": "fffff8016437d384",
+      "phase": "shared_clock_stop"
+    },
+    {
+      "n": 98,
+      "reg": "0x3004",
+      "mask": "0x01",
+      "shift": 0,
+      "value": "0x00",
+      "lr": "fffff8016437d3a0",
+      "phase": "shared_clock_stop"
+    }
+  ]
+}
