@@ -1,7 +1,9 @@
 import struct
 import unittest
 
-from tools.ar_topology_inventory import MODULE_CFG_TYPE, parse_private_blob
+from tools.ar_topology_inventory import (
+    MODULE_CFG_TYPE, parse_graphs, parse_private_blob, parse_vendor_tuples,
+)
 
 
 def word_array(*pairs: tuple[int, int]) -> bytes:
@@ -48,6 +50,40 @@ class PrivateBlobTests(unittest.TestCase):
         self.assertEqual(tokens[209], 0x46EC)
         self.assertEqual(tokens[212], 0x46EC)
         self.assertEqual(issues, [])
+
+
+class TextDecodeTests(unittest.TestCase):
+    def test_vendor_tuple_preserves_signed_decoded_u32(self):
+        lines = [
+            "SectionVendorTuples {",
+            "  'x:tuple0' {",
+            "    tokens 'x'",
+            "    tuples.0_word {",
+            "      token103 -1",
+            "      token105 -1",
+            "    }",
+            "  }",
+            "}",
+        ]
+        tuples = parse_vendor_tuples(lines)
+        self.assertEqual(tuples['x:tuple0'][103], -1)
+        self.assertEqual(tuples['x:tuple0'][105], -1)
+
+    def test_flattened_section_graph_is_parsed(self):
+        lines = [
+            "SectionGraph.set0 {",
+            "  index 1",
+            "  lines [",
+            "    'sink, , source'",
+            "  ]",
+            "}",
+        ]
+        graphs = parse_graphs(lines)
+        self.assertEqual(len(graphs), 1)
+        self.assertEqual(graphs[0]['name'], 'set0')
+        self.assertEqual(graphs[0]['index'], 1)
+        self.assertEqual(graphs[0]['edges'][0]['source'], 'source')
+        self.assertEqual(graphs[0]['edges'][0]['sink'], 'sink')
 
 
 if __name__ == "__main__":

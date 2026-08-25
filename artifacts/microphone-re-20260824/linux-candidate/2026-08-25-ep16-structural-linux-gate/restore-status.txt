@@ -1,0 +1,4 @@
+src-qdsp6 PASS
+src-codecs PASS
+out-qdsp6 PASS
+out-codecs PASS

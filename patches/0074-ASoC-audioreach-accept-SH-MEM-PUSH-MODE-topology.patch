@@ -1,0 +1,35 @@
+From: SP11 audio reverse-engineering <sp11-audio@local>
+Date: Tue, 25 Aug 2026 12:40:00 +0100
+Subject: [PATCH] ASoC: audioreach: accept SH_MEM_PUSH_MODE topology endpoints
+
+Windows MicArray EP16 terminates at MODULE_ID_SH_MEM_PUSH_MODE
+(0x07001007).  The AudioReach topology loader currently accepts WR/RD shared
+memory endpoints and SH_MEM_PULL_MODE as buffer/AIF widgets, but rejects the
+push-mode module before a graph can be opened.
+
+Add the authoritative module ID and treat it like the other shared-memory
+endpoints at topology-load time.  This patch intentionally does not invent the
+runtime circular-buffer configuration; that remains gated on a captured
+Windows PARAM_ID_SH_MEM_PULL_PUSH_MODE_CFG transaction.
+
+---
+--- a/sound/soc/qcom/qdsp6/audioreach.h
++++ b/sound/soc/qcom/qdsp6/audioreach.h
+@@ -18,6 +18,7 @@
+ #define MODULE_ID_PCM_ENC		0x07001004
+ #define MODULE_ID_PCM_DEC		0x07001005
+ #define MODULE_ID_SH_MEM_PULL_MODE	0x07001006
++#define MODULE_ID_SH_MEM_PUSH_MODE	0x07001007
+ #define MODULE_ID_PLACEHOLDER_ENCODER	0x07001008
+ #define MODULE_ID_PLACEHOLDER_DECODER	0x07001009
+ #define MODULE_ID_I2S_SINK		0x0700100A
+--- a/sound/soc/qcom/qdsp6/topology.c
++++ b/sound/soc/qcom/qdsp6/topology.c
+@@ -1033,6 +1033,7 @@
+ 	case MODULE_ID_WR_SHARED_MEM_EP:
+ 	case MODULE_ID_RD_SHARED_MEM_EP:
+ 	case MODULE_ID_SH_MEM_PULL_MODE:
++	case MODULE_ID_SH_MEM_PUSH_MODE:
+ 		/*
+ 		 * Shared-memory endpoints have no endpoint-specific topology
+ 		 * tokens.  The common loader above has already populated the

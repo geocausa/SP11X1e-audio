@@ -222,7 +222,7 @@ def parse_vendor_tuples(lines: list[str]) -> dict[str, dict[int, int]]:
     for block in named_blocks(lines, "SectionVendorTuples"):
         values: dict[int, int] = {}
         for line in block.lines:
-            match = re.match(r"^\s*token(\d+)\s+(0[xX][0-9a-fA-F]+|\d+)\s*$", line)
+            match = re.match(r"^\s*token(\d+)\s+(-?0[xX][0-9a-fA-F]+|-?\d+)\s*$", line)
             if match:
                 values[int(match.group(1))] = int(match.group(2), 0)
         tuples[block.name] = values
@@ -316,36 +316,73 @@ def parse_widgets(lines: list[str]) -> dict[str, dict]:
 
 
 def parse_graphs(lines: list[str]) -> list[dict]:
-    start, body = section_lines(lines, "SectionGraph")
     graphs: list[dict] = []
-    current: dict | None = None
-    depth = 0
-    for offset, line in enumerate(body[1:-1], start=1):
-        if current is None:
-            match = re.match(r"^\s*(set\d+)\s*\{", line)
-            if match:
-                current = {"name": match.group(1), "index": None, "edges": []}
-                depth = line.count("{") - line.count("}")
+
+    def parse_body(name: str, body: list[str], start_line: int) -> dict:
+        graph = {"name": name, "index": None, "edges": []}
+        for offset, line in enumerate(body, start=0):
+            index_match = re.match(r"^\s*index\s+(\d+)", line)
+            if index_match:
+                graph["index"] = int(index_match.group(1))
+            edge_match = re.match(r"^\s*'([^,]+),\s*([^,]*),\s*([^']+)'", line)
+            if edge_match:
+                sink, control, source = (part.strip() for part in edge_match.groups())
+                graph["edges"].append(
+                    {
+                        "source": source,
+                        "sink": sink,
+                        "control": control or None,
+                        "decoded_line": start_line + offset,
+                    }
+                )
+        return graph
+
+    # alsatplg may decode either the nested input form:
+    #   SectionGraph { set0 { ... } }
+    # or the normalized flattened form:
+    #   SectionGraph.set0 { ... }
+    start, body = section_lines(lines, "SectionGraph")
+    if body:
+        current_name: str | None = None
+        current_lines: list[str] = []
+        current_start = 0
+        depth = 0
+        for offset, line in enumerate(body[1:-1], start=1):
+            if current_name is None:
+                match = re.match(r"^\s*(set\d+)\s*\{", line)
+                if match:
+                    current_name = match.group(1)
+                    current_lines = []
+                    current_start = start + offset
+                    depth = line.count("{") - line.count("}")
+                continue
+            current_lines.append(line)
+            depth += line.count("{") - line.count("}")
+            if depth <= 0:
+                graphs.append(parse_body(current_name, current_lines, current_start + 1))
+                current_name = None
+                current_lines = []
+                depth = 0
+
+    flat_header = re.compile(r"^SectionGraph\.(set\d+)\s*\{")
+    index = 0
+    while index < len(lines):
+        match = flat_header.match(lines[index])
+        if not match:
+            index += 1
             continue
-        index_match = re.match(r"^\s*index\s+(\d+)", line)
-        if index_match:
-            current["index"] = int(index_match.group(1))
-        edge_match = re.match(r"^\s*'([^,]+),\s*([^,]*),\s*([^']+)'", line)
-        if edge_match:
-            sink, control, source = (part.strip() for part in edge_match.groups())
-            current["edges"].append(
-                {
-                    "source": source,
-                    "sink": sink,
-                    "control": control or None,
-                    "decoded_line": start + offset,
-                }
-            )
-        depth += line.count("{") - line.count("}")
-        if depth <= 0:
-            graphs.append(current)
-            current = None
-            depth = 0
+        name = match.group(1)
+        depth = lines[index].count("{") - lines[index].count("}")
+        body_lines = []
+        start_line = index + 2
+        index += 1
+        while index < len(lines) and depth > 0:
+            line = lines[index]
+            depth += line.count("{") - line.count("}")
+            if depth > 0:
+                body_lines.append(line)
+            index += 1
+        graphs.append(parse_body(name, body_lines, start_line))
     return graphs
 
 

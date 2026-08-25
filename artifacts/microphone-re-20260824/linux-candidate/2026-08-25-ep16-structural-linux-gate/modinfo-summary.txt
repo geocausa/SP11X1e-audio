@@ -1,0 +1,16 @@
+=== q6apm-dai.ko ===
+srcversion:     6DB5F080A4FB65907E0A55C
+name:           q6apm_dai
+vermagic:       7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64
+=== q6apm-lpass-dais.ko ===
+srcversion:     15945961E9AEFE7CF4AB0CE
+name:           q6apm_lpass_dais
+vermagic:       7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64
+=== snd-q6apm.ko ===
+srcversion:     0AD029ED40D31D5598ADFA4
+name:           snd_q6apm
+vermagic:       7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64
+=== snd-soc-lpass-tx-macro.ko ===
+srcversion:     FC94091EA4692E986659BD7
+name:           snd_soc_lpass_tx_macro
+vermagic:       7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64

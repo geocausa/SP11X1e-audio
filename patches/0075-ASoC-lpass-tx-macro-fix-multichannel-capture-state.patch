@@ -1,0 +1,73 @@
+From: SP11 audio reverse-engineering <sp11-audio@local>
+Date: Tue, 25 Aug 2026 12:40:00 +0100
+Subject: [PATCH] ASoC: lpass-tx-macro: handle all active capture decimators
+
+TX_AIF capture exposes a bitmap of active decimators, but the mixer and mute
+paths also keep a single active_decimator index.  With the stereo MicArray
+mapping used by Windows on Surface Pro 11 (DEC0 + DEC1), disabling one lane can
+leave stale bitmap state and DAI mute only touches the last-selected lane.
+
+Make the bitmap authoritative for mixer enable/disable and apply DAI mute to
+every active decimator.  This matches the Windows lifecycle, which explicitly
+mutes and unmutes both TX0 and TX1 paths.
+
+---
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -887,20 +887,20 @@
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+ 
+ 	if (enable) {
+-		if (tx->active_decimator[dai_id] == dec_id)
++		if (test_bit(dec_id, &tx->active_ch_mask[dai_id]))
+ 			return 0;
+ 
+ 		set_bit(dec_id, &tx->active_ch_mask[dai_id]);
+ 		tx->active_ch_cnt[dai_id]++;
+-		tx->active_decimator[dai_id] = dec_id;
+ 	} else {
+-		if (tx->active_decimator[dai_id] == -1)
++		if (!test_bit(dec_id, &tx->active_ch_mask[dai_id]))
+ 			return 0;
+ 
+ 		tx->active_ch_cnt[dai_id]--;
+ 		clear_bit(dec_id, &tx->active_ch_mask[dai_id]);
+-		tx->active_decimator[dai_id] = -1;
+-	}
++	}
++	tx->active_decimator[dai_id] = tx->active_ch_cnt[dai_id] ?
++		find_first_bit(&tx->active_ch_mask[dai_id], TX_MACRO_DEC_MAX) : -1;
+ 	snd_soc_dapm_mixer_update_power(widget->dapm, kcontrol, enable, update);
+ 
+ 	return 1;
+@@ -1192,20 +1192,16 @@
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+ 	u8 decimator;
+ 
+-	/* active decimator not set yet */
+-	if (tx->active_decimator[dai->id] == -1)
+-		return 0;
+-
+-	decimator = tx->active_decimator[dai->id];
+-
+-	if (mute)
+-		snd_soc_component_write_field(component,
+-					      CDC_TXn_TX_PATH_CTL(decimator),
+-					      CDC_TXn_PGA_MUTE_MASK, 0x1);
+-	else
+-		snd_soc_component_update_bits(component,
+-					      CDC_TXn_TX_PATH_CTL(decimator),
+-					      CDC_TXn_PGA_MUTE_MASK, 0x0);
++	for_each_set_bit(decimator, &tx->active_ch_mask[dai->id], TX_MACRO_DEC_MAX) {
++		if (mute)
++			snd_soc_component_write_field(component,
++						      CDC_TXn_TX_PATH_CTL(decimator),
++						      CDC_TXn_PGA_MUTE_MASK, 0x1);
++		else
++			snd_soc_component_update_bits(component,
++						      CDC_TXn_TX_PATH_CTL(decimator),
++						      CDC_TXn_PGA_MUTE_MASK, 0x0);
++	}
+ 
+ 	return 0;
+ }

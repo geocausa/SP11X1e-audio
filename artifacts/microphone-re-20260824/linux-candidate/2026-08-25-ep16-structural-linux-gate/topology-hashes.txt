@@ -1,0 +1,3 @@
+7034ecb12a38c1fef51563f75a2944e0ef04961452723353c0b7208495498974  ep16-structural.conf
+b3f5f310ae9796eff3491e2ac97f6154b964e2ee2507ba91ab22c57bbbadcb05  ep16-structural.tplg (compiled validation binary; not committed)
+d041bf5416fc55fcb63a2d28d297b0523623a4f84e5172957218efdd84f48886  ep16-structural.inventory.json

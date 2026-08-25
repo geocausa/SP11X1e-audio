@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "windows_runtime_graphopen_sha256": "f5c112b8b45aea730e06650995574ff2f88c747685a080a2118a3a1aadd2d4bb",
+  "module_count": 15,
+  "dsp_edge_count": 14,
+  "dapm_edge_count": 15,
+  "subgraphs": ["0xb0000040", "0xb0000041", "0xb0000044"],
+  "capture_frontend_graph_id": 2,
+  "linux_backend": "TX_CODEC_DMA_TX_3",
+  "linux_backend_id": 120,
+  "codec_dma_iid": "0x000040c8",
+  "codec_dma_hw_interface_type": 1,
+  "codec_dma_hw_interface_index": 4,
+  "codec_dma_data_format": 1,
+  "host_terminal_iid": "0x000040dc",
+  "host_terminal_module_id": "0x07001007",
+  "pcm_cnv_iid": "0x000040de",
+  "pcm_cnv_interleave": null,
+  "runtime_complete": false,
+  "bootable": false,
+  "remaining_evidence_gates": [
+    "Windows EP16 PCM_CNV 0x08001008 payload/interleave",
+    "Windows EP16 SH_MEM_PUSH_MODE 0x0800100a ring/position configuration"
+  ]
+}
