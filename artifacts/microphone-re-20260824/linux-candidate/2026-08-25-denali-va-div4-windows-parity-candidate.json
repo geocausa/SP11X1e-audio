@@ -1,0 +1,34 @@
+﻿{
+    "date":  "2026-08-25",
+    "candidate":  "Denali VA DMIC divider Windows parity",
+    "patch":  "patches/0072-ASoC-lpass-va-macro-SP11-match-Windows-DMIC-divider.patch",
+    "patch_sha256":  "594922b8d8754d6515581c7dfd6b10d4b6d5656c6d130538e158f4a71eb3b2a2",
+    "scope":  "root compatible microsoft,denali only",
+    "windows":  {
+                    "va_mclk_hz":  19200000,
+                    "dmic0_selector":  2,
+                    "dmic0_enable":  1,
+                    "dmic0_ctl_byte":  "0x05"
+                },
+    "linux_before":  {
+                         "dt_dmic_sample_rate_hz":  4800000,
+                         "divider_basis_hz":  9600000,
+                         "factor":  2,
+                         "selector":  0,
+                         "ctl_byte":  "0x01"
+                     },
+    "linux_candidate":  {
+                            "dt_dmic_sample_rate_hz":  4800000,
+                            "divider_basis_hz":  19200000,
+                            "factor":  4,
+                            "selector":  2,
+                            "ctl_byte":  "0x05"
+                        },
+    "gates":  [
+                  "git apply --check PASS against linux-sp11-reconstruction",
+                  "of_machine_is_compatible declaration confirmed in HEAD:include/linux/of.h",
+                  "Denali OLED/LCD root compatibles include microsoft,denali",
+                  "non-Denali divider basis remains 9.6 MHz"
+              ],
+    "runtime_status":  "not yet boot-tested on Linux"
+}
