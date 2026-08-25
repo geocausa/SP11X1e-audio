@@ -1,0 +1,37 @@
+{
+  "date": "2026-08-25",
+  "evidence_class": "Windows EP16 oracle plus stock Linux topology ABI mapping",
+  "windows": {
+    "endpoint": 16,
+    "codec_dma_iid": "0x000040c8",
+    "codec_dma_mid": "0x07001024",
+    "lpaif_family": "LPAIF_RXTX",
+    "interface_index": 4,
+    "active_channel_mask": 3,
+    "providers": [0, 1],
+    "type15_lanes": [0, 1],
+    "macro": "LPASS TX"
+  },
+  "linux_mapping": {
+    "backend_dai": "TX_CODEC_DMA_TX_3",
+    "backend_dai_id": 120,
+    "topology_hw_interface_type": 1,
+    "topology_hw_interface_index": 4,
+    "codec_side_dai": "lpass_txmacro DAI 0 / TX_AIF1 Capture",
+    "reference": "stock X1E80100-Romulus topology and DTS, syntax/ABI reference only"
+  },
+  "rejected_for_windows_default": {
+    "backend_dai": "VA_CODEC_DMA_TX_0",
+    "reason": "maps the separate EP2 LPAIF_VA/interface_index=1 sibling rather than visible EP16"
+  },
+  "windows_tx_lane_mux": {
+    "dec0": "DMIC1",
+    "dec1": "DMIC0",
+    "evidence": [
+      "TX+0x0100[7:4] = 2",
+      "TX+0x0108[7:4] = 1",
+      "TX+0x0104[1:0] = 0 (MSM_DMIC)",
+      "TX+0x010c[1:0] = 0 (MSM_DMIC)"
+    ]
+  }
+}
