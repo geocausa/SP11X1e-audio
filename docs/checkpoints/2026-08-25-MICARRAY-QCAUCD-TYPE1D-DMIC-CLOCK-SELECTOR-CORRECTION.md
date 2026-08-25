@@ -1,10 +1,48 @@
-# MicArray qcaucd type-0x1D RPMH_COMMIT closure
+# MicArray qcaucd type-0x1D DMIC clock-selector correction
 
-## Result
+## Correction
 
-The previously unnamed qcaucd global resource type `0x1D` is now statically closed as **`RPMH_COMMIT` / `RpmhCommit`**.
+Commit `3597361` made an invalid cross-driver enum inference:
 
-This is the same live resource consumed by qcaucd's DMIC executor at `FUN_140033828` / RVA `0x33828`:
+```text
+qcaucd compact resource type 0x1D
+    == qcpep PEP resource code 0x1D
+    == RPMH_COMMIT
+```
+
+That equality is **not valid**. The numeric values belong to different resource-enum domains.
+
+This checkpoint supersedes the semantic conclusion of `3597361` while preserving its useful qcpep parser discovery as a separate fact.
+
+## Why the RPMH_COMMIT identification is rejected
+
+qcpep does indeed define its own resource code `0x1D` as:
+
+```text
+factory literal: RPMH_COMMIT
+class name:      RpmhCommit
+constructor:     qcpep8380+0x0f298
+name method:     qcpep8380+0x0f300
+```
+
+But further qcpep analysis closes that PEP resource as a PCIe-driver resource:
+
+```text
+RpmhCommit parser requires internal driver enum 0x10
+
+live qcpep enum table:
+  HLOS_DRV    -> 0x02
+  DISPLAY_DRV -> 0x09
+  PCIE_DRV    -> 0x10
+```
+
+qcpep also contains explicit diagnostics stating that RPMH_COMMIT is valid for `PCIE_DRV`.
+
+Therefore qcpep resource code `0x1D` cannot be used as a symbolic dictionary for qcaucd's unrelated compact audio resource type numbers.
+
+## What is actually closed for qcaucd type 0x1D
+
+The live qcaucd compact global record remains:
 
 ```text
 +0x00 type  = 0x1D
@@ -13,93 +51,114 @@ This is the same live resource consumed by qcaucd's DMIC executor at `FUN_140033
 +0x0C       = 0
 ```
 
-The earlier mode mapping remains valid:
+`FUN_140033828` / RVA `0x33828` retrieves this record from the qcaucd-owned global resource list and consumes `+0x08` as a selector input for the DMIC group programming path.
+
+Its exact accepted mapping is:
 
 ```text
-4  -> mode 0
-6  -> mode 1
-8  -> mode 2   <- current SP11
-16 -> mode 4
-32 -> mode 5
+raw value   selector
+---------   --------
+4           0
+6           1
+8           2   <- current SP11
+12          rejected by qcaucd
+16          4
+32          5
 ```
 
-Thus the current MicArray path is:
+The selected value is passed to `FUN_140033738`, which writes the DMIC-group field:
 
 ```text
-RPMH_COMMIT value 8
-  -> qcaucd mode 2
-  -> DMIC group0 register 0x3084 bits[3:1] = 010
-  -> byte 0x04 configured
-  -> byte 0x05 while run bit0 is enabled
+register = ((group + 0xC21) << 2)
+mask     = 0x0E
+shift    = 1
 ```
 
-## Provider/source closure
-
-qcaucd does not synthesize this resource at capture time. Its initialization path:
+For the current MicArray group 0:
 
 ```text
-AUCD\ASLResourceFile\BinaryPath
-  -> ZwOpenFile / ZwReadFile
-  -> parser callback registered dynamically
+logical register 0x3084
+selector 2 -> field bits[3:1] = 010
+configured byte = 0x04
+running byte    = 0x05  (bit0 is the run gate)
 ```
 
-A live KD read of qcaucd's resolved parser callback showed:
+## Independent Linux register semantics
+
+The Qualcomm LPASS TX-macro Linux driver defines the corresponding DMIC control field as:
+
+```c
+#define CDC_TX_SWR_DMIC_CLK_SEL_MASK GENMASK(3, 1)
+```
+
+and its selector enum is:
 
 ```text
-qcaucd DAT_140017ea0
-  -> qcpep8380.sys + 0x39b20
+0 -> DIV2
+1 -> DIV3
+2 -> DIV4
+3 -> DIV6
+4 -> DIV8
+5 -> DIV16
 ```
 
-The exact SP11 qcpep image used for static verification is:
+Thus the Windows live value `8` selects:
 
 ```text
-C:\Windows\System32\DriverStore\FileRepository\qcpep.wd8380.inf_arm64_eb671871f8fef501\qcpep8380.sys
-SHA-256 e5bdeb8c0fb8823990f7520a19c00807711cf909f91f8d67db78ffb18c1b2277
+qcaucd raw 8
+  -> selector 2
+  -> DMIC clock DIV4
 ```
 
-`qcpep8380+0x39b20` calls the bundled ACPI/resource binary parser at RVA `0x40bc08`.
-
-## Resource factory proof
-
-qcpep's parsed-resource factory at `FUN_140400f20` maps the literal resource name `RPMH_COMMIT` to resource code `0x1D` and constructs:
+The accepted qcaucd raw values also follow the notable relationship:
 
 ```text
-FUN_14000f298(obj, 0x1D)
+raw = 2 * divider
+
+4  -> DIV2
+6  -> DIV3
+8  -> DIV4
+16 -> DIV8
+32 -> DIV16
 ```
 
-That constructor installs vtable RVA `0x288660`.
+`raw 12`, which would correspond to DIV6/selector3 by that relation, is explicitly rejected by this qcaucd path.
 
-The vtable's virtual name method at RVA `0x0f300` returns exactly:
+## What remains open
+
+The **functional meaning** of the record in the MicArray path is now strong: its value selects the DMIC clock divider.
+
+The original symbolic name of qcaucd compact resource type `0x1D` is still unknown. Do not call it `RPMH_COMMIT`.
+
+One address-layout detail also remains to be closed before directly patching Linux from this result: Windows qcaucd uses logical register `0x3084`, whereas existing Linux TX-macro definitions use their own register-offset view. The bitfield semantics match, but the X1E80100 logical-to-physical register mapping should be verified explicitly.
+
+## Linux implication
+
+This exposes a high-value parity target:
 
 ```text
-"RpmhCommit"
+Windows EP16/TX MicArray: DMIC selector 2 = DIV4
+Linux TX macro default:   selector 0 = DIV2 unless dmic_clk_div is configured elsewhere
 ```
 
-Therefore:
+That mismatch is now a concrete candidate for the remaining Linux microphone failure/quality problem, but it should not be modified until the X1E TX-macro register/address and clock-source interpretation are closed.
+
+## Source/resource context
+
+The qcaucd device's configured ASL resource file is:
 
 ```text
-qcaucd type 0x1D
-  == qcpep resource code 0x1D
-  == factory literal RPMH_COMMIT
-  == virtual class name RpmhCommit
+C:\WINDOWS\System32\DriverStore\FileRepository\surface_aucdext8380.inf_arm64_44c11b540a6e5590\ACDResources.bin
+SHA-256 23c4beab4aabd229af86ca5fa4807e45bb2ecb7365445484aa5cf27414fe1779
+size 5423 bytes
 ```
 
-This removes the earlier ambiguity that `0x1D` might merely be an unidentified clock/rate/divider resource.
-
-## Remaining open semantic
-
-The **resource type** is closed, but the meaning of its current payload value `8` is not yet closed. It must not yet be called a sample rate, clock divider, or RPMh command-set ID without additional evidence.
-
-The next target is the `RpmhCommit` parser/executor field flow: determine what ACPI/ASL field produces the live value `8`, then identify why qcaucd maps its allowed values `{4,6,8,16,32}` to DMIC modes `{0,1,2,4,5}`.
-
-## Evidence
+It is an `AeoB` serialized resource tree. It does not contain a literal `RPMH_COMMIT` string, further removing the basis for the earlier cross-driver name assignment.
 
 Machine-readable oracle:
 
-`artifacts/microphone-re-20260824/windows-oracle/runtime/2026-08-25-qcaucd-type1d-rpmh-commit.json`
+`artifacts/microphone-re-20260824/windows-oracle/runtime/2026-08-25-qcaucd-type1d-dmic-clock-selector.json`
 
-Static scratch evidence used during closure remains outside the release branch workspace; the qcpep binary itself is deliberately not committed.
+## Target state
 
-## Safety/state
-
-The live callback/list inspection was read-only. A malformed temporary WinDbg loop left SP11 stopped at the probe once; the live resource list was extracted, all breakpoints were cleared, and SP11 was resumed. No reboot, device restart, service restart, registry mutation, or audio-setting mutation was performed.
+All temporary KD breakpoints were cleared. SP11 was resumed after the live enum-table read. No reboot, service/device restart, registry change, or audio-setting mutation was performed.

@@ -1,31 +1,47 @@
 {
-  "schema": 1,
-  "subject": "qcaucd global resource type 0x1d",
+  "schema": 2,
+  "subject": "qcaucd compact global resource type 0x1d in the MicArray DMIC path",
+  "correction_of_commit": "3597361",
+  "correction": "The earlier identification of qcaucd compact type 0x1d as qcpep RPMH_COMMIT was invalid. The two drivers use distinct resource enums; numeric equality alone did not establish identity.",
   "live_record": {
     "type": "0x0000001d",
     "id": "0xffffffff",
     "value": 8,
-    "qcaucd_consumer_rva": "0x33828",
-    "qcaucd_mode_mapping": {
-      "4": 0,
-      "6": 1,
-      "8": 2,
-      "16": 4,
-      "32": 5
-    }
+    "qcaucd_lookup_rva": "0x28a80",
+    "qcaucd_consumer_rva": "0x33828"
   },
-  "source": {
-    "owner": "qcpep8380.sys",
-    "sha256": "e5bdeb8c0fb8823990f7520a19c00807711cf909f91f8d67db78ffb18c1b2277",
-    "qcaucd_parser_callback_target": "qcpep8380+0x39b20",
-    "qcpep_binary_parser_rva": "0x40bc08",
-    "resource_factory_rva": "0x400f20",
-    "resource_code": "0x1d",
-    "constructor_rva": "0x0f298",
-    "vtable_rva": "0x288660",
-    "virtual_name_method_rva": "0x0f300",
-    "virtual_name": "RpmhCommit",
-    "factory_literal": "RPMH_COMMIT"
+  "qcaucd_value_to_selector": {
+    "4": 0,
+    "6": 1,
+    "8": 2,
+    "12": "rejected",
+    "16": 4,
+    "32": 5
   },
-  "conclusion": "qcaucd resource type 0x1d is the platform RPMH_COMMIT/RpmhCommit resource. The semantic meaning of the live payload value 8 remains open."
+  "linux_tx_macro_selector_to_divider": {
+    "0": "DIV2",
+    "1": "DIV3",
+    "2": "DIV4",
+    "3": "DIV6",
+    "4": "DIV8",
+    "5": "DIV16"
+  },
+  "register_evidence": {
+    "windows_group0_logical_register": "0x3084",
+    "windows_mask": "0x0e",
+    "windows_shift": 1,
+    "windows_selected_value": 2,
+    "windows_configured_byte": "0x04",
+    "windows_running_byte": "0x05",
+    "linux_field_name": "CDC_TX_SWR_DMIC_CLK_SEL_MASK",
+    "linux_field_mask": "GENMASK(3,1)",
+    "linux_source": "sound/soc/codecs/lpass-tx-macro.c"
+  },
+  "qcpep_disproof": {
+    "qcpep_resource_code_0x1d": "RPMH_COMMIT / RpmhCommit",
+    "qcpep_rpmh_required_driver_enum": "0x10",
+    "qcpep_runtime_driver_enum_0x10": "PCIE_DRV",
+    "reason_not_equivalent": "qcpep PEP resource-code enum and qcaucd compact AUCD resource enum are distinct domains"
+  },
+  "conclusion": "For the MicArray path, qcaucd compact type 0x1d value 8 is consumed as DMIC clock-selector input and selects selector 2, corresponding to TX-macro DIV4. The original symbolic name of qcaucd compact type 0x1d remains unknown."
 }
