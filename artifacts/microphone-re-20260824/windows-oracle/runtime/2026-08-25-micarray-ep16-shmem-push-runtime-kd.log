@@ -1,0 +1,691 @@
+Opened log file 'C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\mic-wavert-oracle_0448_2026-08-25_14-25-01-934.log'
+DBGK: DbgkWerCaptureLiveKernelDump: WerLiveKernelCreateReport failed, status 0xc0000099.
+
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`6ce013b0 d43e0000 brk         #0xF000
+0: kd> lm m qcadcm; lm m qcasd; lm m qcaucd; lm m QCAUD
+Browse full module list
+start             end                 module name
+Browse full module list
+start             end                 module name
+Browse full module list
+start             end                 module name
+Browse full module list
+start             end                 module name
+0: kd> lm 1m
+nt
+qcwlanhmt8380
+netadaptercx
+WifiCx
+qcwlanhmt8380.sys
+WifiCx.sys
+netadaptercx.sys
+qcwlanhmt8380.sys
+WifiCx.sys
+netadaptercx.sys
+NetworkPrivacyPolicy.sys
+l1vhlwf.sys
+WUDFRd.sys
+dump_storport.sys
+dump_stornvme.sys
+dump_dumpfve.sys
+ufxsynopsys.sys
+ufx01000.sys
+QcUsbFnSsFilter8380.sys
+WUDFRd.sys
+WUDFRd.sys
+WUDFRd.sys
+WUDFRd.sys
+WUDFRd.sys
+WUDFRd.sys
+WUDFRd.sys
+qccamsecureisp8380.sys
+WUDFRd.sys
+WUDFRd.sys
+WUDFRd.sys
+WUDFRd.sys
+WUDFRd.sys
+WdBoot.sys
+0: kd> lm
+start             end                 module name
+fffff802`6cc00000 fffff802`6de4a000   nt         (pdb symbols)          C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\sym\ntkrnlmp.pdb\423860BC064B27DFDB7F027CD5B058A61\ntkrnlmp.pdb
+fffff802`71120000 fffff802`71562000   qcwlanhmt8380   (deferred)             
+fffff802`71570000 fffff802`715ce000   netadaptercx   (deferred)             
+fffff802`715e0000 fffff802`716f1000   WifiCx     (deferred)             
+
+Unloaded modules:
+fffff802`71120000 fffff802`71567000   qcwlanhmt8380.sys
+fffff802`715e0000 fffff802`716f6000   WifiCx.sys
+fffff802`71570000 fffff802`715d3000   netadaptercx.sys
+fffff802`698a0000 fffff802`69ce7000   qcwlanhmt8380.sys
+fffff802`69d90000 fffff802`69ea6000   WifiCx.sys
+fffff802`69cf0000 fffff802`69d53000   netadaptercx.sys
+fffff802`70d90000 fffff802`70db2000   NetworkPrivacyPolicy.sys
+fffff802`703f0000 fffff802`70416000   l1vhlwf.sys
+fffff802`703f0000 fffff802`70453000   WUDFRd.sys
+fffff802`6b6a0000 fffff802`6b6bd000   dump_storport.sys
+fffff802`6b710000 fffff802`6b75d000   dump_stornvme.sys
+fffff802`6b790000 fffff802`6b7b5000   dump_dumpfve.sys
+fffff802`6eb40000 fffff802`6eb72000   ufxsynopsys.sys
+fffff802`6eb80000 fffff802`6ebd7000   ufx01000.sys
+fffff802`6ead0000 fffff802`6eb32000   QcUsbFnSsFilter8380.sys
+fffff802`6f4a0000 fffff802`6f503000   WUDFRd.sys
+fffff802`6f430000 fffff802`6f493000   WUDFRd.sys
+fffff802`6f110000 fffff802`6f173000   WUDFRd.sys
+fffff802`6f2f0000 fffff802`6f353000   WUDFRd.sys
+fffff802`6ec50000 fffff802`6ecb3000   WUDFRd.sys
+fffff802`6ebe0000 fffff802`6ec43000   WUDFRd.sys
+fffff802`6e9e0000 fffff802`6ea43000   WUDFRd.sys
+fffff802`6bef0000 fffff802`6bf2b000   qccamsecureisp8380.sys
+fffff802`6bc60000 fffff802`6bcc3000   WUDFRd.sys
+fffff802`6a000000 fffff802`6a063000   WUDFRd.sys
+fffff802`69f90000 fffff802`69ff3000   WUDFRd.sys
+fffff802`69eb0000 fffff802`69f13000   WUDFRd.sys
+fffff802`6b300000 fffff802`6b363000   WUDFRd.sys
+fffff802`674a0000 fffff802`674af000   WdBoot.sys
+0: kd> g
+DBGK: DbgkWerCaptureLiveKernelDump: WerLiveKernelCreateReport failed, status 0xc0000099.
+
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`6ce013b0 d43e0000 brk         #0xF000
+0: kd> u fffff802`701925a0 L8; u fffff802`7018e750 L4; u fffff802`7018fc20 L4; u fffff802`701907d0 L4
+fffff802`701925a0 d503237f pacibsp
+fffff802`701925a4 a9bb53f3 stp         x19,x20,[sp,#-0x50]!
+fffff802`701925a8 a9015bf5 stp         x21,x22,[sp,#0x10]
+fffff802`701925ac a90263f7 stp         x23,x24,[sp,#0x20]
+fffff802`701925b0 a9036bf9 stp         x25,x26,[sp,#0x30]
+fffff802`701925b4 f90023fb str         x27,[sp,#0x40]
+fffff802`701925b8 a9bd7bfd stp         fp,lr,[sp,#-0x30]!
+fffff802`701925bc 910003fd mov         fp,sp
+fffff802`7018e750 ?? ???
+                                                    ^ Memory access error in 'u fffff802`701925a0 l8; u fffff802`7018e750 l4; u fffff802`7018fc20 L4; u fffff802`701907d0 L4'
+0: kd> u fffff802`701925a0 L180
+fffff802`701925a0 d503237f pacibsp
+fffff802`701925a4 a9bb53f3 stp         x19,x20,[sp,#-0x50]!
+fffff802`701925a8 a9015bf5 stp         x21,x22,[sp,#0x10]
+fffff802`701925ac a90263f7 stp         x23,x24,[sp,#0x20]
+fffff802`701925b0 a9036bf9 stp         x25,x26,[sp,#0x30]
+fffff802`701925b4 f90023fb str         x27,[sp,#0x40]
+fffff802`701925b8 a9bd7bfd stp         fp,lr,[sp,#-0x30]!
+fffff802`701925bc 910003fd mov         fp,sp
+fffff802`701925c0 aa0003f6 mov         x22,x0
+fffff802`701925c4 b90013e1 str         w1,[sp,#0x10]
+fffff802`701925c8 2a0203f7 mov         w23,w2
+fffff802`701925cc a9018fe4 stp         x4,x3,[sp,#0x18]
+fffff802`701925d0 aa0503fb mov         x27,x5
+fffff802`701925d4 aa0603fa mov         x26,x6
+fffff802`701925d8 f0fffd08 adrp        x8,fffff802`70135000
+fffff802`701925dc 912b8114 add         x20,x8,#0xAE0
+fffff802`701925e0 f9400288 ldr         x8,[x20]
+fffff802`701925e4 eb14011f cmp         x8,x20
+fffff802`701925e8 540002c0 beq         fffff802`70192640
+fffff802`701925ec f0fffd08 adrp        x8,fffff802`70135000
+fffff802`701925f0 f9455908 ldr         x8,[x8,#0xAB0]
+fffff802`701925f4 f0fffc53 adrp        x19,fffff802`7011d000
+fffff802`701925f8 79409108 ldrh        w8,[x8,#0x48]
+fffff802`701925fc 340000e8 cbz         w8,fffff802`70192618
+fffff802`70192600 91272264 add         x4,x19,#0x9C8
+fffff802`70192604 52800523 mov         w3,#0x29
+fffff802`70192608 52800082 mov         w2,#4
+fffff802`7019260c 528000a1 mov         w1,#5
+fffff802`70192610 d2800000 mov         x0,#0
+fffff802`70192614 97fdce7f bl          fffff802`70106010
+fffff802`70192618 f9400288 ldr         x8,[x20]
+fffff802`7019261c eb14011f cmp         x8,x20
+fffff802`70192620 54000100 beq         fffff802`70192640
+fffff802`70192624 2a1703e5 mov         w5,w23
+fffff802`70192628 91272264 add         x4,x19,#0x9C8
+fffff802`7019262c 52800543 mov         w3,#0x2A
+fffff802`70192630 52800062 mov         w2,#3
+fffff802`70192634 52800081 mov         w1,#4
+fffff802`70192638 d2800000 mov         x0,#0
+fffff802`7019263c 97fdcead bl          fffff802`701060f0
+fffff802`70192640 f940c2ca ldr         x10,[x22,#0x180]
+fffff802`70192644 b9418ed5 ldr         w21,[x22,#0x18C]
+fffff802`70192648 b9415ad8 ldr         w24,[x22,#0x158]
+fffff802`7019264c f940aad3 ldr         x19,[x22,#0x150]
+fffff802`70192650 79400548 ldrh        w8,[x10,#2]
+fffff802`70192654 79401d49 ldrh        w9,[x10,#0xE]
+fffff802`70192658 1b087d29 mul         w9,w9,w8
+fffff802`7019265c b9400548 ldr         w8,[x10,#4]
+fffff802`70192660 1b087d29 mul         w9,w9,w8
+fffff802`70192664 18000ce8 ldr         w8,fffff802`70192800
+fffff802`70192668 9ba87d28 umull       x8,w9,w8
+fffff802`7019266c d369fd19 lsr         x25,x8,#0x29
+fffff802`70192670 f9400288 ldr         x8,[x20]
+fffff802`70192674 eb14011f cmp         x8,x20
+fffff802`70192678 54000100 beq         fffff802`70192698
+fffff802`7019267c f0fffc48 adrp        x8,fffff802`7011d000
+fffff802`70192680 91230104 add         x4,x8,#0x8C0
+fffff802`70192684 528035e3 mov         w3,#0x1AF
+fffff802`70192688 528001e2 mov         w2,#0xF
+fffff802`7019268c 52800081 mov         w1,#4
+fffff802`70192690 d2800000 mov         x0,#0
+fffff802`70192694 97fdce5f bl          fffff802`70106010
+fffff802`70192698 2a1803e1 mov         w1,w24
+fffff802`7019269c aa1303e0 mov         x0,x19
+fffff802`701926a0 97ffe3ea bl          fffff802`7018b648
+fffff802`701926a4 35000480 cbnz        w0,fffff802`70192734
+fffff802`701926a8 aa1303e0 mov         x0,x19
+fffff802`701926ac 97ffe3f3 bl          fffff802`7018b678
+fffff802`701926b0 35000420 cbnz        w0,fffff802`70192734
+fffff802`701926b4 aa1303e0 mov         x0,x19
+fffff802`701926b8 97fdc6f8 bl          fffff802`70104298
+fffff802`701926bc 34000380 cbz         w0,fffff802`7019272c
+fffff802`701926c0 35000378 cbnz        w24,fffff802`7019272c
+fffff802`701926c4 710006bf cmp         w21,#1
+fffff802`701926c8 540002e0 beq         fffff802`70192724
+fffff802`701926cc 71000abf cmp         w21,#2
+fffff802`701926d0 54000260 beq         fffff802`7019271c
+fffff802`701926d4 710012bf cmp         w21,#4
+fffff802`701926d8 540001e0 beq         fffff802`70192714
+fffff802`701926dc 71002abf cmp         w21,#0xA
+fffff802`701926e0 54000160 beq         fffff802`7019270c
+fffff802`701926e4 710052bf cmp         w21,#0x14
+fffff802`701926e8 540000e0 beq         fffff802`70192704
+fffff802`701926ec 7100a2bf cmp         w21,#0x28
+fffff802`701926f0 54000060 beq         fffff802`701926fc
+fffff802`701926f4 b9439e73 ldr         w19,[x19,#0x39C]
+fffff802`701926f8 14000020 b           fffff802`70192778
+fffff802`701926fc b943b673 ldr         w19,[x19,#0x3B4]
+fffff802`70192700 1400001e b           fffff802`70192778
+fffff802`70192704 b943b273 ldr         w19,[x19,#0x3B0]
+fffff802`70192708 1400001c b           fffff802`70192778
+fffff802`7019270c b943ae73 ldr         w19,[x19,#0x3AC]
+fffff802`70192710 1400001a b           fffff802`70192778
+fffff802`70192714 b943aa73 ldr         w19,[x19,#0x3A8]
+fffff802`70192718 14000018 b           fffff802`70192778
+fffff802`7019271c b943a273 ldr         w19,[x19,#0x3A0]
+fffff802`70192720 14000016 b           fffff802`70192778
+fffff802`70192724 b943a673 ldr         w19,[x19,#0x3A4]
+fffff802`70192728 14000014 b           fffff802`70192778
+fffff802`7019272c 52800293 mov         w19,#0x14
+fffff802`70192730 14000012 b           fffff802`70192778
+fffff802`70192734 710006bf cmp         w21,#1
+fffff802`70192738 540001e0 beq         fffff802`70192774
+fffff802`7019273c 71000abf cmp         w21,#2
+fffff802`70192740 54000160 beq         fffff802`7019276c
+fffff802`70192744 710012bf cmp         w21,#4
+fffff802`70192748 540000e0 beq         fffff802`70192764
+fffff802`7019274c 710022bf cmp         w21,#8
+fffff802`70192750 54000060 beq         fffff802`7019275c
+fffff802`70192754 b943ba73 ldr         w19,[x19,#0x3B8]
+fffff802`70192758 14000008 b           fffff802`70192778
+fffff802`7019275c b943ca73 ldr         w19,[x19,#0x3C8]
+fffff802`70192760 14000006 b           fffff802`70192778
+fffff802`70192764 b943c673 ldr         w19,[x19,#0x3C4]
+fffff802`70192768 14000004 b           fffff802`70192778
+fffff802`7019276c b943be73 ldr         w19,[x19,#0x3BC]
+fffff802`70192770 14000002 b           fffff802`70192778
+fffff802`70192774 b943c273 ldr         w19,[x19,#0x3C0]
+fffff802`70192778 f9400288 ldr         x8,[x20]
+fffff802`7019277c eb14011f cmp         x8,x20
+fffff802`70192780 54000100 beq         fffff802`701927a0
+fffff802`70192784 f0fffc48 adrp        x8,fffff802`7011d000
+fffff802`70192788 91230104 add         x4,x8,#0x8C0
+fffff802`7019278c 2a1303e6 mov         w6,w19
+fffff802`70192790 2a1503e5 mov         w5,w21
+fffff802`70192794 52803603 mov         w3,#0x1B0
+fffff802`70192798 528001e2 mov         w2,#0xF
+fffff802`7019279c 97fdcfdd bl          fffff802`70106710
+fffff802`701927a0 a9418fe4 ldp         x4,x3,[sp,#0x18]
+fffff802`701927a4 aa1a03e6 mov         x6,x26
+fffff802`701927a8 1b197e68 mul         w8,w19,w25
+fffff802`701927ac b94013e1 ldr         w1,[sp,#0x10]
+fffff802`701927b0 aa1b03e5 mov         x5,x27
+fffff802`701927b4 aa1603e0 mov         x0,x22
+fffff802`701927b8 6b0802ff cmp         w23,w8
+fffff802`701927bc 1a973102 csello      w2,w8,w23
+fffff802`701927c0 f94002c8 ldr         x8,[x22]
+fffff802`701927c4 f9405108 ldr         x8,[x8,#0xA0]
+fffff802`701927c8 aa0803ef mov         x15,x8
+fffff802`701927cc b0fffc31 adrp        xip1,fffff802`70117000
+fffff802`701927d0 f9424231 ldr         xip1,[xip1,#0x480]
+fffff802`701927d4 d63f0220 blr         xip1
+fffff802`701927d8 d63f01e0 blr         x15
+fffff802`701927dc a8c37bfd ldp         fp,lr,[sp],#0x30
+fffff802`701927e0 f94023fb ldr         x27,[sp,#0x40]
+fffff802`701927e4 a9436bf9 ldp         x25,x26,[sp,#0x30]
+fffff802`701927e8 a94263f7 ldp         x23,x24,[sp,#0x20]
+fffff802`701927ec a9415bf5 ldp         x21,x22,[sp,#0x10]
+fffff802`701927f0 a8c553f3 ldp         x19,x20,[sp],#0x50
+fffff802`701927f4 d50323ff autibsp
+fffff802`701927f8 d65f03c0 ret
+fffff802`701927fc d503201f nop
+fffff802`70192800 10624dd3 adr         x19,fffff802`702571b8
+fffff802`70192804 00000000 ???
+fffff802`70192808 00000000 ???
+fffff802`7019280c 00000000 ???
+fffff802`70192810 d503237f pacibsp
+fffff802`70192814 a9be53f3 stp         x19,x20,[sp,#-0x20]!
+fffff802`70192818 f9000bf5 str         x21,[sp,#0x10]
+fffff802`7019281c a9bf7bfd stp         fp,lr,[sp,#-0x10]!
+fffff802`70192820 910003fd mov         fp,sp
+fffff802`70192824 aa0003f3 mov         x19,x0
+fffff802`70192828 aa0103f5 mov         x21,x1
+fffff802`7019282c 2a0203f4 mov         w20,w2
+fffff802`70192830 f0fffd08 adrp        x8,fffff802`70135000
+fffff802`70192834 912b8109 add         x9,x8,#0xAE0
+fffff802`70192838 f9400128 ldr         x8,[x9]
+fffff802`7019283c eb09011f cmp         x8,x9
+fffff802`70192840 54000100 beq         fffff802`70192860
+fffff802`70192844 f0fffc48 adrp        x8,fffff802`7011d000
+fffff802`70192848 91272104 add         x4,x8,#0x9C8
+fffff802`7019284c 52800563 mov         w3,#0x2B
+fffff802`70192850 52800062 mov         w2,#3
+fffff802`70192854 52800081 mov         w1,#4
+fffff802`70192858 d2800000 mov         x0,#0
+fffff802`7019285c 97fdcded bl          fffff802`70106010
+fffff802`70192860 2a1403e2 mov         w2,w20
+fffff802`70192864 f9400268 ldr         x8,[x19]
+fffff802`70192868 aa1503e1 mov         x1,x21
+fffff802`7019286c aa1303e0 mov         x0,x19
+fffff802`70192870 f9405508 ldr         x8,[x8,#0xA8]
+fffff802`70192874 aa0803ef mov         x15,x8
+fffff802`70192878 b0fffc31 adrp        xip1,fffff802`70117000
+fffff802`7019287c f9424231 ldr         xip1,[xip1,#0x480]
+fffff802`70192880 d63f0220 blr         xip1
+fffff802`70192884 d63f01e0 blr         x15
+fffff802`70192888 a8c17bfd ldp         fp,lr,[sp],#0x10
+fffff802`7019288c f9400bf5 ldr         x21,[sp,#0x10]
+fffff802`70192890 a8c253f3 ldp         x19,x20,[sp],#0x20
+fffff802`70192894 d50323ff autibsp
+fffff802`70192898 d65f03c0 ret
+fffff802`7019289c 00000000 ???
+fffff802`701928a0 d503237f pacibsp
+fffff802`701928a4 a9be53f3 stp         x19,x20,[sp,#-0x20]!
+fffff802`701928a8 a9015bf5 stp         x21,x22,[sp,#0x10]
+fffff802`701928ac a9bf7bfd stp         fp,lr,[sp,#-0x10]!
+fffff802`701928b0 910003fd mov         fp,sp
+fffff802`701928b4 aa0003f4 mov         x20,x0
+fffff802`701928b8 aa0103f6 mov         x22,x1
+fffff802`701928bc f0fffd08 adrp        x8,fffff802`70135000
+fffff802`701928c0 912b8113 add         x19,x8,#0xAE0
+fffff802`701928c4 f9400268 ldr         x8,[x19]
+fffff802`701928c8 f0fffc55 adrp        x21,fffff802`7011d000
+fffff802`701928cc eb13011f cmp         x8,x19
+fffff802`701928d0 540000e0 beq         fffff802`701928ec
+fffff802`701928d4 912722a4 add         x4,x21,#0x9C8
+fffff802`701928d8 52800583 mov         w3,#0x2C
+fffff802`701928dc 52800062 mov         w2,#3
+fffff802`701928e0 52800081 mov         w1,#4
+fffff802`701928e4 d2800000 mov         x0,#0
+fffff802`701928e8 97fdcdca bl          fffff802`70106010
+fffff802`701928ec b0fffc28 adrp        x8,fffff802`70117000
+fffff802`701928f0 f941a908 ldr         x8,[x8,#0x350]
+fffff802`701928f4 18000762 ldr         w2,fffff802`701929e0
+fffff802`701928f8 d2800301 mov         x1,#0x18
+fffff802`701928fc d2800800 mov         x0,#0x40
+fffff802`70192900 d63f0100 blr         x8
+fffff802`70192904 b5000060 cbnz        x0,fffff802`70192910
+fffff802`70192908 180006e0 ldr         w0,fffff802`701929e4
+fffff802`7019290c 1400002f b           fffff802`701929c8
+fffff802`70192910 9106828a add         x10,x20,#0x1A0
+fffff802`70192914 f9000816 str         x22,[x0,#0x10]
+fffff802`70192918 f9400148 ldr         x8,[x10]
+fffff802`7019291c 14000006 b           fffff802`70192934
+fffff802`70192920 f940090b ldr         x11,[x8,#0x10]
+fffff802`70192924 f9400109 ldr         x9,[x8]
+fffff802`70192928 eb16017f cmp         x11,x22
+fffff802`7019292c 54000160 beq         fffff802`70192958
+fffff802`70192930 aa0903e8 mov         x8,x9
+fffff802`70192934 eb0a011f cmp         x8,x10
+fffff802`70192938 54ffff41 bne         fffff802`70192920
+fffff802`7019293c 9106828a add         x10,x20,#0x1A0
+fffff802`70192940 f9400549 ldr         x9,[x10,#8]
+fffff802`70192944 f9400128 ldr         x8,[x9]
+fffff802`70192948 eb0a011f cmp         x8,x10
+fffff802`7019294c 54000240 beq         fffff802`70192994
+fffff802`70192950 52800060 mov         w0,#3
+fffff802`70192954 d43e0060 brk         #0xF003
+fffff802`70192958 f940052a ldr         x10,[x9,#8]
+fffff802`7019295c eb08015f cmp         x10,x8
+fffff802`70192960 54ffff81 bne         fffff802`70192950
+fffff802`70192964 f940050b ldr         x11,[x8,#8]
+fffff802`70192968 f940016a ldr         x10,[x11]
+fffff802`7019296c eb08015f cmp         x10,x8
+fffff802`70192970 54ffff01 bne         fffff802`70192950
+fffff802`70192974 f9000169 str         x9,[x11]
+fffff802`70192978 18000341 ldr         w1,fffff802`701929e0
+fffff802`7019297c f900052b str         x11,[x9,#8]
+fffff802`70192980 b0fffc28 adrp        x8,fffff802`70117000
+fffff802`70192984 f941d108 ldr         x8,[x8,#0x3A0]
+fffff802`70192988 d63f0100 blr         x8
+fffff802`7019298c 32020be0 mov         w0,#0xC0000001
+fffff802`70192990 1400000e b           fffff802`701929c8
+fffff802`70192994 a900240a stp         x10,x9,[x0]
+fffff802`70192998 f9000120 str         x0,[x9]
+fffff802`7019299c f9000540 str         x0,[x10,#8]
+fffff802`701929a0 f9400268 ldr         x8,[x19]
+fffff802`701929a4 eb13011f cmp         x8,x19
+fffff802`701929a8 540000e0 beq         fffff802`701929c4
+fffff802`701929ac 912722a4 add         x4,x21,#0x9C8
+fffff802`701929b0 528005a3 mov         w3,#0x2D
+fffff802`701929b4 52800062 mov         w2,#3
+fffff802`701929b8 52800081 mov         w1,#4
+fffff802`701929bc d2800000 mov         x0,#0
+fffff802`701929c0 97fdcd94 bl          fffff802`70106010
+fffff802`701929c4 52800000 mov         w0,#0
+fffff802`701929c8 a8c17bfd ldp         fp,lr,[sp],#0x10
+fffff802`701929cc a9415bf5 ldp         x21,x22,[sp,#0x10]
+fffff802`701929d0 a8c253f3 ldp         x19,x20,[sp],#0x20
+fffff802`701929d4 d50323ff autibsp
+fffff802`701929d8 d65f03c0 ret
+fffff802`701929dc d503201f nop
+fffff802`701929e0 2e754151 raddhn      v17.4h,v10.4s,v21.4s
+fffff802`701929e4 c000009a ???
+fffff802`701929e8 00000000 ???
+fffff802`701929ec 00000000 ???
+fffff802`701929f0 d503237f pacibsp
+fffff802`701929f4 a9bd53f3 stp         x19,x20,[sp,#-0x30]!
+fffff802`701929f8 a9015bf5 stp         x21,x22,[sp,#0x10]
+fffff802`701929fc f90013f7 str         x23,[sp,#0x20]
+fffff802`70192a00 a9bf7bfd stp         fp,lr,[sp,#-0x10]!
+fffff802`70192a04 910003fd mov         fp,sp
+fffff802`70192a08 aa0003f7 mov         x23,x0
+fffff802`70192a0c aa0103f6 mov         x22,x1
+fffff802`70192a10 f0fffd08 adrp        x8,fffff802`70135000
+fffff802`70192a14 912b8113 add         x19,x8,#0xAE0
+fffff802`70192a18 f9400268 ldr         x8,[x19]
+fffff802`70192a1c f0fffc55 adrp        x21,fffff802`7011d000
+fffff802`70192a20 f0fffd14 adrp        x20,fffff802`70135000
+fffff802`70192a24 eb13011f cmp         x8,x19
+fffff802`70192a28 54000140 beq         fffff802`70192a50
+fffff802`70192a2c f9455a88 ldr         x8,[x20,#0xAB0]
+fffff802`70192a30 79409108 ldrh        w8,[x8,#0x48]
+fffff802`70192a34 340000e8 cbz         w8,fffff802`70192a50
+fffff802`70192a38 912722a4 add         x4,x21,#0x9C8
+fffff802`70192a3c 528005c3 mov         w3,#0x2E
+fffff802`70192a40 52800082 mov         w2,#4
+fffff802`70192a44 528000a1 mov         w1,#5
+fffff802`70192a48 d2800000 mov         x0,#0
+fffff802`70192a4c 97fdcd71 bl          fffff802`70106010
+fffff802`70192a50 910682e9 add         x9,x23,#0x1A0
+fffff802`70192a54 f9400120 ldr         x0,[x9]
+fffff802`70192a58 14000006 b           fffff802`70192a70
+fffff802`70192a5c f940080a ldr         x10,[x0,#0x10]
+fffff802`70192a60 f9400008 ldr         x8,[x0]
+fffff802`70192a64 eb16015f cmp         x10,x22
+fffff802`70192a68 540002e0 beq         fffff802`70192ac4
+fffff802`70192a6c aa0803e0 mov         x0,x8
+fffff802`70192a70 eb09001f cmp         x0,x9
+fffff802`70192a74 54ffff41 bne         fffff802`70192a5c
+fffff802`70192a78 f9400268 ldr         x8,[x19]
+fffff802`70192a7c eb13011f cmp         x8,x19
+fffff802`70192a80 54000140 beq         fffff802`70192aa8
+fffff802`70192a84 f9455a88 ldr         x8,[x20,#0xAB0]
+fffff802`70192a88 79409108 ldrh        w8,[x8,#0x48]
+fffff802`70192a8c 340000e8 cbz         w8,fffff802`70192aa8
+fffff802`70192a90 912722a4 add         x4,x21,#0x9C8
+fffff802`70192a94 528005e3 mov         w3,#0x2F
+fffff802`70192a98 52800082 mov         w2,#4
+fffff802`70192a9c 528000a1 mov         w1,#5
+fffff802`70192aa0 d2800000 mov         x0,#0
+fffff802`70192aa4 97fdcd5b bl          fffff802`70106010
+fffff802`70192aa8 18000300 ldr         w0,fffff802`70192b08
+fffff802`70192aac a8c17bfd ldp         fp,lr,[sp],#0x10
+fffff802`70192ab0 f94013f7 ldr         x23,[sp,#0x20]
+fffff802`70192ab4 a9415bf5 ldp         x21,x22,[sp,#0x10]
+fffff802`70192ab8 a8c353f3 ldp         x19,x20,[sp],#0x30
+fffff802`70192abc d50323ff autibsp
+fffff802`70192ac0 d65f03c0 ret
+fffff802`70192ac4 f9400509 ldr         x9,[x8,#8]
+fffff802`70192ac8 eb00013f cmp         x9,x0
+fffff802`70192acc 540001a1 bne         fffff802`70192b00
+fffff802`70192ad0 f940040a ldr         x10,[x0,#8]
+fffff802`70192ad4 f9400149 ldr         x9,[x10]
+fffff802`70192ad8 eb00013f cmp         x9,x0
+fffff802`70192adc 54000121 bne         fffff802`70192b00
+fffff802`70192ae0 f9000148 str         x8,[x10]
+fffff802`70192ae4 18000141 ldr         w1,fffff802`70192b0c
+fffff802`70192ae8 f900050a str         x10,[x8,#8]
+fffff802`70192aec b0fffc28 adrp        x8,fffff802`70117000
+fffff802`70192af0 f941d108 ldr         x8,[x8,#0x3A0]
+fffff802`70192af4 d63f0100 blr         x8
+fffff802`70192af8 52800000 mov         w0,#0
+fffff802`70192afc 17ffffec b           fffff802`70192aac
+fffff802`70192b00 52800060 mov         w0,#3
+fffff802`70192b04 d43e0060 brk         #0xF003
+fffff802`70192b08 c0000225 mov         za0h.b[w12,5],p0/m,z17.b
+fffff802`70192b0c 2e754151 raddhn      v17.4h,v10.4s,v21.4s
+fffff802`70192b10 d503237f pacibsp
+fffff802`70192b14 a9bd53f3 stp         x19,x20,[sp,#-0x30]!
+fffff802`70192b18 a9015bf5 stp         x21,x22,[sp,#0x10]
+fffff802`70192b1c a90263f7 stp         x23,x24,[sp,#0x20]
+fffff802`70192b20 a9bf7bfd stp         fp,lr,[sp,#-0x10]!
+fffff802`70192b24 910003fd mov         fp,sp
+fffff802`70192b28 aa0003f3 mov         x19,x0
+fffff802`70192b2c 2a0103f7 mov         w23,w1
+fffff802`70192b30 f0fffd08 adrp        x8,fffff802`70135000
+fffff802`70192b34 912b8114 add         x20,x8,#0xAE0
+fffff802`70192b38 f9400288 ldr         x8,[x20]
+fffff802`70192b3c f0fffc56 adrp        x22,fffff802`7011d000
+fffff802`70192b40 eb14011f cmp         x8,x20
+fffff802`70192b44 540000e0 beq         fffff802`70192b60
+fffff802`70192b48 f9408a65 ldr         x5,[x19,#0x110]
+fffff802`70192b4c 912722c4 add         x4,x22,#0x9C8
+fffff802`70192b50 52800663 mov         w3,#0x33
+fffff802`70192b54 52800062 mov         w2,#3
+fffff802`70192b58 52800081 mov         w1,#4
+fffff802`70192b5c 97fdda73 bl          fffff802`70109528
+fffff802`70192b60 f9408e60 ldr         x0,[x19,#0x118]
+fffff802`70192b64 91044278 add         x24,x19,#0x110
+fffff802`70192b68 b9014277 str         w23,[x19,#0x140]
+fffff802`70192b6c 97ffd14b bl          fffff802`70187098
+fffff802`70192b70 2a0003f5 mov         w21,w0
+fffff802`70192b74 36f80215 tbz         w21,#0x1F,fffff802`70192bb4
+fffff802`70192b78 710002bf cmp         w21,#0
+fffff802`70192b7c 1a9fb2b5 csellt      w21,w21,wzr
+fffff802`70192b80 d503229f csdb
+fffff802`70192b84 f9400288 ldr         x8,[x20]
+fffff802`70192b88 eb14011f cmp         x8,x20
+fffff802`70192b8c 54000120 beq         fffff802`70192bb0
+fffff802`70192b90 f9400305 ldr         x5,[x24]
+fffff802`70192b94 2a1503e6 mov         w6,w21
+fffff802`70192b98 f940be60 ldr         x0,[x19,#0x178]
+fffff802`70192b9c 912722c4 add         x4,x22,#0x9C8
+0: kd> bc *; sxd ld; bp fffff802`701927c0 ".printf \"WAVERT_ALLOC this=%p notif=%x req=%x eff=%x policy_ms=%x bytes_per_ms=%x proc=%x streamflag=%x\\n\", @x22,@w1,@w23,@w2,@w19,@w25,@w21,@w24; g"; bl; g
+     0 e Disable Clear  fffff802`701927c0     0001 (0001)  ".printf \"WAVERT_ALLOC this=%p notif=%x req=%x eff=%x policy_ms=%x bytes_per_ms=%x proc=%x streamflag=%x\\n\", @x22,@w1,@w23,@w2,@w19,@w25,@w21,@w24; g"
+
+DBGK: DbgkWerCaptureLiveKernelDump: WerLiveKernelCreateReport failed, status 0xc0000099.
+
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`6ce013b0 d43e0000 brk         #0xF000
+0: kd> bl; u fffff802`70161af0 L20
+     0 e Disable Clear  fffff802`701927c0     0001 (0001)  ".printf \"WAVERT_ALLOC this=%p notif=%x req=%x eff=%x policy_ms=%x bytes_per_ms=%x proc=%x streamflag=%x\\n\", @x22,@w1,@w23,@w2,@w19,@w25,@w21,@w24; g"
+
+fffff802`70161af0 d503237f pacibsp
+fffff802`70161af4 a9bc7bfd stp         fp,lr,[sp,#-0x40]!
+fffff802`70161af8 a90153f3 stp         x19,x20,[sp,#0x10]
+fffff802`70161afc a9025bf5 stp         x21,x22,[sp,#0x20]
+fffff802`70161b00 a90363f7 stp         x23,x24,[sp,#0x30]
+fffff802`70161b04 910003fd mov         fp,sp
+fffff802`70161b08 97fece3a bl          fffff802`701153f0
+fffff802`70161b0c d10043ff sub         sp,sp,#0x10
+fffff802`70161b10 aa0003f4 mov         x20,x0
+fffff802`70161b14 aa0103f8 mov         x24,x1
+fffff802`70161b18 aa0203f6 mov         x22,x2
+fffff802`70161b1c 32020bf3 mov         w19,#0xC0000001
+fffff802`70161b20 90fffea8 adrp        x8,fffff802`70135000
+fffff802`70161b24 912b8115 add         x21,x8,#0xAE0
+fffff802`70161b28 f94002a8 ldr         x8,[x21]
+fffff802`70161b2c 90fffdf7 adrp        x23,fffff802`7011d000
+fffff802`70161b30 eb15011f cmp         x8,x21
+fffff802`70161b34 540000e0 beq         fffff802`70161b50
+fffff802`70161b38 911de2e4 add         x4,x23,#0x778
+fffff802`70161b3c 52800583 mov         w3,#0x2C
+fffff802`70161b40 52800062 mov         w2,#3
+fffff802`70161b44 52800081 mov         w1,#4
+fffff802`70161b48 d2800000 mov         x0,#0
+fffff802`70161b4c 97fe9131 bl          fffff802`70106010
+fffff802`70161b50 29402701 ldp         w1,w9,[x24]
+fffff802`70161b54 5280004a mov         w10,#2
+fffff802`70161b58 51000828 sub         w8,w1,#2
+fffff802`70161b5c 721d791f tst         w8,#0xFFFFFFFB
+fffff802`70161b60 1a9f1548 csincne     w8,w10,wzr
+fffff802`70161b64 290027e8 stp         w8,w9,[sp]
+fffff802`70161b68 b9400b08 ldr         w8,[x24,#8]
+fffff802`70161b6c 52800029 mov         w9,#1
+0: kd> bc *; bp fffff802`70161af0 ".printf \"QCAUD_BUF mode=%x size=%x count=%x desc=%p lr=%p\\n\", dwo(@x1), dwo(@x1+4), dwo(@x1+8), @x1, @lr; g"; bl; g
+     0 e Disable Clear  fffff802`70161af0     0001 (0001)  ".printf \"QCAUD_BUF mode=%x size=%x count=%x desc=%p lr=%p\\n\", dwo(@x1), dwo(@x1+4), dwo(@x1+8), @x1, @lr; g"
+
+DBGK: DbgkWerCaptureLiveKernelDump: WerLiveKernelCreateReport failed, status 0xc0000099.
+
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`6ce013b0 d43e0000 brk         #0xF000
+0: kd> bc *; bp fffff802`70161af0 ".printf \"QCAUD_BUF mode=%x size=%x count=%x desc=%p lr=%p\\n\", dwo(@x1), dwo(@x1+4), dwo(@x1+8), @x1, @lr; g"; bp fffff802`6fb0b020 ".printf \"QCADCM_IOCTL op=%x desc=%p lr=%p\\n\", @w0,@x1,@lr; g"; bl; g
+     0 e Disable Clear  fffff802`70161af0     0001 (0001)  ".printf \"QCAUD_BUF mode=%x size=%x count=%x desc=%p lr=%p\\n\", dwo(@x1), dwo(@x1+4), dwo(@x1+8), @x1, @lr; g"
+     1 e Disable Clear  fffff802`6fb0b020     0001 (0001)  ".printf \"QCADCM_IOCTL op=%x desc=%p lr=%p\\n\", @w0,@x1,@lr; g"
+
+QCADCM_IOCTL op=26 desc=ffff810bf6ea16b0 lr=fffff8026fbf07b4
+QCADCM_IOCTL op=27 desc=ffff810bf6ea2240 lr=fffff8026fbf07b4
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`6ce013b0 d43e0000 brk         #0xF000
+0: kd> bc *; bp fffff802`6fb0b020 ".if (@w0==0x26) { r @$t0=poi(@x1); .printf \"ALLOC26 desc=%p in=%p inlen=%x out=%p outlen=%x mode=%x size=%x nbuf=%x wm=%x graph=%x lr=%p\\n\", @x1,@$t0,dwo(@x1+8),poi(@x1+0x10),dwo(@x1+0x18),dwo(@$t0),dwo(@$t0+4),dwo(@$t0+8),dwo(@$t0+0xc),dwo(@$t0+0x10),@lr; } .else { }; g"; bl; g
+     0 e Disable Clear  fffff802`6fb0b020     0001 (0001)  ".if (@w0==0x26) { r @$t0=poi(@x1); .printf \"ALLOC26 desc=%p in=%p inlen=%x out=%p outlen=%x mode=%x size=%x nbuf=%x wm=%x graph=%x lr=%p\\n\", @x1,@$t0,dwo(@x1+8),poi(@x1+0x10),dwo(@x1+0x18),dwo(@$t0),dwo(@$t0+4),dwo(@$t0+8),dwo(@$t0+0xc),dwo(@$t0+0x10),@lr; } .else { }; g"
+
+ALLOC26 desc=ffff810bee9986b0 in=ffff810bee998710 inlen=14 out=ffff870ee5a98640 outlen=28 mode=2 size=f00 nbuf=1 wm=2 graph=2 lr=fffff8026fbf07b4
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`6ce013b0 d43e0000 brk         #0xF000
+0: kd> bc *; bp fffff802`6fadb980 ".printf \"PUSHCFG packet=%p lr=%p\\n\", @x24,@lr; db @x24 L40; g"; bl; g
+     0 e Disable Clear  fffff802`6fadb980     0001 (0001)  ".printf \"PUSHCFG packet=%p lr=%p\\n\", @x24,@lr; db @x24 L40; g"
+
+PUSHCFG packet=ffff870edb8871c0 lr=fffff8026fadb908
+ffff870e`db8871c0  00 00 00 00 00 00 00 00-00 00 00 00 30 00 00 00  ............0...
+ffff870e`db8871d0  dc 40 00 00 0a 10 00 08-1c 00 00 00 00 00 00 00  .@..............
+ffff870e`db8871e0  00 80 00 00 01 00 00 00-00 0f 00 00 28 50 87 b0  ............(P..
+ffff870e`db8871f0  00 90 00 00 01 00 00 00-78 50 87 b0 00 00 00 00  ........xP......
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`6ce013b0 d43e0000 brk         #0xF000
+0: kd> bc *; bp fffff802`6fb06698 ".printf \"WATERMARK packet=%p len=%x lr=%p\\n\", @x19,@x3,@lr; db @x19 L40; g"; bl; g
+     0 e Disable Clear  fffff802`6fb06698     0001 (0001)  ".printf \"WATERMARK packet=%p len=%x lr=%p\\n\", @x19,@x3,@lr; db @x19 L40; g"
+
+WATERMARK packet=ffff870eda6f36b0 len=1c lr=fffff8026fb06648
+ffff870e`da6f36b0  dc 40 00 00 1c 10 00 08-0c 00 00 00 01 00 00 00  .@..............
+ffff870e`da6f36c0  02 00 00 00 80 07 00 00-00 0f 00 00 00 00 00 00  ................
+ffff870e`da6f36d0  00 00 03 02 71 44 58 59-00 00 00 00 00 00 00 00  ....qDXY........
+ffff870e`da6f36e0  14 00 00 00 00 00 00 00-80 63 36 e5 0e 87 ff ff  .........c6.....
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`6ce013b0 d43e0000 brk         #0xF000
+0: kd> bc *; .logclose; g
+Closing open log file C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\mic-wavert-oracle_0448_2026-08-25_14-25-01-934.log

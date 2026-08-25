@@ -1,0 +1,39 @@
+﻿{
+  "date": "2026-08-25",
+  "endpoint": "Windows default MicArray / EP16",
+  "method": "KDNET runtime oracle after audiodg recreation; no audio driver restart",
+  "allocate_buffer_v2": {
+    "opcode": "0x26",
+    "caller": "qcasd8380+0x307b4",
+    "buffer_mode": 2,
+    "requested_buffer_size": 3840,
+    "num_buffers": 1,
+    "watermark_count": 2,
+    "graph_type": 2
+  },
+  "sh_mem_push_mode_set_cfg": {
+    "submit_site": "qcadcm8380+0x5b980",
+    "miid": "0x40dc",
+    "module_id": "0x07001007",
+    "param_id": "0x0800100a",
+    "body_size": 28,
+    "ring_dsp_address": "0x0000000100008000",
+    "ring_size": 3840,
+    "ring_map_handle": "0xb0875028",
+    "position_dsp_address": "0x0000000100009000",
+    "position_map_handle": "0xb0875078",
+    "packet_hex": "00000000000000000000000030000000dc4000000a1000081c000000000000000080000001000000000f0000285087b00090000001000000785087b000000000"
+  },
+  "watermark_registration": {
+    "submit_site": "qcadcm8380+0x86698",
+    "gsl_ioctl": "0x11",
+    "payload_length": 28,
+    "miid": "0x40dc",
+    "event_id": "0x0800101c",
+    "event_body_size": 12,
+    "register": 1,
+    "num_levels": 2,
+    "levels": [1920, 3840],
+    "payload_hex": "dc4000001c1000080c000000010000000200000080070000000f0000"
+  }
+}
