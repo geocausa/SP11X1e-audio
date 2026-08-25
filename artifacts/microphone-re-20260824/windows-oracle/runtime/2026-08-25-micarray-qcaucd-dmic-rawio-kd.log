@@ -1,0 +1,47 @@
+Opened log file 'C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\qcaucd-dmic-rawio-20260825_22f4_2026-08-25_09-48-33-022.log'
+     0 e Disable Clear  fffff802`3781bce8     0001 (0001) qcaucd8380+0x1bce8 ".if ((@w0>=0x3000)&(@w0<=0x30ff)) { .printf \"DMICIO n=%d reg=%04x dir=%u byte=%02x lr=%p\\n\",@$t0,@w0,@w2,by(@x1),@lr; r @$t0=@$t0+1; gc } .else { gc }"
+
+DBGK: DbgkWerCaptureLiveKernelDump: WerLiveKernelCreateReport failed, status 0xc0000099.
+
+Unload module netadaptercx.sys at fffff802`3ce50000
+Unload module WifiCx.sys at fffff802`3cec0000
+Unload module qcwlanhmt8380.sys at fffff802`3ca00000
+DMICIO n=0 reg=3000 dir=0 byte=00 lr=fffff8023781bc7c
+DMICIO n=1 reg=3000 dir=1 byte=01 lr=fffff802378204fc
+DMICIO n=2 reg=3004 dir=0 byte=00 lr=fffff8023781bc7c
+DMICIO n=3 reg=3004 dir=1 byte=01 lr=fffff802378204fc
+DMICIO n=4 reg=3080 dir=0 byte=00 lr=fffff8023781bc7c
+DMICIO n=5 reg=3080 dir=1 byte=02 lr=fffff802378204fc
+DMICIO n=6 reg=3094 dir=0 byte=00 lr=fffff8023781bc7c
+DMICIO n=7 reg=3094 dir=1 byte=00 lr=fffff802378204fc
+DMICIO n=8 reg=3084 dir=0 byte=00 lr=fffff8023781bc7c
+DMICIO n=9 reg=3084 dir=1 byte=04 lr=fffff802378204fc
+DMICIO n=10 reg=3084 dir=0 byte=00 lr=fffff8023781bc7c
+DMICIO n=11 reg=3084 dir=1 byte=05 lr=fffff802378204fc
+DMICIO n=12 reg=3094 dir=0 byte=00 lr=fffff8023781bc7c
+DMICIO n=13 reg=3094 dir=1 byte=00 lr=fffff802378204fc
+DMICIO n=14 reg=3084 dir=0 byte=00 lr=fffff8023781bc7c
+DMICIO n=15 reg=3084 dir=1 byte=04 lr=fffff802378204fc
+DMICIO n=16 reg=3000 dir=0 byte=00 lr=fffff8023781bc7c
+DMICIO n=17 reg=3000 dir=1 byte=00 lr=fffff802378204fc
+DMICIO n=18 reg=3004 dir=0 byte=00 lr=fffff8023781bc7c
+DMICIO n=19 reg=3004 dir=1 byte=00 lr=fffff802378204fc
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`388013b0 d43e0000 brk         #0xF000
+0: kd> bc *; .logclose; .echo === F33738 ===; uf qcaucd8380+0x33738; .echo === F33828 ===; uf qcaucd8380+0x33828; .echo === AROUND_33940 ===; u qcaucd8380+0x33940 Lb0; .echo === AROUND_33A70 ===; u qcaucd8380+0x33a70 Lb0
+Closing open log file C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\qcaucd-dmic-rawio-20260825_22f4_2026-08-25_09-48-33-022.log

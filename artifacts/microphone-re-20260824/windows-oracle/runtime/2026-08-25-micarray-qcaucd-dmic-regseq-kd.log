@@ -1,0 +1,32 @@
+Opened log file 'C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\qcaucd-dmic-regseq-20260825_22f4_2026-08-25_09-46-10-502.log'
+     0 e Disable Clear  fffff802`37820348     0001 (0001) qcaucd8380+0x20348 ".if ((@w0==2)&(@w1>=0x3000)&(@w1<=0x30ff)) { .printf \"DMICREG n=%d reg=%04x mask=%02x shift=%u value=%02x lr=%p\\n\",@$t0,@w1,@w2,@w3,@w4,@lr; r @$t0=@$t0+1; gc } .else { gc }"
+
+DMICREG n=0 reg=3000 mask=01 shift=0 value=01 lr=fffff8023781d600
+DMICREG n=1 reg=3004 mask=01 shift=0 value=01 lr=fffff8023781d61c
+DMICREG n=2 reg=3080 mask=02 shift=1 value=01 lr=fffff8023781d638
+DMICREG n=3 reg=3094 mask=80 shift=0 value=00 lr=fffff80237833ac4
+DMICREG n=4 reg=3084 mask=0e shift=1 value=02 lr=fffff802378337f0
+DMICREG n=5 reg=3084 mask=01 shift=0 value=01 lr=fffff80237833bc8
+DMICREG n=6 reg=3094 mask=80 shift=0 value=00 lr=fffff80237833ac4
+DMICREG n=7 reg=3084 mask=01 shift=0 value=00 lr=fffff8023783399c
+DMICREG n=8 reg=3000 mask=01 shift=0 value=00 lr=fffff8023781d384
+DMICREG n=9 reg=3004 mask=01 shift=0 value=00 lr=fffff8023781d3a0
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`388013b0 d43e0000 brk         #0xF000
+0: kd> bc *; .logclose; .logopen /t C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\qcaucd-dmic-rawio-20260825.log; r @$t0=0; bp qcaucd8380+0x1bce8 ".if ((@w0>=0x3000)&(@w0<=0x30ff)) { .printf \"DMICIO n=%d reg=%04x dir=%u byte=%02x lr=%p\\n\",@$t0,@w0,@w2,by(@x1),@lr; r @$t0=@$t0+1; gc } .else { gc }"; bl; g
+Closing open log file C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\qcaucd-dmic-regseq-20260825_22f4_2026-08-25_09-46-10-502.log

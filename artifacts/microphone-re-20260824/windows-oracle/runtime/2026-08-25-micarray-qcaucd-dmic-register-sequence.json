@@ -1,0 +1,227 @@
+﻿{
+    "format":  "SP11 MicArray qcaucd DMIC register lifecycle oracle",
+    "format_version":  1,
+    "primitive":  {
+                      "function":  "FUN_140020348",
+                      "rva":  "0x20348",
+                      "abi":  "(op, reg, mask, shift, value)",
+                      "write_op":  2,
+                      "formula":  "new=((value\u003c\u003cshift)\u0026mask)|(old\u0026~mask)"
+                  },
+    "transport":  {
+                      "function":  "FUN_14001bce8",
+                      "rva":  "0x1bce8",
+                      "write_direction":  1,
+                      "note":  "direction=1 entry byte is exact value written; direction=0 entry byte is not treated as post-read data"
+                  },
+    "masked_operations":  [
+                              {
+                                  "n":  0,
+                                  "reg":  "0x3000",
+                                  "mask":  "0x01",
+                                  "shift":  0,
+                                  "value":  1,
+                                  "caller_rva":  "0x1d600",
+                                  "role":  "shared gate enable"
+                              },
+                              {
+                                  "n":  1,
+                                  "reg":  "0x3004",
+                                  "mask":  "0x01",
+                                  "shift":  0,
+                                  "value":  1,
+                                  "caller_rva":  "0x1d61c",
+                                  "role":  "shared gate enable"
+                              },
+                              {
+                                  "n":  2,
+                                  "reg":  "0x3080",
+                                  "mask":  "0x02",
+                                  "shift":  1,
+                                  "value":  1,
+                                  "caller_rva":  "0x1d638",
+                                  "role":  "startup persistent bit1 set"
+                              },
+                              {
+                                  "n":  3,
+                                  "reg":  "0x3094",
+                                  "mask":  "0x80",
+                                  "shift":  0,
+                                  "value":  0,
+                                  "caller_rva":  "0x33ac4",
+                                  "role":  "DMIC executor bit7 clear"
+                              },
+                              {
+                                  "n":  4,
+                                  "reg":  "0x3084",
+                                  "mask":  "0x0e",
+                                  "shift":  1,
+                                  "value":  2,
+                                  "caller_rva":  "0x337f0",
+                                  "role":  "group0 mode field bits3:1 = 2"
+                              },
+                              {
+                                  "n":  5,
+                                  "reg":  "0x3084",
+                                  "mask":  "0x01",
+                                  "shift":  0,
+                                  "value":  1,
+                                  "caller_rva":  "0x33bc8",
+                                  "role":  "group0 run enable"
+                              },
+                              {
+                                  "n":  6,
+                                  "reg":  "0x3094",
+                                  "mask":  "0x80",
+                                  "shift":  0,
+                                  "value":  0,
+                                  "caller_rva":  "0x33ac4",
+                                  "role":  "DMIC executor bit7 clear"
+                              },
+                              {
+                                  "n":  7,
+                                  "reg":  "0x3084",
+                                  "mask":  "0x01",
+                                  "shift":  0,
+                                  "value":  0,
+                                  "caller_rva":  "0x3399c",
+                                  "role":  "group0 run disable"
+                              },
+                              {
+                                  "n":  8,
+                                  "reg":  "0x3000",
+                                  "mask":  "0x01",
+                                  "shift":  0,
+                                  "value":  0,
+                                  "caller_rva":  "0x1d384",
+                                  "role":  "shared gate disable"
+                              },
+                              {
+                                  "n":  9,
+                                  "reg":  "0x3004",
+                                  "mask":  "0x01",
+                                  "shift":  0,
+                                  "value":  0,
+                                  "caller_rva":  "0x1d3a0",
+                                  "role":  "shared gate disable"
+                              }
+                          ],
+    "exact_write_bytes":  [
+                              {
+                                  "n":  0,
+                                  "reg":  "0x3000",
+                                  "byte":  "0x01"
+                              },
+                              {
+                                  "n":  1,
+                                  "reg":  "0x3004",
+                                  "byte":  "0x01"
+                              },
+                              {
+                                  "n":  2,
+                                  "reg":  "0x3080",
+                                  "byte":  "0x02"
+                              },
+                              {
+                                  "n":  3,
+                                  "reg":  "0x3094",
+                                  "byte":  "0x00"
+                              },
+                              {
+                                  "n":  4,
+                                  "reg":  "0x3084",
+                                  "byte":  "0x04"
+                              },
+                              {
+                                  "n":  5,
+                                  "reg":  "0x3084",
+                                  "byte":  "0x05"
+                              },
+                              {
+                                  "n":  6,
+                                  "reg":  "0x3094",
+                                  "byte":  "0x00"
+                              },
+                              {
+                                  "n":  7,
+                                  "reg":  "0x3084",
+                                  "byte":  "0x04"
+                              },
+                              {
+                                  "n":  8,
+                                  "reg":  "0x3000",
+                                  "byte":  "0x00"
+                              },
+                              {
+                                  "n":  9,
+                                  "reg":  "0x3004",
+                                  "byte":  "0x00"
+                              }
+                          ],
+    "group0":  {
+                   "mode_register":  "0x3084",
+                   "mode_mask":  "0x0e",
+                   "mode_shift":  1,
+                   "live_mode_value":  2,
+                   "configured_byte":  "0x04",
+                   "enabled_byte":  "0x05",
+                   "stopped_byte":  "0x04",
+                   "run_bit":  "bit0",
+                   "mode_helper":  "FUN_140033738",
+                   "mode_helper_rva":  "0x33738",
+                   "register_formula":  "((group + 0xC21) \u003c\u003c 2)",
+                   "live_group":  0
+               },
+    "executor":  {
+                     "function":  "FUN_140033828",
+                     "rva":  "0x33828",
+                     "resource_types_group_map":  "8/9-\u003e0, 10/11-\u003e1, 12/13-\u003e2, 14/15-\u003e3",
+                     "mode_source":  "type 0x1D resource field +8",
+                     "live_type1d_record":  {
+                                                "type":  "0x1d",
+                                                "id":  "0xffffffff",
+                                                "value":  8,
+                                                "field_0c":  0
+                                            },
+                     "mode_map":  {
+                                      "4":  0,
+                                      "6":  1,
+                                      "8":  2,
+                                      "16":  4,
+                                      "32":  5
+                                  },
+                     "unsupported_value_12":  true
+                 },
+    "shared_resource":  {
+                            "function":  "FUN_14001d200",
+                            "rva":  "0x1d200",
+                            "case":  2,
+                            "startup":  [
+                                            "0x3000 bit0=1",
+                                            "0x3004 bit0=1",
+                                            "0x3080 bit1=1"
+                                        ],
+                            "teardown":  [
+                                             "0x3000 bit0=0",
+                                             "0x3004 bit0=0"
+                                         ],
+                            "note":  "0x3080 bit1 is not cleared in the observed ordinary capture teardown"
+                        },
+    "conservative_interpretation":  [
+                                        "0x3084 bits3:1 are a refcounted DMIC group0 mode field",
+                                        "0x3084 bit0 is the group run gate",
+                                        "0x3000 and 0x3004 are paired-resource case2 shared gates",
+                                        "0x3080 bit1 is a startup persistent/shared selection bit in this lifecycle",
+                                        "0x3094 bit7 is explicitly cleared twice by the DMIC executor",
+                                        "The semantic name of type-0x1D value 8 is not asserted because no recovered table exposes a reliable resource name"
+                                    ],
+    "evidence":  {
+                     "masked_log":  "artifacts\\microphone-re-20260824\\windows-oracle\\runtime\\2026-08-25-micarray-qcaucd-dmic-regseq-kd.log",
+                     "masked_log_sha256":  "06a7a892e7058e2be7768519c7c7a6a2fbbcecba66fe71bc66b583fb87c1fa36",
+                     "rawio_log":  "artifacts\\microphone-re-20260824\\windows-oracle\\runtime\\2026-08-25-micarray-qcaucd-dmic-rawio-kd.log",
+                     "rawio_log_sha256":  "b99648729c5680e394cd4fed7052d9ed886899b0f76dabd5dd7af1721900aa53",
+                     "live_type1d_observation":  "KD at qcaucd+0x33a0c: type=0x1d id=0xffffffff value=8",
+                     "ordinary_capture":  true,
+                     "device_restart":  false
+                 }
+}
