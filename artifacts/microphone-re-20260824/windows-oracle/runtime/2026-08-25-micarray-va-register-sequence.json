@@ -1,0 +1,95 @@
+﻿{
+    "date":  "2026-08-25",
+    "subject":  "Fresh default MicArray VA macro register-helper sequence",
+    "raw_log_sha256":  "50a7dd37993dd6a45f4ce5aae95f3d540833e38524ca55d04f1051fcab97083e",
+    "va_operations":  [
+                          {
+                              "addr":  "0x3000",
+                              "mask":  "0x1",
+                              "shift":  0,
+                              "value":  1,
+                              "lr":  "fffff8023781d600"
+                          },
+                          {
+                              "addr":  "0x3004",
+                              "mask":  "0x1",
+                              "shift":  0,
+                              "value":  1,
+                              "lr":  "fffff8023781d61c"
+                          },
+                          {
+                              "addr":  "0x3080",
+                              "mask":  "0x2",
+                              "shift":  1,
+                              "value":  1,
+                              "lr":  "fffff8023781d638"
+                          },
+                          {
+                              "addr":  "0x3094",
+                              "mask":  "0x80",
+                              "shift":  0,
+                              "value":  0,
+                              "lr":  "fffff80237833ac4"
+                          },
+                          {
+                              "addr":  "0x3084",
+                              "mask":  "0xe",
+                              "shift":  1,
+                              "value":  2,
+                              "lr":  "fffff802378337f0"
+                          },
+                          {
+                              "addr":  "0x3084",
+                              "mask":  "0x1",
+                              "shift":  0,
+                              "value":  1,
+                              "lr":  "fffff80237833bc8"
+                          },
+                          {
+                              "addr":  "0x3094",
+                              "mask":  "0x80",
+                              "shift":  0,
+                              "value":  0,
+                              "lr":  "fffff80237833ac4"
+                          },
+                          {
+                              "addr":  "0x3084",
+                              "mask":  "0x1",
+                              "shift":  0,
+                              "value":  0,
+                              "lr":  "fffff8023783399c"
+                          },
+                          {
+                              "addr":  "0x3000",
+                              "mask":  "0x1",
+                              "shift":  0,
+                              "value":  0,
+                              "lr":  "fffff8023781d384"
+                          },
+                          {
+                              "addr":  "0x3004",
+                              "mask":  "0x1",
+                              "shift":  0,
+                              "value":  0,
+                              "lr":  "fffff8023781d3a0"
+                          }
+                      ],
+    "normalized_sequence":  [
+                                "0x3000 bit0=1",
+                                "0x3004 bit0=1",
+                                "0x3080 bit1=1",
+                                "0x3094 bit7=0",
+                                "0x3084 bits3:1=2",
+                                "0x3084 bit0=1",
+                                "0x3094 bit7=0",
+                                "0x3084 bit0=0",
+                                "0x3000 bit0=0",
+                                "0x3004 bit0=0"
+                            ],
+    "static_notes":  [
+                         "FUN_140033828 writes 0x3094 bit7=0 for each active DMIC input",
+                         "FUN_140033738 ref-counts shared DMIC clock selector",
+                         "Windows does not clear 0x3080 bit1 on this teardown",
+                         "Windows does not pulse 0x3004 FS_COUNTER_CLR in this path"
+                     ]
+}
