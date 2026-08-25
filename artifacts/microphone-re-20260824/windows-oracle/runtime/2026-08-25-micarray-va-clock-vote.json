@@ -1,0 +1,31 @@
+﻿{
+    "date":  "2026-08-25",
+    "subject":  "SP11 MicArray Windows VA clock vote",
+    "raw_log":  "2026-08-25-micarray-va-clock-vote-kd.log",
+    "raw_log_sha256":  "dcdb6065b9e4cdae8997b6fd44899a3039fdb7099bceff5d06923f682f4a44db",
+    "live_clock_sequence":  [
+                                "ON 0x0c",
+                                "ON 0x02",
+                                "ON 0x03",
+                                "OFF 0x03",
+                                "OFF 0x02",
+                                "OFF 0x0c"
+                            ],
+    "qcaucd_clock_enable_rva":  "0x1b000",
+    "qcaucd_clock_disable_rva":  "0x1b160",
+    "clock_id_0c_static_behavior":  "IDs 0x0b..0x17 construct a 19,200,000 Hz clock request",
+    "clock_id_table_index_2":  [
+                                   "logical-index=2",
+                                   "candidate-id=0x0b",
+                                   "candidate-id=0x0c"
+                               ],
+    "micarray_live_selected_pair":  [
+                                        "clock-id=0x0c",
+                                        "logical-index=2"
+                                    ],
+    "va_register":  "physical 0x06d44084 = lpass_vamacro + 0x84 = CDC_VA_TOP_CSR_DMIC0_CTL",
+    "windows_dmic0_byte":  "0x05",
+    "windows_selector":  2,
+    "windows_enable_bit":  1,
+    "conclusion":  "Windows MicArray votes the VA-path clock at 19.2 MHz and programs VA DMIC0 selector 2 with enable asserted."
+}

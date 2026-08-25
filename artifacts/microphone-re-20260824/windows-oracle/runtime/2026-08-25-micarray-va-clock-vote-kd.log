@@ -1,0 +1,29 @@
+Opened log file 'C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\mic-winclk-id_22f4_2026-08-25_11-42-25-439.log'
+     0 e Disable Clear  fffff802`3781b000     0001 (0001) qcaucd8380+0x1b000 ".printf \"WINCLK_ON id=%x p2=%p lr=%p\\n\", @w0,@x1,@lr; g"
+     1 e Disable Clear  fffff802`3781b160     0001 (0001) qcaucd8380+0x1b160 ".printf \"WINCLK_OFF id=%x p2=%p lr=%p\\n\", @w0,@x1,@lr; g"
+
+WINCLK_ON id=c p2=ffffed8e809bfd68 lr=fffff8023781ee78
+WINCLK_ON id=2 p2=ffffed8e809bfd68 lr=fffff8023781efe8
+WINCLK_ON id=3 p2=ffffed8e809bfd70 lr=fffff8023781efe8
+WINCLK_OFF id=3 p2=ffffed8e8398a8d0 lr=fffff8023781f168
+WINCLK_OFF id=2 p2=ffffed8e8398a8c8 lr=fffff8023781f168
+WINCLK_OFF id=c p2=ffffed8e8398a8c8 lr=fffff8023781f2c0
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`388013b0 d43e0000 brk         #0xF000
+0: kd> bc *; .logclose; g
+Closing open log file C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\mic-winclk-id_22f4_2026-08-25_11-42-25-439.log
