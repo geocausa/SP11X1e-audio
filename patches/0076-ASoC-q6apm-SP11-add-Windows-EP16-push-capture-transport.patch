@@ -1,0 +1,470 @@
+From: SP11 audio reverse-engineering <sp11-audio@local>
+Date: Tue, 25 Aug 2026 16:08:00 +0100
+Subject: [PATCH] ASoC: q6apm: SP11 add Windows EP16 push capture transport
+
+Windows MicArray EP16 uses SH_MEM_PUSH_MODE IID 0x40dc with one 3840-byte
+circular ring, a separate 16-byte position buffer, and two watermark levels
+at 1920 and 3840 bytes. The graph opens and transitions directly to START;
+Windows does not issue GRAPH_PREPARE for this capture graph. The DSP-owned
+position buffer reports a byte producer index modulo the ring.
+
+Add a capture push-mode path without changing conventional RD_SHARED_MEM
+capture or the existing protected-render pull path. Reuse the shared
+circular-buffer ABI while keeping Windows' direction semantics. Configure
+0x40dc with PARAM_ID_SH_MEM_PULL_PUSH_MODE_CFG and register its watermark
+event. Do not queue RD_SHARED_MEM reads; drive ALSA's hardware pointer from
+the DSP producer index. Allocate/map the position page for graphs
+containing SH_MEM_PUSH_MODE
+and constrain this path to the measured 48 kHz/S16/stereo, 3840/1920-byte
+contract.
+
+The push endpoint itself receives no invented media-format command here;
+PCM_CNV and the normal graph modules retain their existing format handling.
+
+Signed-off-by: SP11 audio reverse-engineering <sp11-audio@local>
+---
+diff --git a/sound/soc/qcom/qdsp6/q6apm.h b/sound/soc/qcom/qdsp6/q6apm.h
+index 2d02857..c49839a 100644
+--- a/sound/soc/qcom/qdsp6/q6apm.h
++++ b/sound/soc/qcom/qdsp6/q6apm.h
+@@ -127,6 +127,7 @@ struct q6apm_graph {
+ 	struct audioreach_graph *ar_graph;
+ 	struct audioreach_graph_info *info;
+ 	bool pull_mode;
++	bool push_mode;
+ };
+ 
+ /* Graph Operations */
+@@ -139,6 +140,7 @@ int q6apm_graph_stop(struct q6apm_graph *graph);
+ int q6apm_graph_flush(struct q6apm_graph *graph);
+ int q6apm_graph_sp11_soft_pause(struct q6apm_graph *graph, bool pause);
+ bool q6apm_graph_is_pull_mode(struct device *dev, unsigned int graph_id);
++bool q6apm_graph_is_push_mode(struct device *dev, unsigned int graph_id);
+ 
+ /* Media Format */
+ int q6apm_graph_media_format_pcm(struct q6apm_graph *graph,
+@@ -150,6 +152,10 @@ int q6apm_graph_configure_pull(struct q6apm_graph *graph,
+ 			      struct audioreach_module_config *cfg,
+ 			      phys_addr_t ring_addr, size_t ring_size,
+ 			      size_t period_size);
++int q6apm_graph_configure_push(struct q6apm_graph *graph,
++			      const struct audioreach_module_config *cfg,
++			      phys_addr_t ring_addr, size_t ring_size,
++			      size_t period_size);
+ 
+ /* read/write related */
+ int q6apm_read(struct q6apm_graph *graph);
+@@ -194,4 +200,6 @@ int q6apm_set_real_module_id(struct device *dev, struct q6apm_graph *graph, uint
+ int q6apm_get_hw_pointer(struct q6apm_graph *graph, int dir);
+ snd_pcm_uframes_t q6apm_get_pull_hw_pointer(struct q6apm_graph *graph,
+ 					    struct snd_pcm_runtime *runtime);
++snd_pcm_uframes_t q6apm_get_push_hw_pointer(struct q6apm_graph *graph,
++					    struct snd_pcm_runtime *runtime);
+ #endif /* __APM_GRAPH_ */
+diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
+index b8b9a14..2a14b77 100644
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -39,6 +39,9 @@ struct apm_graph_mgmt_cmd {
+ 
+ #define APM_GRAPH_MGMT_PSIZE(p, n) ALIGN(struct_size(p, sub_graph_id_list, n), 8)
+ 
++static struct audioreach_module *__q6apm_find_module_by_mid(
++	struct q6apm *apm, struct audioreach_graph_info *info, uint32_t mid);
++
+ static struct q6apm *g_apm;
+ static bool sp11_vi_ready;
+ static bool sp11_cps_ready;
+@@ -179,7 +182,7 @@ static int q6apm_map_position_buffer(struct audioreach_graph *graph)
+ 	cmd->mem_pool_id = APM_MEMORY_MAP_SHMEM8_4K_POOL;
+ 	cmd->num_regions = 1;
+ 	/*
+-	 * The pull-mode position structure is shared live between the DSP and
++	 * The pull/push position structure is shared live between the DSP and
+ 	 * HLOS.  AudioReach updates it without cache maintenance and therefore
+ 	 * requires this mapping to be uncached.
+ 	 */
+@@ -202,7 +205,7 @@ static int q6apm_map_position_buffer(struct audioreach_graph *graph)
+ 	}
+ 
+ 	dev_info(graph->dma_dev,
+-		 "pull position map DMA %pad DSP %pap handle %#x\n",
++		 "pull/push position map DMA %pad DSP %pap handle %#x\n",
+ 		 &graph->position_phys, &graph->position_dsp_addr,
+ 		 graph->position_mem_map_handle);
+ 	return 0;
+@@ -412,7 +415,9 @@ q6apm_get_audioreach_graph(struct q6apm *apm, struct device *dma_dev,
+ 
+ 	kref_init(&graph->refcount);
+ 
+-	if (audioreach_graph_has_protected_calibration(info)) {
++	if (audioreach_graph_has_protected_calibration(info) ||
++	    __q6apm_find_module_by_mid(apm, info,
++					 MODULE_ID_SH_MEM_PUSH_MODE)) {
+ 		id = q6apm_map_position_buffer(graph);
+ 		if (id)
+ 			goto remove_graph;
+@@ -630,13 +635,33 @@ bool q6apm_graph_is_pull_mode(struct device *dev, unsigned int graph_id)
+ }
+ EXPORT_SYMBOL_GPL(q6apm_graph_is_pull_mode);
+ 
++bool q6apm_graph_is_push_mode(struct device *dev, unsigned int graph_id)
++{
++	struct q6apm *apm = dev_get_drvdata(dev->parent);
++	struct audioreach_graph_info *info;
++
++	if (!apm)
++		return false;
++
++	info = idr_find(&apm->graph_info_idr, graph_id);
++	if (!info)
++		return false;
++
++	return __q6apm_find_module_by_mid(apm, info,
++					 MODULE_ID_SH_MEM_PUSH_MODE) != NULL;
++}
++EXPORT_SYMBOL_GPL(q6apm_graph_is_push_mode);
++
+ int q6apm_graph_media_format_shmem(struct q6apm_graph *graph,
+ 				   struct audioreach_module_config *cfg)
+ {
+ 	struct audioreach_module *module;
+ 
+-	if (cfg->direction == SNDRV_PCM_STREAM_CAPTURE)
++	if (cfg->direction == SNDRV_PCM_STREAM_CAPTURE) {
++		if (graph->push_mode)
++			return 0;
+ 		module = q6apm_find_module_by_mid(graph, MODULE_ID_RD_SHARED_MEM_EP);
++	}
+ 	else if (audioreach_graph_has_protected_calibration(graph->info))
+ 		module = q6apm_find_module_by_mid(
+ 			graph, MODULE_ID_SH_MEM_PULL_MODE);
+@@ -782,6 +807,87 @@ int q6apm_graph_configure_pull(struct q6apm_graph *graph,
+ }
+ EXPORT_SYMBOL_GPL(q6apm_graph_configure_pull);
+ 
++int q6apm_graph_configure_push(struct q6apm_graph *graph,
++			      const struct audioreach_module_config *media_cfg,
++			      phys_addr_t ring_addr, size_t ring_size,
++			      size_t period_size)
++{
++	struct sh_mem_pull_push_mode_cfg *cfg;
++	struct apm_module_param_data *param;
++	struct audioreach_module *push;
++	struct {
++		u32 num_water_mark_levels;
++		u32 levels[2];
++	} __packed watermarks;
++	size_t payload_size;
++	void *p;
++	int ret;
++
++	if (!graph->push_mode || !graph->ar_graph ||
++	    !graph->ar_graph->position_virt ||
++	    !graph->ar_graph->position_mem_map_handle ||
++	    !graph->info->mem_map_handle)
++		return -ENODEV;
++	if (!media_cfg || ring_size != 3840 || period_size != 1920 ||
++	    media_cfg->sample_rate != 48000 || media_cfg->bit_width != 16 ||
++	    media_cfg->num_channels != 2)
++		return -EINVAL;
++
++	push = __q6apm_find_module_by_iid(graph->info, 0x40dc);
++	if (!push || push->module_id != MODULE_ID_SH_MEM_PUSH_MODE)
++		return -ENODEV;
++
++	payload_size = ALIGN(APM_MODULE_PARAM_DATA_SIZE + sizeof(*cfg), 8);
++	struct gpr_pkt *pkt __free(kfree) =
++		audioreach_alloc_cmd_pkt(payload_size, APM_CMD_SET_CFG, 0,
++					graph->port->id, push->instance_id);
++	if (IS_ERR(pkt))
++		return PTR_ERR(pkt);
++
++	p = (u8 *)pkt + GPR_HDR_SIZE + APM_CMD_HDR_SIZE;
++	memset(p, 0, payload_size);
++	param = p;
++	param->module_instance_id = push->instance_id;
++	param->param_id = PARAM_ID_SH_MEM_PULL_PUSH_MODE_CFG;
++	param->param_size = sizeof(*cfg);
++	cfg = p + APM_MODULE_PARAM_DATA_SIZE;
++	cfg->shared_circ_buf_addr_lsw = lower_32_bits(ring_addr);
++	cfg->shared_circ_buf_addr_msw = upper_32_bits(ring_addr);
++	cfg->shared_circ_buf_size = ring_size;
++	cfg->circ_buf_mem_map_handle = graph->info->mem_map_handle;
++	cfg->shared_pos_buf_addr_lsw =
++		lower_32_bits(graph->ar_graph->position_dsp_addr);
++	cfg->shared_pos_buf_addr_msw =
++		upper_32_bits(graph->ar_graph->position_dsp_addr);
++	cfg->pos_buf_mem_map_handle =
++		graph->ar_graph->position_mem_map_handle;
++
++	ret = audioreach_graph_send_cmd_sync(graph, pkt, 0);
++	if (ret) {
++		dev_err(graph->dev,
++			"SP11 push-ring config iid %#x param %#x failed: %d\n",
++			push->instance_id, PARAM_ID_SH_MEM_PULL_PUSH_MODE_CFG,
++			ret);
++		return ret;
++	}
++
++	watermarks.num_water_mark_levels = 2;
++	watermarks.levels[0] = period_size;
++	watermarks.levels[1] = ring_size;
++	ret = q6apm_register_module_event(
++		graph, push->instance_id,
++		EVENT_ID_SH_MEM_PULL_PUSH_MODE_WATERMARK,
++		&watermarks, sizeof(watermarks));
++	if (ret)
++		return ret;
++
++	dev_info(graph->dev,
++		 "SP11 Windows EP16 push ring accepted: iid %#x ring=%zu period=%zu\n",
++		 push->instance_id, ring_size, period_size);
++	return 0;
++}
++EXPORT_SYMBOL_GPL(q6apm_graph_configure_push);
++
+ int q6apm_map_memory_fixed_region(struct device *dev, unsigned int graph_id, phys_addr_t phys,
+ 				  size_t sz)
+ {
+@@ -1032,6 +1138,8 @@ static int q6apm_graph_get_tx_shmem_module_iid(struct q6apm_graph *graph)
+ 	struct audioreach_module *module;
+ 
+ 	module = q6apm_find_module_by_mid(graph, MODULE_ID_RD_SHARED_MEM_EP);
++	if (!module && graph->push_mode)
++		module = q6apm_find_module_by_mid(graph, MODULE_ID_SH_MEM_PUSH_MODE);
+ 	if (!module)
+ 		return -ENODEV;
+ 
+@@ -1169,6 +1277,36 @@ snd_pcm_uframes_t q6apm_get_pull_hw_pointer(struct q6apm_graph *graph,
+ }
+ EXPORT_SYMBOL_GPL(q6apm_get_pull_hw_pointer);
+ 
++snd_pcm_uframes_t q6apm_get_push_hw_pointer(struct q6apm_graph *graph,
++					    struct snd_pcm_runtime *runtime)
++{
++	struct sh_mem_pull_push_mode_position_buffer *position;
++	u32 before, after, index;
++	int retries = 4;
++
++	if (!graph->push_mode || !graph->ar_graph ||
++	    !graph->ar_graph->position_virt)
++		return 0;
++
++	position = graph->ar_graph->position_virt;
++	do {
++		before = READ_ONCE(position->frame_counter);
++		dma_rmb();
++		index = READ_ONCE(position->index);
++		dma_rmb();
++		after = READ_ONCE(position->frame_counter);
++	} while ((!before || before != after) && --retries);
++
++	if (!before || before != after ||
++	    index >= frames_to_bytes(runtime, runtime->buffer_size))
++		index = atomic_read(&graph->tx_data.hw_ptr);
++	else
++		atomic_set(&graph->tx_data.hw_ptr, index);
++
++	return bytes_to_frames(runtime, index);
++}
++EXPORT_SYMBOL_GPL(q6apm_get_push_hw_pointer);
++
+ static int graph_callback(const struct gpr_resp_pkt *data, void *priv, int op)
+ {
+ 	struct data_cmd_rsp_rd_sh_mem_ep_data_buffer_done_v2 *rd_done;
+@@ -1238,10 +1376,11 @@ static int graph_callback(const struct gpr_resp_pkt *data, void *priv, int op)
+ 				 data->hdr.src_port, event->event_id,
+ 				 event->event_payload_size);
+ 
+-		if (!graph->pull_mode)
++		if (!graph->pull_mode && !graph->push_mode)
+ 			break;
+ 
+-		if (data->hdr.src_port == SP11_SOFT_PAUSE_IID && graph->cb) {
++		if (graph->pull_mode && data->hdr.src_port == SP11_SOFT_PAUSE_IID &&
++		    graph->cb) {
+ 			if (event->event_id == EVENT_ID_SOFT_PAUSE_PAUSE_COMPLETE) {
+ 				graph->cb(APM_CLIENT_EVENT_SOFT_PAUSE_COMPLETE, 0,
+ 					  (u8 *)data->payload + sizeof(*event),
+@@ -1380,6 +1519,10 @@ struct q6apm_graph *q6apm_graph_open(struct device *dev, q6apm_cb cb,
+ 	graph->pull_mode =
+ 		dir == SNDRV_PCM_STREAM_PLAYBACK &&
+ 		audioreach_graph_has_protected_calibration(graph->info);
++	graph->push_mode =
++		dir == SNDRV_PCM_STREAM_CAPTURE &&
++		__q6apm_find_module_by_mid(apm, graph->info,
++					 MODULE_ID_SH_MEM_PUSH_MODE);
+ 
+ 	if (dir == SNDRV_PCM_STREAM_PLAYBACK)
+ 		graph->shm_iid = q6apm_graph_get_rx_shmem_module_iid(graph);
+@@ -1421,7 +1564,7 @@ EXPORT_SYMBOL_GPL(q6apm_graph_close);
+ 
+ int q6apm_graph_prepare(struct q6apm_graph *graph)
+ {
+-	if (graph->pull_mode)
++	if (graph->pull_mode || graph->push_mode)
+ 		return 0;
+ 
+ 	return audioreach_graph_mgmt_cmd(graph->ar_graph, APM_CMD_GRAPH_PREPARE);
+diff --git a/sound/soc/qcom/qdsp6/q6apm-dai.c b/sound/soc/qcom/qdsp6/q6apm-dai.c
+index 1a3582d..2ad5515 100644
+--- a/sound/soc/qcom/qdsp6/q6apm-dai.c
++++ b/sound/soc/qcom/qdsp6/q6apm-dai.c
+@@ -33,6 +33,8 @@
+ #define BUFFER_BYTES_MIN (PLAYBACK_MIN_NUM_PERIODS * PLAYBACK_MIN_PERIOD_SIZE)
+ #define SP11_PULL_PERIOD_BYTES	1920
+ #define SP11_PULL_BUFFER_BYTES	3840
++#define SP11_PUSH_PERIOD_BYTES	1920
++#define SP11_PUSH_BUFFER_BYTES	3840
+ /* Current Windows DEFAULT 0x466b timing: 0x102d rampdown=20 ms,
+  * 0x103e downstream delay=25 ms, and qcadcm adds a 5 ms completion margin.
+  */
+@@ -162,6 +164,30 @@ static const struct snd_pcm_hardware q6apm_dai_hardware_sp11_pull = {
+ 	.fifo_size =		0,
+ };
+ 
++static const struct snd_pcm_hardware q6apm_dai_hardware_sp11_push = {
++	.info =			(SNDRV_PCM_INFO_MMAP |
++				 SNDRV_PCM_INFO_BLOCK_TRANSFER |
++				 SNDRV_PCM_INFO_MMAP_VALID |
++				 SNDRV_PCM_INFO_INTERLEAVED |
++				 SNDRV_PCM_INFO_PAUSE |
++				 SNDRV_PCM_INFO_RESUME |
++				 SNDRV_PCM_INFO_NO_REWINDS |
++				 SNDRV_PCM_INFO_SYNC_APPLPTR |
++				 SNDRV_PCM_INFO_BATCH),
++	.formats =		SNDRV_PCM_FMTBIT_S16_LE,
++	.rates =		SNDRV_PCM_RATE_48000,
++	.rate_min =		48000,
++	.rate_max =		48000,
++	.channels_min =		2,
++	.channels_max =		2,
++	.buffer_bytes_max =	SP11_PUSH_BUFFER_BYTES,
++	.period_bytes_min =	SP11_PUSH_PERIOD_BYTES,
++	.period_bytes_max =	SP11_PUSH_PERIOD_BYTES,
++	.periods_min =		2,
++	.periods_max =		2,
++	.fifo_size =		0,
++};
++
+ static void event_handler(uint32_t opcode, uint32_t token, void *payload, void *priv)
+ {
+ 	struct q6apm_dai_rtd *prtd = priv;
+@@ -279,9 +305,10 @@ static int q6apm_dai_prepare(struct snd_soc_component *component,
+ 	 * with AR_EALREADY, while the fixed 48 kHz stereo format cannot change.
+ 	 * Keep the persistent graph running and only re-arm the host-side state.
+ 	 */
+-	if (prtd->graph->pull_mode && prtd->state != Q6APM_STREAM_IDLE) {
++	if ((prtd->graph->pull_mode || prtd->graph->push_mode) &&
++	    prtd->state != Q6APM_STREAM_IDLE) {
+ 		prtd->state = Q6APM_STREAM_RUNNING;
+-		dev_info(dev, "SP11 stage duplicate prepare reused pull graph\n");
++		dev_info(dev, "SP11 duplicate prepare reused circular graph\n");
+ 		return 0;
+ 	}
+ 
+@@ -294,7 +321,7 @@ static int q6apm_dai_prepare(struct snd_soc_component *component,
+ 	if (prtd->state) {
+ 		/* clear the previous setup if any  */
+ 		q6apm_graph_stop(prtd->graph);
+-		if (!prtd->graph->pull_mode)
++		if (!prtd->graph->pull_mode && !prtd->graph->push_mode)
+ 			q6apm_free_fragments(prtd->graph, substream->stream);
+ 	}
+ 
+@@ -304,6 +331,10 @@ static int q6apm_dai_prepare(struct snd_soc_component *component,
+ 		ret = q6apm_graph_configure_pull(
+ 			prtd->graph, &cfg, prtd->phys, prtd->pcm_size,
+ 			prtd->pcm_count);
++	else if (prtd->graph->push_mode)
++		ret = q6apm_graph_configure_push(
++			prtd->graph, &cfg, prtd->phys, prtd->pcm_size,
++			prtd->pcm_count);
+ 	else
+ 		ret = q6apm_graph_media_format_shmem(prtd->graph, &cfg);
+ 	if (ret < 0) {
+@@ -318,7 +349,7 @@ static int q6apm_dai_prepare(struct snd_soc_component *component,
+ 		return ret;
+ 	}
+ 
+-	if (!prtd->graph->pull_mode)
++	if (!prtd->graph->pull_mode && !prtd->graph->push_mode)
+ 		ret = q6apm_alloc_fragments(
+ 			prtd->graph, substream->stream, prtd->phys,
+ 			(prtd->pcm_size / prtd->periods), prtd->periods);
+@@ -342,9 +373,10 @@ static int q6apm_dai_prepare(struct snd_soc_component *component,
+ 		return ret;
+ 	}
+ 
+-	if (substream->stream == SNDRV_PCM_STREAM_CAPTURE) {
++	if (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
++	    !prtd->graph->push_mode) {
+ 		int i;
+-		/* Queue the buffers for Capture ONLY after graph is started */
++		/* Queue buffers only for conventional RD_SHARED_MEM capture. */
+ 		for (i = 0; i < runtime->periods; i++)
+ 			q6apm_read(prtd->graph);
+ 
+@@ -527,9 +559,12 @@ static int q6apm_dai_open(struct snd_soc_component *component,
+ 			runtime->hw = q6apm_dai_hardware_sp11_pull;
+ 		else
+ 			runtime->hw = q6apm_dai_hardware_playback;
++	} else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE) {
++		if (prtd->graph->push_mode)
++			runtime->hw = q6apm_dai_hardware_sp11_push;
++		else
++			runtime->hw = q6apm_dai_hardware_capture;
+ 	}
+-	else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
+-		runtime->hw = q6apm_dai_hardware_capture;
+ 
+ 	/* Ensure that buffer size is a multiple of period size */
+ 	ret = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
+@@ -562,7 +597,7 @@ static int q6apm_dai_open(struct snd_soc_component *component,
+ 	}
+ 
+ 	runtime->private_data = prtd;
+-	runtime->dma_bytes = prtd->graph->pull_mode ?
++	runtime->dma_bytes = (prtd->graph->pull_mode || prtd->graph->push_mode) ?
+ 			     PAGE_SIZE : BUFFER_BYTES_MAX;
+ 	if (pdata->sid < 0)
+ 		prtd->phys = substream->dma_buffer.addr;
+@@ -585,7 +620,7 @@ static int q6apm_dai_close(struct snd_soc_component *component,
+ 	if (prtd->state) {
+ 		/* only stop graph that is started */
+ 		q6apm_graph_stop(prtd->graph);
+-		if (!prtd->graph->pull_mode)
++		if (!prtd->graph->pull_mode && !prtd->graph->push_mode)
+ 			q6apm_free_fragments(prtd->graph, substream->stream);
+ 	}
+ 
+@@ -606,6 +641,8 @@ static snd_pcm_uframes_t q6apm_dai_pointer(struct snd_soc_component *component,
+ 
+ 	if (prtd->graph->pull_mode)
+ 		return q6apm_get_pull_hw_pointer(prtd->graph, runtime);
++	if (prtd->graph->push_mode)
++		return q6apm_get_push_hw_pointer(prtd->graph, runtime);
+ 
+ 	ptr = q6apm_get_hw_pointer(prtd->graph, substream->stream) * runtime->period_size;
+ 	if (ptr)
+@@ -658,7 +695,8 @@ static int q6apm_dai_memory_map(struct snd_soc_component *component,
+ 	else
+ 		phys = substream->dma_buffer.addr | (pdata->sid << 32);
+ 
+-	map_size = q6apm_graph_is_pull_mode(dev, graph_id) ?
++	map_size = (q6apm_graph_is_pull_mode(dev, graph_id) ||
++		    q6apm_graph_is_push_mode(dev, graph_id)) ?
+ 		   PAGE_SIZE : BUFFER_BYTES_MAX;
+ 	ret = q6apm_map_memory_fixed_region(dev, graph_id, phys, map_size);
+ 	if (ret < 0)
+@@ -681,7 +719,8 @@ static int q6apm_dai_pcm_new(struct snd_soc_component *component, struct snd_soc
+ 	struct snd_pcm_substream *substream;
+ 
+ 	graph_id = cpu_dai->driver->id;
+-	size = (q6apm_graph_is_pull_mode(component->dev, graph_id) ?
++	size = ((q6apm_graph_is_pull_mode(component->dev, graph_id) ||
++		 q6apm_graph_is_push_mode(component->dev, graph_id)) ?
+ 		PAGE_SIZE : BUFFER_BYTES_MAX) + PAGE_SIZE;
+ 
+ 	ret = snd_pcm_set_fixed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV, component->dev, size);
