@@ -1,0 +1,274 @@
+From: SP11 audio reverse-engineering <sp11-audio@local>
+Date: Tue, 25 Aug 2026 17:50:00 +0100
+Subject: [PATCH] ASoC: lpass: SP11 share VA DMIC clock with TX capture
+
+Windows routes the Surface Pro 11 MicArray through TX macro while VA
+macro owns the shared DMIC clock. The qcaucd trace shows VA DMIC0
+acquisition after both TX input muxes are programmed and before TX path
+clocks start. It is released after both TX stop preambles, before TX path
+clocks are cleared.
+
+Provide an LPASS-common DMIC-clock broker and register the Denali VA macro
+as its provider. The Denali TX DEC event group requests DMIC1 then DMIC0 at
+the first POST_PMU event. DAPM runs all coalesced DEC PRE events before any
+DEC POST event, reproducing the observed cross-macro order naturally.
+Release both shared users at the first POST_PMD event for the matching
+teardown order.
+
+Scope the consumer to microsoft,denali and validate the exact Windows EP16
+route: AIF1 DEC0<-DMIC1 and DEC1<-DMIC0, both through MSM_DMIC.
+
+Signed-off-by: SP11 audio reverse-engineering <sp11-audio@local>
+---
+--- a/sound/soc/codecs/lpass-macro-common.c
++++ b/sound/soc/codecs/lpass-macro-common.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ // Copyright (c) 2022, The Linux Foundation. All rights reserved.
+ 
++#include <linux/errno.h>
+ #include <linux/export.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+@@ -13,6 +14,10 @@
+ 
+ static DEFINE_MUTEX(lpass_codec_mutex);
+ static enum lpass_codec_version lpass_codec_version;
++
++static DEFINE_MUTEX(lpass_dmic_clk_mutex);
++static void *lpass_dmic_clk_priv;
++static const struct lpass_macro_dmic_clk_ops *lpass_dmic_clk_ops;
+ 
+ struct lpass_macro *lpass_macro_pds_init(struct device *dev)
+ {
+@@ -89,5 +94,51 @@
+ }
+ EXPORT_SYMBOL_GPL(lpass_macro_get_codec_version);
+ 
++int lpass_macro_register_dmic_clk_provider(void *priv, const struct lpass_macro_dmic_clk_ops *ops)
++{
++	int ret = 0;
++
++	if (!priv || !ops || !ops->request)
++		return -EINVAL;
++
++	mutex_lock(&lpass_dmic_clk_mutex);
++	if (lpass_dmic_clk_priv && lpass_dmic_clk_priv != priv) {
++		ret = -EBUSY;
++	} else {
++		lpass_dmic_clk_priv = priv;
++		lpass_dmic_clk_ops = ops;
++	}
++	mutex_unlock(&lpass_dmic_clk_mutex);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(lpass_macro_register_dmic_clk_provider);
++
++void lpass_macro_unregister_dmic_clk_provider(void *priv)
++{
++	mutex_lock(&lpass_dmic_clk_mutex);
++	if (lpass_dmic_clk_priv == priv) {
++		lpass_dmic_clk_ops = NULL;
++		lpass_dmic_clk_priv = NULL;
++	}
++	mutex_unlock(&lpass_dmic_clk_mutex);
++}
++EXPORT_SYMBOL_GPL(lpass_macro_unregister_dmic_clk_provider);
++
++int lpass_macro_dmic_clk_request(unsigned int dmic, bool enable)
++{
++	int ret;
++
++	mutex_lock(&lpass_dmic_clk_mutex);
++	if (!lpass_dmic_clk_ops)
++		ret = -ENODEV;
++	else
++		ret = lpass_dmic_clk_ops->request(lpass_dmic_clk_priv, dmic, enable);
++	mutex_unlock(&lpass_dmic_clk_mutex);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(lpass_macro_dmic_clk_request);
++
+ MODULE_DESCRIPTION("Common macro driver");
+ MODULE_LICENSE("GPL");
+--- a/sound/soc/codecs/lpass-macro-common.h
++++ b/sound/soc/codecs/lpass-macro-common.h
+@@ -41,6 +41,13 @@
+ void lpass_macro_pds_exit(struct lpass_macro *pds);
+ void lpass_macro_set_codec_version(enum lpass_codec_version version);
+ enum lpass_codec_version lpass_macro_get_codec_version(void);
++struct lpass_macro_dmic_clk_ops {
++	int (*request)(void *priv, unsigned int dmic, bool enable);
++};
++
++int lpass_macro_register_dmic_clk_provider(void *priv, const struct lpass_macro_dmic_clk_ops *ops);
++void lpass_macro_unregister_dmic_clk_provider(void *priv);
++int lpass_macro_dmic_clk_request(unsigned int dmic, bool enable);
+ 
+ static inline void lpass_macro_pds_exit_action(void *pds)
+ {
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -49,6 +49,7 @@
+ #define CDC_TX_INP_MUX_ADC_MUXn_CFG0(n)	(0x0100 + 0x8 * n)
+ #define CDC_TX_MACRO_SWR_MIC_MUX_SEL_MASK GENMASK(3, 0)
+ #define CDC_TX_MACRO_DMIC_MUX_SEL_MASK GENMASK(7, 4)
++#define CDC_TX_MACRO_DEC_MUX_SEL_MASK GENMASK(1, 0)
+ #define CDC_TX_INP_MUX_ADC_MUX0_CFG0	(0x0100)
+ #define CDC_TX_INP_MUX_ADC_MUXn_CFG1(n)	(0x0104 + 0x8 * n)
+ #define CDC_TX_INP_MUX_ADC_MUX0_CFG1	(0x0104)
+@@ -285,6 +286,7 @@
+ 	int dec_mode[NUM_DECIMATORS];
+ 	struct lpass_macro *pds;
+ 	bool bcs_clk_en;
++	bool sp11_va_dmic_active;
+ };
+ #define to_tx_macro(_hw) container_of(_hw, struct tx_macro, hw)
+ 
+@@ -906,6 +908,63 @@
+ 	return 1;
+ }
+ 
++static int tx_macro_sp11_va_dmic_request(struct snd_soc_component *component,
++					 bool enable)
++{
++	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
++	unsigned int dec0_src, dec1_src, dec0_dmic, dec1_dmic;
++	unsigned long expected = BIT(TX_MACRO_DEC0) | BIT(TX_MACRO_DEC1);
++	int ret, ret2;
++
++	if (!of_machine_is_compatible("microsoft,denali"))
++		return 0;
++
++	if (enable == tx->sp11_va_dmic_active)
++		return 0;
++
++	if (!enable) {
++		ret = lpass_macro_dmic_clk_request(1, false);
++		ret2 = lpass_macro_dmic_clk_request(0, false);
++		if (!ret && ret2)
++			ret = ret2;
++		if (!ret)
++			tx->sp11_va_dmic_active = false;
++		return ret;
++	}
++
++	if (tx->active_ch_mask[TX_MACRO_AIF1_CAP] != expected ||
++	    tx->active_ch_mask[TX_MACRO_AIF2_CAP] ||
++	    tx->active_ch_mask[TX_MACRO_AIF3_CAP])
++		return -EINVAL;
++
++	dec0_src = snd_soc_component_read(component, CDC_TX_INP_MUX_ADC_MUXn_CFG1(TX_MACRO_DEC0));
++	dec0_src &= CDC_TX_MACRO_DEC_MUX_SEL_MASK;
++	dec1_src = snd_soc_component_read(component, CDC_TX_INP_MUX_ADC_MUXn_CFG1(TX_MACRO_DEC1));
++	dec1_src &= CDC_TX_MACRO_DEC_MUX_SEL_MASK;
++	dec0_dmic = snd_soc_component_read(component, CDC_TX_INP_MUX_ADC_MUXn_CFG0(TX_MACRO_DEC0));
++	dec0_dmic = FIELD_GET(CDC_TX_MACRO_DMIC_MUX_SEL_MASK, dec0_dmic);
++	dec1_dmic = snd_soc_component_read(component, CDC_TX_INP_MUX_ADC_MUXn_CFG0(TX_MACRO_DEC1));
++	dec1_dmic = FIELD_GET(CDC_TX_MACRO_DMIC_MUX_SEL_MASK, dec1_dmic);
++
++	/* Windows EP16 is DEC0 <- DMIC1 and DEC1 <- DMIC0, both MSM_DMIC. */
++	if (dec0_src != MSM_DMIC || dec1_src != MSM_DMIC ||
++	    dec0_dmic != 2 || dec1_dmic != 1)
++		return -EINVAL;
++
++	ret = lpass_macro_dmic_clk_request(1, true);
++	if (ret)
++		return ret;
++
++	ret = lpass_macro_dmic_clk_request(0, true);
++	if (ret) {
++		lpass_macro_dmic_clk_request(1, false);
++		return ret;
++	}
++
++	tx->sp11_va_dmic_active = true;
++	return 0;
++}
++
+ static int tx_macro_enable_dec(struct snd_soc_dapm_widget *w,
+ 			       struct snd_kcontrol *kcontrol, int event)
+ {
+@@ -915,6 +974,7 @@
+ 	u8 hpf_cut_off_freq;
+ 	int hpf_delay = TX_MACRO_DMIC_HPF_DELAY_MS;
+ 	int unmute_delay = TX_MACRO_DMIC_UNMUTE_DELAY_MS;
++	int ret;
+ 	u16 adc_mux_reg, adc_reg, adc_n, dmic;
+ 	u16 dmic_clk_reg;
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+@@ -949,6 +1009,9 @@
+ 					      CDC_TXn_PGA_MUTE_MASK, 0x1);
+ 		break;
+ 	case SND_SOC_DAPM_POST_PMU:
++		ret = tx_macro_sp11_va_dmic_request(component, true);
++		if (ret)
++			return ret;
+ 		snd_soc_component_write_field(component, tx_vol_ctl_reg,
+ 					     CDC_TXn_CLK_EN_MASK, 0x1);
+ 		if (!is_amic_enabled(component, tx, decimator)) {
+@@ -1047,6 +1110,9 @@
+ 		cancel_delayed_work_sync(&tx->tx_mute_dwork[decimator].dwork);
+ 		break;
+ 	case SND_SOC_DAPM_POST_PMD:
++		ret = tx_macro_sp11_va_dmic_request(component, false);
++		if (ret)
++			return ret;
+ 		snd_soc_component_write_field(component, tx_vol_ctl_reg,
+ 					      CDC_TXn_CLK_EN_MASK, 0x0);
+ 		snd_soc_component_write_field(component, dec_cfg_reg,
+--- a/sound/soc/codecs/lpass-va-macro.c
++++ b/sound/soc/codecs/lpass-va-macro.c
+@@ -743,6 +743,16 @@
+ 	return 0;
+ }
+ 
++static int va_macro_shared_dmic_clk_request(void *priv, unsigned int dmic,
++					    bool enable)
++{
++	return va_dmic_clk_enable(priv, dmic, enable);
++}
++
++static const struct lpass_macro_dmic_clk_ops va_macro_dmic_clk_ops = {
++	.request = va_macro_shared_dmic_clk_request,
++};
++
+ static int va_macro_enable_dmic(struct snd_soc_dapm_widget *w,
+ 				struct snd_kcontrol *kcontrol, int event)
+ {
+@@ -1350,15 +1360,31 @@
+ static int va_macro_component_probe(struct snd_soc_component *component)
+ {
+ 	struct va_macro *va = snd_soc_component_get_drvdata(component);
++	int ret;
+ 
+ 	snd_soc_component_init_regmap(component, va->regmap);
+ 
++	if (!of_machine_is_compatible("microsoft,denali"))
++		return 0;
++
++	ret = lpass_macro_register_dmic_clk_provider(component, &va_macro_dmic_clk_ops);
++	if (ret)
++		return dev_err_probe(component->dev, ret,
++				     "failed to register shared DMIC clock provider\n");
++
+ 	return 0;
++}
++
++static void va_macro_component_remove(struct snd_soc_component *component)
++{
++	if (of_machine_is_compatible("microsoft,denali"))
++		lpass_macro_unregister_dmic_clk_provider(component);
+ }
+ 
+ static const struct snd_soc_component_driver va_macro_component_drv = {
+ 	.name = "VA MACRO",
+ 	.probe = va_macro_component_probe,
++	.remove = va_macro_component_remove,
+ 	.controls = va_macro_snd_controls,
+ 	.num_controls = ARRAY_SIZE(va_macro_snd_controls),
+ 	.dapm_widgets = va_macro_dapm_widgets,
+-- 
+2.51.0
