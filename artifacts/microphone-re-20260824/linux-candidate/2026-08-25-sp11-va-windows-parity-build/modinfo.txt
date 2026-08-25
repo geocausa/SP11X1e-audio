@@ -1,0 +1,19 @@
+filename:       /home/geoca/Documents/SP11-PROJECT/02-kernel/mic-va-windows-parity-candidate-20260825/snd-soc-lpass-va-macro.ko
+license:        GPL
+description:    VA macro driver
+srcversion:     81ECE21DD3204E5F3BBFB67
+alias:          of:N*T*Cqcom,sc8280xp-lpass-va-macroC*
+alias:          of:N*T*Cqcom,sc8280xp-lpass-va-macro
+alias:          of:N*T*Cqcom,sm8550-lpass-va-macroC*
+alias:          of:N*T*Cqcom,sm8550-lpass-va-macro
+alias:          of:N*T*Cqcom,sm8450-lpass-va-macroC*
+alias:          of:N*T*Cqcom,sm8450-lpass-va-macro
+alias:          of:N*T*Cqcom,sm8250-lpass-va-macroC*
+alias:          of:N*T*Cqcom,sm8250-lpass-va-macro
+alias:          of:N*T*Cqcom,sm6115-lpass-va-macroC*
+alias:          of:N*T*Cqcom,sm6115-lpass-va-macro
+alias:          of:N*T*Cqcom,sc7280-lpass-va-macroC*
+alias:          of:N*T*Cqcom,sc7280-lpass-va-macro
+depends:        snd-soc-core,snd-soc-lpass-macro-common
+name:           snd_soc_lpass_va_macro
+vermagic:       7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64

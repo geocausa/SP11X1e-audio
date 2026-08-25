@@ -1,0 +1,14 @@
+{
+  "date": "2026-08-25",
+  "host": "SP11X1e",
+  "running_kernel": "7.1.5-sp11-render-parity-v4+",
+  "base": "golden-v33 replay kitchen",
+  "patches": [
+    "0072-ASoC-lpass-va-macro-SP11-match-Windows-DMIC-divider.patch",
+    "0073-ASoC-lpass-va-macro-SP11-match-Windows-VA-sequencing.patch"
+  ],
+  "candidate_module_sha256": "30ee0704348c0e7e78aadead8e381987447351d0e46db387e949ee0dd9c65978",
+  "candidate_srcversion": "81ECE21DD3204E5F3BBFB67",
+  "vermagic": "7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64",
+  "kitchen_restore": "PASS"
+}

@@ -1,0 +1,10 @@
+make: Entering directory '/home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src'
+make[1]: Entering directory '/home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs'
+make[3]: 'snd-soc-lpass-va-macro.mod' is up to date.
+  CC [M]  lpass-va-macro.o
+  LD [M]  snd-soc-lpass-va-macro.o
+  MODPOST Module.symvers
+  CC [M]  snd-soc-lpass-va-macro.mod.o
+  LD [M]  snd-soc-lpass-va-macro.ko
+make[1]: Leaving directory '/home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src/sound/soc/codecs'
+make: Leaving directory '/home/geoca/Documents/SP11-PROJECT/02-kernel/.golden-v33-repro/src'
