@@ -1,0 +1,105 @@
+From: SP11 audio reverse-engineering
+Subject: [PATCH] ASoC: lpass-va-macro: SP11 match Windows VA sequencing
+
+Native Windows on Microsoft Denali (Surface Pro 11) does not pulse the VA
+FS counter clear during normal MicArray startup, leaves FS broadcast asserted
+on teardown, releases the all-DMIC reset for each active DMIC input, and on
+final DMIC shutdown clears only the enable bit without rewriting the divider.
+
+Match those observed writes on microsoft,denali only.  This patch follows the
+Denali DIV4 parity patch and preserves generic VA-macro behavior elsewhere.
+
+---
+--- a/sound/soc/codecs/lpass-va-macro.c
++++ b/sound/soc/codecs/lpass-va-macro.c
+@@ -466,18 +466,25 @@
+ static int va_clk_rsc_fs_gen_request(struct va_macro *va, bool enable)
+ {
+ 	struct regmap *regmap = va->regmap;
++	bool denali = of_machine_is_compatible("microsoft,denali");
+ 
+ 	if (enable) {
+ 		regmap_update_bits(regmap, CDC_VA_CLK_RST_CTRL_MCLK_CONTROL,
+ 				   CDC_VA_MCLK_CONTROL_EN,
+ 				   CDC_VA_MCLK_CONTROL_EN);
+-		/* clear the fs counter */
+-		regmap_update_bits(regmap, CDC_VA_CLK_RST_CTRL_FS_CNT_CONTROL,
+-				   CDC_VA_FS_CONTROL_EN | CDC_VA_FS_COUNTER_CLR,
+-				   CDC_VA_FS_CONTROL_EN | CDC_VA_FS_COUNTER_CLR);
+-		regmap_update_bits(regmap, CDC_VA_CLK_RST_CTRL_FS_CNT_CONTROL,
+-				   CDC_VA_FS_CONTROL_EN | CDC_VA_FS_COUNTER_CLR,
+-				   CDC_VA_FS_CONTROL_EN);
++		if (denali) {
++			regmap_update_bits(regmap, CDC_VA_CLK_RST_CTRL_FS_CNT_CONTROL,
++					   CDC_VA_FS_CONTROL_EN,
++					   CDC_VA_FS_CONTROL_EN);
++		} else {
++			/* clear the fs counter */
++			regmap_update_bits(regmap, CDC_VA_CLK_RST_CTRL_FS_CNT_CONTROL,
++					   CDC_VA_FS_CONTROL_EN | CDC_VA_FS_COUNTER_CLR,
++					   CDC_VA_FS_CONTROL_EN | CDC_VA_FS_COUNTER_CLR);
++			regmap_update_bits(regmap, CDC_VA_CLK_RST_CTRL_FS_CNT_CONTROL,
++					   CDC_VA_FS_CONTROL_EN | CDC_VA_FS_COUNTER_CLR,
++					   CDC_VA_FS_CONTROL_EN);
++		}
+ 
+ 		regmap_update_bits(regmap, CDC_VA_TOP_CSR_TOP_CFG0,
+ 				   CDC_VA_FS_BROADCAST_EN,
+@@ -489,8 +496,9 @@
+ 		regmap_update_bits(regmap, CDC_VA_CLK_RST_CTRL_FS_CNT_CONTROL,
+ 				   CDC_VA_FS_CONTROL_EN, 0x0);
+ 
+-		regmap_update_bits(regmap, CDC_VA_TOP_CSR_TOP_CFG0,
+-				   CDC_VA_FS_BROADCAST_EN, 0x0);
++		if (!denali)
++			regmap_update_bits(regmap, CDC_VA_TOP_CSR_TOP_CFG0,
++					   CDC_VA_FS_BROADCAST_EN, 0x0);
+ 	}
+ 
+ 	return 0;
+@@ -617,6 +625,7 @@
+ 			      u32 dmic, bool enable)
+ {
+ 	struct va_macro *va = snd_soc_component_get_drvdata(component);
++	bool denali = of_machine_is_compatible("microsoft,denali");
+ 	u16 dmic_clk_reg;
+ 	s32 *dmic_clk_cnt;
+ 	u8 *dmic_clk_div;
+@@ -661,11 +670,17 @@
+ 	if (enable) {
+ 		clk_div = va->dmic_clk_div;
+ 		(*dmic_clk_cnt)++;
+-		if (*dmic_clk_cnt == 1) {
++		if (denali)
+ 			snd_soc_component_update_bits(component,
+ 					      CDC_VA_TOP_CSR_DMIC_CFG,
+ 					      CDC_VA_RESET_ALL_DMICS_MASK,
+ 					      CDC_VA_RESET_ALL_DMICS_DISABLE);
++		if (*dmic_clk_cnt == 1) {
++			if (!denali)
++				snd_soc_component_update_bits(component,
++						      CDC_VA_TOP_CSR_DMIC_CFG,
++						      CDC_VA_RESET_ALL_DMICS_MASK,
++						      CDC_VA_RESET_ALL_DMICS_DISABLE);
+ 			snd_soc_component_update_bits(component, dmic_clk_reg,
+ 					CDC_VA_DMIC_CLK_SEL_MASK,
+ 					clk_div << CDC_VA_DMIC_CLK_SEL_SHFT);
+@@ -695,10 +710,14 @@
+ 		if (*dmic_clk_cnt  == 0) {
+ 			snd_soc_component_update_bits(component, dmic_clk_reg,
+ 						      CDC_VA_DMIC_EN_MASK, 0);
+-			clk_div = 0;
+-			snd_soc_component_update_bits(component, dmic_clk_reg,
++			if (denali) {
++				clk_div = *dmic_clk_div;
++			} else {
++				clk_div = 0;
++				snd_soc_component_update_bits(component, dmic_clk_reg,
+ 						CDC_VA_DMIC_CLK_SEL_MASK,
+ 						clk_div << CDC_VA_DMIC_CLK_SEL_SHFT);
++			}
+ 		} else {
+ 			clk_div = va->dmic_clk_div;
+ 			if (*dmic_clk_div > clk_div) {
+-- 
+2.51.0
