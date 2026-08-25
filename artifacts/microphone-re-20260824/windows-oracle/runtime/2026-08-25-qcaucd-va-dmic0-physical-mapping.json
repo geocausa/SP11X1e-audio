@@ -1,0 +1,31 @@
+﻿{
+  "schema": 1,
+  "subject": "SP11 MicArray qcaucd VA DMIC0 physical register mapping",
+  "windows": {
+    "logical_register": "0x3084",
+    "transport_function": "qcaucd8380!FUN_14001bce8",
+    "logical_window": "0x3000",
+    "window_base_constant_rva": "0x1bf68",
+    "window_base": "0x06d41000",
+    "physical_register": "0x06d44084",
+    "configured_byte": "0x04",
+    "running_byte": "0x05",
+    "selector": 2,
+    "compact_resource_type": "0x1d",
+    "compact_resource_value": 8
+  },
+  "linux": {
+    "device_tree_node": "lpass_vamacro: codec@6d44000",
+    "mmio_base": "0x06d44000",
+    "register_offset": "0x0084",
+    "register_name": "CDC_VA_TOP_CSR_DMIC0_CTL",
+    "enable_mask": "BIT(0)",
+    "clock_select_mask": "GENMASK(3,1)",
+    "clock_select_shift": 1,
+    "romulus_dmic_sample_rate": 4800000,
+    "va_macro_internal_rate_constant": 9600000,
+    "external_mclk_request": 19200000,
+    "selector_from_current_dt": 0
+  },
+  "conclusion": "Windows logical 0x3084 is exactly X1E80100 VA macro DMIC0_CTL at physical 0x06d44084. Windows runs it as 0x05 (selector2+enable); current Linux Romulus logic would run it as 0x01 (selector0+enable). Effective Windows divider input clock remains the required discriminator before patching."
+}
