@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "subject": "qcaucd global resource type 0x1d",
+  "live_record": {
+    "type": "0x0000001d",
+    "id": "0xffffffff",
+    "value": 8,
+    "qcaucd_consumer_rva": "0x33828",
+    "qcaucd_mode_mapping": {
+      "4": 0,
+      "6": 1,
+      "8": 2,
+      "16": 4,
+      "32": 5
+    }
+  },
+  "source": {
+    "owner": "qcpep8380.sys",
+    "sha256": "e5bdeb8c0fb8823990f7520a19c00807711cf909f91f8d67db78ffb18c1b2277",
+    "qcaucd_parser_callback_target": "qcpep8380+0x39b20",
+    "qcpep_binary_parser_rva": "0x40bc08",
+    "resource_factory_rva": "0x400f20",
+    "resource_code": "0x1d",
+    "constructor_rva": "0x0f298",
+    "vtable_rva": "0x288660",
+    "virtual_name_method_rva": "0x0f300",
+    "virtual_name": "RpmhCommit",
+    "factory_literal": "RPMH_COMMIT"
+  },
+  "conclusion": "qcaucd resource type 0x1d is the platform RPMH_COMMIT/RpmhCommit resource. The semantic meaning of the live payload value 8 remains open."
+}
