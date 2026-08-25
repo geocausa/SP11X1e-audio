@@ -1,0 +1,349 @@
+qcadcm8380.sys SHA-256:
+37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429
+
+//// 0x14006f5c8 -> FUN_14006f5c8 @14006f5c8 ////
+
+int FUN_14006f5c8(longlong param_1,undefined8 param_2,undefined8 *param_3,undefined8 param_4,
+                 undefined8 param_5,uint *param_6,uint **param_7,uint *param_8)
+
+{
+  int *piVar1;
+  int *piVar2;
+  longlong lVar3;
+  int iVar4;
+  longlong lVar5;
+  int iVar6;
+  ulonglong uVar7;
+  char *pcVar8;
+  ulonglong uVar9;
+  undefined8 *puVar10;
+  char *pcVar11;
+  undefined8 extraout_x1;
+  undefined8 extraout_x1_00;
+  undefined8 extraout_x1_01;
+  undefined8 extraout_x1_02;
+  undefined8 uVar12;
+  undefined4 uVar13;
+  ulonglong *puVar14;
+  undefined8 **ppuVar15;
+  ulonglong uVar16;
+  uint uVar17;
+  undefined8 *puVar18;
+  undefined8 *local_60;
+  ulonglong uStack_58;
+  
+  local_60 = (undefined8 *)0x0;
+  uStack_58 = 0;
+  iVar4 = *(int *)(param_1 + 0x30);
+  piVar1 = (int *)(param_1 + 0x40);
+  lVar3 = 0x40;
+  if (iVar4 != 5) {
+    lVar3 = 0x88;
+  }
+  piVar2 = (int *)(lVar3 + param_1);
+  if ((piVar1 == (int *)0x0) || (piVar2 == (int *)0x0)) {
+    FUN_140001720(2,"ADGI","CompareMediaFormat",0xfad,"failed invalid param",param_6,param_7,param_8
+                 );
+    return DAT_14006f9f4;
+  }
+  uVar17 = (uint)*(ushort *)(param_1 + 0x50);
+  if (*(ushort *)(param_1 + 0x50) != 0) {
+    do {
+      uVar17 = uVar17 - 1;
+    } while (uVar17 != 0);
+  }
+  if (*piVar2 != *piVar1 || *piVar1 == 0) {
+    return DAT_14006f9d8;
+  }
+  if ((iVar4 == 5) || (iVar4 == 2 && *(int *)(*(longlong *)(param_1 + 0x20) + 0x170) == 1)) {
+LAB_14006f6d4:
+    ppuVar15 = &local_60;
+    puVar14 = &uStack_58;
+    iVar6 = FUN_14006b410(iVar4 == 1,param_2,param_3,piVar1,(longlong *)puVar14,ppuVar15,param_7,
+                          param_8);
+    puVar10 = local_60;
+    puVar18 = local_60;
+    if (iVar6 != 0) goto LAB_14006f970;
+    uVar17 = DAT_14006f9e4;
+    if (iVar4 != 1) {
+      uVar17 = DAT_14006f9e4 + 1;
+    }
+    uVar7 = FUN_140060d68(*(ulonglong *)(param_1 + 0x28),uVar17,local_60,uStack_58,puVar14,
+                          (uint *)ppuVar15,param_7,param_8);
+    uVar17 = (uint)uVar7;
+    if (uVar17 == 0 || uVar17 == 0x13) {
+      pcVar8 = FUN_140007fc8(uVar17);
+      pcVar11 = "SetStreamDataFormat";
+      FUN_140001720(8,"ADGI","SetStreamDataFormat",0x1037,
+                    "media format on decoder/encoder gsl_set_tagged_custom_config:%s",pcVar8,param_7
+                    ,param_8);
+      uVar12 = extraout_x1_01;
+      if (puVar10 != (undefined8 *)0x0) {
+        ExFreePoolWithTag(puVar10,DAT_14006f9e0);
+        local_60 = (undefined8 *)0x0;
+        uVar12 = extraout_x1_02;
+      }
+      ppuVar15 = &local_60;
+      puVar14 = &uStack_58;
+      iVar6 = FUN_14006b410(iVar4 == 1,uVar12,pcVar11,piVar1,(longlong *)puVar14,ppuVar15,param_7,
+                            param_8);
+      uVar7 = uStack_58;
+      puVar18 = local_60;
+      if (iVar6 != 0) goto LAB_14006f970;
+      uVar9 = FUN_140060d68(*(ulonglong *)(param_1 + 0x28),DAT_14006f9e8,local_60,uStack_58,puVar14,
+                            (uint *)ppuVar15,param_7,param_8);
+      uVar17 = (uint)uVar9;
+      if (uVar17 == 0 || uVar17 == 0x13) {
+        if (iVar4 == 5) goto LAB_14006f970;
+        if (puVar18 != (undefined8 *)0x0) {
+          ExFreePoolWithTag(puVar18,DAT_14006f9e0);
+          puVar18 = (undefined8 *)0x0;
+        }
+        if (iVar4 == 1) {
+          piVar1 = piVar2;
+        }
+        iVar6 = DAT_14006f9d8;
+        if (*piVar1 != 1) goto LAB_14006f970;
+        uVar16 = (ulonglong)*(ushort *)(piVar1 + 4);
+        uVar9 = uVar16 * 2 + 0x18;
+        puVar10 = puVar18;
+        if (((uVar9 != 0) && (uVar16 != 0)) && (uVar16 != 0x7ffffffffffffffc)) {
+          if ((uVar9 & 7) != 0) {
+            uVar9 = (uVar9 - (uVar9 & 7)) + 8;
+          }
+          puVar10 = (undefined8 *)FUN_140007fa0(uVar9,DAT_14006f9e0);
+          if (puVar10 == (undefined8 *)0x0) {
+            FUN_140001720(2,"ADGI","CreateApmMfcPayload",0x39f,
+                          "CreateApmPcmMediaFormatPayload CallocWithTag failed to allocate",ppuVar15
+                          ,param_7,param_8);
+            iVar6 = DAT_14006f9ec;
+            goto LAB_14006f970;
+          }
+          *(int *)(puVar10 + 1) = (int)uVar9 + -0x10;
+          *puVar10 = DAT_14006f9d0;
+          piVar2 = (int *)(puVar10 + 2);
+          *(undefined4 *)((longlong)puVar10 + 0xc) = 0;
+          *piVar2 = piVar1[2];
+          *(short *)((longlong)puVar10 + 0x14) = (short)piVar1[3];
+          *(short *)((longlong)puVar10 + 0x16) = (short)piVar1[4];
+          *piVar2 = piVar1[2];
+          uVar16 = 0;
+          uVar7 = uVar9;
+          if ((short)piVar1[4] != 0) {
+            do {
+              lVar5 = uVar16 + 0x12;
+              lVar3 = uVar16 + 4;
+              uVar17 = (int)uVar16 + 1;
+              uVar16 = (ulonglong)(ushort)uVar17;
+              *(ushort *)((longlong)piVar2 + lVar3 * 2) =
+                   (ushort)*(byte *)((longlong)piVar1 + lVar5);
+            } while ((uVar17 & 0xffff) < (uint)*(ushort *)(piVar1 + 4));
+          }
+        }
+        iVar6 = 0;
+        uVar17 = DAT_14006f9f0;
+        if (iVar4 == 1) {
+          uVar17 = DAT_14006f9f0 + 1;
+        }
+        uVar7 = FUN_140060d68(*(ulonglong *)(param_1 + 0x28),uVar17,puVar10,uVar7,puVar14,
+                              (uint *)ppuVar15,param_7,param_8);
+        uVar17 = (uint)uVar7;
+        if (uVar17 == 0 || uVar17 == 0x13) {
+          pcVar11 = FUN_140007fc8(uVar17);
+          FUN_140001720(8,"ADGI","SetStreamDataFormat",0x1074,
+                        " media format on Stream Sink/Source MFC gsl_set_tagged_custom_config:%s",
+                        pcVar11,param_7,param_8);
+          puVar18 = puVar10;
+          goto LAB_14006f970;
+        }
+        pcVar8 = FUN_140007fc8(uVar17);
+        pcVar11 = "failed media format on Stream Sink/Source MFC gsl_set_tagged_custom_config:%s";
+        uVar13 = 0x106e;
+      }
+      else {
+        pcVar8 = FUN_140007fc8(uVar17);
+        pcVar11 = "failed PCM Converter gsl_set_tagged_custom_config:%s";
+        uVar13 = 0x104d;
+        puVar10 = puVar18;
+      }
+    }
+    else {
+      pcVar8 = FUN_140007fc8(uVar17);
+      pcVar11 = "failed media format on decoder/encoder gsl_set_tagged_custom_config:%s";
+      uVar13 = 0x1031;
+    }
+    FUN_140001720(8,"ADGI","SetStreamDataFormat",uVar13,pcVar11,pcVar8,param_7,param_8);
+  }
+  else {
+    iVar6 = FUN_14006b6c8(param_1,piVar1,(longlong *)&uStack_58,&local_60,param_5,param_6,param_7,
+                          param_8);
+    puVar10 = local_60;
+    puVar18 = local_60;
+    if (iVar6 != 0) goto LAB_14006f970;
+    uVar17 = DAT_14006f9dc;
+    if (iVar4 != 1) {
+      uVar17 = DAT_14006f9dc + 1;
+    }
+    param_3 = local_60;
+    uVar7 = FUN_140060d68(*(ulonglong *)(param_1 + 0x28),uVar17,local_60,uStack_58,param_5,param_6,
+                          param_7,param_8);
+    if ((int)uVar7 == 0) {
+      param_2 = extraout_x1;
+      if (puVar10 != (undefined8 *)0x0) {
+        ExFreePoolWithTag(puVar10,DAT_14006f9e0);
+        local_60 = (undefined8 *)0x0;
+        param_2 = extraout_x1_00;
+      }
+      goto LAB_14006f6d4;
+    }
+  }
+  puVar18 = puVar10;
+  iVar6 = -0x3fffffff;
+LAB_14006f970:
+  if (puVar18 != (undefined8 *)0x0) {
+    ExFreePoolWithTag(puVar18,DAT_14006f9e0);
+  }
+  return iVar6;
+}
+
+
+//// 0x14006b410 -> FUN_14006b410 @14006b410 ////
+
+/* WARNING: Function: __security_push_cookie replaced with injection: security_push_cookie */
+/* WARNING: Function: __security_pop_cookie replaced with injection: security_pop_cookie */
+
+int FUN_14006b410(char param_1,undefined8 param_2,undefined8 param_3,int *param_4,longlong *param_5,
+                 undefined8 *param_6,undefined8 param_7,undefined8 param_8)
+
+{
+  uint uVar1;
+  longlong lVar2;
+  short *psVar3;
+  undefined1 uVar4;
+  ushort uVar5;
+  undefined8 *puVar6;
+  char *pcVar7;
+  undefined8 *puVar8;
+  ulonglong uVar9;
+  short sVar10;
+  undefined4 uVar11;
+  int iVar12;
+  undefined8 local_60 [2];
+  
+  local_60[0] = 0;
+  if (((param_4 == (int *)0x0) || (param_5 == (longlong *)0x0)) || (param_6 == (undefined8 *)0x0)) {
+    pcVar7 = "CreatePcmOutputFormatPayload failed with invalid parameters";
+    uVar11 = 0x3ce;
+    iVar12 = DAT_14006b6bc;
+LAB_14006b65c:
+    FUN_140001720(2,"ADGI","CreatePcmOutputFormatPayload",uVar11,pcVar7,param_6,param_7,param_8);
+    return iVar12;
+  }
+  if (*param_4 != 1) {
+    return DAT_14006b6b0;
+  }
+  uVar9 = (ulonglong)*(ushort *)(param_4 + 4);
+  lVar2 = uVar9 + 0x2c;
+  if (uVar9 == 0) {
+    return 0;
+  }
+  puVar8 = param_6;
+  puVar6 = (undefined8 *)FUN_140007fa0(lVar2,DAT_14006b6b4);
+  if (puVar6 == (undefined8 *)0x0) {
+    pcVar7 = "CreatePcmOutputFormatPayload CallocWithTag failed to allocate";
+    uVar11 = 0x3e6;
+    param_6 = puVar8;
+    iVar12 = DAT_14006b6b8;
+    goto LAB_14006b65c;
+  }
+  *(int *)(puVar6 + 1) = (int)lVar2 + -0x10;
+  *puVar6 = DAT_14006b6a0;
+  *(undefined4 *)((longlong)puVar6 + 0xc) = 0;
+  iVar12 = DAT_14006b6b0;
+  if (*param_4 != 1) goto LAB_14006b4c8;
+  puVar6[2] = DAT_14006b6a8;
+  *(int *)(puVar6 + 3) = (int)(uVar9 + 0x10);
+  sVar10 = (short)param_4[3];
+  psVar3 = (short *)((longlong)puVar6 + (lVar2 - (uVar9 + 0x10)));
+  *psVar3 = sVar10;
+  uVar11 = DAT_14006b6c4;
+  if (sVar10 == 0x10) {
+LAB_14006b54c:
+    *(undefined4 *)(psVar3 + 2) = uVar11;
+    iVar12 = 0;
+  }
+  else if (sVar10 == 0x18) {
+    sVar10 = 0x20;
+    if (param_1 != '\x01') {
+      sVar10 = 0x18;
+    }
+    psVar3[2] = sVar10;
+    sVar10 = 0x1b;
+    if (param_1 != '\x01') {
+      sVar10 = 0x17;
+    }
+    psVar3[3] = sVar10;
+    iVar12 = 0;
+  }
+  else {
+    iVar12 = DAT_14006b6bc;
+    uVar11 = DAT_14006b6c0;
+    if (sVar10 == 0x20) goto LAB_14006b54c;
+  }
+  psVar3[1] = 1;
+  psVar3[4] = 1;
+  sVar10 = 1;
+  if (param_1 == '\x01') {
+    sVar10 = 3;
+  }
+  psVar3[5] = sVar10;
+  psVar3[7] = (short)param_4[4];
+  uVar9 = 0;
+  if ((short)param_4[4] != 0) {
+    do {
+      uVar4 = *(undefined1 *)((longlong)param_4 + uVar9 + 0x12);
+      *(undefined1 *)((longlong)psVar3 + uVar9 + 0x10) = uVar4;
+      uVar5 = *(ushort *)(param_4 + 4);
+      *(undefined1 *)((longlong)local_60 + uVar9) = uVar4;
+      uVar1 = (int)uVar9 + 1;
+      uVar9 = (ulonglong)(ushort)uVar1;
+    } while ((uVar1 & 0xffff) < (uint)uVar5);
+  }
+  FUN_140001720(8,"ADGI","CreatePcmOutputFormatPayload",0x41e,
+                "PCM bit_width:%d|alignment:%d|bits_per_sample:%d|q_factor:%d|endianness:%d|                             interleaved:%d|num_channels:%d|Chnl[0]:%u|Chnl[1]:%u|Chnl[2]:%u|Chnl[3]:%u|                            Chnl[4]:%u|Chnl[5]:%u|Chnl[6]:%u|Chnl[7]:%u| \n"
+                ,(longlong)*psVar3,(longlong)psVar3[1],(longlong)psVar3[2]);
+  if (iVar12 == 0) {
+    *param_6 = puVar6;
+    *param_5 = lVar2;
+    return 0;
+  }
+LAB_14006b4c8:
+  ExFreePoolWithTag(puVar6,DAT_14006b6b4);
+  return iVar12;
+}
+
+
+//// 0x140098d98 -> FUN_140098d98 @140098d98 ////
+
+undefined8 FUN_140098d98(int param_1)
+
+{
+  undefined8 uVar1;
+  
+  if (param_1 == 1) {
+LAB_140098dcc:
+    uVar1 = 1;
+  }
+  else {
+    if (3 < param_1 - 2U) {
+      if (param_1 == 7) goto LAB_140098dcc;
+      if (param_1 != 8) {
+        return 0;
+      }
+    }
+    uVar1 = 2;
+  }
+  return uVar1;
+}
+
+

@@ -1,0 +1,34 @@
+{
+  "evidence_class": "static decompilation of hash-locked qcadcm8380.sys plus live EP16 GKV family",
+  "qcadcm_sha256": "37f76305ac8051b0b03b6d2ce1df7a353253debf546e512e447c9d95ec661429",
+  "set_stream_data_format": {
+    "function": "FUN_14006f5c8",
+    "va": "0x14006f5c8",
+    "graph_type_offset": "0x30",
+    "pcm_builder": "FUN_14006b410",
+    "pcm_builder_argument": "graph_type == 1"
+  },
+  "pcm_output_builder": {
+    "function": "FUN_14006b410",
+    "va": "0x14006b410",
+    "interleave_rule": {
+      "graph_type_1": 3,
+      "all_other_accepted_callers": 1
+    },
+    "field": "PCM output format interleaved"
+  },
+  "graph_family_classifier": {
+    "function": "FUN_140098d98",
+    "va": "0x140098d98",
+    "family_1_graph_types": [1, 7],
+    "family_2_graph_types": [2, 3, 4, 5, 8]
+  },
+  "ep16_runtime_gkv_family": "capture/family_2",
+  "conclusion": {
+    "iid": "0x000040de",
+    "module_id": "0x07001003",
+    "param_id": "0x08001008",
+    "interleave": 1,
+    "interleave_name": "PCM_INTERLEAVED"
+  }
+}

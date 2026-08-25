@@ -1,0 +1,3 @@
+11a42508d230edc6cb3df1a2ed7da7856276af4641929c39a4d00424780c36fe  ep16-pcm-closed.conf
+6074e78b791c125c20c7e18a47439a7f34fc5cc50362d9274ee4d1875afa1f8f  ep16-pcm-closed.tplg (compiled validation binary; not committed)
+774a144e46254a7f18d8b50756ac21a5263faefdbad0331dac99edecdd7c923b  ep16-pcm-closed.inventory.json
