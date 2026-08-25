@@ -1,0 +1,51 @@
+{
+  "oracle": "SP11 Windows 11 / Qualcomm 8380 audio stack",
+  "capture_date": "2026-08-25",
+  "source_log": "2026-08-25-micarray-ep16-freshboot-lifecycle-position-kd.log",
+  "source_log_sha256": "7e7a7787b9aaca093172c4dc85e09c927aa60dc8788422f218ac1ad9cb2859c8",
+  "allocation": {
+    "ioctl": "AllocateBufferV2",
+    "opcode": "0x26",
+    "caller": "qcasd8380+0x307b4",
+    "buffer_mode": 2,
+    "requested_buffer_size": 3840,
+    "num_buffers": 1,
+    "watermark_count": 2,
+    "graph_type": 2,
+    "runtime_host_ring_va": "0xffffbc025c862000",
+    "runtime_host_position_va": "0xffffbc0259dfd000",
+    "note": "Runtime virtual addresses are allocator outputs and must not be hard-coded."
+  },
+  "lifecycle": {
+    "normal_ep16_sequence_observed": [
+      "0x01001000 GRAPH_OPEN",
+      "0x01001002 GRAPH_START"
+    ],
+    "graph_prepare_between_open_and_start": false,
+    "start_subgraphs": ["0xb0000044", "0xb0000040", "0xb0000041"],
+    "persistent_after_client_exit": true,
+    "note": "The EP16 producer position continued to advance after the 20-second recording client exited."
+  },
+  "position_buffer_layout": {
+    "size_bytes": 16,
+    "fields": [
+      {"offset": 0, "name": "frame_counter", "type": "u32"},
+      {"offset": 4, "name": "index", "type": "u32", "units": "bytes"},
+      {"offset": 8, "name": "timestamp_us_lsw", "type": "u32"},
+      {"offset": 12, "name": "timestamp_us_msw", "type": "u32"}
+    ],
+    "read_consistency_rule": "Read frame_counter, then index/timestamp, then frame_counter again; accept the sample only when both frame-counter reads agree."
+  },
+  "position_samples": [
+    {"phase": "active_1", "frame_counter": "0x00009585", "index_bytes": "0x00000cc0", "timestamp_us_lsw": "0x15ddaf4e", "timestamp_us_msw": "0x00000000"},
+    {"phase": "active_2", "frame_counter": "0x0002a9fa", "index_bytes": "0x00000480", "timestamp_us_lsw": "0x1dfd9856", "timestamp_us_msw": "0x00000000"},
+    {"phase": "active_3", "frame_counter": "0x00038b5c", "index_bytes": "0x00000300", "timestamp_us_lsw": "0x216dff26", "timestamp_us_msw": "0x00000000"},
+    {"phase": "post_client_exit", "frame_counter": "0x0009cbb3", "index_bytes": "0x00000840", "timestamp_us_lsw": "0x39d952fe", "timestamp_us_msw": "0x00000000"}
+  ],
+  "conclusions": [
+    "Windows EP16 capture uses a DSP-produced circular ring and a separate 16-byte producer-position buffer.",
+    "The index is a byte cursor modulo the 3840-byte ring; it wraps while frame_counter remains monotonic.",
+    "EP16 starts with GRAPH_OPEN followed directly by GRAPH_START; GRAPH_PREPARE is not sent between them.",
+    "The endpoint graph is not scoped to one WASAPI client: the DSP producer remains active after the client exits."
+  ]
+}

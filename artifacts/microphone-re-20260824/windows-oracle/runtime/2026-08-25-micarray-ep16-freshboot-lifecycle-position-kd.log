@@ -1,0 +1,231 @@
+Opened log file 'C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\mic-ep16-freshboot-lifecycle-position_0448_2026-08-25_15-35-22-184.log'
+     0 e Disable Clear  fffff802`ccc01e20     0001 (0001) Unable to load image qcadcm8380.sys, Win32 error 0n2
+qcadcm8380+0x51e20 ".if ((dwo(@x0+0x14)>=0x01001000)&(dwo(@x0+0x14)<=0x01001005)) { .printf \"MGMT op=%08x pkt=%p lr=%p\\n\", dwo(@x0+0x14),@x0,@lr; db @x0 L60; } .else { }; g"
+     1 e Disable Clear  fffff802`ccc3b020     0001 (0001) qcadcm8380+0x8b020 ".if (@w0==0x26) { .printf \"ALLOC26_ENTRY desc=%p out=%p lr=%p\\n\",@x1,poi(@x1+0x10),@lr; } .else { g }"
+
+DriverEntry failed 0xc0000034 for driver \REGISTRY\MACHINE\SYSTEM\ControlSet001\Services\WUDFRd
+-successfully opened handle 00000000000003A0 for Invoke driver 
+
+-SSGTZD random number generated was 0x24b71077 from Invoke driver 
+
+-SSGServicesInvokeInit with status 0x0 
+
+Handle opened to SMCInvoke driver successfully 0x0
+
+Queue created successfully 0x0
+
+Interface published for SSGUMD successfully 0x0
+
+SSGServicesCreateDevice returned with status 0x0
+
+DriverEntry failed 0xc035001e for driver \REGISTRY\MACHINE\SYSTEM\ControlSet001\Services\l1vhlwf
+DriverEntry failed 0xc00000bb for driver \REGISTRY\MACHINE\SYSTEM\ControlSet001\Services\NetworkPrivacyPolicy
+Unknown( 12): GUID=d809e859-1b35-3328-8332-8eb0e0d87cb2 (No Format Information found).
+Unknown( 13): GUID=d809e859-1b35-3328-8332-8eb0e0d87cb2 (No Format Information found).
+Unknown( 10): GUID=a695a0d8-0d20-3611-496a-a7892eb09e72 (No Format Information found).
+Unknown( 11): GUID=a695a0d8-0d20-3611-496a-a7892eb09e72 (No Format Information found).
+Unknown( 12): GUID=a695a0d8-0d20-3611-496a-a7892eb09e72 (No Format Information found).
+Unknown( 10): GUID=f481b552-c976-3fae-1f34-caedc673ac98 (No Format Information found).
+ALLOC26_ENTRY desc=ffff840b9f566e70 out=ffffe4849c9bc0c8 lr=fffff802cdf6eb94
+qcadcm8380+0x8b020:
+fffff802`ccc3b020 d503237f pacibsp
+8: kd> r @$t0=poi(@x1+0x10); r @$t2=@lr; .printf "ALLOC26_SAVED out=%p ret=%p\n",@$t0,@$t2; dq @$t0 L5; bp /1 @$t2 ".printf \"ALLOC26_RETURN out=%p\\n\",@$t0; dq @$t0 L5; r @$t1=poi(@$t0+0x18); .printf \"POSHOST=%p\\n\",@$t1; dd @$t1 L4; g"; bl; g
+ALLOC26_SAVED out=ffffe4849c9bc0c8 ret=fffff802cdf6eb94
+ffffe484`9c9bc0c8  00000000`00000000 ffffe484`95fccf10
+ffffe484`9c9bc0d8  00000000`00000000 00000000`00000000
+ffffe484`9c9bc0e8  00000000`00000000
+     0 e Disable Clear  fffff802`ccc01e20     0001 (0001) qcadcm8380+0x51e20 ".if ((dwo(@x0+0x14)>=0x01001000)&(dwo(@x0+0x14)<=0x01001005)) { .printf \"MGMT op=%08x pkt=%p lr=%p\\n\", dwo(@x0+0x14),@x0,@lr; db @x0 L60; } .else { }; g"
+     1 e Disable Clear  fffff802`ccc3b020     0001 (0001) qcadcm8380+0x8b020 ".if (@w0==0x26) { .printf \"ALLOC26_ENTRY desc=%p out=%p lr=%p\\n\",@x1,poi(@x1+0x10),@lr; } .else { g }"
+     2 e Disable Clear  fffff802`cdf6eb94     /1 0001 (0001) Unable to load image qcaudminiport8380.sys, Win32 error 0n2
+qcaudminiport8380+0x5eb94 ".printf \"ALLOC26_RETURN out=%p\\n\",@$t0; dq @$t0 L5; r @$t1=poi(@$t0+0x18); .printf \"POSHOST=%p\\n\",@$t1; dd @$t1 L4; g"
+
+ALLOC26_RETURN out=ffffe4849c9bc0c8
+ffffe484`9c9bc0c8  00000001`00000f00 ffffe484`95fccf10
+ffffe484`9c9bc0d8  fffff802`ccbd1600 ffffbc01`d785b000
+ffffe484`9c9bc0e8  ffffe484`9549a430
+POSHOST=ffffbc01d785b000
+ffffbc01`d785b000  00000000 00000000 00000000 00000000
+MGMT op=01001000 pkt=ffffe484918d8a4c lr=fffff802ccc035ec
+ffffe484`918d8a4c  60 28 00 00 02 03 00 00-10 20 00 00 01 00 00 00  `(....... ......
+ffffe484`918d8a5c  00 00 00 00 00 10 00 01-00 00 00 00 01 00 00 00  ................
+ffffe484`918d8a6c  08 16 89 b0 18 0b 00 00-00 00 00 00 00 00 00 00  ................
+ffffe484`918d8a7c  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+ffffe484`918d8a8c  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+ffffe484`918d8a9c  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+MGMT op=01001002 pkt=ffffe484918dc55c lr=fffff802ccc035ec
+ffffe484`918dc55c  60 48 00 00 02 03 00 00-10 20 00 00 01 00 00 00  `H....... ......
+ffffe484`918dc56c  00 00 00 00 02 10 00 01-00 00 00 00 00 00 00 00  ................
+ffffe484`918dc57c  00 00 00 00 20 00 00 00-01 00 00 00 05 10 00 08  .... ...........
+ffffe484`918dc58c  10 00 00 00 00 00 00 00-03 00 00 00 01 00 00 b0  ................
+ffffe484`918dc59c  7f 00 00 b0 7e 00 00 b0-00 00 00 00 00 00 00 00  ....~...........
+ffffe484`918dc5ac  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+MGMT op=01001003 pkt=ffffe484918dcbb0 lr=fffff802ccc035ec
+ffffe484`918dcbb0  60 48 00 00 02 03 00 00-10 20 00 00 01 00 00 00  `H....... ......
+ffffe484`918dcbc0  00 00 00 00 03 10 00 01-00 00 00 00 00 00 00 00  ................
+ffffe484`918dcbd0  00 00 00 00 20 00 00 00-01 00 00 00 05 10 00 08  .... ...........
+ffffe484`918dcbe0  10 00 00 00 00 00 00 00-03 00 00 00 01 00 00 b0  ................
+ffffe484`918dcbf0  7f 00 00 b0 7e 00 00 b0-00 00 00 00 00 00 00 00  ....~...........
+ffffe484`918dcc00  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+MGMT op=01001004 pkt=ffffe484918dcdcc lr=fffff802ccc035ec
+ffffe484`918dcdcc  60 28 00 00 02 03 00 00-10 20 00 00 01 00 00 00  `(....... ......
+ffffe484`918dcddc  00 00 00 00 04 10 00 01-00 00 00 00 01 00 00 00  ................
+ffffe484`918dcdec  08 16 89 b0 70 00 00 00-00 00 00 00 00 00 00 00  ....p...........
+ffffe484`918dcdfc  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+ffffe484`918dce0c  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+ffffe484`918dce1c  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`c9a013b0 d43e0000 brk         #0xF000
+8: kd> bc 1; bp fffff802`ccc3b020 ".if ((@w0==0x26)&(dwo(poi(@x1)+0x10)==2)) { .printf \"CAP_ALLOC26 in=%p out=%p lr=%p\\n\",poi(@x1),poi(@x1+0x10),@lr; dd poi(@x1) L5; } .else { g }"; bl; g
+     0 e Disable Clear  fffff802`ccc01e20     0001 (0001) qcadcm8380+0x51e20 ".if ((dwo(@x0+0x14)>=0x01001000)&(dwo(@x0+0x14)<=0x01001005)) { .printf \"MGMT op=%08x pkt=%p lr=%p\\n\", dwo(@x0+0x14),@x0,@lr; db @x0 L60; } .else { }; g"
+     1 e Disable Clear  fffff802`ccc3b020     0001 (0001) qcadcm8380+0x8b020 ".if ((@w0==0x26)&(dwo(poi(@x1)+0x10)==2)) { .printf \"CAP_ALLOC26 in=%p out=%p lr=%p\\n\",poi(@x1),poi(@x1+0x10),@lr; dd poi(@x1) L5; } .else { g }"
+
+CAP_ALLOC26 in=ffff840b9f542710 out=ffffe4849e346d40 lr=fffff802ccd207b4
+ffff840b`9f542710  00000002 00000f00 00000001 00000002
+ffff840b`9f542720  00000002
+qcadcm8380+0x8b020:
+fffff802`ccc3b020 d503237f pacibsp
+8: kd> r @$t3=poi(@x1+0x10); r @$t5=@lr; bp /1 @$t5 ".printf \"CAP_ALLOC26_RETURN out=%p\\n\",@$t3; dq @$t3 L5; r @$t4=poi(@$t3+0x18); r @$t6=poi(@$t3+8); .printf \"CAP_BUFFARR=%p CAP_POSHOST=%p\\n\",@$t6,@$t4; dq @$t6 L2; dd @$t4 L4; g"; bl; g
+     0 e Disable Clear  fffff802`ccc01e20     0001 (0001) qcadcm8380+0x51e20 ".if ((dwo(@x0+0x14)>=0x01001000)&(dwo(@x0+0x14)<=0x01001005)) { .printf \"MGMT op=%08x pkt=%p lr=%p\\n\", dwo(@x0+0x14),@x0,@lr; db @x0 L60; } .else { }; g"
+     1 e Disable Clear  fffff802`ccc3b020     0001 (0001) qcadcm8380+0x8b020 ".if ((@w0==0x26)&(dwo(poi(@x1)+0x10)==2)) { .printf \"CAP_ALLOC26 in=%p out=%p lr=%p\\n\",poi(@x1),poi(@x1+0x10),@lr; dd poi(@x1) L5; } .else { g }"
+     2 e Disable Clear  fffff802`ccd207b4     /1 0001 (0001) Unable to load image qcasd8380.sys, Win32 error 0n2
+qcasd8380+0x307b4 ".printf \"CAP_ALLOC26_RETURN out=%p\\n\",@$t3; dq @$t3 L5; r @$t4=poi(@$t3+0x18); r @$t6=poi(@$t3+8); .printf \"CAP_BUFFARR=%p CAP_POSHOST=%p\\n\",@$t6,@$t4; dq @$t6 L2; dd @$t4 L4; g"
+
+CAP_ALLOC26_RETURN out=ffffe4849e346d40
+ffffe484`9e346d40  00000001`00000f00 ffffe484`95fcaaf0
+ffffe484`9e346d50  fffff802`ccbd1600 ffffbc02`59dfd000
+ffffe484`9e346d60  ffffe484`9cadccf0
+CAP_BUFFARR=ffffe48495fcaaf0 CAP_POSHOST=ffffbc0259dfd000
+ffffe484`95fcaaf0  ffffbc02`5c862000 ffffe484`9cadd470
+ffffbc02`59dfd000  00000000 00000000 00000000 00000000
+MGMT op=01001000 pkt=ffffe484918de71c lr=fffff802ccc035ec
+ffffe484`918de71c  60 28 00 00 02 03 00 00-10 20 00 00 01 00 00 00  `(....... ......
+ffffe484`918de72c  00 00 00 00 00 10 00 01-00 00 00 00 01 00 00 00  ................
+ffffe484`918de73c  08 16 89 b0 d8 05 00 00-00 00 00 00 00 00 00 00  ................
+ffffe484`918de74c  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+ffffe484`918de75c  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+ffffe484`918de76c  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+MGMT op=01001002 pkt=ffffe484918e06c0 lr=fffff802ccc035ec
+ffffe484`918e06c0  60 48 00 00 02 03 00 00-10 20 00 00 01 00 00 00  `H....... ......
+ffffe484`918e06d0  00 00 00 00 02 10 00 01-00 00 00 00 00 00 00 00  ................
+ffffe484`918e06e0  00 00 00 00 20 00 00 00-01 00 00 00 05 10 00 08  .... ...........
+ffffe484`918e06f0  10 00 00 00 00 00 00 00-03 00 00 00 44 00 00 b0  ............D...
+ffffe484`918e0700  40 00 00 b0 41 00 00 b0-00 00 00 00 00 00 00 00  @...A...........
+ffffe484`918e0710  00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`c9a013b0 d43e0000 brk         #0xF000
+9: kd> .printf "CAP_POS_SAMPLE1 %p\n",@$t4; dd @$t4 L4
+CAP_POS_SAMPLE1 ffffbc0259dfd000
+ffffbc02`59dfd000  00009585 00000cc0 15ddaf4e 00000000
+9: kd> g
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`c9a013b0 d43e0000 brk         #0xF000
+11: kd> .printf "CAP_POS_SAMPLE2 %p\n",@$t4; dd @$t4 L4
+CAP_POS_SAMPLE2 ffffbc0259dfd000
+ffffbc02`59dfd000  0002a9fa 00000480 1dfd9856 00000000
+11: kd> g
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`c9a013b0 d43e0000 brk         #0xF000
+7: kd> .printf "CAP_POS_SAMPLE3 %p\n",@$t4; dd @$t4 L4
+CAP_POS_SAMPLE3 ffffbc0259dfd000
+ffffbc02`59dfd000  00038b5c 00000300 216dff26 00000000
+7: kd> g
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`c9a013b0 d43e0000 brk         #0xF000
+8: kd> .printf "CAP_POS_POSTCLIENT %p\n",@$t4; dd @$t4 L4
+CAP_POS_POSTCLIENT ffffbc0259dfd000
+ffffbc02`59dfd000  0009cbb3 00000840 39d952fe 00000000
+8: kd> g
+Break instruction exception - code 80000003 (first chance)
+*******************************************************************************
+*                                                                             *
+*   You are seeing this message because you pressed either                    *
+*       CTRL+C (if you run console kernel debugger) or,                       *
+*       CTRL+BREAK (if you run GUI kernel debugger),                          *
+*   on your debugger machine's keyboard.                                      *
+*                                                                             *
+*                   THIS IS NOT A BUG OR A SYSTEM CRASH                       *
+*                                                                             *
+* If you did not intend to break into the debugger, press the "g" key, then   *
+* press the "Enter" key now.  This message might immediately reappear.  If it *
+* does, press "g" and "Enter" again.                                          *
+*                                                                             *
+*******************************************************************************
+nt!DbgBreakPoint:
+fffff802`c9a013b0 d43e0000 brk         #0xF000
+9: kd> bc *; .logclose
+Closing open log file C:\Users\SurfacePro7\Documents\KDNET\Codex\sp11-microphone-re-20260824\mic-ep16-freshboot-lifecycle-position_0448_2026-08-25_15-35-22-184.log
