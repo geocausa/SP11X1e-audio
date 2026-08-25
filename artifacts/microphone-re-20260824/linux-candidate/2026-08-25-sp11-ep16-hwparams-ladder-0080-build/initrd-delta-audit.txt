@@ -1,0 +1,4 @@
+non-target initrd manifest: IDENTICAL
+base=/boot/sp11-7.1.5-audio-mic-ep16-hwparams-order-v4/initrd.img-7.1.5-sp11-mic-ep16-hwparams-order-v4
+new=/boot/sp11-7.1.5-audio-mic-ep16-hwparams-ladder-v5/initrd.img-7.1.5-sp11-mic-ep16-hwparams-ladder-v5
+target=usr/lib/modules/7.1.5-sp11-render-parity-v4+/kernel/sound/soc/codecs/snd-soc-lpass-tx-macro.ko.zst

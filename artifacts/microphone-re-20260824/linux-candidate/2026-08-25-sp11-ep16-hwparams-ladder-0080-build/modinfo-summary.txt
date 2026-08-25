@@ -1,0 +1,13 @@
+=== snd-soc-lpass-macro-common.ko ===
+srcversion:     E744E31FAC4B46B553A2EE7
+depends:        
+vermagic:       7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64
+=== snd-soc-lpass-tx-macro.ko ===
+srcversion:     454A0652F68F087F69DA630
+depends:        snd-soc-core,snd-soc-lpass-macro-common
+vermagic:       7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64
+parm:           sp11_ep16_hwparams_gate:SP11 EP16 hw_params diagnostic gate (0=off, 1=pre-VA, 2=post-VA, 3=post-DEC0-rate, 4=post-DEC1-rate) (int)
+=== snd-soc-lpass-va-macro.ko ===
+srcversion:     9CE7843C1E3859DCB8D4669
+depends:        snd-soc-core,snd-soc-lpass-macro-common
+vermagic:       7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modversions aarch64

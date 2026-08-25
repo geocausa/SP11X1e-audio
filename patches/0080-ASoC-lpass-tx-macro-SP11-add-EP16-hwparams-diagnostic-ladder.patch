@@ -1,0 +1,61 @@
+From: SP11 audio reverse-engineering <sp11-audio@local>
+Date: Tue, 25 Aug 2026 20:27:00 +0100
+Subject: [PATCH] ASoC: lpass-tx-macro: SP11 add EP16 hw_params diagnostic ladder
+
+The 0079 Windows-ordering candidate still hard-resets Denali during the
+committed EP16 hw_params stage. Add a Denali-only fail-closed ladder that
+can stop before VA acquisition, immediately after VA acquisition, after
+the DEC0 rate write, or after the DEC1 rate write.
+
+The default gate is the known-safe pre-VA boundary. Each later gate can be
+selected through the module parameter, allowing one candidate image to
+localize the first unsafe operation across controlled reboots without
+changing generic TX behavior.
+
+Signed-off-by: SP11 audio reverse-engineering <sp11-audio@local>
+---
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -16,6 +16,11 @@
+ 
+ #include "lpass-macro-common.h"
+ 
++static int sp11_ep16_hwparams_gate = 1;
++module_param(sp11_ep16_hwparams_gate, int, 0644);
++MODULE_PARM_DESC(sp11_ep16_hwparams_gate,
++		 "SP11 EP16 hw_params diagnostic gate (0=off, 1=pre-VA, 2=post-VA, 3=post-DEC0-rate, 4=post-DEC1-rate)");
++
+ #define CDC_TX_CLK_RST_CTRL_MCLK_CONTROL (0x0000)
+ #define CDC_TX_MCLK_EN_MASK		BIT(0)
+ #define CDC_TX_MCLK_ENABLE		BIT(0)
+@@ -1239,15 +1244,29 @@
+ 	    tx->active_ch_mask[dai->id] == (BIT(TX_MACRO_DEC0) | BIT(TX_MACRO_DEC1))) {
+ 		int ret;
+ 
++		if (sp11_ep16_hwparams_gate == 1)
++			return -EAGAIN;
++
+ 		ret = tx_macro_sp11_va_dmic_request(component, true);
+ 		if (ret)
+ 			return ret;
++
++		if (sp11_ep16_hwparams_gate == 2)
++			return -EAGAIN;
+ 	}
+ 
+-	for_each_set_bit(decimator, &tx->active_ch_mask[dai->id], TX_MACRO_DEC_MAX)
++	for_each_set_bit(decimator, &tx->active_ch_mask[dai->id], TX_MACRO_DEC_MAX) {
+ 		snd_soc_component_update_bits(component, CDC_TXn_TX_PATH_CTL(decimator),
+ 					      CDC_TXn_PCM_RATE_MASK,
+ 					      tx_fs_rate);
++
++		if (of_machine_is_compatible("microsoft,denali") &&
++		    dai->id == TX_MACRO_AIF1_CAP &&
++		    tx->active_ch_mask[dai->id] ==
++			    (BIT(TX_MACRO_DEC0) | BIT(TX_MACRO_DEC1)) &&
++		    sp11_ep16_hwparams_gate == 3 + decimator)
++			return -EAGAIN;
++	}
+ 	return 0;
+ }
+ 
