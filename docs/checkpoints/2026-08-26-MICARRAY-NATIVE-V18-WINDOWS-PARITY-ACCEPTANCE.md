@@ -60,3 +60,13 @@ Accepted package hashes:
 - DTB `09dcf2832487b1523ab2cdecba4ef9f2335d4e95e1bcd87a2dad41208d20ae0a`
 
 Golden v33 remains the rollback entry.
+
+## Saved-default deployment smoke
+
+After the acceptance commit was pushed, v18 was promoted from one-shot candidate to the persistent GRUB default. A cold reboot returned on `sp11_entry=7.1.5-sp11-dmic-broker-div4-v18` with the accepted common/VA/TX srcversions and `saved_entry=sp11-audio-dmic-broker-div4-v18`.
+
+PipeWire/WirePlumber exposed the normal desktop nodes `Built-in Audio Speaker playback` and `Built-in Audio Internal microphone array`; the default output remained the existing `SP11 UbiG Boundary (Bypass)` pipeline and the internal microphone array was the default input.
+
+A final simultaneous desktop smoke used `pw-play` to send a low-level 997 Hz stereo tone through the default output while `pw-record` captured the default input. Playback returned exit code 0. The 5.333 s captured WAV (`badeced4212f12b42cb1d7cc19736110894da9da9cc9bcf935b0eb600edca4f3`) contained sustained data on both channels and the acoustic 997 Hz return measured 26.80 dB / 27.01 dB above the local spectral floor.
+
+Runtime PM was `suspended/suspended` for TX/VA before capture, `active/active` during capture, and returned to `suspended/suspended` after autosuspend. This verifies the finished desktop output→acoustic→input path while retaining native DAPM/runtime-PM ownership.

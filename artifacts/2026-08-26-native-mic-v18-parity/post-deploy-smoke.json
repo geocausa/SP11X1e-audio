@@ -1,0 +1,36 @@
+{
+  "date": "2026-08-26",
+  "deployment": {
+    "saved_grub_entry": "sp11-audio-dmic-broker-div4-v18",
+    "boot_sp11_entry": "7.1.5-sp11-dmic-broker-div4-v18",
+    "release_commit": "7433702",
+    "module_srcversions": {
+      "snd_soc_lpass_macro_common": "2EA7312A851E75A7C860F82",
+      "snd_soc_lpass_va_macro": "DC4373218C279E16F550900",
+      "snd_soc_lpass_tx_macro": "835AF5272E94DB266E85D55"
+    }
+  },
+  "pipewire": {
+    "speaker_node": "Built-in Audio Speaker playback",
+    "microphone_node": "Built-in Audio Internal microphone array",
+    "default_output": "SP11 UbiG Boundary (Bypass)",
+    "default_input": "Built-in Audio Internal microphone array"
+  },
+  "acoustic_smoke": {
+    "stimulus": "997 Hz stereo sine, 48 kHz S16_LE, amplitude 900, 3 s",
+    "playback": "pw-play via default desktop output",
+    "capture": "pw-record via default desktop input",
+    "playback_exit_code": 0,
+    "capture_sha256": "badeced4212f12b42cb1d7cc19736110894da9da9cc9bcf935b0eb600edca4f3",
+    "capture_duration_sec": 5.333333333333333,
+    "capture_rms": [48.441024025032235, 52.00324287514434],
+    "capture_peak": [197.0, 209.0],
+    "tone_997_prominence_db": [26.80, 27.01]
+  },
+  "runtime_pm": {
+    "before_capture": {"tx": "suspended", "va": "suspended"},
+    "during_capture": {"tx": "active", "va": "active"},
+    "after_autosuspend": {"tx": "suspended", "va": "suspended"}
+  },
+  "pass": true
+}
