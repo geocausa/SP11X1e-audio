@@ -115,6 +115,14 @@ Verify/rebuild the accepted FullIO v19c topology from any clean clone:
 ./deploy/native-audio-v19c/verify-native-audio-v19c.sh
 ```
 
+For the exact kernel/module/initrd reproduction gate:
+
+```bash
+JOBS=12 ./repro/native-audio-v19c/build-kernel-initrd-and-verify.sh
+```
+
+That heavy gate recreates the promoted common/VA/TX modules and final v19c initrd byte-for-byte from the pristine 7.1.5 -> Golden-v33 -> production 0072+0078 chain.
+
 On the deployed SP11, also verify the loaded boot/module/PipeWire identity:
 
 ```bash
@@ -145,7 +153,7 @@ JOBS=8 ./repro/golden-v33/build-and-verify.sh
 | Path | Purpose |
 |---|---|
 | [`deploy/native-audio-v19c/`](deploy/native-audio-v19c/) | **Current full protected native input/output release identity** |
-| [`repro/native-audio-v19c/`](repro/native-audio-v19c/) | Clean FullIO topology reproduction |
+| [`repro/native-audio-v19c/`](repro/native-audio-v19c/) | Clean FullIO topology + exact kernel/module/initrd reproduction |
 | [`deploy/native-audio-v18/`](deploy/native-audio-v18/) | First rollback + microphone parity provenance |
 | [`deploy/golden-v33/`](deploy/golden-v33/) | Speaker/protection base + immediate rollback |
 | [`repro/golden-v33/`](repro/golden-v33/) | Clean Golden source reproduction |

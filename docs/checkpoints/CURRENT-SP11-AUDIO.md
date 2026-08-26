@@ -126,10 +126,23 @@ Custom curve was preserved.
 
 ## Verification
 
-From a clean clone:
+From a clean clone, the fast topology gate is:
 
 ```bash
 ./repro/native-audio-v19c/build-and-verify.sh
+```
+
+The heavy kernel/initrd gate reconstructs pristine Linux 7.1.5 -> Golden v33 -> production 0072+0078 modules and requires raw byte identity for all three LPASS modules and the promoted initrd:
+
+```bash
+JOBS=12 ./repro/native-audio-v19c/build-kernel-initrd-and-verify.sh
+```
+
+Accepted heavy-gate output ends with `FULLIO v19c KERNEL + INITRD EXACT REPRODUCTION PASS`; the reproduced initrd SHA-256 is `ac3ba64bd1c6bd6b8c0dc01b9836fb7466128fcc687903673b6fd598ebefb66d`.
+
+The deployed artifact verifier remains:
+
+```bash
 ./deploy/native-audio-v19c/verify-native-audio-v19c.sh
 ```
 
@@ -167,6 +180,7 @@ Golden rollback remains independently verifiable with
 - `deploy/ucm2/Qualcomm/x1e80100/SP11-HiFi.conf`
 - `deploy/ubig/`
 - `docs/checkpoints/2026-08-26-FULLIO-V19C-GOLDEN-MIC-COLLISION-FIX-ACCEPTANCE.md`
+- `docs/checkpoints/2026-08-26-FULLIO-V19C-EXACT-KERNEL-INITRD-REPRODUCTION.md`
 - `docs/audit/2026-08-26-SP11-NATIVE-AUDIO-FULLIO-V19C-AUDIT.md`
 - `docs/audit/2026-08-26-SP11-FULL-AUDIO-CHAIN-AUDIT-CHECKLIST.md`
 - `artifacts/2026-08-26-native-mic-v18-parity/`
@@ -174,8 +188,4 @@ Golden rollback remains independently verifiable with
 ## Next target
 
 The tested non-suspend built-in speaker + protection + MicArray + UbiG chain is
-closed. Remaining work is production hardening: clean kernel/initrd reproduction
-for the unchanged v18 0072+0078 module delta, remove global clock/power ignore
-flags if safe, make diagnostic bypass on-demand, close public owner-pack
-provenance, clean stale firmware/UCM artifacts, improve top-level test/CI
-hygiene, and then external Bluetooth/USB/DP audio integration/upstreaming.
+closed. Exact clean kernel/initrd reproduction for the unchanged v18/v19c 0072+0078 module delta is also closed. Remaining work is production hardening: remove global clock/power ignore flags if safe, make diagnostic bypass on-demand, close public owner-pack provenance, clean stale firmware/UCM artifacts, improve top-level test/CI hygiene, and then external Bluetooth/USB/DP audio integration/upstreaming.

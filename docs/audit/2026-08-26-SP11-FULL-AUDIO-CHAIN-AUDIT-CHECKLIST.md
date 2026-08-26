@@ -47,7 +47,7 @@ The v18 exact-volume parity boundary found by this audit is now **closed by Full
 - [x] `verify-native-audio-v19c.sh --live` passes.
 - [x] `repro/native-audio-v19c/build-and-verify.sh` recompiles the tracked topology source byte-identically and checks the collision-free builder namespace.
 - [x] Native Audio v18 remains installed as first rollback and Golden v33 remains the protected-output rollback.
-- [ ] **P1 — reproduce the unchanged v18 kernel modules + initrd from clean Golden-v33 source plus only production mic deltas 0072 + 0078, and pin the resulting hashes.** v19c topology reproduction is closed; this remaining item is kernel/initrd reproducibility.
+- [x] **P1 — reproduce the unchanged v18/v19c kernel modules + initrd from clean Golden-v33 source plus only production mic deltas 0072 + 0078, and pin the resulting hashes.** Closed: the end-to-end pristine 7.1.5 -> Golden v33 -> 0072+0078 heavy gate reproduces all three LPASS `.ko` files and the promoted v19c initrd byte-for-byte.
 - [ ] **P2 — create one complete fresh-machine installer for FullIO v19c** (boot bundle + DTB + topology + UCM + GRUB + rollback + UbiG policy) rather than relying on already-installed local state.
 - [ ] **P2 — decide whether the GitHub FullIO v19c release should carry a boot/reproduction manifest in addition to the controller package.**
 
@@ -195,9 +195,9 @@ The v18 exact-volume parity boundary found by this audit is now **closed by Full
 - [x] Golden v33 has a clean reproduction path.
 - [x] Native Audio v18 pins exact DTB, topology, UCM and parity evidence.
 - [x] UbiG controller package is reproducible.
-- [~] Native Audio v18 currently proves identity but not full clean-source reproduction.
+- [x] Native Audio v18/v19c kernel delta now has full clean-source exact reproduction through `repro/native-audio-v19c/build-kernel-initrd-and-verify.sh`.
 - [~] UbiG executable is source-owned, but exact production Stage-B data still depends on a private owner pack.
-- [ ] **P1 — make a clean clone capable of reproducing every non-private v18 runtime artifact and detecting any local-only dependency.**
+- [x] **P1 — make a clean clone capable of reproducing the non-private v18/v19c kernel/initrd runtime artifact set and detecting local-only dependency.** The heavy gate pins source, patches, module bytes/srcversions, cpio metadata and final initrd SHA.
 - [ ] **P2 — document prerequisites, kernel source baseline, exact patch order, module list, initrd construction, topology install, UCM install and GRUB rollback as one end-to-end procedure.**
 - [ ] **P2 — add a “fresh machine” deployment rehearsal using only repo + explicitly declared owner-supplied data.**
 
@@ -273,14 +273,13 @@ The primary v18 volume-path gap is therefore closed. The next work is hardening/
 
 # Recommended tackle order
 
-1. **P1 — cleanly reproduce the unchanged v18/v19c kernel modules + initrd from Golden v33 + production mic patches 0072/0078.**
-2. **P1/P2 — remove `clk_ignore_unused` / `pd_ignore_unused` and revalidate runtime power ownership.**
-3. **P2 — make the transparent bypass on-demand instead of permanently auto-loaded.**
-4. **P2 — close public owner-pack provenance/distribution for UbiG Stage B.**
-5. **P2 — clean stale live firmware/UCM artifacts after preserving evidence hashes.**
-6. **P2 — fix bare `pytest`, add one top-level production check and CI.**
-7. **P2 — build a complete fresh-machine FullIO v19c installer/release manifest.**
-8. **P2/P3 — module-signing hardening, optional SPF timeout cleanup, then external Bluetooth/USB/DP integration and upstreaming.**
+1. **P1/P2 — remove `clk_ignore_unused` / `pd_ignore_unused` and revalidate runtime power ownership.**
+2. **P2 — make the transparent bypass on-demand instead of permanently auto-loaded.**
+3. **P2 — close public owner-pack provenance/distribution for UbiG Stage B.**
+4. **P2 — clean stale live firmware/UCM artifacts after preserving evidence hashes.**
+5. **P2 — fix bare `pytest`, add one top-level production check and CI.**
+6. **P2 — build a complete fresh-machine FullIO v19c installer/release manifest.**
+7. **P2/P3 — module-signing hardening, optional SPF timeout cleanup, then external Bluetooth/USB/DP integration and upstreaming.**
 
 System suspend/resume is intentionally absent from this order because it belongs to the separate dedicated RE.
 
@@ -294,6 +293,9 @@ System suspend/resume is intentionally absent from this order because it belongs
 
 # Clean topology reproduction
 ./repro/native-audio-v19c/build-and-verify.sh
+
+# Heavy exact kernel/module/initrd reproduction
+JOBS=12 ./repro/native-audio-v19c/build-kernel-initrd-and-verify.sh
 
 # Golden speaker/protection rollback artifacts
 sudo ./deploy/golden-v33/verify-golden-v33.sh

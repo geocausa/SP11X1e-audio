@@ -1,0 +1,4 @@
+6211cb69d6bb42e311c36cf1491fcfaabf57a263d02a73bd6976e78d5c6ad604  sound/soc/codecs/lpass-macro-common.c
+714f57fbd8b2923eb3913a509e84039d41231b883db9b8b49dac77c15b84f2fc  sound/soc/codecs/lpass-macro-common.h
+ff538c3ded9a9f488ae6cc9717d276ffbff5842b8e5a3b1a335ebc4cb98c963a  sound/soc/codecs/lpass-va-macro.c
+bc9154b3a255820a3ffa2befee333b007300b2b5d5e71ac25aa1dc6315d015b6  sound/soc/codecs/lpass-tx-macro.c
