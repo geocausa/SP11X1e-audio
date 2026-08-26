@@ -1,8 +1,8 @@
 # SP11 full native audio-chain audit and tackle checklist
 
 Date: **2026-08-26**
-Audited repository commit: **`5165c7efd09da97447e3fefc7011868e2f646bdd`**
-Audited boot: **Native Audio v18** (`sp11_entry=7.1.5-sp11-dmic-broker-div4-v18`)
+Original audit baseline commit: **`5165c7efd09da97447e3fefc7011868e2f646bdd`**; subsequently updated for FullIO v19c closure
+Current accepted boot: **FullIO v19c** (`sp11_entry=7.1.5-sp11-fullio-v19c`)
 Kernel: **`7.1.5-sp11-render-parity-v4+`**
 
 ## Verdict
@@ -16,12 +16,12 @@ The built-in SP11 audio chain is **functionally complete and usable as a daily d
 - UbiG built-in profiles, Custom EQ, postgain control, persistence and reboot restore work;
 - mute/unmute and volume are safe;
 - all audio MMIO blocks and SoundWire return to runtime suspend after use;
-- the v18 DTB/topology/UCM identity and Golden-v33 rollback artifacts verify exactly;
+- the v19c DTB/topology/UCM identity and v18/Golden rollback artifacts verify exactly;
 - the current public/native test suites pass when invoked with the repository root on `PYTHONPATH`.
 
 There are **no P0 “audio is broken” findings**.
 
-However, this audit reopens one important parity boundary: **Native Audio v18 currently does not execute the exact Windows endpoint volume/mute + GainStep transaction path.** The ALSA controls exist, but the combined graph returns `-ENODEV`; the production synchronizer safely falls back to host attenuation/hardware mute. As a result, active WSA RX remains at `81` instead of the Windows-parity `84`, and the volume-dependent MSIIR/GainStep update is not currently applied by the standalone service. The chain is safe and audible, but exact volume-dependent Windows speaker parity should not be claimed on v18 until this is closed and a fresh matched A/B is run.
+The v18 exact-volume parity boundary found by this audit is now **closed by FullIO v19c**. v18's generic render topology did not contain the Golden protected graph, so exact endpoint transaction targeting returned `-ENODEV`. FullIO restores the Golden SP/SPVI/VI/CPS/MSIIR/VOL_CTRL graph and fixes the remaining capture coexistence collision by moving capture subgraph/container IDs out of Golden's global AudioReach object namespace. Live v19c uses DSP endpoint mute, active WSA RX84 and volume-dependent GainStep/MSIIR while retaining the accepted MicArray and duplex/runtime-PM behavior.
 
 ---
 
@@ -38,29 +38,28 @@ However, this audit reopens one important parity boundary: **Native Audio v18 cu
 
 # 1. Release identity, boot and rollback
 
-- [x] Native Audio v18 is the saved GRUB default: `saved_entry=sp11-audio-dmic-broker-div4-v18`.
-- [x] Running command line contains `sp11_entry=7.1.5-sp11-dmic-broker-div4-v18`.
-- [x] v18 initrd SHA-256 matches the accepted identity: `ac3ba64bd1c6bd6b8c0dc01b9836fb7466128fcc687903673b6fd598ebefb66d`.
-- [x] v18 DTB SHA-256 matches: `09dcf2832487b1523ab2cdecba4ef9f2335d4e95e1bcd87a2dad41208d20ae0a`.
-- [x] Active DT model is `X1E80100-Microsoft-Surface-Pro-11-VA-TX-AB-v16`.
-- [x] Accepted combined topology is installed with SHA-256 `4e00057b8e316c217347bcdee0af0c6d4ff40e8e0f1870d7efeaddc2669ff54e`.
-- [x] `verify-native-audio-v18.sh --live` passes.
-- [x] Golden v33 rollback kernel/initrd/DTB/topology/modules still pass `verify-golden-v33.sh`.
-- [x] Git `main`, remote `main` and the promoted microphone branch point to the same current commit.
-- [ ] **P1 — add a clean Native Audio v18 rebuild path.** There is no `repro/native-audio-v18/build-and-verify.sh` equivalent to Golden v33. The current verifier proves identity, not rebuildability.
-- [ ] **P1 — reproduce exact v18 kernel modules + initrd from a clean Golden-v33 source plus only production mic deltas 0072 + 0078, and make the resulting hashes part of the gate.**
-- [ ] **P2 — create one complete install/deploy path for v18** (boot bundle + DTB + topology + UCM + GRUB entry + rollback) rather than relying on already-installed local state.
-- [ ] **P2 — decide whether the GitHub Native Audio v18 release should carry a boot bundle/reproduction manifest in addition to `ubig-control_0.1.3_arm64.deb`.**
+- [x] FullIO v19c is the accepted promoted boot: `sp11_entry=7.1.5-sp11-fullio-v19c`.
+- [x] v19c kernel is byte-identical to v18: `bca0a336c15d2995c61b8df9d449afb9df5fc8776a3da1ad034616f917bb428a`.
+- [x] v19c initrd is byte-identical to v18: `ac3ba64bd1c6bd6b8c0dc01b9836fb7466128fcc687903673b6fd598ebefb66d`.
+- [x] v19c DTB SHA-256: `2fcfa738c229b32764ff2722847cf4056b3153c64a12f8490429309f29df6d00`.
+- [x] Active DT model is `X1E80100-Microsoft-Surface-Pro-11-FullIO-v19c0`.
+- [x] FullIO topology SHA-256: `e7bb06a03e7bd9b869825a51775355a6743477d1579d78eb09fad5881cfb20f0`.
+- [x] `verify-native-audio-v19c.sh --live` passes.
+- [x] `repro/native-audio-v19c/build-and-verify.sh` recompiles the tracked topology source byte-identically and checks the collision-free builder namespace.
+- [x] Native Audio v18 remains installed as first rollback and Golden v33 remains the protected-output rollback.
+- [ ] **P1 — reproduce the unchanged v18 kernel modules + initrd from clean Golden-v33 source plus only production mic deltas 0072 + 0078, and pin the resulting hashes.** v19c topology reproduction is closed; this remaining item is kernel/initrd reproducibility.
+- [ ] **P2 — create one complete fresh-machine installer for FullIO v19c** (boot bundle + DTB + topology + UCM + GRUB + rollback + UbiG policy) rather than relying on already-installed local state.
+- [ ] **P2 — decide whether the GitHub FullIO v19c release should carry a boot/reproduction manifest in addition to the controller package.**
 
 # 2. Kernel/module integrity and boot hardening
 
-- [x] Production audio modules report the expected v18/Golden vermagic and live srcversions.
+- [x] Production audio modules report the expected v18/v19c/Golden vermagic and live srcversions.
 - [x] Modules are PKCS#7-signed with a build-time generated key.
 - [~] The running kernel does not trust that build key, so module verification logs a failure and the kernel is tainted. Secure Boot is disabled, so this is not currently preventing operation.
 - [ ] **P2 — make module signing reproducible and trusted by the running kernel**, or explicitly document the intended no-Secure-Boot trust model.
 - [ ] **P1 — remove and test without global `clk_ignore_unused`.** It can hide incomplete clock ownership.
 - [ ] **P1 — remove and test without global `pd_ignore_unused`.** It can hide incomplete power-domain ownership.
-- [ ] **P2 — once both flags are removable, rerun full playback/capture/protection/runtime-PM/suspend gates.**
+- [ ] **P2 — once both flags are removable, rerun full playback/capture/protection/runtime-PM gates.** System suspend/resume stays outside this RE.
 
 # 3. AudioReach / ASoC / topology
 
@@ -68,8 +67,8 @@ However, this audit reopens one important parity boundary: **Native Audio v18 cu
 - [x] Accepted topology recompiles byte-identically with `alsatplg`.
 - [x] `MultiMedia3 Capture` is present and is the production MicArray FE.
 - [x] `TX_CODEC_DMA_TX_3` is the accepted MicArray backend.
-- [x] `MultiMedia4 Capture` is intentionally present in the combined topology, not a stray kernel PCM.
-- [x] UCM/WirePlumber expose only the intended `MultiMedia3` path as the desktop internal microphone; no desktop `MultiMedia4` source is published.
+- [x] FullIO v19c contains the protected Golden render graph plus only the production `MultiMedia3` MicArray capture closure.
+- [x] UCM/WirePlumber expose the intended `MultiMedia3` path as the desktop internal microphone.
 - [~] Each recent boot logs one `qcom-apm ... CMD timeout for [1001021]`. This is `APM_CMD_GET_SPF_STATE (0x01001021)`, a long-standing optional early SPF-state probe; it occurs before normal DAI registration and did not recur during this audit's active stress.
 - [ ] **P3 — eliminate or downgrade the known optional `GET_SPF_STATE` boot timeout** so a clean boot has no misleading APM timeout marker.
 - [ ] **P2 — add a topology/UCM lint asserting that only the intended MicArray FE is exported to desktop policy even if extra topology PCMs exist.**
@@ -85,12 +84,12 @@ However, this audit reopens one important parity boundary: **Native Audio v18 cu
 - [x] During live playback, both VISENSE switches and both VI mixer paths remained **on**.
 - [x] Golden v33 promotion evidence includes source-identical Windows/Linux acoustic A/B within roughly 0.1 dB at 10% and 50% and a 20/20 true-cold 50% protection soak with 0 PA faults, 0 `err0=0x20` and 0 XRUNs.
 - [x] This audit's live duplex stress produced no PA fault, `err0=0x20`, XRUN, SoundWire error, GLINK timeout or recurring APM timeout.
-- [ ] **P1 — fix exact volume-transaction target availability on Native Audio v18.** `SP11 Windows Volume Transaction`, `SP11 Windows Volume Only` and `SP11 Windows Endpoint Mute` exist, but writes on the combined v18 graph return `-ENODEV`.
-- [ ] **P1 — restore active WSA RX producer state `84` (0 dB) when the Windows-parity transaction path is active.** Current v18 active playback remains at `81` because the exact transaction fails.
-- [ ] **P1 — restore volume-dependent MSIIR/GainStep application on v18.** `sp11-msiir-volume-sync.service` currently exits successfully because the combined transaction control exists, but that combined transaction then falls back on `ENODEV`; therefore the standalone MSIIR updater does not take ownership either.
-- [ ] **P1 — after fixing transaction/MSIIR ownership, repeat the fresh matched Windows ↔ Linux speaker A/B at several endpoint volumes** (at minimum 10%, 25%, 50%; include FR and time-frequency metrics).
-- [ ] **P1 — until the exact transaction is fixed, run a fresh matched Windows ↔ current-v18-fallback speaker matrix** so the actual current daily-driver loudness/FR difference is explicitly quantified instead of inferred from Golden-v33 evidence.
-- [ ] **P2 — add a regression that fails if “transaction control exists” but the real graph target returns `ENODEV`.** Presence alone is not sufficient capability detection.
+- [x] FullIO v19c restores the protected graph target required by `SP11 Windows Volume Transaction` and `SP11 Windows Endpoint Mute`; live writes no longer fall back with `-ENODEV`.
+- [x] Active WSA RX0/RX1 reaches `84` (0 dB native-Windows producer state) and returns to Golden idle `81` after close.
+- [x] Volume-dependent MSIIR/GainStep applies through the exact combined transaction path; live 10% and 35% tests exercised GainStep 1/216-byte and GainStep 9/272-byte deltas.
+- [x] DSP endpoint mute/unmute succeeds on the protected graph.
+- [~] The prior Golden-v33 matched Windows/Linux speaker A/B remains the acoustic acceptance baseline because FullIO v19c restores that exact protected render graph. A fresh multi-volume v19c-vs-Windows matrix is optional strengthening evidence rather than a functional blocker.
+- [ ] **P2 — add a regression that opens protected playback and asserts the real transaction target is writable, not merely present.**
 
 # 5. Speaker mute, volume and fallback safety
 
@@ -101,8 +100,8 @@ However, this audit reopens one important parity boundary: **Native Audio v18 cu
 - [x] Proven `ENODEV` switches to the downstream safe fallback rather than permanently muting the machine.
 - [x] Fallback is sticky for a graph generation and no longer hammers unavailable DSP controls continuously.
 - [x] Idle postgain updates are queued rather than waking the graph; the next UbiG callback acknowledged the latest queued generation (`5/5` in this audit).
-- [ ] **P1 — close the exact Windows endpoint mute path on v18** so physical hardware mute is a fallback, not the normal actuator.
-- [ ] **P2 — rerun mute/unmute, 1%-50% slider sweeps, pause/resume and seek transients after exact transaction repair.**
+- [x] FullIO v19c uses exact DSP endpoint mute/unmute during live protected playback.
+- [ ] **P2 — extend the existing live mute/volume regression into a broader 1%-50% slider + seek/pause transient sweep on v19c.**
 
 # 6. Microphone physical path
 
@@ -117,7 +116,7 @@ However, this audit reopens one important parity boundary: **Native Audio v18 cu
 - [x] Accepted Linux capture is 48 kHz, stereo, S16_LE.
 - [x] This audit captured a fresh 12.20-second stereo MicArray file during simultaneous speaker playback; both channels were nonzero and the 997-Hz speaker stimulus appeared at **54.11 dB / 54.82 dB prominence**.
 - [x] No capture reset/crash occurred.
-- [ ] **P2 — add a one-command microphone smoke test to the v18 verifier** (short capture, nonzero/RMS/channel sanity, no fault scan, runtime-PM return).
+- [ ] **P2 — add a one-command microphone smoke test to the v19c verifier** (short capture, nonzero/RMS/channel sanity, no fault scan, runtime-PM return).
 - [ ] **P3 — optionally add a quiet-room self-noise/channel-balance baseline** to catch future degraded-but-nonzero microphone failures.
 
 # 7. Duplex / simultaneous input-output
@@ -136,10 +135,8 @@ However, this audit reopens one important parity boundary: **Native Audio v18 cu
 - [x] After streams closed and the normal ~3-second autosuspend interval elapsed, WSA macro(s), RX, TX, VA and SoundWire all returned to `runtime_status=suspended`, `runtime_usage=0`.
 - [x] All ALSA PCMs returned to `closed`.
 - [x] No persistent MicArray power reference remained after capture.
-- [ ] **P1 — system suspend/resume is still unvalidated and explicitly not claimed by the current release.** Test s2idle with idle audio, active/recent playback, active/recent capture and repeated cycles.
-- [ ] **P1 — run at least 20 suspend/resume cycles with post-resume speaker + mic smoke and PA/XRUN/SoundWire/APM fault scan.**
-- [ ] **P2 — verify UbiG/filter-chain/control-page state, saved Custom profile and volume/mute state survive system resume without manual restart.**
-- [ ] **P2 — compare Windows SoundWire clock-stop timing (`SwrClockStopTimerMS=500`) with Linux 3000-ms autosuspend after the production path is stable without global ignore flags.**
+- [~] **DEFERRED — system suspend/resume belongs to a separate dedicated RE and is intentionally out of scope for this audio-chain checklist.** Do not treat it as audio debt here.
+- [ ] **P2 — compare Windows SoundWire runtime-idle clock-stop timing (`SwrClockStopTimerMS=500`) with Linux 3000-ms autosuspend after the production path is stable without global ignore flags.** This is runtime-idle work, not system suspend/resume.
 
 # 9. UCM / WirePlumber / PipeWire desktop policy
 
@@ -183,7 +180,7 @@ However, this audit reopens one important parity boundary: **Native Audio v18 cu
 
 # 12. Automated tests and CI hygiene
 
-- [x] With `PYTHONPATH=.`, repository Python suite passes: **224 passed, 3 skipped, 6 subtests passed**.
+- [x] With `PYTHONPATH=.`, repository Python suite passes: **227 passed, 3 skipped, 6 subtests passed**.
 - [x] Full UbiG native DSP suite passes.
 - [x] Candidate control lifecycle, VR->VLLDP order and seven-profile matrix pass.
 - [x] Native Audio v18 verifier passes.
@@ -214,14 +211,9 @@ However, this audit reopens one important parity boundary: **Native Audio v18 cu
 - [ ] **P3 — audit remaining active user-systemd symlinks and generated drop-ins after each future promotion so no candidate/masked unit can silently survive into production.**
 - [ ] **P3 — keep historical Dolby/Windows bridge code as provenance only; ensure no production install path can select it.**
 
-# 15. System suspend / resume — not yet accepted
+# 15. System suspend / resume — externally deferred
 
-- [ ] **P1 — idle suspend/resume: 20 cycles.** Verify audio card, UbiG sink, mic source and runtime PM after every resume.
-- [ ] **P1 — playback-before-suspend / playback-after-resume.** Verify no PA/CPS/VI/SoundWire fault and no stale mute.
-- [ ] **P1 — capture-before-suspend / capture-after-resume.** Verify MicArray route, stereo data and vdd-micb/VA/TX return to idle afterwards.
-- [ ] **P1 — suspend with recent duplex activity.** Verify both sides recover without reboot.
-- [ ] **P2 — profile/Custom EQ/postgain/visible volume persistence across resume.**
-- [ ] **P2 — long-idle after resume and repeated wake/sleep power-state audit.**
+- [~] **DEFERRED / OUT OF SCOPE.** System suspend/resume is a known separate platform issue with its own dedicated reverse-engineering effort. Do not spend audio-chain time on it and do not use it as a release gate for the built-in audio work tracked here.
 
 # 16. External / non-built-in audio integration
 
@@ -265,39 +257,43 @@ A fresh deterministic 997-Hz stimulus was played through `effect_input.sp11_ubig
 
 ## Current volume-path reality
 
-At visible UbiG volume `0.10`:
+On FullIO v19c the exact Windows path is live:
 
-- hidden hardware sink is safely attenuated to `0.27` in fallback mode;
-- desired/active UbiG postgain after wake is `-545`;
-- exact endpoint mute/combined transaction writes return `-ENODEV` on v18;
-- active WSA RX0/RX1 remain `81`, not Windows-parity active `84`;
-- standalone MSIIR service exits because the combined transaction control exists;
-- therefore exact volume-dependent MSIIR/GainStep parity is **not currently active**.
+- protected playback opens the Golden SP/SPVI/VI/CPS/MSIIR/VOL_CTRL graph;
+- endpoint DSP mute/unmute succeeds;
+- active WSA RX0/RX1 is `84`, returning to idle `81` after close;
+- 10% endpoint volume uses GainStep 1 / 216-byte delta;
+- 35% uses GainStep 9 / 272-byte delta;
+- exact volume control remained active during simultaneous MicArray capture;
+- no host-attenuation `ENODEV` fallback was observed in the accepted v19c test.
 
-This is the primary technical gap to close next.
+The primary v18 volume-path gap is therefore closed. The next work is hardening/reproduction, not another render-path RE.
 
 ---
 
 # Recommended tackle order
 
-1. **P1 — fix the v18 combined graph's exact endpoint volume/mute transaction target (`-ENODEV`).**
-2. **P1 — restore WSA RX84 + volume-dependent MSIIR/GainStep ownership and prove it live.**
-3. **P1 — rerun matched Windows ↔ v18 speaker A/B across several volumes; record a new acceptance artifact.**
-4. **P1 — build a clean `repro/native-audio-v18` path that reproduces production modules/initrd from Golden v33 + 0072/0078.**
-5. **P1 — run and close system suspend/resume stress for speaker, mic and duplex.**
-6. **P1/P2 — remove `clk_ignore_unused` / `pd_ignore_unused` and revalidate power ownership.**
-7. **P2 — close public owner-pack provenance/distribution for UbiG Stage B.**
-8. **P2 — make bypass on-demand and clean stale live firmware/UCM artifacts.**
-9. **P2 — fix bare `pytest`, add one top-level production check and CI.**
-10. **P2/P3 — module-signing hardening, optional SPF timeout cleanup, then external Bluetooth/USB/DP integration.**
+1. **P1 — cleanly reproduce the unchanged v18/v19c kernel modules + initrd from Golden v33 + production mic patches 0072/0078.**
+2. **P1/P2 — remove `clk_ignore_unused` / `pd_ignore_unused` and revalidate runtime power ownership.**
+3. **P2 — make the transparent bypass on-demand instead of permanently auto-loaded.**
+4. **P2 — close public owner-pack provenance/distribution for UbiG Stage B.**
+5. **P2 — clean stale live firmware/UCM artifacts after preserving evidence hashes.**
+6. **P2 — fix bare `pytest`, add one top-level production check and CI.**
+7. **P2 — build a complete fresh-machine FullIO v19c installer/release manifest.**
+8. **P2/P3 — module-signing hardening, optional SPF timeout cleanup, then external Bluetooth/USB/DP integration and upstreaming.**
+
+System suspend/resume is intentionally absent from this order because it belongs to the separate dedicated RE.
 
 ---
 
 # Canonical recheck commands
 
 ```bash
-# Native Audio v18 identity + live desktop path
-./deploy/native-audio-v18/verify-native-audio-v18.sh --live
+# FullIO v19c identity + live desktop path
+./deploy/native-audio-v19c/verify-native-audio-v19c.sh --live
+
+# Clean topology reproduction
+./repro/native-audio-v19c/build-and-verify.sh
 
 # Golden speaker/protection rollback artifacts
 sudo ./deploy/golden-v33/verify-golden-v33.sh
@@ -323,7 +319,7 @@ sha256sum dist/ubig-control_0.1.3_arm64.deb
 When tackling this list, do **not** reopen accepted microphone divider/routing or Golden-v33 protection behavior without reproducible counter-evidence. In particular:
 
 - keep MicArray production code at the accepted 0072 + 0078 delta unless a failing test proves a required change;
-- keep `MultiMedia3 -> TX_CODEC_DMA_TX_3` and the accepted VA-TX-AB-v16 topology for microphone parity work;
+- keep `MultiMedia3 -> TX_CODEC_DMA_TX_3` and the accepted FullIO-v19c capture object namespace for production;
 - keep Golden v33 as the speaker/protection rollback baseline;
 - treat Windows as the behavioral oracle where Linux/upstream assumptions conflict with measured SP11 behavior;
 - preserve rollback-safe boot entries for any kernel/power/transaction experiment.

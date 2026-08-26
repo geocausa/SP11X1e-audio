@@ -5,10 +5,15 @@ PROFILE_FILE="$PROFILE_DIR/profile"
 GEQ_FILE="$PROFILE_DIR/geq"
 DROPIN_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/filter-chain.service.d"
 PROFILE_DROPIN="$DROPIN_DIR/ubig-profile.conf"
-CONTROL_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/sp11-ubig-profile.control"
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+CONTROL_FILE="${UBIG_CONTROL_PATH:-$RUNTIME_DIR/ubig-control-v2}"
+UBIGCTL="${UBIGCTL:-/usr/bin/ubigctl}"
 
 node_id() {
-  wpctl status -n | grep "$1" | grep -vE '^[[:space:]]*0\. Audio/Sink' \
+  # Match the complete PipeWire node name.  A substring match for
+  # effect_input.sp11_ubig also selects ..._bypass / ..._engine and used to
+  # make profile changes silently switch the desktop to the bypass sink.
+  wpctl status -n | grep -F " $1 " | grep -vE '^[[:space:]]*0\. Audio/Sink' \
     | head -1 | grep -oE '[0-9]+\.' | head -1 | tr -d '.'
 }
 normalize_profile() {
@@ -23,34 +28,27 @@ normalize_profile() {
     *) return 1 ;;
   esac
 }
-profile_index() {
-  case "$1" in
-    dynamic) echo 0 ;; movie) echo 1 ;; music) echo 2 ;; game) echo 3 ;;
-    voice) echo 4 ;; onlinecourse) echo 5 ;; personalize) echo 6 ;;
-    *) return 1 ;;
-  esac
-}
-profile_name_from_index() {
-  case "$1" in
-    0) echo dynamic ;; 1) echo movie ;; 2) echo music ;; 3) echo game ;;
-    4) echo voice ;; 5) echo onlinecourse ;; 6) echo personalize ;;
-    *) return 1 ;;
-  esac
-}
-profile_code() {
-  I=$(profile_index "$1") || return 1
-  echo $((I + 1))
-}
-profile_name_from_code() {
-  C=$1
-  [ "$C" -ge 1 ] 2>/dev/null && [ "$C" -le 7 ] 2>/dev/null || return 1
-  profile_name_from_index $((C - 1))
-}
 current_profile() {
   if [ -s "$PROFILE_FILE" ]; then cat "$PROFILE_FILE"; else echo movie; fi
 }
 current_geq() {
-  if [ -s "$GEQ_FILE" ]; then cat "$GEQ_FILE"; else echo off; fi
+  if [ -r "$CONTROL_FILE" ]; then
+    LIVE=$(python3 - "$CONTROL_FILE" <<'PYGEQ' 2>/dev/null || true
+import importlib.util, sys
+path=sys.argv[1]
+modpath='/usr/lib/ubig-control/ubig_control.py'
+spec=importlib.util.spec_from_file_location('sp11_ubig_control_live', modpath)
+mod=importlib.util.module_from_spec(spec)
+sys.modules[spec.name]=mod
+spec.loader.exec_module(mod)
+with mod.ControlPage(path, create=False) as control:
+    snap=control.snapshot()
+print(','.join(str(value) for value in snap.custom_eq))
+PYGEQ
+)
+    [ -n "$LIVE" ] && { printf '%s\n' "$LIVE"; return 0; }
+  fi
+  if [ -s "$GEQ_FILE" ]; then cat "$GEQ_FILE"; else printf '%s\n' '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'; fi
 }
 write_dropin() {
   P=$(current_profile)
@@ -72,120 +70,93 @@ actual_profile() {
   systemctl --user show filter-chain.service -p Environment --value 2>/dev/null \
     | tr ' ' '\n' | sed -n 's/^UBIG_PROFILE=//p' | tail -1
 }
-runtime_control_state() {
-  [ -r "$CONTROL_FILE" ] || return 1
-  set -- $(od -An -tu1 -N2 "$CONTROL_FILE" 2>/dev/null)
-  [ "$#" -ge 2 ] || return 1
-  printf '%s %s\n' "$1" "$2"
+ubigctl_profile_name() {
+  case "$1" in
+    dynamic) echo Dynamic ;;
+    movie) echo Movie ;;
+    music) echo Music ;;
+    game) echo Game ;;
+    voice) echo Voice ;;
+    onlinecourse) echo Course ;;
+    personalize) echo Custom ;;
+    *) return 1 ;;
+  esac
+}
+profile_name_from_ubigctl() {
+  case "$1" in
+    Dynamic) echo dynamic ;;
+    Movie) echo movie ;;
+    Music) echo music ;;
+    Game) echo game ;;
+    Voice) echo voice ;;
+    Course) echo onlinecourse ;;
+    Custom) echo personalize ;;
+    *) return 1 ;;
+  esac
+}
+ubigctl_status() {
+  [ -x "$UBIGCTL" ] || return 1
+  UBIG_CONTROL_PATH="$CONTROL_FILE" "$UBIGCTL" status
+}
+ubigctl_field() {
+  KEY=$1
+  ubigctl_status 2>/dev/null | sed -n "s/^${KEY}=//p" | tail -1
 }
 runtime_profile() {
-  STATE=$(runtime_control_state || true)
-  set -- $STATE
-  APPLIED=${2:-0}
-  case "$APPLIED" in
-    1|2|3|4|5|6|7) profile_name_from_code "$APPLIED" ;;
-    *) actual_profile ;;
-  esac
+  LIVE=$(ubigctl_field active_profile || true)
+  if [ -n "$LIVE" ]; then
+    profile_name_from_ubigctl "$LIVE" && return 0
+  fi
+  actual_profile
 }
 runtime_pending_profile() {
-  STATE=$(runtime_control_state || true)
-  set -- $STATE
-  REQUEST=${1:-0}; APPLIED=${2:-0}
-  case "$REQUEST" in
-    1|2|3|4|5|6|7)
-      [ "$REQUEST" = "$APPLIED" ] || profile_name_from_code "$REQUEST"
-      ;;
-  esac
+  WANT=$(ubigctl_field desired_profile || true)
+  LIVE=$(ubigctl_field active_profile || true)
+  [ -n "$WANT" ] && [ "$WANT" != "$LIVE" ] || return 0
+  profile_name_from_ubigctl "$WANT"
 }
 runtime_postgain_state() {
-  [ -r "$CONTROL_FILE" ] || return 1
-  python3 - "$CONTROL_FILE" <<'PYPGSTATE'
-import struct, sys
-path=sys.argv[1]
-try:
-    data=open(path,'rb').read()
-except OSError:
-    raise SystemExit(1)
-if len(data) < 12:
-    raise SystemExit(1)
-req=struct.unpack_from('<i',data,4)[0]
-ack=struct.unpack_from('<i',data,8)[0]
-print(req,ack)
-PYPGSTATE
-}
-postgain_db() {
-  awk -v p="$1" 'BEGIN{printf "%.3f", p/16.0}'
-}
-write_runtime_postgain() {
-  V=$1
-  python3 - "$CONTROL_FILE" "$V" <<'PYPG'
-import os, struct, sys
-path, value = sys.argv[1], int(sys.argv[2])
-if not -1200 <= value <= 0:
-    raise SystemExit(2)
-size=12; none=-(1<<31)
-fd=os.open(path, os.O_RDWR|os.O_CREAT|os.O_CLOEXEC, 0o600)
-try:
-    os.fchmod(fd,0o600)
-    old=os.fstat(fd).st_size
-    if old < size:
-        os.ftruncate(fd,size)
-        if old < 8:
-            os.pwrite(fd,struct.pack('<i',none),4)
-        if old < 12:
-            os.pwrite(fd,struct.pack('<i',none),8)
-    os.pwrite(fd,struct.pack('<i',value),4)
-finally:
-    os.close(fd)
-PYPG
+  REQ=$(ubigctl_field desired_postgain || true)
+  ACK=$(ubigctl_field active_postgain || true)
+  [ -n "$REQ" ] && [ -n "$ACK" ] || return 1
+  printf '%s %s\n' "$REQ" "$ACK"
 }
 set_runtime_postgain() {
   V=$1
   case "$V" in ''|*[!0-9-]*) return 2 ;; esac
   [ "$V" -ge -1200 ] 2>/dev/null && [ "$V" -le 0 ] 2>/dev/null || return 2
-  write_runtime_postgain "$V" || return 1
+  [ -x "$UBIGCTL" ] || return 1
+  UBIG_CONTROL_PATH="$CONTROL_FILE" "$UBIGCTL" postgain "$V" >/dev/null || return 1
   N=0
-  while [ "$N" -lt 10 ]; do
-    STATE=$(runtime_postgain_state || true); set -- $STATE; APPLIED=${2:--2147483648}
-    [ "$APPLIED" = "$V" ] && return 0
+  while [ "$N" -lt 15 ]; do
+    STATE=$(runtime_postgain_state || true); set -- $STATE
+    REQ=${1:--2147483648}; APPLIED=${2:--2147483648}
+    [ "$REQ" = "$V" ] && [ "$APPLIED" = "$V" ] && return 0
     N=$((N + 1)); sleep 0.02
   done
   return 3
 }
-write_runtime_profile_code() {
-  C=$1
-  python3 - "$CONTROL_FILE" "$C" <<'PYCTL'
-import os, sys
-path, code = sys.argv[1], int(sys.argv[2])
-if not 1 <= code <= 7:
-    raise SystemExit(2)
-fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
-try:
-    os.fchmod(fd, 0o600)
-    if os.fstat(fd).st_size < 2:
-        os.ftruncate(fd, 2)
-    os.pwrite(fd, bytes((code,)), 0)
-finally:
-    os.close(fd)
-PYCTL
+postgain_db() {
+  awk -v p="$1" 'BEGIN{printf "%.3f", p/16.0}'
 }
 set_runtime_profile() {
   P=$1
   D=$(node_id 'effect_input.sp11_ubig' || true)
   [ -n "$D" ] || return 1
-  C=$(profile_code "$P") || return 1
-  write_runtime_profile_code "$C" || return 1
-  # If audio is already flowing the plugin acknowledges within a callback.
-  # If idle, leave the request queued; it is applied before the first future
-  # audio block and therefore still preserves the existing algorithm state.
+  CANON=$(ubigctl_profile_name "$P") || return 1
+  [ -x "$UBIGCTL" ] || return 1
+  UBIG_CONTROL_PATH="$CONTROL_FILE" "$UBIGCTL" profile "$CANON" >/dev/null || return 1
   N=0
-  while [ "$N" -lt 10 ]; do
-    STATE=$(runtime_control_state || true); set -- $STATE; APPLIED=${2:-0}
-    [ "$APPLIED" = "$C" ] && return 0
+  while [ "$N" -lt 15 ]; do
+    WANT=$(ubigctl_field desired_profile || true)
+    LIVE=$(ubigctl_field active_profile || true)
+    [ "$WANT" = "$CANON" ] && [ "$LIVE" = "$CANON" ] && return 0
     N=$((N + 1)); sleep 0.02
   done
-  return 3
+  [ "$WANT" = "$CANON" ] && return 3
+  return 1
 }
+
 status() {
   D=$(node_id 'effect_input.sp11_ubig' || true)
   B=$(node_id 'effect_input.sp11_ubig_bypass' || true)
@@ -291,7 +262,7 @@ set_geq() {
       return 0
       ;;
     off|flat|reset)
-      G=off
+      G='0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
       ;;
     set)
       shift
@@ -305,22 +276,43 @@ set_geq() {
       done
       ;;
     *)
-      echo 'Usage: sp11-ubig geq [show|off|reset|set <20 values -192..192>]' >&2
+      echo 'Usage: sp11-ubig geq [show|flat|reset|set <20 values -192..192>]' >&2
       exit 2
       ;;
   esac
+
+  [ -x "$UBIGCTL" ] || { echo "Missing UbiG v2 control CLI: $UBIGCTL" >&2; exit 2; }
+  UBIG_CONTROL_PATH="$CONTROL_FILE" "$UBIGCTL" eq "$G" >/dev/null
+
+  # Keep both the production app restore file and the compatibility drop-in in
+  # sync, but do not restart the running filter graph.
+  PYTHONPATH=/usr/lib/ubig-control python3 - "$G" <<'PYSAVE'
+import sys
+from ubig_control import save_state
+values=tuple(int(value) for value in sys.argv[1].split(','))
+save_state('Custom', values)
+PYSAVE
   mkdir -p "$PROFILE_DIR"
+  printf '%s\n' personalize > "$PROFILE_FILE.tmp"
+  mv "$PROFILE_FILE.tmp" "$PROFILE_FILE"
   printf '%s\n' "$G" > "$GEQ_FILE.tmp"
   mv "$GEQ_FILE.tmp" "$GEQ_FILE"
   write_dropin
-  snapshot_ubig_volume
   systemctl --user daemon-reload
-  systemctl --user reset-failed filter-chain.service 2>/dev/null || true
-  systemctl --user restart filter-chain.service
-  sleep 1
-  restore_ubig_volume
   select_ubig_default
-  if [ "$G" = off ]; then echo 'SP11 Custom GEQ disabled.'; else echo 'SP11 Custom GEQ saved; it is active in the Personalize profile.'; fi
+
+  REQ=$(ubigctl_field request_generation || true)
+  N=0
+  while [ "$N" -lt 15 ]; do
+    ACK=$(ubigctl_field ack_generation || true)
+    [ -n "$REQ" ] && [ "$ACK" = "$REQ" ] && break
+    N=$((N + 1)); sleep 0.02
+  done
+  if [ "$ACK" = "$REQ" ]; then
+    echo 'SP11 Custom GEQ applied in place through UbiG v2.'
+  else
+    echo 'SP11 Custom GEQ queued in place; applies on next audio block.'
+  fi
   status
 }
 

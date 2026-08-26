@@ -5,45 +5,44 @@ Microsoft Surface Pro 11 with Qualcomm X1E80100 AudioReach, SoundWire, dual
 WSA884x amplifiers, LPASS VA/TX macros, and the source-owned **UbiG** speaker
 engine.
 
-> **Current recommended state — Native Audio v18 + UbiG (2026-08-26).**
-> Built-in speaker output/protection and the two-channel internal MicArray are
-> both closed at Windows-parity acceptance and are deployed through normal
-> UCM/WirePlumber/PipeWire desktop nodes.
+> **Current recommended state — FullIO v19c + UbiG (2026-08-26).**
+> FullIO v19c combines the exact Golden-v33 protected speaker graph with the
+> accepted native two-channel MicArray path. The kernel/initrd and microphone
+> code remain the v18 0072+0078 production delta; the v19c change is the merged
+> AudioReach topology and collision-free capture graph-object allocation.
 >
-> Native Audio v18 keeps the promoted **Golden v33** output/protection stack and
-> adds the Windows-proven microphone deltas: VA DMIC DIV4 selection (patch 0072),
-> TX→VA shared-DMIC DAPM ownership (patch 0078), the TX DMIC backend/DT routes,
-> the accepted combined AudioReach topology, and a UCM `Mic` device.
+> The retained Windows RAW ↔ Linux microphone A/B remains **98.27% overall
+> parity**. FullIO additionally restores the exact endpoint volume/mute +
+> volume-dependent MSIIR/GainStep path: active playback uses WSA RX84 and DSP
+> endpoint mute, while idle returns to Golden RX81. Protected playback and
+> MicArray capture run concurrently with clean runtime-PM teardown.
 >
-> The retained 30-second Seven Nation Army Windows RAW ↔ Linux v18 acoustic A/B
-> scores **98.27% overall parity**: 98.62/98.44% envelope, 97.58/96.55%
-> frequency-response correlation, and 99.12/99.30% time-frequency correlation.
-> A saved-default post-deploy PipeWire speaker→mic smoke test also passed on both
-> channels, with runtime PM returning VA and TX to suspend after capture.
+> System suspend/resume is deliberately outside this release gate and belongs
+> to its separate dedicated RE.
 
-Start with [`deploy/native-audio-v18/`](deploy/native-audio-v18/),
+Start with [`deploy/native-audio-v19c/`](deploy/native-audio-v19c/),
+[`repro/native-audio-v19c/`](repro/native-audio-v19c/),
 [`deploy/ubig/`](deploy/ubig/), the
-[`Native Audio v18 acceptance checkpoint`](docs/checkpoints/2026-08-26-MICARRAY-NATIVE-V18-WINDOWS-PARITY-ACCEPTANCE.md),
-the [`full audio-chain audit/checklist`](docs/audit/2026-08-26-SP11-FULL-AUDIO-CHAIN-AUDIT-CHECKLIST.md),
-and the [`CURRENT handoff`](docs/checkpoints/CURRENT-SP11-AUDIO.md). The built-in
-chain is functionally complete; the audit records the remaining v18 exact
-volume-transaction/MSIIR parity gap and production-hardening work.
+[`FullIO v19c acceptance checkpoint`](docs/checkpoints/2026-08-26-FULLIO-V19C-GOLDEN-MIC-COLLISION-FIX-ACCEPTANCE.md),
+the [`current v19c audit`](docs/audit/2026-08-26-SP11-NATIVE-AUDIO-FULLIO-V19C-AUDIT.md),
+and the [`CURRENT handoff`](docs/checkpoints/CURRENT-SP11-AUDIO.md).
 
 ## Recommended boot set
 
 | Entry | Role | Status |
 |---|---|---|
-| `sp11-audio-dmic-broker-div4-v18` | Full native input/output daily driver | **Promoted/default** |
+| `sp11-audio-fullio-v19c` | Full protected native input/output daily driver | **Promoted/default** |
+| `sp11-audio-dmic-broker-div4-v18` | Native MicArray + generic-render rollback | **Keep** |
 | `sp11-audio-golden-v33-topcfg1-physical-vi` | Known-good speaker-only rollback | **Keep** |
 | `sp11-audio-v32-feedback-exact-golden` | Fixed-initrd historical rollback | Keep |
 | `sp11-audio-golden-v31` | Historical rollback | Keep |
 | `sp11-audio-cps-v3` | Conservative rescue | Keep |
 
-Golden v33 remains the output/protection base and immediate rollback. Diagnostic
+Golden v33 remains the output/protection base. Native Audio v18 is the first rollback and Golden v33 is the second protected-output rollback. Diagnostic
 mic candidates 0079/0080 and the later unpromoted 0081–0086 endpoint/power
 experiments are evidence history, not production runtime.
 
-## Native microphone v18
+## Native microphone v18/v19c
 
 The final input root cause had two independent pieces:
 
@@ -61,7 +60,7 @@ DEC1←DMIC0 through `MSM_DMIC`. UCM exposes it as **Built-in Audio Internal
 microphone array** at 48 kHz, stereo, S16_LE. The physical VA/TX clocks and
 `vdd-micb` remain stream/DAPM-driven; they are not permanently pinned on.
 
-See [`deploy/native-audio-v18/README.md`](deploy/native-audio-v18/README.md) and
+See [`deploy/native-audio-v19c/README.md`](deploy/native-audio-v19c/README.md), [`deploy/native-audio-v18/README.md`](deploy/native-audio-v18/README.md) and
 [`artifacts/2026-08-26-native-mic-v18-parity/parity-summary.json`](artifacts/2026-08-26-native-mic-v18-parity/parity-summary.json).
 
 ## Golden v33 output base
@@ -109,16 +108,17 @@ See [`ubig/`](ubig/), [`deploy/ubig/`](deploy/ubig/) and
 
 ## Verification
 
-Verify the accepted Native Audio v18 bundle from any clean clone:
+Verify/rebuild the accepted FullIO v19c topology from any clean clone:
 
 ```bash
-./deploy/native-audio-v18/verify-native-audio-v18.sh
+./repro/native-audio-v19c/build-and-verify.sh
+./deploy/native-audio-v19c/verify-native-audio-v19c.sh
 ```
 
 On the deployed SP11, also verify the loaded boot/module/PipeWire identity:
 
 ```bash
-./deploy/native-audio-v18/verify-native-audio-v18.sh --live
+./deploy/native-audio-v19c/verify-native-audio-v19c.sh --live
 ```
 
 Golden v33 can still be independently replayed and verified:
@@ -144,7 +144,9 @@ JOBS=8 ./repro/golden-v33/build-and-verify.sh
 
 | Path | Purpose |
 |---|---|
-| [`deploy/native-audio-v18/`](deploy/native-audio-v18/) | **Current full native input/output release identity** |
+| [`deploy/native-audio-v19c/`](deploy/native-audio-v19c/) | **Current full protected native input/output release identity** |
+| [`repro/native-audio-v19c/`](repro/native-audio-v19c/) | Clean FullIO topology reproduction |
+| [`deploy/native-audio-v18/`](deploy/native-audio-v18/) | First rollback + microphone parity provenance |
 | [`deploy/golden-v33/`](deploy/golden-v33/) | Speaker/protection base + immediate rollback |
 | [`repro/golden-v33/`](repro/golden-v33/) | Clean Golden source reproduction |
 | [`deploy/ucm2/`](deploy/ucm2/) | UCM Speaker + internal MicArray policy |
@@ -159,7 +161,8 @@ JOBS=8 ./repro/golden-v33/build-and-verify.sh
 ## Current scope
 
 Built-in speaker output/protection **and** the internal microphone input are
-closed and promoted. Future subsystem work should start from Native Audio v18 +
-UbiG and be tracked separately (for example suspend/resume robustness, Bluetooth,
-headset/USB audio integration, or upstreaming) rather than reopening accepted
-speaker or MicArray behavior without reproducible counter-evidence.
+closed and promoted. Future built-in-audio work should start from FullIO v19c +
+UbiG. System suspend/resume remains explicitly external to this audio release and
+has its own dedicated RE; Bluetooth/headset/USB/DP integration and upstreaming
+should be tracked separately rather than reopening accepted speaker or MicArray
+behavior without reproducible counter-evidence.
