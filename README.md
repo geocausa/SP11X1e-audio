@@ -24,7 +24,10 @@ engine.
 Start with [`deploy/native-audio-v18/`](deploy/native-audio-v18/),
 [`deploy/ubig/`](deploy/ubig/), the
 [`Native Audio v18 acceptance checkpoint`](docs/checkpoints/2026-08-26-MICARRAY-NATIVE-V18-WINDOWS-PARITY-ACCEPTANCE.md),
-and the [`CURRENT handoff`](docs/checkpoints/CURRENT-SP11-AUDIO.md).
+the [`full audio-chain audit/checklist`](docs/audit/2026-08-26-SP11-FULL-AUDIO-CHAIN-AUDIT-CHECKLIST.md),
+and the [`CURRENT handoff`](docs/checkpoints/CURRENT-SP11-AUDIO.md). The built-in
+chain is functionally complete; the audit records the remaining v18 exact
+volume-transaction/MSIIR parity gap and production-hardening work.
 
 ## Recommended boot set
 

@@ -78,9 +78,19 @@ WSA macro `TOP_CFG1=0x03` after each enabled VI pair; Linux previously held the
 value only as a regmap default. Golden v33 makes TAP2 native `V,I,V,I` before
 SP_VI, keeps q6apm unchanged, and rejects the earlier downstream SP_VI reorder.
 
-Output acceptance remains valid: source-identical quiet-room Windows/Linux
-program A/B is within roughly 0.1 dB across useful bands and the 20-cycle true-
-cold protection soak completed without PA faults, `err0=0x20`, or XRUNs.
+Golden-v33 output/protection acceptance remains valid on the exact Golden
+transaction path: source-identical quiet-room Windows/Linux program A/B is
+within roughly 0.1 dB across useful bands and the 20-cycle true-cold protection
+soak completed without PA faults, `err0=0x20`, or XRUNs.
+
+The 2026-08-26 full-chain audit found one newer Native-Audio-v18 distinction:
+the combined graph exposes the exact endpoint volume/mute transaction controls,
+but live writes return `-ENODEV`, so the daily driver safely falls back to host
+attenuation/hardware mute. Active WSA RX therefore remains 81 rather than 84
+and the standalone volume-dependent MSIIR updater defers to a combined
+transaction that is not actually landing. Built-in output remains functional
+and protected, but exact **volume-dependent v18 Windows speaker parity is open**
+until that target/ownership issue is repaired and a fresh matched A/B is run.
 
 ## Production desktop identity
 
@@ -132,13 +142,15 @@ Golden rollback remains independently verifiable with
 - `deploy/ucm2/Qualcomm/x1e80100/SP11-HiFi.conf`
 - `deploy/ubig/`
 - `ubig/docs/STATUS.md`
+- `docs/audit/2026-08-26-SP11-FULL-AUDIO-CHAIN-AUDIT-CHECKLIST.md`
 - `docs/checkpoints/2026-08-26-MICARRAY-NATIVE-V18-WINDOWS-PARITY-ACCEPTANCE.md`
 - `artifacts/2026-08-26-native-mic-v18-parity/`
 
 ## Next target
 
-Built-in speaker output/protection and internal MicArray capture are closed.
-Start new subsystem work from Native Audio v18 + UbiG rather than reopening
-accepted behavior without reproducible counter-evidence. Sensible next targets
-include suspend/resume robustness, Bluetooth/headset/USB integration, packaging,
-and upstreaming the minimal kernel/DT changes.
+Built-in speaker output/protection and internal MicArray capture are functionally
+closed. The highest-priority parity follow-up is the v18 exact endpoint
+volume/mute + MSIIR/GainStep target described in the full-chain audit. After
+that, tackle clean v18 reproduction, system suspend/resume robustness, removal
+of global clock/power ignore flags, public UbiG owner-pack provenance, then
+Bluetooth/headset/USB integration and upstreaming.
