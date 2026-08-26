@@ -1,0 +1,67 @@
+{
+  "date": "2026-08-26",
+  "stimulus": {
+    "name": "The White Stripes - Seven Nation Army (Official Music Video).mp3",
+    "sha256": "951a65cc63fee17622485c1d94708614005524c7e20f86d3d815327f6bd0e8b3",
+    "excerpt_seconds": [
+      19.0,
+      49.0
+    ],
+    "sp7_endpoint_scalar": 0.25
+  },
+  "recordings": {
+    "windows_raw": {
+      "sha256": "62f2e77232c202a32c46bba8117c1741eaa993975ab0a6ca16b27358e0a07ba7",
+      "format": "48000 Hz, stereo, PCM16 output from WASAPI RAW recorder",
+      "duration_sec": 40.0
+    },
+    "linux_v18": {
+      "sha256": "8d3926ab271c47d3de435be0d047180dac1830ff70634d4e4a5b6544da0e3f0e",
+      "format": "48000 Hz, stereo, S16_LE, hw:0,2",
+      "duration_sec": 40.0
+    }
+  },
+  "alignment": {
+    "method": "one common 100 ms stereo-average acoustic energy alignment, 30 s window; no per-channel alignment",
+    "windows_start_sec": 9.9,
+    "linux_start_sec": 6.6,
+    "linux_minus_windows_sec": -3.3,
+    "stereo_average_corr": 0.9859403165242085
+  },
+  "direct_mapping": {
+    "ch0": {
+      "envelope_corr": 0.9862078062306049,
+      "envelope_rmse_db": 0.7480814945545522,
+      "spectrum_corr": 0.9758287611833977,
+      "spectrum_rmse_db": 3.2716524475954105,
+      "spectrum_p95_abs_db": 6.459258452618572,
+      "timefreq_corr": 0.9911984744590436
+    },
+    "ch1": {
+      "envelope_corr": 0.9843750745868922,
+      "envelope_rmse_db": 0.9394499182816205,
+      "spectrum_corr": 0.9655190303390152,
+      "spectrum_rmse_db": 3.7787226714729227,
+      "spectrum_p95_abs_db": 7.605687399079598,
+      "timefreq_corr": 0.9929660286048103
+    },
+    "mean_envelope_corr": 0.9852914404087485,
+    "mean_spectrum_corr": 0.9706738957612064,
+    "mean_timefreq_corr": 0.992082251531927,
+    "equal_weight_correlation_mean": 0.9826825292339607
+  },
+  "channel_structure": {
+    "windows_stereo_corr": 0.9229280529021183,
+    "linux_stereo_corr": 0.8728053579935572,
+    "windows_ch1_over_ch0_db": 1.523966126708702,
+    "linux_ch1_over_ch0_db": 1.9164396674184068
+  },
+  "acceptance": {
+    "requested_band_percent": [
+      95,
+      99
+    ],
+    "parity_index_percent": 98.26825292339608,
+    "pass": true
+  }
+}

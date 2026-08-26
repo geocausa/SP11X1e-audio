@@ -1,4 +1,4 @@
-From: SP11 audio reverse-engineering
+From: SP11 audio reverse-engineering <sp11@local>
 Subject: [PATCH] ASoC: lpass-va-macro: SP11 match Windows DMIC divider
 
 Native Windows on Microsoft Denali (Surface Pro 11) votes the VA-path
@@ -13,6 +13,7 @@ DIV2/selector 0 instead of Windows DIV4/selector 2.
 Use the actual 19.2 MHz VA MCLK as the divider basis on Microsoft Denali.
 Keep the DT request at 4.8 MHz and leave all other machines unchanged.
 
+Signed-off-by: SP11 audio reverse-engineering <sp11@local>
 ---
  sound/soc/codecs/lpass-va-macro.c | 9 +++++++++
  1 file changed, 9 insertions(+)
@@ -31,7 +32,7 @@ diff --git a/sound/soc/codecs/lpass-va-macro.c b/sound/soc/codecs/lpass-va-macro
 @@ -1433,6 +1434,14 @@ static int va_macro_validate_dmic_sample_rate(u32 dmic_sample_rate,
  	u32 div_factor;
  	u32 mclk_rate = VA_MACRO_MCLK_FREQ;
- 
+
 +	/*
 +	 * Native Windows on Surface Pro 11 (Denali) votes the VA MCLK at
 +	 * 19.2 MHz and programs the DMIC clock selector from that rate.
@@ -42,6 +43,6 @@ diff --git a/sound/soc/codecs/lpass-va-macro.c b/sound/soc/codecs/lpass-va-macro
 +
  	if (!dmic_sample_rate || mclk_rate % dmic_sample_rate != 0)
  		goto undefined_rate;
- 
--- 
+
+--
 2.51.0
