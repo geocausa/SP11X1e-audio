@@ -332,6 +332,7 @@ static int chain_control_open(ChainInst *p){
     if(override&&*override&&(!strcasecmp(override,"off")||!strcasecmp(override,"none")||!strcmp(override,"0")))return 1;
     int rc=ubig_control_open(&p->control,override,1);if(rc)return rc;
     p->control_ready=1;
+    __atomic_fetch_or(&p->control.page->engine_flags,UBIG_CONTROL_ENGINE_LIVE,__ATOMIC_RELEASE);
     /* The endpoint-volume service may create the v2 page and queue postgain
      * before this LADSPA instance exists.  With no main-control request yet,
      * make the page's desired profile describe the selected cold-start profile
@@ -1487,7 +1488,11 @@ static int chain_alloc(ChainInst *p){
 }
 
 static void chain_free_mem(ChainInst *p){
-    if(p->control_ready){ubig_control_close(&p->control);p->control_ready=0;}
+    if(p->control_ready){
+        if(p->control.page)
+            __atomic_fetch_and(&p->control.page->engine_flags,~UBIG_CONTROL_ENGINE_LIVE,__ATOMIC_RELEASE);
+        ubig_control_close(&p->control);p->control_ready=0;
+    }
     free(p->native_stage_a_r);free(p->native_stage_a_l);free(p->buf_b);free(p->buf_a);free(p->vr_arena);free(p->vr_inner);
 }
 

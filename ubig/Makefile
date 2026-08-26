@@ -354,10 +354,14 @@ $(BUILD)/test_sp11_candidate_control: tests/test_sp11_candidate_control.c src/co
 $(BUILD)/test_sp11_candidate_order: tests/test_sp11_candidate_order.c src/control/control_page.c | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -ldl -lm -o $@
 
-candidate-control-check: $(BUILD)/ubig-sp11-candidate.so $(BUILD)/test_sp11_candidate_control $(BUILD)/test_sp11_candidate_order
+$(BUILD)/test_sp11_candidate_profile_matrix: tests/test_sp11_candidate_profile_matrix.c src/control/control_page.c | $(BUILD)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -ldl -lm -o $@
+
+candidate-control-check: $(BUILD)/ubig-sp11-candidate.so $(BUILD)/test_sp11_candidate_control $(BUILD)/test_sp11_candidate_order $(BUILD)/test_sp11_candidate_profile_matrix
 	@test -n "$$UBIG_SP11_STAGEB_PACK" || { echo "UBIG_SP11_STAGEB_PACK is required" >&2; exit 2; }
 	$(BUILD)/test_sp11_candidate_control $(BUILD)/ubig-sp11-candidate.so "$$UBIG_SP11_STAGEB_PACK"
 	$(BUILD)/test_sp11_candidate_order $(BUILD)/ubig-sp11-candidate.so "$$UBIG_SP11_STAGEB_PACK"
+	$(BUILD)/test_sp11_candidate_profile_matrix $(BUILD)/ubig-sp11-candidate.so "$$UBIG_SP11_STAGEB_PACK"
 
 clean:
 	rm -rf $(BUILD)

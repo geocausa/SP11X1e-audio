@@ -1,0 +1,87 @@
+{
+  "date": "2026-08-26",
+  "scope": "UbiG profile controller 0.1.3 and production-route hardening on Native Audio v18",
+  "boot": "sp11_entry=7.1.5-sp11-dmic-broker-div4-v18",
+  "controller": {
+    "package": "ubig-control",
+    "version": "0.1.3",
+    "architecture": "arm64",
+    "deb_sha256": "b19997a28adbe7ad35927c3033b9d8cec297aba4bd66268179bf2d585b297224",
+    "reproducible_two_builds_byte_identical": true,
+    "backend_sha256": "59238617c2fc1111f8cc3f85171a1ef0dc19b5838f4d97eca54038d23410fea2",
+    "gui_sha256": "4df4ba4d215665e8adfcdb0e4e89874b26bf49cf736f36216516dd2bb208b23b",
+    "restore_autostart_sha256": "7a55c5575deced818258beae041c01742fe4c4e1431c7d2b8d5e5c233f1ae9c5",
+    "profile_selection": "immediate notify::selected",
+    "engine_live_status": true,
+    "saved_state_autorestore": true
+  },
+  "engine": {
+    "plugin_path": "~/.local/lib/ubig/ubig-sp11.so",
+    "plugin_sha256": "07efd17acc2d342af0e6a8f0a0cc5bc2b8ee2b47006f118457b9a771d7bcf2ca",
+    "profile_matrix_hashes": {
+      "Dynamic": "5976ae0a7613bb0f",
+      "Movie": "ed465af9641280e6",
+      "Music": "0bdbb0c2104b4d84",
+      "Game": "0bdbb0c2104b4d84",
+      "Voice": "de6e80796a93213f",
+      "Course": "ad63c62696124e84",
+      "Custom": "4b342c40675cf948"
+    },
+    "contract": "six distinct stereo outputs; Music/Game intentional Windows stereo alias",
+    "music_game_windows_oracle_bit_identical": true,
+    "windows_oracle_plugin_sha256": "ee02ff299146b0ed8387fda1da820a8ed7c9612fc4a5946ed921e5c0dca715d9"
+  },
+  "live_deployment": {
+    "filter_chain_enabled": true,
+    "filter_chain_active": true,
+    "volume_sync_enabled": true,
+    "volume_sync_active": true,
+    "monitor_link_enabled": true,
+    "monitor_link_active": true,
+    "default_sink": "effect_input.sp11_ubig",
+    "bypass_present_but_not_default": true,
+    "saved_profile": "Custom",
+    "saved_custom_eq": [
+      138,
+      125,
+      78,
+      40,
+      26,
+      0,
+      0,
+      -11,
+      13,
+      40,
+      70,
+      82,
+      80,
+      101,
+      93,
+      96,
+      0,
+      0,
+      0,
+      0
+    ],
+    "request_ack_after_restore": "3/3",
+    "last_error": 0
+  },
+  "v18_volume_fallback": {
+    "exact_endpoint_mute": "ENODEV",
+    "exact_volume_transaction": "ENODEV",
+    "policy": "ENODEV-only sticky host/hardware fallback; unknown failures remain fail-closed",
+    "fallback_classification_messages_per_session": 2,
+    "hardware_sink_muted_after_fallback": false
+  },
+  "post_fix_acoustic_smoke": {
+    "stimulus_hz": 997,
+    "mic_channel_0_prominence_db": 48.71,
+    "mic_channel_1_prominence_db": 49.63
+  },
+  "tests": {
+    "ubig_control_app_pytest": "8 passed",
+    "windows_volume_transaction_sync_pytest": "40 combined relevant tests passed",
+    "candidate_profile_matrix": "PASS",
+    "ubig_make_check": "PASS"
+  }
+}

@@ -59,3 +59,36 @@ def test_debian_package_tracks_only_userspace_controller():
     assert "ubig-sp11-candidate.so" not in build
     assert "gir1.2-gtk-4.0" in control
     assert "dpkg-deb --build --root-owner-group" in build
+
+
+def test_engine_live_flag(tmp_path):
+    path = tmp_path / "ubig-control-v2"
+    with mod.ControlPage(path) as control:
+        assert not control.snapshot().engine_live
+        control.mapping[mod.ENGINE_FLAGS_OFF:mod.ENGINE_FLAGS_OFF + 4] = (mod.ENGINE_LIVE).to_bytes(4, "little")
+        assert control.snapshot().engine_live
+
+
+def test_profile_dropdown_is_immediate_apply():
+    gui = (ROOT / "ubig" / "app" / "ubig_geq.py").read_text()
+    assert 'notify::selected' in gui
+    assert 'on_profile_selected' in gui
+    assert 'Apply profile' not in gui
+    assert 'Music and Game are equivalent in the SP11 Windows stereo policy' in gui
+
+
+def test_restore_without_saved_state_is_noop(tmp_path, monkeypatch, capsys):
+    state = tmp_path / "missing.json"
+    monkeypatch.setattr(mod, "default_state_path", lambda: state)
+    gui_spec = importlib.util.spec_from_file_location("ubig_geq_restore_test", ROOT / "ubig" / "app" / "ubig_geq.py")
+    # The GUI module requires GI, so validate the source policy without importing GTK.
+    text = (ROOT / "ubig" / "app" / "ubig_geq.py").read_text()
+    assert 'if not state_path.exists()' in text
+    assert 'keeping engine startup profile' in text
+
+def test_debian_package_installs_restore_autostart():
+    build = (ROOT / "packaging" / "debian" / "build-control-deb.sh").read_text()
+    restore = ROOT / "packaging" / "debian" / "io.github.geocausa.UbiG.Restore.desktop"
+    assert restore.exists()
+    assert '/etc/xdg/autostart' in build
+    assert '--restore' in restore.read_text()

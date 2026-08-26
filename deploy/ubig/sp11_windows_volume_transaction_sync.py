@@ -28,6 +28,7 @@ control and the dispatcher automatically runs the established host actuator.
 from __future__ import annotations
 
 import argparse
+import errno
 import hashlib
 import importlib.util
 import json
@@ -87,6 +88,14 @@ DEFAULT_DELTA_TABLE = (
     if ROOT is not None
     else Path.home() / ".local/share/sp11-audio/sp11-gainstep-runtime-deltas.json"
 )
+class EndpointMuteUnavailable(RuntimeError):
+    """Exact DSP endpoint-mute actuator is absent for this live graph."""
+
+
+class TransactionUnavailable(RuntimeError):
+    """Exact DSP volume transaction target is absent for this live graph."""
+
+
 Q28_ONE = 1 << 28
 SND_SOC_TLV_HDR = 2 * 4
 STEREO_GAIN_WORDS = 2 * 4
@@ -220,7 +229,10 @@ def write_transaction(left_q28: int, delta: bytes, *, helper: Path, card: str,
     )
     if cp.returncode:
         output = (cp.stdout + cp.stderr).strip()
-        raise RuntimeError(output or f"tlv_write rc={cp.returncode}")
+        error = output or f"tlv_write rc={cp.returncode}"
+        if cp.returncode == errno.ENODEV or "No such device" in error or "rc=-19" in error:
+            raise TransactionUnavailable(error)
+        raise RuntimeError(error)
 
 
 def write_volume_only(left_q28: int, right_q28: int, *, helper: Path,
@@ -239,7 +251,10 @@ def write_volume_only(left_q28: int, right_q28: int, *, helper: Path,
     )
     if cp.returncode:
         output = (cp.stdout + cp.stderr).strip()
-        raise RuntimeError(output or f"volume-only tlv_write rc={cp.returncode}")
+        error = output or f"volume-only tlv_write rc={cp.returncode}"
+        if cp.returncode == errno.ENODEV or "No such device" in error or "rc=-19" in error:
+            raise TransactionUnavailable(error)
+        raise RuntimeError(error)
 
 
 def write_endpoint_mute(muted: bool, *, helper: Path, card: str,
@@ -255,7 +270,10 @@ def write_endpoint_mute(muted: bool, *, helper: Path, card: str,
     )
     if cp.returncode:
         output = (cp.stdout + cp.stderr).strip()
-        raise RuntimeError(output or f"endpoint mute tlv_write rc={cp.returncode}")
+        error = output or f"endpoint mute tlv_write rc={cp.returncode}"
+        if cp.returncode == errno.ENODEV or "No such device" in error or "rc=-19" in error:
+            raise EndpointMuteUnavailable(error)
+        raise RuntimeError(error)
 
 
 def restore_host_attenuation(state: tuple[float, bool], hardware_id: int,
@@ -501,6 +519,8 @@ def run(args: argparse.Namespace) -> int:
     last_dsp_mute: bool | None = None
     last_host: tuple[int, int, bool] | None = None
     transaction_active = False
+    mute_unavailable = False
+    transaction_unavailable = False
     rx_gain_active = False
     current_state: tuple[float, bool] | None = None
     current_node_id: int | None = None
@@ -510,6 +530,7 @@ def run(args: argparse.Namespace) -> int:
 
     def reconcile(state: tuple[float, bool], hardware_id: int) -> None:
         nonlocal last, last_host, last_dsp_mute, transaction_active
+        nonlocal mute_unavailable, transaction_unavailable
         nonlocal rx_gain_active, current_state, current_hardware_id
         current_state = state
         current_hardware_id = hardware_id
@@ -546,6 +567,16 @@ def run(args: argparse.Namespace) -> int:
             return
 
         pipewire_gain, muted = state
+        if transaction_unavailable:
+            _ui, _db, postgain, host_scalar = base.derive_windows_state(
+                pipewire_gain, muted
+            )
+            host_signature = (postgain, round(host_scalar * 1_000_000_000), muted)
+            if host_signature != last_host:
+                last_host = restore_host_attenuation(state, hardware_id, args.wpctl)
+            transaction_active = False
+            last_dsp_mute = None
+            return
         _ui, endpoint_db, _postgain, _host = base.derive_windows_state(
             pipewire_gain, muted
         )
@@ -553,8 +584,9 @@ def run(args: argparse.Namespace) -> int:
         step = msiir.select_ckv_step_q28(q28)
         signature = (q28, step)
 
+        hardware_mute_fallback = mute_numid is None or mute_unavailable
         mute_changed = last_dsp_mute is None or muted != last_dsp_mute
-        if mute_numid is not None and mute_changed:
+        if mute_numid is not None and not mute_unavailable and mute_changed:
             try:
                 write_endpoint_mute(
                     muted, helper=args.tlv_write, card=args.card, numid=mute_numid
@@ -571,13 +603,26 @@ def run(args: argparse.Namespace) -> int:
                     f"endpoint_dsp_mute={'1' if muted else '0'} hardware_backstop="
                     "fail-closed-only", flush=True
                 )
+            except EndpointMuteUnavailable as exc:
+                # ENODEV proves this graph has no usable exact-mute target; the
+                # write did not reach a DSP endpoint. Keep the hidden sink muted
+                # until the gain transaction below succeeds, then use the proven
+                # downstream mute actuator for this reconciliation.
+                base.set_hardware_mute(hardware_id, True, args.wpctl)
+                last_dsp_mute = None
+                mute_unavailable = True
+                hardware_mute_fallback = True
+                print(
+                    f"endpoint DSP mute unavailable; using hardware fallback: {exc}",
+                    file=sys.stderr,
+                    flush=True,
+                )
             except RuntimeError as exc:
                 _ui, _db, _postgain, host_scalar = base.derive_windows_state(
                     pipewire_gain, muted
                 )
                 base.set_hardware_volume(hardware_id, host_scalar, args.wpctl)
-                # A failed DSP unmute must fail closed instead of exposing audio
-                # whose graph mute state is unknown.
+                # Unknown exact-mute failures remain fail-closed.
                 base.set_hardware_mute(hardware_id, True, args.wpctl)
                 transaction_active = False
                 last_dsp_mute = None
@@ -587,11 +632,15 @@ def run(args: argparse.Namespace) -> int:
                     flush=True,
                 )
                 return
-        elif mute_numid is None:
+        elif mute_numid is None or mute_unavailable:
             # Rollback kernels retain the proven downstream-only mute actuator.
-            base.set_hardware_mute(hardware_id, muted, args.wpctl)
+            # Apply unmute only after the gain path below is established.
+            if muted:
+                base.set_hardware_mute(hardware_id, True, args.wpctl)
 
         if transaction_active and signature == last:
+            if hardware_mute_fallback:
+                base.set_hardware_mute(hardware_id, muted, args.wpctl)
             return
         try:
             last = apply_transaction(
@@ -616,8 +665,20 @@ def run(args: argparse.Namespace) -> int:
                         f"WSA RX 0 dB parity write failed; keeping Golden baseline: {exc}",
                         file=sys.stderr, flush=True,
                     )
+            if hardware_mute_fallback:
+                base.set_hardware_mute(hardware_id, muted, args.wpctl)
             last_host = None
             transaction_active = True
+        except TransactionUnavailable as exc:
+            transaction_unavailable = True
+            last_host = restore_host_attenuation(state, hardware_id, args.wpctl)
+            transaction_active = False
+            last_dsp_mute = None
+            print(
+                f"transaction unavailable; using host attenuation fallback: {exc}",
+                file=sys.stderr,
+                flush=True,
+            )
         except RuntimeError as exc:
             last_host = restore_host_attenuation(state, hardware_id, args.wpctl)
             transaction_active = False
@@ -638,7 +699,7 @@ def run(args: argparse.Namespace) -> int:
 
     def adopt_recreated_node(node_id: int | None, hardware_id: int | None) -> bool:
         """Return True when a replacement node was restored and reconciled."""
-        nonlocal current_node_id
+        nonlocal current_node_id, mute_unavailable, transaction_unavailable
         if node_id is None:
             return False
         if current_node_id is None:
@@ -653,6 +714,8 @@ def run(args: argparse.Namespace) -> int:
         # is authoritative across object recreation and is restored first.
         restore_visible_control_state(current_state, node_id, args.wpctl)
         current_node_id = node_id
+        mute_unavailable = False
+        transaction_unavailable = False
         target_hardware = hardware_id or current_hardware_id
         if target_hardware is not None:
             reconcile(current_state, target_hardware)

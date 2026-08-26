@@ -15,6 +15,7 @@ from ubig_control import (
     BAND_FREQUENCIES,
     ControlPage,
     PROFILE_CUSTOM,
+    default_state_path,
     PROFILE_NAMES,
     db_to_raw,
     load_saved_state,
@@ -37,6 +38,7 @@ class UbigWindow(Gtk.ApplicationWindow):
         self.control = ControlPage(create=True)
         snapshot = self.control.snapshot()
         self.pending_generation: int | None = None
+        self.programmatic_profile_change = False
 
         outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
         outer.set_margin_top(18)
@@ -63,11 +65,14 @@ class UbigWindow(Gtk.ApplicationWindow):
         self.profile = Gtk.DropDown.new_from_strings(PROFILE_NAMES)
         desired = snapshot.desired_profile if snapshot.desired_profile < len(PROFILE_NAMES) else 0
         self.profile.set_selected(desired)
+        self.profile.connect("notify::selected", self.on_profile_selected)
         controls.append(self.profile)
 
-        apply_profile = Gtk.Button(label="Apply profile")
-        apply_profile.connect("clicked", self.on_apply_profile)
-        controls.append(apply_profile)
+        profile_hint = Gtk.Label(label="Profile changes apply immediately · Music and Game are equivalent in the SP11 Windows stereo policy")
+        profile_hint.add_css_class("caption")
+        profile_hint.set_wrap(True)
+        profile_hint.set_xalign(0)
+        outer.append(profile_hint)
 
         flat = Gtk.Button(label="Flat")
         flat.connect("clicked", self.on_flat)
@@ -126,6 +131,15 @@ class UbigWindow(Gtk.ApplicationWindow):
         active = PROFILE_NAMES[snapshot.active_profile] if snapshot.active_profile < len(PROFILE_NAMES) else "Unknown"
         if snapshot.last_error:
             self.status.set_text(f"Engine rejected the last request: {snapshot.last_error}")
+        elif not snapshot.engine_live:
+            if snapshot.request_pending:
+                self.status.set_text(
+                    f"UbiG engine idle/offline; generation {snapshot.request_generation} is queued for the next UbiG stream."
+                )
+            else:
+                self.status.set_text(
+                    "UbiG engine idle/offline. If the transparent bypass is selected, switch the default output back to SP11 UbiG."
+                )
         elif snapshot.request_pending:
             self.status.set_text(
                 f"Queued generation {snapshot.request_generation}; engine acknowledged {snapshot.ack_generation}."
@@ -143,10 +157,19 @@ class UbigWindow(Gtk.ApplicationWindow):
             self.status.set_text(f"Control page unavailable: {error}")
         return GLib.SOURCE_CONTINUE
 
-    def on_apply_profile(self, _button: Gtk.Button) -> None:
+    def set_profile_selection(self, profile: int) -> None:
+        self.programmatic_profile_change = True
+        try:
+            self.profile.set_selected(profile)
+        finally:
+            self.programmatic_profile_change = False
+
+    def on_profile_selected(self, _dropdown: Gtk.DropDown, _pspec) -> None:
+        if self.programmatic_profile_change:
+            return
         selected = int(self.profile.get_selected())
         if selected == PROFILE_CUSTOM:
-            self.on_apply_eq(_button)
+            self.on_apply_eq(None)
             return
         self.pending_generation = self.control.request_profile(selected)
         save_state(selected, self.current_eq())
@@ -155,7 +178,7 @@ class UbigWindow(Gtk.ApplicationWindow):
     def on_apply_eq(self, _button: Gtk.Button) -> None:
         values = self.current_eq()
         self.pending_generation = self.control.request_custom_eq(values)
-        self.profile.set_selected(PROFILE_CUSTOM)
+        self.set_profile_selection(PROFILE_CUSTOM)
         save_state(PROFILE_CUSTOM, values)
         self.update_status()
 
@@ -169,7 +192,7 @@ class UbigWindow(Gtk.ApplicationWindow):
             profile, values = load_saved_state()
             for scale, raw in zip(self.scales, values):
                 scale.set_value(raw_to_db(raw))
-            self.profile.set_selected(profile)
+            self.set_profile_selection(profile)
             if profile == PROFILE_CUSTOM:
                 self.pending_generation = self.control.request_custom_eq(values)
             else:
@@ -198,7 +221,11 @@ class UbigApplication(Gtk.Application):
 
 
 def restore_saved() -> int:
-    profile, values = load_saved_state()
+    state_path = default_state_path()
+    if not state_path.exists():
+        print("no saved UbiG state; keeping engine startup profile")
+        return 0
+    profile, values = load_saved_state(state_path)
     with ControlPage(create=True) as control:
         if profile == PROFILE_CUSTOM:
             generation = control.request_custom_eq(values)

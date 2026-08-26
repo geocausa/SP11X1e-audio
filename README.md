@@ -81,9 +81,16 @@ See [`deploy/golden-v33/`](deploy/golden-v33/),
 ## UbiG production output
 
 UbiG is the source-owned native SP11 userspace speaker engine. It provides the
-accepted 48-kHz stereo Stage A/Stage B behavior, seven profiles, Custom/20-band
-GEQ, endpoint postgain, and realtime control without redistributing proprietary
-Windows DSP binaries.
+accepted 48-kHz stereo Stage A/Stage B behavior, seven Windows profile identities,
+Custom/20-band GEQ, endpoint postgain, and realtime control without redistributing
+proprietary Windows DSP binaries. `ubig-control` **0.1.3** applies profile changes
+immediately from the GTK drop-down, reports whether a live UbiG consumer exists,
+and restores the saved per-user profile/Custom curve at GNOME login.
+
+The final two-channel Windows speaker policy intentionally makes **Music and Game
+bit-identical** after stereo-virtualizer bypass. The production regression therefore
+requires six distinct stereo outputs with Music/Game as the one evidence-backed
+alias; it does not invent artificial tuning to make those two labels sound different.
 
 Canonical runtime identities include:
 

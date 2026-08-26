@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Restore UbiG audio profile
+Comment=Restore the saved UbiG profile and Custom EQ for this desktop session
+Exec=/usr/bin/ubig-geq --restore
+NoDisplay=true
+Terminal=false
+X-GNOME-Autostart-enabled=true
+OnlyShowIn=GNOME;

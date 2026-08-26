@@ -1,8 +1,46 @@
-# UbiG status — 2026-08-24
+# UbiG status — 2026-08-26
 
 Branch: `ubig/deblob-main`
 Workspace: `/home/geoca/Documents/SP11-PROJECT/03-UbiG`
 Production integration baseline: Golden v33; Golden v32 retained as rollback
+
+## Profile-control / production-route hardening — 2026-08-26
+
+A final operator check found two user-visible issues after Native Audio v18 promotion:
+profile selection in the GTK app required a separate **Apply profile** click, and the
+running desktop had been left on `effect_input.sp11_ubig_bypass` by a diagnostic
+mic/parity session while the dedicated `filter-chain.service` remained masked. The
+control mmap therefore accepted profile writes even though no audible UbiG instance
+was consuming them.
+
+`ubig-control` **0.1.3** fixes that boundary. Drop-down selection now applies
+immediately, the existing `engine_flags` word exposes a live UbiG consumer to the GUI,
+the GUI reports idle/offline/bypass instead of claiming an applied profile, and GNOME
+autostart runs `ubig-geq --restore` only when a saved state actually exists. The
+production installer now explicitly unmasks/enables `filter-chain.service`, the UbiG
+volume-sync and monitor-link services, and refuses promotion if the transparent bypass
+remains the persisted default sink.
+
+The strengthened candidate gate renders all seven fixed profiles from identical
+history and enforces the final Windows stereo contract: Dynamic, Movie, Voice,
+Course, Custom and the Music/Game class are distinct; **Music and Game are intentionally
+bit-identical** under the validated two-channel stereo-virtualizer-bypass policy. The
+same Music/Game equality is reproduced by the preserved original Windows-code bridge,
+so no artificial Linux-only distinction is introduced.
+
+A reboot gate on Native Audio v18 confirmed `ubig-control 0.1.3`, enabled/active real
+UbiG services, default `effect_input.sp11_ubig`, and automatic restoration of the
+saved Custom curve. An additional v18 compatibility issue was found in the optional
+exact DSP volume/mute controls: they are present but return `ENODEV` on this combined
+graph. The synchronizer now treats **only ENODEV** as actuator absence, falls back to
+the previously proven hidden-sink/host attenuation path after gain is safely
+established, and makes that fallback sticky until UbiG node recreation. Unknown
+transaction errors remain fail-closed. This reduced repeated ENODEV logging from
+hundreds of messages/minute to one mute + one transaction classification per graph
+session. Post-fix acoustic smoke through the real default UbiG sink returned 997 Hz
+at **48.71 dB / 49.63 dB prominence** on the two internal-mic channels.
+
+Reviewed gate: `artifacts/reviewed/2026-08-26-ubig-control-v013-live-gate.json`.
 
 ## Promoted production state — 2026-08-24
 

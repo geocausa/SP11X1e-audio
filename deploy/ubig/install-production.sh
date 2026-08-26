@@ -68,6 +68,16 @@ Environment=UBIG_CONTROL_PATH=$RUNTIME_DIR/ubig-control-v2
 MemoryDenyWriteExecute=yes
 EOD
 
+# A diagnostic mic/parity session may deliberately mask the dedicated filter
+# host and leave only the transparent bypass. A production install must retire
+# that mask explicitly; otherwise the controller can update a valid mmap page
+# with no DSP consumer behind it.
+[[ -f /usr/lib/systemd/user/filter-chain.service || -f /lib/systemd/user/filter-chain.service ]] || {
+  echo 'system filter-chain.service is missing' >&2; exit 6;
+}
+systemctl --user unmask filter-chain.service >/dev/null
+systemctl --user enable filter-chain.service sp11-ubig-volume-sync.service sp11-ubig-monitor-link.service >/dev/null
+
 # Retire candidate-only overrides only after the production files exist.
 rm -f "$UNITDIR/filter-chain.service.d/zz-ubig-candidate.conf"
 rm -f "$UNITDIR/sp11-ubig-volume-sync.service.d/zz-ubig-candidate.conf"
@@ -84,6 +94,10 @@ NEW_ID=$(pw-dump | python3 -c 'import sys,json;d=json.load(sys.stdin);print(next
 wpctl set-volume "$NEW_ID" "$OLD_VOL"
 wpctl set-mute "$NEW_ID" "$OLD_MUTE"
 wpctl set-default "$NEW_ID"
+sleep 1
+DEFAULT_LINE=$(wpctl status -n | awk '/Default Configured Devices:/{p=1;next} p && /Audio\/Sink/{print;exit}')
+grep -q 'effect_input.sp11_ubig' <<<"$DEFAULT_LINE" || { echo "UbiG was not persisted as default: $DEFAULT_LINE" >&2; exit 25; }
+grep -q 'effect_input.sp11_ubig_bypass' <<<"$DEFAULT_LINE" && { echo 'transparent bypass remained default after production install' >&2; exit 26; }
 PID=$(systemctl --user show filter-chain.service -p MainPID --value)
 MAP=$(grep -F "$PLUGIN" "/proc/$PID/maps" || true)
 [[ -n $MAP ]] || { echo 'production UbiG plugin not mapped' >&2; exit 21; }

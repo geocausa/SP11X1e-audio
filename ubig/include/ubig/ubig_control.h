@@ -11,6 +11,7 @@ extern "C" {
 #define UBIG_CONTROL_MAGIC 0x55424947u /* 'UBIG' */
 #define UBIG_CONTROL_ABI_VERSION 2u
 #define UBIG_CONTROL_FLAG_CUSTOM_EQ_VALID (1u << 0)
+#define UBIG_CONTROL_ENGINE_LIVE (1u << 0)
 
 typedef struct ubig_control_page {
     uint32_t magic;

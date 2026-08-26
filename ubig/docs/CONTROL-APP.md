@@ -7,6 +7,8 @@ PipeWire graph and it never restarts audio by itself.
 The GTK4 application exposes:
 
 - Dynamic, Movie, Music, Game, Voice, Course and Custom profiles;
+- immediate profile application when the drop-down selection changes;
+- explicit live/idle engine status so a transparent-bypass state cannot masquerade as an applied preset;
 - the recovered 20-band SP11 GEQ grid;
 - a friendly `-12..+12 dB` scale backed by the engine's exact `-192..+192`
   sixteenth-dB control domain;
@@ -33,3 +35,13 @@ explicit `UBIG_CONTROL_PATH` override used by tests/labs.
 The package is an engine-control deliverable, not a Golden promotion claim.
 Long-run and acoustic gates remain separate evidence for replacing the rollback
 bridge permanently.
+
+
+## SP11 stereo profile note
+
+The final Windows 2-channel speaker policy forces the stereo virtualizer into
+bypass mode. Under that policy **Music and Game intentionally produce identical
+PCM** even though their upstream OEM tuning metadata differs. The application
+keeps both names because they are real Windows profile identities and displays
+that stereo equivalence explicitly. Dynamic, Movie, Voice, Course and Custom
+remain distinct in the production profile-matrix regression.

@@ -3,7 +3,7 @@ set -eu
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 ROOT=$(CDPATH='' cd -- "$SCRIPT_DIR/../.." && pwd)
-VERSION=${1:-0.1.0}
+VERSION=${1:-0.1.3}
 ARCH=$(dpkg --print-architecture)
 DEST=${UBIG_DEB_DEST:-"$ROOT/dist"}
 STAGE=$(mktemp -d)
@@ -18,6 +18,7 @@ mkdir -p "$STAGE/DEBIAN" \
     "$STAGE/usr/bin" \
     "$STAGE/usr/lib/ubig-control" \
     "$STAGE/usr/share/applications" \
+    "$STAGE/etc/xdg/autostart" \
     "$STAGE/usr/share/icons/hicolor/scalable/apps" \
     "$STAGE/usr/share/doc/ubig-control" \
     "$DEST"
@@ -29,6 +30,7 @@ install -m 0755 "$SCRIPT_DIR/ubig-geq" "$STAGE/usr/bin/ubig-geq"
 install -m 0644 "$ROOT/ubig/app/ubig_control.py" "$STAGE/usr/lib/ubig-control/ubig_control.py"
 install -m 0644 "$ROOT/ubig/app/ubig_geq.py" "$STAGE/usr/lib/ubig-control/ubig_geq.py"
 install -m 0644 "$SCRIPT_DIR/io.github.geocausa.UbiG.desktop" "$STAGE/usr/share/applications/io.github.geocausa.UbiG.desktop"
+install -m 0644 "$SCRIPT_DIR/io.github.geocausa.UbiG.Restore.desktop" "$STAGE/etc/xdg/autostart/io.github.geocausa.UbiG.Restore.desktop"
 install -m 0644 "$SCRIPT_DIR/io.github.geocausa.UbiG.svg" "$STAGE/usr/share/icons/hicolor/scalable/apps/io.github.geocausa.UbiG.svg"
 install -m 0644 "$ROOT/ubig/docs/CONTROL-APP.md" "$STAGE/usr/share/doc/ubig-control/README.md"
 strip --strip-unneeded "$STAGE/usr/bin/ubigctl"

@@ -25,7 +25,7 @@ bridge/research provenance and must not be used to name the active Linux sink.
 
 ## Production installation
 
-`install-production.sh` builds and gates the native SP11 plugin, installs it at
+`install-production.sh` builds and gates the native SP11 plugin, explicitly unmasks and enables the dedicated `filter-chain.service` if a diagnostic session left it on bypass, installs it at
 `~/.local/lib/ubig/ubig-sp11.so`, installs the canonical UbiG helpers/services,
 expands the UbiG PipeWire graph, retires candidate-only drop-ins, restarts only
 the dedicated userspace graph and verifies the live mapped plugin is not a
@@ -34,3 +34,10 @@ deleted/stale inode. It never reboots or changes the kernel/GRUB state.
 ```sh
 deploy/ubig/install-production.sh
 ```
+
+
+The production gate includes a seven-profile matrix. It requires six distinct
+stereo outputs and preserves the one evidence-backed Windows alias: Music and
+Game are bit-identical under the SP11 two-channel stereo-virtualizer-bypass
+policy. A successful install also verifies that `effect_input.sp11_ubig`, not
+`effect_input.sp11_ubig_bypass`, is the persisted default sink.

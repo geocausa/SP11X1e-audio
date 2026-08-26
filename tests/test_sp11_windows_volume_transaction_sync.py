@@ -92,6 +92,17 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
 
         self.assertEqual(calls[0][-1], "88db39003f76c700")
 
+    def test_enodev_volume_transaction_is_availability_failure(self):
+        class CP:
+            returncode = 19
+            stdout = ""
+            stderr = "tlv_write rc=-19 (No such device)"
+        with patch.object(sync.subprocess, "run", return_value=CP()):
+            with self.assertRaises(sync.TransactionUnavailable):
+                sync.write_transaction(
+                    1, b"x" * 216, helper=Path("tlv_write"), card="hw:0", numid=33
+                )
+
     def test_wsa_rx_windows_gain_sets_both_named_controls(self):
         calls = []
 
@@ -672,7 +683,34 @@ class WindowsVolumeTransactionSyncTests(unittest.TestCase):
         # mute edge. Hardware mute is reserved for rollback/fail-closed paths.
         self.assertEqual(hardware_mutes, [])
 
-    def test_failed_exact_dsp_unmute_keeps_hardware_muted(self):
+    def test_missing_exact_dsp_unmute_uses_hardware_fallback_after_transaction(self):
+        args = Namespace(
+            delta_table=Path("deltas.json"), card="hw:0", amixer="amixer",
+            tlv_write=Path(__file__), pw_dump="pw-dump", node="virtual",
+            hardware_node="hardware", pcm_status=Path("status"),
+            wpctl="wpctl", control=Path("control"), interval_ms=100, once=True,
+        )
+        hardware_mutes = []
+        with patch.object(sync, "load_deltas", return_value=(b"",) * 30), \
+             patch.object(sync, "find_control_numid", return_value=321), \
+             patch.object(sync, "find_mute_control_numid", return_value=322), \
+             patch.object(sync, "find_volume_only_control_numid", return_value=None), \
+             patch.object(sync, "find_control_values", return_value=288), \
+             patch.object(sync.base, "snapshot", return_value=[]), \
+             patch.object(sync.base, "extract_node_volume", return_value=(0.25 ** 3, False)), \
+             patch.object(sync.base, "extract_node_id", return_value=69), \
+             patch.object(sync, "queue_dolby_postgain_for_generation", return_value=-332), \
+             patch.object(sync.msiir, "graph_running", return_value=True), \
+             patch.object(sync, "write_endpoint_mute",
+                          side_effect=sync.EndpointMuteUnavailable("No such device")), \
+             patch.object(sync.base, "set_hardware_mute",
+                          side_effect=lambda _id, muted, _wp: hardware_mutes.append(muted)), \
+             patch.object(sync, "apply_transaction", return_value=(123, 4)) as apply_tx:
+            self.assertEqual(sync.run(args), 0)
+        apply_tx.assert_called_once()
+        self.assertEqual(hardware_mutes, [True, False])
+
+    def test_unknown_exact_dsp_unmute_failure_keeps_hardware_muted(self):
         args = Namespace(
             delta_table=Path("deltas.json"), card="hw:0", amixer="amixer",
             tlv_write=Path(__file__), pw_dump="pw-dump", node="virtual",

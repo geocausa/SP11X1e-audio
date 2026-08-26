@@ -20,6 +20,7 @@ EQ_BANDS = 20
 EQ_RAW_MIN = -192
 EQ_RAW_MAX = 192
 CUSTOM_EQ_VALID = 1
+ENGINE_LIVE = 1
 
 PROFILE_NAMES = ("Dynamic", "Movie", "Music", "Game", "Voice", "Course", "Custom")
 PROFILE_CUSTOM = 6
@@ -98,6 +99,10 @@ class ControlSnapshot:
     @property
     def request_pending(self) -> bool:
         return self.request_generation != self.ack_generation
+
+    @property
+    def engine_live(self) -> bool:
+        return bool(self.engine_flags & ENGINE_LIVE)
 
 
 class ControlPage:
