@@ -51,6 +51,16 @@ if [[ ${1:-} == --live ]]; then
     grep -q 'alsa_output.platform-sound.HiFi__Speaker__sink' <<<"$status"
     grep -q 'alsa_input.platform-sound.HiFi__Mic__source' <<<"$status"
     grep -q 'effect_input.sp11_ubig' <<<"$status"
+    pw-dump | python3 -c '
+import json,sys
+d=json.load(sys.stdin)
+props=[o.get("info",{}).get("props",{}) for o in d]
+raw=next((p for p in props if p.get("node.name")=="alsa_output.platform-sound.HiFi__Speaker__sink"),None)
+if raw is None: raise SystemExit("physical speaker backend missing")
+if raw.get("node.hidden") not in (True,"true"): raise SystemExit("physical speaker backend is not hidden")
+if str(raw.get("priority.session")) != "0": raise SystemExit("physical speaker backend priority is not zero")
+if any(p.get("node.name")=="effect_input.sp11_ubig_bypass" for p in props): raise SystemExit("diagnostic bypass unexpectedly active")
+'
 
     if command -v ubigctl >/dev/null 2>&1 && [[ -e $XDG_RUNTIME_DIR/ubig-control-v2 ]]; then
         ctl=$(UBIG_CONTROL_PATH="$XDG_RUNTIME_DIR/ubig-control-v2" ubigctl status)

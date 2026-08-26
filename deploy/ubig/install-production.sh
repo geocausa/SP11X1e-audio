@@ -9,6 +9,9 @@ PLUGIN=$LIBDIR/ubig-sp11.so
 BINDIR=$HOME/.local/bin
 CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 PWCONF=$CONFIG_HOME/pipewire/filter-chain.conf.d/98-sp11-ubig.conf
+WP_POLICY_SRC=$REPO/deploy/wireplumber/98-sp11-production-endpoint-policy.conf
+WP_POLICY=$CONFIG_HOME/wireplumber/wireplumber.conf.d/98-sp11-production-endpoint-policy.conf
+BYPASS_ACTIVE=$CONFIG_HOME/pipewire/pipewire.conf.d/98-sp11-ubig-bypass.conf
 UNITDIR=$CONFIG_HOME/systemd/user
 FILTER_DROPIN=$UNITDIR/filter-chain.service.d/50-ubig-production.conf
 RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
@@ -34,7 +37,11 @@ if [[ -n $OLD_ID ]]; then
   grep -q '\[MUTED\]' <<<"$state" && OLD_MUTE=1 || true
 fi
 
-mkdir -p "$LIBDIR" "$BINDIR" "$(dirname "$PWCONF")" "$UNITDIR" "$(dirname "$FILTER_DROPIN")"
+mkdir -p "$LIBDIR" "$BINDIR" "$(dirname "$PWCONF")" "$(dirname "$WP_POLICY")" "$UNITDIR" "$(dirname "$FILTER_DROPIN")"
+install -m0644 "$WP_POLICY_SRC" "$WP_POLICY"
+# The transparent bypass is retained in the repository as historical/diagnostic
+# evidence only.  Production must never autoload it.
+rm -f "$BYPASS_ACTIVE"
 install -m0755 "$SRC" "$PLUGIN"
 cc -O2 -Wall -Wextra -o "$LIBDIR/tlv_write" "$REPO/tools/tlv_write.c" -lasound
 for f in sp11_volume_sync_dispatch.py sp11_ubig_volume_sync.py sp11_windows_volume_transaction_sync.py sp11_msiir_volume_sync.py sp11_ubig_monitor_link.py; do
@@ -85,12 +92,25 @@ rm -f "$UNITDIR/sp11-msiir-volume-sync.service.d/zz-ubig-candidate.conf"
 
 systemctl --user daemon-reload
 systemctl --user stop sp11-ubig-monitor-link.service sp11-msiir-volume-sync.service sp11-ubig-volume-sync.service filter-chain.service || true
+# PipeWire must be restarted to unload any previously autoloaded bypass module;
+# WirePlumber must be restarted to apply the physical-speaker hidden policy.
+systemctl --user restart pipewire.service pipewire-pulse.service wireplumber.service
 systemctl --user start sp11-ubig-volume-sync.service
 systemctl --user start filter-chain.service
 systemctl --user start sp11-ubig-monitor-link.service sp11-msiir-volume-sync.service
 sleep 3
 NEW_ID=$(pw-dump | python3 -c 'import sys,json;d=json.load(sys.stdin);print(next((o["id"] for o in d if o.get("info",{}).get("props",{}).get("node.name")=="effect_input.sp11_ubig"),""))')
 [[ -n $NEW_ID ]] || { echo 'production UbiG sink missing after restart' >&2; exit 20; }
+pw-dump | python3 -c '
+import json,sys
+d=json.load(sys.stdin)
+props=[o.get("info",{}).get("props",{}) for o in d]
+raw=next((p for p in props if p.get("node.name")=="alsa_output.platform-sound.HiFi__Speaker__sink"),None)
+if raw is None: raise SystemExit("physical speaker backend missing")
+if raw.get("node.hidden") not in (True,"true"): raise SystemExit("physical speaker backend is not hidden")
+if str(raw.get("priority.session")) != "0": raise SystemExit("physical speaker backend priority is not zero")
+if any(p.get("node.name")=="effect_input.sp11_ubig_bypass" for p in props): raise SystemExit("diagnostic bypass is active in production")
+'
 wpctl set-volume "$NEW_ID" "$OLD_VOL"
 wpctl set-mute "$NEW_ID" "$OLD_MUTE"
 wpctl set-default "$NEW_ID"

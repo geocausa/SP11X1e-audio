@@ -111,6 +111,20 @@ FullIO v19c passes simultaneous protected playback + MicArray capture:
 
 This is a runtime-idle acceptance only, not a system suspend/resume test.
 
+## Production desktop endpoint policy
+
+Normal desktop output selection exposes **SP11 UbiG**. The physical ALSA
+`alsa_output.platform-sound.HiFi__Speaker__sink` remains present only as UbiG's
+explicit backend and is marked `node.hidden=true`, `priority.session=0` by the
+tracked WirePlumber rule. The transparent `effect_input.sp11_ubig_bypass` is no
+longer autoloaded or present in the production graph. Its old config is retained
+in the repository solely as an explicit historical/debug utility.
+
+The production installer enforces this policy and the live v19c verifier rejects
+a visible raw backend or an active bypass. A real post-install playback smoke
+confirmed `SP11 UbiG -> hidden ALSA speaker` links, `pcm0p` RUNNING and no new
+runtime audio fault beyond the already accepted one-shot `0x01001006` marker.
+
 ## UbiG production control
 
 The production control ABI is `/run/user/1000/ubig-control-v2`. The old
@@ -188,4 +202,4 @@ Golden rollback remains independently verifiable with
 ## Next target
 
 The tested non-suspend built-in speaker + protection + MicArray + UbiG chain is
-closed. Exact clean kernel/initrd reproduction for the unchanged v18/v19c 0072+0078 module delta is also closed. Remaining work is production hardening: remove global clock/power ignore flags if safe, make diagnostic bypass on-demand, close public owner-pack provenance, clean stale firmware/UCM artifacts, improve top-level test/CI hygiene, and then external Bluetooth/USB/DP audio integration/upstreaming.
+closed. Exact clean kernel/initrd reproduction for the unchanged v18/v19c 0072+0078 module delta is also closed. Remaining work is production hardening: remove global clock/power ignore flags if safe, close public owner-pack provenance, clean stale firmware/UCM artifacts, improve top-level test/CI hygiene, and then external Bluetooth/USB/DP audio integration/upstreaming.

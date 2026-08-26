@@ -14,6 +14,7 @@ owned by a separate dedicated reverse-engineering effort.
 | UbiG v2 engine | **PASS** | filter-chain service stable; no profile-change restart |
 | UbiG .deb profile backend | **PASS** | v2 desired/active ack for Dynamic, Movie, Music, Game, Voice, Course, Custom |
 | UbiG compatibility CLI | **PASS / FIXED** | exact node resolution + v2 control page; no bypass mis-selection |
+| Production desktop endpoint policy | **PASS / FIXED** | GNOME-facing built-in output is UbiG; physical ALSA speaker is hidden internal backend; bypass absent |
 | Custom 20-band EQ | **PASS** | saved non-flat curve preserved and same curve reapplied through v2 |
 | ALSA MicArray PCM | **PASS** | card0/device2 MultiMedia3 Capture |
 | PipeWire MicArray source | **PASS** | Internal microphone array published and records nonzero stereo data |

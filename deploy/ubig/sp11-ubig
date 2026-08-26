@@ -11,8 +11,8 @@ UBIGCTL="${UBIGCTL:-/usr/bin/ubigctl}"
 
 node_id() {
   # Match the complete PipeWire node name.  A substring match for
-  # effect_input.sp11_ubig also selects ..._bypass / ..._engine and used to
-  # make profile changes silently switch the desktop to the bypass sink.
+  # effect_input.sp11_ubig also has the ..._engine sibling; match the
+  # complete node name so profile changes cannot select an internal node.
   wpctl status -n | grep -F " $1 " | grep -vE '^[[:space:]]*0\. Audio/Sink' \
     | head -1 | grep -oE '[0-9]+\.' | head -1 | tr -d '.'
 }
@@ -159,7 +159,6 @@ set_runtime_profile() {
 
 status() {
   D=$(node_id 'effect_input.sp11_ubig' || true)
-  B=$(node_id 'effect_input.sp11_ubig_bypass' || true)
   DEF=$(wpctl status -n | awk '/Default Configured Devices:/{p=1;next} p && /Audio\/Sink/{print $0;exit}')
   WANT=$(current_profile)
   LIVE=$(runtime_profile || true)
@@ -187,7 +186,6 @@ status() {
   printf 'Volume sync: '; systemctl --user is-active sp11-ubig-volume-sync.service 2>/dev/null || true
   echo "Default: ${DEF:-unknown}"
   if [ -n "$D" ]; then printf 'UbiG:   '; wpctl get-volume "$D"; else echo 'UbiG:   unavailable'; fi
-  if [ -n "$B" ]; then printf 'Bypass: '; wpctl get-volume "$B"; else echo 'Bypass: unavailable'; fi
   printf 'UbiG engine: '; systemctl --user is-active filter-chain.service || true
 }
 select_ubig_default() {
@@ -356,12 +354,6 @@ case "${1:-status}" in
     echo "SP11 UbiG ($(current_profile)) is now the default output."
     status
     ;;
-  off|bypass)
-    B=$(node_id 'effect_input.sp11_ubig_bypass')
-    wpctl set-default "$B"
-    echo 'Transparent bypass is now the default output.'
-    status
-    ;;
   restart)
     snapshot_ubig_volume
     systemctl --user reset-failed filter-chain.service 2>/dev/null || true
@@ -373,7 +365,7 @@ case "${1:-status}" in
     status
     ;;
   *)
-    echo 'Usage: sp11-ubig [status|on|off|restart|profile [NAME]|postgain [VALUE]|sync-volume|geq [show|off|set ...]|dynamic|movie|music|game|voice|onlinecourse|personalize]' >&2
+    echo 'Usage: sp11-ubig [status|on|restart|profile [NAME]|postgain [VALUE]|sync-volume|geq [show|off|set ...]|dynamic|movie|music|game|voice|onlinecourse|personalize]' >&2
     exit 2
     ;;
 esac

@@ -146,9 +146,9 @@ The v18 exact-volume parity boundary found by this audit is now **closed by Full
 - [x] No raw MultiMedia4 desktop source is exposed.
 - [x] `filter-chain.service`, UbiG volume sync and monitor-link are enabled and active after reboot.
 - [x] `sp11-msiir-volume-sync.service` is intentionally inactive/success when the combined transaction control is present; this is currently part of the parity gap described above, not a service crash.
-- [ ] **P2 — make the transparent UbiG bypass on-demand instead of permanently auto-loaded.** Today the bypass output and UbiG output are both permanently linked to the hardware speaker sink; the bypass is idle, but accidental selection already caused a real user-visible regression once.
-- [ ] **P2 — production installer should create/enable diagnostic bypass only when explicitly requested, or provide a separate `sp11-ubig bypass-on/off` diagnostic lifecycle.**
-- [ ] **P3 — add a policy regression asserting the persisted default is UbiG after login/reboot and that bypass cannot silently become default.**
+- [x] **Production transparent bypass retired.** `effect_input.sp11_ubig_bypass` is no longer autoloaded or present in the normal graph; the config remains repository-only historical/debug material.
+- [x] **Production installer enforces a single desktop speaker endpoint.** It removes any active bypass config, installs the WirePlumber hidden-backend policy and restarts the user audio graph.
+- [x] **Endpoint policy regression added.** Tests and the live v19c verifier require UbiG as the production sink, hidden raw ALSA backend and no active bypass.
 
 # 10. UbiG DSP engine and profiles
 
@@ -207,7 +207,7 @@ The v18 exact-volume parity boundary found by this audit is now **closed by Full
 - [x] Current installed production UCM files match tracked sources.
 - [ ] **P2 — remove or archive historical topology binaries from `/lib/firmware/qcom/x1e80100/` after copying hashes/evidence to the repo.** Current directory still contains Render-Parity, CPS-Parity, CPS-Headroom, Mic-EP16, VA-Diagnostic v14/v15 and backup files.
 - [ ] **P2 — remove old UCM `.bak-*` files from the live UCM directory after confirming they are preserved in project evidence/history.**
-- [ ] **P2 — retire the permanently loaded `98-sp11-ubig-bypass.conf` from normal production startup once on-demand bypass exists.**
+- [x] **`98-sp11-ubig-bypass.conf` retired from normal production startup.** The live user config is absent; tracked copy is marked diagnostic/historical only.
 - [ ] **P3 — audit remaining active user-systemd symlinks and generated drop-ins after each future promotion so no candidate/masked unit can silently survive into production.**
 - [ ] **P3 — keep historical Dolby/Windows bridge code as provenance only; ensure no production install path can select it.**
 
@@ -274,12 +274,11 @@ The primary v18 volume-path gap is therefore closed. The next work is hardening/
 # Recommended tackle order
 
 1. **P1/P2 — remove `clk_ignore_unused` / `pd_ignore_unused` and revalidate runtime power ownership.**
-2. **P2 — make the transparent bypass on-demand instead of permanently auto-loaded.**
-3. **P2 — close public owner-pack provenance/distribution for UbiG Stage B.**
-4. **P2 — clean stale live firmware/UCM artifacts after preserving evidence hashes.**
-5. **P2 — fix bare `pytest`, add one top-level production check and CI.**
-6. **P2 — build a complete fresh-machine FullIO v19c installer/release manifest.**
-7. **P2/P3 — module-signing hardening, optional SPF timeout cleanup, then external Bluetooth/USB/DP integration and upstreaming.**
+2. **P2 — close public owner-pack provenance/distribution for UbiG Stage B.**
+3. **P2 — clean stale live firmware/UCM artifacts after preserving evidence hashes.**
+4. **P2 — fix bare `pytest`, add one top-level production check and CI.**
+5. **P2 — build a complete fresh-machine FullIO v19c installer/release manifest.**
+6. **P2/P3 — module-signing hardening, optional SPF timeout cleanup, then external Bluetooth/USB/DP integration and upstreaming.**
 
 System suspend/resume is intentionally absent from this order because it belongs to the separate dedicated RE.
 

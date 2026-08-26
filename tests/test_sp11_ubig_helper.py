@@ -16,7 +16,7 @@ def test_helper_uses_production_v2_control_page():
 def test_helper_resolves_exact_ubig_sink_not_prefix_siblings():
     text = HELPER.read_text()
     assert 'grep -F " $1 "' in text
-    assert "effect_input.sp11_ubig_bypass" in text
+    assert "effect_input.sp11_ubig_bypass" not in text
     assert "D=$(node_id 'effect_input.sp11_ubig')" in text
 
 

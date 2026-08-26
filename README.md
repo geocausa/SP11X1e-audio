@@ -20,6 +20,11 @@ engine.
 > System suspend/resume is deliberately outside this release gate and belongs
 > to its separate dedicated RE.
 
+The production desktop output selector exposes only **SP11 UbiG** for the
+built-in speakers. The physical ALSA speaker remains an internal hidden backend;
+the old transparent UbiG bypass is no longer autoloaded and is retained only as
+historical diagnostic material.
+
 Start with [`deploy/native-audio-v19c/`](deploy/native-audio-v19c/),
 [`repro/native-audio-v19c/`](repro/native-audio-v19c/),
 [`deploy/ubig/`](deploy/ubig/), the
@@ -97,9 +102,10 @@ alias; it does not invent artificial tuning to make those two labels sound diffe
 Canonical runtime identities include:
 
 - default/visible processed sink: `effect_input.sp11_ubig`;
-- diagnostic bypass sink: `effect_input.sp11_ubig_bypass`;
-- hardware UCM sink: `Built-in Audio Speaker playback`;
+- hidden internal hardware backend: `Built-in Audio Speaker playback`;
 - hardware UCM source: `Built-in Audio Internal microphone array`;
+- historical diagnostic bypass config: tracked in `deploy/pipewire/`, not active
+  in production;
 - services: `sp11-ubig-volume-sync.service` and
   `sp11-ubig-monitor-link.service`.
 
