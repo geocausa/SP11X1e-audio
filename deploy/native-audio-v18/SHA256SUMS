@@ -1,4 +1,4 @@
-09dcf2832487b1523ab2cdecba4ef9f2335d4e95e1bcd87a2dad41208d20ae0a  /home/geoca/Documents/SP11-PROJECT/01-audio-mic-re-20260825/deploy/native-audio-v18/x1e80100-microsoft-denali-sp11-native-audio-v18.dtb
-80eec87ec387b4d7d8fce381f872fafb1ef3219fc74fc584e56e0b83569a6c07  /home/geoca/Documents/SP11-PROJECT/01-audio-mic-re-20260825/deploy/native-audio-v18/x1e80100-microsoft-denali-sp11-native-audio-v18.dts
-53fb123eaae139093a64bfc6fb6afa09a83cddcbd58e66cf9562561e2ea769a0  /home/geoca/Documents/SP11-PROJECT/01-audio-mic-re-20260825/deploy/native-audio-v18/X1E80100-Microsoft-Surface-Pro-11-VA-TX-AB-v16.conf
-4e00057b8e316c217347bcdee0af0c6d4ff40e8e0f1870d7efeaddc2669ff54e  /home/geoca/Documents/SP11-PROJECT/01-audio-mic-re-20260825/deploy/native-audio-v18/X1E80100-Microsoft-Surface-Pro-11-VA-TX-AB-v16-tplg.bin
+09dcf2832487b1523ab2cdecba4ef9f2335d4e95e1bcd87a2dad41208d20ae0a  x1e80100-microsoft-denali-sp11-native-audio-v18.dtb
+80eec87ec387b4d7d8fce381f872fafb1ef3219fc74fc584e56e0b83569a6c07  x1e80100-microsoft-denali-sp11-native-audio-v18.dts
+53fb123eaae139093a64bfc6fb6afa09a83cddcbd58e66cf9562561e2ea769a0  X1E80100-Microsoft-Surface-Pro-11-VA-TX-AB-v16.conf
+4e00057b8e316c217347bcdee0af0c6d4ff40e8e0f1870d7efeaddc2669ff54e  X1E80100-Microsoft-Surface-Pro-11-VA-TX-AB-v16-tplg.bin

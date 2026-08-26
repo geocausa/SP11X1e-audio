@@ -31,4 +31,6 @@ All three use vermagic `7.1.5-sp11-render-parity-v4+ SMP preempt mod_unload modv
 
 0079/0080 and the later 0081–0086 ladders/endpoint-owner experiments are diagnostic history, not present in the accepted v18 initrd. `deploy/native-audio-v34` is also not the topology used for the accepted parity run.
 
+Verify from a clean clone with `./deploy/native-audio-v18/verify-native-audio-v18.sh`; add `--live` on the deployed SP11.
+
 See `docs/checkpoints/2026-08-26-MICARRAY-NATIVE-V18-WINDOWS-PARITY-ACCEPTANCE.md` and `artifacts/2026-08-26-native-mic-v18-parity/parity-summary.json`.

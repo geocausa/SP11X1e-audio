@@ -1,142 +1,155 @@
-# Surface Pro 11 (X1E) audio for Linux
+# Surface Pro 11 (X1E) native audio for Linux
 
-Evidence-driven Linux built-in-speaker enablement and Windows-parity work for
-the Microsoft Surface Pro 11 with Qualcomm X1E80100 AudioReach, SoundWire,
-dual WSA884x amplifiers, and the native **UbiG** userspace speaker engine.
+Evidence-driven native **speaker output + internal microphone input** for the
+Microsoft Surface Pro 11 with Qualcomm X1E80100 AudioReach, SoundWire, dual
+WSA884x amplifiers, LPASS VA/TX macros, and the source-owned **UbiG** speaker
+engine.
 
-> **Current recommended state — GOLDEN v33 + UbiG (2026-08-24).** The built-in
-> speaker output/protection target is closed at measurement-level Windows parity.
-> Golden v33 keeps the complete Golden-v32 AudioReach/WSA8845/SoundWire,
-> mute/volume/CKV and VI/CPS lifecycle and adds one Windows-proven producer fix:
-> physically materialize WSA `TOP_CFG1=0x03` after each enabled VI pair. This
-> corrects pre-SPVI TAP2 from Linux `I,V,I,V` to native-Windows `V,I,V,I` from
-> the first valid packet while leaving q6apm/SP_VI unmodified.
+> **Current recommended state — Native Audio v18 + UbiG (2026-08-26).**
+> Built-in speaker output/protection and the two-channel internal MicArray are
+> both closed at Windows-parity acceptance and are deployed through normal
+> UCM/WirePlumber/PipeWire desktop nodes.
 >
-> UbiG is the production Linux userspace speaker-DSP identity. The visible sink
-> is `effect_input.sp11_ubig`; active Linux nodes/services no longer use the
-> proprietary Windows vendor name. Historical Windows-oracle material retains
-> vendor identifiers only where needed for provenance.
+> Native Audio v18 keeps the promoted **Golden v33** output/protection stack and
+> adds the Windows-proven microphone deltas: VA DMIC DIV4 selection (patch 0072),
+> TX→VA shared-DMIC DAPM ownership (patch 0078), the TX DMIC backend/DT routes,
+> the accepted combined AudioReach topology, and a UCM `Mic` device.
 >
-> Fresh source-identical quiet-room Windows/Linux program A/B is within roughly
-> **0.1 dB** across useful bands at both 10% and 50%. At 50%, the 10-second
-> interior differs by **+0.027 dB broadband** and **+0.002 dB over 80 Hz–10 kHz**
-> with envelope correlation **0.956**. A 20-cycle true-cold 50% protection soak
-> alternating 160/997 Hz completed with **20 enables, 20 disables, 0 PA faults,
-> 0 `err0=0x20`, and 0 XRUNs**.
+> The retained 30-second Seven Nation Army Windows RAW ↔ Linux v18 acoustic A/B
+> scores **98.27% overall parity**: 98.62/98.44% envelope, 97.58/96.55%
+> frequency-response correlation, and 99.12/99.30% time-frequency correlation.
+> A saved-default post-deploy PipeWire speaker→mic smoke test also passed on both
+> channels, with runtime PM returning VA and TX to suspend after capture.
 
-Start with [`deploy/golden-v33/`](deploy/golden-v33/),
+Start with [`deploy/native-audio-v18/`](deploy/native-audio-v18/),
 [`deploy/ubig/`](deploy/ubig/), the
-[`Golden v33 promotion checkpoint`](docs/checkpoints/2026-08-24-GOLDEN-V33-PROMOTED.md),
+[`Native Audio v18 acceptance checkpoint`](docs/checkpoints/2026-08-26-MICARRAY-NATIVE-V18-WINDOWS-PARITY-ACCEPTANCE.md),
 and the [`CURRENT handoff`](docs/checkpoints/CURRENT-SP11-AUDIO.md).
 
 ## Recommended boot set
 
 | Entry | Role | Status |
 |---|---|---|
-| `sp11-audio-golden-v33-topcfg1-physical-vi` | Daily driver | **Promoted/default** |
-| `sp11-audio-v32-feedback-exact-golden` | Immediate fixed-initrd rollback | **Keep** |
+| `sp11-audio-dmic-broker-div4-v18` | Full native input/output daily driver | **Promoted/default** |
+| `sp11-audio-golden-v33-topcfg1-physical-vi` | Known-good speaker-only rollback | **Keep** |
+| `sp11-audio-v32-feedback-exact-golden` | Fixed-initrd historical rollback | Keep |
 | `sp11-audio-golden-v31` | Historical rollback | Keep |
-| `sp11-audio-golden-v28` | Historical comparison | Keep |
 | `sp11-audio-cps-v3` | Conservative rescue | Keep |
 
-Recent SP_VI/TOP_CFG1 diagnostic candidates are superseded and must not remain
-normal boot targets. In particular, the downstream SP_VI `[2,1,4,3]` experiment
-is rejected: after the producer was corrected it became a double swap and
-reproduced right-amplifier fault/static behavior.
+Golden v33 remains the output/protection base and immediate rollback. Diagnostic
+mic candidates 0079/0080 and the later unpromoted 0081–0086 endpoint/power
+experiments are evidence history, not production runtime.
 
-## Golden v33 in one paragraph
+## Native microphone v18
 
-Golden v33 is Golden v32 plus patch
-[`0072`](patches/0072-ASoC-lpass-wsa-macro-SP11-materialize-Windows-TOP-CFG1.patch).
-Native Windows physically writes WSA macro `TOP_CFG1=0x03` after each enabled VI
-pair; Linux's regmap default did not guarantee that the physical register was
-materialized. The v33 write changes TAP2 itself, before SP_VI, to Windows
-`V,I,V,I`. `snd_q6apm` remains the Golden build (`687B16CF9C43B43E90C0746`).
+The final input root cause had two independent pieces:
 
-The root module tree is synchronized to the same v33 WSA macro as the fixed
-initrd, closing the future-initramfs-regeneration trap. Golden v32 fixed boot
-assets remain untouched rollback.
+1. **VA DMIC divider parity.** Windows uses VA DMIC control `0x3084=0x05`
+   (enable + DIV4). Linux previously used `0x01`, producing one broadband-noise
+   lane. Patch [`0072`](patches/0072-ASoC-lpass-va-macro-SP11-match-Windows-DMIC-divider.patch)
+   derives the selector from the native 19.2 MHz VA MCLK and yields DIV4.
+2. **Shared clock ownership.** The physical DMIC clock is owned by the VA macro
+   even when capture data flows through TX. Patch
+   [`0078`](patches/0078-ASoC-lpass-SP11-share-VA-DMIC-clock-with-TX-capture.patch)
+   makes TX DAPM acquire/release that VA-owned clock natively.
 
-## UbiG production userspace
+The accepted route is `MultiMedia3 → TX_CODEC_DMA_TX_3`, with TX DEC0←DMIC1 and
+DEC1←DMIC0 through `MSM_DMIC`. UCM exposes it as **Built-in Audio Internal
+microphone array** at 48 kHz, stereo, S16_LE. The physical VA/TX clocks and
+`vdd-micb` remain stream/DAPM-driven; they are not permanently pinned on.
 
-UbiG is the source-owned native SP11 userspace speaker engine. Its public
-48-kHz stereo path implements the accepted Stage A/Stage B behavior, seven
-profiles, live Custom/20-band GEQ, endpoint postgain and the realtime control
-page without loading proprietary Windows DSP binaries.
+See [`deploy/native-audio-v18/README.md`](deploy/native-audio-v18/README.md) and
+[`artifacts/2026-08-26-native-mic-v18-parity/parity-summary.json`](artifacts/2026-08-26-native-mic-v18-parity/parity-summary.json).
 
-Canonical active names:
+## Golden v33 output base
 
-- stable plugin: `~/.local/lib/ubig/ubig-sp11.so`
-- stable ALSA TLV helper: `~/.local/lib/ubig/tlv_write`
+Golden v33 is the accepted speaker/protection baseline. It retains the complete
+Golden-v32 AudioReach/WSA8845/SoundWire, mute/volume/CKV and VI/CPS lifecycle and
+adds the Windows-proven physical `TOP_CFG1=0x03` producer write after each enabled
+VI pair. That makes TAP2 native `V,I,V,I` from the first valid packet while
+leaving q6apm/SP_VI unmodified.
 
-- visible/default sink: `effect_input.sp11_ubig`
-- hidden engine: `effect_input.sp11_ubig_engine`
-- engine output: `effect_output.sp11_ubig`
-- diagnostic bypass: `effect_input.sp11_ubig_bypass`
+Source-identical quiet-room Windows/Linux program A/B is within roughly **0.1
+dB** across useful bands at 10% and 50%. A 20-cycle true-cold 50% protection soak
+completed with **20 enables, 20 disables, 0 PA faults, 0 `err0=0x20`, and 0
+XRUNs**.
+
+See [`deploy/golden-v33/`](deploy/golden-v33/),
+[`repro/golden-v33/`](repro/golden-v33/) and the
+[`Golden v33 promotion checkpoint`](docs/checkpoints/2026-08-24-GOLDEN-V33-PROMOTED.md).
+
+## UbiG production output
+
+UbiG is the source-owned native SP11 userspace speaker engine. It provides the
+accepted 48-kHz stereo Stage A/Stage B behavior, seven profiles, Custom/20-band
+GEQ, endpoint postgain, and realtime control without redistributing proprietary
+Windows DSP binaries.
+
+Canonical runtime identities include:
+
+- default/visible processed sink: `effect_input.sp11_ubig`;
+- diagnostic bypass sink: `effect_input.sp11_ubig_bypass`;
+- hardware UCM sink: `Built-in Audio Speaker playback`;
+- hardware UCM source: `Built-in Audio Internal microphone array`;
 - services: `sp11-ubig-volume-sync.service` and
-  `sp11-ubig-monitor-link.service`
+  `sp11-ubig-monitor-link.service`.
 
 See [`ubig/`](ubig/), [`deploy/ubig/`](deploy/ubig/) and
 [`ubig/docs/STATUS.md`](ubig/docs/STATUS.md).
 
 ## Verification
 
-On the deployed SP11:
+Verify the accepted Native Audio v18 bundle from any clean clone:
+
+```bash
+./deploy/native-audio-v18/verify-native-audio-v18.sh
+```
+
+On the deployed SP11, also verify the loaded boot/module/PipeWire identity:
+
+```bash
+./deploy/native-audio-v18/verify-native-audio-v18.sh --live
+```
+
+Golden v33 can still be independently replayed and verified:
 
 ```bash
 sudo ./deploy/golden-v33/verify-golden-v33.sh
-```
-
-For a clean source replay:
-
-```bash
 JOBS=8 ./repro/golden-v33/build-and-verify.sh
 ```
 
-The v33 reproduction first passes the complete v32 clean recipe, then applies
-only patch 0072 and requires the exact v33 source SHA, module srcversions and
-runtime ELF digest.
+## Evidence and safety policy
 
-## Packages / release
-
-The release publishes:
-
-- `ubig-control` — GTK4 UbiG profile / 20-band GEQ control application;
-- `sp11x1e-audio-golden-v33` — hash-pinned v33 WSA root-module hardening,
-  initramfs guard and boot identity verifier.
-
-Neither package redistributes private Windows vendor binaries, ACDB, owner packs
-or firmware.
-
-## Evidence policy
-
-- Bind claims to hashes, addresses, captures or reproducible live observations.
+- Bind claims to hashes, addresses, captures, or reproducible live observations.
 - Prefer native Windows runtime/binary evidence over generic Qualcomm assumptions
   when they disagree on this board.
-- Preserve rejected experiments and corrected conclusions.
+- Preserve rejected experiments and corrected conclusions, but keep them out of
+  promoted runtime manifests.
 - Keep private vendor binaries, ACDB and owner-only tuning payloads out of Git.
 - Every risky kernel experiment gets a rollback-safe boot path.
-- Direct debugger physical WSA MMIO reads are not an accepted method on this
-  machine.
+- Direct debugger physical LPASS/WSA MMIO reads are not an accepted method on
+  this machine; use driver/runtime evidence or safe Linux-side instrumentation.
 
 ## Repository map
 
 | Path | Purpose |
 |---|---|
-| [`deploy/golden-v33/`](deploy/golden-v33/) | Current Golden identity / verifier / hardening |
-| [`repro/golden-v33/`](repro/golden-v33/) | Clean v32→v33 source reproduction |
-| [`deploy/ubig/`](deploy/ubig/) | Production UbiG userspace namespace/helpers |
-| [`ubig/`](ubig/) | Native UbiG DSP engine/control source |
-| [`packaging/debian/`](packaging/debian/) | Debian release builders |
-| [`patches/`](patches/) | Ordered Linux source deltas |
-| [`docs/checkpoints/`](docs/checkpoints/) | Promotion and current-state records |
+| [`deploy/native-audio-v18/`](deploy/native-audio-v18/) | **Current full native input/output release identity** |
+| [`deploy/golden-v33/`](deploy/golden-v33/) | Speaker/protection base + immediate rollback |
+| [`repro/golden-v33/`](repro/golden-v33/) | Clean Golden source reproduction |
+| [`deploy/ucm2/`](deploy/ucm2/) | UCM Speaker + internal MicArray policy |
+| [`deploy/ubig/`](deploy/ubig/) | Production UbiG namespace/helpers |
+| [`ubig/`](ubig/) | Native speaker DSP engine/control source |
+| [`patches/`](patches/) | Ordered Linux source deltas and diagnostic history |
+| [`docs/checkpoints/`](docs/checkpoints/) | Promotion/current-state/evidence records |
 | [`docs/findings/`](docs/findings/) | Evidence-backed technical findings |
-| [`artifacts/reviewed/`](artifacts/reviewed/) | Small reviewed evidence records |
-| [`deploy/golden-v32/`](deploy/golden-v32/) | Immediate fixed-initrd rollback baseline |
+| [`artifacts/2026-08-26-native-mic-v18-parity/`](artifacts/2026-08-26-native-mic-v18-parity/) | Final microphone parity + deployed smoke records |
+| [`deploy/golden-v32/`](deploy/golden-v32/) | Historical fixed-initrd rollback baseline |
 
-## Remaining scope
+## Current scope
 
-The built-in speaker output/protection target is closed. New work should begin
-from Golden v33 + UbiG and be tracked as a separate subsystem target (for
-example microphone/input, suspend/resume or Bluetooth) rather than reopening
-the accepted speaker path without reproducible evidence.
+Built-in speaker output/protection **and** the internal microphone input are
+closed and promoted. Future subsystem work should start from Native Audio v18 +
+UbiG and be tracked separately (for example suspend/resume robustness, Bluetooth,
+headset/USB audio integration, or upstreaming) rather than reopening accepted
+speaker or MicArray behavior without reproducible counter-evidence.
