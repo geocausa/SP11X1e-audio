@@ -51,5 +51,6 @@ Normal GNOME output selection exposes **SP11 UbiG** as the SP11 built-in speaker
 endpoint. The physical `alsa_output.platform-sound.HiFi__Speaker__sink` remains
 fully instantiated because UbiG targets it internally, but
 `deploy/wireplumber/98-sp11-production-endpoint-policy.conf` marks it hidden and
-sets its session priority to zero. The transparent bypass is absent from the
+sets its session priority to zero; a companion WirePlumber Lua policy removes
+read permission to that node from the `pipewire-pulse` bridge only. The transparent bypass is absent from the
 production graph.

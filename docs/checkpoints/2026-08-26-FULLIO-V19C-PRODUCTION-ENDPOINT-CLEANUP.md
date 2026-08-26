@@ -41,3 +41,14 @@ subtests passed**, full UbiG DSP suite PASS, and FullIO topology reproduction
 PASS.
 
 System suspend/resume was not tested and remains outside this audio RE.
+
+## GNOME / Pulse visibility closure
+
+`node.hidden=true` alone is native PipeWire metadata and GNOME 50 still listed
+the physical sink through the PulseAudio compatibility bridge. Production now
+loads `sp11-pulse-hide-hardware.lua`, which removes read permission to only
+`alsa_output.platform-sound.HiFi__Speaker__sink` from the native
+`pipewire-pulse` bridge client. The live permission is `-----`; native
+WirePlumber/UbiG access remains intact. A clean WirePlumber + pipewire-pulse
+restart recreated this permission automatically, and a 997-Hz playback smoke
+reached `pcm0p` RUNNING with no new audio faults. No system reboot is required.

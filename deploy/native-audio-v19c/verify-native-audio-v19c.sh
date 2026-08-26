@@ -61,6 +61,20 @@ if raw.get("node.hidden") not in (True,"true"): raise SystemExit("physical speak
 if str(raw.get("priority.session")) != "0": raise SystemExit("physical speaker backend priority is not zero")
 if any(p.get("node.name")=="effect_input.sp11_ubig_bypass" for p in props): raise SystemExit("diagnostic bypass unexpectedly active")
 '
+    read -r pulse_bridge raw_speaker < <(pw-dump | python3 -c '
+import json,sys
+d=json.load(sys.stdin)
+bridge=raw=None
+for o in d:
+ p=o.get("info",{}).get("props",{})
+ if o.get("type","").endswith(":Client") and p.get("config.name")=="pipewire-pulse.conf" and p.get("application.process.binary")=="pipewire" and not p.get("client.api"):
+  bridge=o.get("id")
+ if p.get("node.name")=="alsa_output.platform-sound.HiFi__Speaker__sink":
+  raw=o.get("id")
+print(bridge or "", raw or "")
+')
+    [[ -n $pulse_bridge && -n $raw_speaker ]] || { echo "pipewire-pulse/raw speaker identity missing" >&2; exit 31; }
+    pw-cli get-permissions "$pulse_bridge" | grep -Eq "^[[:space:]]*$raw_speaker: -----$" || { echo "raw speaker is visible to pipewire-pulse" >&2; exit 32; }
 
     if command -v ubigctl >/dev/null 2>&1 && [[ -e $XDG_RUNTIME_DIR/ubig-control-v2 ]]; then
         ctl=$(UBIG_CONTROL_PATH="$XDG_RUNTIME_DIR/ubig-control-v2" ubigctl status)

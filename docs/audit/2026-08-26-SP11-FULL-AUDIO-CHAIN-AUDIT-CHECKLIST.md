@@ -148,7 +148,7 @@ The v18 exact-volume parity boundary found by this audit is now **closed by Full
 - [x] `sp11-msiir-volume-sync.service` is intentionally inactive/success when the combined transaction control is present; this is currently part of the parity gap described above, not a service crash.
 - [x] **Production transparent bypass retired.** `effect_input.sp11_ubig_bypass` is no longer autoloaded or present in the normal graph; the config remains repository-only historical/debug material.
 - [x] **Production installer enforces a single desktop speaker endpoint.** It removes any active bypass config, installs the WirePlumber hidden-backend policy and restarts the user audio graph.
-- [x] **Endpoint policy regression added.** Tests and the live v19c verifier require UbiG as the production sink, hidden raw ALSA backend and no active bypass.
+- [x] **Endpoint policy regression added.** Tests and the live v19c verifier require UbiG as the production sink, no active bypass, and `-----` read permission for the raw ALSA speaker on the `pipewire-pulse` bridge while native UbiG access remains intact.
 
 # 10. UbiG DSP engine and profiles
 

@@ -116,7 +116,8 @@ This is a runtime-idle acceptance only, not a system suspend/resume test.
 Normal desktop output selection exposes **SP11 UbiG**. The physical ALSA
 `alsa_output.platform-sound.HiFi__Speaker__sink` remains present only as UbiG's
 explicit backend and is marked `node.hidden=true`, `priority.session=0` by the
-tracked WirePlumber rule. The transparent `effect_input.sp11_ubig_bypass` is no
+tracked WirePlumber rule, and the `pipewire-pulse` bridge receives no read
+permission to that node. Native UbiG/WirePlumber access is unchanged. The transparent `effect_input.sp11_ubig_bypass` is no
 longer autoloaded or present in the production graph. Its old config is retained
 in the repository solely as an explicit historical/debug utility.
 

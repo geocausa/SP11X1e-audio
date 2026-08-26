@@ -11,6 +11,10 @@ CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 PWCONF=$CONFIG_HOME/pipewire/filter-chain.conf.d/98-sp11-ubig.conf
 WP_POLICY_SRC=$REPO/deploy/wireplumber/98-sp11-production-endpoint-policy.conf
 WP_POLICY=$CONFIG_HOME/wireplumber/wireplumber.conf.d/98-sp11-production-endpoint-policy.conf
+WP_PULSE_POLICY_SRC=$REPO/deploy/wireplumber/99-sp11-pulse-hide-hardware.conf
+WP_PULSE_POLICY=$CONFIG_HOME/wireplumber/wireplumber.conf.d/99-sp11-pulse-hide-hardware.conf
+WP_PULSE_SCRIPT_SRC=$REPO/deploy/wireplumber/sp11-pulse-hide-hardware.lua
+WP_PULSE_SCRIPT=${XDG_DATA_HOME:-$HOME/.local/share}/wireplumber/scripts/sp11-pulse-hide-hardware.lua
 BYPASS_ACTIVE=$CONFIG_HOME/pipewire/pipewire.conf.d/98-sp11-ubig-bypass.conf
 UNITDIR=$CONFIG_HOME/systemd/user
 FILTER_DROPIN=$UNITDIR/filter-chain.service.d/50-ubig-production.conf
@@ -37,8 +41,10 @@ if [[ -n $OLD_ID ]]; then
   grep -q '\[MUTED\]' <<<"$state" && OLD_MUTE=1 || true
 fi
 
-mkdir -p "$LIBDIR" "$BINDIR" "$(dirname "$PWCONF")" "$(dirname "$WP_POLICY")" "$UNITDIR" "$(dirname "$FILTER_DROPIN")"
+mkdir -p "$LIBDIR" "$BINDIR" "$(dirname "$PWCONF")" "$(dirname "$WP_POLICY")" "$(dirname "$WP_PULSE_SCRIPT")" "$UNITDIR" "$(dirname "$FILTER_DROPIN")"
 install -m0644 "$WP_POLICY_SRC" "$WP_POLICY"
+install -m0644 "$WP_PULSE_POLICY_SRC" "$WP_PULSE_POLICY"
+install -m0644 "$WP_PULSE_SCRIPT_SRC" "$WP_PULSE_SCRIPT"
 # The transparent bypass is retained in the repository as historical/diagnostic
 # evidence only.  Production must never autoload it.
 rm -f "$BYPASS_ACTIVE"
@@ -111,6 +117,19 @@ if raw.get("node.hidden") not in (True,"true"): raise SystemExit("physical speak
 if str(raw.get("priority.session")) != "0": raise SystemExit("physical speaker backend priority is not zero")
 if any(p.get("node.name")=="effect_input.sp11_ubig_bypass" for p in props): raise SystemExit("diagnostic bypass is active in production")
 '
+read -r PULSE_BRIDGE RAW_SPEAKER < <(pw-dump | python3 -c '
+import json,sys
+d=json.load(sys.stdin)
+bridge=raw=None
+for o in d:
+ p=o.get("info",{}).get("props",{})
+ if o.get("type","").endswith(":Client") and p.get("config.name")=="pipewire-pulse.conf" and p.get("application.process.binary")=="pipewire" and not p.get("client.api"):
+  bridge=o.get("id")
+ if p.get("node.name")=="alsa_output.platform-sound.HiFi__Speaker__sink": raw=o.get("id")
+print(bridge or "", raw or "")
+')
+[[ -n $PULSE_BRIDGE && -n $RAW_SPEAKER ]] || { echo 'pipewire-pulse/raw speaker identity missing' >&2; exit 27; }
+pw-cli get-permissions "$PULSE_BRIDGE" | grep -Eq "^[[:space:]]*$RAW_SPEAKER: -----$" || { echo 'physical speaker is visible through pipewire-pulse' >&2; exit 28; }
 wpctl set-volume "$NEW_ID" "$OLD_VOL"
 wpctl set-mute "$NEW_ID" "$OLD_MUTE"
 wpctl set-default "$NEW_ID"
