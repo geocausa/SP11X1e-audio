@@ -365,7 +365,7 @@ class Recipe:
         for name in ['sp11_feedback_active_offset2_zero', 'sp11_cps_pcm_route_105c']:
             require((Path('/sys/module/soundwire_qcom/parameters')/name).read_text().strip() == 'Y', name)
         for name in ['WSA WSA_COMP1 Switch', 'WSA WSA_COMP2 Switch']:
-            require('values=on' in command(['amixer', '-c', '0', 'cget', 'name='+name]), 'compander off: '+name)
+            require('values=on' in command(['amixer', '-D', 'hw:0', 'cget', 'name='+name]), 'compander off: '+name)
         log = command(['journalctl', '-b', '-k', '--no-pager'])
         for marker in ['Oops:', 'BUG:', 'WARNING:', 'Unhandled context fault:',
                        'SPI TX transfer timed out', 'SPI RX transfer timed out',
