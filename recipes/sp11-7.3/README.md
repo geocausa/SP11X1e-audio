@@ -1,7 +1,7 @@
-# SP11 OLED: reproducible 7.3 sound/touch release
+# SP11 OLED: reproducible 7.3 sound/touch/Wi-Fi release
 
-Recipe ID: **sp11-denali-oled-7.3-20261030**. This is the supported installation
-entry point for the tested 7.3 sound/touch composition. The companion touch
+Recipe ID: **sp11-denali-oled-7.3-20261031-wifi**. This is the supported installation
+entry point for the tested 7.3 sound/touch/Wi-Fi composition. The companion touch
 repository uses this same lock and installer. Do not combine the old 7.1
 Phase91 module installer with a 7.3 kernel.
 
@@ -9,7 +9,10 @@ Disconnect external audio devices during qualification; the tested internal
 ALSA card is card 0.
 
 The exact baseline passed two owner-confirmed fresh boots, including startup
-tracing disabled: normal touch and clear first sound after quiet pauses.
+tracing disabled: normal touch and clear first sound after quiet pauses. The Wi-Fi
+repair was loaded on two further boots; a controlled Hub 5 test captured two
+completed live channel switches, no statistics timeouts over 387.6 seconds
+after the final switch, and responsive Resources. The router was restored.
 Camera, microphone and whole-system suspend are not qualified by these tests.
 The microphone should remain muted. The former live parent-controller restart
 diagnostic is not part of this recipe.
@@ -23,15 +26,21 @@ diagnostic is not part of this recipe.
   unqualified before installation; the script does not silently downgrade them.
 - The exact `7.3.0-sp11-unified10` kernel/config/DTB and full module set. The
   name stays unchanged because the repaired GPI module uses that closed ABI.
-  Image source is e8ceea84e; repaired GPI integration is cedc5a624. There are
-  38 integration commits after the pristine 7.3 source snapshot c03c1a145.
+  Image source is e8ceea84e; repaired GPI is cedc5a624 and the accepted
+  Wi-Fi integration is e9e5dd622. There are 39 integration commits after the
+  pristine 7.3 source snapshot c03c1a145.
 
 The lock pins the kernel/DTB/config, **all 8711 modules**, module metadata,
-seven firmware/topology inputs, the six-file UCM include closure,
+ten firmware/topology inputs (including the four-file WCN7850 closure),
+the six-file UCM include closure,
 helpers/control CLI, UBiG engine/private calibration, graph and endpoint policy.
 The SP11 UCM explicitly enables both macro companders before PCM probing.
 The dispatcher waits for late transaction-control registration before choosing
-its actuator. Root modules and the generated initrd must agree.
+its actuator. Root modules and the generated initrd must agree. The ath12k core
+counts only
+initial vdev starts, not channel restarts. `rd.driver.pre=ath12k` loads the correct
+core before switch-root; inclusion alone previously allowed the old root copy
+to load. Actual loaded identities are checked, including both Wi-Fi modules.
 
 This is a **binary-release installation recipe**. It never invokes a compiler,
 `make`, playback, recording, suspend, controller unbind/rebind or reboot.
@@ -48,10 +57,10 @@ configuration. Supply the matching StageB pack; it is not downloaded.
 ```sh
 mkdir -m700 /path/to/private-release
 git --git-dir=/path/to/linux.git archive --format=tar --prefix=linux-sp11/ \
-  cedc5a624a1869df3b313dd4ac0985d2f130ed61 | \
+  e9e5dd622ee88f33fdc7e275963d0cb9e42aa40a | \
   zstd -q -T2 -3 -o /path/to/private-release/kernel-source.tar.zst
 git --git-dir=/path/to/linux.git format-patch --stdout \
-  c03c1a14507dfaf8b856c2608f9ac216021fc222..cedc5a624a1869df3b313dd4ac0985d2f130ed61 \
+  c03c1a14507dfaf8b856c2608f9ac216021fc222..e9e5dd622ee88f33fdc7e275963d0cb9e42aa40a \
   > /path/to/private-release/kernel-integration.mbox
 
 sudo python3 recipes/sp11-7.3/recipe.py export \
@@ -76,7 +85,7 @@ tar --zstd -xf /path/to/private-release/bundle/kernel-source.tar.zst -C source-r
 ```
 
 Offline rehearsal reconstructs its Git tree and checks it against the pinned
-integration tree hash. The mbox contains the 38 ordered changes from the
+integration tree hash. The mbox contains the 39 ordered changes from the
 pristine 7.3 snapshot, including the audio and touch transport fixes.
 
 The bundle binds to a hash of this unit's firmware DMI UUID and carries its
@@ -143,10 +152,15 @@ sudo python3 recipes/sp11-7.3/recipe.py check-live
 ```
 
 The verifier checks installed bytes, actual GPI/entry identity, touch contacts,
-zero targeted kernel/transport faults, both SoundWire flags and both macro
+zero targeted kernel/transport faults, both Wi-Fi module identities, both
+SoundWire flags and both macro
 companders. It never generates sound or records input. Then the owner checks
 both speakers and two first playbacks after separate 20-second quiet pauses.
 Repeat a fresh boot and check again before changing the persistent default.
+For Wi-Fi qualification, capture a completed live AP channel switch while
+associated; a router reboot/reassociation alone does not exercise the original
+statistics defect. Confirm prompt status queries, plausible signal, no new
+firmware-statistics timeout stream and normal data exchange afterwards.
 
 If a gate fails, preserve `journalctl -b -1`, current boot logs and contact
 counters, then use the retained stock/recovery entry. Do not use live parent
@@ -161,3 +175,8 @@ pinned 7.3 kernel. Supporting a newer kernel requires porting/reviewing the
 shared integration, producing a complete matching artifact set and repeating
 boot/contact/cold-audio gates. Neither a successful compile nor a version
 number alone establishes compatibility.
+
+The previous recipe `sp11-denali-oled-7.3-20261030` remains reproducible from its
+older pinned commits and separate private bundle. Its Wi-Fi module predates this
+repair. `wifi-vdev-count.patch` preserves the small upstream-proposed source
+delta; the complete 39-commit integration is in this release's source artifacts.

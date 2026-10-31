@@ -113,6 +113,10 @@ class Recipe:
                 'export only from the accepted ARM64 kernel')
         require(Path('/sys/module/gpi/srcversion').read_text().strip() == self.lock['gpi_srcversion'],
                 'running GPI differs')
+        for name, expected in self.lock['live_module_versions'].items():
+            version = Path('/sys/module')/name/'srcversion'
+            require(version.is_file() and version.read_text().strip() == expected,
+                    'running module differs: '+name)
         arguments = Path('/proc/cmdline').read_text().split()
         private_key = self.lock['private_kernel_arg']+'='
         identity = [arg[len(private_key):] for arg in arguments if arg.startswith(private_key)]
@@ -176,7 +180,7 @@ class Recipe:
         args = [*self.lock['kernel_args'], 'root=UUID='+root_uuid, 'sp11_entry=baseline73',
                 self.lock['private_kernel_arg']+'='+metadata['touch_identity']]
         recipe = ('#!/bin/sh\nexec tail -n +3 "$0"\n'
-                  "menuentry 'Ubuntu SP11 7.3 sound/touch baseline' --id 'sp11-baseline73' {\n"
+                  "menuentry 'Ubuntu SP11 7.3 sound/touch/Wi-Fi baseline' --id 'sp11-baseline73' {\n"
                   ' load_video\n set gfxpayload=keep\n insmod gzio\n insmod part_gpt\n insmod ext2\n insmod fdt\n'
                   ' search --no-floppy --fs-uuid --set=root '+root_uuid+'\n'
                   ' devicetree /boot/sp11-baseline73/x1e80100-microsoft-denali-oled-final.dtb\n'
@@ -398,6 +402,7 @@ class Recipe:
     def check_initrd(self, image):
         with tempfile.TemporaryDirectory(prefix='sp11-initrd-check-') as name:
             root = Path(name)
+            command(['lsinitrd', '--unpackearly', str(image.resolve())], cwd=root)
             command(['lsinitrd', '--unpack', str(image.resolve())], cwd=root)
             prefix = root/'usr/lib/modules'/self.release
             found = {str(path.relative_to(prefix)): sha(path) for path in prefix.rglob('*.ko')}
@@ -405,9 +410,12 @@ class Recipe:
             expected = dict(self.modules)
             for name, digest in found.items():
                 require(expected.get(name) == digest, 'initrd module differs: '+name)
-            for required in ['gpi.ko', 'spi-geni-qcom.ko', 'mshw0485_touch.ko',
+            for required in ['ath12k.ko', 'ath12k_wifi7.ko', 'gpi.ko', 'spi-geni-qcom.ko', 'mshw0485_touch.ko',
                              'snd-soc-lpass-wsa-macro.ko', 'snd-soc-wsa884x.ko', 'snd-q6apm.ko', 'soundwire-qcom.ko']:
                 require(any(Path(name).name == required for name in found), 'initrd lacks '+required)
+            early_load = root/'usr/bin/dracut-pre-udev'
+            require(early_load.is_file() and 'getargs rd.driver.pre' in early_load.read_text(),
+                    'early Wi-Fi preload handler missing')
             for item in self.lock['files']:
                 if item['scope'] == 'system' and item['target'].startswith('lib/firmware/'):
                     require(sha(root/item['target']) == item['sha256'], 'initrd firmware differs')

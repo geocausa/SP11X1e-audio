@@ -1,5 +1,12 @@
 # Current 7.3 recipe checkpoint —2026-10-31
 
+The current shared release is `sp11-denali-oled-7.3-20261031-wifi`, adding the
+accepted ath12k vdev-restart counter correction and explicit early core loading.
+Two completed live channel switches produced no statistics timeout; the owner
+confirmed normal touch, clear cold sound twice and responsive Resources. See
+[the current recipe](../../recipes/sp11-7.3/README.md). This was a Wi-Fi module
+build, with the existing sound/touch kernel and DSP code retained.
+
 The owner accepted sound/touch on two fresh 7.3 boots, including tracing off.
 Use [the shared 7.3 recipe](../../recipes/sp11-7.3/README.md); it includes the
 previously deployed dispatcher login-wait fix, explicit companders, matching

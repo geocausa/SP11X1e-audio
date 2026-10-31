@@ -1,13 +1,15 @@
 # Surface Pro 11 (X1E) native audio for Linux
 
-## Current 7.3 sound/touch installation recipe
+## Current 7.3 sound/touch/Wi-Fi installation recipe
 
 For the tested OLED SP11 on Ubuntu 26.10, start with
 [`recipes/sp11-7.3/`](recipes/sp11-7.3/README.md). It pins one shared audio/touch
 kernel integration and the full firmware/UCM/userspace closure, with a private
 release-bundle exporter, verifier, portable staging and guarded fresh installer.
 It performs no kernel compilation or automatic reboot. Two fresh hardware
-boots passed sound/touch; 7.3 microphone, camera and system suspend remain
+boots passed sound/touch; the Wi-Fi module also passed a controlled live channel
+change with no statistics stall. The recipe includes that repair and early
+module-loading rule. 7.3 microphone, camera and system suspend remain
 unqualified. Other kernels/package versions need separate qualification.
 
 The FullIO 7.1 material below is retained as source/provenance/recovery history;

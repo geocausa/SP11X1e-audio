@@ -1,5 +1,5 @@
 {
-  "recipe_id": "sp11-denali-oled-7.3-20261030",
+  "recipe_id": "sp11-denali-oled-7.3-20261031-wifi",
   "schema": 1,
   "tested_os": {
     "ID": "ubuntu",
@@ -18,12 +18,12 @@
   "release": "7.3.0-sp11-unified10",
   "base_commit": "c03c1a14507dfaf8b856c2608f9ac216021fc222",
   "image_commit": "e8ceea84ec1d914c3fc813f0b0f4c9e8c95b9a7f",
-  "integration_commit": "cedc5a624a1869df3b313dd4ac0985d2f130ed61",
+  "integration_commit": "e9e5dd622ee88f33fdc7e275963d0cb9e42aa40a",
   "gpi_srcversion": "2EEC5D286A1E1770FF353C5",
   "audio_base_commit": "9f8a165118db32cd8caed692d0ade22e72b1d7ac",
   "touch_base_commit": "527e4aed93009851a6c9cf9ba50bb5485801bb6d",
   "module_count": 8711,
-  "module_map_sha256": "351920e25f8ae33d9121a13348227dcd9388713fe9d43ed41931d90e141f8b3b",
+  "module_map_sha256": "8b30833fe35a5833954e82c0ab4f1984ce85ecd54bf0db05143409a0f4b7b406",
   "module_metadata": {
     "modules.builtin.bin": "bf1acc192adf8aa4e986bac2d457dce18da84a2851e75209be45926ca6b544f0",
     "modules.symbols.bin": "1b24d8851a5d4b631cefb2c2f7d619ce33ae68a9424448614dc169f22d4a180b",
@@ -81,14 +81,15 @@
     "mshw0485_touch.parity_heat_input=1",
     "mshw0485_touch.behavior_v2=1",
     "mshw0485_touch.host_fault_recovery=1",
-    "mshw0485_touch.ready_quiesce=1"
+    "mshw0485_touch.ready_quiesce=1",
+    "rd.driver.pre=ath12k"
   ],
   "private_kernel_arg": "mshw0485_touch.parity_report56_identity",
   "files": [
     {
       "key": "kernel/vmlinuz-7.3.0-sp11-unified10",
       "source_scope": "system",
-      "source": "boot/sp11-unified11-gpi-7.3.0-sp11-unified10/vmlinuz-7.3.0-sp11-unified10",
+      "source": "boot/sp11-wifi73-vdev-count-7.3.0-sp11-unified10/vmlinuz-7.3.0-sp11-unified10",
       "scope": "boot",
       "target": "vmlinuz-7.3.0-sp11-unified10",
       "sha256": "bbcfd1fc3210894f5281c3c333267a3f0febc10d8bf1e59ca679b7279f56bca3",
@@ -97,7 +98,7 @@
     {
       "key": "kernel/config-7.3.0-sp11-unified10",
       "source_scope": "system",
-      "source": "boot/sp11-unified11-gpi-7.3.0-sp11-unified10/config-7.3.0-sp11-unified10",
+      "source": "boot/sp11-wifi73-vdev-count-7.3.0-sp11-unified10/config-7.3.0-sp11-unified10",
       "scope": "boot",
       "target": "config-7.3.0-sp11-unified10",
       "sha256": "12a340d87e08edb5659ae79a493a5fe980e0638d97a5c4e0317e9023bae5d4ee",
@@ -106,7 +107,7 @@
     {
       "key": "kernel/x1e80100-microsoft-denali-oled-final.dtb",
       "source_scope": "system",
-      "source": "boot/sp11-unified11-gpi-7.3.0-sp11-unified10/x1e80100-microsoft-denali-oled-final.dtb",
+      "source": "boot/sp11-wifi73-vdev-count-7.3.0-sp11-unified10/x1e80100-microsoft-denali-oled-final.dtb",
       "scope": "boot",
       "target": "x1e80100-microsoft-denali-oled-final.dtb",
       "sha256": "cb91233c8a320617f368f47e28627c3ef6153018385a5cb3db31d66732fc17b5",
@@ -115,7 +116,7 @@
     {
       "key": "kernel/System.map-7.3.0-sp11-unified10",
       "source_scope": "system",
-      "source": "boot/sp11-unified11-gpi-7.3.0-sp11-unified10/System.map-7.3.0-sp11-unified10",
+      "source": "boot/sp11-wifi73-vdev-count-7.3.0-sp11-unified10/System.map-7.3.0-sp11-unified10",
       "scope": "boot",
       "target": "System.map-7.3.0-sp11-unified10",
       "sha256": "9aaae47437649a13e3e3060f656d2539fc24ab233da068043c425ba2a78c60a3",
@@ -410,12 +411,39 @@
       "target": ".local/share/wireplumber/scripts/sp11-pulse-hide-hardware.lua",
       "sha256": "9d20cf1bda9fbf895e3e51ccd313a0bee0f60138d6422b96f9c8afcf833dfeb9",
       "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/ath12k/WCN7850/hw2.0/amss.bin.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/ath12k/WCN7850/hw2.0/amss.bin.zst",
+      "scope": "system",
+      "target": "lib/firmware/ath12k/WCN7850/hw2.0/amss.bin.zst",
+      "sha256": "97e5bec924d53f9f0ce71b16d84e938a7766085a107b9c65ec67c51d57a2f9f8",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/ath12k/WCN7850/hw2.0/m3.bin.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/ath12k/WCN7850/hw2.0/m3.bin.zst",
+      "scope": "system",
+      "target": "lib/firmware/ath12k/WCN7850/hw2.0/m3.bin.zst",
+      "sha256": "7dcd9f66c90d3b0b12795a13b831e0e176dbdca390185f0a6ed571e5b458510a",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/ath12k/WCN7850/hw2.0/board-2.bin.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/ath12k/WCN7850/hw2.0/board-2.bin.zst",
+      "scope": "system",
+      "target": "lib/firmware/ath12k/WCN7850/hw2.0/board-2.bin.zst",
+      "sha256": "967bf1c70eff523be30dd4510920cd202c31cef0352c20dfc5d1d4bdafce29a9",
+      "mode": 420
     }
   ],
-  "firmware_count": 7,
+  "firmware_count": 10,
   "force_drivers": "gpi spi-geni-qcom mshw0485_touch ath12k ath12k_wifi7 hci_uart btqca qcom_q6v5_pas snd-soc-x1e80100 snd-soc-lpass-wsa-macro snd-soc-lpass-va-macro snd-soc-lpass-tx-macro snd-soc-wsa884x soundwire-qcom snd-q6apm",
   "entry": "sp11-baseline73",
-  "qualification": "sound and touch on this OLED SP11 unit; camera microphone and system suspend unqualified",
+  "qualification": "sound, touch and Wi-Fi on this tested OLED unit; two candidate boots, owner cold-audio/touch checks and completed live-CSA statistics test; camera microphone and system suspend unqualified",
   "kernel_build": false,
   "audio_dispatcher_commit": "8cc1d135b3d880f773ccf9cd8e1b12fcd9bb7d59",
   "live_module_versions": {
@@ -425,11 +453,23 @@
     "soundwire_qcom": "1DE249EB40554BEDBF3F7F6",
     "snd_soc_lpass_wsa_macro": "C00E8006C7AC05A38723C08",
     "snd_soc_wsa884x": "424E17A1392CBEC4A81CA50",
-    "snd_q6apm": "21467AFCDE64912831DBE5F"
+    "snd_q6apm": "21467AFCDE64912831DBE5F",
+    "ath12k": "84198F02220DD8199125F4F",
+    "ath12k_wifi7": "52853E0573A36F6005A94DC"
   },
   "source_artifacts": {
-    "kernel-source.tar.zst": "2a0b43e32c9e3af3937c9060d9d120fc05b0e333cc9146157ea0c145999d08e9",
-    "kernel-integration.mbox": "e2ddae254e693b886aa9fe93feced95e115b2e910a66941263a25b9b03d7a1c2"
+    "kernel-source.tar.zst": "10ab0c0ccda5e7cb075cf96ef77e5dba062f9e0ccd44a04de2153c5e3f6eaed2",
+    "kernel-integration.mbox": "b9e6e8f02c7e04b221e0c5d479c910421eab8875ee1e2a4e93eaf2cdeb1fe195"
   },
-  "integration_tree": "69bcf7af6130af195d7bdc0b1519f0e0a59760df"
+  "integration_tree": "3304b75eddf74cfd0711772babb18cccbed67ae0",
+  "previous_recipe_id": "sp11-denali-oled-7.3-20261030",
+  "gpi_integration_commit": "cedc5a624a1869df3b313dd4ac0985d2f130ed61",
+  "integration_commit_count": 39,
+  "wifi_test": {
+    "completed_live_CSA": 2,
+    "post_last_CSA_observation_seconds": 387.6,
+    "statistics_timeouts": 0,
+    "owner_resources": "responds normally",
+    "router_original_settings_restored": true
+  }
 }
