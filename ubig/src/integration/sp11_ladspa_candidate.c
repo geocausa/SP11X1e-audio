@@ -21,9 +21,11 @@
 #include "ubig/ubig_control.h"
 #include "stage_b_rt.h"
 #include "stage_b_leveler.h"
+#include "sp11_audioeng_limiter.h"
 
 
 #define RT_CHUNK_FRAMES 4096U
+#define SP11_CHAIN_DELAY_FRAMES 1776u
 typedef struct { float *pBuffer; uint32_t frames; uint32_t flags; } Conn;
 static uint64_t q(void*p,size_t o){uint64_t v;memcpy(&v,(char*)p+o,8);return v;}
 static uint32_t d(void*p,size_t o){uint32_t v;memcpy(&v,(char*)p+o,4);return v;}
@@ -107,6 +109,8 @@ typedef struct {
     int vr_initialized;
 
     float *buf_a,*buf_b;
+    Sp11AudioEngLimiter audioeng_limiter;
+    uint64_t frames_since_pause_drain;
 } ChainInst;
 
 static ChainProfile chain_profile_from_env(void){
@@ -1501,6 +1505,7 @@ static LADSPA_Handle chain_instantiate(const LADSPA_Descriptor*d,unsigned long r
     ChainInst *p=calloc(1,sizeof(*p));if(!p)return NULL;
     p->profile=chain_profile_from_env();
     p->postgain=0;
+    sp11_audioeng_limiter_init(&p->audioeng_limiter);
     p->last_profile_request=-2;
     p->control.fd=-1;
     if(chain_alloc(p)){chain_free_mem(p);free(p);return NULL;}
@@ -1519,23 +1524,30 @@ fail:
     chain_free_mem(p);free(p);return NULL;
 }
 
+static void chain_run(LADSPA_Handle h,unsigned long n);
+static void chain_drain_delayed_audio(ChainInst *p);
+
 static void chain_connect(LADSPA_Handle h,unsigned long port,LADSPA_Data *d){ChainInst*p=h;if(port<PORT_COUNT)p->ports[port]=d;}
 static void chain_activate(LADSPA_Handle h){
     ChainInst *p=h;
     if(!p)return;
-    /* PipeWire filter-chain calls LADSPA activate() from graph reset when the
-       playback stream enters PAUSED. Windows CApoBase::Reset is a no-op for
-       both shipped VLLDP150 and VR APOs, so rebuilding here incorrectly drops
-       minutes-long adaptive Leveler/regulator history on every idle transition.
-       Instantiation (and service/profile recreation) remains the cold-start
-       boundary. Only recover here if construction was not ready. */
-    if(p->ready)return;
+    /* PipeWire calls LADSPA activate() when the endpoint graph resets/enters
+       PAUSED. Windows APO Reset() is a no-op, so keep the long adaptive state,
+       but consume the measured 1776-frame VR -> VLLDP -> AudioEng latency with
+       zero input and discard that output. This is the physically accepted
+       Golden pause-drain contract and prevents a later notification/client
+       wake from replaying already-rendered media. */
+    if(p->ready){
+        if(p->frames_since_pause_drain)chain_drain_delayed_audio(p);
+        return;
+    }
     p->ready=(p->native_stage_a!=NULL && vr_build(p)==0);
 }
 
 static void chain_run(LADSPA_Handle h,unsigned long n){
     ChainInst*p=h;const float*il=p->ports[0],*ir=p->ports[1];float*ol=p->ports[2],*or=p->ports[3];
     if(!il||!ir||!ol||!or)return;
+    if(n)p->frames_since_pause_drain+=n;
     if(!p->ready){for(unsigned long i=0;i<n;i++){ol[i]=il[i];or[i]=ir[i];}return;}
     (void)chain_apply_control_request(p);
     int requested=chain_profile_code_from_port(p->ports[PORT_PROFILE]);
@@ -1557,11 +1569,34 @@ static void chain_run(LADSPA_Handle h,unsigned long n){
         for(uint32_t i=0;i<take;i++){p->native_stage_a_l[i]=p->buf_b[2*i];p->native_stage_a_r[i]=p->buf_b[2*i+1];}
         if(ubig_engine_process(p->native_stage_a,p->native_stage_a_l,p->native_stage_a_r,p->native_stage_a_l,p->native_stage_a_r,take)!=UBIG_OK){p->ready=0;for(uint32_t i=0;i<take;i++)p->native_stage_a_l[i]=p->native_stage_a_r[i]=0.0f;}
         for(uint32_t i=0;i<take;i++){
+            float limited_l,limited_r;
+            sp11_audioeng_limiter_process_frame(&p->audioeng_limiter,
+                                                 p->native_stage_a_l[i],
+                                                 p->native_stage_a_r[i],
+                                                 &limited_l,&limited_r);
             if(dry){ol[pos+i]=il[pos+i];or[pos+i]=ir[pos+i];}
-            else {ol[pos+i]=p->native_stage_a_l[i];or[pos+i]=p->native_stage_a_r[i];}
+            else {ol[pos+i]=limited_l;or[pos+i]=limited_r;}
         }
         pos+=take;
     }
+}
+
+static void chain_drain_delayed_audio(ChainInst *p){
+    LADSPA_Data *saved[4]={p->ports[0],p->ports[1],p->ports[2],p->ports[3]};
+    float zero[RT_CHUNK_FRAMES]={0};
+    float discard_l[RT_CHUNK_FRAMES],discard_r[RT_CHUNK_FRAMES];
+    uint32_t left=SP11_CHAIN_DELAY_FRAMES;
+
+    p->ports[PORT_IN_L]=zero;p->ports[PORT_IN_R]=zero;
+    p->ports[PORT_OUT_L]=discard_l;p->ports[PORT_OUT_R]=discard_r;
+    while(left){
+        uint32_t take=left>RT_CHUNK_FRAMES?RT_CHUNK_FRAMES:left;
+        chain_run(p,take);
+        left-=take;
+    }
+    p->ports[PORT_IN_L]=saved[0];p->ports[PORT_IN_R]=saved[1];
+    p->ports[PORT_OUT_L]=saved[2];p->ports[PORT_OUT_R]=saved[3];
+    p->frames_since_pause_drain=0;
 }
 
 static void chain_cleanup(LADSPA_Handle h){

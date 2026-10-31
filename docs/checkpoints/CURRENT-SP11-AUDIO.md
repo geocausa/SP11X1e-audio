@@ -1,3 +1,14 @@
+# Current 7.3 recipe checkpoint —2026-10-31
+
+The owner accepted sound/touch on two fresh 7.3 boots, including tracing off.
+Use [the shared 7.3 recipe](../../recipes/sp11-7.3/README.md); it includes the
+previously deployed dispatcher login-wait fix, explicit companders, matching
+kernel/module/initrd identities and private payload requirements. No kernel
+build or live changes were performed while preparing the recipes. Camera,
+microphone and system suspend remain unqualified for this 7.3 integration.
+
+The older FullIO/7.1 checkpoints below retain their original scope.
+
 # CURRENT SP11 AUDIO HANDOFF
 
 **Read this first when resuming the project.**

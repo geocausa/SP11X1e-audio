@@ -163,11 +163,15 @@ int main(int argc,char **argv)
     base+=FRAMES;
 
     if(ubig_control_request_custom_eq(&control_a,eq_a)||ubig_control_request_custom_eq(&control_b,eq_b))return 12;
-    make_input(left,right,FRAMES,base);
-    run_instance(&a,left,right,a_left,a_right,FRAMES);
-    run_instance(&b,left,right,b_left,b_right,FRAMES);
+    size_t changed=0;
+    for(unsigned block=0;block<4u;block++){
+        make_input(left,right,FRAMES,base);
+        run_instance(&a,left,right,a_left,a_right,FRAMES);
+        run_instance(&b,left,right,b_left,b_right,FRAMES);
+        changed+=count_differences(a_left,b_left,FRAMES)+count_differences(a_right,b_right,FRAMES);
+        base+=FRAMES;
+    }
     if(snapshot_matches(&control_a,3,0,UBIG_PROFILE_CUSTOM,0)||snapshot_matches(&control_b,3,0,UBIG_PROFILE_CUSTOM,0))return 13;
-    const size_t changed=count_differences(a_left,b_left,FRAMES)+count_differences(a_right,b_right,FRAMES);
     if(!changed)return 14;
 
     char path_c[128],path_d[128];

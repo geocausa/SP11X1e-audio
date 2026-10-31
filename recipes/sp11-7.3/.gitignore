@@ -1,0 +1,5 @@
+/bundle/
+/exports/
+/staged-root/
+*.bundle
+__pycache__/

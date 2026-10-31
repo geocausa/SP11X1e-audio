@@ -1,11 +1,24 @@
 # Surface Pro 11 (X1E) native audio for Linux
 
+## Current 7.3 sound/touch installation recipe
+
+For the tested OLED SP11 on Ubuntu 26.10, start with
+[`recipes/sp11-7.3/`](recipes/sp11-7.3/README.md). It pins one shared audio/touch
+kernel integration and the full firmware/UCM/userspace closure, with a private
+release-bundle exporter, verifier, portable staging and guarded fresh installer.
+It performs no kernel compilation or automatic reboot. Two fresh hardware
+boots passed sound/touch; 7.3 microphone, camera and system suspend remain
+unqualified. Other kernels/package versions need separate qualification.
+
+The FullIO 7.1 material below is retained as source/provenance/recovery history;
+its microphone acceptance does not automatically transfer to 7.3.
+
 Evidence-driven native **speaker output + internal microphone input** for the
 Microsoft Surface Pro 11 with Qualcomm X1E80100 AudioReach, SoundWire, dual
 WSA884x amplifiers, LPASS VA/TX macros, and the source-owned **UbiG** speaker
 engine.
 
-> **Current recommended state — FullIO v19c + UbiG (2026-08-26).**
+> **Historical7.1 reference — FullIO v19c + UbiG (2026-08-26).**
 > FullIO v19c combines the exact Golden-v33 protected speaker graph with the
 > accepted native two-channel MicArray path. The kernel/initrd and microphone
 > code remain the v18 0072+0078 production delta; the v19c change is the merged
@@ -32,7 +45,7 @@ Start with [`deploy/native-audio-v19c/`](deploy/native-audio-v19c/),
 the [`current v19c audit`](docs/audit/2026-08-26-SP11-NATIVE-AUDIO-FULLIO-V19C-AUDIT.md),
 and the [`CURRENT handoff`](docs/checkpoints/CURRENT-SP11-AUDIO.md).
 
-## Recommended boot set
+## Historical7.1 boot set
 
 | Entry | Role | Status |
 |---|---|---|

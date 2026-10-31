@@ -478,6 +478,17 @@ def event_mentions_node(value: object, node_name: str) -> bool:
     return False
 
 
+def event_removes_node(value: object, node_id: int | None) -> bool:
+    if node_id is None:
+        return False
+    entries = value if isinstance(value, list) else [value]
+    return any(
+        isinstance(entry, dict) and entry.get("id") == node_id
+        and "info" in entry and entry["info"] is None
+        for entry in entries
+    )
+
+
 def run(args: argparse.Namespace) -> int:
     deltas = load_deltas(args.delta_table)
     numid = find_control_numid(args.card, args.amixer)
@@ -525,15 +536,29 @@ def run(args: argparse.Namespace) -> int:
     current_state: tuple[float, bool] | None = None
     current_node_id: int | None = None
     current_hardware_id: int | None = None
+    hardware_seen = False
     node_settle_ms = getattr(args, "node_settle_ms", 0)
     generation_state = getattr(args, "generation_state", default_generation_state())
 
     def reconcile(state: tuple[float, bool], hardware_id: int) -> None:
         nonlocal last, last_host, last_dsp_mute, transaction_active
         nonlocal mute_unavailable, transaction_unavailable
-        nonlocal rx_gain_active, current_state, current_hardware_id
+        nonlocal rx_gain_active, current_state, current_hardware_id, hardware_seen
         current_state = state
-        current_hardware_id = hardware_id
+        if hardware_id != current_hardware_id:
+            # A replacement backend can contain a new DSP graph and starts
+            # with independent host gain. Never reuse the old actuator cache.
+            replacing = hardware_seen
+            hardware_seen = True
+            last = last_host = None
+            last_dsp_mute = None
+            transaction_active = False
+            mute_unavailable = transaction_unavailable = False
+            current_hardware_id = hardware_id
+            if replacing:
+                last_host = restore_host_attenuation(state, hardware_id, args.wpctl)
+                print(f"hardware sink replaced id={hardware_id}; gain state reset",
+                      flush=True)
 
         if current_node_id is not None:
             queue_ubig_postgain_for_generation(
@@ -689,6 +714,22 @@ def run(args: argparse.Namespace) -> int:
                 flush=True,
             )
 
+    def reconcile_available(state: tuple[float, bool], hardware_id: int) -> bool:
+        nonlocal current_hardware_id, last, last_host, last_dsp_mute
+        nonlocal transaction_active
+        try:
+            reconcile(state, hardware_id)
+            return True
+        except subprocess.CalledProcessError as exc:
+            # The object can disappear after lookup but before wpctl.
+            print(f"hardware actuator unavailable id={hardware_id}: {exc}",
+                  file=sys.stderr, flush=True)
+            current_hardware_id = None
+            last = last_host = None
+            last_dsp_mute = None
+            transaction_active = False
+            return False
+
     def settled() -> tuple[tuple[float, bool] | None, int | None, int | None]:
         entries = base.snapshot(args.pw_dump)
         return (
@@ -718,7 +759,7 @@ def run(args: argparse.Namespace) -> int:
         transaction_unavailable = False
         target_hardware = hardware_id or current_hardware_id
         if target_hardware is not None:
-            reconcile(current_state, target_hardware)
+            reconcile_available(current_state, target_hardware)
         return True
 
     if args.once:
@@ -763,7 +804,8 @@ def run(args: argparse.Namespace) -> int:
                         continue
                     state, node_id, hardware_id = state2, node_id2, hardware_id2
                 current_node_id = node_id
-                reconcile(state, hardware_id)
+                if not reconcile_available(state, hardware_id):
+                    continue
                 break
             if time.monotonic() >= deadline:
                 break
@@ -774,6 +816,15 @@ def run(args: argparse.Namespace) -> int:
             if current_state is not None else 0.0
         )
         for value in base.iter_json_stream(proc.stdout.fileno()):
+            removed_hardware = event_removes_node(value, current_hardware_id)
+            if removed_hardware:
+                print(f"hardware sink removed id={current_hardware_id}; waiting",
+                      flush=True)
+                current_hardware_id = None
+                last = last_host = None
+                last_dsp_mute = None
+                transaction_active = False
+                mute_unavailable = transaction_unavailable = False
             event_state = base.extract_node_volume(value, args.node)
             found_node_id = base.extract_node_id(value, args.node)
             found_hardware_id = base.extract_node_id(value, args.hardware_node)
@@ -809,7 +860,12 @@ def run(args: argparse.Namespace) -> int:
                 snap_state, snap_node_id, snap_hardware_id = settled()
                 event_state = snap_state or event_state
                 found_node_id = snap_node_id or found_node_id
-                found_hardware_id = snap_hardware_id or found_hardware_id
+                found_hardware_id = snap_hardware_id
+                if snap_hardware_id is None:
+                    current_hardware_id = None
+                    if event_state is not None:
+                        current_state = event_state
+                    continue
 
                 if adopt_recreated_node(
                     found_node_id, found_hardware_id or current_hardware_id
@@ -825,7 +881,7 @@ def run(args: argparse.Namespace) -> int:
                 continue
             if found_node_id is not None and current_node_id is None:
                 current_node_id = found_node_id
-            reconcile(state, hardware_id)
+            reconcile_available(state, hardware_id)
     finally:
         if proc.poll() is None:
             proc.terminate()

@@ -357,11 +357,16 @@ $(BUILD)/test_sp11_candidate_order: tests/test_sp11_candidate_order.c src/contro
 $(BUILD)/test_sp11_candidate_profile_matrix: tests/test_sp11_candidate_profile_matrix.c src/control/control_page.c | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -ldl -lm -o $@
 
-candidate-control-check: $(BUILD)/ubig-sp11-candidate.so $(BUILD)/test_sp11_candidate_control $(BUILD)/test_sp11_candidate_order $(BUILD)/test_sp11_candidate_profile_matrix
+$(BUILD)/test_sp11_candidate_pause_carry: tests/test_sp11_candidate_pause_carry.c | $(BUILD)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -ldl -lm -o $@
+
+candidate-control-check: $(BUILD)/ubig-sp11-candidate.so $(BUILD)/test_sp11_candidate_control $(BUILD)/test_sp11_candidate_order $(BUILD)/test_sp11_candidate_profile_matrix $(BUILD)/test_sp11_candidate_pause_carry
 	@test -n "$$UBIG_SP11_STAGEB_PACK" || { echo "UBIG_SP11_STAGEB_PACK is required" >&2; exit 2; }
+	cmp -s src/integration/sp11_audioeng_limiter.h ../dolby-port/sp11_audioeng_limiter.h
 	$(BUILD)/test_sp11_candidate_control $(BUILD)/ubig-sp11-candidate.so "$$UBIG_SP11_STAGEB_PACK"
 	$(BUILD)/test_sp11_candidate_order $(BUILD)/ubig-sp11-candidate.so "$$UBIG_SP11_STAGEB_PACK"
 	$(BUILD)/test_sp11_candidate_profile_matrix $(BUILD)/ubig-sp11-candidate.so "$$UBIG_SP11_STAGEB_PACK"
+	$(BUILD)/test_sp11_candidate_pause_carry $(BUILD)/ubig-sp11-candidate.so "$$UBIG_SP11_STAGEB_PACK"
 
 clean:
 	rm -rf $(BUILD)
