@@ -1,0 +1,118 @@
+From 9d97654c4bc0e0c65e8634318ed634735e5e1df7 Mon Sep 17 00:00:00 2001
+From: geoca <geoca@localhost>
+Date: Sun, 1 Nov 2026 10:09:19 +0000
+Subject: [PATCH] ASoC: qcom: remove active graph-calibration diagnostic
+ resends
+
+Preserve the complete Windows-full aggregate and scoped EOPNOTSUPP policy. Return genuine failures without further diagnostic writes to a failed graph. The once-per-boot per-frame replay and error-path probes are diagnostic traffic and are no longer part of the production-minimal candidate.
+---
+ sound/soc/qcom/qdsp6/audioreach.c | 79 +------------------------------
+ 1 file changed, 2 insertions(+), 77 deletions(-)
+
+diff --git a/sound/soc/qcom/qdsp6/audioreach.c b/sound/soc/qcom/qdsp6/audioreach.c
+index ebe240e04..57ed3f0a0 100644
+--- a/sound/soc/qcom/qdsp6/audioreach.c
++++ b/sound/soc/qcom/qdsp6/audioreach.c
+@@ -1231,63 +1231,12 @@ static int audioreach_validate_protection_profile(
+ 	return 0;
+ }
+ 
+-static atomic_t sp11_frame_diag_done = ATOMIC_INIT(0);
+-
+-static void audioreach_diagnose_oob_frames(struct audioreach_graph *graph,
+-					   const u8 *data, size_t size)
+-{
+-	const u8 *cursor = data;
+-	const u8 *end = data + size;
+-	int first_rejected = -1;
+-	unsigned int accepted = 0;
+-	unsigned int rejected = 0;
+-	unsigned int index = 0;
+-
+-	if (atomic_xchg(&sp11_frame_diag_done, 1))
+-		return;
+-
+-	while (cursor < end) {
+-		u32 iid = get_unaligned_le32(cursor);
+-		u32 param_id = get_unaligned_le32(cursor + sizeof(u32));
+-		u32 param_size = get_unaligned_le32(cursor + 2 * sizeof(u32));
+-		size_t frame_size =
+-			ALIGN(sizeof(struct apm_module_param_data) + param_size, 8);
+-		int ret;
+-
+-		ret = q6apm_send_oob_config(graph, cursor, frame_size);
+-		if (ret) {
+-			if (first_rejected < 0)
+-				first_rejected = index;
+-			rejected++;
+-			dev_err(graph->apm->dev,
+-				"SP11 OOB frame %u offset %zu iid 0x%08x param 0x%08x size %u rejected: %d\n",
+-				index, cursor - data, iid, param_id,
+-				param_size, ret);
+-		} else {
+-			accepted++;
+-		}
+-		cursor += frame_size;
+-		index++;
+-	}
+-
+-	pr_info("sp11 graph-cal frame diagnostic: frames=%u accepted=%u rejected=%u first-rejected=%d\n",
+-		index, accepted, rejected, first_rejected);
+-}
+-
+ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ {
+-	const __le32 enable[] = {
+-		cpu_to_le32(0x00004027),
+-		cpu_to_le32(0x08001026),
+-		cpu_to_le32(sizeof(u32)),
+-		0,
+-		cpu_to_le32(1),
+-		0,
+-	};
+ 	struct audioreach_module_priv_data *graph_cal;
+ 	const u8 *cal;
+ 	u32 cal_size;
+-	int ib, ob, tail, ret;
++	int ret;
+ 
+ 	graph_cal = audioreach_find_stage(graph->info,
+ 					 SND_SOC_AR_TPLG_GRAPH_CAL_CFG_TYPE);
+@@ -1314,33 +1263,9 @@ int audioreach_send_protected_graph_calibration(struct audioreach_graph *graph)
+ 		dev_warn(graph->apm->dev,
+ 			 "graph calibration returned AR_EUNSUPPORTED; continuing as Qualcomm GSL does\n");
+ 
+-		/*
+-		 * 2026-07-31 DIAGNOSTIC KERNEL ONLY. Do not merge into a daily kernel.
+-		 *
+-		 * Nothing has ever established whether SPF applies the supported
+-		 * records of this aggregate or discards all of them. The frame walk
+-		 * below answers that, but it is NOT passive: it re-sends each of the
+-		 * ~111 records individually, costing that many extra SET_CFG round
+-		 * trips during graph setup, which could stall bring-up on a slow DSP.
+-		 * Guarded by sp11_frame_diag_done so it runs at most once per boot.
+-		 *
+-		 * Behaviour is otherwise unchanged: ret is still forced to 0 below,
+-		 * exactly as Qualcomm GSL does.
+-		 */
+-		audioreach_diagnose_oob_frames(graph, cal, cal_size);
+-
+ 		ret = 0;
+ 	}
+-	if (ret) {
+-		ib = q6apm_send_inband_config(graph, enable, sizeof(enable));
+-		ob = q6apm_send_oob_config(graph, enable, sizeof(enable));
+-		tail = q6apm_send_oob_config(graph, cal + 24, cal_size - 24);
+-		pr_info("sp11 graph-cal diagnostic: original=%d inband-enable=%d oob-enable=%d aggregate-without-sal-sentinel=%d\n",
+-			ret, ib, ob, tail);
+-		audioreach_diagnose_oob_frames(graph, cal, cal_size);
+-		return ret;
+-	}
+-	return 0;
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(audioreach_send_protected_graph_calibration);
+ 
+-- 
+2.55.0
+

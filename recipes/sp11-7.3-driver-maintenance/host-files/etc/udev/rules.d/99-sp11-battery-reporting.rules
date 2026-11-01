@@ -1,0 +1,7 @@
+# Count the same SP11 battery once, preserving both kernel/charger drivers.
+SUBSYSTEM!="power_supply", GOTO="sp11_battery_reporting_end"
+KERNEL!="qcom-battmgr-bat", GOTO="sp11_battery_reporting_end"
+# Clear only a previous decision owned by this rule before reevaluating it.
+ENV{SP11_DUPLICATE_BATTERY}=="1", ENV{UPOWER_IGNORE}="", ENV{SP11_DUPLICATE_BATTERY}=""
+PROGRAM="/usr/local/libexec/sp11-battery-reporting-guard", RESULT=="surface-battery-authoritative", ENV{UPOWER_IGNORE}="1", ENV{SP11_DUPLICATE_BATTERY}="1"
+LABEL="sp11_battery_reporting_end"

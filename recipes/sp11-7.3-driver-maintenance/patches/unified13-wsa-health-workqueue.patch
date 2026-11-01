@@ -1,0 +1,27 @@
+From a8692454e6d81dffa91b74e28a7f84678e1699b4 Mon Sep 17 00:00:00 2001
+From: geoca <geoca@localhost>
+Date: Sun, 1 Nov 2026 10:09:19 +0000
+Subject: [PATCH] ASoC: wsa884x: use the current per-CPU queue for amplifier
+ monitoring
+
+Match the queue used by schedule_delayed_work when initially arming the health worker. Keep timing, recovery, PM references and synchronous cancellation unchanged.
+---
+ sound/soc/codecs/wsa884x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sound/soc/codecs/wsa884x.c b/sound/soc/codecs/wsa884x.c
+index 98d8a2356..d307c03d7 100644
+--- a/sound/soc/codecs/wsa884x.c
++++ b/sound/soc/codecs/wsa884x.c
+@@ -2253,7 +2253,7 @@ static int wsa884x_spkr_event(struct snd_soc_dapm_widget *w,
+ 						      WSA884X_PDM_WD_CTL_PDM_WD_EN_MASK,
+ 						      0x1);
+ 
+-		mod_delayed_work(system_wq, &wsa884x->pa_health_work,
++		mod_delayed_work(system_percpu_wq, &wsa884x->pa_health_work,
+ 				 msecs_to_jiffies(WSA884X_PA_HEALTH_INTERVAL_MS));
+ 		break;
+ 	case SND_SOC_DAPM_PRE_PMD:
+-- 
+2.55.0
+

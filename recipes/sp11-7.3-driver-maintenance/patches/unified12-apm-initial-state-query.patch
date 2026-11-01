@@ -1,0 +1,15 @@
+--- a/sound/soc/qcom/qdsp6/q6apm.c
++++ b/sound/soc/qcom/qdsp6/q6apm.c
+@@ -2051,7 +2051,11 @@
+ 
+ 	g_apm = apm;
+ 
+-	q6apm_get_apm_state(apm);
++	/*
++	 * The GPR bus installs our reply callback only after probe returns.
++	 * Query readiness via q6apm_is_adsp_ready() once the service is bound;
++	 * a synchronous query here cannot receive its reply.
++	 */
+ 
+ 	ret = snd_soc_register_component(dev, &q6apm_audio_component, NULL, 0);
+ 	if (ret < 0) {

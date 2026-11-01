@@ -1,0 +1,52 @@
+--- a/src/linux/up-enumerator-udev.c
++++ b/src/linux/up-enumerator-udev.c
+@@ -333,6 +333,13 @@
+ 
+ 	g_debug ("uevent subsystem %s", g_udev_device_get_subsystem (device));
+ 
++	/* A policy-selected duplicate must not be exported or aggregated.
++	 * Treat a changed ignore flag like removal; clearing it permits re-add.
++	 */
++	if (g_strcmp0 (g_udev_device_get_subsystem (device), "power_supply") == 0 &&
++	    g_udev_device_get_property_as_boolean (device, "UPOWER_IGNORE"))
++		action = "remove";
++
+ 	/* It appears that we may not always receive an "add" event. As such,
+ 	 * treat "add"/"change" in the same way, by first checking if we have
+ 	 * seen the device.
+--- a/src/linux/integration-test.py
++++ b/src/linux/integration-test.py
+@@ -627,6 +627,33 @@
+             self.get_dbus_dev_property(bat0_up, "State"), UP_DEVICE_STATE_CHARGING
+         )
+ 
++    def test_policy_ignored_duplicate_battery(self):
++        """Ignore only the policy-selected duplicate, including change events."""
++        attrs = ["type", "Battery", "present", "1", "status", "Discharging",
++                 "energy_full", "51250000", "energy_full_design", "51480000",
++                 "energy_now", "40000000", "voltage_now", "8600000"]
++        self.testbed.add_device("power_supply", "BAT1", None, attrs, [])
++        duplicate = self.testbed.add_device("power_supply", "qcom-battmgr-bat",
++                                           None, attrs, ["UPOWER_IGNORE", "1"])
++        self.start_daemon()
++        self.assertEqual(len(self.proxy.EnumerateDevices()), 1)
++        self.assertAlmostEqual(self.get_dbus_display_property("EnergyFull"), 51.25)
++        # Unknown/unselected interfaces continue to work as normal batteries.
++        self.testbed.set_property(duplicate, "UPOWER_IGNORE", "0")
++        self.testbed.uevent(duplicate, "change")
++        deadline = time.monotonic() + 5
++        while len(self.proxy.EnumerateDevices()) != 2 and time.monotonic() < deadline:
++            time.sleep(0.05)
++        self.assertEqual(len(self.proxy.EnumerateDevices()), 2)
++        self.assertAlmostEqual(self.get_dbus_display_property("EnergyFull"), 102.5)
++        self.testbed.set_property(duplicate, "UPOWER_IGNORE", "1")
++        self.testbed.uevent(duplicate, "change")
++        deadline = time.monotonic() + 5
++        while len(self.proxy.EnumerateDevices()) != 1 and time.monotonic() < deadline:
++            time.sleep(0.05)
++        self.assertEqual(len(self.proxy.EnumerateDevices()), 1)
++        self.assertAlmostEqual(self.get_dbus_display_property("EnergyFull"), 51.25)
++
+     def test_battery_ac(self):
+         """properties with dynamic battery/AC"""
+ 

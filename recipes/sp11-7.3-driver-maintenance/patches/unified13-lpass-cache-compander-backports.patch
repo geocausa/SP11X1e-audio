@@ -1,0 +1,112 @@
+From ff4e5f9ba75a0e80986b096c395f81b0607fd9a8 Mon Sep 17 00:00:00 2001
+From: geoca <geoca@localhost>
+Date: Sun, 1 Nov 2026 10:09:19 +0000
+Subject: [PATCH] ASoC: codecs: backport LPASS cache correctness and compander
+ fixes
+
+Backport Srinivas Kandagatla upstream commits 233d36a96009682208cc4ca1139b9e5641a8bf09, 246c785491bb265b9716a512057cee8f1a5a3280, ce7164c89b5c9c9afe12b97ee3fae93250fdf814 and 384bd7cf40530b32e838a38977902de6bc7f4d19. Sort concatenated defaults, select v2.5 Compander1 addresses, and use a sparse maple cache for WSA/RX. The resulting two files are byte-identical to applying the four published patches to unified12. Unrelated TX/VA paths are outside this backport.
+---
+ sound/soc/codecs/lpass-rx-macro.c  |  4 ++-
+ sound/soc/codecs/lpass-wsa-macro.c | 46 ++++++++++++++++++------------
+ 2 files changed, 31 insertions(+), 19 deletions(-)
+
+diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
+index 282a6aaa9..30c7a0a70 100644
+--- a/sound/soc/codecs/lpass-rx-macro.c
++++ b/sound/soc/codecs/lpass-rx-macro.c
+@@ -1673,7 +1673,7 @@ static const struct regmap_config rx_regmap_config = {
+ 	.reg_bits = 16,
+ 	.val_bits = 32, /* 8 but with 32 bit read/write */
+ 	.reg_stride = 4,
+-	.cache_type = REGCACHE_FLAT,
++	.cache_type = REGCACHE_MAPLE,
+ 	.max_register = RX_MAX_OFFSET,
+ 	.writeable_reg = rx_is_writeable_register,
+ 	.volatile_reg = rx_is_volatile_register,
+@@ -3852,6 +3852,8 @@ static int rx_macro_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
++	regcache_sort_defaults(reg_defaults, def_count);
++
+ 	struct regmap_config *reg_config __free(kfree) = kmemdup(&rx_regmap_config,
+ 								 sizeof(*reg_config),
+ 								 GFP_KERNEL);
+diff --git a/sound/soc/codecs/lpass-wsa-macro.c b/sound/soc/codecs/lpass-wsa-macro.c
+index d64f1913e..2aa5ff67a 100644
+--- a/sound/soc/codecs/lpass-wsa-macro.c
++++ b/sound/soc/codecs/lpass-wsa-macro.c
+@@ -1154,7 +1154,7 @@ static const struct regmap_config wsa_regmap_config = {
+ 	.reg_bits = 16,
+ 	.val_bits = 32, /* 8 but with 32 bit read/write */
+ 	.reg_stride = 4,
+-	.cache_type = REGCACHE_FLAT,
++	.cache_type = REGCACHE_MAPLE,
+ 	/* .reg_defaults and .num_reg_defaults set in probe() */
+ 	.max_register = WSA_MAX_OFFSET,
+ 	.writeable_reg = wsa_is_writeable_register,
+@@ -1174,27 +1174,35 @@ static const struct regmap_config wsa_regmap_config = {
+ int wsa_macro_set_spkr_mode(struct snd_soc_component *component, int mode)
+ {
+ 	struct wsa_macro *wsa = snd_soc_component_get_drvdata(component);
++	unsigned int comp1_ctl3, comp1_ctl7;
++	u8 comp_val, boost_val;
+ 
+ 	wsa->spkr_mode = mode;
+ 
+-	switch (mode) {
+-	case WSA_MACRO_SPKR_MODE_1:
+-		snd_soc_component_update_bits(component, CDC_WSA_COMPANDER0_CTL3, 0x80, 0x00);
+-		snd_soc_component_update_bits(component, CDC_WSA_COMPANDER1_CTL3, 0x80, 0x00);
+-		snd_soc_component_update_bits(component, CDC_WSA_COMPANDER0_CTL7, 0x01, 0x00);
+-		snd_soc_component_update_bits(component, CDC_WSA_COMPANDER1_CTL7, 0x01, 0x00);
+-		snd_soc_component_update_bits(component, CDC_WSA_BOOST0_BOOST_CTL, 0x7C, 0x44);
+-		snd_soc_component_update_bits(component, CDC_WSA_BOOST1_BOOST_CTL, 0x7C, 0x44);
+-		break;
+-	default:
+-		snd_soc_component_update_bits(component, CDC_WSA_COMPANDER0_CTL3, 0x80, 0x80);
+-		snd_soc_component_update_bits(component, CDC_WSA_COMPANDER1_CTL3, 0x80, 0x80);
+-		snd_soc_component_update_bits(component, CDC_WSA_COMPANDER0_CTL7, 0x01, 0x01);
+-		snd_soc_component_update_bits(component, CDC_WSA_COMPANDER1_CTL7, 0x01, 0x01);
+-		snd_soc_component_update_bits(component, CDC_WSA_BOOST0_BOOST_CTL, 0x7C, 0x58);
+-		snd_soc_component_update_bits(component, CDC_WSA_BOOST1_BOOST_CTL, 0x7C, 0x58);
+-		break;
++	/* Compander1 CTL3/CTL7 moved on v2.5+ silicon. */
++	if (wsa->codec_version >= LPASS_CODEC_VERSION_2_5) {
++		comp1_ctl3 = CDC_2_5_WSA_COMPANDER1_CTL3;
++		comp1_ctl7 = CDC_2_5_WSA_COMPANDER1_CTL7;
++	} else {
++		comp1_ctl3 = CDC_WSA_COMPANDER1_CTL3;
++		comp1_ctl7 = CDC_WSA_COMPANDER1_CTL7;
+ 	}
++
++	if (mode == WSA_MACRO_SPKR_MODE_1) {
++		comp_val = 0x00;
++		boost_val = 0x44;
++	} else {
++		comp_val = 0x80;
++		boost_val = 0x58;
++	}
++
++	snd_soc_component_update_bits(component, CDC_WSA_COMPANDER0_CTL3, 0x80, comp_val);
++	snd_soc_component_update_bits(component, comp1_ctl3, 0x80, comp_val);
++	snd_soc_component_update_bits(component, CDC_WSA_COMPANDER0_CTL7, 0x01, comp_val ? 0x01 : 0x00);
++	snd_soc_component_update_bits(component, comp1_ctl7, 0x01, comp_val ? 0x01 : 0x00);
++	snd_soc_component_update_bits(component, CDC_WSA_BOOST0_BOOST_CTL, 0x7C, boost_val);
++	snd_soc_component_update_bits(component, CDC_WSA_BOOST1_BOOST_CTL, 0x7C, boost_val);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL(wsa_macro_set_spkr_mode);
+@@ -3015,6 +3023,8 @@ static int wsa_macro_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
++	regcache_sort_defaults(reg_defaults, def_count);
++
+ 	struct regmap_config *reg_config __free(kfree) = kmemdup(&wsa_regmap_config,
+ 								 sizeof(*reg_config),
+ 								 GFP_KERNEL);
+-- 
+2.55.0
+

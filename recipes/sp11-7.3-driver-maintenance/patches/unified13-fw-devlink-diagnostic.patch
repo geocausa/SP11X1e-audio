@@ -1,0 +1,35 @@
+From 3094f120b90e7b2df9ccb326b1193d66bcc217a5 Mon Sep 17 00:00:00 2001
+From: geoca <geoca@localhost>
+Date: Sun, 1 Nov 2026 10:09:19 +0000
+Subject: [PATCH] driver core: distinguish intentional sync-state link skips
+ from errors
+
+Adapt Nicolas F. R. A. Prado proposal 20240624-fwdevlink-probed-no-err-v1-1-d1213cd354e2@collabora.com to the current supplier/consumer diagnostic. device_link_add deliberately refuses sync-state-only links for a consumer which has finished probing. Preserve the return value and all link creation behavior; other failures remain errors. This is a diagnostic classification repair, not a USB or suspend behavior change.
+---
+ drivers/base/core.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index 4c0c37399..c78a35c3e 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -2241,8 +2241,14 @@ static int fw_devlink_create_devlink(struct device *con,
+ 		}
+ 
+ 		if (con != sup_dev && !device_link_add(con, sup_dev, flags)) {
+-			dev_err(con, "Failed to create device link (0x%x) with supplier %s for %pfwf\n",
+-				flags, dev_name(sup_dev), link->consumer);
++			/* Sync-only links are deliberately refused after probe. */
++			if (flags & DL_FLAG_SYNC_STATE_ONLY &&
++			    con->links.status != DL_DEV_NO_DRIVER &&
++			    con->links.status != DL_DEV_PROBING)
++				dev_dbg(con, "Skipping sync-state link for probed device\n");
++			else
++				dev_err(con, "Failed to create device link (0x%x) with supplier %s for %pfwf\n",
++					flags, dev_name(sup_dev), link->consumer);
+ 			ret = -EINVAL;
+ 		}
+ 
+-- 
+2.55.0
+

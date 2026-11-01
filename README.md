@@ -1,6 +1,13 @@
 # Surface Pro 11 (X1E) native audio for Linux
 
-The current qualified 7.3 host-integration recipe is
+The current qualified unified13 recipe is
+[`recipes/sp11-7.3-driver-maintenance/`](recipes/sp11-7.3-driver-maintenance/README.md).
+It preserves the accepted sound/touch/Wi-Fi/host fixes and adds codec-cache,
+calibration-diagnostic and speaker-health maintenance, with an explicit
+target-release installer check. Two identical-kernel boots passed owner touch
+and twice-cold sound checks. Earlier locked recipes remain recovery choices.
+
+The previous qualified 7.3 host-integration recipe is
 [`recipes/sp11-7.3-host-integration/`](recipes/sp11-7.3-host-integration/README.md).
 It includes the repeated sound/touch checks, full AppArmor compatibility,
 early firmware/kmod fixes and single-battery reporting. The older recipe below

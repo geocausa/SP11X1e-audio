@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+"""Choose the Surface report only when both same-unit battery interfaces agree."""
+from pathlib import Path
+
+def authoritative_surface(root=Path('/sys')):
+    def read(path):
+        return (root/path).read_text().strip()
+    try:
+        if read(Path('class/dmi/id/sys_vendor')) != 'Microsoft Corporation':return False
+        if read(Path('class/dmi/id/product_name')) != 'Microsoft Surface Pro, 11th Edition':return False
+        supplies=Path('class/power_supply');surface=supplies/'BAT1';qcom=supplies/'qcom-battmgr-bat'
+        for device in [surface,qcom]:
+            if read(device/'type')!='Battery' or read(device/'present')!='1':return False
+        if read(qcom/'manufacturer')!='Qualcomm' or read(qcom/'model_name')!='QCOMMBATT01':return False
+        if (root/surface/'device/driver').resolve().name!='surface_battery':return False
+        if (root/qcom/'device/driver').resolve().name!='qcom_battmgr.pmic_glink_power_supply':return False
+        design=[int(read(x/'energy_full_design')) for x in [surface,qcom]]
+        full=[int(read(x/'energy_full')) for x in [surface,qcom]]
+        if min(design+full)<=0 or design[0]!=design[1]:return False
+        if abs(full[0]-full[1])>max(full)*0.02:return False
+        return True
+    except (OSError,ValueError):
+        return False
+
+if __name__=='__main__':
+    if authoritative_surface():print('surface-battery-authoritative')

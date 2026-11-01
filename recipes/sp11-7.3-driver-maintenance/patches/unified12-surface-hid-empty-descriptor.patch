@@ -1,0 +1,34 @@
+--- a/drivers/hid/surface-hid/surface_hid.c
++++ b/drivers/hid/surface-hid/surface_hid.c
+@@ -75,6 +75,8 @@
+ 	length = buffer_len;
+ 
+ 	while (!slice->end && offset < len) {
++		u32 requested_offset = offset;
++
+ 		put_unaligned_le32(offset, &slice->offset);
+ 		put_unaligned_le32(length, &slice->length);
+ 
+@@ -85,9 +87,22 @@
+ 		if (status)
+ 			return status;
+ 
++		if (rsp.length < sizeof(*slice))
++			return -EPROTO;
++
+ 		offset = get_unaligned_le32(&slice->offset);
+ 		length = get_unaligned_le32(&slice->length);
+ 
++		/* A terminated, empty first reply advertises no descriptor. */
++		if (!requested_offset && !offset && !length && slice->end == 0xff &&
++		    rsp.length == sizeof(*slice))
++			return -ENODEV;
++
++		/* Do not copy beyond the actual reply or retry without progress. */
++		if (length > rsp.length - sizeof(*slice) ||
++		    (!length && !slice->end))
++			return -EPROTO;
++
+ 		/* Don't mess stuff up in case we receive garbage. */
+ 		if (length > buffer_len || offset > len)
+ 			return -EPROTO;
