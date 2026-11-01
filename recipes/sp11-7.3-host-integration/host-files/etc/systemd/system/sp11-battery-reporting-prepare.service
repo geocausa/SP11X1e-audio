@@ -1,0 +1,12 @@
+[Unit]
+Description=Prepare single-pack Surface battery reporting before UPower
+After=systemd-udevd.service
+Before=upower.service
+ConditionPathExists=/sys/class/power_supply/BAT1
+ConditionPathExists=/sys/class/power_supply/qcom-battmgr-bat
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/udevadm trigger --action=change --settle /sys/class/power_supply/qcom-battmgr-bat
+RemainAfterExit=yes
+TimeoutStartSec=15

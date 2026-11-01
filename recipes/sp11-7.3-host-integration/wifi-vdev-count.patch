@@ -1,0 +1,12 @@
+--- a/drivers/net/wireless/ath/ath12k/mac.c
++++ b/drivers/net/wireless/ath/ath12k/mac.c
+@@ -11461,7 +11461,8 @@
+ 						   &arvif->reg_tpc_info);
+ 	}
+ 
+-	ar->num_started_vdevs++;
++	if (!restart)
++		ar->num_started_vdevs++;
+ 	ath12k_dbg(ab, ATH12K_DBG_MAC,  "vdev %pM started, vdev_id %d\n",
+ 		   ahvif->vif->addr, arvif->vdev_id);
+ 

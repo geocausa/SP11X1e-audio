@@ -1,0 +1,756 @@
+{
+  "recipe_id": "sp11-denali-oled-7.3-20261101-host-integration",
+  "schema": 1,
+  "tested_os": {
+    "ID": "ubuntu",
+    "VERSION_ID": "26.10",
+    "architecture": "aarch64"
+  },
+  "tested_packages": {
+    "pipewire": "1.6.8-1ubuntu4",
+    "wireplumber": "0.5.17-1ubuntu1",
+    "alsa-ucm-conf": "1.2.16.1-1ubuntu1",
+    "libasound2t64": "1.2.16.1-1",
+    "pipewire-bin": "1.6.8-1ubuntu4",
+    "dracut": "112-7",
+    "kmod": "34.2-2ubuntu3",
+    "upower": "1.91.3-1",
+    "libupower-glib3": "1.91.3-1"
+  },
+  "release": "7.3.0-sp11-unified12",
+  "base_commit": "c03c1a14507dfaf8b856c2608f9ac216021fc222",
+  "image_commit": "2fa94dc1319aea59e4ce9c0d8a1a4db1b4617ff9",
+  "integration_commit": "2fa94dc1319aea59e4ce9c0d8a1a4db1b4617ff9",
+  "gpi_srcversion": "4B90211B40EA834B58E1D16",
+  "audio_base_commit": "9f8a165118db32cd8caed692d0ade22e72b1d7ac",
+  "touch_base_commit": "527e4aed93009851a6c9cf9ba50bb5485801bb6d",
+  "module_count": 8711,
+  "module_map_sha256": "e3edac103ce5bab89580d315b77592fe980efc8b858d932d83750edc7c986673",
+  "module_metadata": {
+    "modules.alias": "66941326637c946621f6a0e0f87695021b210a4110da0f032dc63e90d879e75e",
+    "modules.alias.bin": "b0c4e0bf2fa7c5d4ea020475d13e65a34376bc7ef343c5965ac4c107498d5873",
+    "modules.builtin": "1ef3d8fdf9668c33ce71e12c38c669e65beb236535adcf81dc8b50cfdb3f3349",
+    "modules.builtin.alias.bin": "d1c171ab337733cedd25ad61d582a7a609f8ef06041483ce6797ef0401b261e4",
+    "modules.builtin.bin": "bf1acc192adf8aa4e986bac2d457dce18da84a2851e75209be45926ca6b544f0",
+    "modules.builtin.modinfo": "f0619284cd90ab1688844347c8a1d89cc5b0a05012954de98131b720398b4cac",
+    "modules.builtin.ranges": "74d5824478d62ca5116019afd832fd86d71f3e9c8e61d02a68c230e82e49222e",
+    "modules.dep": "b3cdb9a842351f4f1932816cf4daf5e62776e429791875efee99c911c13af129",
+    "modules.dep.bin": "f76814678b37cc050c33b16c924f243c9fd96469c13b752c116da523b53efdba",
+    "modules.devname": "44e9a88b399cfc856f0ec7bcf75ca549ce74fff82e8da848dc50180b9a6f612f",
+    "modules.order": "c9c0b316b98ac5cfabc0a898d158822e50b95754e51025129b8d0b784de77b78",
+    "modules.softdep": "f20b1afb4fb9af79fbc55a4e3e2f171a0096ae1608c37444bbcd8e92e9fba9cc",
+    "modules.symbols": "0c879d2c3eef88b5f89e07371b65667b5050e62e1ffffdff660b72abf38b952a",
+    "modules.symbols.bin": "1b24d8851a5d4b631cefb2c2f7d619ce33ae68a9424448614dc169f22d4a180b",
+    "modules.weakdep": "a1fffe1059d8150b5d402b3f284f507025a8d4b5881810cb17b3fda8b8ab9304"
+  },
+  "kernel_args": [
+    "ro",
+    "clk_ignore_unused",
+    "pd_ignore_unused",
+    "cma=128M",
+    "efi=noruntime",
+    "quiet",
+    "splash",
+    "console=tty0",
+    "crashkernel=2G-4G:320M,4G-32G:512M,32G-64G:1024M,64G-128G:2048M,128G-:4096M",
+    "sp11_cps_parity_v2=1",
+    "sp11_cps_v3=1",
+    "sp11_volume_transaction=1",
+    "sp11_softpause=1",
+    "sp11_headroom_link=1",
+    "sp11_wsa_clockstop=1",
+    "sp11_visense_parity=1",
+    "sp11_wsa_windows_init=1",
+    "sp11_wsa_macro0db_oracle=1",
+    "sp11_wsa_winproducer_nohd2_v3=1",
+    "sp11_wsa_csren0_v4=1",
+    "sp11_wsa_csren0_v5_idlegated=1",
+    "sp11_wsa_windows_3state_v26=1",
+    "sp11_wsa_windows_3state_retain_v27=1",
+    "sp11_wsa_dp2_offsetctrl2_v28=1",
+    "soundwire_qcom.sp11_feedback_active_offset2_zero=1",
+    "soundwire_qcom.sp11_cps_pcm_route_105c=1",
+    "mshw0485_touch.windows_init_parity=1",
+    "mshw0485_touch.parity_linux_power=1",
+    "mshw0485_touch.windows_read_cadence=1",
+    "mshw0485_touch.parity_display_bitmap=1",
+    "mshw0485_touch.parity_stitching_flag=0",
+    "mshw0485_touch.parity_hinge_angle=400",
+    "mshw0485_touch.parity_fast_host_id=400",
+    "mshw0485_touch.parity_report56_flag=0",
+    "mshw0485_touch.parity_cfu_inventory=1",
+    "mshw0485_touch.parity_cfu_offer=0x00,0x00,0x12,0x00,0x89,0x14,0x00,0x3f,0xff,0xff,0xff,0xff,0x04,0x04,0x75,0x00",
+    "mshw0485_touch.parity_heat_input=1",
+    "mshw0485_touch.behavior_v2=1",
+    "mshw0485_touch.host_fault_recovery=1",
+    "mshw0485_touch.ready_quiesce=1",
+    "rd.driver.pre=ath12k"
+  ],
+  "private_kernel_arg": "mshw0485_touch.parity_report56_identity",
+  "files": [
+    {
+      "key": "boot/vmlinuz-7.3.0-sp11-unified12",
+      "source_scope": "system",
+      "source": "boot/sp11-unified12-7.3.0-sp11-unified12/vmlinuz-7.3.0-sp11-unified12",
+      "scope": "boot",
+      "target": "vmlinuz-7.3.0-sp11-unified12",
+      "sha256": "840865fab4149780aedfd01034078516fc21066d86d0c1df9ac98f413a75527a",
+      "mode": 420
+    },
+    {
+      "key": "boot/config-7.3.0-sp11-unified12",
+      "source_scope": "system",
+      "source": "boot/sp11-unified12-7.3.0-sp11-unified12/config-7.3.0-sp11-unified12",
+      "scope": "boot",
+      "target": "config-7.3.0-sp11-unified12",
+      "sha256": "9e0402da1e4e789101fa587e0a67ac2de21e4e623f8c8959899e0f316f84a4ec",
+      "mode": 420
+    },
+    {
+      "key": "boot/x1e80100-microsoft-denali-oled-final.dtb",
+      "source_scope": "system",
+      "source": "boot/sp11-unified12-7.3.0-sp11-unified12/x1e80100-microsoft-denali-oled-final.dtb",
+      "scope": "boot",
+      "target": "x1e80100-microsoft-denali-oled-final.dtb",
+      "sha256": "cb91233c8a320617f368f47e28627c3ef6153018385a5cb3db31d66732fc17b5",
+      "mode": 420
+    },
+    {
+      "key": "boot/System.map-7.3.0-sp11-unified12",
+      "source_scope": "system",
+      "source": "boot/sp11-unified12-7.3.0-sp11-unified12/System.map-7.3.0-sp11-unified12",
+      "scope": "boot",
+      "target": "System.map-7.3.0-sp11-unified12",
+      "sha256": "53a16555c7397085c95fbb29a934af12384282341b672d7cc48103c1ee40cd1e",
+      "mode": 420
+    },
+    {
+      "key": "system/usr/share/alsa/ucm2/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11in.conf",
+      "source_scope": "system",
+      "source": "usr/share/alsa/ucm2/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11in.conf",
+      "scope": "system",
+      "target": "usr/share/alsa/ucm2/Qualcomm/x1e80100/MICROSOFT-Surface-Pro-11in.conf",
+      "sha256": "225976f925624f156d9fab84e15a5126a60a236783cfcb82d43d2a2aec028d7b",
+      "mode": 420
+    },
+    {
+      "key": "system/usr/share/alsa/ucm2/Qualcomm/x1e80100/SP11-HiFi.conf",
+      "source_scope": "system",
+      "source": "usr/share/alsa/ucm2/Qualcomm/x1e80100/SP11-HiFi.conf",
+      "scope": "system",
+      "target": "usr/share/alsa/ucm2/Qualcomm/x1e80100/SP11-HiFi.conf",
+      "sha256": "ed8524e86bd9bef11639f99da920fce792eb42898738e1956a2a0745bdd2def6",
+      "mode": 420
+    },
+    {
+      "key": "system/usr/share/alsa/ucm2/lib/card-init.conf",
+      "source_scope": "system",
+      "source": "usr/share/alsa/ucm2/lib/card-init.conf",
+      "scope": "system",
+      "target": "usr/share/alsa/ucm2/lib/card-init.conf",
+      "sha256": "02210e664371c7f8d4bf9c8c1bda69818e3ce3fa78421f97a1881a5488ec74d3",
+      "mode": 420
+    },
+    {
+      "key": "system/usr/share/alsa/ucm2/lib/ctl-remap.conf",
+      "source_scope": "system",
+      "source": "usr/share/alsa/ucm2/lib/ctl-remap.conf",
+      "scope": "system",
+      "target": "usr/share/alsa/ucm2/lib/ctl-remap.conf",
+      "sha256": "41b20c0b94b1241688336adeffc1d4c5d61c52aa3de959f8eaf5f7682cdab6b8",
+      "mode": 420
+    },
+    {
+      "key": "system/usr/share/alsa/ucm2/codecs/wsa884x/two-speakers/init.conf",
+      "source_scope": "system",
+      "source": "usr/share/alsa/ucm2/codecs/wsa884x/two-speakers/init.conf",
+      "scope": "system",
+      "target": "usr/share/alsa/ucm2/codecs/wsa884x/two-speakers/init.conf",
+      "sha256": "31eaa768a920061b0f5d2677aae67fe98bf561c801b88a671d9c220911eb5eff",
+      "mode": 420
+    },
+    {
+      "key": "system/usr/share/alsa/ucm2/codecs/qcom-lpass/wsa-macro/Wsa1SpeakerEnableSeq.conf",
+      "source_scope": "system",
+      "source": "usr/share/alsa/ucm2/codecs/qcom-lpass/wsa-macro/Wsa1SpeakerEnableSeq.conf",
+      "scope": "system",
+      "target": "usr/share/alsa/ucm2/codecs/qcom-lpass/wsa-macro/Wsa1SpeakerEnableSeq.conf",
+      "sha256": "843c4bbb1c2eecb6362d1b8435111c0185620fcedc7c64042b10f44b8d59126e",
+      "mode": 420
+    },
+    {
+      "key": "user/.local/bin/sp11-windows-volume-transaction-sync",
+      "source_scope": "user",
+      "source": ".local/bin/sp11-windows-volume-transaction-sync",
+      "scope": "user",
+      "target": ".local/bin/sp11-windows-volume-transaction-sync",
+      "sha256": "5b224812e990647f6f34a8fbc696c9079ccbfd5d2ba1c8ea4b4dcfe9ab95219d",
+      "mode": 493
+    },
+    {
+      "key": "user/.local/bin/sp11-volume-sync-dispatch",
+      "source_scope": "user",
+      "source": ".local/bin/sp11-volume-sync-dispatch",
+      "scope": "user",
+      "target": ".local/bin/sp11-volume-sync-dispatch",
+      "sha256": "93369d52162f981519b0ac1e85d4b34f057bec6ce41af0911fe9609e844cae4c",
+      "mode": 493
+    },
+    {
+      "key": "user/.local/bin/sp11-ubig-volume-sync",
+      "source_scope": "user",
+      "source": ".local/bin/sp11-ubig-volume-sync",
+      "scope": "user",
+      "target": ".local/bin/sp11-ubig-volume-sync",
+      "sha256": "6979ec08b61218ce1bfdcdeee361fb2ea82c8e44425c3187f3978b5ad9adf559",
+      "mode": 493
+    },
+    {
+      "key": "user/.local/bin/sp11-msiir-volume-sync",
+      "source_scope": "user",
+      "source": ".local/bin/sp11-msiir-volume-sync",
+      "scope": "user",
+      "target": ".local/bin/sp11-msiir-volume-sync",
+      "sha256": "721c80a05b92baa87163d941ab8045cc89f7d067dc641d6eb01e31f6898c6f03",
+      "mode": 493
+    },
+    {
+      "key": "user/.local/bin/sp11-ubig-monitor-link",
+      "source_scope": "user",
+      "source": ".local/bin/sp11-ubig-monitor-link",
+      "scope": "user",
+      "target": ".local/bin/sp11-ubig-monitor-link",
+      "sha256": "309d05b2f345ba5203eceac2715cb3224c1be7e7f5336aae56a744a13d38b404",
+      "mode": 493
+    },
+    {
+      "key": "user/.local/bin/sp11-ubig",
+      "source_scope": "user",
+      "source": ".local/bin/sp11-ubig",
+      "scope": "user",
+      "target": ".local/bin/sp11-ubig",
+      "sha256": "f050a00abe2f6cc5114dfd5800483c567513d10330a27ba56dbe739ee7b78b8a",
+      "mode": 493
+    },
+    {
+      "key": "user/.local/lib/ubig/ubig-sp11.so",
+      "source_scope": "user",
+      "source": ".local/lib/ubig/ubig-sp11.so",
+      "scope": "user",
+      "target": ".local/lib/ubig/ubig-sp11.so",
+      "sha256": "8e83bc0fd24cdce3ffb76a772cf4fe2794707985156e3cfae62a1e8082fa4949",
+      "mode": 493
+    },
+    {
+      "key": "user/.local/lib/ubig/tlv_write",
+      "source_scope": "user",
+      "source": ".local/lib/ubig/tlv_write",
+      "scope": "user",
+      "target": ".local/lib/ubig/tlv_write",
+      "sha256": "096dd9f6e7b8f2a8897fc3148647c7f56d187a21f53c5dfc66d7b614da4e4144",
+      "mode": 493
+    },
+    {
+      "key": "system/usr/bin/ubigctl",
+      "source_scope": "system",
+      "source": "usr/bin/ubigctl",
+      "scope": "system",
+      "target": "usr/bin/ubigctl",
+      "sha256": "a7c45bb6ddd1a80ed9f920531d505c650bbc4f09bc0fd5f1c6c02f2376f71c99",
+      "mode": 493
+    },
+    {
+      "key": "system/usr/lib/ubig-control/ubig_control.py",
+      "source_scope": "system",
+      "source": "usr/lib/ubig-control/ubig_control.py",
+      "scope": "system",
+      "target": "usr/lib/ubig-control/ubig_control.py",
+      "sha256": "59238617c2fc1111f8cc3f85171a1ef0dc19b5838f4d97eca54038d23410fea2",
+      "mode": 420
+    },
+    {
+      "key": "user/.config/systemd/user/sp11-ubig-volume-sync.service",
+      "source_scope": "user",
+      "source": ".config/systemd/user/sp11-ubig-volume-sync.service",
+      "scope": "user",
+      "target": ".config/systemd/user/sp11-ubig-volume-sync.service",
+      "sha256": "8ede67c8f5d2f33dd9eed720604e6340a0b104f219648dbc99b313a935bf5c3e",
+      "mode": 420
+    },
+    {
+      "key": "user/.config/systemd/user/sp11-ubig-monitor-link.service",
+      "source_scope": "user",
+      "source": ".config/systemd/user/sp11-ubig-monitor-link.service",
+      "scope": "user",
+      "target": ".config/systemd/user/sp11-ubig-monitor-link.service",
+      "sha256": "e4bef483939172d8ed4d99d6a20ee981a8f7d2ddde5405cdf0a553fc53bb7d47",
+      "mode": 420
+    },
+    {
+      "key": "templates/50-ubig-production.conf",
+      "source_scope": "recipe",
+      "source": "templates/50-ubig-production.conf",
+      "scope": "user",
+      "target": ".config/systemd/user/filter-chain.service.d/50-ubig-production.conf",
+      "sha256": "9fbba46961a8c9f30d7086bc6d76ad4785c0f014585af8a55cb85e9cb70f2e48",
+      "mode": 420,
+      "template": true
+    },
+    {
+      "key": "templates/98-sp11-ubig.conf",
+      "source_scope": "recipe",
+      "source": "templates/98-sp11-ubig.conf",
+      "scope": "user",
+      "target": ".config/pipewire/filter-chain.conf.d/98-sp11-ubig.conf",
+      "sha256": "880e39d631cb1ea1de7c61ece4548cb307eb06cf3ad1e340a95ce3201c951954",
+      "mode": 420,
+      "template": true
+    },
+    {
+      "key": "user/.local/share/sp11-audio/sp11-gainstep-runtime-deltas.json",
+      "source_scope": "user",
+      "source": ".local/share/sp11-audio/sp11-gainstep-runtime-deltas.json",
+      "scope": "user",
+      "target": ".local/share/sp11-audio/sp11-gainstep-runtime-deltas.json",
+      "sha256": "2077bea085cea94f52853b8524205824ea36ac038522d7b2f93906c84756337e",
+      "mode": 384
+    },
+    {
+      "key": "private/sp11-stageb-v4.pack",
+      "source_scope": "private_pack",
+      "source": "",
+      "scope": "user",
+      "target": ".local/share/ubig-private/sp11-stageb-v4.pack",
+      "sha256": "30b9b8ce8dace4a9f5dee2c2defa7da2d9b8431cf68fb323f8d2c3e4e3c942df",
+      "mode": 384
+    },
+    {
+      "key": "user/.config/wireplumber/wireplumber.conf.d/98-sp11-production-endpoint-policy.conf",
+      "source_scope": "user",
+      "source": ".config/wireplumber/wireplumber.conf.d/98-sp11-production-endpoint-policy.conf",
+      "scope": "user",
+      "target": ".config/wireplumber/wireplumber.conf.d/98-sp11-production-endpoint-policy.conf",
+      "sha256": "dd8ae4b44e3410f75fad4928f60c7e19f944aa9d75bb41f6e1c758cff5af7cbe",
+      "mode": 420
+    },
+    {
+      "key": "user/.config/wireplumber/wireplumber.conf.d/99-sp11-pulse-hide-hardware.conf",
+      "source_scope": "user",
+      "source": ".config/wireplumber/wireplumber.conf.d/99-sp11-pulse-hide-hardware.conf",
+      "scope": "user",
+      "target": ".config/wireplumber/wireplumber.conf.d/99-sp11-pulse-hide-hardware.conf",
+      "sha256": "056e1063a2db68071fa3d2bba49381ab34709a859e74975c93ef322b82f89ed4",
+      "mode": 420
+    },
+    {
+      "key": "user/.local/share/wireplumber/scripts/sp11-pulse-hide-hardware.lua",
+      "source_scope": "user",
+      "source": ".local/share/wireplumber/scripts/sp11-pulse-hide-hardware.lua",
+      "scope": "user",
+      "target": ".local/share/wireplumber/scripts/sp11-pulse-hide-hardware.lua",
+      "sha256": "9d20cf1bda9fbf895e3e51ccd313a0bee0f60138d6422b96f9c8afcf833dfeb9",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/ath12k/WCN7850/hw2.0/board.bin",
+      "source_scope": "system",
+      "source": "lib/firmware/ath12k/WCN7850/hw2.0/board.bin",
+      "scope": "system",
+      "target": "lib/firmware/ath12k/WCN7850/hw2.0/board.bin",
+      "sha256": "0ef5f6f3cb124f33c6de52371819ccd7c13763ceb86d476a178fd56e4cdc26a3",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qcom/x1e80100/microsoft/qcdxkmsuc8380.mbn",
+      "source_scope": "system",
+      "source": "lib/firmware/qcom/x1e80100/microsoft/qcdxkmsuc8380.mbn",
+      "scope": "system",
+      "target": "lib/firmware/qcom/x1e80100/microsoft/qcdxkmsuc8380.mbn",
+      "sha256": "c89711a60240f29cb5df13f7b904642b78b7d9d6e614473751f7bf4049fab137",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qcom/x1e80100/microsoft/Denali/qcadsp8380.mbn",
+      "source_scope": "system",
+      "source": "lib/firmware/qcom/x1e80100/microsoft/Denali/qcadsp8380.mbn",
+      "scope": "system",
+      "target": "lib/firmware/qcom/x1e80100/microsoft/Denali/qcadsp8380.mbn",
+      "sha256": "921870a839ee2aba647b04598d62ed96f3d2d5dfbb2499fc842f9a6ff0e0da13",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qcom/x1e80100/microsoft/Denali/adsp_dtb.mbn",
+      "source_scope": "system",
+      "source": "lib/firmware/qcom/x1e80100/microsoft/Denali/adsp_dtb.mbn",
+      "scope": "system",
+      "target": "lib/firmware/qcom/x1e80100/microsoft/Denali/adsp_dtb.mbn",
+      "sha256": "544bd795cb06cf8dee8119ede2a667f01066b2f1b9e4348f1772d080e2026ff4",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qcom/x1e80100/microsoft/Denali/qccdsp8380.mbn",
+      "source_scope": "system",
+      "source": "lib/firmware/qcom/x1e80100/microsoft/Denali/qccdsp8380.mbn",
+      "scope": "system",
+      "target": "lib/firmware/qcom/x1e80100/microsoft/Denali/qccdsp8380.mbn",
+      "sha256": "4a67a03367f2eff2f8a0e867ca25d2bf2fcd5aee3e41e2c9f436c804e257c789",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qcom/x1e80100/microsoft/Denali/cdsp_dtb.mbn",
+      "source_scope": "system",
+      "source": "lib/firmware/qcom/x1e80100/microsoft/Denali/cdsp_dtb.mbn",
+      "scope": "system",
+      "target": "lib/firmware/qcom/x1e80100/microsoft/Denali/cdsp_dtb.mbn",
+      "sha256": "93941f040da14b8305d39579686d886706d22954a538b03da676c1aaa191797f",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-FullIO-v19c0-tplg.bin",
+      "source_scope": "system",
+      "source": "lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-FullIO-v19c0-tplg.bin",
+      "scope": "system",
+      "target": "lib/firmware/qcom/x1e80100/X1E80100-Microsoft-Surface-Pro-11-FullIO-v19c0-tplg.bin",
+      "sha256": "e7bb06a03e7bd9b869825a51775355a6743477d1579d78eb09fad5881cfb20f0",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/ath12k/WCN7850/hw2.0/amss.bin.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/ath12k/WCN7850/hw2.0/amss.bin.zst",
+      "scope": "system",
+      "target": "lib/firmware/ath12k/WCN7850/hw2.0/amss.bin.zst",
+      "sha256": "97e5bec924d53f9f0ce71b16d84e938a7766085a107b9c65ec67c51d57a2f9f8",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/ath12k/WCN7850/hw2.0/m3.bin.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/ath12k/WCN7850/hw2.0/m3.bin.zst",
+      "scope": "system",
+      "target": "lib/firmware/ath12k/WCN7850/hw2.0/m3.bin.zst",
+      "sha256": "7dcd9f66c90d3b0b12795a13b831e0e176dbdca390185f0a6ed571e5b458510a",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/ath12k/WCN7850/hw2.0/board-2.bin.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/ath12k/WCN7850/hw2.0/board-2.bin.zst",
+      "scope": "system",
+      "target": "lib/firmware/ath12k/WCN7850/hw2.0/board-2.bin.zst",
+      "sha256": "967bf1c70eff523be30dd4510920cd202c31cef0352c20dfc5d1d4bdafce29a9",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qca/hmtbtfw20.tlv.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/qca/hmtbtfw20.tlv.zst",
+      "scope": "system",
+      "target": "lib/firmware/qca/hmtbtfw20.tlv.zst",
+      "sha256": "5f9a86bf5c7713a444e90c214dcb0737d795cfa7f6b5e052119cb8cd9ee8e804",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qca/hmtnv20.b10f.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/qca/hmtnv20.b10f.zst",
+      "scope": "system",
+      "target": "lib/firmware/qca/hmtnv20.b10f.zst",
+      "sha256": "5c7d23b131e41fa3a8f1d7737dbbfed3d9060c3e80098f5fa3c701217b13d8e6",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qca/hmtnv20.b112.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/qca/hmtnv20.b112.zst",
+      "scope": "system",
+      "target": "lib/firmware/qca/hmtnv20.b112.zst",
+      "sha256": "5c7d23b131e41fa3a8f1d7737dbbfed3d9060c3e80098f5fa3c701217b13d8e6",
+      "mode": 420,
+      "destination_symlink": "hmtnv20.b10f.zst"
+    },
+    {
+      "key": "system/lib/firmware/qca/hmtnv20.b201.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/qca/hmtnv20.b201.zst",
+      "scope": "system",
+      "target": "lib/firmware/qca/hmtnv20.b201.zst",
+      "sha256": "caa3afb0422e3f204f4dffd2fd043fee8364a39bd7370e36624b81feb0b8fda5",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qca/hmtnv20.b202.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/qca/hmtnv20.b202.zst",
+      "scope": "system",
+      "target": "lib/firmware/qca/hmtnv20.b202.zst",
+      "sha256": "ba97fd849f837d02ab0f291f88075177ef3a072e156b4581f2915aa7ae5e9b9e",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qca/hmtnv20.bin.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/qca/hmtnv20.bin.zst",
+      "scope": "system",
+      "target": "lib/firmware/qca/hmtnv20.bin.zst",
+      "sha256": "2dc2a20a12be7fe1208703c07e9040d3594e4bd2498c1e2c4a432aa89cb6a0ae",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qcom/gen70500_sqe.fw.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/qcom/gen70500_sqe.fw.zst",
+      "scope": "system",
+      "target": "lib/firmware/qcom/gen70500_sqe.fw.zst",
+      "sha256": "9043e76746972e6d80d08bdea21ab9b918dbe27fe535530a34c3276cdc6aeb84",
+      "mode": 420
+    },
+    {
+      "key": "system/lib/firmware/qcom/gen70500_gmu.bin.zst",
+      "source_scope": "system",
+      "source": "lib/firmware/qcom/gen70500_gmu.bin.zst",
+      "scope": "system",
+      "target": "lib/firmware/qcom/gen70500_gmu.bin.zst",
+      "sha256": "7a9fe7f744896ba1761325ef84553b03bafed84300d6353d273404595963497b",
+      "mode": 420
+    },
+    {
+      "key": "system/etc/systemd/system/pd-mapper.service.d/90-sp11-kernel-mapper.conf",
+      "source_scope": "system",
+      "source": "etc/systemd/system/pd-mapper.service.d/90-sp11-kernel-mapper.conf",
+      "scope": "system",
+      "target": "etc/systemd/system/pd-mapper.service.d/90-sp11-kernel-mapper.conf",
+      "sha256": "60de34cb9741232ccb6555f156f375164c3d3de87b2f8d926edd1cd77c429d78",
+      "mode": 420,
+      "public_source": "host-files/etc/systemd/system/pd-mapper.service.d/90-sp11-kernel-mapper.conf"
+    },
+    {
+      "key": "system/etc/systemd/system/geoclue.service.d/90-sp11-startup-recovery.conf",
+      "source_scope": "system",
+      "source": "etc/systemd/system/geoclue.service.d/90-sp11-startup-recovery.conf",
+      "scope": "system",
+      "target": "etc/systemd/system/geoclue.service.d/90-sp11-startup-recovery.conf",
+      "sha256": "a22e2a49d3399cbfbc2c4fc036e8ff4f91da390be93c3475825d94af8869810f",
+      "mode": 420,
+      "public_source": "host-files/etc/systemd/system/geoclue.service.d/90-sp11-startup-recovery.conf"
+    },
+    {
+      "key": "system/etc/systemd/system/fwupd-refresh.service.d/90-sp11-refresh-recovery.conf",
+      "source_scope": "system",
+      "source": "etc/systemd/system/fwupd-refresh.service.d/90-sp11-refresh-recovery.conf",
+      "scope": "system",
+      "target": "etc/systemd/system/fwupd-refresh.service.d/90-sp11-refresh-recovery.conf",
+      "sha256": "1e353f1f4578090ede07501367fb87fb6d876162b3cbd09db9944aa54bf1cde1",
+      "mode": 420,
+      "public_source": "host-files/etc/systemd/system/fwupd-refresh.service.d/90-sp11-refresh-recovery.conf"
+    },
+    {
+      "key": "system/etc/udev/rules.d/85-brltty.rules",
+      "source_scope": "system",
+      "source": "etc/udev/rules.d/85-brltty.rules",
+      "scope": "system",
+      "target": "etc/udev/rules.d/85-brltty.rules",
+      "sha256": "b5f3418e7b912b04007196343e9b40aacde15f6d16b19319e1c137994cca52ef",
+      "mode": 420,
+      "public_source": "host-files/etc/udev/rules.d/85-brltty.rules"
+    },
+    {
+      "key": "system/etc/modprobe.d/alsa-base.conf",
+      "source_scope": "system",
+      "source": "etc/modprobe.d/alsa-base.conf",
+      "scope": "system",
+      "target": "etc/modprobe.d/alsa-base.conf",
+      "sha256": "fa0b0d8cb9be1402e7de759b6ced1999664c725c1b938e10fd9738e265a7b146",
+      "mode": 420,
+      "public_source": "host-files/etc/modprobe.d/alsa-base.conf"
+    },
+    {
+      "key": "system/usr/local/libexec/sp11-battery-reporting-guard",
+      "source_scope": "system",
+      "source": "usr/local/libexec/sp11-battery-reporting-guard",
+      "scope": "system",
+      "target": "usr/local/libexec/sp11-battery-reporting-guard",
+      "sha256": "b163c62af05d4055704ecf1e7d3c30874c9f96c5c680f084f8e21712114a95a0",
+      "mode": 493,
+      "public_source": "host-files/usr/local/libexec/sp11-battery-reporting-guard"
+    },
+    {
+      "key": "system/etc/udev/rules.d/99-sp11-battery-reporting.rules",
+      "source_scope": "system",
+      "source": "etc/udev/rules.d/99-sp11-battery-reporting.rules",
+      "scope": "system",
+      "target": "etc/udev/rules.d/99-sp11-battery-reporting.rules",
+      "sha256": "c739f9a2ac5d560cf52a2befc4d48f75d1a451c97f1e03c928f9b29f763fb25b",
+      "mode": 420,
+      "public_source": "host-files/etc/udev/rules.d/99-sp11-battery-reporting.rules"
+    },
+    {
+      "key": "system/etc/dracut.conf.d/98-sp11-initqueue.conf",
+      "source_scope": "system",
+      "source": "etc/dracut.conf.d/98-sp11-initqueue.conf",
+      "scope": "system",
+      "target": "etc/dracut.conf.d/98-sp11-initqueue.conf",
+      "sha256": "134c5f7bb6fdc16a4ae944aaa8e7302215154fd0880e9bd8570b3cec136e3129",
+      "mode": 420,
+      "public_source": "host-files/etc/dracut.conf.d/98-sp11-initqueue.conf"
+    },
+    {
+      "key": "system/etc/systemd/system/sp11-battery-reporting-prepare.service",
+      "source_scope": "system",
+      "source": "etc/systemd/system/sp11-battery-reporting-prepare.service",
+      "scope": "system",
+      "target": "etc/systemd/system/sp11-battery-reporting-prepare.service",
+      "sha256": "abb4636c8669d21495cb60a00af3e2a225f5b5a5dde0d12d64f82244b0eafa20",
+      "mode": 420,
+      "public_source": "host-files/etc/systemd/system/sp11-battery-reporting-prepare.service"
+    },
+    {
+      "key": "system/etc/systemd/system/upower.service.d/90-sp11-reporting-order.conf",
+      "source_scope": "system",
+      "source": "etc/systemd/system/upower.service.d/90-sp11-reporting-order.conf",
+      "scope": "system",
+      "target": "etc/systemd/system/upower.service.d/90-sp11-reporting-order.conf",
+      "sha256": "0305e4748e90879168a2c121cf5bc21896eb97fb4750706a804e24b5254de051",
+      "mode": 420,
+      "public_source": "host-files/etc/systemd/system/upower.service.d/90-sp11-reporting-order.conf"
+    },
+    {
+      "key": "system/usr/lib/dracut/modules.d/81sp11-kmod/module-setup.sh",
+      "source_scope": "system",
+      "source": "usr/lib/dracut/modules.d/81sp11-kmod/module-setup.sh",
+      "scope": "system",
+      "target": "usr/lib/dracut/modules.d/81sp11-kmod/module-setup.sh",
+      "sha256": "ef6969dfb8d658d8897babb5fe4b1851eff6143285817cad2f0518c5a36f0932",
+      "mode": 493,
+      "public_source": "host-files/usr/lib/dracut/modules.d/81sp11-kmod/module-setup.sh"
+    },
+    {
+      "key": "system/etc/dracut.conf.d/97-sp11-kmod.conf",
+      "source_scope": "system",
+      "source": "etc/dracut.conf.d/97-sp11-kmod.conf",
+      "scope": "system",
+      "target": "etc/dracut.conf.d/97-sp11-kmod.conf",
+      "sha256": "739d2cee656c7290bfea9aee0eea885e2fe401afa2d8c3e1882bbaf70fedb2b1",
+      "mode": 420,
+      "public_source": "host-files/etc/dracut.conf.d/97-sp11-kmod.conf"
+    },
+    {
+      "key": "artifact/var/lib/sp11-baseline73/packages/stock-upower.deb",
+      "source_scope": "system",
+      "source": "var/lib/sp11-power-reporting/20261031/stock-upower.deb",
+      "scope": "artifact",
+      "target": "var/lib/sp11-baseline73/packages/stock-upower.deb",
+      "sha256": "bc1bcc66d5c2c0811fbcc0ff93f6570878238f14a612badfd9080262449f5b3b",
+      "mode": 420
+    },
+    {
+      "key": "artifact/var/lib/sp11-baseline73/packages/new-upower.deb",
+      "source_scope": "system",
+      "source": "var/lib/sp11-power-reporting/20261031/new-upower.deb",
+      "scope": "artifact",
+      "target": "var/lib/sp11-baseline73/packages/new-upower.deb",
+      "sha256": "9ef7fd9806940496ec9261985679a83e7acb691e7cd1012455627c2cafae7ef8",
+      "mode": 420
+    },
+    {
+      "key": "artifact/var/lib/sp11-baseline73/sources/upower_1.91.3.orig.tar.bz2",
+      "source_scope": "user",
+      "source": "src/sp11-unified/ubuntu-security-reference/upower_1.91.3.orig.tar.bz2",
+      "scope": "artifact",
+      "target": "var/lib/sp11-baseline73/sources/upower_1.91.3.orig.tar.bz2",
+      "sha256": "12227b3dcd34c5097bbda25984b192ea0bd5e11dce479358d9ef70415a38e4b6",
+      "mode": 420
+    },
+    {
+      "key": "artifact/var/lib/sp11-baseline73/sources/upower_1.91.3-1.debian.tar.xz",
+      "source_scope": "user",
+      "source": "src/sp11-unified/ubuntu-security-reference/upower_1.91.3-1.debian.tar.xz",
+      "scope": "artifact",
+      "target": "var/lib/sp11-baseline73/sources/upower_1.91.3-1.debian.tar.xz",
+      "sha256": "88782aa679cfa69b4a787f185c4430399d26ffd63408397460dc9f94379f9696",
+      "mode": 420
+    }
+  ],
+  "firmware_count": 18,
+  "force_drivers": "gpi spi-geni-qcom mshw0485_touch ath12k ath12k_wifi7 hci_uart btqca qcom_q6v5_pas snd-soc-x1e80100 snd-soc-lpass-wsa-macro snd-soc-lpass-va-macro snd-soc-lpass-tx-macro snd-soc-wsa884x soundwire-qcom snd-q6apm surface_hid qcom_pd_mapper surface_aggregator_registry",
+  "entry": "sp11-baseline73",
+  "qualification": "two owner-confirmed kernel boots with normal touch and clear first sound twice per boot; corrected kmod initrd on second; full/strict Snap, single battery and Bluetooth firmware setup; prior live CSA repair inherited; camera microphone suspend and Bluetooth pairing unqualified",
+  "kernel_build": false,
+  "audio_dispatcher_commit": "8cc1d135b3d880f773ccf9cd8e1b12fcd9bb7d59",
+  "live_module_versions": {
+    "hci_uart": "35D88746FF675301FA4B025",
+    "btqca": "D3C477C9C9253F1A23D2B18",
+    "spi_geni_qcom": "27CD67C262148B299F3688C",
+    "soundwire_qcom": "1DE249EB40554BEDBF3F7F6",
+    "mshw0485_touch": "9EA0E7487E0DFBF2D81AE52",
+    "surface_hid": "BA6E7B88BCD31EEF2E542F6",
+    "qcom_pd_mapper": "4C5E751ED0FAE160D8AF437",
+    "ath12k": "EF3A5312A6E8F529C7ECAD8",
+    "ath12k_wifi7": "52853E0573A36F6005A94DC",
+    "surface_aggregator_registry": "6497C70A96A8F43580B6E3E",
+    "gpi": "4B90211B40EA834B58E1D16",
+    "snd_soc_lpass_wsa_macro": "C00E8006C7AC05A38723C08",
+    "snd_soc_wsa884x": "424E17A1392CBEC4A81CA50",
+    "snd_soc_x1e80100": "44D4119FC4736634DC5720D",
+    "snd_q6apm": "2E7960528B4002DC5094C86"
+  },
+  "source_artifacts": {
+    "kernel-source.tar.zst": "509e916a139531e6fa1873d972fbb9ed4cb3d55ee224adaef1cc23848a6f4d17",
+    "kernel-integration.mbox": "b355c6a5a2635f830ce32a63b842a8dc946ac8b5238b9a9e95887900d43d0645"
+  },
+  "integration_tree": "5be058991284dbb0a3cffa1da59f5480cd2ed2b0",
+  "previous_recipe_id": "sp11-denali-oled-7.3-20261031-wifi",
+  "gpi_integration_commit": "cedc5a624a1869df3b313dd4ac0985d2f130ed61",
+  "integration_commit_count": 43,
+  "wifi_test": {
+    "completed_live_CSA": 2,
+    "post_last_CSA_observation_seconds": 387.6,
+    "statistics_timeouts": 0,
+    "owner_resources": "responds normally",
+    "router_original_settings_restored": true,
+    "scope": "prior accepted release; same repair retained, source verified; no new live CSA test on this full build"
+  },
+  "host_policy": {
+    "preconditions": {
+      "/etc/systemd/system/pd-mapper.service.d/90-sp11-kernel-mapper.conf": null,
+      "/etc/systemd/system/geoclue.service.d/90-sp11-startup-recovery.conf": null,
+      "/etc/systemd/system/fwupd-refresh.service.d/90-sp11-refresh-recovery.conf": null,
+      "/etc/udev/rules.d/85-brltty.rules": null,
+      "/etc/modprobe.d/alsa-base.conf": "f852fba1cee11675a1ff194ff1ad7983bc2041c2ba448c34d1977ff0ac8c6a5d",
+      "/usr/local/libexec/sp11-battery-reporting-guard": null,
+      "/etc/udev/rules.d/99-sp11-battery-reporting.rules": null,
+      "/etc/dracut.conf.d/98-sp11-initqueue.conf": null,
+      "/etc/systemd/system/sp11-battery-reporting-prepare.service": null,
+      "/etc/systemd/system/upower.service.d/90-sp11-reporting-order.conf": null,
+      "/usr/lib/dracut/modules.d/81sp11-kmod/module-setup.sh": null,
+      "/etc/dracut.conf.d/97-sp11-kmod.conf": null,
+      "/etc/UPower/UPower.conf": "4e8aeb1347be99b01337df687ba17b5059afe409e7d581ecbf3ce6993515e78e",
+      "/usr/libexec/upowerd": "1d442e170d7f0a078131efd2d9c9758dc00ae569e5e09c7fc3d35b66a574944b"
+    },
+    "stock_package_key": "artifact/var/lib/sp11-baseline73/packages/stock-upower.deb",
+    "new_package_key": "artifact/var/lib/sp11-baseline73/packages/new-upower.deb",
+    "new_package_target": "var/lib/sp11-baseline73/packages/new-upower.deb",
+    "stock_version": "1.91.3-1",
+    "new_version": "1.91.3-1+sp11.1",
+    "library_version": "1.91.3-1",
+    "daemon_sha256": "b4af6f240cd05d2d9891d164ed50942fb3777cee460d33fd23efd46aaa341063",
+    "upower_config_sha256": "4e8aeb1347be99b01337df687ba17b5059afe409e7d581ecbf3ce6993515e78e",
+    "unconfigured_sssd_symlinks": {
+      "/etc/systemd/system/sssd.service.wants/sssd-autofs.socket": "/usr/lib/systemd/system/sssd-autofs.socket",
+      "/etc/systemd/system/sssd.service.wants/sssd-nss.socket": "/usr/lib/systemd/system/sssd-nss.socket",
+      "/etc/systemd/system/sssd.service.wants/sssd-pac.socket": "/usr/lib/systemd/system/sssd-pac.socket",
+      "/etc/systemd/system/sssd.service.wants/sssd-pam.socket": "/usr/lib/systemd/system/sssd-pam.socket",
+      "/etc/systemd/system/sssd.service.wants/sssd-ssh.socket": "/usr/lib/systemd/system/sssd-ssh.socket",
+      "/etc/systemd/system/sssd.service.wants/sssd-sudo.socket": "/usr/lib/systemd/system/sssd-sudo.socket"
+    }
+  },
+  "Ubuntu_AppArmor_source": {
+    "ubuntu_package_sha256": "becefccd4560e96bcf9e7f0aba9ef830e2734a8db601c0a3f5c921582e1c726a",
+    "ubuntu_source_archive_sha256": "8dd4719d6c6ec541d15c3d2ec706796a29112476c3cb1dd2a6fec8f6a67c57cd"
+  },
+  "startup_modules": [
+    "initqueue",
+    "sp11-kmod"
+  ],
+  "physical_clean_OS_reinstall": false
+}
